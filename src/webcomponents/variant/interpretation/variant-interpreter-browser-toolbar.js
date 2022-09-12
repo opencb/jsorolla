@@ -34,17 +34,20 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            clinicalAnalysis: {
                 type: Object
             },
-            clinicalAnalysis: {
+            state: {
+                type: Object
+            },
+            variantInclusionState: {
+                type: Array
+            },
+            opencgaSession: {
                 type: Object
             },
             write: {
                 type: Boolean
-            },
-            state: {
-                type: Object
             },
             config: {
                 type: Object
@@ -66,6 +69,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+    }
+
+    onFilterInclusionVariants() {
+        const variants = [];
+        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
+            variants: variants
+        });
     }
 
     onFilterPrimaryFindingVariants() {
@@ -106,6 +117,32 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         }
     }
 
+    renderInclusionVariant(inclusion) {
+        const iconHtml = html`
+            <span
+                title="${Object.entries(inclusion.query).map(([k, v]) => `${k} = ${v}`).join("\n")}"
+                style="float: right; cursor: pointer">
+                <i class="fas fa-eye"></i>
+            </span>`;
+
+        return html`
+            <div style="border-left: 2px solid #0c2f4c; margin: 15px 0">
+                <div style="margin: 5px 10px">${inclusion.id} ${iconHtml}</div>
+                ${inclusion.variants?.length > 0 ? inclusion.variants
+                    .map(variant => {
+                        const GT = variant.studies[0]?.samples[0]?.data[0] || "No GT found";
+                        const FILTER = variant.studies[0]?.files[0]?.data.FILTER || "NA";
+                        return html`
+                            <div class="help-block">
+                                <span style="margin: 0 20px">${variant.id}</span>
+                                <span style="margin: 0 20px;float: right">Genotype: ${GT} (${FILTER})</span>
+                            </div>`;
+                    }) : html`<div class="help-block"><span style="margin: 0 20px">No variants found.</span></div>`
+                }
+            </div>
+        `;
+    }
+
     renderVariant(variant, icon) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
         const iconHtml = icon ? html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>` : "";
@@ -126,6 +163,39 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         return html`
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                 <div class="pull-right" role="group">
+                    <div class="btn-group" style="margin-right: 2px">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false" title="Show inclusion list of variants">
+                            <i class="fas fa-tasks icon-padding" aria-hidden="true"></i>
+                            <strong>Inclusion Variants</strong>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                            <li style="margin: 5px 10px">
+                                <div style="margin: 5px 0px">
+                                    <span style="font-weight: bold">Variants Included</span>
+                                </div>
+                                <div>
+                                    ${this.variantInclusionState?.length > 0 ? html`
+                                        ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
+
+                                        <li role="separator" class="divider"></li>
+                                        <li style="margin: 5px 10px">
+                                            <div style="float: right">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-primary"
+                                                    @click="${this.onFilterInclusionVariants}" style="margin: 5px">Filter
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ` : html`
+                                        <div style="margin: 5px 5px">Variant Inclusion list not def</div>
+                                    `}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Show saved variants">
@@ -204,6 +274,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                         </ul>
                     </div>
+
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}SaveMenu" class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"} dropdown-toggle"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save variants in the server" ?disabled="${!this.write}">

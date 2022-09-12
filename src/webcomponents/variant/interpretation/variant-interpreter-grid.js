@@ -67,9 +67,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this._rows = [];
-
         this.gridId = this._prefix + "VariantBrowserGrid";
+
+        // Keep the status of selected variants
+        this._rows = [];
         this.checkedVariants = new Map();
         this.queriedVariants = {};
         this.review = false;
@@ -79,18 +80,12 @@ export default class VariantInterpreterGrid extends LitElement {
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        // this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    // }
 
     firstUpdated() {
         this.table = $("#" + this.gridId);
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,

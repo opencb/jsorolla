@@ -77,8 +77,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
 
-        this.currentQueryBeforeSaveEvent = null;
+        // Variant inclusion list
+        this.variantInclusionState = [];
 
+        this.currentQueryBeforeSaveEvent = null;
         this._config = {};
     }
 
@@ -92,20 +94,45 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+            this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
+    }
+
+    clinicalAnalysisObserver() {
+        // Init saved variants with the primary findings of the main interpretation
+        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        }
+        this.settingsObserver();
+
+        // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
+        if (this.currentQueryBeforeSaveEvent) {
+            this.query = {...this.currentQueryBeforeSaveEvent};
+            this.currentQueryBeforeEvent = null;
+        }
+    }
+
+    queryObserver() {
+        if (this.opencgaSession && this.query) {
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.searchActive = false;
+        }
+        this.requestUpdate();
+    }
+
+    opencgaSessionObserver() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+
+        this.getInclusionVariantIds();
     }
 
     settingsObserver() {
@@ -152,27 +179,39 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
-        // Init saved variants with the primary findings of the main interpretation
-        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
-            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
-        }
-        this.settingsObserver();
+    getInclusionVariantIds() {
+        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.inclusion?.length > 0) {
+            const localVariantInclusionState = [];
+            const promises = [];
+            const inclusionList = this.opencgaSession.study.internal.configuration.clinical.interpretation.inclusion;
+            for (const inclusion of inclusionList) {
+                localVariantInclusionState.push(
+                    {
+                        ...inclusion,
+                        variants: []
+                    }
+                );
+                const inclusionQuery = {
+                    ...inclusion.query,
 
-        // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
-        if (this.currentQueryBeforeSaveEvent) {
-            this.query = {...this.currentQueryBeforeSaveEvent};
-            this.currentQueryBeforeEvent = null;
-        }
-    }
+                    // Additional filters
+                    sample: this.clinicalAnalysis.proband.samples[0].id,
+                    include: "id,studies.files,studies.samples",
+                    count: false,
+                    study: this.opencgaSession.study.fqn,
+                };
+                promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(inclusionQuery));
+            }
 
-    queryObserver() {
-        if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.searchActive = false;
+            // Process all results and update object state
+            Promise.all(promises).then(values => {
+                for (let i = 0; i < values.length; i++) {
+                    localVariantInclusionState[i].variants = values[i].responses[0].results;
+                }
+                this.variantInclusionState = localVariantInclusionState;
+                this.requestUpdate();
+            });
         }
-        this.requestUpdate();
     }
 
     onQueryComplete() {
@@ -393,6 +432,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         <variant-interpreter-browser-toolbar
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .state="${this.clinicalAnalysisManager.state}"
+                            .variantInclusionState="${this.variantInclusionState}"
                             .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
                             @filterVariants="${this.onFilterVariants}"
                             @resetVariants="${this.onResetVariants}"
