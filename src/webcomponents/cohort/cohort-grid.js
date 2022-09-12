@@ -293,8 +293,7 @@ export default class CohortGrid extends LitElement {
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
                 </opencb-grid-toolbar>
-            ` : ""
-            }
+            ` : ""}
 
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}CohortBrowserGrid"></table>
