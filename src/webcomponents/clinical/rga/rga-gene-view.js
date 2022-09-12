@@ -243,7 +243,7 @@ export default class RgaGeneView extends LitElement {
                 },
                 {
                     title: "Recessive Individuals",
-                    colspan: 6
+                    colspan: 5
                 },
                 {
                     title: "Recessive Variants",
@@ -295,11 +295,11 @@ export default class RgaGeneView extends LitElement {
                     field: "individualStats.singleParent.numCompHet",
                     formatter: value => value > 0 ? value : "-"
                 },
-                {
+                /* {
                     title: "CH - Possible",
                     field: "individualStats.missingParents.numCompHet",
                     formatter: value => value > 0 ? value : "-"
-                },
+                },*/
                 // Recessive Variants
                 {
                     title: "Total",
@@ -408,7 +408,7 @@ export default class RgaGeneView extends LitElement {
                                 "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
-                                "Individuals_CH_Possible",
+                                // "Individuals_CH_Possible",
                                 "Variants_Total",
                                 "Variants_HOM",
                                 "Variants_CH"
@@ -420,7 +420,7 @@ export default class RgaGeneView extends LitElement {
                                 _.individualStats.numDelOverlap,
                                 _.individualStats.bothParents.numCompHet,
                                 _.individualStats.singleParent.numCompHet,
-                                _.individualStats.missingParents.numCompHet,
+                                // _.individualStats.missingParents.numCompHet,
                                 _.variantStats.count,
                                 _.variantStats.numHomAlt,
                                 _.variantStats.numCompHet
