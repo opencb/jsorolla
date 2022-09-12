@@ -374,7 +374,7 @@ export default class RgaBrowser extends LitElement {
                 </div>`;
         }
 
-        if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
+        if (this.opencgaSession.study?.internal?.index?.recessiveGene?.status !== "INDEXED") {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
