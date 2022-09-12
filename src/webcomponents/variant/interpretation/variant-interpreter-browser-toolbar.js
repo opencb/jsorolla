@@ -240,7 +240,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                                 <div>
                                     ${this.state.addedVariants?.length > 0 ? html`
-                                        ${this.state.addedVariants.map(variant => this.renderVariant(variant, "fas fa-times"))}
+                                        ${this.state.addedVariants.map(variant => this.renderVariant(variant, ""))}
                                     ` : html`
                                         <div style="margin: 5px 5px">No new variants selected</div>
                                     `}
@@ -253,7 +253,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                                 <div>
                                     ${this.state.removedVariants?.length > 0 ? html`
-                                        ${this.state.removedVariants.map(variant => this.renderVariant(variant, "fas fa-times"))}
+                                        ${this.state.removedVariants.map(variant => this.renderVariant(variant, ""))}
                                     ` : html`
                                         <div style="margin: 5px 5px">No variants to remove</div>
                                     `}
