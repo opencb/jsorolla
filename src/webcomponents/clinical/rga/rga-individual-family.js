@@ -88,9 +88,14 @@ export default class RgaIndividualFamily extends LitElement {
         if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
             const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
             if (clinicalAnalysis) {
-                trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
-                trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
-                trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+                if (clinicalAnalysis?.family?.members?.length) {
+                    trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
+                    trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
+                    trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+                } else {
+                    // in case a Family array is not present, we use the proband (e.g. Cancer studies)
+                    trio.proband = clinicalAnalysis.proband;
+                }
             } else {
                 // NOTE TODO clinicalAnalysis must be defined
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
