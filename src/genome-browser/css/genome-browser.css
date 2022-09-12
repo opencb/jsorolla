@@ -3,6 +3,7 @@
     box-sizing: border-box;
     /* width: 1.25rem; */
     /* height: 1.25rem; */
+    background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     line-height: 1;

@@ -266,7 +266,7 @@ export default class OpencgaActiveFilters extends LitElement {
             for (const filtersKey of this._filters) {
                 let match = true;
                 for (const key of Object.keys(this.query)) {
-                    if (key !== "study" && filtersKey.query[key]) {
+                    if (key !== "study" && filtersKey?.query[key]) {
                         match = match && filtersKey.query[key] === this.query[key];
                     }
                 }
@@ -542,10 +542,14 @@ export default class OpencgaActiveFilters extends LitElement {
              * QUICKFIX: `sample` has semicolons and commas both, it needs a custom logic
              */
             if (name === "sample") {
-                filterFields = _queryList[name].split(new RegExp(";"));
+                filterFields = _queryList[name].split(new RegExp("[,;]"));
                 const indexOfValue = filterFields.indexOf(value);
                 filterFields.splice(indexOfValue, 1);
-                _queryList[name] = filterFields.join(";");
+                if (_queryList[name].indexOf(",") !== -1) {
+                    _queryList[name] = filterFields.join(",");
+                } else {
+                    _queryList[name] = filterFields.join(";");
+                }
 
             } else {
                 // Check if the field has been defined as complex

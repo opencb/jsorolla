@@ -313,7 +313,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // Mode of Inheritance
-        if (this.modeOfInheritanceList.map(_ => _.id).includes(this.mode)) {
+        if (this.modeOfInheritanceList.includes(this.mode)) {
             this.onModeOfInheritance(this.mode);
         }
 
@@ -390,7 +390,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             <div id="opencga-variant-filter-clinical" class="row">
                 <div class="form-check col-md-12">
                     <div style="padding: 5px 5px 10px 5px; font-size: 14px">
-                        You can manually select sample genotypes or select a 
+                        You can manually select sample genotypes or select a
                         <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
@@ -522,7 +522,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.noGtSamples.length ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle align-middle icon-padding"></i> 
+                            <i class="fas fa-info-circle align-middle icon-padding"></i>
                             All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
                         </div>
                     </div>
@@ -530,7 +530,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.showModeOfInheritance && this.errorState ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i> 
+                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i>
                             ${this.errorState}
                         </div>
                     </div>

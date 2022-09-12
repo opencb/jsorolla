@@ -70,7 +70,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...(this.settings || {}),
-            ...(this.config || {})
+            ...(this.config || {}),
         };
 
         // merge filter list, canned filters, detail tabs
