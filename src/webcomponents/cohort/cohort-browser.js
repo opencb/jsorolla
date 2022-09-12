@@ -219,7 +219,9 @@ export default class CohortBrowser extends LitElement {
                                         .query="${{
                                             cohortIds: cohort.id,
                                         }}"
-                                        .config="${{showSelectCheckbox: false}}"
+                                        .config="${{
+                                            showSelectCheckbox: false,
+                                        }}"
                                         .active="${active}">
                                     </sample-grid>
                                 `;
