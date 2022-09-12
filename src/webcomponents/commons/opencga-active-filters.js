@@ -521,7 +521,7 @@ export default class OpencgaActiveFilters extends LitElement {
     onQueryFilterDelete(e) {
         const _queryList = Object.assign({}, this.query);
 
-        const {filterName: name, filterValue: value} = e.target.dataset;
+        const {filterName: name, filterValue: value} = e.currentTarget.dataset;
         console.log("onQueryFilterDelete", name, value);
 
         if (UtilsNew.isEmpty(value)) {
