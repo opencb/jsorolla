@@ -216,8 +216,12 @@ export default class CohortBrowser extends LitElement {
                                 return html`
                                     <sample-grid
                                         .opencgaSession="${opencgaSession}"
-                                        .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                        .config="${{showSelectCheckbox: false}}"
+                                        .query="${{
+                                            cohortIds: cohort.id,
+                                        }}"
+                                        .config="${{
+                                            showSelectCheckbox: false,
+                                        }}"
                                         .active="${active}">
                                     </sample-grid>
                                 `;
