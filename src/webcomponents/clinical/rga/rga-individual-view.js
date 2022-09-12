@@ -176,7 +176,7 @@ export default class RgaIndividualView extends LitElement {
                                 {
                                     individual: individualIds,
                                     study: this.opencgaSession.study.fqn,
-                                    include: "id,proband.id,family.members",
+                                    include: "id,proband.id,proband.samples.id,family.members",
                                     limit: params.data.limit,
                                 })
                                 .then(caseResponse => {
