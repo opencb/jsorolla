@@ -22,9 +22,8 @@ export default class VariantUtils {
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};
-
         const headerString = [];
-        const sampleIds = samples?.forEach(sample => sample.id);
+        // const sampleIds = samples?.map(sample => sample.id);
 
         // took from the first result. Is there a better way?
         // allele count / allele freqs
@@ -59,7 +58,6 @@ export default class VariantUtils {
 
         /* // explicit list gives less maintainability but we need customisation (also in some cases for each column there is more than 1 field) */
         let flatFieldList = [];
-
         // fieldList is expected to be always defined in VB and SVB.
         // It would be not defined only in case of use of the old Download button and instead of the Export component.
         if (!fieldList) {
@@ -331,7 +329,7 @@ export default class VariantUtils {
                 const gtSamples = this.getGenotypeSamples(v, samples, nucleotideGenotype);
                 gtSamples.forEach(sample => {
                     Object.keys(sample).forEach(sampleId => {
-                        if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
+                        if (flatFieldList.includes("sampleGenotypes." + sampleId) || flatFieldList.includes("samples." + sampleId)) {
                             dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
                         }
                     });
@@ -443,6 +441,7 @@ export default class VariantUtils {
                     if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data) && UtilsNew.isNotEmptyArray(study.samples?.[indexSample]?.data)) {
                         if (study.sampleDataKeys[0] === "GT" && study.samples?.[indexSample]?.data[0] !== "NA") {
                             const currentGenotype = study.samples?.[indexSample]?.data[0];
+                            // Is it data is "?/?" it'll be undefined.
                             let [reference, alternate] = currentGenotype.split(new RegExp("[/|]"));
                             let tooltipText = reference + " / " + alternate;
                             if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
@@ -455,22 +454,22 @@ export default class VariantUtils {
 
                                 // Not equal X/- or -/X
                                 if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
-                                    if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
-                                        if (referenceValue.length > 5) {
+                                    if ((referenceValue?.length <= 5 && alternateValue?.length > 5) || (referenceValue?.length > 5 && alternateValue?.length <= 5)) {
+                                        if (referenceValue?.length > 5) {
                                             referenceValueColText = referenceValue.substring(0, 3) + "...";
                                         } else {
                                             alternateValueColText = alternateValue.substring(0, 3) + "...";
                                         }
-                                    } else if (referenceValue.length > 5 && alternateValue.length > 5) {
+                                    } else if (referenceValue?.length > 5 && alternateValue?.length > 5) {
                                         referenceValueColText = referenceValue.substring(0, 3) + "...";
                                         alternateValueColText = alternateValue.substring(0, 3) + "...";
                                     }
-                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
+                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue?.length > 10) {
                                     // X/-
                                     const substringReference = referenceValue.substring(0, 5) + "...";
                                     referenceValueColText = substringReference;
                                     alternateValueColText = "-";
-                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
+                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue?.length > 10) {
                                     // -/X
                                     const substringAlternate = alternateValue.substring(0, 5) + "...";
                                     alternateValueColText = substringAlternate;
@@ -483,9 +482,6 @@ export default class VariantUtils {
                                 alternateValueColText = alternate;
                                 tooltipText += "<br>" + reference + "/" + alternate;
                             }
-
-                            const referenceIndex = parseInt(reference);
-                            const alternateIndex = parseInt(alternate);
                             colText = {[study.samples?.[indexSample]?.sampleId]: referenceValueColText + "/" + alternateValueColText};
                             res.push(colText);
                         } else {

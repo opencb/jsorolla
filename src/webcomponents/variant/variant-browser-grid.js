@@ -96,6 +96,8 @@ export default class VariantBrowserGrid extends LitElement {
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
+            // update config to add new columns by filters as sample
+            this.configObserver();
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
@@ -694,7 +696,7 @@ export default class VariantBrowserGrid extends LitElement {
                 {
                     id: "samples",
                     title: "Samples",
-                    // field: "samples",
+                    field: "samples",
                     rowspan: 1,
                     colspan: sampleColumns.length,
                     align: "center",
@@ -863,7 +865,8 @@ export default class VariantBrowserGrid extends LitElement {
             study: this.opencgaSession.study.fqn,
             limit: e.detail?.exportLimit ?? 1000,
             summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
-            // includeSample: "all" // TODO this causes a time-out
+            // includeSample: "all", // TODO this causes a time-out
+            includeSampleId: "true",
             ...this.query
         };
         this.opencgaSession.opencgaClient.variants().query(params)
