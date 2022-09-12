@@ -329,8 +329,12 @@ export default class VariantUtils {
                 const gtSamples = this.getGenotypeSamples(v, samples, nucleotideGenotype);
                 gtSamples.forEach(sample => {
                     Object.keys(sample).forEach(sampleId => {
-                        if (flatFieldList.includes("sampleGenotypes." + sampleId) || flatFieldList.includes("samples." + sampleId)) {
+                        if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
                             dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
+                        }
+
+                        if (flatFieldList.includes("samples." + sampleId)) {
+                            dataToTsv["samples."+ sampleId] = sample[sampleId];
                         }
                     });
                 });
