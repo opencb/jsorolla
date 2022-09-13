@@ -254,7 +254,14 @@ export default class JobView extends LitElement {
                                     if (job.params) {
                                         return Object.entries(job.params).map(([param, value]) => html`
                                             <div>
-                                                <label>${param}</label>: ${value ? value : "-"}
+                                                <label>${param}</label>: 
+                                                ${value && typeof value === "object" ? html`
+                                                    <ul>
+                                                        ${Object.keys(value).map(key => html`
+                                                            <li><b>${key}</b>: ${value[key] || "-"}</li>
+                                                        `)}
+                                                    </ul>
+                                                ` : (value || "-")}
                                             </div>
                                         `);
                                     } else {
