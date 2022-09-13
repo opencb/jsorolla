@@ -358,10 +358,10 @@ export default class VariantUtils {
                 dataToTsv["conservation.phylop"] = phylop;
             }
             if (flatFieldList.includes("conservation.phastCons")) {
-                dataToTsv["deleteriousness.phastCons"] = phastCons;
+                dataToTsv["conservation.phastCons"] = phastCons;
             }
             if (flatFieldList.includes("conservation.gerp")) {
-                dataToTsv["deleteriousness.gerp"] = gerp;
+                dataToTsv["conservation.gerp"] = gerp;
             }
 
             // Allele stats (VB)
