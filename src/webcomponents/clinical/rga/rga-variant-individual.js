@@ -143,7 +143,7 @@ export default class RgaVariantIndividual extends LitElement {
                                     // NOTE we don't convert individuals nor clinical data in map first.
                                     rgaIndividualResponse.getResults().forEach(individual => {
                                         for (const clinicalAnalysis of caseResponse.getResults()) {
-                                            if (clinicalAnalysis.family.members.find(member => member.id === individual.id)) {
+                                            if (clinicalAnalysis?.family?.members?.find(member => member.id === individual.id) || clinicalAnalysis.proband.id === individual.id) {
                                                 if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                     individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                                 } else {

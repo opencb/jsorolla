@@ -132,11 +132,11 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "CH - Probable",
                     field: "individualStats.singleParent.numCompHet"
-                },
+                }/* ,
                 {
                     title: "CH - Possible",
                     field: "individualStats.missingParents.numCompHet"
-                }
+                }*/
             ],
             showColumns: true,
             showExport: false,
@@ -256,7 +256,7 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 6
+                    colspan: 5
                 }
             ], [
 
@@ -287,11 +287,11 @@ export default class RgaVariantView extends LitElement {
                     field: "individualStats.singleParent.numCompHet",
                     formatter: value => value > 0 ? value : "-"
                 },
-                {
+                /* {
                     title: "CH - Possible",
                     field: "individualStats.missingParents.numCompHet",
                     formatter: value => value > 0 ? value : "-"
-                }
+                }*/
 
                 // {
                 //     title: "Individuals",
@@ -582,7 +582,7 @@ export default class RgaVariantView extends LitElement {
                                 "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
-                                "Individuals_CH_Possible"
+                                // "Individuals_CH_Possible"
                             ].join("\t"),
                             ...results.map(_ => [
                                 _.id,
@@ -596,7 +596,7 @@ export default class RgaVariantView extends LitElement {
                                 _.individualStats?.numDelOverlap,
                                 _.individualStats?.bothParents?.numCompHet,
                                 _.individualStats?.singleParent?.numCompHet,
-                                _.individualStats?.missingParents?.numCompHet
+                                // _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
                         UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
