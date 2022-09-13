@@ -477,12 +477,14 @@ export default class UtilsNew {
     }
 
     static substring(string, maxLength) {
-        if (typeof maxLength === "undefined") {
+        if (!maxLength) {
             return string;
         }
 
-        if (string && string.length > maxLength) {
+        if (string?.length > maxLength) {
             return string.substring(0, maxLength) + "...";
+        } else {
+            return string;
         }
     }
 
