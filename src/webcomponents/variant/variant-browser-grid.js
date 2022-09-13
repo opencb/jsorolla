@@ -149,7 +149,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.variants && this.variants.length > 0) {
+        if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
