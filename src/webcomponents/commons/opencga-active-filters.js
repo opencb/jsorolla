@@ -80,6 +80,8 @@ export default class OpencgaActiveFilters extends LitElement {
         this.lockedFieldsMap = {};
         this.facetQuery = {};
         this._JsonFacetQuery = null;
+
+        this.history = [];
     }
 
     connectedCallback() {
@@ -137,6 +139,9 @@ export default class OpencgaActiveFilters extends LitElement {
     opencgaSessionObserver() {
         if (this.opencgaSession.token && this.opencgaSession?.study?.fqn) {
             this.refreshFilters();
+
+            // Empty history when changing study
+            this.history = [];
         }
     }
 
@@ -276,6 +281,25 @@ export default class OpencgaActiveFilters extends LitElement {
                 }
             }
         }
+
+        // Update History
+        // 1. remove all identical filters
+        const _history = this.history.filter(hist => JSON.stringify(hist.query) !== JSON.stringify(this.query));
+        // 2. Remove previous latest
+        if (_history?.length > 0) {
+            _history[0].latest = false;
+        }
+        // 3. Prepare new latest
+        const latest = {
+            date: UtilsNew.getDatetime(),
+            query: {...this.query},
+            latest: true
+        };
+        // 4. Add at the beginning
+        _history.unshift(latest);
+        this.history = _history;
+        // 5. Refresh
+        this.requestUpdate();
     }
 
     configObserver() {
@@ -452,13 +476,21 @@ export default class OpencgaActiveFilters extends LitElement {
             });
     }
 
-    onFilterChange(e) {
+    onFilterChange(e, query) {
         // suppress if I have clicked on an action buttons
         if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
         $("#" + this._prefix + "Warning").hide();
+
+        // This happens when clicking in the history
+        if (query) {
+            LitUtils.dispatchCustomEvent(this, "activeFilterChange", null, query);
+            return;
+        }
+
+        // A filter has been selected
         if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
@@ -603,6 +635,20 @@ export default class OpencgaActiveFilters extends LitElement {
         }));
     }
 
+    renderHistoryItem(item) {
+        // Skip study param
+        const filterParams = Object.keys(item.query).filter(item => item !== "study");
+        return html`
+            <a class="filtersLink" style="cursor: pointer" @click="${e => this.onFilterChange(e, item.query)}">
+                <div class="id-filter-button">${UtilsNew.dateFormatter(item.date, "HH:mm:ss")} ${item.latest ? ` (latest)` : ""}</div>
+                <div class="help-block">${filterParams?.length > 0 ? filterParams.map(key => html`
+                    <div style="margin: 0 15px" title="${item.query[key]}">${key}: ${UtilsNew.substring(item.query[key], 20)}</div>
+                `) : html`
+                    <div style="margin: 0 15px">Empty query.</div>`}
+                </div>
+            </a>`;
+    }
+
     render() {
         return html`
             ${this.facetActive ? html`
@@ -661,6 +707,20 @@ export default class OpencgaActiveFilters extends LitElement {
                                             </li>`
                                     )}
                                     <li role="separator" class="divider"></li>` : ""
+                                }
+
+                                <!-- Add history links -->
+                                ${this.history?.length > 0 ? html`
+                                    <li>
+                                        <a><i class="fas fa-history icon-padding"></i> <strong>History</strong></a>
+                                    </li>
+                                    ${this.history.map(item => html`
+                                        <li>
+                                            ${this.renderHistoryItem(item)}
+                                        </li>`)
+                                    }
+                                    <li role="separator" class="divider"></li>
+                                ` : html`<div>Empty history.</div>`
                                 }
 
                                 <li>
