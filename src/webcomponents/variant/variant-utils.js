@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 
 export default class VariantUtils {
 
-    static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype, fieldList) {
+    static jsonToTabConvert(variants, studiesPopFrequencies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};
         const headerString = [];
@@ -33,8 +33,8 @@ export default class VariantUtils {
 
         // Code to Remove
         // ###
-        if (json[0].studies?.length) {
-            json[0].studies.forEach(study => {
+        if (variants[0].studies?.length) {
+            variants[0].studies.forEach(study => {
                 if (study.studyId.includes("@")) {
                     const studyId = study.studyId.split(":")[1];
                     studyIds.push(studyId);
@@ -129,7 +129,7 @@ export default class VariantUtils {
         //  TSV header
         rows.push(headerString.join("\t"));
 
-        for (const v of json) {
+        for (const v of variants) {
             const row = [];
             let genes = new Set();
             let ct = new Set();
@@ -421,14 +421,14 @@ export default class VariantUtils {
         return rows;
     }
 
-    static getGenotypeSamples(json, samples, nucleotideGenotype) {
+    static getGenotypeSamples(variant, samples, nucleotideGenotype) {
         // Samples genotypes
 
         const res = [];
         if (nucleotideGenotype) {
             samples.forEach((sample, indexSample) => {
-                const alternateSequence = json.alternate;
-                const referenceSequence = json.reference;
+                const alternateSequence = variant.alternate;
+                const referenceSequence = variant.reference;
                 const genotypeMatch = new Map();
                 let colText = "";
                 let referenceValueColText = "-";
@@ -436,14 +436,14 @@ export default class VariantUtils {
 
                 genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
                 genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
-                json.studies.forEach(study => {
+                variant.studies.forEach(study => {
                     if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
                         study.secondaryAlternates.forEach(secondary => {
                             genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
                         });
                     }
                     if (UtilsNew.isNotUndefinedOrNull(study.samples?.[indexSample]?.data) && UtilsNew.isNotEmptyArray(study.samples?.[indexSample]?.data)) {
-                        if (study.sampleDataKeys[0] === "GT" && study.samples?.[indexSample]?.data[0] !== "NA") {
+                        if (study.sampleDataKeys[0] === "GT" && (study.samples?.[indexSample]?.data[0] !== "NA" && study.samples?.[indexSample]?.data[0] !== "?/?")) {
                             const currentGenotype = study.samples?.[indexSample]?.data[0];
                             // Is it data is "?/?" it'll be undefined.
                             let [reference, alternate] = currentGenotype.split(new RegExp("[/|]"));
@@ -489,7 +489,11 @@ export default class VariantUtils {
                             colText = {[study.samples?.[indexSample]?.sampleId]: referenceValueColText + "/" + alternateValueColText};
                             res.push(colText);
                         } else {
-                            res.push({[study?.samples?.[indexSample]?.sampleId]: "NA"});
+                            if (study.samples?.[indexSample]?.data[0] === "?/?") {
+                                res.push({[study?.samples?.[indexSample]?.sampleId]: "0/0"});
+                            } else {
+                                res.push({[study?.samples?.[indexSample]?.sampleId]: "NA"});
+                            }
                         }
                     }
                 });
@@ -497,7 +501,7 @@ export default class VariantUtils {
         } else {
             if (UtilsNew.isNotUndefinedOrNull(samples)) {
                 samples.forEach((sample, indexSample) => {
-                    json.studies.forEach(study => {
+                    variant.studies.forEach(study => {
                         if (study.samples?.[indexSample]?.data.length > 0) {
                             const currentGenotype = study.samples?.[indexSample]?.data;
                             if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
