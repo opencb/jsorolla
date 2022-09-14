@@ -169,7 +169,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <i class="fas fa-tasks icon-padding" aria-hidden="true"></i>
                             <strong>Inclusion Variants</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0px">
                                     <span style="font-weight: bold">Variants Included</span>
