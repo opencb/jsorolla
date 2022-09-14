@@ -349,24 +349,28 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     refreshFilters() {
-        // 1. Add passed filters
-        // this._filters = this.filters || [];
-        this._filters = [...(this.filters || [])];
+        // 0. Reset internal filters array every time
+        this._filters = [];
 
-        // 2. Add and merge user's filters
-        if (this.opencgaSession?.user?.filters?.length > 0) {
-            // Add a separator
-            if (this._filters.length > 0 && !this._filters[this._filters.length - 1].separator) {
-                this._filters.push({separator: true});
-            }
-
-            // Add user's saved filters
+        // 1. Add passed application filters
+        if (this.filters?.length > 0) {
             this._filters = [
-                ...this._filters,
-                ...this.opencgaSession.user.filters.filter(f => f.resource === this.resource)
+                {name: "Application Filters", category: true},
+                ...this.filters
             ];
         }
 
+        // 2. Add and merge user filters
+        const userFilters = this.opencgaSession.user.filters.filter(f => f.resource === this.resource);
+        if (userFilters?.length > 0) {
+            this._filters = [
+                ...this._filters,
+                {name: "User Saved Filters", category: true},
+                ...userFilters
+            ];
+        }
+
+        // 3. Refresh and add tooltips
         this.requestUpdate();
         this.updateComplete.then(() => UtilsNew.initTooltip(this));
     }
@@ -635,6 +639,41 @@ export default class OpencgaActiveFilters extends LitElement {
         }));
     }
 
+    renderFilterItem(item) {
+        if (item.separator) {
+            return html`<li role="separator" class="divider"></li>`;
+        } else {
+            if (item.category) {
+                return html`<li class="dropdown-header">${item.name}</li>`;
+            } else {
+                return html`
+                    <!-- Render the filter option -->
+                    <li>
+                        <a data-filter-id="${item.id}" class="filtersLink"
+                           style="cursor: pointer;color: ${item.active ? "green" : "black"}"
+                           @click="${this.onFilterChange}">
+                            <span class="id-filter-button">${item.id}</span>
+                            <span class="action-buttons">
+                            <span tooltip-title="${item.id}"
+                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                  data-filter-id="${item.id}">
+                                <i class="fas fa-eye" data-action="view-filter"></i>
+                            </span>
+
+                                <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
+                            ${item.resource ? html`
+                                <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
+                                   data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                </i>` : null
+                            }
+                        </span>
+                        </a>
+                    </li>
+                `;
+            }
+        }
+    }
+
     renderHistoryItem(item) {
         // Skip study param
         const filterParams = Object.keys(item.query).filter(item => item !== "study");
@@ -662,7 +701,8 @@ export default class OpencgaActiveFilters extends LitElement {
 
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
-                    <!-- Render dropdown menu with all filters -->
+
+                    <!-- Render dropdown menu with all filters and history -->
                     <div>
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
                             <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown"
@@ -670,68 +710,40 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
+                                <!-- Render FILTERS options -->
+                                <li>
+                                    <a><i class="fas fa-filter icon-padding"></i> <label>Filters</label></a>
+                                </li>
                                 ${this._filters?.length > 0 ? html`
-                                    <li>
-                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Filters</strong></a>
-                                    </li>
-
-                                    ${this._filters.map(item => item.separator ?
-                                        html`
-                                            <li role="separator" class="divider"></li>` :
-                                        html`
-                                            <!-- Add header before the first Saved filter-->
-                                            ${item.id === this.opencgaSession.user.filters.filter(f => f.resource === this.resource)?.[0]?.id ? html`
-                                                <li class="dropdown-header">Saved Filters</li>` : null
-                                            }
-                                            <!-- Render the filter option -->
-                                            <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink"
-                                                   style="cursor: pointer;color: ${item.active ? "green" : "black"}"
-                                                   @click="${this.onFilterChange}">
-                                                    <span class="id-filter-button">${item.id}</span>
-                                                    <span class="action-buttons">
-                                                        <span tooltip-title="${item.id}"
-                                                              tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                                              data-filter-id="${item.id}">
-                                                            <i class="fas fa-eye" data-action="view-filter"></i>
-                                                        </span>
-
-                                                        <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
-                                                        ${item.resource ? html`
-                                                            <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                                               data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
-                                                            </i>` : null
-                                                        }
-                                                    </span>
-                                                </a>
-                                            </li>`
-                                    )}
-                                    <li role="separator" class="divider"></li>` : ""
+                                    ${this._filters.map(item => html`
+                                        ${this.renderFilterItem(item)}`)
+                                    }` : html`<div class="help-block" style="margin: 0 30px">No filters found.</div>`
                                 }
+                                <li role="separator" class="divider"></li>
 
-                                <!-- Add history links -->
+                                <!-- Render HISTORY filters -->
+                                <li>
+                                    <a><i class="fas fa-history icon-padding"></i> <label>History</label></a>
+                                </li>
                                 ${this.history?.length > 0 ? html`
-                                    <li>
-                                        <a><i class="fas fa-history icon-padding"></i> <strong>History</strong></a>
-                                    </li>
                                     ${this.history.map(item => html`
                                         <li>
                                             ${this.renderHistoryItem(item)}
                                         </li>`)
-                                    }
-                                    <li role="separator" class="divider"></li>
-                                ` : html`<div>Empty history.</div>`
+                                    }` : html`<div class="help-block" style="margin: 0 30px">Empty history.</div>`
                                 }
+                                <li role="separator" class="divider"></li>
 
+                                <!-- Add CLEAR and SAVE buttons -->
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <label>Clear</label>
                                     </a>
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
                                         <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong>
+                                            <i class="fas fa-save icon-padding"></i> <label>Save current filter</label>
                                         </a>
                                     </li>` : null
                                 }
