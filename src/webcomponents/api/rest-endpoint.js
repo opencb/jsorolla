@@ -140,7 +140,7 @@ export default class RestEndpoint extends LitElement {
                                     defaultValue: this.getDefaultValue(dataParameter),
                                     required: !!dataParameter.required,
                                     display: {
-                                        helpMessage: parameter.description
+                                        helpMessage: dataParameter.description
                                     }
                                 }
                             );
@@ -734,11 +734,6 @@ export default class RestEndpoint extends LitElement {
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
                             <h3 style="display:inline-block;">Input Parameters</h3>
-                            <!-- ${this.endpoint.method === "GET" ?html`
-                                <button style="margin-left:8px;margin-bottom:8px"  type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
-                                    <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
-                                </button>
-                            `:null} -->
                         <div style="padding: 20px">
                             <data-form
                                 .data="${this.data}"

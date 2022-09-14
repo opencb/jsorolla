@@ -96,6 +96,8 @@ export default class VariantBrowserGrid extends LitElement {
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
+            // update config to add new columns by filters as sample
+            this.configObserver();
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
@@ -147,7 +149,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.variants && this.variants.length > 0) {
+        if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
@@ -183,7 +185,7 @@ export default class VariantBrowserGrid extends LitElement {
                 variantGrid: this,
                 ajax: params => {
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
@@ -193,7 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.variants().query(filters)
+                    this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
                             if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
@@ -694,7 +696,7 @@ export default class VariantBrowserGrid extends LitElement {
                 {
                     id: "samples",
                     title: "Samples",
-                    // field: "samples",
+                    field: "samples",
                     rowspan: 1,
                     colspan: sampleColumns.length,
                     align: "center",
@@ -859,14 +861,12 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 1000,
-            summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
-            // includeSample: "all" // TODO this causes a time-out
-            ...this.query
+        const filters = {
+            ...this.filters,
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.variants().query(params)
+        this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
