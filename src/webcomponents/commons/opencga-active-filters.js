@@ -260,7 +260,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 // Only consider non-locked fields
                 if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
                     // Check if the filter value is the same
-                    if (activeFilter.query[key] !== this.query[key]) {
+                    if (activeFilter.query[key] !== this.query?.[key]) {
                         activeFilter.active = false;
                         break;
                     }
@@ -271,7 +271,7 @@ export default class OpencgaActiveFilters extends LitElement {
             for (const filtersKey of this._filters) {
                 let match = true;
                 for (const key of Object.keys(this.query)) {
-                    if (key !== "study" && filtersKey?.query[key]) {
+                    if (key !== "study" && filtersKey?.query?.[key]) {
                         match = match && filtersKey.query[key] === this.query[key];
                     }
                 }
