@@ -50,6 +50,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             showSetAll: {
                 type: Boolean
             },
+            showMissingVariantCheckbox: {
+                type: Boolean
+            },
             onlyPopFreqAll: {
                 type: Boolean
             }
@@ -66,6 +69,9 @@ export default class PopulationFrequencyFilter extends LitElement {
 
         // forces to show just the ALL popFreq
         this.onlyPopFreqAll = false;
+
+        // track the state of the checkbox for Missing Variants only and also whether comparator/value dropdowns should be disabled
+        this.missingVariants = {};
     }
 
     // updated(changedProperties) {
@@ -118,6 +124,7 @@ export default class PopulationFrequencyFilter extends LitElement {
     populationFrequencyAltObserver() {
         // Reset this.state with the existing populations and default comparator
         this.populationFrequenciesObserver();
+        this.missingVariants = {};
 
         // 1kG_phase3:EUR<2;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AMR<2
         let pfArray = [];
@@ -130,6 +137,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                     comparator,
                     value
                 };
+                if (comparator === "=" && value === "0") {
+                    this.missingVariants[study + ":" + populationId] = true;
+                }
             });
         } else {
             $("input[data-mode=all]").val("");
@@ -189,6 +199,18 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.notify();
     }
 
+    filterChangeMissingVariants(e, studyAndPopCode) {
+        if (e.currentTarget.checked) {
+            this.state[studyAndPopCode] = {comparator: "=", value: "0"};
+            this.missingVariants[studyAndPopCode] = true;
+
+        } else {
+            this.state[studyAndPopCode] = {};
+            this.missingVariants[studyAndPopCode] = false;
+        }
+        this.notify();
+    }
+
     handleCollapseAction(e) {
         const id = e.target.dataset.id;
         const elem = $("#" + id)[0];
@@ -236,7 +258,7 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            comparators: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
+            comparators: [{id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
         };
     }
 
@@ -245,6 +267,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             return html`No Population Frequencies defined`;
         }
 
+        /*
+            This filter has 2 modes: it renders either a dropdown for the indexed values (if this.allowedFrequencies is defined) or plain text field for adding any value.
+         */
         if (this.allowedFrequencies) {
             // Convert the String into an Array one single time here
             const allowedFrequenciesArray = this.allowedFrequencies.split(",");
@@ -266,6 +291,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     <div class="col-md-5" style="padding: 0 2px;">
                                         <select-field-filter    .data="${this._config.comparators}"
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
+                                                                .disabled="${this.missingVariants[study.id + ":" + popFreq.id]}"
                                                                 @filterChange="${e => {
                                                                     this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
                                                                 }}">
@@ -274,6 +300,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     <div class="col-md-5" style="padding: 0 0 0 5px;">
                                         <select-field-filter    .data="${allowedFrequenciesArray}"
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
+                                                                .disabled="${this.missingVariants[study.id + ":" + popFreq.id]}"
                                                                 placeholder="Frequency ..."
                                                                 @filterChange="${e => {
                                                                     this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
@@ -281,6 +308,20 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         </select-field-filter>
                                     </div>
                                 </div>
+                                ${this.showMissingVariantCheckbox ? html`
+                                    <div class="row">
+                                        <div class="col-lg-offset-2 col-md-offset-0" style="padding: 5px 0 0 15px">
+                                            <input class="magic-checkbox"
+                                                   type="checkbox"
+                                                   value="missing"
+                                                   .checked="${this.missingVariants[study.id + ":" + popFreq.id]}"
+                                                   @click="${e => this.filterChangeMissingVariants(e, study.id + ":" + popFreq.id, "missing")}" id="${study.id + ":" + popFreq.id + "missing"}">
+                                            <label style="font-weight: normal; padding-top: 2px" for="${study.id + ":" + popFreq.id + "missing"}">
+                                                Only missing variants
+                                            </label>
+                                        </div>
+                                    </div>
+                                ` : ""}
                             `)}
                         </div>
                     </div>

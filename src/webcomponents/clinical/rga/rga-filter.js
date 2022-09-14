@@ -63,7 +63,7 @@ export default class RgaFilter extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
-        this.allowedPopFrequencies = "0,0.0001,0.0005,0.001,0.005,0.01,0.05,1";
+        this.allowedPopFrequencies = "0.0001,0.0005,0.001,0.005,0.01,0.05";
     }
 
     connectedCallback() {
@@ -195,11 +195,11 @@ export default class RgaFilter extends LitElement {
                 break;
             case "populationFrequency":
                 content = html`
-                    <population-frequency-filter .populationFrequencies="${POPULATION_FREQUENCIES}"
+                    <population-frequency-filter ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
+                                                 showMissingVariantCheckbox
+                                                 .populationFrequencies="${POPULATION_FREQUENCIES}"
                                                  .allowedFrequencies=${this.allowedPopFrequencies}
-                                                 ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
                                                  .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"
-                                                 .config="${{comparators: [{id: "<", name: "<"}, {id: ">=", name: "&#8804;"}]}}"
                                                  @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </population-frequency-filter>`;
                 break;
