@@ -253,34 +253,68 @@ export default class OpencgaActiveFilters extends LitElement {
         this._prevQuery = {...this.query};
         this._jsonPrevFacetQuery = JSON.stringify(this.executedFacetQuery);
 
+        // FIXME To be deleted after testing
         // Check if the current active filter must still be active after changing the query
-        const activeFilter = this._filters?.find(filter => filter.active);
-        if (activeFilter) {
+        // const activeFilter = this._filters?.find(filter => filter.active);
+        // if (activeFilter) {
+        //     for (const key of Object.keys(this.query)) {
+        //         // Only consider non-locked fields
+        //         if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
+        //             // Check if the filter value is the same
+        //             if (activeFilter.query[key] !== this.query?.[key]) {
+        //                 activeFilter.active = false;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     // If not active filter is set we check if any matches the current query.
+        //     // Skip categories and separators.
+        //     const queryFilters = this._filters.filter(f => !!f.query);
+        //     for (const filtersKey of queryFilters) {
+        //         let match = true;
+        //         for (const key of Object.keys(this.query)) {
+        //             // Check if all existing keys (but study) have the same values as the filter
+        //             if (key !== "study") {
+        //                 if (filtersKey?.query?.[key]) {
+        //                     match = match && filtersKey.query[key] === this.query[key];
+        //                 } else {
+        //                     match = false;
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //         if (match) {
+        //             filtersKey.active = true;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // Set all filters not active
+        this._filters.forEach(f => f.active = false);
+
+        // Now check if any filter matches the current query. Skip categories and separators.
+        const queryFilters = this._filters.filter(f => !!f.query);
+        for (const filtersKey of queryFilters) {
+            let match = true;
             for (const key of Object.keys(this.query)) {
-                // Only consider non-locked fields
+                // Check if all existing keys (but study) have the same values as the filter
                 if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
-                    // Check if the filter value is the same
-                    if (activeFilter.query[key] !== this.query?.[key]) {
-                        activeFilter.active = false;
+                    if (filtersKey?.query?.[key]) {
+                        match = match && filtersKey.query[key] === this.query[key];
+                    } else {
+                        match = false;
                         break;
                     }
                 }
             }
-        } else {
-            // If not active filter we check if any matches the current query.
-            for (const filtersKey of this._filters) {
-                let match = true;
-                for (const key of Object.keys(this.query)) {
-                    if (key !== "study" && filtersKey?.query?.[key]) {
-                        match = match && filtersKey.query[key] === this.query[key];
-                    }
-                }
-                if (match) {
-                    filtersKey.active = true;
-                    break;
-                }
+            if (match) {
+                filtersKey.active = true;
+                break;
             }
         }
+
 
         // Update History
         // 1. remove all identical filters
