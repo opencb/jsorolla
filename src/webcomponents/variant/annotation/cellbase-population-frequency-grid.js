@@ -111,7 +111,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         $("#" + this._prefix + "Container").highcharts({
             chart: {
                 type: "bar",
-                // height: popArray.length * 20,
+                height: popArray.length * 20,
             },
             title: {
                 text: "Population Frequencies"
@@ -121,11 +121,11 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 title: {
                     text: null
                 },
-                // labels: {
-                //     style: {
-                //         fontSize: "10px",
-                //     },
-                // },
+                labels: {
+                    style: {
+                        fontSize: "10px",
+                    },
+                },
             },
             yAxis: {
                 min: 0,
