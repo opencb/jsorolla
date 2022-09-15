@@ -345,6 +345,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     opencgaSession: this.opencgaSession
                                 },
                                 tooltip: tooltips.variantCallerFile,
+                            },
+                            {
+                                id: "cohort",
+                                title: "Cohort Alternate Stats",
+                                onlyCohortAll: true,
+                                tooltip: tooltips.cohort,
+                                // cohorts: this.cohorts,
+                                cohorts: this.opencgaSession?.project?.studies
                             }
                         ]
                     },
