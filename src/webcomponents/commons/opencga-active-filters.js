@@ -136,6 +136,10 @@ export default class OpencgaActiveFilters extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
+
     opencgaSessionObserver() {
         if (this.opencgaSession.token && this.opencgaSession?.study?.fqn) {
             this.refreshFilters();
@@ -713,16 +717,31 @@ export default class OpencgaActiveFilters extends LitElement {
 
     renderHistoryItem(item) {
         // Skip study param
-        const filterParams = Object.keys(item.query).filter(item => item !== "study");
+        const filterParams = Object.keys(item.query).filter(key => key !== "study" && !!item.query[key]);
+        const filterTitle = UtilsNew.dateFormatter(item.date, "HH:mm:ss");
+        const filterTooltip = filterParams.map(key => `<b>${key}</b> = ${item.query[key]}`).join("<br>");
+
         return html`
             <a class="filtersLink" style="cursor: pointer" @click="${e => this.onFilterChange(e, item.query)}">
-                <div class="id-filter-button">${UtilsNew.dateFormatter(item.date, "HH:mm:ss")} ${item.latest ? ` (latest)` : ""}</div>
-                <div class="help-block">${filterParams?.length > 0 ? filterParams.map(key => html`
-                    <div style="margin: 0 15px" title="${item.query[key]}">${key}: ${UtilsNew.substring(item.query[key], 20)}</div>
-                `) : html`
-                    <div style="margin: 0 15px">Empty query.</div>`}
+                <div class="id-filter-button">${filterTitle} ${item.latest ? " (latest)" : ""}</div>
+                <div class="help-block">
+                    ${filterParams?.length > 0 ? html`
+                        ${filterParams.slice(0, 2).map(key => html`
+                            <div style="margin: 0 15px" title="${item.query[key]}">
+                                <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                            </div>
+                        `)}
+                    ` : html`
+                        <div style="margin: 0 15px">Empty query.</div>
+                    `}
+                    <span class="action-buttons">
+                        <span tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <i class="fas fa-eye" data-action="view-filter"></i>
+                        </span>
+                    </span>
                 </div>
-            </a>`;
+            </a>
+        `;
     }
 
     render() {
