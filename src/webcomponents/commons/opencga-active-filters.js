@@ -721,7 +721,7 @@ export default class OpencgaActiveFilters extends LitElement {
         return html`
             <a class="filtersLink" style="cursor: pointer" @click="${e => this.onFilterChange(e, item.query)}">
                 <div class="id-filter-button">${filterTitle} ${item.latest ? " (latest)" : ""}</div>
-                <div class="help-block">
+                <div class="help-block" style="font-size:12px;margin-bottom:5px;">
                     ${filterParams?.length > 0 ? html`
                         ${filterParams.slice(0, 2).map(key => html`
                             <div style="margin: 0 15px" title="${item.query[key]}">
