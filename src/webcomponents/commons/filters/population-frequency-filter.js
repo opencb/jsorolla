@@ -317,7 +317,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                                    .checked="${this.missingVariants[study.id + ":" + popFreq.id]}"
                                                    @click="${e => this.filterChangeMissingVariants(e, study.id + ":" + popFreq.id, "missing")}" id="${study.id + ":" + popFreq.id + "missing"}">
                                             <label style="font-weight: normal; padding-top: 2px" for="${study.id + ":" + popFreq.id + "missing"}">
-                                                Only missing variants
+                                                Absent in <b>${study.title}</b>
                                             </label>
                                         </div>
                                     </div>
