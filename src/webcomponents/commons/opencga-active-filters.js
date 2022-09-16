@@ -319,19 +319,22 @@ export default class OpencgaActiveFilters extends LitElement {
         // Update History
         // 1. remove all identical filters
         const _history = this.history.filter(hist => JSON.stringify(hist.query) !== JSON.stringify(this.query));
+
         // 2. Remove previous latest
         if (_history?.length > 0) {
             _history[0].latest = false;
         }
-        // 3. Prepare new latest
-        const latest = {
+
+        // 3. Prepare new latest filter and add at the beginning
+        _history.unshift({
             date: UtilsNew.getDatetime(),
             query: {...this.query},
             latest: true
-        };
-        // 4. Add at the beginning
-        _history.unshift(latest);
-        this.history = _history;
+        });
+
+        // 4. Limit up to 10 history items
+        this.history = _history.slice(0, 10);
+
         // 5. Refresh
         this.requestUpdate();
     }
