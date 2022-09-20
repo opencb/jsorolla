@@ -219,7 +219,7 @@ export default class IndividualUpdate extends LitElement {
             .catch(reason => {
                 this.individual = {};
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();
