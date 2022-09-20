@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utilsNew.js";
@@ -58,6 +58,7 @@ export default class IndividualUpdate extends LitElement {
         this.individual = {};
         this.updateParams = {};
         this.isLoading = false;
+
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Update",
@@ -128,8 +129,8 @@ export default class IndividualUpdate extends LitElement {
         switch (param) {
             case "id":
             case "name":
-            case "father":
-            case "mother":
+            case "father.id":
+            case "mother.id":
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
@@ -143,6 +144,14 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
+            case "sex.id":
+            case "sex.name":
+            case "sex.source":
+            case "sex.description":
+            case "ethnicity.id":
+            case "ethnicity.name":
+            case "ethnicity.source":
+            case "ethnicity.description":
                 // case "dateOfBirth": Problem
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
@@ -151,15 +160,16 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "sex": // object
-            case "ethnicity": // object
-                this.updateParams = FormUtils.updateObjectWithObj(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
+            // case "sex": // object
+            // case "ethnicity": // object
+            //     this.updateParams = FormUtils.updateObjectWithObj(
+            //         this._individual,
+            //         this.individual,
+            //         this.updateParams,
+            //         param,
+            //         e.detail.value);
+            //     break;
+            case "samples": // arrays
             case "phenotypes": // arrays
             case "disorders": // arrays
                 this.updateParams = FormUtils.updateArraysObject(
@@ -184,15 +194,18 @@ export default class IndividualUpdate extends LitElement {
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
+            samplesAction: "SET",
             phenotypesAction: "SET",
             disordersAction: "SET",
             includeResult: true
         };
         let error;
         this.#setLoading(true);
-        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
+        // FIXME CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
-        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.individual[key]);
+        // Object.keys(this.updateParams).forEach(key => {
+        //     this.updateParams[key] = this.individual[key];
+        // });
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
             .then(response => {
@@ -215,24 +228,6 @@ export default class IndividualUpdate extends LitElement {
             });
     }
 
-    onAddOrUpdateItem(e) {
-        switch (e.detail.param) {
-            case "disorders":
-            case "phenotypes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
-                break;
-            case "annotationSets":
-                break;
-        }
-        this.requestUpdate();
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -253,7 +248,6 @@ export default class IndividualUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -282,9 +276,9 @@ export default class IndividualUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.individual.creationDate? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate):"No creation date",
+                                helpMessage: this.individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this.individual.creationDate)}` : "No creation date",
                                 help: {
-                                    text: "short individual id for..."
+                                    text: "Short individual ID for..."
                                 },
                             },
                         },
@@ -301,24 +295,15 @@ export default class IndividualUpdate extends LitElement {
                             field: "father",
                             type: "custom",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
+                                placeholder: "Select the father ID ...",
                                 render: father => html`
                                     <catalog-search-autocomplete
                                         .value="${father?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams?.individualId ? "selection-updated" : ""}"
-                                        .config="${{
-                                            // This is the default value, but it is safe to leave it
-                                            multiple: false,
-                                        }}"
-                                        @filterChange="${e =>
-                                            this.onFieldChange({
-                                                detail: {
-                                                    param: "father",
-                                                    value: {id: e.detail.value}
-                                                }
-                                            })}">
+                                        .classes="${this.updateParams?.father?.id ? "selection-updated" : ""}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => this.onFieldChange(e, "father.id")}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -328,21 +313,41 @@ export default class IndividualUpdate extends LitElement {
                             field: "mother",
                             type: "custom",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
+                                placeholder: "Select the mother ID ...",
                                 render: mother => html`
                                     <catalog-search-autocomplete
                                         .value="${mother?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                        .classes="${this.updateParams?.mother ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e =>
-                                            this.onFieldChange({
-                                                detail: {
-                                                    param: "mother",
-                                                    value: {id: e.detail.value},
-                                                }
-                                            })}">
+                                        @filterChange="${e => this.onFieldChange(e, "mother.id")}">
+                                    </catalog-search-autocomplete>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Sample ID(s)",
+                            field: "samples",
+                            type: "custom",
+                            display: {
+                                placeholder: "Select the sample IDs ...",
+                                render: samples => html`
+                                    <catalog-search-autocomplete
+                                        .value="${samples.map(s => s.id).join(",")}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .classes="${this.updateParams.samples ? "selection-updated" : ""}"
+                                        .config="${{multiple: true}}"
+                                        @filterChange="${e => {
+                                            // We need to convert value from a string wth commas to an array of IDs
+                                            e.detail.value = e.detail.value
+                                                ?.split(",")
+                                                .map(sampleId => {
+                                                    return {id: sampleId};
+                                                });
+                                            this.onFieldChange(e, "samples");
+                                        }}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -358,38 +363,84 @@ export default class IndividualUpdate extends LitElement {
                         {
                             title: "Sex",
                             field: "sex",
-                            type: "custom",
-                            display: {
-                                render: sex => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${sex}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            style: "border-left: 2px solid #0c2f4c padding-left:12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "sex")}">
-                                    </ontology-term-annotation-update>
-                                `,
-                            },
+                            type: "object",
+                            display: {},
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "sex.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "sex.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "sex.source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ontology source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "sex.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ]
                         },
                         {
                             title: "Ethnicity",
                             field: "ethnicity",
-                            type: "custom",
-                            display: {
-                                render: ethnicity => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${ethnicity}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            style: "border-left: 2px solid #0c2f4c padding-left:12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
-                                    </ontology-term-annotation-update>
-                                `,
-                            },
+                            type: "object",
+                            display: {},
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "ethnicity.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "ethnicity.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "ethnicity.source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ontology source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "ethnicity.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ]
                         },
                         {
                             title: "Parental Consanguinity",
@@ -411,109 +462,75 @@ export default class IndividualUpdate extends LitElement {
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                             display: {},
                         },
+                        {
+                            title: "Location",
+                            field: "location",
+                            type: "object",
+                            display: {},
+                            elements: [
+                                {
+                                    title: "Address",
+                                    field: "location.address",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "Postal Code",
+                                    field: "location.postalCode",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "City",
+                                    field: "location.city",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "State",
+                                    field: "location.state",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "Country",
+                                    field: "location.country",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                            ]
+                        },
+                        {
+                            title: "Population Info",
+                            field: "population",
+                            type: "object",
+                            display: {},
+                            elements: [
+                                {
+                                    title: "Population Name",
+                                    field: "population.name",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "Subpopulation",
+                                    field: "population.subpopulation",
+                                    type: "input-text",
+                                    display: {},
+                                },
+                                {
+                                    title: "Population Description",
+                                    field: "population.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description...",
+                                    },
+                                },
+                            ]
+                        },
                     ],
                 },
-                {
-                    title: "Location Info",
-                    elements: [
-                        {
-                            title: "Address",
-                            field: "location.address",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "Portal Code",
-                            field: "location.postalCode",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "City",
-                            field: "location.city",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "State",
-                            field: "location.state",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "Country",
-                            field: "location.country",
-                            type: "input-text",
-                            display: {},
-                        },
-                    ],
-                },
-                {
-                    title: "Population Info",
-                    elements: [
-                        {
-                            title: "Population Name",
-                            field: "population.name",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "Subpopulation",
-                            field: "population.subpopulation",
-                            type: "input-text",
-                            display: {},
-                        },
-                        {
-                            title: "Populaton Description",
-                            field: "population.description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "add a description...",
-                            },
-                        },
-                    ],
-                },
-                // {
-                //     title: "Phenotypes",
-                //     elements: [
-                //         {
-                //             title: "Phenotype",
-                //             field: "phenotypes",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (pheno, callback) => {
-                //                     return html`
-                //                         <ontology-term-annotation-update
-                //                             .ontology="${pheno}"
-                //                             .entity="${"phenotype"}"
-                //                             .displayConfig="${{
-                //                                 defaultLayout: "vertical",
-                //                                 buttonOkText: "Save",
-                //                                 buttonClearText: "",
-                //                             }}"
-                //                             @updateItem="${callback}">
-                //                         </ontology-term-annotation-update>
-                //                     `;
-                //                 },
-                //                 renderCreate: (pheno, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"phenotype"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `,
-                //             }
-                //         },
-                //     ]
-                // },
                 {
                     title: "Phenotypes",
                     elements: [
@@ -524,9 +541,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: pheno => html`
-                                    <div>${pheno.id} - ${pheno?.name}</div>
-                                `,
+                                view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
                             },
                             elements: [
                                 {
@@ -538,7 +553,7 @@ export default class IndividualUpdate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "phenotypes[].name",
                                     type: "input-text",
                                     display: {
@@ -576,7 +591,7 @@ export default class IndividualUpdate extends LitElement {
                                     field: "phenotypes[].description",
                                     type: "input-text",
                                     display: {
-                                        rows: 3,
+                                        rows: 2,
                                         placeholder: "Add a description..."
                                     },
                                 },
@@ -584,44 +599,6 @@ export default class IndividualUpdate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Disorders",
-                //     elements: [
-                //         {
-                //             title: "Disorder",
-                //             field: "disorders",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (disorder, callback) => html`
-                //                     <ontology-term-annotation-update
-                //                         .ontology="${disorder}"
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Save",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @updateItem="${callback}">
-                //                     </ontology-term-annotation-update>
-                //                 `,
-                //                 renderCreate: (disorder, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `,
-                //             }
-                //         },
-                //     ]
-                // },
                 {
                     title: "Disorders",
                     elements: [
@@ -632,9 +609,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: disorder => html`
-                                    <div>${disorder.id} - ${disorder?.name}</div>
-                                `,
+                                view: disorder => html`<div>${disorder.id} - ${disorder?.name}</div>`,
                             },
                             elements: [
                                 {
@@ -642,11 +617,11 @@ export default class IndividualUpdate extends LitElement {
                                     field: "disorders[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "Add disorder ID...",
                                     }
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "disorders[].name",
                                     type: "input-text",
                                     display: {
@@ -666,7 +641,7 @@ export default class IndividualUpdate extends LitElement {
                                     field: "disorders[].description",
                                     type: "input-text",
                                     display: {
-                                        rows: 3,
+                                        rows: 2,
                                         placeholder: "Add a description..."
                                     }
                                 },
