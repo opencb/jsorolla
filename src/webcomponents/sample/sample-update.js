@@ -60,6 +60,7 @@ export default class SampleUpdate extends LitElement {
         this.sample = {};
         this.updateParams = {};
         this.isLoading = false;
+
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
@@ -145,6 +146,18 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
+            case "source.id":
+            case "source.name":
+            case "source.source":
+            case "source.url":
+            case "source.description":
+            case "status.id":
+            case "status.name":
+            case "status.description":
+            // case "processing.product.id":
+            // case "processing.product.name":
+            // case "processing.product.source":
+            // case "processing.product.description":
                 // support primitive type and object with primitive type
                 this.updateParams = FormUtils.updateObjectParams(
                     this._sample,
@@ -153,9 +166,10 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "status":
-            case "source":
+            // case "status":
+            // case "source":
             case "processing.product":
+            case "processing.product.id":
                 // It's an object
                 // processing.product it's object with a nested object
                 this.updateParams = FormUtils.updateObjectWithObj(
@@ -164,6 +178,19 @@ export default class SampleUpdate extends LitElement {
                     this.updateParams,
                     param,
                     e.detail.value);
+                break;
+            case "collection":
+            case "collection.from":
+            case "collection.from.id":
+            case "phenotypes":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+                debugger
                 break;
         }
         this.requestUpdate();
@@ -184,9 +211,9 @@ export default class SampleUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        // FIXME CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
         //  Remove when form-utils.js revisited
-        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.sample[key]);
+        // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.sample[key]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(response => {
@@ -230,23 +257,23 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
-    onAddOrUpdateItem(e) {
-        switch (e.detail.param) {
-            case "collection.from":
-            case "phenotypes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
-                break;
-            case "annotationSets":
-                break;
-        }
-        this.requestUpdate();
-    }
+    // onAddOrUpdateItem(e) {
+    //     switch (e.detail.param) {
+    //         case "collection.from":
+    //         case "phenotypes":
+    //             this.updateParams = FormUtils.updateArraysObject(
+    //                 this._sample,
+    //                 this.sample,
+    //                 this.updateParams,
+    //                 e.detail.param,
+    //                 e.detail.value
+    //             );
+    //             break;
+    //         case "annotationSets":
+    //             break;
+    //     }
+    //     this.requestUpdate();
+    // }
 
     render() {
         if (this.isLoading) {
@@ -269,7 +296,6 @@ export default class SampleUpdate extends LitElement {
                 .config="${this._config}"
                 .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -308,7 +334,7 @@ export default class SampleUpdate extends LitElement {
                             field: "individualId",
                             type: "custom",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
+                                placeholder: "Individual ID ...",
                                 render: individualId => html`
                                     <catalog-search-autocomplete
                                         .value="${individualId}"
@@ -316,14 +342,7 @@ export default class SampleUpdate extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e =>
-                                            this.onFieldChange({
-                                                ...e,
-                                                detail: {
-                                                    param: "individualId",
-                                                    value: e.detail.value
-                                                }
-                                            })}">
+                                        @filterChange="${e => this.onFieldChange(e, "individualId")}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -338,76 +357,153 @@ export default class SampleUpdate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                rows: 2,
                                 placeholder: "Add a description...",
-                                rows: 3,
                             },
                         },
                         {
                             title: "Source",
                             field: "source",
-                            type: "custom",
-                            display: {
-                                render: source => html`
-                                    <external-source-update
-                                        .source="${source}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "source")}">
-                                    </external-source-update>
-                                `,
-                            },
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "source.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "source.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Source",
+                                    field: "source.source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "External source name"
+                                    }
+                                },
+                                {
+                                    title: "URL",
+                                    field: "source.url",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a URL"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "source.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
                         {
                             title: "Status",
                             field: "status",
-                            type: "custom",
-                            display: {
-                                render: status => html`
-                                    <status-update
-                                        .status="${status}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                    </status-update>
-                                `,
-                            },
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "status.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "status.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
-                        // {
-                        //     title: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: creationDate => html`${UtilsNew.dateFormatter(creationDate)}`
-                        //     }
-                        // },
                     ],
                 },
                 {
                     title: "Processing Info",
                     elements: [
+                        // {
+                        //     title: "Product",
+                        //     field: "processing.product",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: product => html`
+                        //             <ontology-term-annotation-update
+                        //                 .ontology="${product}"
+                        //                 .displayConfig="${{
+                        //                     defaultLayout: "vertical",
+                        //                     buttonsVisible: false,
+                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                        //                 }}"
+                        //                 @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
+                        //             </ontology-term-annotation-update>
+                        //         `,
+                        //     },
+                        // },
                         {
-                            title: "Product",
+                            title: "Product Processing",
                             field: "processing.product",
-                            type: "custom",
-                            display: {
-                                render: product => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${product}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
-                                    </ontology-term-annotation-update>
-                                `,
-                            },
+                            type: "object",
+                            display: {},
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "processing.product.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "processing.product.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "processing.product.source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ontology source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "processing.product.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ]
                         },
                         {
                             title: "Preparation Method",
@@ -488,6 +584,58 @@ export default class SampleUpdate extends LitElement {
                                 `,
                             },
                         },
+                        // {
+                        //     title: "From",
+                        //     elements: [
+                        //         {
+                        //             title: "Collection",
+                        //             field: "collection.from",
+                        //             type: "object-list",
+                        //             display: {
+                        //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                        //                 collapsedUpdate: true,
+                        //                 view: pheno => html`
+                        //                     <div>${pheno.id} - ${pheno?.name}</div>
+                        //         `,
+                        //             },
+                        //             elements: [
+                        //                 {
+                        //                     title: "Collection ID",
+                        //                     field: "collection.from[].id",
+                        //                     type: "input-text",
+                        //                     display: {
+                        //                         placeholder: "Add phenotype ID...",
+                        //                     },
+                        //                 },
+                        //                 {
+                        //                     title: "name",
+                        //                     field: "collection.from[].name",
+                        //                     type: "input-text",
+                        //                     display: {
+                        //                         placeholder: "Add a name...",
+                        //                     },
+                        //                 },
+                        //                 {
+                        //                     title: "Source",
+                        //                     field: "collection.from[].source",
+                        //                     type: "input-text",
+                        //                     display: {
+                        //                         placeholder: "Add a source...",
+                        //                     },
+                        //                 },
+                        //                 {
+                        //                     title: "Description",
+                        //                     field: "collection.from[].description",
+                        //                     type: "input-text",
+                        //                     display: {
+                        //                         rows: 3,
+                        //                         placeholder: "Add a description..."
+                        //                     },
+                        //                 },
+                        //             ],
+                        //         },
+                        //     ],
+                        // },
                         {
                             title: "Type",
                             field: "collection.type",
@@ -526,61 +674,70 @@ export default class SampleUpdate extends LitElement {
                     title: "Phenotypes",
                     elements: [
                         {
-                            title: "Phenotype",
+                            title: "Phenotypes",
                             field: "phenotypes",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (pheno, callback) => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${pheno}"
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </ontology-term-annotation-update>
-                                `,
-                                renderCreate: (pheno, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>
-                                `,
+                                view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
                             },
+                            elements: [
+                                {
+                                    title: "Phenotype ID",
+                                    field: "phenotypes[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "phenotypes[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "phenotypes[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Age of onset",
+                                    field: "phenotypes[].ageOfOnset",
+                                    type: "input-num",
+                                    allowedValues: [0],
+                                    display: {
+                                        placeholder: "Add an age of onset..."
+                                    },
+                                },
+                                {
+                                    title: "Status",
+                                    field: "phenotypes[].status",
+                                    type: "select",
+                                    allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                                    display: {
+                                        placeholder: "Select a status..."
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "phenotypes[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
-                // {
-                //     title: "Annotation Set",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                 <annotation-set-update
-                //                     .annotationSets="${this.sample?.annotationSets}"
-                //                     .opencgaSession="${this.opencgaSession}"
-                //                     @changeAnnotationSets="${e => this.onSync(e, "annotationsets")}">
-                //                 </annotation-set-update>`
-                //             }
-                //         }
-                //     ]
-                // }
             ],
         });
     }

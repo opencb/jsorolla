@@ -261,7 +261,16 @@ export default class DataForm extends LitElement {
 
     _isUpdated(element) {
         if (!UtilsNew.isEmpty(this.updateParams)) {
-            const [field, prop] = element.field.split(".");
+            // const [field, prop] = element.field.split(".");
+            let field, prop;
+            if (element.field.includes(".")) {
+                const lastIndexOf = element.field.lastIndexOf(".");
+                field = element.field.substring(0, lastIndexOf);
+                prop = element.field.substring(lastIndexOf + 1);
+            } else {
+                field = element.field;
+            }
+
             if (prop) {
                 return typeof this.updateParams[field]?.[prop] !== "undefined";
             } else {

@@ -61,6 +61,7 @@ export default class FormUtils {
         return _data;
     }
 
+    // Deprecated!
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -124,10 +125,8 @@ export default class FormUtils {
                 if (UtilsNew.isEmpty(_updateParams[field])) {
                     delete _updateParams[field];
                 }
-
             }
         } else {
-
             if (_original?.[field]?.[childKey] !== childValue && childValue !== null) {
                 original[field] = {
                     ...original[field],
@@ -141,7 +140,6 @@ export default class FormUtils {
             } else {
                 delete _updateParams[field];
             }
-
         }
 
         // We need to create a new 'updateParams' reference to force an update
