@@ -15,18 +15,16 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/forms/data-form.js";
-import NotificationUtils from "../../commons/utils/notification-utils";
 import FormUtils from "../../commons/forms/form-utils";
-
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import "../../commons/forms/data-form.js";
 
 export default class ExomiserAnalysis extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -35,7 +33,7 @@ export default class ExomiserAnalysis extends LitElement {
 
     static get properties() {
         return {
-            clinicalAnalysis: {
+            toolParams: {
                 type: Object
             },
             opencgaSession: {
@@ -44,77 +42,74 @@ export default class ExomiserAnalysis extends LitElement {
             title: {
                 type: String
             },
-            config: {
-                type: Object
-            }
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
-        this.updateParams = {};
+    #init() {
+        this.ANALYSIS_TOOL = "interpreter-exomiser";
+        this.ANALYSIS_TITLE = "Interpreter Exomiser";
+
+        this.DEFAULT_TOOLPARAMS = {};
+        this.toolParams = this.DEFAULT_TOOLPARAMS;
+        this.clinicalAnalysisId = "";
+
         this.config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.clinicalAnalysisId = this.toolParams.clinicalAnalysisId || "";
+            this.toolParams = {
+                ...this.DEFAULT_TOOLPARAMS,
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                job: {
-                    id: `exomiser-${UtilsNew.getDatetime()}`
-                }
-            };
-        }
-        super.update(changedProperties);
+    check() {
+        return !!this.toolParams.clinicalAnalysisId;
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-                this.updateParams = FormUtils
-                    .updateScalar(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value);
-                break;
+        if (param) {
+            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
         }
         // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+        this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.clinicalAnalysis.id,
+            clinicalAnalysis: this.toolParams.clinicalAnalysisId,
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...this.clinicalAnalysis.job
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
+        AnalysisUtils.submit(
+            this.ANALYSIS_TITLE,
+            this.opencgaSession.opencgaClient.clinical().runInterpreterExomiser(toolParams, params),
+            this,
+        );
+    }
 
-        if (UtilsNew.isNotEmpty(toolParams)) {
-            this.opencgaSession.opencgaClient.clinical().runInterpreterExomiser(toolParams, params)
-                .then(response => {
-                    console.log(response);
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "Exomiser launched",
-                        message: `Exomiser has been launched successfully`,
-                    });
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                });
-        }
+    onClear() {
+        this.toolParams = {
+            ...this.DEFAULT_TOOLPARAMS,
+            clinicalAnalysisId: this.clinicalAnalysisId,
+        };
+        this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.clinicalAnalysis}"
+                .data="${this.toolParams}"
                 .config="${this.config}"
-                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -123,68 +118,37 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            id: "clinical-interpretation",
-            title: "Edit Interpretation",
-            icon: "fas fa-edit",
-            // type: this.mode,
-            description: "Update an interpretation",
-            // display: this.displayConfig || this.displayConfigDefault,
-            sections: [
-                {
-                    title: "General Information",
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            }
+        const params = [
+            {
+                title: "General Information",
+                elements: [
+                    {
+                        title: "Clinical Analysis ID",
+                        field: "clinicalAnalysisId",
+                        type: "custom",
+                        display: {
+                            render: clinicalAnalysisId => html`
+                                <catalog-search-autocomplete
+                                    .value="${clinicalAnalysisId}"
+                                    .resource="${"CLINICAL_ANALYSIS"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
+                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
+                                </catalog-search-autocomplete>
+                            `,
                         },
-                        {
-                            title: "Clinical Analysis ID",
-                            field: "id",
-                            type: "input-text",
-                            defaultValue: this.id,
-                            display: {
-                                disabled: true,
-                            },
-                        },
-                    ]
-                },
-                {
-                    title: "Job Info",
-                    elements: [
-                        {
-                            title: "Job ID",
-                            field: "job.id",
-                            type: "input-text",
-                            display: {
-                                disabled: true,
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "job.tags",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add job tags...",
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "job.description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a job description...",
-                            },
-                        },
-                    ]
-                }
-            ]
-        };
+                    },
+                ],
+            },
+        ];
+
+        return AnalysisUtils.getAnalysisConfiguration(
+            this.ANALYSIS_TOOL,
+            this.title ?? this.ANALYSIS_TITLE,
+            "Executes a exomiser analysis job",
+            params,
+            this.check(),
+        );
     }
 
 }
