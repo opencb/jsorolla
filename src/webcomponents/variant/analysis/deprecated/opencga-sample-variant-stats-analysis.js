@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaMutationalSignatureAnalysis extends LitElement {
+export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -45,7 +45,7 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -61,11 +61,11 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "mutational-signature",
-            title: "Mutational Signature Analysis",
+            id: "sample-variant-stats",
+            title: "Sample Variant Stats",
             icon: "",
             requires: "2.0.0",
-            description: "Mutational Signature description",
+            description: "Sample Variant Stats description",
             links: [
                 {
                     title: "OpenCGA",
@@ -81,18 +81,42 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                         parameters: [
                             {
                                 id: "sample",
-                                title: "Select somatic sample",
+                                title: "Select samples",
                                 type: "SAMPLE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
+                            },
+                            {
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
+                            }
+                        ]
+                    },
+                    {
+                        title: "Configuration Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "index",
+                                title: "Index results in catalog",
+                                type: "boolean"
+                            },
+                            {
+                                id: "sampleAnnotation",
+                                title: "Write sample annotation",
+                                type: "text"
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "mutational-signature-$DATE",
+                    id: "sample-variant-stats-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -102,9 +126,8 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
-                data.sample ? body.sample = data.sample.join(",") : null;
-                opencgaSession.opencgaClient.variants().runMutationalSignature(body, params);
+                params.index = true;
+                opencgaSession.opencgaClient.variants().runSampleStats(data, params);
             },
             result: {
             }
@@ -118,4 +141,4 @@ export default class OpencgaMutationalSignatureAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-mutational-signature-analysis", OpencgaMutationalSignatureAnalysis);
+customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);

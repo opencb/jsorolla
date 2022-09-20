@@ -59,10 +59,10 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
+import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
@@ -1503,8 +1503,8 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <div class="content" id="opencga-sample-variant-stats-analysis">
-                        <opencga-sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-variant-stats-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
                     </div>
                 ` : null}
 
@@ -1593,8 +1593,8 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
-                    <div class="content" id="opencga-mutational-signature-analysis">
-                        <opencga-mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></opencga-mutational-signature-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
+                        <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
                     </div>
                 ` : null}
 

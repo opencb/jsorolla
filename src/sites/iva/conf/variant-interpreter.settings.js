@@ -10,8 +10,9 @@ const VARIANT_INTERPRETER_SETTINGS = {
                     id: "overview",
                     settings: VARIANT_INTERPRETER_QC_OVERVIEW_SETTINGS
                 },
-                {id: "sampleVariantStats"},
                 {id: "cancerQCPlots"},
+                {id: "mutationalSignature"},
+                {id: "sampleVariantStats"},
                 {id: "somaticVariantStats"},
                 {id: "germlineVariantStats"},
                 {id: "geneCoverage"}
