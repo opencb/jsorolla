@@ -96,7 +96,7 @@ export default class ExomiserAnalysis extends LitElement {
         );
 
         // Clear analysis form after submitting
-        this.onClear();
+        // this.onClear();
     }
 
     onClear() {
