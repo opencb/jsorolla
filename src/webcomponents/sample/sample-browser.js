@@ -180,20 +180,7 @@ export default class SampleBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        active: false,
-                        query: {
-                            id: "HG",
-                            individual: "LP",
-                            source: "LP",
-                            phenotypes: "melanoma",
-                            somatic: "True",
-                            creationDate: ">=20200216"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,

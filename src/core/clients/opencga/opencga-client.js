@@ -369,7 +369,7 @@ export class OpenCGAClient {
 
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
-                        _this.projects().search({})
+                        _this.projects().search({limit: 100})
                             .then(async function (response) {
                                 try {
                                     // session.projects = response.responses[0].results;
@@ -385,7 +385,7 @@ export class OpenCGAClient {
                                             // project.alias = project.alias || project.fqn || null;
                                             if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
-                                                    // We need to store the user permission fr the all the studies fetched
+                                                    // We need to store the user permission for the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
 
                                                     let acl = null;
@@ -400,7 +400,7 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal,attributes", limit: 50});
+                                                        .search({study: study.fqn, internalStatus: "READY", exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
                                                         .filter(cohort => !cohort.attributes?.IVA?.ignore);
                                                     // FIXME line above should check cohort.internal instead

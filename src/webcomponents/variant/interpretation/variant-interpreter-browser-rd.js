@@ -108,6 +108,14 @@ class VariantInterpreterBrowserRd extends LitElement {
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
         }
 
+        // Check for adding the examples filters section
+        if (_activeFilterFilters?.length > 0) {
+            _activeFilterFilters.unshift({
+                category: true,
+                name: "Example Filters",
+            });
+        }
+
         this.sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
         if (this.sample) {
             // Init query object if needed
@@ -215,28 +223,25 @@ class VariantInterpreterBrowserRd extends LitElement {
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.sample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push({
+                    category: true,
+                    name: "Variant Stats Filters",
+                });
                 _activeFilterFilters.push(
-                    ...this.sample.qualityControl.variant.variantStats
-                        .map(variantStat => (
-                            {
-                                id: variantStat.id,
-                                active: false,
-                                query: variantStat.query
-                            }
-                        ))
+                    ...this.sample.qualityControl.variant.variantStats.map(variantStat => ({
+                        id: variantStat.id,
+                        active: false,
+                        query: variantStat.query,
+                    })),
                 );
             }
 
             // 2. Add default initial query the active filter menu
-            _activeFilterFilters.unshift({separator: true});
-            _activeFilterFilters.unshift(
-                {
-                    id: "Default Initial Query",
-                    active: false,
-                    query: this.query
-                }
-            );
+            _activeFilterFilters.unshift({
+                id: "Default Initial Query",
+                active: false,
+                query: this.query,
+            });
 
             // Add 'file' filter if 'fileData' exists
             if (this.files) {

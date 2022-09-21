@@ -6,7 +6,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
         sections: [ // sections and subsections, structure and order is respected
             {
                 title: "Sample And File",
-                filters: ["sample-genotype", "variant-file", "variant-file-sample-filter", "variant-file-info-filter"],
+                filters: ["sample-genotype", "variant-file", "variant-file-sample-filter", "variant-file-info-filter", "cohort"],
             },
             {
                 title: "Genomic",

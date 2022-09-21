@@ -80,10 +80,8 @@ export default class OpencgaActiveFilters extends LitElement {
         this.lockedFieldsMap = {};
         this.facetQuery = {};
         this._JsonFacetQuery = null;
-    }
 
-    connectedCallback() {
-        super.connectedCallback();
+        this.history = [];
     }
 
     firstUpdated() {
@@ -134,9 +132,17 @@ export default class OpencgaActiveFilters extends LitElement {
         super.update(changedProperties);
     }
 
+    // Josemi 20220916 NOTE: this updated is required to update the tooltips for the history items
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
+
     opencgaSessionObserver() {
         if (this.opencgaSession.token && this.opencgaSession?.study?.fqn) {
             this.refreshFilters();
+
+            // Empty history when changing study
+            this.history = [];
         }
     }
 
@@ -248,34 +254,91 @@ export default class OpencgaActiveFilters extends LitElement {
         this._prevQuery = {...this.query};
         this._jsonPrevFacetQuery = JSON.stringify(this.executedFacetQuery);
 
+        // FIXME To be deleted after testing
         // Check if the current active filter must still be active after changing the query
-        const activeFilter = this._filters?.find(filter => filter.active);
-        if (activeFilter) {
+        // const activeFilter = this._filters?.find(filter => filter.active);
+        // if (activeFilter) {
+        //     for (const key of Object.keys(this.query)) {
+        //         // Only consider non-locked fields
+        //         if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
+        //             // Check if the filter value is the same
+        //             if (activeFilter.query[key] !== this.query?.[key]) {
+        //                 activeFilter.active = false;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     // If not active filter is set we check if any matches the current query.
+        //     // Skip categories and separators.
+        //     const queryFilters = this._filters.filter(f => !!f.query);
+        //     for (const filtersKey of queryFilters) {
+        //         let match = true;
+        //         for (const key of Object.keys(this.query)) {
+        //             // Check if all existing keys (but study) have the same values as the filter
+        //             if (key !== "study") {
+        //                 if (filtersKey?.query?.[key]) {
+        //                     match = match && filtersKey.query[key] === this.query[key];
+        //                 } else {
+        //                     match = false;
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //         if (match) {
+        //             filtersKey.active = true;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // Set all filters not active
+        // eslint-disable-next-line no-param-reassign
+        this._filters.forEach(f => f.active = false);
+
+        // Now check if any filter matches the current query. Skip categories and separators.
+        const queryFilters = this._filters.filter(f => !!f.query);
+        for (const filtersKey of queryFilters) {
+            let match = true;
             for (const key of Object.keys(this.query)) {
-                // Only consider non-locked fields
+                // Check if all existing keys (but study) have the same values as the filter
                 if (key !== "study" && this._config.lockedFields.findIndex(f => f.id === key) === -1) {
-                    // Check if the filter value is the same
-                    if (activeFilter.query[key] !== this.query[key]) {
-                        activeFilter.active = false;
+                    if (filtersKey?.query?.[key]) {
+                        match = match && filtersKey.query[key] === this.query[key];
+                    } else {
+                        match = false;
                         break;
                     }
                 }
             }
-        } else {
-            // If not active filter we check if any matches the current query.
-            for (const filtersKey of this._filters) {
-                let match = true;
-                for (const key of Object.keys(this.query)) {
-                    if (key !== "study" && filtersKey?.query[key]) {
-                        match = match && filtersKey.query[key] === this.query[key];
-                    }
-                }
-                if (match) {
-                    filtersKey.active = true;
-                    break;
-                }
+            if (match) {
+                filtersKey.active = true;
+                break;
             }
         }
+
+
+        // Update History
+        // 1. remove all identical filters
+        const _history = this.history.filter(hist => JSON.stringify(hist.query) !== JSON.stringify(this.query));
+
+        // 2. Remove previous latest
+        if (_history?.length > 0) {
+            _history[0].latest = false;
+        }
+
+        // 3. Prepare new latest filter and add at the beginning
+        _history.unshift({
+            date: UtilsNew.getDatetime(),
+            query: {...this.query},
+            latest: true
+        });
+
+        // 4. Limit up to 10 history items
+        this.history = _history.slice(0, 10);
+
+        // 5. Refresh
+        this.requestUpdate();
     }
 
     configObserver() {
@@ -325,24 +388,28 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     refreshFilters() {
-        // 1. Add passed filters
-        // this._filters = this.filters || [];
-        this._filters = [...(this.filters || [])];
+        // 0. Reset internal filters array every time
+        this._filters = [];
 
-        // 2. Add and merge user's filters
-        if (this.opencgaSession?.user?.filters?.length > 0) {
-            // Add a separator
-            if (this._filters.length > 0 && !this._filters[this._filters.length - 1].separator) {
-                this._filters.push({separator: true});
-            }
-
-            // Add user's saved filters
+        // 1. Add passed application filters
+        if (this.filters?.length > 0) {
             this._filters = [
-                ...this._filters,
-                ...this.opencgaSession.user.filters.filter(f => f.resource === this.resource)
+                {name: "Application Filters", category: true},
+                ...this.filters
             ];
         }
 
+        // 2. Add and merge user filters
+        const userFilters = this.opencgaSession.user.filters.filter(f => f.resource === this.resource);
+        if (userFilters?.length > 0) {
+            this._filters = [
+                ...this._filters,
+                {name: "User Saved Filters", category: true},
+                ...userFilters
+            ];
+        }
+
+        // 3. Refresh and add tooltips
         this.requestUpdate();
         this.updateComplete.then(() => UtilsNew.initTooltip(this));
     }
@@ -452,13 +519,21 @@ export default class OpencgaActiveFilters extends LitElement {
             });
     }
 
-    onFilterChange(e) {
+    onFilterChange(e, query) {
         // suppress if I have clicked on an action buttons
         if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
         $("#" + this._prefix + "Warning").hide();
+
+        // This happens when clicking in the history
+        if (query) {
+            LitUtils.dispatchCustomEvent(this, "activeFilterChange", null, query);
+            return;
+        }
+
+        // A filter has been selected
         if (this._filters) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
@@ -521,7 +596,7 @@ export default class OpencgaActiveFilters extends LitElement {
     onQueryFilterDelete(e) {
         const _queryList = Object.assign({}, this.query);
 
-        const {filterName: name, filterValue: value} = e.target.dataset;
+        const {filterName: name, filterValue: value} = e.currentTarget.dataset;
         console.log("onQueryFilterDelete", name, value);
 
         if (UtilsNew.isEmpty(value)) {
@@ -603,12 +678,76 @@ export default class OpencgaActiveFilters extends LitElement {
         }));
     }
 
+    renderFilterItem(item) {
+        if (item.separator) {
+            return html`<li role="separator" class="divider"></li>`;
+        } else {
+            if (item.category) {
+                return html`<li class="dropdown-header">${item.name}</li>`;
+            } else {
+                return html`
+                    <!-- Render the filter option -->
+                    <li>
+                        <a data-filter-id="${item.id}" class="filtersLink"
+                           style="cursor: pointer;color: ${item.active ? "green" : "black"}"
+                           @click="${this.onFilterChange}">
+                            <span class="id-filter-button">${item.id}</span>
+                            <span class="action-buttons">
+                            <span tooltip-title="${item.id}"
+                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                  data-filter-id="${item.id}">
+                                <i class="fas fa-eye" data-action="view-filter"></i>
+                            </span>
+                            <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
+                            ${item.resource ? html`
+                                <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
+                                   data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                </i>
+                            ` : null}
+                        </span>
+                        </a>
+                    </li>
+                `;
+            }
+        }
+    }
+
+    renderHistoryItem(item) {
+        // Skip study param
+        const filterParams = Object.keys(item.query).filter(key => key !== "study" && !!item.query[key]);
+        const filterTitle = UtilsNew.dateFormatter(item.date, "HH:mm:ss");
+        const filterTooltip = filterParams.map(key => `<b>${key}</b> = ${item.query[key]}`).join("<br>");
+
+        return html`
+            <a class="filtersLink" style="cursor: pointer" @click="${e => this.onFilterChange(e, item.query)}">
+                <div class="id-filter-button">${filterTitle} ${item.latest ? " (latest)" : ""}</div>
+                <div class="help-block" style="font-size:12px;margin-bottom:5px;">
+                    ${filterParams?.length > 0 ? html`
+                        ${filterParams.slice(0, 2).map(key => html`
+                            <div style="margin: 0 15px" title="${item.query[key]}">
+                                <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                            </div>
+                        `)}
+                    ` : html`
+                        <div style="margin: 0 15px">Empty query.</div>
+                    `}
+                    <span class="action-buttons">
+                        <span tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                            <i class="fas fa-eye" data-action="view-filter"></i>
+                        </span>
+                    </span>
+                </div>
+            </a>
+        `;
+    }
+
     render() {
         return html`
             ${this.facetActive ? html`
                 <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facets have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
-                </div>` : html`
+                </div>
+            ` : html`
                 <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
@@ -616,7 +755,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
-                    <!-- Render dropdown menu with all filters -->
+                    <!-- Render dropdown menu with all filters and history -->
                     <div>
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
                             <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown"
@@ -624,116 +763,111 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
+                                <!-- Render FILTERS options -->
+                                <li>
+                                    <a><i class="fas fa-filter icon-padding"></i> <label>Filters</label></a>
+                                </li>
                                 ${this._filters?.length > 0 ? html`
-                                    <li>
-                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Filters</strong></a>
-                                    </li>
+                                    ${this._filters.map(item => this.renderFilterItem(item))}
+                                ` : html`
+                                    <div class="help-block" style="margin: 0 30px">
+                                        No filters found.
+                                    </div>
+                                `}
+                                <li role="separator" class="divider"></li>
 
-                                    ${this._filters.map(item => item.separator ?
-                                        html`
-                                            <li role="separator" class="divider"></li>` :
-                                        html`
-                                            <!-- Add header before the first Saved filter-->
-                                            ${item.id === this.opencgaSession.user.filters.filter(f => f.resource === this.resource)?.[0]?.id ? html`
-                                                <li class="dropdown-header">Saved Filters</li>` : null
-                                            }
-                                            <!-- Render the filter option -->
-                                            <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink"
-                                                   style="cursor: pointer;color: ${item.active ? "green" : "black"}"
-                                                   @click="${this.onFilterChange}">
-                                                    <span class="id-filter-button">${item.id}</span>
-                                                    <span class="action-buttons">
-                                                        <span tooltip-title="${item.id}"
-                                                              tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                                              data-filter-id="${item.id}">
-                                                            <i class="fas fa-eye" data-action="view-filter"></i>
-                                                        </span>
+                                <!-- Render HISTORY filters -->
+                                <li>
+                                    <a><i class="fas fa-history icon-padding"></i> <label>History</label></a>
+                                </li>
+                                ${this.history?.length > 0 ? html`
+                                    ${this.history.map(item => html`
+                                        <li>
+                                            ${this.renderHistoryItem(item)}
+                                        </li>
+                                    `)}
+                                ` : html`
+                                    <div class="help-block" style="margin: 0 30px">
+                                        Empty history.
+                                    </div>
+                                `}
+                                <li role="separator" class="divider"></li>
 
-                                                        <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
-                                                        ${item.resource ? html`
-                                                            <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                                               data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
-                                                            </i>` : null
-                                                        }
-                                                    </span>
-                                                </a>
-                                            </li>`
-                                    )}
-                                    <li role="separator" class="divider"></li>` : ""
-                                }
-
+                                <!-- Add CLEAR and SAVE buttons -->
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <label>Clear</label>
                                     </a>
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
                                         <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save icon-padding"></i> <strong>Save current filter</strong>
+                                            <i class="fas fa-save icon-padding"></i> <label>Save current filter</label>
                                         </a>
-                                    </li>` : null
-                                }
+                                    </li>
+                                ` : null}
                             </ul>
                         </div>
 
                         <!-- Render active query filters -->
                         ${this.queryList?.length > 0 ? html`
-                            ${this.queryList.map(item => !item.items ?
-                                html`
-                                    <!-- Single-valued filters -->
-                                    ${!item.locked ? html`
-                                        <!-- No multi-valued filters -->
+                            ${this.queryList.map(item => !item.items ? html`
+                                <!-- Single-valued filters -->
+                                ${!item.locked ? html`
+                                    <!-- No multi-valued filters -->
+                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                            @click="${this.onQueryFilterDelete}">
+                                        ${item.text}
+                                    </button>
+                                ` : html`
+                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                            @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
+                                        ${item.text}
+                                    </button>
+                                `}
+                            ` : html`
+                                <!-- Multi-valued filters -->
+                                <div class="btn-group">
+                                    ${item.locked ? html`
+                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                                @click="${this.onQueryFilterDelete}" disabled>
+                                            ${item.text} <span class="badge">${item.items.length}</span>
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            ${item.items.length && item.items.map(filterItem => html`
+                                                <li class="active-filter-button disabled" style="cursor: pointer">
+                                                    <a>${filterItem}</a>
+                                                </li>
+                                            `)}
+                                        </ul>
+                                    ` : html`
                                         <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
                                                 @click="${this.onQueryFilterDelete}">
-                                            ${item.text}
-                                        </button>` : html`
-                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
-                                                @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
-                                            ${item.text}
-                                        </button>`
-                                    }` : html`
-                                    <!-- Multi-valued filters -->
-                                    <div class="btn-group">
-                                        ${item.locked ? html`
-                                            <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
-                                                    @click="${this.onQueryFilterDelete}" disabled>
-                                                ${item.text} <span class="badge">${item.items.length}</span>
-                                            </button>
-                                            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                ${item.items.length && item.items.map(filterItem => html`
-                                                    <li class="active-filter-button disabled" style="cursor: pointer">
-                                                        <a>${filterItem}</a>
-                                                    </li>
-                                                `)}
-                                            </ul>` : html`
-                                            <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
-                                                    @click="${this.onQueryFilterDelete}">
-                                                ${item.text} <span class="badge">${item.items.length}</span>
-                                            </button>
-                                            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                ${item.items.length && item.items.map(filterItem => html`
-                                                    <li class="active-filter-button" style="cursor: pointer">
-                                                        <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                            ${filterItem}
-                                                        </a>
-                                                    </li>
-                                                `)}
-                                            </ul>`
-                                        }
-                                    </div>`
-                            )}
-                        ` : html`<label>No filters selected</label>`
-                        }
+                                            ${item.text} <span class="badge">${item.items.length}</span>
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            ${item.items.length && item.items.map(filterItem => html`
+                                                <li class="active-filter-button" style="cursor: pointer">
+                                                    <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
+                                                        ${filterItem}
+                                                    </a>
+                                                </li>
+                                            `)}
+                                        </ul>
+                                    `}
+                                </div>
+                            `)}
+                        ` : html`
+                            <label>No filters selected</label>
+                        `}
                     </div>
 
                     <!-- aggregation stat section -->
@@ -759,6 +893,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </button>
                                 `)}
                             </div>
+                        </div>
                     ` : null}
                 </div>
             </div>
@@ -772,8 +907,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                            <h
-                                class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
                         </div>
                         <div class="modal-body">
                             <div class="form-group row">
@@ -790,7 +924,9 @@ export default class OpencgaActiveFilters extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">
+                                Save
+                            </button>
                         </div>
                     </div>
                 </div>
