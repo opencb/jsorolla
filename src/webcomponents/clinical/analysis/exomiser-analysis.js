@@ -94,6 +94,9 @@ export default class ExomiserAnalysis extends LitElement {
             this.opencgaSession.opencgaClient.clinical().runInterpreterExomiser(toolParams, params),
             this,
         );
+
+        // Clear analysis form after submitting
+        this.onClear();
     }
 
     onClear() {
