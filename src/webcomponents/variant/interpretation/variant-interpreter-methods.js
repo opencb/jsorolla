@@ -20,7 +20,6 @@ import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
 import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
-import "../../clinical/analysis/opencga-exomiser-analysis.js";
 
 
 class VariantInterpreterMethods extends LitElement {
