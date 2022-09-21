@@ -79,7 +79,7 @@ export default class VariantGridFormatter {
 
         // Create links for tooltip
         const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
-        const tooltipText = `
+        let tooltipText = `
             <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
                 <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
@@ -92,6 +92,17 @@ export default class VariantGridFormatter {
                 </a>
             </div>
         `;
+
+        if (row.type === "SNV" || row.studies[0]?.files[0]?.call?.variantId) {
+            const variantId = (row.type === "SNV") ? row.id : row.studies[0].files[0].call.variantId.split(",")[0];
+            tooltipText += `
+            <div style="padding: 5px">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId.replace(/:/g, "-"), variantRegion, "decipher_variant")}">
+                    DECIPHER Variant
+                </a>
+            </div>
+        `;
+        }
 
         const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 

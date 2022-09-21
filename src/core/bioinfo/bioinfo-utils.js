@@ -113,6 +113,8 @@ export default class BioinfoUtils {
                 }
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+            case "DECIPHER_VARIANT":
+                return `https://www.deciphergenomics.org/sequence-variant/${id}`;
 
         }
     }
