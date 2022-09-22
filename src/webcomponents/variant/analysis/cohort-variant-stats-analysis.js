@@ -20,7 +20,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
 
 
-export default class SampleVariantStatsAnalysis extends LitElement {
+export default class CohortVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,8 +47,8 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "sample-variant-stats";
-        this.ANALYSIS_TITLE = "Sample Variant Stats";
+        this.ANALYSIS_TOOL = "cohort-variant-stats";
+        this.ANALYSIS_TITLE = "Cohort Variant Stats";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -62,7 +62,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     // }
 
     check() {
-        return !!this.toolParams.sample || !!this.toolParams.individual;
+        return !!this.toolParams.cohort || !!this.toolParams.sample;
     }
 
     onFieldChange(e, field) {
@@ -77,8 +77,8 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            sample: this.toolParams.sample?.split(",") || [],
-            individual: this.toolParams.individual?.split(",") || [],
+            cohort: this.toolParams.cohort || "",
+            samples: this.toolParams.samples?.split(",") || [],
             index: this.toolParams.index ?? false,
         };
         const params = {
@@ -87,7 +87,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runSampleStats(toolParams, params),
+            this.opencgaSession.opencgaClient.variants().runCohortStats(toolParams, params),
             this
         );
     }
@@ -113,8 +113,27 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Samples",
+                title: "Input Cohort",
                 elements: [
+                    {
+                        title: "Cohort ID",
+                        type: "custom",
+                        display: {
+                            render: toolParams => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${toolParams?.cohort}"
+                                        .resource="${"COHORT"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false, disabled: !!toolParams.samples}}"
+                                        @filterChange="${e => this.onFieldChange(e, "cohort")}">
+                                    </catalog-search-autocomplete>`;
+                            },
+                            help: {
+                                text: "Cohort Variant stats will be calculated for the cohort selected",
+                            }
+                        },
+                    },
                     {
                         title: "Sample ID",
                         type: "custom",
@@ -125,31 +144,12 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                         .value="${toolParams?.sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.individual}}"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        .config="${{multiple: true, disabled: !!toolParams.cohort}}"
+                                        @filterChange="${e => this.onFieldChange(e, "samples")}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select on Sample to run the analysis",
-                            }
-                        },
-                    },
-                    {
-                        title: "Individual ID",
-                        type: "custom",
-                        display: {
-                            render: toolParams => {
-                                return html`
-                                    <catalog-search-autocomplete
-                                        .value="${toolParams?.individual}"
-                                        .resource="${"INDIVIDUAL"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
-                                    </catalog-search-autocomplete>`;
-                            },
-                            help: {
-                                text: "Variant stats will be calculated for all the samples for the members of this family",
+                                text: "Select sample to run the analysis",
                             }
                         },
                     },
@@ -180,4 +180,4 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
 }
 
-customElements.define("sample-variant-stats-analysis", SampleVariantStatsAnalysis);
+customElements.define("cohort-variant-stats-analysis", CohortVariantStatsAnalysis);

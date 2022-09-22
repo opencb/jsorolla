@@ -50,14 +50,16 @@ export default class ExomiserAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Interpreter Exomiser";
 
         this.DEFAULT_TOOLPARAMS = {};
-        this.toolParams = this.DEFAULT_TOOLPARAMS;
         this.clinicalAnalysisId = "";
+        // Make a deep copy to avoid modifying default object.
+        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
 
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if a clinical analysis ID was passed as an argument
             this.clinicalAnalysisId = this.toolParams.clinicalAnalysisId || "";
             this.toolParams = {
                 ...this.DEFAULT_TOOLPARAMS,
@@ -102,6 +104,7 @@ export default class ExomiserAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...this.DEFAULT_TOOLPARAMS,
+            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
             clinicalAnalysisId: this.clinicalAnalysisId,
         };
         this.config = this.getDefaultConfig();
@@ -148,7 +151,7 @@ export default class ExomiserAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a exomiser analysis job",
+            "Executes an Exomiser Interpretation analysis",
             params,
             this.check(),
         );

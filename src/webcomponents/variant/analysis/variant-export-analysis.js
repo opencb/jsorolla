@@ -20,7 +20,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
 
 
-export default class SampleVariantStatsAnalysis extends LitElement {
+export default class VariantExportAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,8 +47,8 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "sample-variant-stats";
-        this.ANALYSIS_TITLE = "Sample Variant Stats";
+        this.ANALYSIS_TOOL = "variant-export";
+        this.ANALYSIS_TITLE = "Variant Export";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -62,7 +62,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     // }
 
     check() {
-        return !!this.toolParams.sample || !!this.toolParams.individual;
+        return !!this.toolParams.sample || !!this.toolParams.family;
     }
 
     onFieldChange(e, field) {
@@ -77,9 +77,11 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            sample: this.toolParams.sample?.split(",") || [],
-            individual: this.toolParams.individual?.split(",") || [],
-            index: this.toolParams.index ?? false,
+            sample: this.toolParams.sample || "",
+            family: this.toolParams.family || "",
+            region: this.toolParams.region || "",
+            gene: this.toolParams.gene || "",
+            biotype: this.toolParams.biotype || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -87,7 +89,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runSampleStats(toolParams, params),
+            this.opencgaSession.opencgaClient.variants().runExport(toolParams, params),
             this
         );
     }
@@ -113,7 +115,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Samples",
+                title: "Select Samples",
                 elements: [
                     {
                         title: "Sample ID",
@@ -125,43 +127,68 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                         .value="${toolParams?.sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.individual}}"
+                                        .config="${{multiple: true, disabled: !!toolParams.family}}"
                                         @filterChange="${e => this.onFieldChange(e, "sample")}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select on Sample to run the analysis",
+                                text: "Select samples to export variants",
                             }
                         },
                     },
                     {
-                        title: "Individual ID",
+                        title: "Family ID",
                         type: "custom",
                         display: {
                             render: toolParams => {
                                 return html`
                                     <catalog-search-autocomplete
                                         .value="${toolParams?.individual}"
-                                        .resource="${"INDIVIDUAL"}"
+                                        .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                        @filterChange="${e => this.onFieldChange(e, "family")}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Variant stats will be calculated for all the samples for the members of this family",
+                                text: "Select families to export variants",
                             }
                         },
                     },
                 ]
             },
             {
-                title: "Configuration Parameters",
+                title: "Variant Query Parameters",
                 elements: [
                     {
-                        title: "Index",
-                        field: "index",
-                        type: "checkbox",
+                        title: "Region",
+                        field: "region",
+                        type: "input-text",
+                        display: {
+                        },
+                    },
+                    {
+                        title: "Gene",
+                        field: "gene",
+                        type: "custom",
+                        display: {
+                            placeholder: "Add gene...",
+                            render: (data, dataFormFilterChange) => {
+                                return html`
+                                    <feature-filter
+                                        .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </feature-filter>
+                                `;
+                            },
+                        }
+                    },
+                    {
+                        title: "Gene Biotype",
+                        field: "biotype",
+                        type: "select",
+                        allowedValues: BIOTYPES,
+                        multiple: true,
                         display: {
                         },
                     },
@@ -172,7 +199,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a mutational signature analysis job",
+            "Executes a Variant Export analysis",
             params,
             this.check()
         );
@@ -180,4 +207,4 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
 }
 
-customElements.define("sample-variant-stats-analysis", SampleVariantStatsAnalysis);
+customElements.define("variant-export-analysis", VariantExportAnalysis);
