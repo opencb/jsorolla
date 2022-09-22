@@ -166,11 +166,11 @@ class CaseSteinerReport extends LitElement {
 
             const allPromises = [
                 this.opencgaSession.opencgaClient.files().search({
-                    sampleIds: [somaticSample.id, germlineSample.id].join(","),
+                    sampleIds: [somaticSample?.id, germlineSample?.id].join(","),
                     limit: 100,
                     study: this.opencgaSession.study.fqn,
                 }),
-                this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
+                this.opencgaSession.opencgaClient.samples().info(somaticSample?.id, {
                     include: "annotationSets",
                     study: this.opencgaSession.study.fqn,
                 }),

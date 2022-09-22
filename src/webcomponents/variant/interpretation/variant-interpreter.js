@@ -22,6 +22,7 @@ import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
 import "./case-steiner-report.js";
+import "./case-sms-report.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
@@ -283,13 +284,15 @@ class VariantInterpreter extends LitElement {
         };
 
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
-        if (settingReporter && settingReporter?.component === "steiner-report") {
-            configReportTabs.items.push({
-                id: "variantReport",
-                name: "Variant Report",
-                active: false,
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    return html`
+
+        switch (settingReporter && settingReporter?.component) {
+            case "steiner-report":
+                configReportTabs.items.push({
+                    id: "variantReport",
+                    name: "Variant Report",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
                                 class="bg-white"
@@ -301,30 +304,100 @@ class VariantInterpreter extends LitElement {
                             </case-steiner-report>
                         </div>
                     `;
-                }
-            });
-        } else {
-            configReportTabs.items.push({
-                id: "caseReport",
-                name: "Case Report Review",
-                active: true,
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    return html`
+                    }
+                });
+                break;
+            case "sms-report":
+                configReportTabs.items.push({
+                    id: "variantReport",
+                    name: "Variant Report",
+                    active: false,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
-                            <clinical-analysis-review
-                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                            <case-sms-report
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}">
-                            </clinical-analysis-review>
+                            </case-sms-report>
                         </div>
                     `;
-                }
-            });
+                    }
+                });
+                break;
+            default:
+                configReportTabs.items.push({
+                    id: "caseReport",
+                    name: "Case Report Review",
+                    active: true,
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <clinical-analysis-review
+                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-review>
+                            </div>
+                        `;
+                    }
+                });
+                break;
         }
+
+        // if (settingReporter && settingReporter?.component === "steiner-report") {
+        //     configReportTabs.items.push({
+        //         id: "variantReport",
+        //         name: "Variant Report",
+        //         active: false,
+        //         render: (clinicalAnalysis, active, opencgaSession) => {
+        //             return html`
+        //             <div class="col-md-10 col-md-offset-1">
+        //                 <tool-header
+        //                     class="bg-white"
+        //                     title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+        //                 </tool-header>
+        //                 <case-steiner-report
+        //                     .clinicalAnalysis="${clinicalAnalysis}"
+        //                     .opencgaSession="${opencgaSession}">
+        //                 </case-steiner-report>
+        //                 <case-sms-report
+        //                     .clinicalAnalysis="${clinicalAnalysis}"
+        //                     .opencgaSession="${opencgaSession}">
+        //                 </case-sms-report>
+        //             </div>
+        //         `;
+        //         }
+        //     });
+        // } else {
+        //     configReportTabs.items.push({
+        //         id: "caseReport",
+        //         name: "Case Report Review",
+        //         active: true,
+        //         render: (clinicalAnalysis, active, opencgaSession) => {
+        //             return html`
+        //                 <div class="col-md-10 col-md-offset-1">
+        //                     <tool-header
+        //                         class="bg-white"
+        //                         title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+        //                     </tool-header>
+        //                     <clinical-analysis-review
+        //                         @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+        //                         .clinicalAnalysis="${clinicalAnalysis}"
+        //                         .opencgaSession="${opencgaSession}">
+        //                     </clinical-analysis-review>
+        //                 </div>
+        //             `;
+        //         }
+        //     });
+        // }
 
         return html`
             <div class="variant-interpreter-tool">
