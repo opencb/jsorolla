@@ -65,7 +65,7 @@ import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
+import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-mendelian-error-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
@@ -1540,7 +1540,10 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
                     <div class="content" id="opencga-individual-relatedness-analysis">
-                        <opencga-individual-relatedness-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-relatedness-analysis>
+                        <individual-relatedness-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </individual-relatedness-analysis>
                     </div>
                 ` : null}
 
