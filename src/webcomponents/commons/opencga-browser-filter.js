@@ -94,7 +94,7 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         // Select the right distinct field to be displayed
         this.filterToDistinctField = {
-            "phenotypes": "phenotypes.name",
+            "phenotypes": "phenotypes.id,phenotypes.name",
             "disorders": "disorders.id,disorders.name",
             "ethnicity": "ethnicity.id",
             "proband": "proband.id",
