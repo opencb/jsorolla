@@ -78,7 +78,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter-browser-r
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
-import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
+import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
@@ -422,11 +422,12 @@ class IvaApp extends LitElement {
             .catch(e => {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
-            }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
+            })
+            .finally(() => {
+                this.signingIn = false;
+                this.requestUpdate();
             // this.updateComplete;
-        });
+            });
     }
 
     // TODO turn this into a Promise
@@ -1604,8 +1605,10 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-                    <div class="content" id="opencga-rd-tiering-analysis">
-                        <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                    <div class="content" id="rd-tiering-analysis">
+                        <rd-tiering-analysis
+                                .opencgaSession="${this.opencgaSession}">
+                        </rd-tiering-analysis>
                     </div>
                 ` : null}
 

@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
 export default class OpencgaRdTieringAnalysis extends LitElement {
@@ -136,7 +136,7 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                     id: "rd-tiering-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
