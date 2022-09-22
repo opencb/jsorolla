@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import "../../commons/filters/catalog-search-autocomplete.js";
 import FormUtils from "../../commons/forms/form-utils";
 
 
