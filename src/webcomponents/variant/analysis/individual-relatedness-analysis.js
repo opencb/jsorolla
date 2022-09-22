@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
-import "../../commons/filters/catalog-search-autocomplete.js";
 import FormUtils from "../../commons/forms/form-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 
-export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
+export default class IndividualRelatednessAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -178,4 +179,4 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
 
 }
 
-customElements.define("individual-relatedness-analysis", OpencgaIndividualRelatednessAnalysis);
+customElements.define("individual-relatedness-analysis", IndividualRelatednessAnalysis);
