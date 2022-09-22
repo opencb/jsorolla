@@ -15,8 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import NotificationUtils from "../../commons/utils/notification-utils";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
@@ -51,6 +49,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "mutational-signature";
         this.ANALYSIS_TITLE = "Mutational Signature";
+        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
             fitmethod: "FitMS",
@@ -63,15 +62,17 @@ export default class MutationalSignatureAnalysis extends LitElement {
         };
         this.toolParams = this.DEFAULT_TOOLPARAMS;
 
-        this.REFSIGV1_ORGANS = ["Biliary", "Bladder", "Bone_SoftTissue", "Breast", "Cervix", "CNS", "Colorectal", "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"]
-        this.REFSIGV2_ORGANS = ["Biliary", "Bladder", "Bone_SoftTissue", "Breast", "CNS", "Colorectal", "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "NET", "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"]
+        this.REFSIGV1_ORGANS = [
+            "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "Cervix", "CNS",
+            "Colorectal", "Esophagus", "Head_neck", "Kidney", "Liver", "Lung",
+            "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
+        this.REFSIGV2_ORGANS = [
+            "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "CNS", "Colorectal",
+            "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "NET",
+            "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
 
         this.config = this.getDefaultConfig();
     }
-
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
 
     check() {
         return !!this.toolParams.organ;
@@ -97,7 +98,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runMutationalSignature(toolParams, params),
+            this.opencgaSession.opencgaClient
+                .variants()
+                .runMutationalSignature(toolParams, params),
             this
         );
     }
@@ -123,7 +126,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "General Information",
+                title: "Configuration Parameters",
                 elements: [
                     {
                         title: "Fit Method",
@@ -201,7 +204,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.ANALYSIS_TITLE,
-            "Executes a mutational signature analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );
