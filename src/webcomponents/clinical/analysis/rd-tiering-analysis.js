@@ -35,11 +35,6 @@ export default class RdTieringAnalysis extends LitElement {
 
     static get properties() {
         return {
-            /*
-            clinicalAnalysis: {
-                type: Object
-            },
-            */
             toolParams: {
                 type: Object,
             },
@@ -49,11 +44,6 @@ export default class RdTieringAnalysis extends LitElement {
             title: {
                 type: String
             },
-            /*
-            config: {
-                type: Object
-            }
-             */
         };
     }
 
@@ -62,7 +52,8 @@ export default class RdTieringAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "RD Tiering Interpretation";
 
         this.DEFAULT_TOOLPARAMS = {};
-        this.toolParams = this.DEFAULT_TOOLPARAMS;
+        // Make a deep copy to avoid modifying default object.
+        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
         this.clinicalAnalysis = {};
         // CAUTION: Panels inside clinicalAnalysis
 
@@ -71,6 +62,7 @@ export default class RdTieringAnalysis extends LitElement {
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
+            // Save the initial clinicalAnalysis. Needed for onClear() method
             this.clinicalAnalysis = this.toolParams.clinicalAnalysis || {};
             this.toolParams = {
                 ...this.DEFAULT_TOOLPARAMS,
@@ -91,18 +83,6 @@ export default class RdTieringAnalysis extends LitElement {
         }
         this.config = this.getDefaultConfig();
         this.requestUpdate();
-        /*
-        switch (param) {
-            case "id":
-                this.updateParams = FormUtils
-                    .updateScalar(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value);
-                break;
-            case "panels.id":
-                this.updateParams = FormUtils
-                    .updateObjectArray(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value, e.detail.data);
-                break;
-        }
-        */
     }
 
     onSubmit() {
@@ -125,7 +105,7 @@ export default class RdTieringAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...this.DEFAULT_TOOLPARAMS,
-            clinicalAnalysis: this.clinicalAnalysis,
+            clinicalAnalysis: {...this.clinicalAnalysis},
         };
         this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -153,29 +133,28 @@ export default class RdTieringAnalysis extends LitElement {
                         field: "clinicalAnalysisId",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysis => html`
+                            render: toolParams => html`
                                         <catalog-search-autocomplete
-                                            .value="${clinicalAnalysis?.id}"
+                                            .value="${toolParams?.clinicalAnalysis?.id}"
                                             .resource="${"CLINICAL_ANALYSIS"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false, disabled: !!clinicalAnalysis.id}}"
+                                            .config="${{multiple: false, disabled: !!toolParams.clinicalAnalysis.id}}"
                                             @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
                                         </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        // CAUTION: REFACTOR THIS WHEN POSSIBLE TO TEST
                         title: "Disease Panels",
                         field: "panels",
                         type: "custom",
                         display: {
                             render: panels => {
-                                // Todo QUESTION: meaning panelLock?
+                                // Todo: check if its working
+                                // Get whether disease panels can be modified or are fixed
                                 const panelLock = !!this.clinicalAnalysis?.panelLock;
                                 // Get the list of disease panels for the dropdown
                                 const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
-                                // Todo QUESTION: how to refactor classes
                                 return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
@@ -183,14 +162,13 @@ export default class RdTieringAnalysis extends LitElement {
                                             .panel="${panels?.map(p => p.id).join(",")}"
                                             .showExtendedFilters="${false}"
                                             .showSelectedPanels="${false}"
-                                            .classes="${this.updateParams.panels ? "updated" : ""}"
+                                            .classes="${this.clinicalAnalysis?.panels ? "updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;
                             },
                         }
-                        // \CAUTION: REFACTOR THIS WHEN POSSIBLE TO TEST
                     },
                 ],
             }
