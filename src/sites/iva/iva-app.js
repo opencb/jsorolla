@@ -1539,7 +1539,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-                    <div class="content" id="opencga-individual-relatedness-analysis">
+                    <div class="content col-md-8 col-md-offset-2" id="opencga-individual-relatedness-analysis">
                         <individual-relatedness-analysis
                                 .opencgaSession="${this.opencgaSession}"
                                 .title="">
@@ -1608,7 +1608,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-                    <div class="content" id="rd-tiering-analysis">
+                    <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
                         <rd-tiering-analysis
                                 .opencgaSession="${this.opencgaSession}">
                         </rd-tiering-analysis>
