@@ -21,7 +21,7 @@
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./obsolete/category-page.js";
@@ -72,7 +72,7 @@ import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-family-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-exporter-analysis.js";
+import "../../webcomponents/variant/analysis/variant-export-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
@@ -88,7 +88,6 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
-
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -199,7 +198,7 @@ class IvaApp extends LitElement {
             "mendelian-errors",
             "plink",
             "gatk",
-            "variant-exporter",
+            "variant-export",
             "variant-stats-exporter",
             // Quality Control
             "sample-qc",
@@ -1580,9 +1579,9 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-exporter"] ? html`
-                    <div class="content" id="opencga-variant-exporter-analysis">
-                        <opencga-variant-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-exporter-analysis>
+                ${this.config.enabledComponents["variant-export"] ? html`
+                    <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
+                        <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
                     </div>
                 ` : null}
 
