@@ -49,7 +49,11 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "sample-variant-stats";
         this.ANALYSIS_TITLE = "Sample Variant Stats";
-        this.toolParams = {};
+
+        this.DEFAULT_TOOLPARAMS = {};
+        // Make a deep copy to avoid modifying default object.
+        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+
         this.config = this.getDefaultConfig();
     }
 
@@ -89,7 +93,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     onClear() {
-        this.toolParams = {};
+        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
         this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
