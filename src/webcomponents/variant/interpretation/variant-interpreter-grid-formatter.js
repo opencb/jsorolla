@@ -185,12 +185,14 @@ export default class VariantInterpreterGridFormatter {
                                    <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
                                    <th rowspan="2" style="padding: 2px 5px">Disease Panel</th>
                                    <th rowspan="2" style="padding: 2px 5px">Role in Cancer</th>
-                                   <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding: 5px 5px">Classification</th>
+                                   <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
+                                   <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
                                </tr>
                                <tr>
-                                   <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
-                                   ${review ? "<th rowspan=\"1\">Select</th>" : ""}
-                                   ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
+                                    <th rowspan="1" style="padding-top: 5px">ACMG</th>
+                                    <th rowspan="1">Tier</th>
+                                    ${review ? "<th rowspan=\"1\">Select</th>" : ""}
+                                    ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
                                </tr>
                            </thead>
                            <tbody>`;
@@ -306,7 +308,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
+                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
                     `;
                 }
 
@@ -384,6 +386,8 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panelHtml}</td>
                             <td>${roleInCancer}</td>
+                            <td>${acmgPrediction}</td>
+                            <td>${acmgCustom}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;

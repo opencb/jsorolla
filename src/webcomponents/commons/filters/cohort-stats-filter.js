@@ -151,7 +151,7 @@ export default class CohortStatsFilter extends LitElement {
             }
         }
 
-        // serialize this.state in the form of "STUDY_ID:COHORT_ID<VALUE;.."
+        // serialize this.state in the form of "PROJECT_ID:STUDY_ID:COHORT_ID<VALUE;.."
         const value = Object.entries(this.state)
             // .filter(([, v]) => v.value)
             .map(([studyId, cohorts]) => {
