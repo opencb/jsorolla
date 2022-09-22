@@ -179,6 +179,22 @@ export default class RgaIndividualFamily extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(async rgaVariantResponse => {
+
+                        // FIXME DELETION_OVERLAP replaced
+                        rgaVariantResponse.getResults().forEach(row => {
+                            for (const individual of row.individuals) {
+                                for (const gene of individual.genes) {
+                                    for (const transcript of gene.transcripts) {
+                                        for (const variant of transcript.variants) {
+                                            if (variant.knockoutType === "DELETION_OVERLAP") {
+                                                variant.knockoutType = "COMP_HET";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
                         this.isApproximateCount = rgaVariantResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
 
                         const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);

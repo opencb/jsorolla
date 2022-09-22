@@ -256,7 +256,7 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 5
+                    colspan: 4
                 }
             ], [
 
@@ -271,21 +271,22 @@ export default class RgaVariantView extends LitElement {
                     formatter: value => value > 0 ? value : "-"
 
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap",
                     formatter: value => value > 0 ? value : "-"
 
-                },
+                },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats.bothParents.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats.singleParent.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+
                 },
                 /* {
                     title: "CH - Possible",
@@ -500,6 +501,10 @@ export default class RgaVariantView extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
+                // FIXME DELETION_OVERLAP replaced
+                if (this._query?.knockoutType?.split(",").includes("COMP_HET")) {
+                    this._query.knockoutType = [...this._query.knockoutType.split(","), "DELETION_OVERLAP"].join(",");
+                }
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
