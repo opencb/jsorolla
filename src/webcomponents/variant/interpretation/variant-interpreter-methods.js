@@ -142,7 +142,7 @@ class VariantInterpreterMethods extends LitElement {
                             <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
                                 <rd-tiering-analysis
-                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis}}"
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
                                 </rd-tiering-analysis>
