@@ -52,7 +52,7 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Compute a score to quantify relatedness between samples";
 
         this.DEFAULT_TOOL_PARAMS = {
-            minorAlleleFreq: "0.3", // TODO: double-check
+            minorAlleleFreq: "1000G:ALL>0.3",
         };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
@@ -79,8 +79,8 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            samples: this.toolParams.samples?.split(",") || [],
-            individuals: this.toolParams.individual || "",
+            samples: this.toolParams.samples || "",
+            individuals: this.toolParams.individuals || "",
             minorAlleleFreq: this.toolParams.minorAlleleFreq
         };
         const params = {
@@ -117,10 +117,6 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                // QUESTION:
-                //   The parameters needed discussed with Joaquin are: samples OR individuals
-                //   Q. Can you mix them, i.e., 1 sample and 2 individuals
-                // FIXME: If not possible to mix, manage disjunction
                 title: "Input Parameters",
                 elements: [
                     {
@@ -128,15 +124,13 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
                         field: "individuals",
                         type: "custom",
                         display: {
-                            // FIXME: change placeholder
-                            placeholder: "e.g. IndividualId1,IndividualId2,...",
                             helpMessage: "Individual Ids",
-                            render: toolParams => html `
+                            render: individuals => html `
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.individuals?.map(sample => sample.id).join(",")}"
+                                    .value="${individuals}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!toolParams.samples}}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.samples}}"
                                     @filterChange="${e => this.onFieldChange(e, "individuals")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -147,12 +141,12 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
                         field: "samples",
                         type: "custom",
                         display: {
-                            render: toolParams => html `
+                            render: samples => html `
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.sample}"
+                                    .value="${samples}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!toolParams.individuals}}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
                                 </catalog-search-autocomplete>
                                 `
