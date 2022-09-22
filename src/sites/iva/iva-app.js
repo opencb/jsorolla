@@ -62,7 +62,7 @@ import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
+import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
@@ -1509,8 +1509,8 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                    <div class="content" id="opencga-cohort-variant-stats-analysis">
-                        <opencga-cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-cohort-variant-stats-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
+                        <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
                     </div>
                 ` : null}
 
