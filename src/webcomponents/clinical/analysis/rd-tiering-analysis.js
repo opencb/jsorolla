@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import NotificationUtils from "../../commons/utils/notification-utils";
 import FormUtils from "../../commons/forms/form-utils";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 
 
 export default class RdTieringAnalysis extends LitElement {
@@ -36,41 +35,63 @@ export default class RdTieringAnalysis extends LitElement {
 
     static get properties() {
         return {
+            /*
             clinicalAnalysis: {
                 type: Object
             },
+            */
+            toolParams: {
+                type: Object,
+            },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             title: {
                 type: String
             },
+            /*
             config: {
                 type: Object
             }
+             */
         };
     }
 
     #init() {
+        this.ANALYSIS_TOOL = "rd-tiering-interpretation";
+        this.ANALYSIS_TITLE = "RD Tiering Interpretation";
+
+        this.DEFAULT_TOOLPARAMS = {};
+        this.toolParams = this.DEFAULT_TOOLPARAMS;
         this.clinicalAnalysis = {};
-        this.updateParams = {};
-        this.config = {...this.getDefaultConfig(), ...this.config};
+        // CAUTION: Panels inside clinicalAnalysis
+
+        this.config = this.getDefaultConfig();
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                job: {
-                    id: `rd-tiering-${UtilsNew.getDatetime()}`
-                }
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || {};
+            this.toolParams = {
+                ...this.DEFAULT_TOOLPARAMS,
+                ...this.toolParams,
             };
+            this.config = this.getDefaultConfig();
         }
-        super.update(changedProperties);
+    }
+
+    check() {
+        return !!this.toolParams.clinicalAnalysis;
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
+        if (param) {
+            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        }
+        this.config = this.getDefaultConfig();
+        this.requestUpdate();
+        /*
         switch (param) {
             case "id":
                 this.updateParams = FormUtils
@@ -81,42 +102,40 @@ export default class RdTieringAnalysis extends LitElement {
                     .updateObjectArray(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value, e.detail.data);
                 break;
         }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
-        this.requestUpdate();
+        */
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.clinicalAnalysis.id,
-            panels: this.clinicalAnalysis.panels.map(panel => panel.id)
+            clinicalAnalysis: this.toolParams.clinicalAnalysis.id,
+            panels: this.toolParams.clinicalAnalysis.panels.map(panel => panel.id)
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...this.clinicalAnalysis.job
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
 
-        if (UtilsNew.isNotEmpty(toolParams)) {
-            this.opencgaSession.opencgaClient.clinical().runInterpreterTiering(toolParams, params)
-                .then(() => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "RD Tiering launched",
-                        message: "RD Tiering has been launched successfully",
-                    });
-                })
-                .catch(errorResponse => {
-                    console.log(errorResponse);
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, errorResponse);
-                });
-        }
+        AnalysisUtils.submit(
+            this.ANALYSIS_TITLE,
+            this.opencgaSession.opencgaClient.clinical().runInterpreterExomiser(toolParams, params),
+            this,
+        );
+    }
+
+    onClear() {
+        this.toolParams = {
+            ...this.DEFAULT_TOOLPARAMS,
+            clinicalAnalysis: this.clinicalAnalysis,
+        };
+        this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.clinicalAnalysis}"
+                .data="${this.toolParams}"
                 .config="${this.config}"
-                .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -125,48 +144,39 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            id: "rd-tiering-interpretation",
-            title: "RD Tiering Interpretation",
-            // icon: "fas fa-edit",
-            description: "RD Tiering Interpretation Analysis",
-            sections: [
-                {
-                    title: "General Information",
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            }
-                        },
-                        {
-                            title: "Clinical Analysis ID",
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => {
-                                    return html`
+        const params = [
+            {
+                title: "General Information",
+                elements: [
+                    {
+                        title: "Clinical Analysis ID",
+                        field: "clinicalAnalysisId",
+                        type: "custom",
+                        display: {
+                            render: clinicalAnalysis => html`
                                         <catalog-search-autocomplete
                                             .value="${clinicalAnalysis?.id}"
                                             .resource="${"CLINICAL_ANALYSIS"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config="${{multiple: false, disabled: !!clinicalAnalysis.id}}"
-                                            @filterChange="${e => this.onFilterChange(e)}">
-                                        </catalog-search-autocomplete>`;
-                                }
-                            },
+                                            @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
+                                        </catalog-search-autocomplete>
+                            `,
                         },
-                        {
-                            title: "Disease Panels",
-                            field: "panels",
-                            type: "custom",
-                            display: {
-                                render: panels => {
-                                    const panelLock = !!this.clinicalAnalysis?.panelLock;
-                                    const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
-                                    return html`
+                    },
+                    {
+                        // CAUTION: REFACTOR THIS WHEN POSSIBLE TO TEST
+                        title: "Disease Panels",
+                        field: "panels",
+                        type: "custom",
+                        display: {
+                            render: panels => {
+                                // Todo QUESTION: meaning panelLock?
+                                const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                // Get the list of disease panels for the dropdown
+                                const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
+                                // Todo QUESTION: how to refactor classes
+                                return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${panelList}"
@@ -178,43 +188,21 @@ export default class RdTieringAnalysis extends LitElement {
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;
-                                },
-                            }
-                        },
-                    ]
-                },
-                {
-                    title: "Job Info",
-                    elements: [
-                        {
-                            title: "Job ID",
-                            field: "job.id",
-                            type: "input-text",
-                            display: {
-                                disabled: true,
                             },
-                        },
-                        {
-                            title: "Description",
-                            field: "job.tags",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add job tags...",
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "job.description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a job description...",
-                            },
-                        },
-                    ]
-                }
-            ]
-        };
+                        }
+                        // \CAUTION: REFACTOR THIS WHEN POSSIBLE TO TEST
+                    },
+                ],
+            }
+        ];
+
+        return AnalysisUtils.getAnalysisConfiguration(
+            this.ANALYSIS_TOOL,
+            this.ANALYSIS_TITLE,
+            "Executes an RD Tiering Interpreation analysis job",
+            params,
+            this.check()
+        );
     }
 
 }
