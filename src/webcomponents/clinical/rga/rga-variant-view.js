@@ -121,10 +121,10 @@ export default class RgaVariantView extends LitElement {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt"
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap"
-                },
+                },*/
                 {
                     title: "CH - Definite",
                     field: "individualStats.bothParents.numCompHet"

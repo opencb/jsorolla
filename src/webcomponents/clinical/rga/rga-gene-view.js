@@ -88,7 +88,7 @@ export default class RgaGeneView extends LitElement {
                 }, {
 
                     title: "Recessive Variants",
-                    field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
+                    field: "variantStats.count,variantStats.numHomAlt,variantStats.numPairedCompHet"
                 }
             ],
             showColumns: true,
@@ -247,7 +247,7 @@ export default class RgaGeneView extends LitElement {
                 },
                 {
                     title: "Recessive Individuals",
-                    colspan: 5
+                    colspan: 4
                 },
                 {
                     title: "Recessive Variants",
@@ -258,16 +258,7 @@ export default class RgaGeneView extends LitElement {
                 {
                     title: "Total",
                     field: "individualStats.count",
-                    formatter: value => value > 0 ? value : "-",
-                    /* formatter: (value, row) => {
-                        console.log("row", row);
-                        if (value > 0) {
-                            return value - row.attributes.INDIVIDUAL !== 0 ? value + " - " + row.attributes.INDIVIDUAL : value;
-                        } else {
-                            return "-";
-                        }
-                    }
-                    */
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "Homozygous",
@@ -428,7 +419,7 @@ export default class RgaGeneView extends LitElement {
                                 // _.individualStats.missingParents.numCompHet,
                                 _.variantStats.count,
                                 _.variantStats.numHomAlt,
-                                _.variantStats.numCompHet
+                                _.variantStats.numPairedCompHet
                             ].join("\t"))];
                         UtilsNew.downloadData(dataString, "rga_gene_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

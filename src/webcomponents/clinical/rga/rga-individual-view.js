@@ -415,10 +415,10 @@ export default class RgaIndividualView extends LitElement {
     }
 
     /*
-     * Returns variantStats.numCompHet iff numParents matches the number of parent Ids defined
+     * Returns variantStats.numPairedCompHet iff numParents matches the number of parent Ids defined
      */
     getChConfidenceFormatter(row, numParents) {
-        return row.numParents === numParents && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
+        return row.numParents === numParents ? row.variantStats.numPairedCompHet : null;
     }
 
     /**
