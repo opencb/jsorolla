@@ -48,7 +48,7 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "rd-tiering-interpretation";
+        this.ANALYSIS_TOOL = "rd-tiering";
         this.ANALYSIS_TITLE = "RD Tiering Interpretation";
 
         this.DEFAULT_TOOLPARAMS = {};
@@ -128,25 +128,30 @@ export default class RdTieringAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "General Information",
+                title: "Parameters",
                 elements: [
                     {
                         title: "Clinical Analysis ID",
                         field: "clinicalAnalysisId",
                         type: "custom",
                         display: {
+
                             render: toolParams => html`
                                         <catalog-search-autocomplete
                                             .value="${toolParams?.clinicalAnalysis?.id}"
                                             .resource="${"CLINICAL_ANALYSIS"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false, disabled: !!toolParams.clinicalAnalysis.id}}"
+                                            .config="${{multiple: false, disabled: !!toolParams?.clinicalAnalysis?.id}}"
                                             @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
                                         </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
+                        // Fixme: not working
+                        // QUESTION: not sure how panels need to be retrieved or how it works.
+                        //   - Once the clinical analysis id is selected, query its panels?
+                        //   - All the studies have panels?
                         title: "Disease Panels",
                         field: "panels",
                         type: "custom",
