@@ -51,10 +51,9 @@ export default class GwasAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "gwas";
         this.ANALYSIS_TITLE = "GWAS";
+        this.ANALYSIS_DESCRIPTION = "Executes a GWAS analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -64,7 +63,8 @@ export default class GwasAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        // TODO: check if there are more required params for GWAS analysis
+        return !!this.toolParams.controlCohort || !!this.toolParams.caseCohort;
     }
 
     onFieldChange(e, field) {
@@ -72,7 +72,16 @@ export default class GwasAnalysis extends LitElement {
         if (param) {
             this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
         }
-        // Enable this only when a dynamic property in the config can change
+
+        // Check if changed param was controlCohort --> reset controlCohortSamples field
+        if (param === "controlCohort") {
+            this.toolParams.controlCohortSamples = "";
+        }
+        // Check if changed param was caseCohort --> reset caseCohortSamples field
+        if (param === "caseCohort") {
+            this.toolParams.caseCohortSamples = "";
+        }
+
         this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -249,7 +258,7 @@ export default class GwasAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a GWAS analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );
