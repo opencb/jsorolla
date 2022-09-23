@@ -333,14 +333,6 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "rga",
-                            name: "Recessive Gene Analysis",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
-                        },
-                        {
                             separator: true,
                             visibility: "public"
                         },
@@ -366,7 +358,7 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "mendelian-errors",
+                            id: "mendelian-error",
                             name: "Mendelian Errors",
                             acronym: "ME",
                             description: "",
@@ -430,7 +422,7 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "variant-exporter",
+                            id: "variant-export",
                             name: "Variant Export",
                             acronym: "EX",
                             description: `
