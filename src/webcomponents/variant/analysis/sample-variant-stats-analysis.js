@@ -51,6 +51,8 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Sample Variant Stats";
 
         this.DEFAULT_TOOLPARAMS = {};
+        // CAUTION!: spread operator makes a shallow copy if objects,
+        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {...this.DEFAULT_TOOLPARAMS};
 

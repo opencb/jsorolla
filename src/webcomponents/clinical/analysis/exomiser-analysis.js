@@ -50,10 +50,14 @@ export default class ExomiserAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Interpreter Exomiser";
 
         this.DEFAULT_TOOLPARAMS = {};
-        this.clinicalAnalysisId = "";
+        // CAUTION!: spread operator makes a shallow copy if objects,
+        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...this.DEFAULT_TOOLPARAMS
+        };
 
+        this.clinicalAnalysisId = "";
         this.config = this.getDefaultConfig();
     }
 
@@ -93,11 +97,13 @@ export default class ExomiserAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical().runInterpreterExomiser(toolParams, params),
+            this.opencgaSession.opencgaClient
+                .clinical()
+                .runInterpreterExomiser(toolParams, params),
             this,
         );
 
-        // Clear analysis form after submitting
+        // TODO: Clear analysis form after submitting
         // this.onClear();
     }
 
@@ -126,7 +132,7 @@ export default class ExomiserAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "General Information",
+                title: "Parameters",
                 elements: [
                     {
                         title: "Clinical Analysis ID",

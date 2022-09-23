@@ -55,9 +55,11 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         this.DEFAULT_TOOL_PARAMS = {
             minorAlleleFreq: "1000G:ALL>0.3",
         };
+        // CAUTION!: spread operator makes a shallow copy if objects,
+        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...this.DEFAULT_TOOL_PARAMS
+            ...this.DEFAULT_TOOL_PARAMS,
         };
 
         this.config = this.getDefaultConfig();
