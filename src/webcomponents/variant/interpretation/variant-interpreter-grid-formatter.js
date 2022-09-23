@@ -451,8 +451,12 @@ export default class VariantInterpreterGridFormatter {
                         break;
                     case "ALLELE_FREQUENCY":
                         const alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
-                        if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
-                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
+                        content = `<span>${Number.parseFloat(alleleFreqs.alt).toFixed(4)} / ${alleleFreqs.depth}</span>`;
+                        break;
+                    case "ALLELE_FREQUENCY_BAR":
+                        const alleleFreqsBar = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
+                        if (alleleFreqsBar && alleleFreqsBar.ref >= 0 && alleleFreqsBar.alt >= 0) {
+                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqsBar.ref, alleleFreqsBar.alt, file, {width: 80});
                         } else { // Just in case we cannot render freqs, this should never happen.
                             content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
@@ -477,7 +481,7 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
@@ -738,35 +742,33 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static _getAlleleFrequencies(variant, sampleEntry, file) {
-        let af, ad, dp, afIndex, adIndex, dpIndex, refFreq, altFreq;
+        let af, ad, dp, adIndex, refFreq, altFreq;
 
         // Find and get the DP
-        dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
+        const dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
         if (dpIndex === -1) {
             dp = file ? file.DP : null;
         } else {
             dp = Number.parseInt(sampleEntry.data[dpIndex]);
         }
 
-        // Get Allele Frequencies
-        adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
-        if (adIndex !== -1) {
-            ad = sampleEntry.data[adIndex];
-            const adCounts = ad.split(",");
-            if (!dp && adCounts.length > 1) {
-                dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
-            }
-            if (dp > 0) {
-                refFreq = Number.parseInt(adCounts[0]) / dp;
-                altFreq = Number.parseInt(adCounts[1]) / dp;
-            }
+        const afIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+        if (afIndex !== -1) {
+            af = Number.parseFloat(sampleEntry.data[afIndex]);
+            refFreq = 1 - af;
+            altFreq = af;
         } else {
-            // In cancer data AF has just one single value for the ALT
-            afIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-            if (afIndex !== -1) {
-                af = Number.parseFloat(sampleEntry.data[afIndex]);
-                refFreq = 1 - af;
-                altFreq = af;
+            adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
+            if (adIndex !== -1) {
+                ad = sampleEntry.data[adIndex];
+                const adCounts = ad.split(",");
+                if (!dp && adCounts.length > 1) {
+                    dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
+                }
+                if (dp > 0) {
+                    refFreq = Number.parseInt(adCounts[0]) / dp;
+                    altFreq = Number.parseInt(adCounts[1]) / dp;
+                }
             }
         }
         return {ref: refFreq, alt: altFreq, depth: dp};
