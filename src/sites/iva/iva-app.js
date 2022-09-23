@@ -63,7 +63,7 @@ import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
 import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
+import "../../webcomponents/variant/analysis/sample-eligibility-analysis.js";
 import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
 import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
@@ -1521,8 +1521,10 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-eligibility"] ? html`
-                    <div class="content" id="opencga-sample-eligibility-analysis">
-                        <opencga-sample-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-eligibility-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
+                        <sample-eligibility-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-eligibility-analysis>
                     </div>
                 ` : null}
 
@@ -1605,8 +1607,10 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="opencga-gwas-analysis">
-                        <gwas-analysis .opencgaSession="${this.opencgaSession}"></gwas-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
+                        <gwas-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </gwas-analysis>
                     </div>
                 ` : null}
 
