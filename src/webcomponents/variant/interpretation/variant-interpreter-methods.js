@@ -78,7 +78,8 @@ class VariantInterpreterMethods extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                     // this.requestUpdate();
