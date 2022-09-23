@@ -94,8 +94,8 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         // Select the right distinct field to be displayed
         this.filterToDistinctField = {
-            "phenotypes": "phenotypes.name",
-            "disorders": "disorders.name",
+            "phenotypes": "phenotypes.id,phenotypes.name",
+            "disorders": "disorders.id,disorders.name",
             "ethnicity": "ethnicity.id",
             "proband": "proband.id",
             "tool": "tool.id",
@@ -235,7 +235,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .queryField="${subsection.id}"
-                            .distinctField="${this.filterToDistinctField[subsection.id]}"
+                            .distinctFields="${this.filterToDistinctField[subsection.id]}"
                             .resource="${this.resource}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"

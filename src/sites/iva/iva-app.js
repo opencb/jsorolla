@@ -60,7 +60,7 @@ import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
+import "../../webcomponents/variant/analysis/gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
@@ -1605,8 +1605,8 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-                    <div class="content" id="opencga-gwas-analysis">
-                        <opencga-gwas-analysis .opencgaSession="${this.opencgaSession}"></opencga-gwas-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="opencga-gwas-analysis">
+                        <gwas-analysis .opencgaSession="${this.opencgaSession}"></gwas-analysis>
                     </div>
                 ` : null}
 
