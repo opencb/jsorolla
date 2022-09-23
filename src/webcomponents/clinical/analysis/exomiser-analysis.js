@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import "../../commons/forms/data-form.js";
+import UtilsNew from "../../../core/utilsNew";
 
 export default class ExomiserAnalysis extends LitElement {
 
@@ -50,11 +51,9 @@ export default class ExomiserAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Interpreter Exomiser";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...this.DEFAULT_TOOLPARAMS
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS)
         };
 
         this.clinicalAnalysisId = "";
@@ -66,7 +65,7 @@ export default class ExomiserAnalysis extends LitElement {
             // This parameter will indicate if a clinical analysis ID was passed as an argument
             this.clinicalAnalysisId = this.toolParams.clinicalAnalysisId || "";
             this.toolParams = {
-                ...this.DEFAULT_TOOLPARAMS,
+                ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
@@ -97,8 +96,7 @@ export default class ExomiserAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient
-                .clinical()
+            this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterExomiser(toolParams, params),
             this,
         );
@@ -109,7 +107,7 @@ export default class ExomiserAnalysis extends LitElement {
 
     onClear() {
         this.toolParams = {
-            ...this.DEFAULT_TOOLPARAMS,
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
             // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
             clinicalAnalysisId: this.clinicalAnalysisId,
         };
@@ -132,7 +130,7 @@ export default class ExomiserAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Parameters",
+                title: "Input Parameters",
                 elements: [
                     {
                         title: "Clinical Analysis ID",
