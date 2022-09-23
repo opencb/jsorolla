@@ -1539,7 +1539,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="opencga-individual-relatedness-analysis">
+                    <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
                         <individual-relatedness-analysis
                                 .opencgaSession="${this.opencgaSession}"
                                 .title="">

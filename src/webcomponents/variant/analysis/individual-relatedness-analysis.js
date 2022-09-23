@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
@@ -52,14 +53,12 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Individual Relatedness";
         this.ANALYSIS_DESCRIPTION = "Compute a score to quantify relatedness between samples";
 
-        this.DEFAULT_TOOL_PARAMS = {
+        this.DEFAULT_TOOLPARAMS = {
             minorAlleleFreq: "1000G:ALL>0.3",
         };
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...this.DEFAULT_TOOL_PARAMS,
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
         };
 
         this.config = this.getDefaultConfig();
@@ -92,15 +91,16 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient
-                .variants()
+            this.opencgaSession.opencgaClient.variants()
                 .runRelatedness(toolParams, params),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = this.DEFAULT_TOOLPARAMS;
+        this.toolParams = {
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+        };
         this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -108,11 +108,11 @@ export default class IndividualRelatednessAnalysis extends LitElement {
     render() {
         return html`
             <data-form
-                    .data="${this.toolParams}"
-                    .config="${this.config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
+                .data="${this.toolParams}"
+                .config="${this.config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
