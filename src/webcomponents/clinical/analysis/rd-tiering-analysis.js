@@ -1,4 +1,4 @@
-/* select
+/*
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
 
 
 export default class RdTieringAnalysis extends LitElement {
@@ -50,20 +50,25 @@ export default class RdTieringAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "rd-tiering";
         this.ANALYSIS_TITLE = "RD Tiering Interpretation";
+        this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
-        this.clinicalAnalysis = {};
-        // CAUTION: Panels inside clinicalAnalysis
+        this.toolParams = {
+            ...this.DEFAULT_TOOLPARAMS,
+        };
 
+        this.clinicalAnalysisId = "";
+        this.diseasePanelIds = "";
         this.config = this.getDefaultConfig();
+
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // Save the initial clinicalAnalysis. Needed for onClear() method
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || {};
+            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis?.id || "";
+            this.diseasePanelIds = this.toolParams.clinicalAnalysis?.panels.map(panel => panel.id).join(",") || "";
             this.toolParams = {
                 ...this.DEFAULT_TOOLPARAMS,
                 ...this.toolParams,
@@ -73,7 +78,7 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        // TODO: add check
     }
 
     onFieldChange(e, field) {
@@ -87,14 +92,13 @@ export default class RdTieringAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis.id,
-            panels: this.toolParams.clinicalAnalysis.panels.map(panel => panel.id)
+            clinicalAnalysisId: this.toolParams.clinicalAnalysisId || "",
+            diseasePanelIds: this.toolParams.clinicalAnalysis.panels?.map(panel => panel.id).join(",") || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
-
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient
@@ -102,12 +106,15 @@ export default class RdTieringAnalysis extends LitElement {
                 .runInterpreterTiering(toolParams, params),
             this,
         );
+        // TODO: Clear analysis form after submitting
+        // this.onClear();
     }
 
     onClear() {
         this.toolParams = {
             ...this.DEFAULT_TOOLPARAMS,
-            clinicalAnalysis: {...this.clinicalAnalysis},
+            clinicalAnalysisId: this.clinicalAnalysisId,
+            diseasePanelIds: this.diseasePanelIds,
         };
         this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -136,19 +143,18 @@ export default class RdTieringAnalysis extends LitElement {
                         type: "custom",
                         display: {
 
-                            render: toolParams => html`
+                            render: clinicalAnalysisId => html`
                                         <catalog-search-autocomplete
-                                            .value="${toolParams?.clinicalAnalysis?.id}"
+                                            .value="${clinicalAnalysisId}"
                                             .resource="${"CLINICAL_ANALYSIS"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false, disabled: !!toolParams?.clinicalAnalysis?.id}}"
+                                            .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
                                             @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
                                         </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        // Fixme: not working
                         // QUESTION: not sure how panels need to be retrieved or how it works.
                         //   - Once the clinical analysis id is selected, query its panels?
                         //   - All the studies have panels?
@@ -161,15 +167,15 @@ export default class RdTieringAnalysis extends LitElement {
                                 // Get whether disease panels can be modified or are fixed
                                 const panelLock = !!this.clinicalAnalysis?.panelLock;
                                 // Get the list of disease panels for the dropdown
-                                const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
+                                const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                 return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${panelList}"
-                                            .panel="${panels?.map(p => p.id).join(",")}"
+                                            .panel="${panels?.id}"
                                             .showExtendedFilters="${false}"
                                             .showSelectedPanels="${false}"
-                                            .classes="${this.clinicalAnalysis?.panels ? "updated" : ""}"
+                                            .classes="${this.toolParams?.panels ? "updated" : ""}"
                                             .disabled="${panelLock}"
                                             @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
@@ -184,7 +190,7 @@ export default class RdTieringAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.ANALYSIS_TITLE,
-            "Executes an RD Tiering Interpreation analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );
