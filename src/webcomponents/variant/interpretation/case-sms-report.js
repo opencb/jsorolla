@@ -66,6 +66,74 @@ class CaseSmsReport extends LitElement {
 
         this._config = this.getDefaultConfig();
         this._data = {};
+        this._dataReportTest = {
+            patient: {
+                name: "John",
+                lastName: "Doe",
+                birthDate: "20220711140653",
+                age: "30",
+                cipa: "",
+            },
+            sample: {
+                type: "Blood",
+                extractionDate: "20220711140653",
+                reason: "Polycystic Kidney Disease"
+            },
+            request: {
+                requestNumber: "60cc3667",
+                requestDate: "20220711140653",
+                requestingDoctor: {
+                    name: "Octavia Mountain",
+                    specialization: "Nephrology",
+                    hospitalName: "Hosp. Gen. Sample",
+                    address: "61 Washington Parkway",
+                    city: "Vidovci",
+                    code: "34000",
+                }
+            },
+            study: {
+                reason: "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)",
+                project: "NGS_0183-0009-0001-5517d6d27efa",
+                currentAnalysis: "Panel Medical Genetics 1 v.2 (Annex 1)",
+                genePriority: ["COL4A1", "COL4A3", "COL4A4", "COL4A5", "MYH9"],
+            },
+            methodology: {
+                description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+                printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+                only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+            },
+            results: [
+                {id: "Ploidy", name: "asdasd" || "NA"},
+                {id: "Aberrant cell fraction", name: "asdasd" || "NA"},
+            ],
+            interpretation: {},
+            variantAnnotation: {},
+            notes: [],
+            qcInfo: {
+            },
+            disclaimer: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
+            appendix: [
+                `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
+                `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`]
+        };
         // Data-form is not capturing the update of the data property
         // For that reason, we need this flag to check when the data is ready (TODO)
         this._ready = false;
@@ -73,7 +141,6 @@ class CaseSmsReport extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -303,7 +370,7 @@ class CaseSmsReport extends LitElement {
 
         return html`
             <data-form
-                .data="${this._data}"
+                .data="${this._dataReportTest}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -430,22 +497,25 @@ class CaseSmsReport extends LitElement {
                     elements: [
                         {
                             title: "Name",
-                            // field: "info.project",
+                            field: "patient.name",
                             defaultValue: "N/A"
                         },
                         {
                             title: "Last Name",
-                            // field: "info.study",
+                            field: "patient.lastName",
                             defaultValue: "N/A"
                         },
                         {
                             title: "Birth Date",
-                            // field: "info.clinicalAnalysisId",
-                            defaultValue: "N/A"
+                            field: "patient.birthDate",
+                            type: "custom",
+                            display: {
+                                render: field => `${UtilsNew.dateFormatter(field)}`
+                            }
                         },
                         {
                             title: "Age",
-                            // field: "info.tumourId",
+                            field: "patient.age",
                             defaultValue: "N/A"
                         },
                         {
@@ -455,17 +525,21 @@ class CaseSmsReport extends LitElement {
                         },
                         {
                             title: "Sample type",
-                            // field: "info.tumourType",
+                            field: "sample.type",
                             defaultValue: "N/A"
                         },
                         {
                             title: "Extration Date",
-                            // field: "info.genotypingCheck",
-                            defaultValue: "N/A",
+                            field: "sample.extractionDate",
+                            type: "custom",
+                            display: {
+                                render: field => `${UtilsNew.dateFormatter(field)}`
+                            }
+
                         },
                         {
                             title: "Reason", // Cause
-                            // field: "info.genotypingCheck",
+                            field: "sample.reason",
                             defaultValue: "N/A",
 
                         },
@@ -481,17 +555,40 @@ class CaseSmsReport extends LitElement {
                     elements: [
                         {
                             title: "N. Request",
-                            // field: "info.project",
+                            field: "request.requestingDoctor.requestNumber",
                             defaultValue: "N/A"
                         },
                         {
                             title: "Request Date",
-                            // field: "info.study",
+                            field: "request.requestingDoctor.requestDate",
                             defaultValue: "N/A"
                         },
                         {
-                            title: "Requesting Doctor",
-                            // field: "info.clinicalAnalysisId",
+                            title: "Dr/Dra.:",
+                            field: "request.requestingDoctor.name",
+                            display: {
+                                defaultLayout: "vertical",
+                            },
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "",
+                            field: "request.requestingDoctor.specialization",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "",
+                            field: "request.requestingDoctor.hospitalName",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "",
+                            field: "request.requestingDoctor.address",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "",
+                            field: "request.requestingDoctor.code",
                             defaultValue: "N/A"
                         },
                     ]
@@ -502,22 +599,26 @@ class CaseSmsReport extends LitElement {
                     elements: [
                         {
                             title: "Study Reason",
-                            // field: "info.project",
+                            field: "study.reason",
                             defaultValue: "Testing"
                         },
                         {
                             title: "Project",
-                            // field: "info.project",
+                            field: "study.project",
                             defaultValue: "Testing"
                         },
                         {
                             title: "Current Analysis",
-                            // field: "info.project",
+                            field: "study.currentAnalysis",
                             defaultValue: "Testing"
                         },
                         {
                             title: "Gene Priority",
-                            // field: "info.project",
+                            field: "study.genePriority",
+                            type: "custom",
+                            display: {
+                                render: field => `${field.join(", ")}`
+                            },
                             defaultValue: "Testing"
                         },
                     ]
@@ -548,11 +649,22 @@ class CaseSmsReport extends LitElement {
                     elements: [
                         {
                             title: "Variants",
+                            field: "results",
+                            type: "table",
                             display: {
-                                defaultLayout: "vertical",
+                                style: "width:auto",
+                                layout: "vertical",
+                                columns: [
+                                    {
+                                        title: "id",
+                                        field: "id"
+                                    },
+                                    {
+                                        title: "name",
+                                        field: "name"
+                                    },
+                                ],
                             },
-                            // field: "info.project",
-                            defaultValue: "'Variants Tables'"
                         },
                     ]
                 },
