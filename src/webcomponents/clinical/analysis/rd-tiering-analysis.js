@@ -19,6 +19,7 @@ import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
+import UtilsNew from "../../../core/utilsNew";
 
 
 export default class RdTieringAnalysis extends LitElement {
@@ -55,13 +56,12 @@ export default class RdTieringAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...this.DEFAULT_TOOLPARAMS,
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS)
         };
 
         this.clinicalAnalysisId = "";
         this.diseasePanelIds = "";
         this.config = this.getDefaultConfig();
-
     }
 
     firstUpdated(changedProperties) {
@@ -70,7 +70,7 @@ export default class RdTieringAnalysis extends LitElement {
             this.clinicalAnalysisId = this.toolParams.clinicalAnalysis?.id || "";
             this.diseasePanelIds = this.toolParams.clinicalAnalysis?.panels.map(panel => panel.id).join(",") || "";
             this.toolParams = {
-                ...this.DEFAULT_TOOLPARAMS,
+                ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
@@ -78,7 +78,7 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     check() {
-        // TODO: add check
+        return !!this.toolParams.clinicalAnalysisId;
     }
 
     onFieldChange(e, field) {
@@ -101,8 +101,7 @@ export default class RdTieringAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient
-                .clinical()
+            this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterTiering(toolParams, params),
             this,
         );
@@ -112,7 +111,7 @@ export default class RdTieringAnalysis extends LitElement {
 
     onClear() {
         this.toolParams = {
-            ...this.DEFAULT_TOOLPARAMS,
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
             clinicalAnalysisId: this.clinicalAnalysisId,
             diseasePanelIds: this.diseasePanelIds,
         };
@@ -135,22 +134,21 @@ export default class RdTieringAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Parameters",
+                title: "Input Parameters",
                 elements: [
                     {
                         title: "Clinical Analysis ID",
                         field: "clinicalAnalysisId",
                         type: "custom",
                         display: {
-
                             render: clinicalAnalysisId => html`
-                                        <catalog-search-autocomplete
-                                            .value="${clinicalAnalysisId}"
-                                            .resource="${"CLINICAL_ANALYSIS"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
-                                            @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
-                                        </catalog-search-autocomplete>
+                                <catalog-search-autocomplete
+                                    .value="${clinicalAnalysisId}"
+                                    .resource="${"CLINICAL_ANALYSIS"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
+                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
+                                </catalog-search-autocomplete>
                             `,
                         },
                     },
@@ -169,17 +167,17 @@ export default class RdTieringAnalysis extends LitElement {
                                 // Get the list of disease panels for the dropdown
                                 const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                 return html`
-                                        <disease-panel-filter
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .diseasePanels="${panelList}"
-                                            .panel="${panels?.id}"
-                                            .showExtendedFilters="${false}"
-                                            .showSelectedPanels="${false}"
-                                            .classes="${this.toolParams?.panels ? "updated" : ""}"
-                                            .disabled="${panelLock}"
-                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
-                                        </disease-panel-filter>
-                                    `;
+                                    <disease-panel-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .diseasePanels="${panelList}"
+                                        .panel="${panels?.id}"
+                                        .showExtendedFilters="${false}"
+                                        .showSelectedPanels="${false}"
+                                        .classes="${this.toolParams?.panels ? "updated" : ""}"
+                                        .disabled="${panelLock}"
+                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                    </disease-panel-filter>
+                                `;
                             },
                         }
                     },
