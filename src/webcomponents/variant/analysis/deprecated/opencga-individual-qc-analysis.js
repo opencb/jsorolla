@@ -59,8 +59,6 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
         }
     }
 
-
-
     getDefaultConfig() {
         return {
             id: "individual-qc",
@@ -116,14 +114,14 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                     id: "individual-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
+                const body = {};
                 data.individual ? body.individual = data.individual.join(",") : null;
                 data.sample ? body.sample = data.sample.join(",") : null;
                 opencgaSession.opencgaClient.variants().runIndividualQc(body, params);
@@ -138,6 +136,7 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
 customElements.define("opencga-individual-qc-analysis", OpencgaIndividualQcAnalysis);
