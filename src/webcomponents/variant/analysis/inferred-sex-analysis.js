@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
+import FormUtils from "../../commons/forms/form-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 
 
 export default class InferredSexAnalysis extends LitElement {
@@ -24,7 +26,7 @@ export default class InferredSexAnalysis extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -33,105 +35,164 @@ export default class InferredSexAnalysis extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
+            toolParams: {
+                type: Object,
             },
-            config: {
-                type: Object
-            }
+            opencgaSession: {
+                type: Object,
+            },
+            title: {
+                type: String
+            },
         };
     }
 
-    _init() {
-        this._prefix = "oga-" + UtilsNew.randomString(6);
+    #init() {
+        this.ANALYSIS_TOOL = "inferred-sex";
+        this.ANALYSIS_TITLE = "Inferred Sex Analysis";
+        // Todo: add description
+        this.ANALYSIS_DESCRIPTION = "";
 
-        this._config = this.getDefaultConfig();
+        this.DEFAULT_TOOLPARAMS = {};
+        // Make a deep copy to avoid modifying default object.
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+        };
+
+        this.individualId = "";
+        this.sampleId = "";
+
+        this.config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.individualId = this.toolParams.individual || "";
+            this.sampleId = this.toolParams.sample || "";
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
         }
     }
+    check() {
+        return !!this.toolParams.individual || !!this.toolParams.sample;
+    }
 
-    getDefaultConfig() {
-        return {
-            id: "inferred-sex",
-            title: "Inferred Sex Analysis",
-            icon: "",
-            requires: "2.0.0",
-            description: "Inferred Sex description",
-            links: [
-                {
-                    title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
-                    icon: ""
-                }
-            ],
-            form: {
-                sections: [
-                    {
-                        title: "Input Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                                // colspan: 6
-                            },
-                            {
-                                id: "individual",
-                                title: "Select Individual",
-                                type: "INDIVIDUAL_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                                // colspan: 6
-                            },
-                        ]
-                    },
-                ],
-                job: {
-                    title: "Job Info",
-                    id: "inferred-sex-$DATE",
-                    tags: "",
-                    description: "",
-                    validation: function (params) {
-                        alert("test:" + params);
-                    },
-                    button: "Run"
-                }
-            },
-            execute: (opencgaSession, data, params) => {
-                const _data = {};
-                if (data) {
-                    if (data.individual) {
-                        _data.individual = data.individual.join(",");
-                    }
-                    if (data.sample) {
-                        _data.sample = data.sample.join(",");
-                    }
-                }
-                opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
-            },
-            result: {
-            }
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        if (param) {
+            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        }
+        // Enable this only when a dynamic property in the config can change
+        this.config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
+    onSubmit() {
+        const toolParams = {
+            sample: this.toolParams.sample || "",
+            individual: this.toolParams.individual || "",
         };
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+        };
+        AnalysisUtils.submit(
+            this.ANALYSIS_TITLE,
+            this.opencgaSession.opencgaClient.variant()
+                .runInferredSex(toolParams, params),
+            this,
+        );
+
+        // TODO: Clear analysis form after submitting
+        // this.onClear();
+
+    }
+
+    onClear() {
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        };
+        this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
+            <data-form
+                .data="${this.toolParams}"
+                .config="${this.config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
         `;
+    }
+
+    getDefaultConfig() {
+        const params = [
+            {
+                title: "Input Parameters",
+                elements: [
+                    {
+                        title: "Select Individual ID",
+                        field: "individual",
+                        type: "custom",
+                        display: {
+                            helpMessage: "Individual Id",
+                            render: individual => {
+                                // console.log("Individual this.toolParams: ", this.toolParams);
+                                // console.log("Individual disabled: ", !!this.toolParams?.sample);
+                                // debugger
+                                return html `
+                                <catalog-search-autocomplete
+                                    .value="${individual}"
+                                    .resource="${"INDIVIDUAL"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
+                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                </catalog-search-autocomplete>
+                                `;
+                            }
+
+                        }
+                    },
+                    {
+                        title: "Select Sample ID",
+                        field: "sample",
+                        type: "custom",
+                        display: {
+                            helpMessage: "Sample Id",
+                            render: sample => {
+                                // console.log("Sample this.toolParams: ", this.toolParams);
+                                // console.log("Sample disabled: ", !!this.toolParams?.individual);
+                                // debugger
+                                return html `
+                                <catalog-search-autocomplete
+                                    .value="${sample}"
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
+                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                </catalog-search-autocomplete>
+                            `;
+                            },
+                        }
+                    },
+                ],
+            }
+        ];
+
+        return AnalysisUtils.getAnalysisConfiguration(
+            this.ANALYSIS_TOOL,
+            this.ANALYSIS_TITLE,
+            this.ANALYSIS_DESCRIPTION,
+            params,
+            this.check()
+        );
     }
 
 }

@@ -48,6 +48,8 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         };
     }
 
+    // QUESTION: Support property samples OR individuals?
+
     #init() {
         this.ANALYSIS_TOOL = "individual-relatedness";
         this.ANALYSIS_TITLE = "Individual Relatedness";
@@ -65,7 +67,7 @@ export default class IndividualRelatednessAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        return !!this.toolParams.individuals || !!this.toolParams.samples;
     }
 
     onFieldChange(e, field) {
@@ -94,6 +96,9 @@ export default class IndividualRelatednessAnalysis extends LitElement {
                 .runRelatedness(toolParams, params),
             this,
         );
+
+        // TODO: Clear analysis form after submitting
+        // this.onClear();
     }
 
     onClear() {

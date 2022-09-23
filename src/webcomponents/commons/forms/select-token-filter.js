@@ -206,7 +206,7 @@ export default class SelectTokenFilter extends LitElement {
             disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
-            disabled: false,
+            disabled: true,
             placeholder: "Start typing",
             freeTag: false,
             fileUpload: false,
@@ -244,6 +244,8 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         }
+        // console.log("csa _config: ", this._config);
+        // debugger
 
         return html`
             <div>
