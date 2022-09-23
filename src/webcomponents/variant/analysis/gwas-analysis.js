@@ -106,7 +106,8 @@ export default class GwasAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runGwas(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runGwas(toolParams, params),
             this,
         );
     }
