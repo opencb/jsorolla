@@ -146,11 +146,7 @@ export default class InferredSexAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Individual Id",
-                            render: individual => {
-                                // console.log("Individual this.toolParams: ", this.toolParams);
-                                // console.log("Individual disabled: ", !!this.toolParams?.sample);
-                                // debugger
-                                return html `
+                            render: individual => html `
                                 <catalog-search-autocomplete
                                     .value="${individual}"
                                     .resource="${"INDIVIDUAL"}"
@@ -158,9 +154,7 @@ export default class InferredSexAnalysis extends LitElement {
                                     .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
                                     @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
-                                `;
-                            }
-
+                                `,
                         }
                     },
                     {
@@ -169,11 +163,7 @@ export default class InferredSexAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Sample Id",
-                            render: sample => {
-                                // console.log("Sample this.toolParams: ", this.toolParams);
-                                // console.log("Sample disabled: ", !!this.toolParams?.individual);
-                                // debugger
-                                return html `
+                            render: sample => html `
                                 <catalog-search-autocomplete
                                     .value="${sample}"
                                     .resource="${"SAMPLE"}"
@@ -181,9 +171,8 @@ export default class InferredSexAnalysis extends LitElement {
                                     .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
                                     @filterChange="${e => this.onFieldChange(e, "sample")}">
                                 </catalog-search-autocomplete>
-                            `;
-                            },
-                        }
+                            `,
+                        },
                     },
                 ],
             }
