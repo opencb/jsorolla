@@ -17,8 +17,8 @@
 import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
-
 
 export default class CohortVariantStatsAnalysis extends LitElement {
 
@@ -54,7 +54,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         // CAUTION!: spread operator makes a shallow copy if objects,
         //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+        };
 
         this.config = this.getDefaultConfig();
     }
@@ -89,13 +91,16 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runCohortStats(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runCohortStats(toolParams, params),
             this
         );
     }
 
     onClear() {
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+        };
         this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -115,7 +120,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Cohort",
+                title: "Input Parameters",
                 elements: [
                     {
                         title: "Cohort ID",
