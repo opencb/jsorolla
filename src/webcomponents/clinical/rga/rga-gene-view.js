@@ -387,7 +387,7 @@ export default class RgaGeneView extends LitElement {
         await this.requestUpdate();
         const params = {
             study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 1000,
+            limit: e.detail?.exportLimit ?? 50,
             count: false,
             ...this._query
         };
@@ -401,7 +401,7 @@ export default class RgaGeneView extends LitElement {
                                 "Gene",
                                 "Individuals_Total",
                                 "Individuals_HOM",
-                                "Individuals_DELETION_OVERLAP",
+                                // "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
                                 // "Individuals_CH_Possible",

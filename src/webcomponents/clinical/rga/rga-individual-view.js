@@ -463,7 +463,7 @@ export default class RgaIndividualView extends LitElement {
             count: false,
             include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
             ...this._query,
-            limit: e.detail?.exportLimit ?? 1,
+            limit: e.detail?.exportLimit ?? 50,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(params)
             .then(restResponse => {
