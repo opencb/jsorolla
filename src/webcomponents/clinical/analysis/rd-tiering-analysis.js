@@ -56,7 +56,7 @@ export default class RdTieringAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
         this.clinicalAnalysisId = "";
@@ -70,7 +70,7 @@ export default class RdTieringAnalysis extends LitElement {
             this.clinicalAnalysisId = this.toolParams.clinicalAnalysis?.id || "";
             this.diseasePanelIds = this.toolParams.clinicalAnalysis?.panels.map(panel => panel.id).join(",") || "";
             this.toolParams = {
-                ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
@@ -111,7 +111,7 @@ export default class RdTieringAnalysis extends LitElement {
 
     onClear() {
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             clinicalAnalysisId: this.clinicalAnalysisId,
             diseasePanelIds: this.diseasePanelIds,
         };

@@ -55,7 +55,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
         this.config = this.getDefaultConfig();
@@ -99,7 +99,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
 
     onClear() {
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
         this.config = this.getDefaultConfig();
         this.requestUpdate();

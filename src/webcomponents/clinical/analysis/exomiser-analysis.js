@@ -53,7 +53,7 @@ export default class ExomiserAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
         this.clinicalAnalysisId = "";
@@ -65,7 +65,7 @@ export default class ExomiserAnalysis extends LitElement {
             // This parameter will indicate if a clinical analysis ID was passed as an argument
             this.clinicalAnalysisId = this.toolParams.clinicalAnalysisId || "";
             this.toolParams = {
-                ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
@@ -107,7 +107,7 @@ export default class ExomiserAnalysis extends LitElement {
 
     onClear() {
         this.toolParams = {
-            ...UtilsNew.clone(this.DEFAULT_TOOLPARAMS),
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
             clinicalAnalysisId: this.clinicalAnalysisId,
         };
