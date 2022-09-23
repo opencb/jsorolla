@@ -49,10 +49,9 @@ export default class SampleEligibilityAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "sample-eligibility";
         this.ANALYSIS_TITLE = "Sample Eligibility";
+        this.ANALYSIS_DESCRIPTION = "Executes a Sample Eligibility analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -62,7 +61,7 @@ export default class SampleEligibilityAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        return !!this.toolParams.query;
     }
 
     onFieldChange(e, field) {
@@ -70,7 +69,6 @@ export default class SampleEligibilityAnalysis extends LitElement {
         if (param) {
             this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
         }
-        // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -87,7 +85,8 @@ export default class SampleEligibilityAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runSampleEligibility(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runSampleEligibility(toolParams, params),
             this,
         );
     }
@@ -154,7 +153,7 @@ export default class SampleEligibilityAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a Sample Eligibility analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );
