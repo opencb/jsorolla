@@ -51,9 +51,9 @@ export default class FamilyQcAnalysis extends LitElement {
     // QUESTION: Support property samples OR individuals?
 
     #init() {
-        this.ANALYSIS_TOOL = "";
-        this.ANALYSIS_TITLE = "";
-        this.ANALYSIS_DESCRIPTION = "";
+        this.ANALYSIS_TOOL = "family-qc";
+        this.ANALYSIS_TITLE = "Family Quality Control";
+        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
         this.DEFAULT_TOOLPARAMS = {
             minorAlleleFreq: "1000G:ALL>0.3",
