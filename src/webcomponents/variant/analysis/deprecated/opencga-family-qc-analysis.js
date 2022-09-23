@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
 export default class OpencgaFamilyQcAnalysis extends LitElement {
@@ -58,8 +58,6 @@ export default class OpencgaFamilyQcAnalysis extends LitElement {
             this.requestUpdate();
         }
     }
-
-
 
     getDefaultConfig() {
         return {
@@ -113,14 +111,14 @@ export default class OpencgaFamilyQcAnalysis extends LitElement {
                     id: "family-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
+                const body = {};
                 data.family ? body.family = data.family.join(",") : null;
                 data.relatednessMaf ? body.relatednessMaf = data.relatednessMaf[0] : null;
                 opencgaSession.opencgaClient.variants().runFamilyQc(body, params);
@@ -135,6 +133,7 @@ export default class OpencgaFamilyQcAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
 customElements.define("opencga-family-qc-analysis", OpencgaFamilyQcAnalysis);
