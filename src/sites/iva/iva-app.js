@@ -64,7 +64,7 @@ import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
 import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
+import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
 import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
@@ -1533,8 +1533,11 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["inferred-sex"] ? html`
-                    <div class="content" id="opencga-inferred-sex-analysis">
-                        <opencga-inferred-sex-analysis .opencgaSession="${this.opencgaSession}"></opencga-inferred-sex-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
+                        <inferred-sex-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </inferred-sex-analysis>
                     </div>
                 ` : null}
 

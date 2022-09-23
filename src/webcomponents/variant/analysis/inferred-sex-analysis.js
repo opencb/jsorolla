@@ -19,7 +19,7 @@ import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaInferredSexAnalysis extends LitElement {
+export default class InferredSexAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -105,14 +105,14 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                     id: "inferred-sex-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let _data = {};
+                const _data = {};
                 if (data) {
                     if (data.individual) {
                         _data.individual = data.individual.join(",");
@@ -133,6 +133,7 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
-customElements.define("opencga-inferred-sex-analysis", OpencgaInferredSexAnalysis);
+customElements.define("inferred-sex-analysis", InferredSexAnalysis);
