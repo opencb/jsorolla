@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
 export default class OpencgaSampleQcAnalysis extends LitElement {
@@ -58,8 +58,6 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
             this.requestUpdate();
         }
     }
-
-
 
     getDefaultConfig() {
         return {
@@ -175,14 +173,14 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                     id: "sample-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
+                const body = {};
                 data.sample ? body.sample = data.sample.join(",") : null;
                 data.genesForCoverageStats ? body.genesForCoverageStats = data.genesForCoverageStats.join(",") : null;
                 opencgaSession.opencgaClient.variants().runSampleQc(body, params);
@@ -197,6 +195,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
 customElements.define("opencga-sample-qc-analysis", OpencgaSampleQcAnalysis);
