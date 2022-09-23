@@ -22,7 +22,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
 
-export default class IndividualRelatednessAnalysis extends LitElement {
+export default class IndividualMendelianErrorAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -49,13 +49,11 @@ export default class IndividualRelatednessAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "individual-relatedness";
-        this.ANALYSIS_TITLE = "Individual Relatedness";
-        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify relatedness between samples";
+        this.ANALYSIS_TOOL = "mendelian-error";
+        this.ANALYSIS_TITLE = "Mendelian Error";
+        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify Mendelian Error";
 
-        this.DEFAULT_TOOLPARAMS = {
-            minorAlleleFreq: "1000G:ALL>0.3",
-        };
+        this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -65,7 +63,7 @@ export default class IndividualRelatednessAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        return !!this.toolParams.individuals || !!this.toolParams.samples;
     }
 
     onFieldChange(e, field) {
@@ -91,7 +89,7 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
-                .runRelatedness(toolParams, params),
+                .runMendelianError(toolParams, params),
             this,
         );
     }
@@ -122,11 +120,28 @@ export default class IndividualRelatednessAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
+                        title: "Select families",
+                        field: "families",
+                        type: "custom",
+                        display: {
+                            helpMessage: "Family IDs",
+                            render: individuals => html `
+                                <catalog-search-autocomplete
+                                    .value="${individuals}"
+                                    .resource="${"FAMILY"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.samples}}"
+                                    @filterChange="${e => this.onFieldChange(e, "individuals")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
                         title: "Select individuals",
                         field: "individuals",
                         type: "custom",
                         display: {
-                            helpMessage: "Individual Ids",
+                            helpMessage: "Individual IDs",
                             render: individuals => html `
                                 <catalog-search-autocomplete
                                     .value="${individuals}"
@@ -156,17 +171,6 @@ export default class IndividualRelatednessAnalysis extends LitElement {
                     },
                 ],
             },
-            {
-                title: "Configuration Parameters",
-                elements: [
-                    {
-                        title: "Select minor allele frequency",
-                        field: "minorAlleleFreq",
-                        type: "input-text",
-                        display: {}
-                    },
-                ],
-            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -180,4 +184,4 @@ export default class IndividualRelatednessAnalysis extends LitElement {
 
 }
 
-customElements.define("individual-relatedness-analysis", IndividualRelatednessAnalysis);
+customElements.define("mendelian-error-analysis", IndividualMendelianErrorAnalysis);

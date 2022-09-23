@@ -66,7 +66,7 @@ import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-mendelian-error-analysis.js";
+import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-family-qc-analysis.js";
@@ -195,7 +195,7 @@ class IvaApp extends LitElement {
             "inferred-sex",
             "mutational-signature",
             "individual-relatedness",
-            "mendelian-errors",
+            "mendelian-error",
             "plink",
             "gatk",
             "variant-export",
@@ -1547,9 +1547,9 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["mendelian-errors"] ? html`
-                    <div class="content" id="opencga-individual-mendelian-error-analysis">
-                        <opencga-individual-mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-mendelian-error-analysis>
+                ${this.config.enabledComponents["mendelian-error"] ? html`
+                    <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
+                        <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
                     </div>
                 ` : null}
 
