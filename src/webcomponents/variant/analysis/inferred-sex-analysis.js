@@ -77,6 +77,7 @@ export default class InferredSexAnalysis extends LitElement {
             this.config = this.getDefaultConfig();
         }
     }
+
     check() {
         return !!this.toolParams.individual || !!this.toolParams.sample;
     }
@@ -115,6 +116,8 @@ export default class InferredSexAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            individual: this.individualId,
+            sample: this.sampleId,
         };
         this.config = this.getDefaultConfig();
         this.requestUpdate();
