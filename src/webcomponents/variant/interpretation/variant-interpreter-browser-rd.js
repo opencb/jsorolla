@@ -370,8 +370,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
-                                tooltip: tooltips.cohort
-                                // cohorts: this.cohorts
+                                tooltip: tooltips.cohort,
+                                studies: this.opencgaSession?.project?.studies
                             }
                         ]
                     },
