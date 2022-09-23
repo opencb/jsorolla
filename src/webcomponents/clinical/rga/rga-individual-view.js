@@ -477,7 +477,7 @@ export default class RgaIndividualView extends LitElement {
                                 "Sample",
                                 "Gene",
                                 "HOM",
-                                "DELETION_OVERLAP",
+                                // "DELETION_OVERLAP",
                                 "CH_Definite",
                                 "CH_Probable",
                                 // "CH_Possible",
