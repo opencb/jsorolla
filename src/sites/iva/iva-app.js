@@ -67,9 +67,9 @@ import "../../webcomponents/variant/analysis/sample-eligibility-analysis.js";
 import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
 import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
 import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-family-qc-analysis.js";
+import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
+import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
+import "../../webcomponents/variant/analysis/family-qc-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
 import "../../webcomponents/variant/analysis/variant-export-analysis.js";
@@ -1559,20 +1559,29 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
-                    <div class="content" id="opencga-sample-qc-analysis">
-                        <opencga-sample-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
+                        <sample-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </sample-qc-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
-                    <div class="content" id="opencga-individual-qc-analysis">
-                        <opencga-individual-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
+                        <individual-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </individual-qc-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
-                    <div class="content" id="opencga-family-qc-analysis">
-                        <opencga-family-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-family-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
+                        <family-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </family-qc-analysis>
                     </div>
                 ` : null}
 
