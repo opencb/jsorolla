@@ -12,6 +12,8 @@ export default class AnalysisUtils {
                     title: `${id} launched`,
                     message: `${id} has been launched successfully`,
                 });
+                // Call to analysis onClear() method
+                context.onClear();
             })
             .catch(response => {
                 console.log(response);

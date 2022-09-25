@@ -67,18 +67,24 @@ export default class RdTieringAnalysis extends LitElement {
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // Save the initial clinicalAnalysis. Needed for onClear() method
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis?.id || "";
-            this.diseasePanelIds = this.toolParams.clinicalAnalysis?.panels.map(panel => panel.id).join(",") || "";
+            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+            this.diseasePanelIds = this.toolParams.panels || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysisId;
+        return !!this.toolParams.clinicalAnalysis;
     }
 
     onFieldChange(e, field) {
@@ -92,8 +98,8 @@ export default class RdTieringAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysisId: this.toolParams.clinicalAnalysisId || "",
-            diseasePanelIds: this.toolParams.clinicalAnalysis.panels?.map(panel => panel.id).join(",") || "",
+            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            panels: this.toolParams.panels.split(",") || [],
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -105,18 +111,16 @@ export default class RdTieringAnalysis extends LitElement {
                 .runInterpreterTiering(toolParams, params),
             this,
         );
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            clinicalAnalysisId: this.clinicalAnalysisId,
-            diseasePanelIds: this.diseasePanelIds,
+            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
+            clinicalAnalysis: this.clinicalAnalysisId,
+            panels: this.diseasePanelIds,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -138,7 +142,7 @@ export default class RdTieringAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysisId",
+                        field: "clinicalAnalysis",
                         type: "custom",
                         display: {
                             render: clinicalAnalysisId => html`
@@ -163,18 +167,28 @@ export default class RdTieringAnalysis extends LitElement {
                             render: panels => {
                                 // Todo: check if its working
                                 // Get whether disease panels can be modified or are fixed
-                                const panelLock = !!this.clinicalAnalysis?.panelLock;
+                                const casePanelLock = !!this.clinicalAnalysisId;
                                 // Get the list of disease panels for the dropdown
-                                const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
+                                let diseasePanels = [];
+                                if (casePanelLock) {
+                                    for (const panelId of panels.split(",")) {
+                                        const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
+                                        if (diseasePanel) {
+                                            diseasePanels.push(diseasePanel);
+                                        }
+                                    }
+                                } else {
+                                    diseasePanels = this.opencgaSession.study?.panels;
+                                }
                                 return html`
                                     <disease-panel-filter
                                         .opencgaSession="${this.opencgaSession}"
-                                        .diseasePanels="${panelList}"
-                                        .panel="${panels?.id}"
+                                        .diseasePanels="${diseasePanels}"
+                                        .panel="${this.diseasePanelIds}"
                                         .showExtendedFilters="${false}"
                                         .showSelectedPanels="${false}"
-                                        .classes="${this.toolParams?.panels ? "updated" : ""}"
-                                        .disabled="${panelLock}"
+                                        .classes=""
+                                        .disabled="${casePanelLock}"
                                         @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                     </disease-panel-filter>
                                 `;
@@ -187,7 +201,7 @@ export default class RdTieringAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

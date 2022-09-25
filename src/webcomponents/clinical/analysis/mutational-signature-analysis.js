@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils.js";
-import "../../commons/forms/data-form.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/data-form.js";
 
 
 export default class MutationalSignatureAnalysis extends LitElement {
@@ -60,7 +61,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
             maxraresigs: "1",
             nboot: "200"
         };
-        this.toolParams = this.DEFAULT_TOOLPARAMS;
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+        };
 
         this.REFSIGV1_ORGANS = [
             "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "Cervix", "CNS",
@@ -71,7 +74,26 @@ export default class MutationalSignatureAnalysis extends LitElement {
             "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "NET",
             "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
 
+        this.query = {};
         this.config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // Save the initial 'query'. Needed for onClear() method
+            this.query = this.toolParams.query || {};
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     check() {
@@ -98,17 +120,20 @@ export default class MutationalSignatureAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient
-                .variants()
+            this.opencgaSession.opencgaClient.variants()
                 .runMutationalSignature(toolParams, params),
             this
         );
     }
 
     onClear() {
-        this.toolParams = this.DEFAULT_TOOLPARAMS;
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            query: {
+                ...this.query
+            }
+        };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -128,6 +153,22 @@ export default class MutationalSignatureAnalysis extends LitElement {
             {
                 title: "Configuration Parameters",
                 elements: [
+                    {
+                        title: "Sample ID",
+                        field: "query.sample",
+                        type: "custom",
+                        display: {
+                            render: sampleId => html`
+                                <catalog-search-autocomplete
+                                    .value="${sampleId}"
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false, disabled: !!this.query.sample}}"
+                                    @filterChange="${e => this.onFieldChange(e, "query")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
                     {
                         title: "Fit Method",
                         field: "fitmethod",
@@ -203,7 +244,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

@@ -49,6 +49,7 @@ export default class ExomiserAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "interpreter-exomiser";
         this.ANALYSIS_TITLE = "Interpreter Exomiser";
+        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -63,17 +64,23 @@ export default class ExomiserAnalysis extends LitElement {
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysisId || "";
+            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysisId;
+        return !!this.toolParams.clinicalAnalysis;
     }
 
     onFieldChange(e, field) {
@@ -83,12 +90,11 @@ export default class ExomiserAnalysis extends LitElement {
         }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysisId,
+            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -100,19 +106,15 @@ export default class ExomiserAnalysis extends LitElement {
                 .runInterpreterExomiser(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysisId: this.clinicalAnalysisId,
+            clinicalAnalysis: this.clinicalAnalysisId,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -134,7 +136,7 @@ export default class ExomiserAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysisId",
+                        field: "clinicalAnalysis",
                         type: "custom",
                         display: {
                             render: clinicalAnalysisId => html`
@@ -155,7 +157,7 @@ export default class ExomiserAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes an Exomiser Interpretation analysis",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
         );
