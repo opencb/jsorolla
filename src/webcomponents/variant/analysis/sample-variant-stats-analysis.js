@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
+import UtilsNew from "../../../core/utilsNew";
 
 
 export default class SampleVariantStatsAnalysis extends LitElement {
@@ -49,19 +50,34 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "sample-variant-stats";
         this.ANALYSIS_TITLE = "Sample Variant Stats";
+        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+        };
 
         this.config = this.getDefaultConfig();
     }
 
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // Save the initial 'sample'. Needed for onClear() method
+            this.sample = this.toolParams.sample || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
 
     check() {
         return !!this.toolParams.sample || !!this.toolParams.individual;
@@ -81,6 +97,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         const toolParams = {
             sample: this.toolParams.sample?.split(",") || [],
             individual: this.toolParams.individual?.split(",") || [],
+            variantQuery: this.toolParams.variantQuery || {},
             index: this.toolParams.index ?? false,
         };
         const params = {
@@ -89,15 +106,18 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runSampleStats(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runSampleStats(toolParams, params),
             this
         );
     }
 
     onClear() {
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            sample: this.sample,
+        };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -151,11 +171,15 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Variant stats will be calculated for all the samples for the members of this family",
+                                text: "Variant stats will be calculated for all the samples of these individuals",
                             }
                         },
                     },
                 ]
+            },
+            {
+                title: "Variant Query Parameters",
+                elements: AnalysisUtils.getVariantQueryConfiguration("variantQuery.", this.opencgaSession, this.onFieldChange.bind(this)),
             },
             {
                 title: "Configuration Parameters",
@@ -174,7 +198,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a mutational signature analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );

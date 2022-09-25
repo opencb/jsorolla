@@ -1,3 +1,4 @@
+import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utilsNew";
 
@@ -27,6 +28,57 @@ export default class AnalysisUtils {
             jobTags: toolParams.jobTags || "",
             jobDescription: toolParams.jobDescription || "",
         };
+    }
+
+    static getVariantQueryConfiguration(prefix = "", opencgaSession, callback) {
+        return [
+            {
+                title: "Gene",
+                field: prefix + "gene",
+                type: "input-text",
+                display: {
+                },
+            },
+            {
+                title: "Type",
+                field: prefix + "type",
+                type: "select",
+                allowedValues: BIOTYPES,
+                display: {
+                },
+            },
+            {
+                title: "Consequence Type",
+                field: prefix + "ct",
+                type: "custom",
+                display: {
+                    render: ct => {
+                        return html`
+                            <consequence-type-select-filter
+                                .ct="${ct}"
+                                .config="${CONSEQUENCE_TYPES}"
+                                @filterChange="${e => callback(e, prefix + "ct")}">
+                            </consequence-type-select-filter>
+                        `;
+                    }
+                }
+            },
+            {
+                title: "Disease Panel",
+                field: prefix + "panel",
+                type: "select",
+                allowedValues: opencgaSession?.study?.panels?.map(panel => (
+                    {
+                        id: panel.id,
+                        name: `${panel.name}
+                        ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                        ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`}
+                )) || [],
+                display: {
+                },
+            },
+
+        ];
     }
 
     static getAnalysisConfiguration(id, title, description, paramSections, check) {
