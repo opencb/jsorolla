@@ -145,7 +145,7 @@ export default class ExomiserAnalysis extends LitElement {
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
+                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
