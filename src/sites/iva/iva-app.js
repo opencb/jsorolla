@@ -70,6 +70,7 @@ import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
 import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
 import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
 import "../../webcomponents/variant/analysis/family-qc-analysis.js";
+import "../../webcomponents/variant/analysis/knockout-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
 import "../../webcomponents/variant/analysis/variant-export-analysis.js";
@@ -1529,8 +1530,10 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["knockout"] ? html`
-                    <div class="content" id="opencga-knockout-analysis">
-                        ${AnalysisRegistry.get("knockout").form(this.opencgaSession, this.cellbaseClient)}
+                    <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
+                        <knockout-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </knockout-analysis>
                     </div>
                 ` : null}
 
