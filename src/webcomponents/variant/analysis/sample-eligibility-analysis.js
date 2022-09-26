@@ -60,6 +60,17 @@ export default class SampleEligibilityAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
+
     check() {
         return !!this.toolParams.query;
     }
@@ -75,8 +86,8 @@ export default class SampleEligibilityAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            cohortId: this.toolParams.cohortId || "",
             query: this.toolParams.query || "",
+            cohortId: this.toolParams.cohortId || "",
             index: this.toolParams.index ?? false,
         };
         const params = {
@@ -96,7 +107,6 @@ export default class SampleEligibilityAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {

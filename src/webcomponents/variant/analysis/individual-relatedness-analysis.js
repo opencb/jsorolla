@@ -48,8 +48,6 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         };
     }
 
-    // QUESTION: Support property samples OR individuals?
-
     #init() {
         this.ANALYSIS_TOOL = "individual-relatedness";
         this.ANALYSIS_TITLE = "Individual Relatedness";
@@ -63,7 +61,26 @@ export default class IndividualRelatednessAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
+        this.individual = "";
         this.config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.individual = this.toolParams.individual || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     check() {
@@ -82,8 +99,8 @@ export default class IndividualRelatednessAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            samples: this.toolParams.samples || "",
-            individuals: this.toolParams.individuals || "",
+            samples: this.toolParams.samples?.split(",") || [],
+            individuals: this.toolParams.individuals?.split(",") || [],
             minorAlleleFreq: this.toolParams.minorAlleleFreq
         };
         const params = {
@@ -96,17 +113,14 @@ export default class IndividualRelatednessAnalysis extends LitElement {
                 .runRelatedness(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            individual: this.individual,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -156,7 +170,7 @@ export default class IndividualRelatednessAnalysis extends LitElement {
                                     .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
                                     @filterChange="${e => this.onFieldChange(e, "samples")}">
                                 </catalog-search-autocomplete>
-                                `
+                            `
                         },
                     },
                 ],
@@ -176,7 +190,7 @@ export default class IndividualRelatednessAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

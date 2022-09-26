@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
+import UtilsNew from "../../../core/utilsNew";
 
 
 export default class VariantExportAnalysis extends LitElement {
@@ -49,17 +50,35 @@ export default class VariantExportAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "variant-export";
         this.ANALYSIS_TITLE = "Variant Export";
+        this.ANALYSIS_DESCRIPTION = "Executes a Variant Export analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+        };
 
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.sample = this.toolParams.sample || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
 
     check() {
         return !!this.toolParams.sample || !!this.toolParams.family;
@@ -89,15 +108,18 @@ export default class VariantExportAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants().runExport(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runExport(toolParams, params),
             this
         );
     }
 
     onClear() {
-        this.toolParams = {...this.DEFAULT_TOOLPARAMS};
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            sample: this.sample,
+        };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -127,7 +149,7 @@ export default class VariantExportAnalysis extends LitElement {
                                         .value="${toolParams?.sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.family}}"
+                                        .config="${{multiple: true, disabled: !!this.sample}}"
                                         @filterChange="${e => this.onFieldChange(e, "sample")}">
                                     </catalog-search-autocomplete>`;
                             },
@@ -136,70 +158,37 @@ export default class VariantExportAnalysis extends LitElement {
                             }
                         },
                     },
-                    {
-                        title: "Family ID",
-                        type: "custom",
-                        display: {
-                            render: toolParams => {
-                                return html`
-                                    <catalog-search-autocomplete
-                                        .value="${toolParams?.individual}"
-                                        .resource="${"FAMILY"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "family")}">
-                                    </catalog-search-autocomplete>`;
-                            },
-                            help: {
-                                text: "Select families to export variants",
-                            }
-                        },
-                    },
+                    // {
+                    //     title: "Family ID",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: toolParams => {
+                    //             return html`
+                    //                 <catalog-search-autocomplete
+                    //                     .value="${toolParams?.individual}"
+                    //                     .resource="${"FAMILY"}"
+                    //                     .opencgaSession="${this.opencgaSession}"
+                    //                     .config="${{multiple: true, disabled: !!toolParams.sample}}"
+                    //                     @filterChange="${e => this.onFieldChange(e, "family")}">
+                    //                 </catalog-search-autocomplete>`;
+                    //         },
+                    //         help: {
+                    //             text: "Select families to export variants",
+                    //         }
+                    //     },
+                    // },
                 ]
             },
             {
-                title: "Variant Query Parameters",
-                elements: [
-                    {
-                        title: "Region",
-                        field: "region",
-                        type: "input-text",
-                        display: {
-                        },
-                    },
-                    {
-                        title: "Gene",
-                        field: "gene",
-                        type: "custom",
-                        display: {
-                            placeholder: "Add gene...",
-                            render: (data, dataFormFilterChange) => {
-                                return html`
-                                    <feature-filter
-                                        .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </feature-filter>
-                                `;
-                            },
-                        }
-                    },
-                    {
-                        title: "Gene Biotype",
-                        field: "biotype",
-                        type: "select",
-                        allowedValues: BIOTYPES,
-                        multiple: true,
-                        display: {
-                        },
-                    },
-                ]
-            }
+                title: "Variant Stats Query Parameters",
+                elements: AnalysisUtils.getVariantQueryConfiguration("", this.opencgaSession, this.onFieldChange.bind(this)),
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a Variant Export analysis",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );

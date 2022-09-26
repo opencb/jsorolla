@@ -78,9 +78,9 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            samples: this.toolParams.samples || "",
-            individuals: this.toolParams.individuals || "",
-            minorAlleleFreq: this.toolParams.minorAlleleFreq
+            family: this.toolParams.family || "",
+            individual: this.toolParams.individual || "",
+            // sample: this.toolParams.sample || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -99,7 +99,6 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -130,7 +129,7 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                                     .value="${individuals}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.toolParams?.samples}}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.individual}}"
                                     @filterChange="${e => this.onFieldChange(e, "individuals")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -147,35 +146,35 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                                     .value="${individuals}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.toolParams?.samples}}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.family}}"
                                     @filterChange="${e => this.onFieldChange(e, "individuals")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-                    {
-                        title: "Select samples",
-                        field: "samples",
-                        type: "custom",
-                        display: {
-                            render: samples => html `
-                                <catalog-search-autocomplete
-                                    .value="${samples}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
-                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
-                                </catalog-search-autocomplete>
-                                `
-                        },
-                    },
+                    // {
+                    //     title: "Select samples",
+                    //     field: "samples",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: samples => html `
+                    //             <catalog-search-autocomplete
+                    //                 .value="${samples}"
+                    //                 .resource="${"SAMPLE"}"
+                    //                 .opencgaSession="${this.opencgaSession}"
+                    //                 .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
+                    //                 @filterChange="${e => this.onFieldChange(e, "samples")}">
+                    //             </catalog-search-autocomplete>
+                    //         `,
+                    //     },
+                    // },
                 ],
             },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

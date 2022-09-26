@@ -59,23 +59,28 @@ export default class InferredSexAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.individualId = "";
-        this.sampleId = "";
-
+        this.individual = "";
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-            this.individualId = this.toolParams.individual || "";
-            this.sampleId = this.toolParams.sample || "";
+            this.individual = this.toolParams.individual || "";
+            this.sample = this.toolParams.sample || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
     }
 
     check() {
@@ -94,8 +99,8 @@ export default class InferredSexAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            sample: this.toolParams.sample || "",
             individual: this.toolParams.individual || "",
+            sample: this.toolParams.sample || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -107,20 +112,15 @@ export default class InferredSexAnalysis extends LitElement {
                 .runInferredSex(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
-
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            individual: this.individualId,
-            sample: this.sampleId,
+            individual: this.individual,
+            sample: this.sample,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -154,7 +154,7 @@ export default class InferredSexAnalysis extends LitElement {
                                     .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
                                     @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
-                                `,
+                            `,
                         }
                     },
                     {
@@ -180,7 +180,7 @@ export default class InferredSexAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

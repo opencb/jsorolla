@@ -62,6 +62,17 @@ export default class GwasAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
+
     check() {
         // TODO: check if there are more required params for GWAS analysis
         return !!this.toolParams.controlCohort || !!this.toolParams.caseCohort;
@@ -117,7 +128,6 @@ export default class GwasAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {

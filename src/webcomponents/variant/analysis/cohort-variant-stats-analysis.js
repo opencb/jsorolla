@@ -49,10 +49,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
     #init() {
         this.ANALYSIS_TOOL = "cohort-variant-stats";
         this.ANALYSIS_TITLE = "Cohort Variant Stats";
+        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // CAUTION!: spread operator makes a shallow copy if objects,
-        //  arrays or functions are nested ( not a deep copy but a reference)
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -61,9 +60,16 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
-    // update(changedProperties) {
-    //     super.update(changedProperties);
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
 
     check() {
         return !!this.toolParams.cohort || !!this.toolParams.sample;
@@ -102,7 +108,6 @@ export default class CohortVariantStatsAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -132,7 +137,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                                         .value="${toolParams?.cohort}"
                                         .resource="${"COHORT"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!toolParams.samples}}"
+                                        .config="${{multiple: true, disabled: !!toolParams.samples}}"
                                         @filterChange="${e => this.onFieldChange(e, "cohort")}">
                                     </catalog-search-autocomplete>`;
                             },
@@ -179,7 +184,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
             this.title ?? this.ANALYSIS_TITLE,
-            "Executes a mutational signature analysis job",
+            this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
         );
