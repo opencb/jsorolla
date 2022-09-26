@@ -48,8 +48,6 @@ export default class FamilyQcAnalysis extends LitElement {
         };
     }
 
-    // QUESTION: Support property samples OR individuals?
-
     #init() {
         this.ANALYSIS_TOOL = "family-qc";
         this.ANALYSIS_TITLE = "Family Quality Control";
@@ -63,9 +61,26 @@ export default class FamilyQcAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.familyId = "";
-
+        this.family = "";
         this.config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.family = this.toolParams.family || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     check() {
@@ -97,18 +112,14 @@ export default class FamilyQcAnalysis extends LitElement {
                 .runFamilyQc(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            family: this.familyId,
+            family: this.family,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -133,16 +144,18 @@ export default class FamilyQcAnalysis extends LitElement {
                         field: "family",
                         type: "custom",
                         display: {
-                            helpMessage: "Family Id",
                             render: family => html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: false}}"
+                                    .config="${{multiple: true, disabled: !!this.family}}"
                                     @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
                             `,
+                            help: {
+                                text: "Select a family to run QC"
+                            },
                         },
                     },
                 ],
@@ -162,7 +175,7 @@ export default class FamilyQcAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

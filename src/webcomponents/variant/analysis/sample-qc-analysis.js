@@ -52,27 +52,33 @@ export default class SampleQcAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "Sample Quality Control";
         this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given sample. " +
             "It includes variant stats, FastQC,samtools/flagstat, picard/CollectHsMetrics and gene coverage stats; and for somatic samples, mutational signature";
+
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.sampleId = "";
-
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-            this.sampleId = this.toolParams.sample || "";
+            this.sample = this.toolParams.sample || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
     }
 
     check() {
@@ -92,6 +98,7 @@ export default class SampleQcAnalysis extends LitElement {
     onSubmit() {
         const toolParams = {
             sample: this.toolParams.sample || "",
+            variantStatsQuery: this.toolParams.variantStatsQuery || {},
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -103,18 +110,14 @@ export default class SampleQcAnalysis extends LitElement {
                 .runSampleQc(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
-
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            sample: this.sample
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -139,27 +142,33 @@ export default class SampleQcAnalysis extends LitElement {
                         field: "sample",
                         type: "custom",
                         display: {
-                            helpMessage: "Sample Id",
                             render: sample => {
                                 return html `
-                                <catalog-search-autocomplete
-                                    .value="${sample}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
-                                </catalog-search-autocomplete>
-                            `;
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!this.sample}}"
+                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                            help: {
+                                text: "Select a sample to run QC"
                             },
                         }
                     },
                 ],
-            }
+            },
+            {
+                title: "Variant Stats Query Parameters",
+                elements: AnalysisUtils.getVariantQueryConfiguration("variantStatsQuery.", this.opencgaSession, this.onFieldChange.bind(this)),
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()

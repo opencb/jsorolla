@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import "../../commons/analysis/opencga-analysis-tool.js";
 
 
 export default class IndividualQcAnalysis extends LitElement {
@@ -58,23 +58,28 @@ export default class IndividualQcAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.individualId = "";
-        this.sampleId = "";
-
+        this.individual = "";
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-            this.individualId = this.toolParams.individual || "";
-            this.sampleId = this.toolParams.sample || "";
+            this.individual = this.toolParams.individual || "";
+            this.sample = this.toolParams.sample || "";
+        }
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
         }
+        super.update(changedProperties);
     }
 
     check() {
@@ -106,20 +111,15 @@ export default class IndividualQcAnalysis extends LitElement {
                 .runIndividualQc(toolParams, params),
             this,
         );
-
-        // TODO: Clear analysis form after submitting
-        // this.onClear();
-
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            individual: this.individualId,
-            sample: this.sampleId,
+            individual: this.individual,
+            sample: this.sample,
         };
         this.config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     render() {
@@ -147,13 +147,13 @@ export default class IndividualQcAnalysis extends LitElement {
                             helpMessage: "Individual Id",
                             render: individual => {
                                 return html `
-                                <catalog-search-autocomplete
-                                    .value="${individual}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
-                                </catalog-search-autocomplete>
+                                    <catalog-search-autocomplete
+                                        .value="${individual}"
+                                        .resource="${"INDIVIDUAL"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!this.toolParams?.sample}}"
+                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                    </catalog-search-autocomplete>
                                 `;
                             }
 
@@ -167,14 +167,14 @@ export default class IndividualQcAnalysis extends LitElement {
                             helpMessage: "Sample Id",
                             render: sample => {
                                 return html `
-                                <catalog-search-autocomplete
-                                    .value="${sample}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
-                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
-                                </catalog-search-autocomplete>
-                            `;
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!this.toolParams?.individual}}"
+                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                    </catalog-search-autocomplete>
+                                `;
                             },
                         }
                     },
@@ -184,7 +184,7 @@ export default class IndividualQcAnalysis extends LitElement {
 
         return AnalysisUtils.getAnalysisConfiguration(
             this.ANALYSIS_TOOL,
-            this.ANALYSIS_TITLE,
+            this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check()
