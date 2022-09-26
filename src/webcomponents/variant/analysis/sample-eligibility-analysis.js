@@ -126,16 +126,7 @@ export default class SampleEligibilityAnalysis extends LitElement {
             {
                 title: "Input Parameters",
                 elements: [
-                    {
-                        title: "Cohort ID",
-                        field: "cohortId",
-                        type: "input-text",
-                        display: {
-                            help: {
-                                text: "ID for the cohort to be created if index",
-                            },
-                        },
-                    },
+
                     {
                         title: "Query",
                         field: "query",
@@ -153,6 +144,17 @@ export default class SampleEligibilityAnalysis extends LitElement {
                         display: {
                             help: {
                                 text: "Create a cohort with the resulting set of samples (if any)",
+                            },
+                        },
+                    },
+                    {
+                        title: "Cohort Index ID",
+                        field: "cohortId",
+                        type: "input-text",
+                        display: {
+                            disabled: () => !this.toolParams.index,
+                            help: {
+                                text: "ID for the cohort to be created if index",
                             },
                         },
                     },

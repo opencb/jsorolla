@@ -54,7 +54,7 @@ export default class FamilyQcAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
         this.DEFAULT_TOOLPARAMS = {
-            minorAlleleFreq: "1000G:ALL>0.3",
+            relatednessMaf: "1000G:ALL>0.3",
         };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
@@ -149,7 +149,7 @@ export default class FamilyQcAnalysis extends LitElement {
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.family}}"
+                                    .config="${{multiple: false, disabled: !!this.family}}"
                                     @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -165,7 +165,7 @@ export default class FamilyQcAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Select minor allele frequency",
-                        field: "minorAlleleFreq",
+                        field: "relatednessMaf",
                         type: "input-text",
                         display: {}
                     },

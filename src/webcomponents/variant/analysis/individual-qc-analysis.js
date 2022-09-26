@@ -151,7 +151,7 @@ export default class IndividualQcAnalysis extends LitElement {
                                         .value="${individual}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!this.toolParams?.sample}}"
+                                        .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
                                         @filterChange="${e => this.onFieldChange(e, "individual")}">
                                     </catalog-search-autocomplete>
                                 `;
@@ -171,7 +171,7 @@ export default class IndividualQcAnalysis extends LitElement {
                                         .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!this.toolParams?.individual}}"
+                                        .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
                                         @filterChange="${e => this.onFieldChange(e, "sample")}">
                                     </catalog-search-autocomplete>
                                 `;
