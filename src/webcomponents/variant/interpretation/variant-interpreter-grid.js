@@ -768,7 +768,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                 },
                 {
                     id: "populationFrequencies",
@@ -858,6 +858,13 @@ export default class VariantInterpreterGrid extends LitElement {
                                             </a>
                                         </li>
                                     ` : ""}
+                                    <li class="dropdown-header">External Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.type === "SNV" ? row.id : row.studies[0]?.files[0]?.call?.variantId?.split(",")[0], row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"

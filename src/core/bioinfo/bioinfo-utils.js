@@ -105,6 +105,10 @@ export default class BioinfoUtils {
         const region = split[0] + ":" + (Number(split[1]) - 5000) + "-" + (Number(split[2]) + 5000);
 
         switch (source.toUpperCase()) {
+            case "DECIPHER":
+                // To make things easier the conversion of OpenCB Variant ID to Decipher ID must happen here
+                const decipherId = id.replace(/:/g, "-");
+                return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
             case "ENSEMBL_GENOME_BROWSER":
                 if (assembly?.toUpperCase() === "GRCH38") {
                     return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;
@@ -113,7 +117,6 @@ export default class BioinfoUtils {
                 }
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
-
         }
     }
 

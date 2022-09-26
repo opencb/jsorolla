@@ -78,9 +78,23 @@ export default class VariantGridFormatter {
         alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
         // Create links for tooltip
+        let tooltipText = "";
         const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
-        const tooltipText = `
-            <div class="dropdown-header" style="padding-left: 5px">External Links</div>
+        // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
+        if (row.type === "SNV" || row.studies[0]?.files[0]?.call?.variantId) {
+            const variantId = (row.type === "SNV") ? row.id : row.studies[0].files[0].call.variantId.split(",")[0];
+            tooltipText += `
+                <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
+                <div style="padding: 5px">
+                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
+                        DECIPHER
+                    </a>
+                </div>
+            `;
+        }
+        // 2. Add links to external browsers
+        tooltipText += `
+            <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
                 <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
@@ -92,6 +106,8 @@ export default class VariantGridFormatter {
                 </a>
             </div>
         `;
+
+
 
         const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
@@ -261,7 +277,7 @@ export default class VariantGridFormatter {
 
     static getGeneTooltip(geneName, assembly) {
         return `
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>External Links</div>
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
             <div style='padding: 5px'>
                  <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
             </div>
@@ -272,7 +288,7 @@ export default class VariantGridFormatter {
                  <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
 
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold'>Clinical Resources</div>
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
             <div style='padding: 5px'>
                  <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
             </div>
