@@ -76,7 +76,7 @@ export default class KnockoutAnalysis extends LitElement {
 
     check() {
         // TODO: check if there are more required params for Knockout analysis
-        return !!this.toolParams.gene;
+        return !!this.toolParams.sample;
     }
 
     onFieldChange(e, field) {
@@ -96,8 +96,6 @@ export default class KnockoutAnalysis extends LitElement {
             biotype: this.toolParams.biotype || "",
             consequenceType: this.toolParams.consequenceType || "",
             filter: this.toolParams.filter || "",
-            qual: this.toolParams.qual || "",
-            skipGenesFile: this.toolParams.skipGenesFile || false,
             index: this.toolParams.index || false,
         };
         const params = {
@@ -132,13 +130,6 @@ export default class KnockoutAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
-        const panelsList = (this.opencgaSession?.study?.panels || []).map(panel => ({
-            id: panel.id,
-            name: `${panel.name}
-                ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`,
-        }));
-
         const params = [
             {
                 title: "Sample Filters",
@@ -161,65 +152,19 @@ export default class KnockoutAnalysis extends LitElement {
                 ],
             },
             {
-                title: "Gene Filters",
+                title: "Variant Query Parameters",
                 elements: [
-                    // ...AnalysisUtils.getVariantQueryConfiguration("", this.opencgaSession, this.onFieldChange.bind(this)),
-                    {
-                        title: "Gene",
-                        field: "gene",
-                        type: "input-text",
-                    },
-                    {
-                        title: "Type",
-                        field: "biotype",
-                        type: "select",
-                        allowedValues: BIOTYPES,
-                    },
-                    {
-                        title: "Disease Panel",
-                        field: "panel",
-                        type: "select",
-                        allowedValues: panelsList,
-                    },
-                ]
-            },
-            {
-                title: "Variant Filters",
-                elements: [
-                    {
-                        title: "Consequence Type",
-                        type: "custom",
-                        display: {
-                            render: toolParams => html`
-                                <consequence-type-select-filter
-                                    .ct="${toolParams.consequenceType}"
-                                    .config="${CONSEQUENCE_TYPES}"
-                                    @filterChange="${e => this.onFieldChange(e, "consequenceType")}">
-                                </consequence-type-select-filter>
-                            `,
-                        }
-                    },
-
+                    ...AnalysisUtils.getVariantQueryConfiguration("", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
                     {
                         title: "Filter",
                         field: "filter",
                         type: "input-text",
-                    },
-                    {
-                        title: "Qual",
-                        field: "qual",
-                        type: "input-text",
-                    },
+                    }
                 ]
             },
             {
                 title: "Configuration Parameters",
                 elements: [
-                    {
-                        title: "Skip Genes File",
-                        field: "skipGenesFile",
-                        type: "checkbox",
-                    },
                     {
                         title: "index",
                         field: "index",

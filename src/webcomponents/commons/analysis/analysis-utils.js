@@ -30,21 +30,32 @@ export default class AnalysisUtils {
         };
     }
 
-    static getVariantQueryConfiguration(prefix = "", opencgaSession, callback) {
+    static getVariantQueryConfiguration(prefix = "", ignoreList = [], opencgaSession, callback) {
         return [
             {
                 title: "Gene",
                 field: prefix + "gene",
                 type: "input-text",
                 display: {
+                    visible: !ignoreList?.includes("gene")
+                },
+            },
+            {
+                title: "Biotype",
+                field: prefix + "biotype",
+                type: "select",
+                allowedValues: BIOTYPES,
+                display: {
+                    visible: !ignoreList?.includes("biotype")
                 },
             },
             {
                 title: "Type",
                 field: prefix + "type",
                 type: "select",
-                allowedValues: BIOTYPES,
+                allowedValues: VARIANT_TYPES,
                 display: {
+                    visible: !ignoreList?.includes("type")
                 },
             },
             {
@@ -52,6 +63,7 @@ export default class AnalysisUtils {
                 field: prefix + "ct",
                 type: "custom",
                 display: {
+                    visible: !ignoreList?.includes("ct"),
                     render: ct => {
                         return html`
                             <consequence-type-select-filter
@@ -75,6 +87,7 @@ export default class AnalysisUtils {
                         ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`}
                 )) || [],
                 display: {
+                    visible: !ignoreList?.includes("panel")
                 },
             },
 

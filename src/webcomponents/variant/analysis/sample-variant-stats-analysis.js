@@ -179,7 +179,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
             },
             {
                 title: "Variant Query Parameters",
-                elements: AnalysisUtils.getVariantQueryConfiguration("variantQuery.", this.opencgaSession, this.onFieldChange.bind(this)),
+                elements: AnalysisUtils.getVariantQueryConfiguration("variantQuery.", [], this.opencgaSession, this.onFieldChange.bind(this)),
             },
             {
                 title: "Configuration Parameters",

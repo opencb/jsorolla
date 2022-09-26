@@ -162,7 +162,7 @@ export default class SampleQcAnalysis extends LitElement {
             },
             {
                 title: "Variant Stats Query Parameters",
-                elements: AnalysisUtils.getVariantQueryConfiguration("variantStatsQuery.", this.opencgaSession, this.onFieldChange.bind(this)),
+                elements: AnalysisUtils.getVariantQueryConfiguration("variantStatsQuery.", [], this.opencgaSession, this.onFieldChange.bind(this)),
             },
         ];
 
