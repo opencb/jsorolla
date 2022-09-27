@@ -107,8 +107,6 @@ export default class VariantGridFormatter {
             </div>
         `;
 
-
-
         const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
         // Add highlight icons
@@ -702,13 +700,16 @@ export default class VariantGridFormatter {
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
                     const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
-                    soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                    <span style="padding-right: 5px">${so.name}</span>
-                                    <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                  </div>`);
+                    const soUrl = `http://www.sequenceontology.org/browser/current_svn/term/${so.accession}`;
+                    const soTitle = `Go to Sequence Ontology ${so.accession} term`;
+                    soArray.push(`
+                        <div style="color: ${color}; margin-bottom: 5px">
+                            <span style="padding-right: 5px">${so.name}</span>
+                            <a title="${soTitle}" href="${soUrl}" target="_blank">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    `);
                 }
 
                 let transcriptFlags = ["-"];
