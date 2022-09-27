@@ -19,6 +19,16 @@ import UtilsNew from "../../../core/utilsNew.js";
 export default class FormUtils {
 
     //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
+    /**
+     * ! Rodiel 2022-09-27 DEPRECATED use updateObjectParams
+     * TODO Before removing updateScalar change to updateObjectParams to these components
+     * Clinical-analysis-update
+     * Clinical-interpretation-update
+     * exomiser-analysis
+     * rd-tiering-analysis
+     * clinical-interpretation-variant-review
+     */
+    //
     static updateScalar(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
@@ -39,6 +49,7 @@ export default class FormUtils {
         return _updateParams;
     }
 
+    // ! Rodiel 2022-09-27 DEPRECATED is only used by ontology-term-annotation-update is also deprecated
     static updateScalarParams(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
@@ -61,7 +72,13 @@ export default class FormUtils {
         return _data;
     }
 
-    // Deprecated!
+    /**
+     * !DEPRECATED
+     * TODO Before removing updateObject change to updateObjectParams to these components
+     * Clinical-analysis-update
+     * Clinical-interpretation-update
+     */
+    //
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -148,6 +165,7 @@ export default class FormUtils {
 
     // Rodiel 2022-05-16 DEPRECATED use updateObjectParams
     // update object with props has primitive type
+    // ! Rodiel 2022-09-27 DEPRECATED is only used by annotation-update is also deprecated
     static updateObjectWithProps(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -181,8 +199,6 @@ export default class FormUtils {
         // We need to create a new 'updateParams' reference to force an update
         return _updateParams;
     }
-
-    // new function: with updateScalar & updateObjectWithProps
     static updateObjectParams(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 
@@ -231,6 +247,33 @@ export default class FormUtils {
             }
         }
 
+        return _updateParams;
+    }
+
+    static updateObjExperimental(_original, original, updateParams, param, value) {
+        const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
+        const isNotEmtpy = (_obj, val) => typeof _obj !== "undefined" || val !== "";
+
+        const _updateParams = {
+            ...updateParams
+        };
+        const currentValue = FormUtils.#getObjectValue(_original, param, "");
+        if (isValueDifferent(currentValue, value) && isNotEmtpy(currentValue, value)) {
+            FormUtils.#setObjectValue(original, param, value);
+            FormUtils.#setObjectValue(_updateParams, param, value);
+        } else {
+            FormUtils.#deleteObjectValue(_updateParams, param);
+            const parts = param.split(".").slice(0, -1);
+            const props = [...parts];
+            for (let i = 0; i < parts.length; i++) {
+                if (UtilsNew.isEmpty(FormUtils.#getObjectValue(_updateParams, props.join("."), ""))) {
+                    FormUtils.#deleteObjectValue(_updateParams, props.join("."));
+                    props.pop();
+                } else {
+                    break;
+                }
+            }
+        }
         return _updateParams;
     }
 
@@ -352,37 +395,37 @@ export default class FormUtils {
         return data;
     }
 
-    /**
-    * @deprecated since version 2.2
-    */
-    // ! Deprecated Don't Used This Code
-    static notifyError() {
-        // Nothing to do
+    // example: getObjectValue(sample,"processing.product.id","")
+    static #getObjectValue(obj, props, defaultValue) {
+        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
     }
 
-    // Deprecated
-    static showAlert(title, message, type) {
-        Swal.fire(
-            title,
-            message,
-            type,
-        );
+    // example: setObjectValue(sample,'processing.product.id',value)
+    static #setObjectValue(obj, props, value) {
+        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
     }
 
-    static getBooleanValue(data, visible, defaultValue) {
-        let _visible = typeof defaultValue !== "undefined" ? defaultValue : true;
-        if (typeof visible !== "undefined" && visible !== null) {
-            if (typeof visible === "boolean") {
-                _visible = visible;
-            } else {
-                if (typeof visible === "function") {
-                    _visible = visible(data);
-                } else {
-                    console.error(`Field 'visible' not boolean or function: ${typeof visible}`);
-                }
+    // 1st approach remove value (recursive way)
+    static #deleteObjectValue(obj, props) {
+        const [head, ...params] = props.split(".");
+        if (!params.length) {
+            delete obj[head];
+        } else {
+            FormUtils.#deleteObjectValue(obj[head], params.join("."));
+        }
+    }
+
+    // 2nd approach remove value (loop way)
+    static #deleteObjectValue2(obj, props) {
+        const parts = props.split(".");
+        const last = parts.pop();
+        for (const part of parts) {
+            obj = obj[part];
+            if (!obj) {
+                return;
             }
         }
-        return _visible;
+        delete obj[last];
     }
 
 }

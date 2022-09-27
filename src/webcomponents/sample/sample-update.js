@@ -168,11 +168,18 @@ export default class SampleUpdate extends LitElement {
                 break;
             // case "status":
             // case "source":
-            case "processing.product":
+            // case "processing.product":
+            // Nested Object
             case "processing.product.id":
-                // It's an object
-                // processing.product it's object with a nested object
-                this.updateParams = FormUtils.updateObjectWithObj(
+            case "processing.product.name":
+            case "processing.product.source":
+            case "processing.product.description":
+                // processing it's nested object
+                //  -----------------------------------
+                // NOTE: updateObjectWithObj only works if the value is an OBJECT
+                // In this new config (type: object) it's return value is a primitive type
+                //  -----------------------------------
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
                     this.updateParams,
@@ -190,9 +197,9 @@ export default class SampleUpdate extends LitElement {
                     e.detail.param,
                     e.detail.value
                 );
-                debugger
                 break;
         }
+        console.log("Update Sample", this.updateParams);
         this.requestUpdate();
     }
 
