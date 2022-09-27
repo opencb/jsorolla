@@ -284,6 +284,26 @@ class VariantInterpreter extends LitElement {
         };
 
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
+        const reportReviewConfig = {
+            id: "caseReport",
+            name: "Case Report Review",
+            active: true,
+            render: (clinicalAnalysis, active, opencgaSession) => {
+                return html`
+                    <div class="col-md-10 col-md-offset-1">
+                        <tool-header
+                            class="bg-white"
+                            title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                        </tool-header>
+                        <clinical-analysis-review
+                            @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            .opencgaSession="${opencgaSession}">
+                        </clinical-analysis-review>
+                    </div>
+                `;
+            }
+        };
 
         switch (settingReporter && settingReporter?.component) {
             case "steiner-report":
@@ -308,9 +328,9 @@ class VariantInterpreter extends LitElement {
                 });
                 break;
             case "sms-report":
-                configReportTabs.items.push({
-                    id: "variantReport",
-                    name: "Variant Report",
+                configReportTabs.items.push(reportReviewConfig, {
+                    id: "reviewReport",
+                    name: "Review",
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
