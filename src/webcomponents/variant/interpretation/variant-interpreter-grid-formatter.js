@@ -248,7 +248,7 @@ export default class VariantInterpreterGridFormatter {
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span>
                                         <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                            href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                       </div>`);
