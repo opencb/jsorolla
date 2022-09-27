@@ -121,10 +121,10 @@ export default class RgaVariantView extends LitElement {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt"
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap"
-                },
+                },*/
                 {
                     title: "CH - Definite",
                     field: "individualStats.bothParents.numCompHet"
@@ -256,7 +256,7 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 5
+                    colspan: 4
                 }
             ], [
 
@@ -271,21 +271,22 @@ export default class RgaVariantView extends LitElement {
                     formatter: value => value > 0 ? value : "-"
 
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap",
                     formatter: value => value > 0 ? value : "-"
 
-                },
+                },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats.bothParents.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats.singleParent.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+
                 },
                 /* {
                     title: "CH - Possible",
@@ -500,6 +501,10 @@ export default class RgaVariantView extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
+                // FIXME DELETION_OVERLAP replaced
+                if (this._query?.knockoutType?.split(",").includes("COMP_HET")) {
+                    this._query.knockoutType = [...this._query.knockoutType.split(","), "DELETION_OVERLAP"].join(",");
+                }
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
@@ -560,7 +565,7 @@ export default class RgaVariantView extends LitElement {
             study: this.opencgaSession.study.fqn,
             count: false,
             ...this._query,
-            limit: e.detail?.exportLimit ?? 1000,
+            limit: e.detail?.exportLimit ?? 50,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(params)
             .then(restResponse => {
@@ -578,8 +583,9 @@ export default class RgaVariantView extends LitElement {
                                 "Allele count",
                                 "Consequence type",
                                 "Clinical Significance",
+                                "Individuals_Total",
                                 "Individuals_HOM",
-                                "Individuals_DELETION_OVERLAP",
+                                // "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
                                 // "Individuals_CH_Possible"
@@ -592,9 +598,10 @@ export default class RgaVariantView extends LitElement {
                                 _.allelePairs ? _.allelePairs.length : "",
                                 _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
                                 _.clinicalSignificances?.length ? _.clinicalSignificances.join(",") : "-",
+                                _.individualStats?.count,
                                 _.individualStats?.numHomAlt,
-                                _.individualStats?.numDelOverlap,
-                                _.individualStats?.bothParents?.numCompHet,
+                                // _.individualStats?.numDelOverlap,
+                                _.individualStats?.bothParents?.numCompHet + _.individualStats?.numDelOverlap,
                                 _.individualStats?.singleParent?.numCompHet,
                                 // _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
