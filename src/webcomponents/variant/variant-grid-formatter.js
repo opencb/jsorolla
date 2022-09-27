@@ -705,7 +705,7 @@ export default class VariantGridFormatter {
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     <span style="padding-right: 5px">${so.name}</span>
                                     <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="https://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
                                   </div>`);
