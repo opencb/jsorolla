@@ -700,7 +700,7 @@ export default class VariantGridFormatter {
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
                     const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
-                    const soUrl = `http://www.sequenceontology.org/browser/current_svn/term/${so.accession}`;
+                    const soUrl = `${BioinfoUtils.getSequenceOntologyLink(so.accession)}`;
                     const soTitle = `Go to Sequence Ontology ${so.accession} term`;
                     soArray.push(`
                         <div style="color: ${color}; margin-bottom: 5px">

@@ -217,4 +217,8 @@ export default class BioinfoUtils {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
+    static getSequenceOntologyLink(soTerm) {
+        return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
+    }
+
 }
