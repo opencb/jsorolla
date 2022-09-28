@@ -257,17 +257,18 @@ export default class FormUtils {
         const _updateParams = {
             ...updateParams
         };
-        const currentValue = FormUtils.#getObjectValue(_original, param, "");
+
+        const currentValue = UtilsNew.getObjectValue(_original, param, "");
         if (isValueDifferent(currentValue, value) && isNotEmtpy(currentValue, value)) {
-            FormUtils.#setObjectValue(original, param, value);
-            FormUtils.#setObjectValue(_updateParams, param, value);
+            UtilsNew.setObjectValue(original, param, value);
+            UtilsNew.setObjectValue(_updateParams, param, value);
         } else {
-            FormUtils.#deleteObjectValue(_updateParams, param);
+            UtilsNew.deleteObjectValue(_updateParams, param);
             const parts = param.split(".").slice(0, -1);
             const props = [...parts];
             for (let i = 0; i < parts.length; i++) {
-                if (UtilsNew.isEmpty(FormUtils.#getObjectValue(_updateParams, props.join("."), ""))) {
-                    FormUtils.#deleteObjectValue(_updateParams, props.join("."));
+                if (UtilsNew.isEmpty(UtilsNew.getObjectValue(_updateParams, props.join("."), ""))) {
+                    UtilsNew.deleteObjectValue(_updateParams, props.join("."));
                     props.pop();
                 } else {
                     break;
@@ -393,39 +394,6 @@ export default class FormUtils {
             }
         }
         return data;
-    }
-
-    // example: getObjectValue(sample,"processing.product.id","")
-    static #getObjectValue(obj, props, defaultValue) {
-        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
-    }
-
-    // example: setObjectValue(sample,'processing.product.id',value)
-    static #setObjectValue(obj, props, value) {
-        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
-    }
-
-    // 1st approach remove value (recursive way)
-    static #deleteObjectValue(obj, props) {
-        const [head, ...params] = props.split(".");
-        if (!params.length) {
-            delete obj[head];
-        } else {
-            FormUtils.#deleteObjectValue(obj[head], params.join("."));
-        }
-    }
-
-    // 2nd approach remove value (loop way)
-    static #deleteObjectValue2(obj, props) {
-        const parts = props.split(".");
-        const last = parts.pop();
-        for (const part of parts) {
-            obj = obj[part];
-            if (!obj) {
-                return;
-            }
-        }
-        delete obj[last];
     }
 
 }

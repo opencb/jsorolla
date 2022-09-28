@@ -168,6 +168,39 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
+    // example: getObjectValue(sample,"processing.product.id","")
+    static getObjectValue(obj, props, defaultValue) {
+        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
+    }
+
+    // example: setObjectValue(sample,'processing.product.id',value)
+    static setObjectValue(obj, props, value) {
+        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
+    }
+
+    // 1st approach remove value (recursive way)
+    static deleteObjectValue(obj, props) {
+        const [head, ...params] = props.split(".");
+        if (!params.length) {
+            delete obj[head];
+        } else {
+            UtilsNew.deleteObjectValue(obj[head], params.join("."));
+        }
+    }
+
+    // 2nd approach remove value (loop way)
+    static deleteObjectValue2(obj, props) {
+        const parts = props.split(".");
+        const last = parts.pop();
+        for (const part of parts) {
+            obj = obj[part];
+            if (!obj) {
+                return;
+            }
+        }
+        delete obj[last];
+    }
+
     static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
