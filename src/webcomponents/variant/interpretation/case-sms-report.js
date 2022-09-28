@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import Types from "../../commons/types.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -63,18 +64,18 @@ class CaseSmsReport extends LitElement {
             patient: {
                 name: "John",
                 lastName: "Doe",
-                birthDate: "20220711140653",
+                birthDate: "20000711140653",
                 age: "30",
                 cipa: "",
             },
             sample: {
                 type: "Blood",
-                extractionDate: "20220711140653",
+                extractionDate: "20220904140653",
                 reason: "Polycystic Kidney Disease"
             },
             request: {
                 requestNumber: "60cc3667",
-                requestDate: "20220711140653",
+                requestDate: "20220904140653",
                 requestingDoctor: {
                     name: "Octavia Mountain",
                     specialization: "Nephrology",
@@ -179,6 +180,141 @@ class CaseSmsReport extends LitElement {
         }
     }
 
+    // TODO: It's possible this function turn into a component
+    renderIndividualSummary(patientData) {
+        const _config = Types.dataFormConfig({
+            id: "patient-personal-summary",
+            display: {
+                titleVisible: false,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                style: "background-color:#f3f3f3;border-left: 4px solid #0c2f4c;padding:16px",
+                buttonsVisible: false,
+            },
+            sections: [
+                {
+                    id: "patient-summary",
+                    elements: [
+                        {
+                            title: "Name",
+                            field: "patient.name",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Last Name",
+                            field: "patient.lastName",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Birth Date",
+                            field: "patient.birthDate",
+                            type: "custom",
+                            display: {
+                                render: field => `${UtilsNew.dateFormatter(field)}`
+                            }
+                        },
+                        {
+                            title: "Age",
+                            field: "patient.age",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "CIPA",
+                            // field: "info.germlineId",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Sample type",
+                            field: "sample.type",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Extration Date",
+                            field: "sample.extractionDate",
+                            type: "custom",
+                            display: {
+                                render: field => `${UtilsNew.dateFormatter(field)}`
+                            }
+
+                        },
+                        {
+                            title: "Reason", // Cause
+                            field: "sample.reason",
+                            defaultValue: "N/A",
+
+                        },
+                    ]
+                }
+            ]
+        });
+
+        return html `
+            <data-form
+                .data="${patientData}"
+                .config="${_config}">
+            </data-form>
+        `;
+    }
+
+    renderDiagnosticSummary(requestData) {
+        const _config = Types.dataFormConfig({
+            id: "diagnostic-details-summary",
+            display: {
+                titleVisible: false,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                style: "background-color:#f3f3f3;border-left: 4px solid #0c2f4c;padding:16px",
+                buttonsVisible: false,
+            },
+            sections: [
+                {
+                    id: "diagnostic-summary",
+                    elements: [
+                        {
+                            title: "N. Request",
+                            field: "request.requestNumber",
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Request Date",
+                            field: "request.requestDate",
+                            type: "custom",
+                            display: {
+                                render: field => `${UtilsNew.dateFormatter(field)}`
+                            },
+                            defaultValue: "N/A"
+                        },
+                        {
+                            title: "Dr/Dra.:",
+                            field: "request.requestingDoctor",
+                            type: "custom",
+                            display: {
+                                // defaultLayout: "vertical",
+                                render: field => {
+                                    return html `
+                                        <p>${field.name}</p>
+                                        <p>${field.specialization}</p>
+                                        <p>${field.hospitalName}</p>
+                                        <p>${field.address}</p>
+                                        <p>${field.code}</p>`;
+                                }
+                            },
+                            defaultValue: "N/A"
+                        },
+
+                    ]
+                }
+            ]
+        });
+
+        return html `
+            <data-form
+                .data="${requestData}"
+                .config="${_config}">
+            </data-form>
+        `;
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -240,17 +376,17 @@ class CaseSmsReport extends LitElement {
             },
         };
 
-        const titleElement = title => {
+        const titleElement = (title, size="24") => {
             return {
                 text: title,
                 type: "title",
                 display: {
-                    textStyle: "font-size:24px;font-weight: bold;",
+                    textStyle: `font-size:${size}px;font-weight: bold;`,
                 },
             };
         };
 
-        return {
+        return Types.dataFormConfig({
             id: "clinical-analysis",
             title: "AcademicGenome.SNZ.v4 CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
             logo: "img/opencb-logo.png",
@@ -317,116 +453,52 @@ class CaseSmsReport extends LitElement {
             sections: [
                 {
                     id: "patient-personal",
-                    title: "1. Patient personal details",
+                    // title: "1. Patient personal details",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 16px 0px; padding: 24px",
+                        // style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 16px 0px; padding: 24px",
                         titleWidth: 4,
                     },
                     elements: [
+                        titleElement("1. Patient Personal Details"),
                         {
-                            title: "Name",
-                            field: "patient.name",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Last Name",
-                            field: "patient.lastName",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Birth Date",
-                            field: "patient.birthDate",
                             type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`
+                                render: data => {
+                                    return html `${this.renderIndividualSummary(data)}`;
+                                }
                             }
-                        },
-                        {
-                            title: "Age",
-                            field: "patient.age",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "CIPA",
-                            // field: "info.germlineId",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Sample type",
-                            field: "sample.type",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Extration Date",
-                            field: "sample.extractionDate",
-                            type: "custom",
-                            display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`
-                            }
-
-                        },
-                        {
-                            title: "Reason", // Cause
-                            field: "sample.reason",
-                            defaultValue: "N/A",
-
-                        },
+                        }
                     ]
                 },
                 {
                     id: "request-detail",
-                    title: "2. Diagnostics Request Info and Details",
+                    // title: "2. Diagnostics Request Info and Details",
                     display: {
-                        style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 16px 0px; padding: 24px",
+                        // style: "background-color: #f3f3f3; border-left: 3px solid #0c2f4c; margin: 16px 0px; padding: 24px",
                         titleWidth: 4,
                     },
                     elements: [
+                        titleElement("2. Diagnostics Request Info and Details"),
                         {
-                            title: "N. Request",
-                            field: "request.requestingDoctor.requestNumber",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Request Date",
-                            field: "request.requestingDoctor.requestDate",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "Dr/Dra.:",
-                            field: "request.requestingDoctor.name",
+                            type: "custom",
                             display: {
-                                defaultLayout: "vertical",
-                            },
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "",
-                            field: "request.requestingDoctor.specialization",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "",
-                            field: "request.requestingDoctor.hospitalName",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "",
-                            field: "request.requestingDoctor.address",
-                            defaultValue: "N/A"
-                        },
-                        {
-                            title: "",
-                            field: "request.requestingDoctor.code",
-                            defaultValue: "N/A"
-                        },
+                                render: data => {
+                                    return html `${this.renderDiagnosticSummary(data)}`;
+                                }
+                            }
+                        }
                     ]
                 },
                 {
                     id: "study-description",
-                    title: "3. Study Description",
+                    // title: "3. Study Description",
+                    display: {
+                        width: "6"
+                    },
                     elements: [
+                        titleElement("3. Study Description"),
                         {
-                            title: "Study Reason",
+                            // title: "Study Reason",
                             field: "study.reason",
                             defaultValue: "Testing"
                         },
@@ -453,28 +525,38 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "methodology",
-                    title: "4. Methodology used",
+                    // title: "4. Methodology used",
                     elements: [
+                        titleElement("4. Methodology used"),
+                        titleElement("4.1 Study Reason", "16"),
                         {
-                            title: "Study Reason",
+                            // title: "Study Reason",
                             // field: "info.project",
-                            type: "text",
+                            type: "input-text",
                             display: {
+                                rows: 3,
                                 defaultLayout: "vertical",
-                            },
-                            text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-                            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+                                placeholder: "Add a reason..."
+                            }
+                            // type: "text",
+                            // display: {
+                            //     defaultLayout: "vertical",
+                            // },
+                            // text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                            // Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+                            // printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+                            // only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                            // It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+                            // and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
                         },
+
                     ]
                 },
                 {
                     id: "results",
-                    title: "5. Results",
+                    // title: "5. Results",
                     elements: [
+                        titleElement("5. Results"),
                         {
                             type: "custom",
                             display: {
@@ -506,8 +588,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "interpretation",
-                    title: "6. Interpretation results",
+                    // title: "6. Interpretation results",
                     elements: [
+                        titleElement("6. Interpretation results"),
                         {
                             title: "",
                             display: {
@@ -528,8 +611,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "variant-detail-annotation-description",
-                    title: "7. Detailed variant annotation description",
+                    // title: "7. Detailed variant annotation description",
                     elements: [
+                        titleElement("7. Detailed variant annotation description"),
                         {
                             title: "",
                             display: {
@@ -566,8 +650,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "notes",
-                    title: "8. Notes",
+                    // title: "8. Notes",
                     elements: [
+                        titleElement("8. Notes"),
                         {
                             title: "",
                             // field: "info.project",
@@ -586,8 +671,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "qc-info",
-                    title: "9. QC info",
+                    // title: "9. QC info",
                     elements: [
+                        titleElement("9. QC info"),
                         {
                             title: "",
                             display: {
@@ -624,8 +710,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "disclaimer",
-                    title: "10. Disclaimer",
+                    // title: "10. Disclaimer",
                     elements: [
+                        titleElement("10. Disclaimer"),
                         {
                             title: "",
                             // field: "info.project",
@@ -644,8 +731,9 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "appendix",
-                    title: "Appendix",
+                    // title: "Appendix",
                     elements: [
+                        titleElement("Appendix"),
                         {
                             title: "Appendix 1",
                             // field: "info.project",
@@ -677,7 +765,7 @@ class CaseSmsReport extends LitElement {
                     ]
                 },
             ]
-        };
+        });
     }
 
 }
