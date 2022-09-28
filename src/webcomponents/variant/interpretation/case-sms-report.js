@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -30,7 +31,7 @@ class CaseSmsReport extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -54,17 +55,9 @@ class CaseSmsReport extends LitElement {
         };
     }
 
-    _init() {
-        this.callersInfo = {
-            "caveman": {type: "Substitutions", group: "somatic", rank: 1},
-            "pindel": {type: "Indels", group: "somatic", rank: 2},
-            "brass": {type: "Rearrangements", group: "somatic", rank: 3},
-            "ascat": {type: "Copy Number", group: "somatic", rank: 4},
-            "strelka": {type: "Substitutions and Indels", group: "germline", rank: 1},
-            "manta": {type: "Rearrangements", group: "germline", rank: 2},
-        };
+    #init() {
 
-        this._config = this.getDefaultConfig();
+
         this._data = {};
         this._dataReportTest = {
             patient: {
@@ -134,9 +127,8 @@ class CaseSmsReport extends LitElement {
             It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
             and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`]
         };
-        // Data-form is not capturing the update of the data property
-        // For that reason, we need this flag to check when the data is ready (TODO)
         this._ready = false;
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -149,9 +141,9 @@ class CaseSmsReport extends LitElement {
         //     this.clinicalAnalysisIdObserver();
         // }
 
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
 
         super.update(changedProperties);
     }
@@ -163,210 +155,36 @@ class CaseSmsReport extends LitElement {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    if (typeof response == "string") {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            message: response
+                        });
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    }
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         }
     }
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            // We will assume that we always have a somatic and a germline sample
-            // TODO: check if both samples exists
-            const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-            const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
-
-            // Initialize report data
-            this._data = {
-                info: {
-                    project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
-                    study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
-                    clinicalAnalysisId: this.clinicalAnalysis.id,
-                    tumourId: somaticSample?.id || null,
-                    germlineId: germlineSample?.id || null,
-                    tumourType: "Ovarian", // TODO
-                },
-                // clinicalAnalysis: this.clinicalAnalysis,
-                ascatMetrics: [],
-                ascatPlots: [],
-                ascatInterpretation: [
-                    "Sunrise plot indicates a successful copy number analysis with estimated tumour content of and ploidy of XX.",
-                    "The copy number profile (bottom right) shows a degree of over segmentation, however, the quality is acceptable.",
-                    "The genome contains numerous copy number changes and regions of LOH (minor allele frequency of 0) suggestive of genomic instability.",
-                ].join(" "),
-                sequenceMetrics: [
-                    {field: "Sequence methods", value: "WGS Illumina NovaSeq paired end"}
-                ],
-                processingInfo: [
-                    // {field: "Alignment", value: "bwa mem 0.7.17-r1188"},
-                    {field: "Genome build", value: this.opencgaSession.project.organism.assembly},
-                ],
-                somaticCallingInfo: [],
-                germlineCallingInfo: [],
-                customFilteringInfo: [],
-                //     {field: "Substitutions", value: "ASMD >= 140, CLPM=0"},
-                //     {field: "Indels", value: "QUAL >= 250, Repeats <10"},
-                //     {field: "Rearrangements", value: "BRASSII reconstructed"},
-                // ],
-                overallText: [
-                    "Sequence coverage is good. Duplicate read rate <10%.",
-                    "There is adequate tumour cellularity, a correct copy number result and adequate mutation data to proceed",
-                    "with an interpretation of this report.",
-                ].join(" "),
-                // TODO decide what to do here
-                // primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings.filter(item => {
-                //     return item.status.toUpperCase() === "REPORTED";
-                // }),
-                primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
-                analyst: this.clinicalAnalysis.analyst.name,
-                signedBy: "",
-                discussion: "",
-                hrdetect: null,
-                deletionAggreationCount: 0,
-                deletionAggregationStats: null,
+            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+            this._dataReportTest = {
+                ...this._dataReportTest,
+                interpretation: this.clinicalAnalysis?.interpretation
             };
-
-            const allPromises = [
-                this.opencgaSession.opencgaClient.files().search({
-                    sampleIds: [somaticSample?.id, germlineSample?.id].join(","),
-                    limit: 100,
-                    study: this.opencgaSession.study.fqn,
-                }),
-                this.opencgaSession.opencgaClient.samples().info(somaticSample?.id, {
-                    include: "annotationSets",
-                    study: this.opencgaSession.study.fqn,
-                }),
-                this.opencgaSession.opencgaClient.variants().aggregationStatsSample({
-                    study: this.opencgaSession.study.fqn,
-                    field: "EXT_INS_DEL_TYPE",
-                    sample: somaticSample?.id,
-                    region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
-                    // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
-                    // ...this.query,
-                    // ...this.queries?.["INDEL"]
-                }),
-            ];
-
-            return Promise.all(allPromises)
-                .then(values => {
-                    const files = values[0].responses[0].results;
-
-                    // Get processing alignment info from one BAM file
-                    const bamFile = files.find(f => f.format === "BAM");
-                    if (bamFile) {
-                        this._data.processingInfo.unshift({
-                            field: "Alignment",
-                            value: `${bamFile.software.name} ${bamFile.software.version || ""}`,
-                        });
-                    }
-
-                    // Fill tumour and normal stats fields
-                    Object.entries({tumour: somaticSample, normal: germlineSample}).forEach(([field, sample]) => {
-                        const sampleBamName = sample.fileIds.find(f => f.endsWith(".bam"));
-                        const file = files.find(f => f.id === sampleBamName);
-                        // Find annotation sets of this BAM file
-                        const annotationSet = file.annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
-                        if (annotationSet) {
-                            this._data[`${field}Stats`] = [
-                                {field: "Sequence coverage", value: `${annotationSet.annotations.avgSequenceDepth}X`},
-                                {field: "Duplicate reads rate", value: annotationSet.annotations.duplicateReadRate},
-                                {field: "Insert size", value: `${annotationSet.annotations.avgInsertSize} bp`},
-                            ];
-                        }
-                    });
-
-                    // Fill somatic and germline Calling info
-                    files.filter(f => f.format === "VCF").forEach(file => {
-                        const info = this.callersInfo[file.software.name] || {};
-                        this._data[`${info.group}CallingInfo`].push({
-                            type: info.type,
-                            rank: info.rank,
-                            ...file.software,
-                        });
-                    });
-
-                    // Fill filters (customFilteringInfo)
-                    if (this.clinicalAnalysis.interpretation?.primaryFindings?.length > 0) {
-                        const filters = [];
-                        const uniqueFilters = new Set();
-                        this.clinicalAnalysis.interpretation.primaryFindings.forEach(variant => {
-                            if (variant?.filters?.fileData) {
-                                variant.filters.fileData.split(",").forEach(item => {
-                                    const [id, filter] = item.split(":");
-                                    const file = files.find(f => f.id === id || f.name === id);
-                                    if (file && filter && !uniqueFilters.has(item)) {
-                                        const info = this.callersInfo[file.software?.name] || {};
-                                        filters.push({
-                                            type: info.type || "NA",
-                                            rank: info.rank || 0,
-                                            caller: file.software?.name || "NA",
-                                            filters: filter,
-                                        });
-                                        uniqueFilters.add(item);
-                                    }
-                                });
-                            }
-                        });
-                        this._data.customFilteringInfo = filters;
-                    }
-
-                    // Fill ASCAT metrics
-                    const ascatFile = files.find(f => f.software.name.toUpperCase() === "ASCAT");
-                    if (ascatFile) {
-                        const ascatMetrics = ascatFile.qualityControl.variant.ascatMetrics;
-                        this._data.ascatMetrics = [
-                            {field: "Ploidy", value: ascatMetrics?.ploidy || "NA"},
-                            {field: "Aberrant cell fraction", value: ascatMetrics?.aberrantCellFraction || "NA"},
-                        ];
-                        this._data.ascatPlots = ascatMetrics?.files
-                            .filter(id => /(sunrise|profile|rawprofile)\.png$/.test(id));
-                    }
-
-                    this._data.qcPlots = {};
-                    if (somaticSample.qualityControl?.variant?.genomePlot?.file) {
-                        // this._data.qcPlots.genomePlot = somaticSample.qualityControl.variant.genomePlot.file;
-                        this._data.qcPlots.genomePlotFile = somaticSample.qualityControl.variant.genomePlot.file;
-                    }
-                    if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
-                        this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
-                    }
-
-                    // Add HRDetect value (if provided)
-                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
-                        return item.id === "hrdetectStats";
-                    });
-                    if (hrdetectStats) {
-                        this._data.hrdetect = hrdetectStats.annotations.probability;
-                    }
-
-                    // Add deletion aggregation data
-                    if (values[2]) {
-                        const deletionData = values[2].responses[0].results[0];
-                        this._data.deletionAggreationCount = deletionData.count;
-                        this._data.deletionAggregationStats = Object.fromEntries(deletionData.buckets.map(item => {
-                            return [item.value, item.count];
-                        }));
-                    }
-
-                    // End filling report data
-                    this._ready = true;
-                    this.requestUpdate();
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
         }
     }
 
-    onFieldChange() {
-        // TODO
-    }
-
     render() {
-        // if (!this.clinicalAnalysis || !this._ready) {
-        //     return html`
-        //         <loading-spinner></loading-spinner>
-        //     `;
-        // }
+        if (!this.clinicalAnalysis) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
+        }
 
         return html`
             <data-form
@@ -420,6 +238,16 @@ class CaseSmsReport extends LitElement {
             evidences: {
                 showSelectCheckbox: true,
             },
+        };
+
+        const titleElement = title => {
+            return {
+                text: title,
+                type: "title",
+                display: {
+                    textStyle: "font-size:24px;font-weight: bold;",
+                },
+            };
         };
 
         return {
@@ -645,32 +473,40 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "results",
-                    title: "4. Results",
+                    title: "5. Results",
                     elements: [
                         {
-                            title: "Variants",
-                            field: "results",
-                            type: "table",
+                            type: "custom",
                             display: {
-                                style: "width:auto",
-                                layout: "vertical",
-                                columns: [
-                                    {
-                                        title: "id",
-                                        field: "id"
-                                    },
-                                    {
-                                        title: "name",
-                                        field: "name"
-                                    },
-                                ],
-                            },
+                                render: data => {
+                                    const variantsReported = data?.interpretation?.primaryFindings?.filter(
+                                        variant => variant?.status === "REPORTED");
+                                    return UtilsNew.isNotEmptyArray(variantsReported) ?
+                                        html`
+                                            <variant-interpreter-grid
+                                                review
+                                                .clinicalAnalysis=${this.clinicalAnalysis}
+                                                .clinicalVariants="${variantsReported}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config=${
+                                                    {
+                                                        showExport: true,
+                                                        showSettings: false,
+                                                        showActions: false,
+                                                        showEditReview: false,
+                                                    }
+                                                }>
+                                            </variant-interpreter-grid>
+                                        `:
+                                        "No reported variants to display";
+                                }
+                            }
                         },
                     ]
                 },
                 {
                     id: "interpretation",
-                    title: "5. Interpretation results",
+                    title: "6. Interpretation results",
                     elements: [
                         {
                             title: "",
@@ -692,7 +528,7 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "variant-detail-annotation-description",
-                    title: "6. Detailed variant annotation description",
+                    title: "7. Detailed variant annotation description",
                     elements: [
                         {
                             title: "",
@@ -730,7 +566,7 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "notes",
-                    title: "7. Notes",
+                    title: "8. Notes",
                     elements: [
                         {
                             title: "",
@@ -750,7 +586,7 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "qc-info",
-                    title: "8. QC info",
+                    title: "9. QC info",
                     elements: [
                         {
                             title: "",
@@ -788,7 +624,7 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "disclaimer",
-                    title: "9. Disclaimer",
+                    title: "10. Disclaimer",
                     elements: [
                         {
                             title: "",
