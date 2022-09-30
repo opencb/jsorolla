@@ -19,7 +19,9 @@ import UtilsNew from "../../core/utilsNew.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
-import "./project-form.js";
+import "../study/study-create.js";
+import "./project-create.js";
+import "./project-update.js";
 
 export default class ProjectsAdmin extends LitElement {
 
@@ -27,7 +29,7 @@ export default class ProjectsAdmin extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,7 +47,7 @@ export default class ProjectsAdmin extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
     }
 
@@ -69,22 +71,19 @@ export default class ProjectsAdmin extends LitElement {
         };
     }
 
-    actionModal(modalId, action, project = {}, mode = "CREATE") {
+    actionModal(modalId, action, project = {}) {
         // action: show or hide
-        // mode: CREATE or UPDATE
-        if (modalId === "Project") {
-            this.mode = mode;
-            if (project && mode === "UPDATE") {
-                this.project = project;
-            } else {
+        switch (modalId) {
+            case "createProject":
                 this.project = {};
-            }
-        } else {
-            // This for new Study
-            this.project = project;
+                break;
+            case "createStudy":
+            case "updateProject":
+                this.project = project;
+                break;
         }
+        $(`#${modalId}`).modal(action);
         this.requestUpdate();
-        $(`#new${modalId}`).modal(action);
     }
 
     renderVerticalDotAction(user, project) {
@@ -97,20 +96,20 @@ export default class ProjectsAdmin extends LitElement {
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
                         <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("Study", "show", project)}">
+                            <a @click="${() => this.actionModal("createStudy", "show", project)}">
                                 <i class="fas fa-file icon-padding"></i> New Study
                             </a>
                         </li>
                         <li class="divider"></li>
                         <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("Project", "show", project, "UPDATE")}">
+                            <a @click="${() => this.actionModal("updateProject", "show", project)}">
                                 <i class="fas fa-edit icon-padding"></i>Edit
                             </a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
+                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
                             <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
+                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
                             <a><i class="fas fa-trash icon-padding"></i> Delete</a>
                         </li>
                     </ul>
@@ -169,7 +168,7 @@ export default class ProjectsAdmin extends LitElement {
                                 </div>
                             </a>
                         </div>`
-                    )}
+                            )}
                 </div>
             </div>
         `;
@@ -248,7 +247,7 @@ export default class ProjectsAdmin extends LitElement {
                     <div class="panel panel-default child shadow-sm">
                         <div class="panel-body studies" style="color: black">
                             ${this.opencgaSession.study.fqn === study.fqn ?
-                html`<span class="label label-success pull-right">Current</span>` : ""}
+            html`<span class="label label-success pull-right">Current</span>` : ""}
                             <div class="text-block text-center"  style="padding-top:10px;">
                                 <div>
                                     <h4>${study.name}</h4>
@@ -270,23 +269,25 @@ export default class ProjectsAdmin extends LitElement {
     }
 
 
-    renderModal(id, name, type) {
+    renderModal(id, name) {
         const modalType = {
-            "project": html`
-                <project-form
-                        .opencgaSession="${this.opencgaSession}"
-                        .project=${this.project}
-                        .mode=${this.mode}
-                        @hide="${() => this.actionModal("Project", "hide")}">
-                </project-form>`,
-
-            "study": html`
-                <study-form
-                        .opencgaSession="${this.opencgaSession}"
-                        .project=${this.project}
-                        .mode=${this.mode}
-                        @hide="${() => this.actionModal("Study", "hide")}">
-                </study-form>`,
+            "createProject": html`
+                <project-create
+                    .opencgaSession="${this.opencgaSession}"
+                    @clearProject="${() => this.actionModal("createProject", "hide")}">
+                </project-create>`,
+            "updateProject": html`
+                <project-update
+                    .project=${this.project}
+                    .opencgaSession="${this.opencgaSession}"
+                    @clearProject="${() => this.actionModal("updateProject", "hide")}">
+                </project-update>`,
+            "createStudy": html`
+                <study-create
+                    .project=${this.project}
+                    .opencgaSession="${this.opencgaSession}"
+                    @clearStudy="${() => this.actionModal("createStudy", "hide")}">
+                </study-create>`,
         };
         return html`
             <div id="${id}" class="modal fade" tabindex="-1" role="dialog">
@@ -294,10 +295,10 @@ export default class ProjectsAdmin extends LitElement {
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">New ${name}</h4>
+                            <h4 class="modal-title">${name}</h4>
                         </div>
                         <div class="modal-body">
-                            ${modalType[type]}
+                            ${modalType[id]}
                         </div>
                     </div>
                 </div>
@@ -378,7 +379,7 @@ export default class ProjectsAdmin extends LitElement {
                                 <div class="pull-right">
                                     <button class="btn-custom btn btn-primary"
                                         ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)}
-                                        @click="${() => this.actionModal("Project", "show")}">New Project
+                                        @click="${() => this.actionModal("createProject", "show")}">New Project
                                     </button>
                                 </div>
                             </div>
@@ -399,8 +400,9 @@ export default class ProjectsAdmin extends LitElement {
 
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
             <!-- Modal New Project , Modal New Study -->
-            ${this.renderModal("newProject", "Project", "project")}
-            ${this.renderModal("newStudy", "Study", "study")}
+            ${this.renderModal("createProject", "New Project")}
+            ${this.renderModal("createStudy", "New Study")}
+            ${this.renderModal("updateProject", "Edit Project")}
         `;
     }
 
