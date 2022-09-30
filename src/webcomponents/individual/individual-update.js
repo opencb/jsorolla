@@ -151,6 +151,15 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
+            case "dateOfBirth":
+                e.detail.value = e.detail.value.substring(0, 8);
+                this.updateParams = FormUtils.updateObjectParams(
+                    this._individual,
+                    this.individual,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
             case "sex": // object
             case "ethnicity": // object
                 this.updateParams = FormUtils.updateObjectWithObj(
@@ -281,8 +290,9 @@ export default class IndividualUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
+                                disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.individual.creationDate? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate):"No creation date",
+                                helpMessage: this.individual.creationDate ? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate) : "No creation date",
                                 help: {
                                     text: "short individual id for..."
                                 },

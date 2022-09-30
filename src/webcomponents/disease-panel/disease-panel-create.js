@@ -20,6 +20,7 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class DiseasePanelCreate extends LitElement {
@@ -112,7 +113,7 @@ export default class DiseasePanelCreate extends LitElement {
     onSubmit(e) {
         e.stopPropagation();
         this.opencgaSession.opencgaClient.panels()
-            .create(this.diseasePanel, {study: this.opencgaSession.study.fqn})
+            .create(this.diseasePanel, {study: this.opencgaSession.study.fqn, includeResult: true})
             .then(res => {
                 this.diseasePanel = {};
                 this.requestUpdate();
@@ -120,6 +121,8 @@ export default class DiseasePanelCreate extends LitElement {
                     title: "New Disease Panel",
                     message: "New Disease Panel created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "sessionPanelUpdate", res.responses[0].results[0], {action: "CREATE"});
+                this.requestUpdate();
             })
             .catch(err => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
