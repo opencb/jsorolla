@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 
+//  Rodiel 2022-09-30 DEPRECATED use study-create
 export default class StudyForm extends LitElement {
 
     constructor() {

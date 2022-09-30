@@ -19,6 +19,8 @@ import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../commons/forms/form-utils";
 import "../commons/tool-header.js";
 
+
+//  Rodiel 2022-09-30 DEPRECATED use project-create & project-update
 export default class ProjectForm extends LitElement {
 
     constructor() {
