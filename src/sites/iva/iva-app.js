@@ -21,7 +21,7 @@
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "./getting-started.js";
 import "./obsolete/opencga-breadcrumb.js";
 import "./obsolete/category-page.js";
@@ -59,26 +59,27 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
-import "../../webcomponents/variant/analysis/opencga-gwas-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-mutational-signature-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-elegibility-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-inferred-sex-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-relatedness-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-mendelian-error-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-sample-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-individual-qc-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-family-qc-analysis.js";
+import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
+import "../../webcomponents/variant/analysis/gwas-analysis.js";
+import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
+import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
+import "../../webcomponents/variant/analysis/sample-eligibility-analysis.js";
+import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
+import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
+import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
+import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
+import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
+import "../../webcomponents/variant/analysis/family-qc-analysis.js";
+import "../../webcomponents/variant/analysis/knockout-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-exporter-analysis.js";
+import "../../webcomponents/variant/analysis/variant-export-analysis.js";
 import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
 import "../../webcomponents/variant/interpretation/variant-interpreter.js";
-import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
+import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/file/file-manager.js";
 import "../../webcomponents/job/job-monitor.js";
@@ -88,7 +89,6 @@ import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
-
 import "../../webcomponents/api/rest-api.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
@@ -196,10 +196,10 @@ class IvaApp extends LitElement {
             "inferred-sex",
             "mutational-signature",
             "individual-relatedness",
-            "mendelian-errors",
+            "mendelian-error",
             "plink",
             "gatk",
-            "variant-exporter",
+            "variant-export",
             "variant-stats-exporter",
             // Quality Control
             "sample-qc",
@@ -423,11 +423,12 @@ class IvaApp extends LitElement {
             .catch(e => {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
-            }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
+            })
+            .finally(() => {
+                this.signingIn = false;
+                this.requestUpdate();
             // this.updateComplete;
-        });
+            });
     }
 
     // TODO turn this into a Promise
@@ -978,9 +979,25 @@ class IvaApp extends LitElement {
         this._createOpenCGASession();
     }
 
+    onSessionPanelUpdate(e) {
+        const action = e.detail.action || "CREATE";
+        switch (action) {
+            case "CREATE":
+                if (this.opencgaSession.study) {
+                    this.opencgaSession.study.panels = [
+                        ...this.opencgaSession.study?.panels,
+                        e.detail.value
+                    ];
+                }
+                break;
+        }
+        this.opencgaSession = {...this.opencgaSession};
+    }
+
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
-            this.opencgaSession.opencgaClient.studies().info(e.detail.value)
+            this.opencgaSession.opencgaClient.studies()
+                .info(e.detail.value)
                 .then(res => {
                     const updatedStudy = res.responses[0].results[0];
                     for (const project of this.opencgaSession.user.projects) {
@@ -1167,7 +1184,8 @@ class IvaApp extends LitElement {
                     <div class="content" id="clinicalAnalysisPortal">
                         <clinical-analysis-portal
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}">
+                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}"
+                            @sessionPanelUpdate="${this.onSessionPanelUpdate}">
                         </clinical-analysis-portal>
                     </div>
                 ` : null}
@@ -1503,14 +1521,14 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <div class="content" id="opencga-sample-variant-stats-analysis">
-                        <opencga-sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-variant-stats-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                    <div class="content" id="opencga-cohort-variant-stats-analysis">
-                        <opencga-cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-cohort-variant-stats-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
+                        <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
                     </div>
                 ` : null}
 
@@ -1521,50 +1539,69 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-eligibility"] ? html`
-                    <div class="content" id="opencga-sample-eligibility-analysis">
-                        <opencga-sample-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-eligibility-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
+                        <sample-eligibility-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-eligibility-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["knockout"] ? html`
-                    <div class="content" id="opencga-knockout-analysis">
-                        ${AnalysisRegistry.get("knockout").form(this.opencgaSession, this.cellbaseClient)}
+                    <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
+                        <knockout-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </knockout-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["inferred-sex"] ? html`
-                    <div class="content" id="opencga-inferred-sex-analysis">
-                        <opencga-inferred-sex-analysis .opencgaSession="${this.opencgaSession}"></opencga-inferred-sex-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
+                        <inferred-sex-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </inferred-sex-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-                    <div class="content" id="opencga-individual-relatedness-analysis">
-                        <opencga-individual-relatedness-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-relatedness-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
+                        <individual-relatedness-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </individual-relatedness-analysis>
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["mendelian-errors"] ? html`
-                    <div class="content" id="opencga-individual-mendelian-error-analysis">
-                        <opencga-individual-mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-mendelian-error-analysis>
+                ${this.config.enabledComponents["mendelian-error"] ? html`
+                    <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
+                        <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
-                    <div class="content" id="opencga-sample-qc-analysis">
-                        <opencga-sample-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-sample-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
+                        <sample-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </sample-qc-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
-                    <div class="content" id="opencga-individual-qc-analysis">
-                        <opencga-individual-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-individual-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
+                        <individual-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </individual-qc-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
-                    <div class="content" id="opencga-family-qc-analysis">
-                        <opencga-family-qc-analysis .opencgaSession="${this.opencgaSession}"></opencga-family-qc-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
+                        <family-qc-analysis
+                                .opencgaSession="${this.opencgaSession}"
+                                .title="">
+                        </family-qc-analysis>
                     </div>
                 ` : null}
 
@@ -1580,9 +1617,9 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-exporter"] ? html`
-                    <div class="content" id="opencga-variant-exporter-analysis">
-                        <opencga-variant-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-exporter-analysis>
+                ${this.config.enabledComponents["variant-export"] ? html`
+                    <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
+                        <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
                     </div>
                 ` : null}
 
@@ -1593,20 +1630,24 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
-                    <div class="content" id="opencga-mutational-signature-analysis">
-                        <opencga-mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></opencga-mutational-signature-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
+                        <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-                    <div class="content" id="opencga-gwas-analysis">
-                        <opencga-gwas-analysis .opencgaSession="${this.opencgaSession}"></opencga-gwas-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
+                        <gwas-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </gwas-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-                    <div class="content" id="opencga-rd-tiering-analysis">
-                        <opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>
+                    <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
+                        <rd-tiering-analysis
+                                .opencgaSession="${this.opencgaSession}">
+                        </rd-tiering-analysis>
                     </div>
                 ` : null}
 

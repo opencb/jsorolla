@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
 
-export default class ExomiserAnalysis extends LitElement {
+export default class CohortVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,25 +47,17 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "cohort-variant-stats";
+        this.ANALYSIS_TITLE = "Cohort Variant Stats";
+        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.clinicalAnalysisId = "";
         this.config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
-        }
     }
 
     update(changedProperties) {
@@ -80,7 +72,7 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return !!this.toolParams.cohort || !!this.toolParams.sample;
     }
 
     onFieldChange(e, field) {
@@ -90,29 +82,30 @@ export default class ExomiserAnalysis extends LitElement {
         }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            cohort: this.toolParams.cohort || "",
+            samples: this.toolParams.samples?.split(",") || [],
+            index: this.toolParams.index ?? false,
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
-            this,
+            this.opencgaSession.opencgaClient.variants()
+                .runCohortStats(toolParams, params),
+            this
         );
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysisId,
         };
         this.config = this.getDefaultConfig();
     }
@@ -135,23 +128,57 @@ export default class ExomiserAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        title: "Cohort ID",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
-                                <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: toolParams => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${toolParams?.cohort}"
+                                        .resource="${"COHORT"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!toolParams.samples}}"
+                                        @filterChange="${e => this.onFieldChange(e, "cohort")}">
+                                    </catalog-search-autocomplete>`;
+                            },
+                            help: {
+                                text: "Cohort Variant stats will be calculated for the cohort selected",
+                            }
                         },
                     },
-                ],
+                    {
+                        title: "Sample ID",
+                        type: "custom",
+                        display: {
+                            render: toolParams => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${toolParams?.sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!toolParams.cohort}}"
+                                        @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                    </catalog-search-autocomplete>`;
+                            },
+                            help: {
+                                text: "Select sample to run the analysis",
+                            }
+                        },
+                    },
+                ]
             },
+            {
+                title: "Configuration Parameters",
+                elements: [
+                    {
+                        title: "Index",
+                        field: "index",
+                        type: "checkbox",
+                        display: {
+                        },
+                    },
+                ]
+            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -159,10 +186,10 @@ export default class ExomiserAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check(),
+            this.check()
         );
     }
 
 }
 
-customElements.define("exomiser-analysis", ExomiserAnalysis);
+customElements.define("cohort-variant-stats-analysis", CohortVariantStatsAnalysis);

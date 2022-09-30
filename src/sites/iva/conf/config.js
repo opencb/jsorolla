@@ -34,15 +34,15 @@ const hosts = [
     },
     {
         id: "eglh",
-        url: "https://ws.opencb.org/opencga-pipelines"
+        url: "https://eglh.app.zettagenomics.com/opencga-preprod"
     }
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[2].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -333,14 +333,6 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "rga",
-                            name: "Recessive Gene Analysis",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
-                        },
-                        {
                             separator: true,
                             visibility: "public"
                         },
@@ -366,7 +358,7 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "mendelian-errors",
+                            id: "mendelian-error",
                             name: "Mendelian Errors",
                             acronym: "ME",
                             description: "",
@@ -430,7 +422,7 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "variant-exporter",
+                            id: "variant-export",
                             name: "Variant Export",
                             acronym: "EX",
                             description: `

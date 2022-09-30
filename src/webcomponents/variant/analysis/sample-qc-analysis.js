@@ -1,4 +1,4 @@
-/* select
+/*
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "./../../../core/utilsNew.js";
+import "../../commons/analysis/opencga-analysis-tool.js";
 import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
-import "../../commons/forms/data-form.js";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 
-export default class ExomiserAnalysis extends LitElement {
+
+export default class SampleQcAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -31,25 +32,26 @@ export default class ExomiserAnalysis extends LitElement {
     createRenderRoot() {
         return this;
     }
-
+    // CAUTION: waiting for decision on params accepted
     static get properties() {
         return {
             toolParams: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             title: {
-                type: String
-            },
+                type: String,
+            }
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "sample-qc";
+        this.ANALYSIS_TITLE = "Sample Quality Control";
+        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given sample. " +
+            "It includes variant stats, FastQC,samtools/flagstat, picard/CollectHsMetrics and gene coverage stats; and for somatic samples, mutational signature";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -57,14 +59,14 @@ export default class ExomiserAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.clinicalAnalysisId = "";
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.sample = this.toolParams.sample || "";
         }
     }
 
@@ -80,7 +82,7 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return !!this.toolParams.sample;
     }
 
     onFieldChange(e, field) {
@@ -90,11 +92,13 @@ export default class ExomiserAnalysis extends LitElement {
         }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            sample: this.toolParams.sample || "",
+            variantStatsQuery: this.toolParams.variantStatsQuery || {},
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -102,8 +106,8 @@ export default class ExomiserAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runSampleQc(toolParams, params),
             this,
         );
     }
@@ -111,8 +115,7 @@ export default class ExomiserAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysisId,
+            sample: this.sample
         };
         this.config = this.getDefaultConfig();
     }
@@ -135,22 +138,31 @@ export default class ExomiserAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        title: "Select Sample ID",
+                        field: "sample",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
-                                <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
+                            render: sample => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!this.sample}}"
+                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                            help: {
+                                text: "Select a sample to run QC"
+                            },
+                        }
                     },
                 ],
+            },
+            {
+                title: "Variant Stats Query Parameters",
+                elements: AnalysisUtils.getVariantQueryConfiguration("variantStatsQuery.", [], this.opencgaSession, this.onFieldChange.bind(this)),
             },
         ];
 
@@ -159,10 +171,10 @@ export default class ExomiserAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check(),
+            this.check()
         );
     }
 
 }
 
-customElements.define("exomiser-analysis", ExomiserAnalysis);
+customElements.define("sample-qc-analysis", SampleQcAnalysis);

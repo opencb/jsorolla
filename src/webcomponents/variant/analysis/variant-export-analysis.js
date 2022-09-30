@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
+import UtilsNew from "../../../core/utilsNew";
 
-export default class ExomiserAnalysis extends LitElement {
+
+export default class VariantExportAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,9 +48,9 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "variant-export";
+        this.ANALYSIS_TITLE = "Variant Export";
+        this.ANALYSIS_DESCRIPTION = "Executes a Variant Export analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -57,14 +58,14 @@ export default class ExomiserAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.clinicalAnalysisId = "";
+        this.sample = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.sample = this.toolParams.sample || "";
         }
     }
 
@@ -80,7 +81,7 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return !!this.toolParams.sample || !!this.toolParams.family;
     }
 
     onFieldChange(e, field) {
@@ -90,29 +91,33 @@ export default class ExomiserAnalysis extends LitElement {
         }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            sample: this.toolParams.sample || "",
+            family: this.toolParams.family || "",
+            region: this.toolParams.region || "",
+            gene: this.toolParams.gene || "",
+            biotype: this.toolParams.biotype || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
-            this,
+            this.opencgaSession.opencgaClient.variants()
+                .runExport(toolParams, params),
+            this
         );
     }
 
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysisId,
+            sample: this.sample,
         };
         this.config = this.getDefaultConfig();
     }
@@ -132,25 +137,51 @@ export default class ExomiserAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Parameters",
+                title: "Select Samples",
                 elements: [
                     {
-                        title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        title: "Sample ID",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
-                                <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: toolParams => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${toolParams?.sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: true, disabled: !!this.sample}}"
+                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                    </catalog-search-autocomplete>`;
+                            },
+                            help: {
+                                text: "Select samples to export variants",
+                            }
                         },
                     },
-                ],
+                    // {
+                    //     title: "Family ID",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: toolParams => {
+                    //             return html`
+                    //                 <catalog-search-autocomplete
+                    //                     .value="${toolParams?.individual}"
+                    //                     .resource="${"FAMILY"}"
+                    //                     .opencgaSession="${this.opencgaSession}"
+                    //                     .config="${{multiple: true, disabled: !!toolParams.sample}}"
+                    //                     @filterChange="${e => this.onFieldChange(e, "family")}">
+                    //                 </catalog-search-autocomplete>`;
+                    //         },
+                    //         help: {
+                    //             text: "Select families to export variants",
+                    //         }
+                    //     },
+                    // },
+                ]
+            },
+            {
+                title: "Variant Stats Query Parameters",
+                elements: AnalysisUtils.getVariantQueryConfiguration("", [], this.opencgaSession, this.onFieldChange.bind(this)),
             },
         ];
 
@@ -159,10 +190,10 @@ export default class ExomiserAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check(),
+            this.check()
         );
     }
 
 }
 
-customElements.define("exomiser-analysis", ExomiserAnalysis);
+customElements.define("variant-export-analysis", VariantExportAnalysis);

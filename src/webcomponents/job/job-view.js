@@ -301,8 +301,18 @@ export default class JobView extends LitElement {
                                         `;
                                     }
                                     const outputFiles= [...job.output];
-                                    outputFiles.push(job.stdout);
-                                    outputFiles.push(job.stderr);
+
+                                    // Check if stdout and stderr files have been created and can be dowloaded
+                                    ["stdout", "stderr"].forEach(file => {
+                                        if (job[file]?.id && job[file]?.type === "FILE") {
+                                            outputFiles.push(job[file]);
+                                        }
+                                    });
+
+                                    if (outputFiles.length === 0) {
+                                        return "No output files yet";
+                                    }
+
                                     return html`${outputFiles.map(file => {
                                         const url = [
                                             this.opencgaSession.server.host,

@@ -20,6 +20,7 @@ import "./clinical-analysis-create.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../disease-panel/disease-panel-create.js";
 import "../commons/tool-header.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 export default class ClinicalAnalysisPortal extends LitElement {
 
@@ -119,9 +120,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${this.settings}"
-                            .config="${{
-                                showHeader: false,
-                            }}">
+                            .config="${{showHeader: false}}">
                         </clinical-analysis-browser>
                     `,
                 },
@@ -135,9 +134,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                     render: () => html`
                         <disease-panel-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .config="${{
-                                showHeader: false,
-                            }}">
+                            .config="${{showHeader: false}}">
                         </disease-panel-browser>
                     `,
                 },

@@ -15,9 +15,8 @@
  */
 
 import {html} from "lit";
-import AnalysisConfig from "./analysis-config.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
+import AnalysisConfig from "../analysis-config.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 // this class will be in config folder
 /**

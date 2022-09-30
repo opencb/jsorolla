@@ -1,4 +1,4 @@
-/* select
+/*
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaRdTieringAnalysis extends LitElement {
+export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -36,9 +36,6 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            title: {
-                type: String
-            },
             config: {
                 type: Object
             }
@@ -46,7 +43,7 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this._prefix = "oga-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
     }
@@ -55,30 +52,20 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
         super.connectedCallback();
     }
 
-    update(changedProperties) {
+    updated(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
+            this.requestUpdate();
         }
-        super.update(changedProperties);
-    }
-
-    render() {
-        return html`
-            <opencga-analysis-tool
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
-            </opencga-analysis-tool>
-        `;
     }
 
     getDefaultConfig() {
         return {
-            id: "rd-tiering",
-            // title: `${this.title ?? "RD Tiering"}`,
+            id: "mendelian-errors",
+            title: "Individual Mendelian Errors",
             icon: "",
             requires: "2.0.0",
-            description: "Tiering GEL-based",
+            description: "Run mendelian error analysis to infer uniparental disomy regions",
             links: [
                 {
                     title: "OpenCGA",
@@ -93,47 +80,35 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "clinicalAnalysis",
-                                title: "Clinical Analysis",
-                                type: "CLINICAL_ANALYSIS_FILTER",
-                                showList: true
-                            }
-                        ]
-                    },
-                    {
-                        title: "Configuration Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "panels",
-                                title: "Select disease panels",
-                                type: "DISEASE_PANEL_FILTER",
-                                showList: true
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             },
                             {
-                                id: "penetrance",
-                                title: "Select penetrance",
-                                type: "category",
-                                defaultValue: "UNKNOWN",
-                                allowedValues: ["COMPLETE", "INCOMPLETE", "UNKNOWN"],
-                                multiple: false,
+                                id: "individual",
+                                title: "Select individual",
+                                type: "INDIVIDUAL_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             },
                             {
-                                id: "secondary",
-                                title: "Save as secondary",
-                                type: "boolean",
-                            },
-                            {
-                                id: "index",
-                                title: "Index result",
-                                type: "boolean",
+                                id: "sample",
+                                title: "Select sample",
+                                type: "SAMPLE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "rd-tiering-$DATE",
+                    id: "mendelian-error-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -143,13 +118,18 @@ export default class OpencgaRdTieringAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.clinical().runTiering(data, params);
+                opencgaSession.opencgaClient.variants().runMendelianError(data, params);
             },
             result: {
             }
         };
     }
 
+    render() {
+        return html`
+           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
+        `;
+    }
 }
 
-customElements.define("opencga-rd-tiering-analysis", OpencgaRdTieringAnalysis);
+customElements.define("opencga-individual-mendelian-error-analysis", OpencgaIndividualMendelianErrorAnalysis);

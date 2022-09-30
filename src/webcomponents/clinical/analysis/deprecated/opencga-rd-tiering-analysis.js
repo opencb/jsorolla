@@ -1,4 +1,4 @@
-/*
+/* select
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
+export default class OpencgaRdTieringAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -36,6 +36,9 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            title: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -43,7 +46,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
     }
 
     _init() {
-        this._prefix = "oga-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
@@ -52,24 +55,34 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
         super.connectedCallback();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
+    }
+
+    render() {
+        return html`
+            <opencga-analysis-tool
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}">
+            </opencga-analysis-tool>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            id: "sample-variant-stats",
-            title: "Sample Variant Stats",
+            id: "rd-tiering",
+            // title: `${this.title ?? "RD Tiering"}`,
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Tiering GEL-based",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
+                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
                     icon: ""
                 }
             ],
@@ -80,20 +93,10 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
-                                id: "family",
-                                title: "Select family",
-                                type: "FAMILY_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
+                                id: "clinicalAnalysis",
+                                title: "Clinical Analysis",
+                                type: "CLINICAL_ANALYSIS_FILTER",
+                                showList: true
                             }
                         ]
                     },
@@ -102,43 +105,51 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "index",
-                                title: "Index results in catalog",
-                                type: "boolean"
+                                id: "panels",
+                                title: "Select disease panels",
+                                type: "DISEASE_PANEL_FILTER",
+                                showList: true
                             },
                             {
-                                id: "sampleAnnotation",
-                                title: "Write sample annotation",
-                                type: "text"
+                                id: "penetrance",
+                                title: "Select penetrance",
+                                type: "category",
+                                defaultValue: "UNKNOWN",
+                                allowedValues: ["COMPLETE", "INCOMPLETE", "UNKNOWN"],
+                                multiple: false,
+                            },
+                            {
+                                id: "secondary",
+                                title: "Save as secondary",
+                                type: "boolean",
+                            },
+                            {
+                                id: "index",
+                                title: "Index result",
+                                type: "boolean",
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "sample-variant-stats-$DATE",
+                    id: "rd-tiering-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                params.index = true;
-                opencgaSession.opencgaClient.variants().runSampleStats(data, params);
+                opencgaSession.opencgaClient.clinical().runTiering(data, params);
             },
             result: {
             }
         };
     }
 
-    render() {
-        return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
-        `;
-    }
 }
 
-customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);
+customElements.define("opencga-rd-tiering-analysis", OpencgaRdTieringAnalysis);

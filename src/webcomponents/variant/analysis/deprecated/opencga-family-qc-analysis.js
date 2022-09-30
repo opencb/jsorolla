@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaIndividualQcAnalysis extends LitElement {
+export default class OpencgaFamilyQcAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -59,15 +59,13 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
         }
     }
 
-
-
     getDefaultConfig() {
         return {
-            id: "individual-qc",
-            title: "Individual Quality Control",
+            id: "family-qc",
+            title: "Family Quality Control",
             icon: "",
             requires: "2.0.0",
-            description: "Run quality control (QC) for a given individual. It includes inferred sex and mendelian errors (UDP)",
+            description: "Run quality control (QC) for a given family. It computes the relatedness scores among the family members",
             links: [
                 {
                     title: "OpenCGA",
@@ -82,17 +80,9 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "individual",
-                                title: "Select individuals",
-                                type: "INDIVIDUAL_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
-                                id: "sample",
-                                title: "Select sample",
-                                type: "SAMPLE_FILTER",
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
@@ -104,8 +94,13 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "inferredSexMethod",
-                                title: "Inferred sex method",
+                                id: "relatednessMethod",
+                                title: "Relatedness method",
+                                type: "text"
+                            },
+                            {
+                                id: "relatednessMaf",
+                                title: "Relatedness Maf",
                                 type: "text"
                             }
                         ]
@@ -113,20 +108,20 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                 ],
                 job: {
                     title: "Job Info",
-                    id: "individual-qc-$DATE",
+                    id: "family-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
-                data.individual ? body.individual = data.individual.join(",") : null;
-                data.sample ? body.sample = data.sample.join(",") : null;
-                opencgaSession.opencgaClient.variants().runIndividualQc(body, params);
+                const body = {};
+                data.family ? body.family = data.family.join(",") : null;
+                data.relatednessMaf ? body.relatednessMaf = data.relatednessMaf[0] : null;
+                opencgaSession.opencgaClient.variants().runFamilyQc(body, params);
             },
             result: {
             }
@@ -138,6 +133,7 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
-customElements.define("opencga-individual-qc-analysis", OpencgaIndividualQcAnalysis);
+customElements.define("opencga-family-qc-analysis", OpencgaFamilyQcAnalysis);
