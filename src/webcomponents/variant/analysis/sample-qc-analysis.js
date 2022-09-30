@@ -106,7 +106,7 @@ export default class SampleQcAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variant()
+            this.opencgaSession.opencgaClient.variants()
                 .runSampleQc(toolParams, params),
             this,
         );

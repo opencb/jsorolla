@@ -108,7 +108,7 @@ export default class InferredSexAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variant()
+            this.opencgaSession.opencgaClient.variants()
                 .runInferredSex(toolParams, params),
             this,
         );

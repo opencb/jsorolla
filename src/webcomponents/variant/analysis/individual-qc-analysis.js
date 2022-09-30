@@ -107,7 +107,7 @@ export default class IndividualQcAnalysis extends LitElement {
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variant()
+            this.opencgaSession.opencgaClient.variants()
                 .runIndividualQc(toolParams, params),
             this,
         );
