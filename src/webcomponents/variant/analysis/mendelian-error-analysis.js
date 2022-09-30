@@ -63,7 +63,7 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.individuals || !!this.toolParams.samples;
+        return !!this.toolParams.individual || !!this.toolParams.family;
     }
 
     onFieldChange(e, field) {
@@ -119,35 +119,35 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Select families",
-                        field: "families",
+                        title: "Select family",
+                        field: "family",
                         type: "custom",
                         display: {
-                            helpMessage: "Family IDs",
-                            render: individuals => html `
+                            helpMessage: "Family ID",
+                            render: family => html `
                                 <catalog-search-autocomplete
-                                    .value="${individuals}"
+                                    .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.toolParams?.individual}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individuals")}">
+                                    .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
+                                    @filterChange="${e => this.onFieldChange(e, "family")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        title: "Select individuals",
-                        field: "individuals",
+                        title: "Select individual",
+                        field: "individual",
                         type: "custom",
                         display: {
-                            helpMessage: "Individual IDs",
-                            render: individuals => html `
+                            helpMessage: "Individual ID",
+                            render: individual => html `
                                 <catalog-search-autocomplete
-                                    .value="${individuals}"
+                                    .value="${individual}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !!this.toolParams?.family}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individuals")}">
+                                    .config="${{multiple: false, disabled: !!this.toolParams?.family}}"
+                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
