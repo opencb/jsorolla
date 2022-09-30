@@ -16,14 +16,14 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import GridCommons from "../../commons/grid-commons.js";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
-import AnalysisRegistry from "./analysis-registry.js";
-import "../../commons/forms/select-field-filter.js";
-import "./opencga-knockout-analysis/knockout-gene-grid.js";
-import "./opencga-knockout-analysis/knockout-individual-view.js";
-import "./opencga-knockout-analysis/knockout-variant-view.js";
+import GridCommons from "../../../commons/grid-commons.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
+import AnalysisRegistry from "../analysis-registry.js";
+import "../../../commons/forms/select-field-filter.js";
+import "../opencga-knockout-analysis/knockout-gene-grid.js";
+import "../opencga-knockout-analysis/knockout-individual-view.js";
+import "../opencga-knockout-analysis/knockout-variant-view.js";
 
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
