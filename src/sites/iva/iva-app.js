@@ -424,10 +424,10 @@ class IvaApp extends LitElement {
                 console.error(e);
                 this.notificationManager.error("Error creating session", e.message);
             }).finally(() => {
-            this.signingIn = false;
-            this.requestUpdate();
+                this.signingIn = false;
+                this.requestUpdate();
             // this.updateComplete;
-        });
+            });
     }
 
     // TODO turn this into a Promise
@@ -978,9 +978,25 @@ class IvaApp extends LitElement {
         this._createOpenCGASession();
     }
 
+    onSessionPanelUpdate(e) {
+        const action = e.detail.action || "CREATE";
+        switch (action) {
+            case "CREATE":
+                if (this.opencgaSession.study) {
+                    this.opencgaSession.study.panels = [
+                        ...this.opencgaSession.study?.panels,
+                        e.detail.value
+                    ];
+                }
+                break;
+        }
+        this.opencgaSession = {...this.opencgaSession};
+    }
+
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
-            this.opencgaSession.opencgaClient.studies().info(e.detail.value)
+            this.opencgaSession.opencgaClient.studies()
+                .info(e.detail.value)
                 .then(res => {
                     const updatedStudy = res.responses[0].results[0];
                     for (const project of this.opencgaSession.user.projects) {
@@ -1167,7 +1183,8 @@ class IvaApp extends LitElement {
                     <div class="content" id="clinicalAnalysisPortal">
                         <clinical-analysis-portal
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}">
+                            .settings="${CLINICAL_ANALYSIS_PORTAL_SETTINGS}"
+                            @sessionPanelUpdate="${this.onSessionPanelUpdate}">
                         </clinical-analysis-portal>
                     </div>
                 ` : null}
