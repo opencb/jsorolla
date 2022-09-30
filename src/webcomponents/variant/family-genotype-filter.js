@@ -313,7 +313,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // Mode of Inheritance
-        if (this.modeOfInheritanceList.includes(this.mode)) {
+        if (this.modeOfInheritanceList.some(item => item.id === this.mode)) {
             this.onModeOfInheritance(this.mode);
         }
 
