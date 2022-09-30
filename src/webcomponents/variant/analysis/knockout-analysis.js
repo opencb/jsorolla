@@ -94,7 +94,7 @@ export default class KnockoutAnalysis extends LitElement {
             gene: this.toolParams.gene?.split(",") || [],
             panel: this.toolParams.panel?.split(",") || [],
             biotype: this.toolParams.biotype || "",
-            consequenceType: this.toolParams.consequenceType || "",
+            consequenceType: this.toolParams.ct || "",
             filter: this.toolParams.filter || "",
             index: this.toolParams.index || false,
         };
