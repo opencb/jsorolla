@@ -59,7 +59,7 @@ export default class RdTieringAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.clinicalAnalysisId = "";
+        this.clinicalAnalysis = "";
         this.diseasePanelIds = "";
         this.config = this.getDefaultConfig();
     }
@@ -67,7 +67,7 @@ export default class RdTieringAnalysis extends LitElement {
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // Save the initial clinicalAnalysis. Needed for onClear() method
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
             this.diseasePanelIds = this.toolParams.panels || "";
         }
     }
@@ -117,7 +117,7 @@ export default class RdTieringAnalysis extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysisId,
+            clinicalAnalysis: this.clinicalAnalysis,
             panels: this.diseasePanelIds,
         };
         this.config = this.getDefaultConfig();
@@ -150,7 +150,7 @@ export default class RdTieringAnalysis extends LitElement {
                                     .value="${clinicalAnalysisId}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
+                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
                                 </catalog-search-autocomplete>
                             `,

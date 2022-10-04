@@ -57,14 +57,14 @@ export default class ExomiserAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
 
-        this.clinicalAnalysisId = "";
+        this.clinicalAnalysis = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysisId = this.toolParams.clinicalAnalysis || "";
+            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
         }
     }
 
@@ -90,6 +90,7 @@ export default class ExomiserAnalysis extends LitElement {
         }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onSubmit() {
@@ -112,7 +113,7 @@ export default class ExomiserAnalysis extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysisId,
+            clinicalAnalysis: this.clinicalAnalysis,
         };
         this.config = this.getDefaultConfig();
     }
@@ -144,7 +145,7 @@ export default class ExomiserAnalysis extends LitElement {
                                     .value="${clinicalAnalysisId}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysisId}}"
+                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
                                     @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
                                 </catalog-search-autocomplete>
                             `,

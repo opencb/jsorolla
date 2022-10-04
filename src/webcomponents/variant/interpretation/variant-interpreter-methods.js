@@ -123,7 +123,7 @@ class VariantInterpreterMethods extends LitElement {
                             <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
                                 <exomiser-analysis
-                                    .toolParams="${{clinicalAnalysisId: clinicalAnalysis.id}}"
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
                                 </exomiser-analysis>
@@ -163,6 +163,22 @@ class VariantInterpreterMethods extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
                                 </exomiser-analysis>
+                            </div>
+                        `;
+                    },
+                });
+            }
+
+            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+                items.push({
+                    id: "",
+                    name: "Cancer Analysis",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                                <div class="alert alert-warning" role="alert">
+                                    No automatic methods available for cancer analysis at this time.
+                                </div>
                             </div>
                         `;
                     },
