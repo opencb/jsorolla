@@ -48,7 +48,7 @@ export default class ProjectCreate extends LitElement {
     }
 
     #init() {
-        this.isLoading = false;
+        this.project = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
