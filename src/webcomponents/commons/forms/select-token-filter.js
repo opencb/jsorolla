@@ -65,7 +65,7 @@ export default class SelectTokenFilter extends LitElement {
         this.select.select2({
             tags: this._config.freeTag === true,
             multiple: this._config.multiple ?? true,
-            disabled: this._config.disabled ?? true,
+            disabled: this._config.disabled ?? false,
             width: "style",
             allowClear: true,
             placeholder: this._config.placeholder,
@@ -206,7 +206,7 @@ export default class SelectTokenFilter extends LitElement {
             disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
-            disabled: true,
+            disabled: false,
             placeholder: "Start typing",
             freeTag: false,
             fileUpload: false,
