@@ -60,6 +60,10 @@ export default class StudyCreate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
@@ -87,32 +91,41 @@ export default class StudyCreate extends LitElement {
     }
 
     onClear() {
-        LitUtils.dispatchCustomEvent(this, "clearStudy");
+        // LitUtils.dispatchCustomEvent(this, "clearStudy");
         this.study = {};
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient.studies().create(this.study, {project: this.project.fqn})
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .create(this.study, {project: this.project.fqn})
             .then(res => {
-                this.study = {};
-                this.requestUpdate();
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Study Create",
                     message: "New study created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                this.onClear();
             })
-            .catch(err => {
-                console.error(err);
+            .catch(reason => {
+                error = reason;
+                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(()=>{
+                this.#setLoading(false);
                 this._config = this.getDefaultConfig();
-                this.onClear();
             });
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.study}"
@@ -131,9 +144,10 @@ export default class StudyCreate extends LitElement {
                 {
                     elements: [
                         {
-                            name: "id",
+                            name: "Id",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Add a short ID...",
                             }

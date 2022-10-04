@@ -103,7 +103,7 @@ export default class ProjectCreate extends LitElement {
         //         this.requestUpdate();
         //     },
         // });
-        LitUtils.dispatchCustomEvent(this, "clearProject");
+        // LitUtils.dispatchCustomEvent(this, "clearProject");
         this.project = {};
         this._config = this.getDefaultConfig();
         this.requestUpdate();
@@ -119,19 +119,17 @@ export default class ProjectCreate extends LitElement {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
-                this.requestUpdate();
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                this.onClear();
             })
             .catch(reason => {
                 error = reason;
                 console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                this.project = {};
-                this._config = this.getDefaultConfig();
-                // CAUTION: onSessionUpdateRequest is not managing errors.
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
                 this.#setLoading(false);
-                // this.onClear();
+                this._config = this.getDefaultConfig();
             });
     }
 
@@ -158,7 +156,6 @@ export default class ProjectCreate extends LitElement {
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
-                    title: "General Information",
                     elements: [
                         {
                             type: "notification",
@@ -184,16 +181,6 @@ export default class ProjectCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Project name...",
-                            }
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Project name...",
-                                // visible: this.mode === "UPDATE",
-                                // disabled: this.mode === "UPDATE"
                             }
                         },
                         {

@@ -48,7 +48,7 @@ export default class ProjectsAdmin extends LitElement {
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.projectId = "";
     }
 
     connectedCallback() {
@@ -64,22 +64,21 @@ export default class ProjectsAdmin extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            title: "Study Dashboard",
-            icon: "img/tools/icons/variant_browser.svg",
-            active: false
-        };
+        return {};
     }
 
-    actionModal(modalId, action, project = {}) {
+    actionModal(modalId, action, project) {
+        const _project = {...project};
         // action: show or hide
+        console.log("Calling...");
         switch (modalId) {
             case "createProject":
-                this.project = {};
                 break;
             case "createStudy":
+                this.project = {..._project};
+                break;
             case "updateProject":
-                this.project = project;
+                this.projectId = _project?.id;
                 break;
         }
         $(`#${modalId}`).modal(action);
@@ -278,7 +277,7 @@ export default class ProjectsAdmin extends LitElement {
                 </project-create>`,
             "updateProject": html`
                 <project-update
-                    .project=${this.project}
+                    .projectId=${this.projectId}
                     .opencgaSession="${this.opencgaSession}"
                     @clearProject="${() => this.actionModal("updateProject", "hide")}">
                 </project-update>`,

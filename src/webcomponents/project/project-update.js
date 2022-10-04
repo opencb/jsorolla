@@ -75,6 +75,7 @@ export default class ProjectUpdate extends LitElement {
     }
 
     update(changedProperties) {
+
         if (changedProperties.has("projectId")) {
             this.projectIdObserver();
         }
@@ -93,7 +94,6 @@ export default class ProjectUpdate extends LitElement {
     }
 
     projectIdObserver() {
-
         if (this.projectId && this.opencgaSession) {
             let error;
             this.#setLoading(true);
@@ -140,11 +140,10 @@ export default class ProjectUpdate extends LitElement {
     }
 
     onClear() {
-        this._config = this.getDefaultConfig();
+        // LitUtils.dispatchCustomEvent(this, "clearProject");
         this.updateParams = {};
-        this.projectId = "";
         this.project = UtilsNew.objectClone(this._project);
-        LitUtils.dispatchCustomEvent(this, "clearProject");
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -154,28 +153,29 @@ export default class ProjectUpdate extends LitElement {
         this.opencgaSession.opencgaClient.projects()
             .update(this.project?.fqn, this.updateParams)
             .then(res => {
-                this.updateParams = {};
-                this.requestUpdate();
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
                 this._project = UtilsNew.objectClone(res.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Update",
                     message: "Project updated correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                this.onClear();
             })
             .catch(reason => {
-                this.project = {};
                 error = reason;
                 console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
+                this.#setLoading(false);
                 this._config = this.getDefaultConfig();
-                // TODO: check if needed
-                this.onClear();
             });
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
         return html`
             <data-form
                 .data="${this.project}"
