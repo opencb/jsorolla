@@ -50,7 +50,9 @@ export default class ProjectUpdate extends LitElement {
     }
 
     #init() {
+        this.project = {};
         this.updateParams = {};
+        this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
@@ -59,6 +61,11 @@ export default class ProjectUpdate extends LitElement {
             buttonOkText: "Update"
         };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
@@ -86,19 +93,24 @@ export default class ProjectUpdate extends LitElement {
     }
 
     projectIdObserver() {
+
         if (this.projectId && this.opencgaSession) {
+            let error;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.projects()
                 .info(this.projectId)
                 .then(response => {
                     this.project = response.responses[0].results[0];
                     this.initOriginalObject();
                 })
-                .catch(error => {
+                .catch(reason => {
                     this.project = {};
-                    console.error(error);
+                    error = reason;
+                    console.error(reason);
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
+                    this.#setLoading(false);
                 });
         } else {
             this.project = {};
@@ -131,14 +143,17 @@ export default class ProjectUpdate extends LitElement {
         this._config = this.getDefaultConfig();
         this.updateParams = {};
         this.projectId = "";
+        this.project = UtilsNew.objectClone(this._project);
         LitUtils.dispatchCustomEvent(this, "clearProject");
         this.requestUpdate();
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient.projects().update(this.project?.fqn, this.updateParams)
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.projects()
+            .update(this.project?.fqn, this.updateParams)
             .then(res => {
-                this.project = {};
                 this.updateParams = {};
                 this.requestUpdate();
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
@@ -148,11 +163,14 @@ export default class ProjectUpdate extends LitElement {
                     message: "Project updated correctly"
                 });
             })
-            .catch(err => {
-                console.error(err);
+            .catch(reason => {
+                this.project = {};
+                error = reason;
+                console.error(reason);
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();
+                // TODO: check if needed
                 this.onClear();
             });
     }

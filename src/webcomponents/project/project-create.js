@@ -38,9 +38,6 @@ export default class ProjectCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
             displayConfig: {
                 type: Object
             },
@@ -49,6 +46,7 @@ export default class ProjectCreate extends LitElement {
 
     #init() {
         this.project = {};
+        this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -58,9 +56,17 @@ export default class ProjectCreate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -88,49 +94,80 @@ export default class ProjectCreate extends LitElement {
     }
 
     onClear() {
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+        //     title: "Clear project",
+        //     message: "Are you sure to clear?",
+        //     ok: () => {
+        //         this.project = {};
+        //         this._config = this.getDefaultConfig();
+        //         this.requestUpdate();
+        //     },
+        // });
         LitUtils.dispatchCustomEvent(this, "clearProject");
         this.project = {};
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient.projects().create(this.project)
-            .then(res => {
-                this.project = {};
-                this.requestUpdate();
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.projects()
+            .create(this.project)
+            .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
+                this.requestUpdate();
             })
-            .catch(err => {
-                console.error(err);
+            .catch(reason => {
+                error = reason;
+                console.error(error);
             })
-            .finally(()=>{
+            .finally(() => {
+                this.project = {};
                 this._config = this.getDefaultConfig();
-                this.onClear();
+                // CAUTION: onSessionUpdateRequest is not managing errors.
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                this.#setLoading(false);
+                // this.onClear();
             });
     }
 
+
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
-                .data="${this.project}"
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${e => this.onSubmit(e)}">
+                    .data="${this.project}"
+                    .config="${this._config}"
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @clear="${e => this.onClear(e)}"
+                    @submit="${e => this.onSubmit(e)}">
             </data-form>`;
     }
 
+    // QUESTION: can cellbase be an autocomplete to avoid errors
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
+                    title: "General Information",
                     elements: [
+                        {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.project).length > 0,
+                                notificationType: "warning",
+                            },
+                        },
                         {
                             name: "Project ID",
                             field: "id",
@@ -138,9 +175,7 @@ export default class ProjectCreate extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                help: {
-                                    text: "short project id for thehis as;lsal"
-                                },
+                                helpMessage: "Short project id...",
                             },
                         },
                         {
