@@ -45,7 +45,15 @@ export default class ProjectCreate extends LitElement {
     }
 
     #init() {
-        this.project = {};
+        this.project = {
+            organism: {
+                scientificName: "Homo sapiens"
+            },
+            cellbase: {
+                url: "https://ws.zettagenomics.com/cellbase",
+                version: "5.1"
+            }
+        };
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -80,8 +88,7 @@ export default class ProjectCreate extends LitElement {
             case "description":
             case "organism.scientificName":
             case "organism.assembly":
-            case "cellbase.url":
-            case "cellbase.version":
+            case "cellbase":
                 this.project = {
                     ...FormUtils.createObject(
                         this.project,
@@ -104,35 +111,41 @@ export default class ProjectCreate extends LitElement {
         //     },
         // });
         // LitUtils.dispatchCustomEvent(this, "clearProject");
-        this.project = {};
+        this.project = {
+            cellbase: {
+                url: "https://ws.zettagenomics.com/cellbase",
+                version: "5.1"
+            }
+        };
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
+        const params = {
+            includeResult: true
+        };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
-            .create(this.project)
+            .create(this.project, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
-                this.onClear();
             })
             .catch(reason => {
                 error = reason;
                 console.error(error);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                this.#setLoading(false);
+                this.project = {};
                 this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "projectCreate", this.sample, {}, error);
+                this.#setLoading(false);
             });
     }
-
 
     render() {
         if (this.isLoading) {
@@ -205,7 +218,7 @@ export default class ProjectCreate extends LitElement {
                             type: "object",
                             elements: [
                                 {
-                                    title: "Url",
+                                    title: "URL",
                                     field: "cellbase.url",
                                     type: "input-text",
                                     display: {
@@ -215,9 +228,11 @@ export default class ProjectCreate extends LitElement {
                                 {
                                     title: "Version",
                                     field: "cellbase.version",
-                                    type: "input-text",
+                                    type: "select",
+                                    allowedValues: ["v5.0", "v5.1"],
+                                    defaultValue: "v5.1",
                                     display: {
-                                        placeholder: "Add version"
+                                        // placeholder: "Add version"
                                     }
                                 },
                             ]

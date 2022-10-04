@@ -167,7 +167,7 @@ export default class ProjectsAdmin extends LitElement {
                                 </div>
                             </a>
                         </div>`
-                            )}
+                    )}
                 </div>
             </div>
         `;
@@ -246,7 +246,7 @@ export default class ProjectsAdmin extends LitElement {
                     <div class="panel panel-default child shadow-sm">
                         <div class="panel-body studies" style="color: black">
                             ${this.opencgaSession.study.fqn === study.fqn ?
-            html`<span class="label label-success pull-right">Current</span>` : ""}
+                                html`<span class="label label-success pull-right">Current</span>` : ""}
                             <div class="text-block text-center"  style="padding-top:10px;">
                                 <div>
                                     <h4>${study.name}</h4>
@@ -269,25 +269,32 @@ export default class ProjectsAdmin extends LitElement {
 
 
     renderModal(id, name) {
-        const modalType = {
-            "createProject": html`
-                <project-create
-                    .opencgaSession="${this.opencgaSession}"
-                    @clearProject="${() => this.actionModal("createProject", "hide")}">
-                </project-create>`,
-            "updateProject": html`
-                <project-update
-                    .projectId=${this.projectId}
-                    .opencgaSession="${this.opencgaSession}"
-                    @clearProject="${() => this.actionModal("updateProject", "hide")}">
-                </project-update>`,
-            "createStudy": html`
-                <study-create
-                    .project=${this.project}
-                    .opencgaSession="${this.opencgaSession}"
-                    @clearStudy="${() => this.actionModal("createStudy", "hide")}">
-                </study-create>`,
-        };
+        let content;
+        switch (id) {
+            case "createProject":
+                content=html`
+                    <project-create
+                        .opencgaSession="${this.opencgaSession}"
+                        @clearProject="${() => this.actionModal("createProject", "hide")}">
+                    </project-create>`;
+                break;
+            case "updateProject":
+                content = html`
+                    <project-update
+                        .projectId=${this.projectId}
+                        .opencgaSession="${this.opencgaSession}"
+                        @clearProject="${() => this.actionModal("updateProject", "hide")}">
+                    </project-update>`;
+                break;
+            case "createStudy":
+                content = html`
+                    <study-create
+                        .project=${this.project}
+                        .opencgaSession="${this.opencgaSession}"
+                        @clearStudy="${() => this.actionModal("createStudy", "hide")}">
+                    </study-create>`;
+                break;
+        }
         return html`
             <div id="${id}" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
@@ -297,7 +304,7 @@ export default class ProjectsAdmin extends LitElement {
                             <h4 class="modal-title">${name}</h4>
                         </div>
                         <div class="modal-body">
-                            ${modalType[id]}
+                            ${content}
                         </div>
                     </div>
                 </div>
@@ -369,7 +376,7 @@ export default class ProjectsAdmin extends LitElement {
             <div>
                 <!-- Show Project by User-->
                 ${this.owners.map(owner => {
-            return html`
+                    return html`
                         <div class="row" style="border-bottom: rgba(201, 76, 76, 0.7);}">
                             <div class="col-md-6">
                                 <h2><i class="fas fa-user fa-sm" style="padding-right: 10px"></i>${owner}</h2>
@@ -394,7 +401,7 @@ export default class ProjectsAdmin extends LitElement {
                                 ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
                             </div>
                         </div>`;
-        })}
+                })}
             </div>
 
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
