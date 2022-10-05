@@ -1518,6 +1518,10 @@ export default class DataForm extends LitElement {
 
             let detail;
             if (isObjectType) {
+                // Make sure the object field exists
+                if (!this.data[objectFieldName]) {
+                    this.data[objectFieldName] = {};
+                }
                 if (value) {
                     this.data[objectFieldName][elementFieldName] = value;
                 } else {

@@ -252,23 +252,38 @@ export default class FormUtils {
 
     static updateObjExperimental(_original, original, updateParams, param, value) {
         const isValueDifferent = (_obj, val) => _obj !== val && val !== null;
-        const isNotEmtpy = (_obj, val) => typeof _obj !== "undefined" || val !== "";
+        const isNotEmpty = (_obj, val) => typeof _obj !== "undefined" || val !== "";
+        const arraysEqual = (a, b) => a.length === b.length && a.every(
+            (o, idx) => UtilsNew.objectCompare(o, b[idx])
+        );
 
         const _updateParams = {
             ...updateParams
         };
 
+
         const currentValue = UtilsNew.getObjectValue(_original, param, "");
-        if (isValueDifferent(currentValue, value) && isNotEmtpy(currentValue, value)) {
+
+        // Check if they are different
+        let isDifferent;
+        if (Array.isArray(currentValue)) {
+            isDifferent = arraysEqual(currentValue, value);
+        } else {
+            isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
+        }
+
+        if (isDifferent) {
             UtilsNew.setObjectValue(original, param, value);
             UtilsNew.setObjectValue(_updateParams, param, value);
         } else {
             UtilsNew.deleteObjectValue(_updateParams, param);
-            const parts = param.split(".").slice(0, -1);
-            const props = [...parts];
-            for (let i = 0; i < parts.length; i++) {
-                if (UtilsNew.isEmpty(UtilsNew.getObjectValue(_updateParams, props.join("."), ""))) {
-                    UtilsNew.deleteObjectValue(_updateParams, props.join("."));
+            // const parts = param.split(".").slice(0, -1);
+            const props = param.split(".").slice(0, -1);
+            const length = props.length;
+            for (let i = 0; i < length; i++) {
+                const prefix = props.join(".");
+                if (UtilsNew.isEmpty(UtilsNew.getObjectValue(_updateParams, prefix, ""))) {
+                    UtilsNew.deleteObjectValue(_updateParams, prefix);
                     props.pop();
                 } else {
                     break;
