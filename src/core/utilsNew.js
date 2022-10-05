@@ -418,11 +418,11 @@ export default class UtilsNew {
 
 
     /**
-    * Sort the array by object key or prop
-    * @param {Array} arr Array
-    * @param {String} prop key or prop the object to sort
-    * @returns {Array} return the array sorted
-    */
+     * Sort the array by object key or prop
+     * @param {Array} arr Array
+     * @param {String} prop key or prop the object to sort
+     * @returns {Array} return the array sorted
+     */
     static sortArrayObj(arr, prop) {
         const _arr = arr;
         if (UtilsNew.isNotEmpty(_arr)) {
@@ -897,6 +897,17 @@ export default class UtilsNew {
             });
             img.addEventListener("error", e => reject(e));
         });
+    }
+
+    // This function returns a positive number when version 2 is bigger
+    static compareVersions(version1, version2) {
+        // Get the three numbers and remove any version tag
+        const [major1, minor1, patch1] = version1.split("-")[0].split(".");
+        const [major2, minor2, patch2] = version2.split("-")[0].split(".");
+
+        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + Number.parseInt(patch1);
+        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + Number.parseInt(patch2);
+        return versionNumber2 - versionNumber1;
     }
 
 }

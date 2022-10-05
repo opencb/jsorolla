@@ -17,13 +17,14 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalInterpretationVariantReview extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,25 +45,21 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
         this.updateParams = {};
         this.mode = "form";
         this.variant = {};
         this._variant = {};
         this._config = this.getDefaultconfig();
-        // this.newCommentsAdded = false;
     }
 
     update(changedProperties) {
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
-
         if (changedProperties.has("mode")) {
             this.modeObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -71,48 +68,33 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         this._variant = UtilsNew.objectClone(this.variant);
         this.updateParams = {};
         this._config = this.getDefaultconfig();
-        // this.newCommentsAdded = false;
     }
 
     modeObserver() {
         this._config = this.getDefaultconfig();
     }
 
-    // onCommentChange(e) {
-    //     this.commentsUpdate = e.detail;
-    //
-    //     if (this.commentsUpdate?.newComments?.length > 0) {
-    //         // Josemi 20220719 Note: added fix to append new comments to the variant instead of replacing
-    //         // the saved comment with the new comment
-    //         if (!this.newCommentsAdded) {
-    //             if (!this.variant.comments) {
-    //                 this.variant.comments = [];
-    //             }
-    //             this.variant.comments.push(this.commentsUpdate.newComments[0]);
-    //             this.newCommentsAdded = true;
-    //         } else {
-    //             this.variant.comments[this.variant.comments.length - 1] = this.commentsUpdate.newComments[0];
-    //         }
-    //
-    //         // Assign comment author and date (TASK-1473)
-    //         this.variant.comments[this.variant.comments.length - 1] = {
-    //             ...this.variant.comments[this.variant.comments.length - 1],
-    //             author: this.opencgaSession?.user?.id || "-",
-    //             date: UtilsNew.getDatetime(),
-    //         };
-    //     }
-    //
-    //     this.dispatchEvent(new CustomEvent("variantChange", {
-    //         detail: {
-    //             value: this.variant,
-    //             update: this.updateParams
-    //         },
-    //     }));
-    // }
-
     onFieldChange(e) {
         const param = e.detail.param;
         switch (param) {
+            case "status":
+                this.updateParams = FormUtils.updateScalar(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                break;
+            case "confidence.value":
+                // Check OpenCGA version
+                const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
+                if (compareResult >= 0) {
+                    this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                    if (typeof this.updateParams?.confidence?.value !== "undefined") {
+                        this.variant.confidence.author = this.opencgaSession.user?.id || "-";
+                        this.variant.confidence.date = UtilsNew.getDatetime();
+                    } else {
+                        // We need to reset discussion author and date
+                        this.variant.confidence.author = this._variant.confidence?.author;
+                        this.variant.confidence.date = this._variant.confidence?.date;
+                    }
+                }
+                break;
             case "discussion.text":
                 // After TASK-1472, discussion is now an object containing text, author and date
                 this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
@@ -124,9 +106,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                     this.variant.discussion.author = this._variant.discussion?.author;
                     this.variant.discussion.date = this._variant.discussion?.date;
                 }
-                break;
-            case "status":
-                this.updateParams = FormUtils.updateScalar(this._variant, this.variant, this.updateParams, param, e.detail.value);
                 break;
             case "comments":
                 this.updateParams = FormUtils.updateArraysObject(
@@ -148,12 +127,13 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 break;
         }
 
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
+        // this.dispatchEvent(new CustomEvent("variantChange", {
+        //     detail: {
+        //         value: this.variant,
+        //         update: this.updateParams
+        //     },
+        // }));
+        LitUtils.dispatchCustomEvent(this, "variantChange", this.variant, {update: this.updateParams});
 
         this.requestUpdate();
     }
@@ -171,6 +151,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     getDefaultconfig() {
         const discussion = this.variant?.discussion || {};
+        const confidence = this.variant?.confidence || {};
         const sections = [
             {
                 elements: [
@@ -183,8 +164,24 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             "REVIEW_REQUESTED",
                             "REVIEWED",
                             "DISCARDED",
-                            "REPORTED"
+                            "REPORTED",
+                            "ARTIFACT",
                         ],
+                    },
+                    {
+                        title: "Confidence",
+                        field: "confidence.value",
+                        type: "select",
+                        allowedValues: [
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW",
+                        ],
+                        display: {
+                            // Ths must be only visible for OpenCGA >= 2.4.6
+                            visible: this.opencgaSession?.about?.Version ? UtilsNew.compareVersions("2.4.6", this.opencgaSession?.about?.Version) <= 0 : false,
+                            helpMessage: confidence.author ? html`Last confidence added by <b>${confidence.author}</b> on <b>${UtilsNew.dateFormatter(confidence.date)}</b>.` : null,
+                        }
                     },
                     {
                         title: "Discussion",
@@ -243,39 +240,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             },
                         ]
                     },
-                    // {
-                    //     title: "Comments",
-                    //     field: "comments",
-                    //     type: "custom",
-                    //     display: {
-                    //         // Josemi 20220719 NOTE: comments field has been removed from the comment-editor properties to allow
-                    //         // saving more than one comment to the variant
-                    //         render: comments => html`
-                    //             <div>
-                    //                 ${(comments || []).map(comment => html`
-                    //                     <div style="margin-bottom:2rem;">
-                    //                         <div style="display:flex;margin-bottom:0.5rem;">
-                    //                             <div style="padding-right:1rem;">
-                    //                                 <i class="fas fa-comment-dots"></i>
-                    //                             </div>
-                    //                             <div style="font-weight:bold">
-                    //                                 ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
-                    //                             </div>
-                    //                         </div>
-                    //                         <div style="width:100%;">
-                    //                             <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                    //                             <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
-                    //                         </div>
-                    //                     </div>
-                    //                 `)}
-                    //             </div>
-                    //             <clinical-analysis-comment-editor
-                    //                 .comments="${[]}"
-                    //                 @commentChange="${e => this.onCommentChange(e)}">
-                    //             </clinical-analysis-comment-editor>
-                    //         `,
-                    //     },
-                    // },
                 ]
             }
         ];
