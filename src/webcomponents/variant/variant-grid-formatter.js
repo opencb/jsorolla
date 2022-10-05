@@ -833,7 +833,7 @@ export default class VariantGridFormatter {
             }
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
+                                <label style='padding-left: 5px; width: 120px'>${arr[0]}:</label>
                             </span>
                             <span style='font-weight: bold'>${freq}</span>
                         </div>`;
