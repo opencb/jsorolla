@@ -140,18 +140,26 @@ export default class ProjectUpdate extends LitElement {
     }
 
     onClear() {
-        // LitUtils.dispatchCustomEvent(this, "clearProject");
-        this.updateParams = {};
-        this.project = UtilsNew.objectClone(this._project);
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear project",
+            message: "Are you sure to clear new change?",
+            ok: () => {
+                this.updateParams = {};
+                this.project = UtilsNew.objectClone(this._project);
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit() {
+        const params = {
+            includeResult: true
+        };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
-            .update(this.project?.fqn, this.updateParams)
+            .update(this.project?.fqn, this.updateParams, params)
             .then(res => {
                 this._project = UtilsNew.objectClone(res.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -159,7 +167,6 @@ export default class ProjectUpdate extends LitElement {
                     message: "Project updated correctly"
                 });
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
-                this.onClear();
             })
             .catch(reason => {
                 error = reason;
@@ -169,6 +176,7 @@ export default class ProjectUpdate extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
                 this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "projectUpdate", this.project, {}, error);
             });
     }
 

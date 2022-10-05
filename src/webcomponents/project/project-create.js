@@ -25,7 +25,6 @@ export default class ProjectCreate extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -101,24 +100,21 @@ export default class ProjectCreate extends LitElement {
     }
 
     onClear() {
-        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-        //     title: "Clear project",
-        //     message: "Are you sure to clear?",
-        //     ok: () => {
-        //         this.project = {};
-        //         this._config = this.getDefaultConfig();
-        //         this.requestUpdate();
-        //     },
-        // });
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear project",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.project = {
+                    cellbase: {
+                        url: "https://ws.zettagenomics.com/cellbase",
+                        version: "5.1"
+                    }
+                };
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
         // LitUtils.dispatchCustomEvent(this, "clearProject");
-        this.project = {
-            cellbase: {
-                url: "https://ws.zettagenomics.com/cellbase",
-                version: "5.1"
-            }
-        };
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     onSubmit() {
@@ -134,15 +130,21 @@ export default class ProjectCreate extends LitElement {
                     title: "Project Create",
                     message: "New project created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
             })
             .catch(reason => {
                 error = reason;
                 console.error(error);
             })
             .finally(() => {
-                this.project = {};
+                this.project = {
+                    cellbase: {
+                        url: "https://ws.zettagenomics.com/cellbase",
+                        version: "5.1"
+                    }
+                };
                 this._config = this.getDefaultConfig();
-                LitUtils.dispatchCustomEvent(this, "projectCreate", this.sample, {}, error);
+                LitUtils.dispatchCustomEvent(this, "projectCreate", this.project, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -154,15 +156,14 @@ export default class ProjectCreate extends LitElement {
 
         return html`
             <data-form
-                    .data="${this.project}"
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${e => this.onClear(e)}"
-                    @submit="${e => this.onSubmit(e)}">
+                .data="${this.project}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onSubmit(e)}">
             </data-form>`;
     }
 
-    // QUESTION: can cellbase be an autocomplete to avoid errors
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",

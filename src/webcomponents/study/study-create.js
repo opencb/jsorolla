@@ -67,7 +67,10 @@ export default class StudyCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -91,10 +94,15 @@ export default class StudyCreate extends LitElement {
     }
 
     onClear() {
-        // LitUtils.dispatchCustomEvent(this, "clearStudy");
-        this.study = {};
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear Study",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.study = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit() {
@@ -108,16 +116,16 @@ export default class StudyCreate extends LitElement {
                     message: "New study created correctly"
                 });
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
-                this.onClear();
             })
             .catch(reason => {
                 error = reason;
                 console.error(error);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(()=>{
-                this.#setLoading(false);
+                this.study = {};
                 this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "studyCreate", this.study, {}, error);
+                this.#setLoading(false);
             });
     }
 

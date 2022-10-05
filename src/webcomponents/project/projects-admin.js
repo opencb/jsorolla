@@ -70,7 +70,6 @@ export default class ProjectsAdmin extends LitElement {
     actionModal(modalId, action, project) {
         const _project = {...project};
         // action: show or hide
-        console.log("Calling...");
         switch (modalId) {
             case "createProject":
                 break;
