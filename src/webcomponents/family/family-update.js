@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,6 @@ export default class FamilyUpdate extends LitElement {
                     this._family,
                     this.family,
                     this.updateParams,
-                    // e.detail.param,
                     param,
                     e.detail.value);
                 break;
@@ -341,22 +340,54 @@ export default class FamilyUpdate extends LitElement {
                         {
                             title: "Status",
                             field: "status",
-                            type: "custom",
-                            display: {
-                                render: status => html`
-                                    <status-update
-                                        .status="${status}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                    </status-update>
-                                `,
-                            }
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "status.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "status.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
+                        // {
+                        //     title: "Status",
+                        //     field: "status",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: status => html`
+                        //             <status-update
+                        //                 .status="${status}"
+                        //                 .displayConfig="${{
+                        //                     defaultLayout: "vertical",
+                        //                     buttonsVisible: false,
+                        //                     width: 12,
+                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                        //                 }}"
+                        //                 @fieldChange="${e => this.onFieldChange(e, "status")}">
+                        //             </status-update>
+                        //         `,
+                        //     }
+                        // },
                     ]
                 },
                 // {

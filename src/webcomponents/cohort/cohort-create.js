@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,6 @@ export default class CohortCreate extends LitElement {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
@@ -218,42 +217,35 @@ export default class CohortCreate extends LitElement {
                         {
                             title: "Status",
                             field: "status",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <status-create
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                    </status-create>`
-                            },
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "status.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "status.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
-                        // {
-                        //     title: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
-                        // {
-                        //     title: "Modification Date",
-                        //     field: "modificationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
                     ],
                 },
                 // {

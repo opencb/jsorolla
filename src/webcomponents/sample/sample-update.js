@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,10 +154,6 @@ export default class SampleUpdate extends LitElement {
             case "status.id":
             case "status.name":
             case "status.description":
-            // case "processing.product.id":
-            // case "processing.product.name":
-            // case "processing.product.source":
-            // case "processing.product.description":
                 // support primitive type and object with primitive type
                 this.updateParams = FormUtils.updateObjectParams(
                     this._sample,
@@ -264,23 +260,23 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
-    // onAddOrUpdateItem(e) {
-    //     switch (e.detail.param) {
-    //         case "collection.from":
-    //         case "phenotypes":
-    //             this.updateParams = FormUtils.updateArraysObject(
-    //                 this._sample,
-    //                 this.sample,
-    //                 this.updateParams,
-    //                 e.detail.param,
-    //                 e.detail.value
-    //             );
-    //             break;
-    //         case "annotationSets":
-    //             break;
-    //     }
-    //     this.requestUpdate();
-    // }
+    onAddOrUpdateItem(e) {
+        switch (e.detail.param) {
+            case "collection.from":
+            // case "phenotypes":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+                break;
+            case "annotationSets":
+                break;
+        }
+        this.requestUpdate();
+    }
 
     render() {
         if (this.isLoading) {
@@ -570,11 +566,11 @@ export default class SampleUpdate extends LitElement {
                                     <ontology-term-annotation-update
                                         .ontology="${from}"
                                         .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            style: "margin-bottom:0px",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
+                                    defaultLayout: "vertical",
+                                    style: "margin-bottom:0px",
+                                    buttonOkText: "Save",
+                                    buttonClearText: "",
+                                }}"
                                         @updateItem="${callback}">
                                     </ontology-term-annotation-update>
                                 `,
@@ -582,10 +578,10 @@ export default class SampleUpdate extends LitElement {
                                     <label>Create new item</label>
                                     <ontology-term-annotation-create
                                         .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
+                                    defaultLayout: "vertical",
+                                    buttonOkText: "Add",
+                                    buttonClearText: "",
+                                }}"
                                         @addItem="${callback}">
                                     </ontology-term-annotation-create>
                                 `,

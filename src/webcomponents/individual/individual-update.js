@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,25 +134,24 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-            case "location.address":
-            case "location.postalCode":
-            case "location.city":
-            case "location.state":
-            case "location.country":
-            case "population.name":
-            case "population.subpopulation":
-            case "population.description":
-            case "status.name":
-            case "status.description":
-            case "sex.id":
-            case "sex.name":
-            case "sex.source":
-            case "sex.description":
-            case "ethnicity.id":
-            case "ethnicity.name":
-            case "ethnicity.source":
-            case "ethnicity.description":
-                // case "dateOfBirth": Problem
+            // case "location.address":
+            // case "location.postalCode":
+            // case "location.city":
+            // case "location.state":
+            // case "location.country":
+            // case "population.name":
+            // case "population.subpopulation":
+            // case "population.description":
+            // case "status.name":
+            // case "status.description":
+            // case "sex.id":
+            // case "sex.name":
+            // case "sex.source":
+            // case "sex.description":
+            // case "ethnicity.id":
+            // case "ethnicity.name":
+            // case "ethnicity.source":
+            // case "ethnicity.description":
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
                     this.individual,
@@ -160,15 +159,17 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "dateOfBirth":
-                e.detail.value = e.detail.value.substring(0, 8);
+            case "dateOfBirth": // date
+                const value = e.detail.value.substring(0, 8);
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
                     this.individual,
                     this.updateParams,
                     param,
-                    e.detail.value);
+                    value);
                 break;
+            case "population": // object
+            case "status": // object
             case "location": // object
             case "sex": // object
             case "ethnicity": // object
