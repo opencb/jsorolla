@@ -169,6 +169,7 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
+            case "location": // object
             case "sex": // object
             case "ethnicity": // object
                 this.updateParams = FormUtils.updateObjectWithObj(

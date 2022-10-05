@@ -1477,6 +1477,7 @@ export default class DataForm extends LitElement {
     }
 
     onFilterChange(element, value, objectListAction, objectListIndex) {
+        // Check if the element is an 'object-list'
         if (element.field.includes("[]")) {
             // Example: [variants, id]
             const [parentArrayField, itemField] = element.field.split("[].");
@@ -1493,13 +1494,50 @@ export default class DataForm extends LitElement {
                 }
             }
         } else {
-            const detail = {
-                param: element.field,
-                value: value
-            };
-            if (objectListAction) {
-                detail[objectListAction] = objectListIndex;
+            let isObjectType = false;
+            let elementFieldName = "";
+            let objectFieldName = "";
+            // Check if element is part of a 'object' element
+            if (element.field.includes(".")) {
+                // Get the name of the possible object element: all fields but last one
+                const split = element.field.split(".");
+                elementFieldName = split[split.length - 1];
+                split.splice(split.length - 1, 1);
+                objectFieldName = split.join(".");
+
+                // Check if the possible object element exists
+                for (const section of this.config.sections) {
+                    for (const element of section.elements) {
+                        if (element.field === objectFieldName) {
+                            isObjectType = element.type === "object";
+                            break;
+                        }
+                    }
+                }
             }
+
+            let detail;
+            if (isObjectType) {
+                if (value) {
+                    this.data[objectFieldName][elementFieldName] = value;
+                } else {
+                    // not sure about this one
+                    delete this.data[objectFieldName][elementFieldName];
+                }
+                detail = {
+                    param: objectFieldName,
+                    value: this.data[objectFieldName]
+                };
+            } else {
+                detail = {
+                    param: element.field,
+                    value: value
+                };
+                if (objectListAction) {
+                    detail[objectListAction] = objectListIndex;
+                }
+            }
+
             this.dispatchEvent(new CustomEvent("fieldChange", {
                 detail: detail,
                 bubbles: true,
@@ -1507,18 +1545,6 @@ export default class DataForm extends LitElement {
             }));
         }
     }
-
-    // onBlurChange(field, value) {
-    //     this.dispatchEvent(new CustomEvent("blurChange", {
-    //         detail: {
-    //             param: field,
-    //             value: value
-    //         },
-    //         bubbles: false,
-    //         composed: true
-    //     }));
-    // }
-
 
     onClear(e) {
         this.formSubmitted = false;
