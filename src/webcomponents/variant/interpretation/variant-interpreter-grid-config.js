@@ -135,7 +135,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             title: "Select how genotypes are displayed",
                             field: "genotype.type",
                             type: "select",
-                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
+                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "ALLELE_FREQUENCY_BAR", "CIRCLE"],
                             display: {
                                 width: 6,
                             }

@@ -19,7 +19,7 @@ import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaInferredSexAnalysis extends LitElement {
+export default class OpencgaIndividualQcAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,11 +61,11 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "inferred-sex",
-            title: "Inferred Sex Analysis",
+            id: "individual-qc",
+            title: "Individual Quality Control",
             icon: "",
             requires: "2.0.0",
-            description: "Inferred Sex description",
+            description: "Run quality control (QC) for a given individual. It includes inferred sex and mendelian errors (UDP)",
             links: [
                 {
                     title: "OpenCGA",
@@ -80,48 +80,51 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "sample",
-                                title: "Select samples",
-                                type: "SAMPLE_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                                // colspan: 6
-                            },
-                            {
                                 id: "individual",
-                                title: "Select Individual",
+                                title: "Select individuals",
                                 type: "INDIVIDUAL_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
                             },
+                            {
+                                id: "sample",
+                                title: "Select sample",
+                                type: "SAMPLE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
+                            }
                         ]
                     },
+                    {
+                        title: "Configuration Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "inferredSexMethod",
+                                title: "Inferred sex method",
+                                type: "text"
+                            }
+                        ]
+                    }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "inferred-sex-$DATE",
+                    id: "individual-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let _data = {};
-                if (data) {
-                    if (data.individual) {
-                        _data.individual = data.individual.join(",");
-                    }
-                    if (data.sample) {
-                        _data.sample = data.sample.join(",");
-                    }
-                }
-                opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
+                const body = {};
+                data.individual ? body.individual = data.individual.join(",") : null;
+                data.sample ? body.sample = data.sample.join(",") : null;
+                opencgaSession.opencgaClient.variants().runIndividualQc(body, params);
             },
             result: {
             }
@@ -133,6 +136,7 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
-customElements.define("opencga-inferred-sex-analysis", OpencgaInferredSexAnalysis);
+customElements.define("opencga-individual-qc-analysis", OpencgaIndividualQcAnalysis);

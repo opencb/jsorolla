@@ -400,7 +400,7 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, internalStatus: "READY", exclude: "samples", limit: 100});
+                                                        .search({study: study.fqn, exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
                                                         .filter(cohort => !cohort.attributes?.IVA?.ignore);
                                                     // FIXME line above should check cohort.internal instead

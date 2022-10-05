@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement {
+export default class OpencgaMutationalSignatureAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -45,7 +45,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
 
-        this._config = this.getDefaultConfig();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
@@ -61,15 +61,15 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
 
     getDefaultConfig() {
         return {
-            id: "mendelian-errors",
-            title: "Individual Mendelian Errors",
+            id: "mutational-signature",
+            title: "Mutational Signature Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Run mendelian error analysis to infer uniparental disomy regions",
+            description: "Mutational Signature description",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
+                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
                     icon: ""
                 }
             ],
@@ -80,24 +80,8 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                         collapsed: false,
                         parameters: [
                             {
-                                id: "family",
-                                title: "Select family",
-                                type: "FAMILY_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
-                                id: "individual",
-                                title: "Select individual",
-                                type: "INDIVIDUAL_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                            },
-                            {
                                 id: "sample",
-                                title: "Select sample",
+                                title: "Select somatic sample",
                                 type: "SAMPLE_FILTER",
                                 addButton: true,
                                 showList: true,
@@ -108,7 +92,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                 ],
                 job: {
                     title: "Job Info",
-                    id: "mendelian-error-$DATE",
+                    id: "mutational-signature-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -118,7 +102,9 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runMendelianError(data, params);
+                let body = {};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                opencgaSession.opencgaClient.variants().runMutationalSignature(body, params);
             },
             result: {
             }
@@ -132,4 +118,4 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
     }
 }
 
-customElements.define("opencga-individual-mendelian-error-analysis", OpencgaIndividualMendelianErrorAnalysis);
+customElements.define("opencga-mutational-signature-analysis", OpencgaMutationalSignatureAnalysis);
