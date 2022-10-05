@@ -146,32 +146,33 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-            case "source.id":
-            case "source.name":
-            case "source.source":
-            case "source.url":
-            case "source.description":
+            // case "source.id":
+            // case "source.name":
+            // case "source.source":
+            // case "source.url":
+            // case "source.description":
             case "status.id":
             case "status.name":
             case "status.description":
-                debugger
+
                 // support primitive type and object with primitive type
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
                     this.updateParams,
                     param,
                     e.detail.value);
+                debugger
                 break;
             // case "status":
-            // case "source":
+            case "source":
             case "processing.product":
-            // Nested Object
-            // case "processing.product.id":
-            // case "processing.product.name":
-            // case "processing.product.source":
-            // case "processing.product.description":
-                debugger
+                // Nested Object
+                // case "processing.product.id":
+                // case "processing.product.name":
+                // case "processing.product.source":
+                // case "processing.product.description":
+
                 // processing it's nested object
                 //  -----------------------------------
                 // NOTE: updateObjectWithObj only works if the value is an OBJECT
@@ -183,12 +184,13 @@ export default class SampleUpdate extends LitElement {
                     this.updateParams,
                     param,
                     e.detail.value);
+                debugger
                 break;
             case "collection":
             case "collection.from":
             case "collection.from.id":
             case "phenotypes":
-                this.updateParams = FormUtils.updateArraysObject(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
                     this.updateParams,
@@ -219,6 +221,7 @@ export default class SampleUpdate extends LitElement {
         // FIXME CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
         //  Remove when form-utils.js revisited
         // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.sample[key]);
+        debugger
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updateParams, params)
             .then(response => {
@@ -265,7 +268,7 @@ export default class SampleUpdate extends LitElement {
     onAddOrUpdateItem(e) {
         switch (e.detail.param) {
             case "collection.from":
-            // case "phenotypes":
+                // case "phenotypes":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._sample,
                     this.sample,
@@ -591,53 +594,48 @@ export default class SampleUpdate extends LitElement {
                         // },
                         {
                             title: "From",
+                            field: "collection.from",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: pheno => html`
+                                    <div>${pheno.id} - ${pheno?.name}</div>
+                                `,
+                            },
                             elements: [
                                 {
-                                    title: "Collection",
-                                    field: "collection.from",
-                                    type: "object-list",
+                                    title: "Collection ID",
+                                    field: "collection.from[].id",
+                                    type: "input-text",
                                     display: {
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                        collapsedUpdate: true,
-                                        view: pheno => html`
-                                            <div>${pheno.id} - ${pheno?.name}</div>
-                                `,
+                                        placeholder: "Add phenotype ID...",
                                     },
-                                    elements: [
-                                        {
-                                            title: "Collection ID",
-                                            field: "collection.from[].id",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add phenotype ID...",
-                                            },
-                                        },
-                                        {
-                                            title: "name",
-                                            field: "collection.from[].name",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add a name...",
-                                            },
-                                        },
-                                        {
-                                            title: "Source",
-                                            field: "collection.from[].source",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add a source...",
-                                            },
-                                        },
-                                        {
-                                            title: "Description",
-                                            field: "collection.from[].description",
-                                            type: "input-text",
-                                            display: {
-                                                rows: 3,
-                                                placeholder: "Add a description..."
-                                            },
-                                        },
-                                    ],
+                                },
+                                {
+                                    title: "name",
+                                    field: "collection.from[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "collection.from[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "collection.from[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    },
                                 },
                             ],
                         },
