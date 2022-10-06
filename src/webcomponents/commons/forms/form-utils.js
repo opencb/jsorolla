@@ -263,7 +263,6 @@ export default class FormUtils {
 
 
         const currentValue = UtilsNew.getObjectValue(_original, param, "");
-
         // Check if they are different
         let isDifferent;
         if (Array.isArray(currentValue)) {
@@ -271,10 +270,13 @@ export default class FormUtils {
         } else {
             isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
         }
-
         if (isDifferent) {
             UtilsNew.setObjectValue(original, param, value);
-            UtilsNew.setObjectValue(_updateParams, param, value);
+            let rootFieldName = param;
+            if (param.includes(".")) {
+                rootFieldName = param.split(".")[0];
+            }
+            UtilsNew.setObjectValue(_updateParams, rootFieldName, original[rootFieldName]);
         } else {
             UtilsNew.deleteObjectValue(_updateParams, param);
             // const parts = param.split(".").slice(0, -1);
