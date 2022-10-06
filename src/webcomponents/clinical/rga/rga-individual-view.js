@@ -102,7 +102,10 @@ export default class RgaIndividualView extends LitElement {
                     field: "genes"
                 },
                 {
-
+                    title: "Homozygous",
+                    field: "hom"
+                },
+                {
                     title: "Compound Heterozygous",
                     field: "ch_def,ch_prob"
                 },
@@ -349,7 +352,8 @@ export default class RgaIndividualView extends LitElement {
                 },
                 {
                     title: "Homozygous",
-                    field: ""
+                    field: "hom",
+                    halign: this._config.header.horizontalAlign
                 },
                 /* {
                     title: "Deletion Overlap",
@@ -358,7 +362,8 @@ export default class RgaIndividualView extends LitElement {
                 {
                     title: "Compound Heterozygous",
                     field: "ch",
-                    colspan: 2
+                    colspan: 2,
+                    halign: this._config.header.horizontalAlign
                 },
                 {
                     title: "Phenotypes",
@@ -550,7 +555,11 @@ export default class RgaIndividualView extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false
+            showExport: false,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
         };
     }
 

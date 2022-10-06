@@ -256,7 +256,8 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 4
+                    colspan: 4,
+                    halign: this._config.header.horizontalAlign
                 }
             ], [
 
@@ -641,8 +642,11 @@ export default class RgaVariantView extends LitElement {
                 "MGP:ALL",
                 "DISCOVER:ALL",
                 "UK10K:ALL"
-            ]
-
+            ],
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            }
         };
     }
 
