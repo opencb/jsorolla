@@ -30,7 +30,7 @@ const hosts = [
     },
     {
         id: "test",
-        url: "https://eglh.app.zettagenomics.com/opencga-preprod"
+        url: "https://ws.opencb.org/opencga-test"
     },
     {
         id: "eglh",
