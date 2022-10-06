@@ -19,7 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utilsNew.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
@@ -97,8 +96,8 @@ export default class SampleCreate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
+            case "collection.from":
             case "phenotypes": // this is object
-            // case "collection.from": collection issue with object-list
                 this.sample = {
                     ...FormUtils.createObject(
                         this.sample,
@@ -156,32 +155,6 @@ export default class SampleCreate extends LitElement {
             });
     }
 
-    onAddOrUpdateItem(e) {
-        switch (e.detail.param) {
-            case "collection.from":
-                this.collection = {...this.collection, from: e.detail.value};
-                if (UtilsNew.isNotEmpty(this.collection?.from)) {
-                    this.sample = {...this.sample, collection: this.collection};
-                } else {
-                    this.sample = {...this.sample, collection: []};
-                    delete this.sample["collection"]["from"];
-                }
-                break;
-            case "phenotypes":
-                if (UtilsNew.isNotEmpty(e.detail.value)) {
-                    this.sample = {...this.sample, phenotypes: e.detail.value};
-                } else {
-                    this.sample = {...this.sample, phenotypes: []};
-                    delete this.sample["phenotypes"];
-                }
-                break;
-            case "annotationSets":
-                // Coming Soon
-                break;
-        }
-        this.requestUpdate();
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -192,7 +165,6 @@ export default class SampleCreate extends LitElement {
                 .data="${this.sample}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
@@ -346,23 +318,6 @@ export default class SampleCreate extends LitElement {
                 {
                     title: "Processing Info",
                     elements: [
-                        // {
-                        //     title: "Product",
-                        //     field: "processing.product",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: product => html`
-                        //             <ontology-term-annotation-create
-                        //                 .ontology="${product}"
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             buttonsVisible: false,
-                        //             style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //         }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
-                        //             </ontology-term-annotation-create>`
-                        //     },
-                        // },
                         {
                             title: "Product Processing",
                             field: "processing.product",
@@ -528,39 +483,6 @@ export default class SampleCreate extends LitElement {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             },
                         },
-                        // {
-                        //     title: "From",
-                        //     field: "collection.from",
-                        //     type: "custom-list",
-                        //     display: {
-                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        //         collapsedUpdate: true,
-                        //         renderUpdate: (from, callback) => {
-                        //             return html`
-                        //                 <ontology-term-annotation-update
-                        //                     .ontology="${from}"
-                        //                     .displayConfig="${{
-                        //                 defaultLayout: "vertical",
-                        //                 style: "margin-bottom:0px",
-                        //                 buttonOkText: "Save",
-                        //                 buttonClearText: "",
-                        //             }}"
-                        //                     @updateItem="${callback}">
-                        //                 </ontology-term-annotation-update>`;
-                        //         },
-                        //         renderCreate: (from, callback) => html`
-                        //             <label>Create new item</label>
-                        //             <ontology-term-annotation-create
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             buttonOkText: "Add",
-                        //             buttonClearText: "",
-                        //         }}"
-                        //                 @addItem="${callback}">
-                        //             </ontology-term-annotation-create>`
-                        //     },
-                        // },
-                        // {
                     ],
                 },
                 {
@@ -631,66 +553,6 @@ export default class SampleCreate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Phenotypes",
-                //     elements: [
-                //         {
-                //             title: "Phenotype",
-                //             field: "phenotypes",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (pheno, callback) => html`
-                //                     <ontology-term-annotation-update
-                //                         .ontology="${pheno}"
-                //                         .entity="${"phenotype"}"
-                //                         .displayConfig="${{
-                //                     defaultLayout: "vertical",
-                //                     buttonOkText: "Save",
-                //                     buttonClearText: "",
-                //                 }}"
-                //                         @updateItem="${callback}">
-                //                     </ontology-term-annotation-update>
-                //                 `,
-                //                 renderCreate: (pheno, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"phenotype"}"
-                //                         .displayConfig="${{
-                //                     defaultLayout: "vertical",
-                //                     buttonOkText: "Add",
-                //                     buttonClearText: "",
-                //                 }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `
-                //             },
-                //         },
-                //     ],
-                // },
-                // {
-                //     title: "Annotations Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: sample => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${sample?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                //                     </annotation-set-update>
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // }
             ],
         });
     }

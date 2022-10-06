@@ -137,43 +137,19 @@ export default class SampleUpdate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-            case "processing.labSampleId":
-            // case "processing.preparationMethod":
-            // case "processing.extractionMethod":
-
-                // case "processing.quantity":
-                // case "processing.date":
-                // case "collection.tissue":
-                // case "collection.type":
-                // case "collection.quantity":
-                // case "collection.method":
-                // case "collection.date":
-                // case "source.id":
-                // case "source.name":
-                // case "source.source":
-                // case "source.url":
-                // case "source.description":
-                // case "status.id":
-                // case "status.name":
-                // case "status.description":
-                // support primitive type and object with primitive type
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "status":
-            case "source":
-            case "collection":
-            case "processing":
             case "processing.product":
-            // Nested Object
-            // case "processing.product.id":
-            // case "processing.product.name":
-            // case "processing.product.source":
-            // case "processing.product.description":
+            case "processing.preparationMethod":
+            case "processing.extractionMethod":
+            case "processing.labSampleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.type":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+            case "source":
+            // case "collection.tissue":
+                // Nested Object
                 // processing it's nested object
                 //  -----------------------------------
                 // NOTE: updateObjectWithObj only works if the value is an OBJECT
@@ -186,9 +162,16 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
+            case "status":
+                this.updateParams = FormUtils.updateObjExperimental(
+                    this._sample,
+                    this.sample,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
             case "collection.from":
             case "phenotypes":
-            // case "collection.from.id":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._sample,
                     this.sample,
@@ -263,23 +246,23 @@ export default class SampleUpdate extends LitElement {
         `;
     }
 
-    onAddOrUpdateItem(e) {
-        switch (e.detail.param) {
-            case "collection.from":
-            // case "phenotypes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
-                break;
-            case "annotationSets":
-                break;
-        }
-        this.requestUpdate();
-    }
+    // onAddOrUpdateItem(e) {
+    //     switch (e.detail.param) {
+    //         case "collection.from":
+    //         // case "phenotypes":
+    //             this.updateParams = FormUtils.updateArraysObject(
+    //                 this._sample,
+    //                 this.sample,
+    //                 this.updateParams,
+    //                 e.detail.param,
+    //                 e.detail.value
+    //             );
+    //             break;
+    //         case "annotationSets":
+    //             break;
+    //     }
+    //     this.requestUpdate();
+    // }
 
     render() {
         if (this.isLoading) {
@@ -452,24 +435,6 @@ export default class SampleUpdate extends LitElement {
                 {
                     title: "Processing Info",
                     elements: [
-                        // {
-                        //     title: "Product",
-                        //     field: "processing.product",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: product => html`
-                        //             <ontology-term-annotation-update
-                        //                 .ontology="${product}"
-                        //                 .displayConfig="${{
-                        //                     defaultLayout: "vertical",
-                        //                     buttonsVisible: false,
-                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //                 }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
-                        //             </ontology-term-annotation-update>
-                        //         `,
-                        //     },
-                        // },
                         {
                             title: "Product Processing",
                             field: "processing.product",
@@ -637,38 +602,6 @@ export default class SampleUpdate extends LitElement {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             },
                         },
-                        // {
-                        //     title: "From",
-                        //     field: "collection.from",
-                        //     type: "custom-list",
-                        //     display: {
-                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        //         collapsedUpdate: true,
-                        //         renderUpdate: (from, callback) => html`
-                        //             <ontology-term-annotation-update
-                        //                 .ontology="${from}"
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             style: "margin-bottom:0px",
-                        //             buttonOkText: "Save",
-                        //             buttonClearText: "",
-                        //         }}"
-                        //                 @updateItem="${callback}">
-                        //             </ontology-term-annotation-update>
-                        //         `,
-                        //         renderCreate: (from, callback) => html`
-                        //             <label>Create new item</label>
-                        //             <ontology-term-annotation-create
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             buttonOkText: "Add",
-                        //             buttonClearText: "",
-                        //         }}"
-                        //                 @addItem="${callback}">
-                        //             </ontology-term-annotation-create>
-                        //         `,
-                        //     },
-                        // },
                     ],
                 },
                 {
