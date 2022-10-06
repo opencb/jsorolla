@@ -131,47 +131,49 @@ export default class SampleUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
+        console.log("Sample Data:", param, e.detail.value);
         switch (param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
-            case "processing.preparationMethod":
-            case "processing.extractionMethod":
             case "processing.labSampleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.tissue":
-            case "collection.type":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-            case "source.id":
-            case "source.name":
-            case "source.source":
-            case "source.url":
-            case "source.description":
-            case "status.id":
-            case "status.name":
-            case "status.description":
-                debugger
+            // case "processing.preparationMethod":
+            // case "processing.extractionMethod":
+
+                // case "processing.quantity":
+                // case "processing.date":
+                // case "collection.tissue":
+                // case "collection.type":
+                // case "collection.quantity":
+                // case "collection.method":
+                // case "collection.date":
+                // case "source.id":
+                // case "source.name":
+                // case "source.source":
+                // case "source.url":
+                // case "source.description":
+                // case "status.id":
+                // case "status.name":
+                // case "status.description":
                 // support primitive type and object with primitive type
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
                     this.updateParams,
                     param,
                     e.detail.value);
                 break;
-            // case "status":
-            // case "source":
+            case "status":
+            case "source":
+            case "collection":
+            case "processing":
             case "processing.product":
             // Nested Object
             // case "processing.product.id":
             // case "processing.product.name":
             // case "processing.product.source":
             // case "processing.product.description":
-                debugger
                 // processing it's nested object
                 //  -----------------------------------
                 // NOTE: updateObjectWithObj only works if the value is an OBJECT
@@ -184,10 +186,9 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "collection":
             case "collection.from":
-            case "collection.from.id":
             case "phenotypes":
+            // case "collection.from.id":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._sample,
                     this.sample,
@@ -528,7 +529,7 @@ export default class SampleUpdate extends LitElement {
                         },
                         {
                             title: "Lab Sample ID",
-                            field: "processing.labSambpleId",
+                            field: "processing.labSampleId",
                             type: "input-text",
                             display: {
                                 placeholder: "Add the lab sample ID...",
@@ -557,87 +558,50 @@ export default class SampleUpdate extends LitElement {
                 {
                     title: "Collection Info",
                     elements: [
-                        // {
-                        //     title: "From",
-                        //     field: "collection.from",
-                        //     type: "custom-list",
-                        //     display: {
-                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        //         collapsedUpdate: true,
-                        //         renderUpdate: (from, callback) => html`
-                        //             <ontology-term-annotation-update
-                        //                 .ontology="${from}"
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             style: "margin-bottom:0px",
-                        //             buttonOkText: "Save",
-                        //             buttonClearText: "",
-                        //         }}"
-                        //                 @updateItem="${callback}">
-                        //             </ontology-term-annotation-update>
-                        //         `,
-                        //         renderCreate: (from, callback) => html`
-                        //             <label>Create new item</label>
-                        //             <ontology-term-annotation-create
-                        //                 .displayConfig="${{
-                        //             defaultLayout: "vertical",
-                        //             buttonOkText: "Add",
-                        //             buttonClearText: "",
-                        //         }}"
-                        //                 @addItem="${callback}">
-                        //             </ontology-term-annotation-create>
-                        //         `,
-                        //     },
-                        // },
                         {
-                            title: "From",
+                            title: "Collection",
+                            field: "collection.from",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: pheno => html`
+                                    <div>${pheno.id} - ${pheno?.name}</div>
+                                `,
+                            },
                             elements: [
                                 {
-                                    title: "Collection",
-                                    field: "collection.from",
-                                    type: "object-list",
+                                    title: "Collection ID",
+                                    field: "collection.from[].id",
+                                    type: "input-text",
                                     display: {
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                        collapsedUpdate: true,
-                                        view: pheno => html`
-                                            <div>${pheno.id} - ${pheno?.name}</div>
-                                `,
+                                        placeholder: "Add phenotype ID...",
                                     },
-                                    elements: [
-                                        {
-                                            title: "Collection ID",
-                                            field: "collection.from[].id",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add phenotype ID...",
-                                            },
-                                        },
-                                        {
-                                            title: "name",
-                                            field: "collection.from[].name",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add a name...",
-                                            },
-                                        },
-                                        {
-                                            title: "Source",
-                                            field: "collection.from[].source",
-                                            type: "input-text",
-                                            display: {
-                                                placeholder: "Add a source...",
-                                            },
-                                        },
-                                        {
-                                            title: "Description",
-                                            field: "collection.from[].description",
-                                            type: "input-text",
-                                            display: {
-                                                rows: 3,
-                                                placeholder: "Add a description..."
-                                            },
-                                        },
-                                    ],
+                                },
+                                {
+                                    title: "name",
+                                    field: "collection.from[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "collection.from[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "collection.from[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    },
                                 },
                             ],
                         },
@@ -673,6 +637,38 @@ export default class SampleUpdate extends LitElement {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             },
                         },
+                        // {
+                        //     title: "From",
+                        //     field: "collection.from",
+                        //     type: "custom-list",
+                        //     display: {
+                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                        //         collapsedUpdate: true,
+                        //         renderUpdate: (from, callback) => html`
+                        //             <ontology-term-annotation-update
+                        //                 .ontology="${from}"
+                        //                 .displayConfig="${{
+                        //             defaultLayout: "vertical",
+                        //             style: "margin-bottom:0px",
+                        //             buttonOkText: "Save",
+                        //             buttonClearText: "",
+                        //         }}"
+                        //                 @updateItem="${callback}">
+                        //             </ontology-term-annotation-update>
+                        //         `,
+                        //         renderCreate: (from, callback) => html`
+                        //             <label>Create new item</label>
+                        //             <ontology-term-annotation-create
+                        //                 .displayConfig="${{
+                        //             defaultLayout: "vertical",
+                        //             buttonOkText: "Add",
+                        //             buttonClearText: "",
+                        //         }}"
+                        //                 @addItem="${callback}">
+                        //             </ontology-term-annotation-create>
+                        //         `,
+                        //     },
+                        // },
                     ],
                 },
                 {
