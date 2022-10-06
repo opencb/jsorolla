@@ -1271,6 +1271,8 @@ export default class VariantInterpreterGrid extends LitElement {
         const variant = this._rows.find(e => e.id === variantId);
 
         if (e.currentTarget.checked) {
+            // Add current filter executed when variant is checked
+            variant.filters = {...this.filters};
             this.checkedVariants.set(variantId, variant);
         } else {
             this.checkedVariants.delete(variantId);
@@ -1325,7 +1327,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReviewChange(e) {
         this.variantReview = e.detail.value;
-        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
     }
 
     onVariantReviewOk() {

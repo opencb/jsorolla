@@ -179,7 +179,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                         ],
                         display: {
                             // Ths must be only visible for OpenCGA >= 2.4.6
-                            visible: this.opencgaSession?.about?.Version ? UtilsNew.compareVersions("2.4.6", this.opencgaSession?.about?.Version) <= 0 : false,
+                            visible: this.opencgaSession?.about?.Version ? UtilsNew.compareVersions("2.4.6", this.opencgaSession?.about?.Version) >= 0 : false,
                             helpMessage: confidence.author ? html`Last confidence added by <b>${confidence.author}</b> on <b>${UtilsNew.dateFormatter(confidence.date)}</b>.` : null,
                         }
                     },
