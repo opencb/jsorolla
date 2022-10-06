@@ -106,7 +106,7 @@ export default class DataForm extends LitElement {
             //  2. phenotypes[].id: when no position is found is part of the Create New Item section
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
-                if (right.includes(".")) {
+                if (right?.includes(".")) {
                     const [itemIndex, itemFieldId] = right.split(".");
                     value = _object[parentItemArray][itemIndex]?.[itemFieldId];
                 } else {
@@ -1519,19 +1519,34 @@ export default class DataForm extends LitElement {
             let detail;
             if (isObjectType) {
                 // Make sure the object field exists
+                // ----------------------
+                // issue: It's pass 'processing.product' as objectFieldName;
+                // instead create processing as object and then product inside processing.
+                // ----------------------
                 if (!this.data[objectFieldName]) {
                     this.data[objectFieldName] = {};
                 }
+
                 if (value) {
                     this.data[objectFieldName][elementFieldName] = value;
+                    // UtilsNew.setObjectValue(this.data, element.field, value);
                 } else {
                     // not sure about this one
+                    // TODO: verify it object not exist first and remove
+                    // UtilsNew.deleteObjectValue(this.data, objectFieldName);
                     delete this.data[objectFieldName][elementFieldName];
                 }
+
                 detail = {
                     param: objectFieldName,
                     value: this.data[objectFieldName]
                 };
+
+                // Return entire object
+                // detail = {
+                //     param: objectFieldName,
+                //     value: UtilsNew.getObjectValue(this.data, objectFieldName, "")
+                // };
             } else {
                 detail = {
                     param: element.field,

@@ -237,12 +237,12 @@ export default class SampleCreate extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e =>
-                                        this.onFieldChange({
-                                            detail: {
-                                                param: "individualId",
-                                                value: e.detail.value,
-                                            }
-                                        })}">
+                                    this.onFieldChange({
+                                        detail: {
+                                            param: "individualId",
+                                            value: e.detail.value,
+                                        }
+                                    })}">
                                     </catalog-search-autocomplete>`
                             },
                         },
@@ -450,89 +450,52 @@ export default class SampleCreate extends LitElement {
                     title: "Collection Info",
                     elements: [
                         {
-                            title: "From",
+                            title: "Collection",
                             field: "collection.from",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (from, callback) => {
-                                    return html`
-                                        <ontology-term-annotation-update
-                                            .ontology="${from}"
-                                            .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        style: "margin-bottom:0px",
-                                        buttonOkText: "Save",
-                                        buttonClearText: "",
-                                    }}"
-                                            @updateItem="${callback}">
-                                        </ontology-term-annotation-update>`;
-                                },
-                                renderCreate: (from, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .displayConfig="${{
-                                    defaultLayout: "vertical",
-                                    buttonOkText: "Add",
-                                    buttonClearText: "",
-                                }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>`
+                                view: pheno => html`
+                                    <div>${pheno.id} - ${pheno?.name}</div>
+                            `,
                             },
+                            elements: [
+                                {
+                                    title: "Collection ID",
+                                    field: "collection.from[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "name",
+                                    field: "collection.from[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "collection.from[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "collection.from[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ],
                         },
-                        // {
-                        //     title: "From",
-                        //     elements: [
-                        //         {
-                        //             title: "Collection",
-                        //             field: "collection.from",
-                        //             type: "object-list",
-                        //             display: {
-                        //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        //                 collapsedUpdate: true,
-                        //                 view: pheno => html`
-                        //                     <div>${pheno.id} - ${pheno?.name}</div>
-                        //         `,
-                        //             },
-                        //             elements: [
-                        //                 {
-                        //                     title: "Collection ID",
-                        //                     field: "collection.from[].id",
-                        //                     type: "input-text",
-                        //                     display: {
-                        //                         placeholder: "Add phenotype ID...",
-                        //                     },
-                        //                 },
-                        //                 {
-                        //                     title: "name",
-                        //                     field: "collection.from[].name",
-                        //                     type: "input-text",
-                        //                     display: {
-                        //                         placeholder: "Add a name...",
-                        //                     },
-                        //                 },
-                        //                 {
-                        //                     title: "Source",
-                        //                     field: "collection.from[].source",
-                        //                     type: "input-text",
-                        //                     display: {
-                        //                         placeholder: "Add a source...",
-                        //                     },
-                        //                 },
-                        //                 {
-                        //                     title: "Description",
-                        //                     field: "collection.from[].description",
-                        //                     type: "input-text",
-                        //                     display: {
-                        //                         rows: 3,
-                        //                         placeholder: "Add a description..."
-                        //                     },
-                        //                 },
-                        //             ],
-                        //         },
-                        //     ],
-                        // },
                         {
                             title: "Type",
                             field: "collection.type",
@@ -565,6 +528,39 @@ export default class SampleCreate extends LitElement {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             },
                         },
+                        // {
+                        //     title: "From",
+                        //     field: "collection.from",
+                        //     type: "custom-list",
+                        //     display: {
+                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                        //         collapsedUpdate: true,
+                        //         renderUpdate: (from, callback) => {
+                        //             return html`
+                        //                 <ontology-term-annotation-update
+                        //                     .ontology="${from}"
+                        //                     .displayConfig="${{
+                        //                 defaultLayout: "vertical",
+                        //                 style: "margin-bottom:0px",
+                        //                 buttonOkText: "Save",
+                        //                 buttonClearText: "",
+                        //             }}"
+                        //                     @updateItem="${callback}">
+                        //                 </ontology-term-annotation-update>`;
+                        //         },
+                        //         renderCreate: (from, callback) => html`
+                        //             <label>Create new item</label>
+                        //             <ontology-term-annotation-create
+                        //                 .displayConfig="${{
+                        //             defaultLayout: "vertical",
+                        //             buttonOkText: "Add",
+                        //             buttonClearText: "",
+                        //         }}"
+                        //                 @addItem="${callback}">
+                        //             </ontology-term-annotation-create>`
+                        //     },
+                        // },
+                        // {
                     ],
                 },
                 {
