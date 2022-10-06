@@ -20,6 +20,7 @@ import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 
 export default class RgaVariantAllelePairs extends LitElement {
 
@@ -74,7 +75,22 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        // console.log("prepareData", this.variant);
+        // this.tableData = this.variant?.allelePairs;
+        // console.log(this.variant);
+
+        this.allelePairs = this.variant.allelePairs.filter(v => !(v.knockoutType === "COMP_HET" && v.id === this.variant.id)); // removing the current variant (this.variant) from the allele Pairs array iff is a CH.
+
+        if (this.allelePairs?.length) {
+            this.variantIds = this.allelePairs.map(individual => individual.id);
+            // this is needed as `allelePairs` list has no unique id (more than 1 variant with the same id and different knockoutType might be returned)
+            this.allelePairs = this.allelePairs.map((variant, i) => ({_id: i + "__" + variant.id, ...variant}));
+
+        } else {
+            this.variantIds = [];
+            this.allelePairs = [];
+        }
+        // this.requestUpdate();
+
         /* const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
@@ -99,22 +115,6 @@ export default class RgaVariantAllelePairs extends LitElement {
             }
         }*/
 
-        // this.tableData = this.variant?.allelePairs;
-
-        if (this.variant?.allelePairs) {
-            this.tableDataLn = this.variant.allelePairs.length;
-            this.variantIds = this.variant.allelePairs.map(individual => individual.id);
-            // this is needed as `allelePairs` list has no unique id (more than 1 variant with the same id and different knockoutType might be returned)
-            this.DATA = this.variant.allelePairs.map((variant, i) => {
-                return {_id: i + "__" + variant.id, ...variant};
-            });
-
-        } else {
-            this.tableDataLn = 0;
-            this.variantIds = [];
-            this.DATA = [];
-        }
-        this.requestUpdate();
 
         /*
         const _filters = {
@@ -153,6 +153,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
+            detailView: true,
+            detailFormatter: (_, row) => `<h3>Individuals</h3><table class='variant-allele-pairs-individuals-table' data-index="${row._id}"></table>`,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {
@@ -160,15 +162,14 @@ export default class RgaVariantAllelePairs extends LitElement {
                     const pageSize = this.table.bootstrapTable("getOptions").pageSize;
                     const startVariant = pageNumber * pageSize - pageSize;
                     const endVariant = pageNumber * pageSize;
-                    if (this.tableDataLn > 0) {
+                    if (this.allelePairs.length > 0) {
                         const variantResponse = await this.getVariantInfo(this.variantIds, startVariant, endVariant);
-                        this.tableData = this.updateTableData(this.DATA, variantResponse.getResults());
-
+                        this.tableData = this.updateTableData(this.allelePairs, variantResponse.getResults());
                     } else {
                         this.tableData = [];
                     }
                     params.success({
-                        total: this.tableDataLn,
+                        total: this.allelePairs.length,
                         rows: this.tableData.slice(startVariant, endVariant)
                     });
                 } catch (e) {
@@ -183,7 +184,11 @@ export default class RgaVariantAllelePairs extends LitElement {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-            onPostBody: data => UtilsNew.initTooltip(this)
+            onPostBody: data => UtilsNew.initTooltip(this),
+            onExpandRow: (index, row, $detail) => {
+                this._initDetailTable(row);
+                UtilsNew.initTooltip(this);
+            }
         });
     }
 
@@ -216,7 +221,7 @@ export default class RgaVariantAllelePairs extends LitElement {
      * Double loop is necessary as variantData can contain more than 1 variant with the same id
      */
     updateTableData(variantData, variantAttributeData) {
-        const _variantData = variantData;
+        const _variantData = [...variantData];
         for (const variantAttrs of variantAttributeData) {
             for (const variant of variantData) {
                 if (variant.id === variantAttrs.id) {
@@ -231,39 +236,79 @@ export default class RgaVariantAllelePairs extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Allele",
-                field: "id",
-                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+                title: "Allele Pairs",
+                field: "allele_pairs",
+                formatter: (_, row, index) => `
+                    ${VariantGridFormatter.variantFormatter(null, this.variant, null, this.opencgaSession.project.organism.assembly)}
+                    ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                    `<hr>
+                        ${VariantGridFormatter.variantFormatter(row.id, row, index, this.opencgaSession.project.organism.assembly)}
+                    ` : ""}
+                `
             },
             {
                 title: "Pair type",
                 field: "knockoutType"
             },
             {
+                title: "dbSNP",
+                field: "dbSNP",
+                formatter: (_, row) => `
+                    ${this.variant?.dbSnp ?? "-"}
+                    ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                    `<hr>
+                        ${row.attributes?.dbSnp ?? "-"}
+                    ` : ""}
+                `
+            },
+            {
                 title: "Type",
-                field: "type"
+                field: "types",
+                formatter: (_, row) => `
+                    ${this.variant.type}
+                    ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                        `<hr>
+                        ${row.type}
+                    ` : ""}
+                `
             },
             {
                 title: "Alternate allele frequency",
-                field: "populationFrequencies.populationFrequencies",
-                formatter: (value, row) => {
-                    return this.clinicalPopulationFrequenciesFormatter(value, row);
-                }
+                field: "populationFrequencies",
+                formatter: (value, row) => `
+                    ${this.clinicalPopulationFrequenciesFormatter(this.variant)}
+                        ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                            `<hr>
+                            ${this.clinicalPopulationFrequenciesFormatter(row)}
+                        ` : ""}
+                    `
             },
             {
                 title: "Consequence Type",
-                field: "attributes.sequenceOntologyTerms",
-                formatter: value => {
-                    if (value) {
-                        return this.consequenceTypeFormatter(value);
-                    }
-                }
+                field: "sequenceOntologyTerms",
+                formatter: (value, row) => `
+                    ${this.consequenceTypeFormatter(this.variant.sequenceOntologyTerms)}
+                        ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                            `<hr>
+                            ${this.consequenceTypeFormatter(row.attributes.sequenceOntologyTerms)}
+                        ` : ""}
+                    `
             },
             {
                 title: "Clinical Significance",
-                field: "attributes.clinicalSignificances",
-                formatter: value => value?.length ? value.join(", ") : "-"
-            }
+                field: "clinicalSignificances",
+                formatter: (value, row) => {
+                    const clinicalSignificances1 = this.variant.clinicalSignificances;
+                    const clinicalSignificances2 = row?.attributes?.clinicalSignificances;
+                    return `
+                        ${clinicalSignificances1.length ? clinicalSignificances1.join(", ") : "-"}
+                        ${row?.attributes && row.knockoutType !== "HOM_ALT" ?
+                            `<hr>
+                            ${clinicalSignificances1.length ? clinicalSignificances2.join(", ") : "-"}
+                        ` : ""}
+                    `;
+                }
+            },
             /* {
                 // this value is not available
                 title: "Num. Individuals",
@@ -272,12 +317,263 @@ export default class RgaVariantAllelePairs extends LitElement {
         ];
     }
 
-    clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row.attributes) {
+    _initDetailTable(row) {
+        $(`.variant-allele-pairs-individuals-table[data-index='${row._id}']`).bootstrapTable({
+            pageSize: 5,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            columns: [
+                [
+                    {
+                        title: "Individual Id",
+                        field: "id",
+                        rowspan: 2
+                    },
+                    {
+                        title: "Sample",
+                        field: "sampleId",
+                        rowspan: 2
+                    },
+                    {
+                        title: "Genotypes",
+                        field: "",
+                        halign: this._config.header.horizontalAlign,
+                        colspan: 3
+                    },
+                    {
+                        title: "Phenotypes",
+                        field: "phenotypes",
+                        formatter: CatalogGridFormatter.phenotypesFormatter,
+                        rowspan: 2
+                    },
+                    {
+                        title: "Disorders",
+                        field: "disorders",
+                        formatter: disorders => {
+                            const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>");
+                            return result ? result : "-";
+                        },
+
+                        rowspan: 2
+                    },
+                    {
+                        title: "Case ID",
+                        field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                        formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
+                        rowspan: 2
+                    }
+                ],
+                [
+                    {
+                        title: "Proband",
+                        field: "attributes.VARIANT",
+                        halign: this._config.header.horizontalAlign,
+                        class: "text-center",
+                        formatter: (value, row) => {
+                            return `<span> <b>${row.id}</b> ${row.sampleId ? `${(row.sampleId)}` : ""} <br>
+                                ${value?.length ? value.map(sampleData => sampleData.GT[0]).join(" | ") : "-"}</span>`;
+                        }
+                    },
+                    {
+                        title: "Father",
+                        field: "attributes.VARIANT",
+                        halign: this._config.header.horizontalAlign,
+                        class: "text-center",
+                        formatter: (value, row) => {
+                            return `<span> <b>${row.fatherId}</b> ${row.fatherSampleId ? `${(row.fatherSampleId)}` : ""} <br>
+                                ${value?.length && !value.missingFather ? value.map(sampleData => sampleData.GT[1] ?? "N/A").join(" | ") : "-"}</span>`;
+                        }
+                    },
+                    {
+                        title: "Mother",
+                        field: "attributes.VARIANT",
+                        halign: this._config.header.horizontalAlign,
+                        class: "text-center",
+                        formatter: (value, row) => {
+                            return `<span> <b>${row.motherId}</b> ${row.motherSampleId ? `${(row.motherSampleId)}` : ""} <br> <br>
+                                ${value?.length ? value.map(sampleData => sampleData.GT[value.missingFather ? 1 : 2] ?? "N/A").join(" | ") : "-"}</span>`;
+                        }
+                    }
+                ]
+            ],
+            ajax: async params => {
+                // console.log("pair", this.variant.id, row.id)
+                try {
+                    // const rgaIndividualResponse = await this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({
+                    const rgaIndividualResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual({
+                        study: this.opencgaSession.study.fqn,
+                        variants: `${this.variant.id};${row.id}`,
+                        knockoutType: row.knockoutType,
+                        concurrent: true
+                    });
+
+                    // fetching Case Id of the individuals (paginated)
+                    const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
+
+                    if (individualIds) {
+                        const caseResponse = await this.opencgaSession.opencgaClient.clinical().search({
+                            individual: individualIds,
+                            study: this.opencgaSession.study.fqn,
+                            include: "id,proband.id,family.members",
+                            limit: 5,
+                        });
+
+                        // NOTE we don't convert individuals nor clinical data in map first.
+                        const individuals = rgaIndividualResponse.getResults();
+                        for (let i = 0; i < individuals.length; i++) {
+                            const individual = individuals[i];
+                            individual.attributes = {};
+                            const missingFather = !individual.fatherSampleId;
+                            const variantStore = await this.opencgaSession.opencgaClient.variants().query({
+                                study: this.opencgaSession.study.fqn,
+                                id: `${this.variant.id},${row.id}`,
+                                includeSample: [individual.sampleId, individual.fatherSampleId, individual.motherSampleId].filter(Boolean),
+                                includeGenotype: true,
+                                exclude: "annotation",
+                                concurrent: true
+                            });
+
+                            // adding sample variant data (GTs)
+                            // first variant results should be = this.variant and second should be = row.id
+                            const sampleData = variantStore.getResults().map((v, i) => {
+                                if ((v.id === this.variant.id && i === 0) || (v.id === row.id && i === 1)) {
+                                    const gtIndex = v.studies[0].sampleDataKeys.indexOf("GT"); // find the position of GT in sample array
+                                    return {
+                                        GT: v.studies[0].samples.map(sampleData => sampleData.data[gtIndex]),
+                                        missingFather // this marks the second GT as either father's or mother's one
+                                    };
+                                } else {
+                                    console.error("Unexpected variant found");
+                                }
+                            });
+                            individual.attributes = {
+                                VARIANT: sampleData
+                            };
+
+                            // adding clinical Analysis to rgaIndividualResponse
+                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                if (clinicalAnalysis?.family?.members?.find(member => member.id === individual.id) || clinicalAnalysis.proband.id === individual.id) {
+                                    if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                    } else {
+                                        individual.attributes = {
+                                            ...individual.attributes,
+                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                        params.success(rgaIndividualResponse);
+                    } else {
+                        params.success(rgaIndividualResponse);
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                    params.error(e);
+                }
+            },
+            onClickRow: (row, selectedElement, field) => {
+                console.log(row);
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onLoadSuccess: data => {
+                this.gridCommons.onLoadSuccess(data, 1);
+            },
+            onLoadError: (e, restResponse) => this.onLoadError(e, restResponse, row._id)
+        });
+
+    }
+
+    uniqueFieldFormatter(row, field) {
+        const uniqueValues = new Set();
+        for (const gene of row.genes) {
+            for (const transcript of gene.transcripts) {
+                for (const variant of transcript.variants) {
+                    if (this.variant.id === variant.id) {
+                        if (variant[field]) {
+                            uniqueValues.add(variant[field]);
+                        }
+                    }
+                }
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
+    }
+
+    // ****
+    // copy from gridCommons with rowId
+    // ****
+    // TODO remove side effects in context in gridCommons
+    onLoadError(e, response, rowId) {
+
+        // in some cases `response` is a string (in case the error state doesn't come from the server there is no restResponse instance, so we send a custom error msg)
+        let msg = "Generic Error";
+        if (response?.getEvents?.("ERROR")?.length) {
+            msg = response.getEvents("ERROR").map(error => `${error.name}: ${error.message ?? ""}`).join("<br>");
+        } else if (response instanceof Error) {
+            msg = `<h2>${response.name}</h2><br>${response.message ?? ""}`;
+        } else if (response instanceof Object) {
+            msg = JSON.stringify(response);
+        } else if (typeof response === "string") {
+            msg = response;
+        }
+        $(`.variant-allele-pairs-individuals-table[data-index='${rowId}']`).bootstrapTable("updateFormatText", "formatNoMatches", msg);
+    }
+
+    // this is a copy from gridCommons with context removed
+    responseHandler(response, bootstrapTableConfig) {
+        let from, to, approximateCountResult;
+
+        const numMatches = response.getResponse().numMatches;
+
+        // If no variant is returned then we start in 0
+        if (response.getResponse(0).numMatches === 0) {
+            from = numMatches;
+        }
+        // If do not fetch as many variants as requested then to is numMatches
+        if (response.getResponse(0).numResults < bootstrapTableConfig.pageSize) {
+            to = numMatches;
+        }
+        const numTotalResultsText = numMatches.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        if (response.getParams().skip === 0 && numMatches < response.getParams().limit) {
+            from = 1;
+            to = numMatches;
+        }
+
+        if (response.getResponse()?.attributes?.approximateCount) {
+            approximateCountResult = response.getResponse().attributes.approximateCount;
+        }
+
+        return {
+            numMatches: numMatches,
+            from: from,
+            to: to,
+            numTotalResultsText: numTotalResultsText,
+            approximateCountResult: approximateCountResult,
+            pageSize: bootstrapTableConfig.pageSize,
+            response: {
+                total: numMatches,
+                rows: response.getResults()
+            }
+        };
+    }
+    // ****
+    //  /copy from gridCommons with rowId
+    // ****
+
+
+    // FIXME this is a copy of VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter() but it checks for the presence of `row.attributes` attribute
+    clinicalPopulationFrequenciesFormatter(row) {
+        const populationFrequencies = row?.populationFrequencies ?? row?.attributes?.populationFrequencies;
+        if (populationFrequencies) {
             const popFreqMap = new Map();
             // console.log("row.populationFrequencies", row.populationFrequencies);
-            if (row?.attributes?.populationFrequencies?.length > 0) {
-                for (const popFreq of row.attributes.populationFrequencies) {
+            if (populationFrequencies?.length > 0) {
+                for (const popFreq of populationFrequencies) {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
@@ -287,7 +583,7 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
     }
 
-    consequenceTypeFormatter(value, row) {
+    consequenceTypeFormatter(value) {
         if (value) {
             const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
             const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
@@ -318,7 +614,11 @@ export default class RgaVariantAllelePairs extends LitElement {
                 "MGP:ALL",
                 "DISCOVER:ALL",
                 "UK10K:ALL"
-            ]
+            ],
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            }
         };
     }
 
@@ -327,7 +627,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            `;
+        `;
     }
 
 }
