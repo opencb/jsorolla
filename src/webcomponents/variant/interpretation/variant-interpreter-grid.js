@@ -772,6 +772,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
                     title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"

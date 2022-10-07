@@ -166,7 +166,7 @@ export default class OpencbGridToolbar extends LitElement {
                                                 <li>
                                                     <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                         <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                        <label class="checkmark-label">${item.title}</label>
+                                                        <label class="checkmark-label">${item.columnTitle || item.title}</label>
                                                     </a>
                                                 </li>`) :
                                             null}
