@@ -494,8 +494,9 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     populationFrequenciesFormatter(value, row, index) {
-        if (row && row.annotation?.populationFrequencies) {
-            const popFreqMap = new Map();
+        const popFreqMap = new Map();
+        // Fill the map with the freqs if there are any
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             // eslint-disable-next-line guard-for-in
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -504,10 +505,8 @@ export default class VariantBrowserGrid extends LitElement {
                     popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
-        } else {
-            return "-";
         }
+        return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
     }
 
     onCheck(e) {

@@ -831,12 +831,15 @@ export default class VariantGridFormatter {
             } else {
                 freq = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `<div>
-                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
-                            </span>
-                            <span style='font-weight: bold'>${freq}</span>
-                        </div>`;
+            tooltip += `
+                <div>
+                    <span>
+                        <i class="fa fa-xs fa-square" style="color:${color};" aria-hidden="true"></i>
+                        <label style="padding-left:5px;width:120px;">${arr[0]}:</label>
+                    </span>
+                    <span style="font-weight:bold;">${freq}</span>
+                </div>
+            `;
         }
 
         // Create the table (with the tooltip info)

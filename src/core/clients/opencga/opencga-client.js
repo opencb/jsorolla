@@ -68,9 +68,9 @@ export class OpenCGAClient {
                 }));
         };
         try {
-            const about = await this.meta().about();
-            if (about.getResult(0)) {
-                globalEvent("hostInit", {host: "opencga", value: "v" + about.getResult(0)["Version"]});
+            this.about = await this.meta().about();
+            if (this.about.getResult(0)) {
+                globalEvent("hostInit", {host: "opencga", value: "v" + this.about.getResult(0)["Version"]});
             } else {
                 globalEvent("signingInError", {value: "Opencga host not available."});
                 globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
@@ -342,7 +342,9 @@ export class OpenCGAClient {
                 _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
-                        const session = {};
+                        const session = {
+                            about: this.about?.responses[0]?.results[0]
+                        };
                         try {
                             session.user = response.getResult(0);
                             session.token = _this._config.token;
