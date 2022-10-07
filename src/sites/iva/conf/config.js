@@ -810,6 +810,15 @@ const SUITE = {
                     description: "",
                     visibility: "public",
                     featured: true,
+                },
+                {
+                    id: "study-variant-configuration",
+                    name: "Study VariantConfiguration",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
                 }
             ],
             fileExplorer: {

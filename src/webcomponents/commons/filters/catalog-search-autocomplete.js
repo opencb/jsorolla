@@ -73,6 +73,17 @@ export default class CatalogSearchAutocomplete extends LitElement {
 
     opencgaSessionObserver() {
         this.RESOURCES = {
+            "PROJECT": {
+                searchField: "id",
+                placeholder: "project...",
+                client: this.opencgaSession.opencgaClient.projects(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id,name"
+                }
+            },
             "SAMPLE": {
                 searchField: "id",
                 placeholder: "HG01879, HG01880, HG01881...",

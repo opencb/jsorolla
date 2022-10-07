@@ -86,6 +86,7 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/study/admin/variant/study-variant-configuration.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
@@ -221,6 +222,7 @@ class IvaApp extends LitElement {
             "projects-admin",
             "opencga-admin",
             "study-admin",
+            "study-variant-configuration",
             "rest-api"];
 
         for (const component of components) {
@@ -1754,6 +1756,17 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["study-variant-configuration"] ? html`
+                    <tool-header title="Study Admin" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <study-variant-configuration
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-variant-configuration>
                     </div>
                 ` : null}
 
