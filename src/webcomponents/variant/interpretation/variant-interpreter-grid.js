@@ -772,6 +772,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
                     title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
@@ -821,6 +822,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
+                    eligible: false,
                     formatter: (value, row) => {
                         let copiesHtml = "";
                         if (this._config.copies) {

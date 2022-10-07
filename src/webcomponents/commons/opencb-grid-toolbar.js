@@ -161,19 +161,17 @@ export default class OpencbGridToolbar extends LitElement {
                                         <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm checkbox-container">
-                                        ${this._config.columns.length ?
-                                            this._config.columns.filter(item => item.eligible ?? true).map(item => html`
-                                                <li>
-                                                    <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                        <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                        <label class="checkmark-label">${item.title}</label>
-                                                    </a>
-                                                </li>`) :
-                                            null}
+                                        ${(this._config?.columns || []).filter(item => item.eligible ?? true).map(item => html`
+                                            <li>
+                                                <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                    <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
+                                                    <label class="checkmark-label">${item.columnTitle || item.title}</label>
+                                                </a>
+                                            </li>
+                                        `)}
                                     </ul>
                                 </div>
-                            ` : null
-                            }
+                            ` : null}
 
                             ${this._config.showDownload ? html`
                                 <div class="btn-group">
@@ -188,8 +186,7 @@ export default class OpencbGridToolbar extends LitElement {
                                         `) : null}
                                     </ul>
                                 </div>
-                            ` : null
-                            }
+                            ` : null}
 
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
@@ -200,21 +197,18 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null}
 
-
                             <!--Share URL-->
                             ${this._config.showShareLink ? html`
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="${this.onShareLink}">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
-                            ` : null
-                            }
+                            ` : null}
 
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
                                         ${rightButton}
-                                </div>`
-                                ) : null
-                            }
+                                </div>
+                            `) : null}
                         </div>
                     </div>
                 </div>
