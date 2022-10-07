@@ -108,7 +108,10 @@ export default class DataForm extends LitElement {
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
                     const [itemIndex, itemFieldId] = right.split(".");
-                    value = _object[parentItemArray][itemIndex]?.[itemFieldId];
+                    // support object nested
+                    value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldId];
+                    // value = _object[parentItemArray][itemIndex]?.[itemFieldId];
+
                 } else {
                     value = this.objectListItems[parentItemArray]?.[right];
                 }
@@ -1358,8 +1361,11 @@ export default class DataForm extends LitElement {
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                         // items have a virtual element associated, this will allow to get the proper value later.
                         for (let i = 0; i< _element.elements.length; i++) {
-                            const [left, right] = _element.elements[i].field.split(".");
-                            _element.elements[i].field = left + "." + index + "." + right;
+                            // const [left, right] = _element.elements[i].field.split(".");
+                            // This support object nested
+                            const [left, right] = _element.elements[i].field.split("[].");
+                            // _element.elements[i].field = left "." + index + "." + right;
+                            _element.elements[i].field = left + "[]." + index + "." + right;
                             if (_element.elements[i].type === "custom") {
                                 _element.elements[i].display.render = element.elements[i].display.render;
                             }
@@ -1492,7 +1498,10 @@ export default class DataForm extends LitElement {
             if (itemField.includes(".")) {
                 // Items in the array
                 const [index, field] = itemField.split(".");
-                this.data[parentArrayField][index][field] = value;
+                // this.data[parentArrayField][index][field] = value;
+                const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
+                currentElementList[index][field] = value;
+                UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
             } else {
                 // Check if value is empty
                 if (value) {

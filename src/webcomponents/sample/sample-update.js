@@ -146,6 +146,8 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
+            case "collection.from":
+            case "phenotypes":
             case "source":
             // case "collection.tissue":
                 // Nested Object
@@ -162,6 +164,7 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
+                // const value = {...e.detail.value, date: UtilsNew.dateFormatter(e.detail.value.date)};
                 this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
@@ -169,17 +172,8 @@ export default class SampleUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "collection.from":
-            case "phenotypes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
-                break;
         }
+        console.log("params:", param, ", updateParams:", this.updateParams);
         this.requestUpdate();
     }
 

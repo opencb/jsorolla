@@ -264,9 +264,10 @@ export default class FormUtils {
 
         const currentValue = UtilsNew.getObjectValue(_original, param, "");
         // Check if they are different
+
         let isDifferent;
         if (Array.isArray(currentValue)) {
-            isDifferent = arraysEqual(currentValue, value);
+            isDifferent = !arraysEqual(currentValue, value);
         } else {
             isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
         }
@@ -276,7 +277,9 @@ export default class FormUtils {
             if (param.includes(".")) {
                 rootFieldName = param.split(".")[0];
             }
-            UtilsNew.setObjectValue(_updateParams, rootFieldName, original[rootFieldName]);
+            // To Avoid reference betweent original and _updateParams.
+            const currentOriginal = {...original};
+            UtilsNew.setObjectValue(_updateParams, rootFieldName, {...currentOriginal[rootFieldName]});
         } else {
             UtilsNew.deleteObjectValue(_updateParams, param);
             // const parts = param.split(".").slice(0, -1);
