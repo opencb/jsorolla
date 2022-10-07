@@ -1382,7 +1382,7 @@ export default class DataForm extends LitElement {
                                         </button>` : null}
                                 </div>
                             </div>
-                            <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
+                            <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
                                 ${this._createObjectElement(_element)}
                                 <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
                                     <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
@@ -1438,42 +1438,50 @@ export default class DataForm extends LitElement {
 
     #addToObjectList(e, element) {
         // Check if object array exists
-        if (!this.data[element.field]) {
-            this.data[element.field] = [];
-        }
+        // if (!this.data[element.field]) {
+        //     this.data[element.field] = [];
+        // }
 
         // Add the new item to the array and delete the temp item
         if (this.objectListItems[element.field]) {
-            this.data[element.field].push(this.objectListItems[element.field]);
+            const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
+            UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
+            // this.data[element.field].push(this.objectListItems[element.field]);
             delete this.objectListItems[element.field];
         }
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "added", this.data[element.field].length - 1);
+        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        this.onFilterChange(element, dataElementList, "added", dataElementList.length - 1);
 
         // TODO clear the nested form
         // ...
     }
 
     #editItemOfObjectList(e, item, index, element) {
-        const htmlElement = document.getElementById(this._prefix + "_" + index);
+
+        // const htmlElement = document.getElementById(this._prefix + "_" + index);
+        const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
     #saveItemInObjectList(e, item, index, element) {
-        const htmlElement = document.getElementById(this._prefix + "_" + index);
+        // const htmlElement = document.getElementById(this._prefix + "_" + index);
+        const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "updated", index);
+        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        this.onFilterChange(element, dataElementList, "updated", index);
     }
 
     #removeFromObjectList(e, item, index, element) {
         // Delete the removed item
-        this.data[element.field].splice(index, 1);
+        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        dataElementList.splice(index, 1);
 
         // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "removed", index);
+        this.onFilterChange(element, dataElementList, "removed", index);
     }
 
     onFilterChange(element, value, objectListAction, objectListIndex) {
@@ -1520,33 +1528,31 @@ export default class DataForm extends LitElement {
             if (isObjectType) {
                 // Make sure the object field exists
                 // ----------------------
-                // issue: It's pass 'processing.product' as objectFieldName;
+                // issue:Example: It's pass 'processing.product' as objectFieldName;
                 // instead create processing as object and then product inside processing.
                 // ----------------------
-                if (!this.data[objectFieldName]) {
-                    this.data[objectFieldName] = {};
-                }
+                // if (!this.data[objectFieldName]) {
+                //     this.data[objectFieldName] = {};
+                // }
 
                 if (value) {
-                    this.data[objectFieldName][elementFieldName] = value;
-                    // UtilsNew.setObjectValue(this.data, element.field, value);
+                    // this.data[objectFieldName][elementFieldName] = value;
+                    UtilsNew.setObjectValue(this.data, element.field, value);
                 } else {
                     // not sure about this one
-                    // TODO: verify it object not exist first and remove
-                    // UtilsNew.deleteObjectValue(this.data, objectFieldName);
-                    delete this.data[objectFieldName][elementFieldName];
+                    UtilsNew.deleteObjectValue(this.data, element.field);
+                    // delete this.data[objectFieldName][elementFieldName];
                 }
+
+                // detail = {
+                //     param: objectFieldName,
+                //     value: this.data[objectFieldName]
+                // };
 
                 detail = {
                     param: objectFieldName,
-                    value: this.data[objectFieldName]
+                    value: UtilsNew.getObjectValue(this.data, objectFieldName, "")
                 };
-
-                // Return entire object
-                // detail = {
-                //     param: objectFieldName,
-                //     value: UtilsNew.getObjectValue(this.data, objectFieldName, "")
-                // };
             } else {
                 detail = {
                     param: element.field,
