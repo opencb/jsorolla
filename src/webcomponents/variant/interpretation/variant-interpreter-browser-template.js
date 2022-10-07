@@ -266,9 +266,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
         this.currentQueryBeforeSaveEvent = this.query;
 
-        // Save current query in the added variants
-        this.clinicalAnalysisManager.state.addedVariants?.forEach(variant => variant.filters = this.query);
-
         const comment = e.detail.comment;
         this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {

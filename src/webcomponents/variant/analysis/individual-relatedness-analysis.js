@@ -1,4 +1,4 @@
-/* select
+/*
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,13 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
-export default class ExomiserAnalysis extends LitElement {
+
+export default class IndividualRelatednessAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -35,36 +37,38 @@ export default class ExomiserAnalysis extends LitElement {
     static get properties() {
         return {
             toolParams: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             title: {
-                type: String
-            },
+                type: String,
+            }
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "individual-relatedness";
+        this.ANALYSIS_TITLE = "Individual Relatedness";
+        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify relatedness between samples";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            minorAlleleFreq: "1000G:ALL>0.3",
+        };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.clinicalAnalysis = "";
+        this.individual = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.individual = this.toolParams.individual || "";
         }
     }
 
@@ -80,7 +84,7 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return !!this.toolParams.individuals || !!this.toolParams.samples;
     }
 
     onFieldChange(e, field) {
@@ -95,16 +99,18 @@ export default class ExomiserAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            samples: this.toolParams.samples?.split(",") || [],
+            individuals: this.toolParams.individuals?.split(",") || [],
+            minorAlleleFreq: this.toolParams.minorAlleleFreq
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runRelatedness(toolParams, params),
             this,
         );
     }
@@ -112,8 +118,7 @@ export default class ExomiserAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysis,
+            individual: this.individual,
         };
         this.config = this.getDefaultConfig();
     }
@@ -136,23 +141,51 @@ export default class ExomiserAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        title: "Select individuals",
+                        field: "individuals",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
+                            helpMessage: "Individual Ids",
+                            render: individuals => html `
                                 <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
+                                    .value="${individuals}"
+                                    .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.samples}}"
+                                    @filterChange="${e => this.onFieldChange(e, "individuals")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
+                    {
+                        title: "Select samples",
+                        field: "samples",
+                        type: "custom",
+                        display: {
+                            render: samples => html `
+                                <catalog-search-autocomplete
+                                    .value="${samples}"
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
+                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                </catalog-search-autocomplete>
+                            `
+                        },
+                    },
                 ],
             },
+            {
+                title: "Configuration Parameters",
+                elements: [
+                    {
+                        title: "Select minor allele frequency",
+                        field: "minorAlleleFreq",
+                        type: "input-text",
+                        display: {}
+                    },
+                ],
+            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -160,10 +193,10 @@ export default class ExomiserAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check(),
+            this.check()
         );
     }
 
 }
 
-customElements.define("exomiser-analysis", ExomiserAnalysis);
+customElements.define("individual-relatedness-analysis", IndividualRelatednessAnalysis);

@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaVariantExporterAnalysis extends LitElement {
+export default class OpencgaInferredSexAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,11 +61,11 @@ export default class OpencgaVariantExporterAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "variant-exporter",
-            title: "Variant Exporter",
+            id: "inferred-sex",
+            title: "Inferred Sex Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Filter and export variants from the variant storage to a file",
+            description: "Inferred Sex description",
             links: [
                 {
                     title: "OpenCGA",
@@ -86,66 +86,42 @@ export default class OpencgaVariantExporterAnalysis extends LitElement {
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
+                                // colspan: 6
                             },
                             {
-                                id: "family",
-                                title: "Select Families",
-                                type: "FAMILY_FILTER",
+                                id: "individual",
+                                title: "Select Individual",
+                                type: "INDIVIDUAL_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
+                                // colspan: 6
                             },
                         ]
                     },
-                    {
-                        title: "Filters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "region",
-                                title: "Select Region",
-                                type: "text"
-                            },
-                            {
-                                id: "gene",
-                                title: "Select gene",
-                                type: "text"
-                            },
-                            {
-                                id: "biotype",
-                                title: "Select biotype",
-                                type: "category",
-                                defaultValue: "protein_coding",
-                                allowedValues: ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene",
-                                    "IG_J_pseudogene", "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene",
-                                    "TR_J_gene", "TR_J_pseudogene", "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA",
-                                    "misc_RNA", "non_stop_decay", "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene",
-                                    "processed_transcript", "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic",
-                                    "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
-                                ]
-                            },
-                        ]
-                    }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "variant-exporter-$DATE",
+                    id: "inferred-sex-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {outputFormat: "TEXT"};
-                data.sample ? body.sample = data.sample.join(",") : null;
-                data.family ? body.family = data.family.join(",") : null;
-                data.gene ? body.gene = data.gene.join(",") : null;
-                data.biotype ? body.biotype = data.biotype.join(",") : null;
-                opencgaSession.opencgaClient.variants().runExport(body, params);
+                const _data = {};
+                if (data) {
+                    if (data.individual) {
+                        _data.individual = data.individual.join(",");
+                    }
+                    if (data.sample) {
+                        _data.sample = data.sample.join(",");
+                    }
+                }
+                opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
             },
             result: {
             }
@@ -157,6 +133,7 @@ export default class OpencgaVariantExporterAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
-customElements.define("opencga-variant-exporter-analysis", OpencgaVariantExporterAnalysis);
+customElements.define("opencga-inferred-sex-analysis", OpencgaInferredSexAnalysis);

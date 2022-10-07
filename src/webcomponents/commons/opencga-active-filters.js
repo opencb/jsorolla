@@ -756,7 +756,7 @@ export default class OpencgaActiveFilters extends LitElement {
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <!-- Render dropdown menu with all filters and history -->
-                    <div>
+                    <div style="display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center;">
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
                             <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
@@ -827,7 +827,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 `}
                             ` : html`
                                 <!-- Multi-valued filters -->
-                                <div class="btn-group">
+                                <div class="btn-group" style="display:flex;">
                                     ${item.locked ? html`
                                         <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
                                                 @click="${this.onQueryFilterDelete}" disabled>

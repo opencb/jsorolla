@@ -1,4 +1,4 @@
-/* select
+/*
  * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,13 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
-export default class ExomiserAnalysis extends LitElement {
+
+export default class FamilyQcAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -35,36 +37,38 @@ export default class ExomiserAnalysis extends LitElement {
     static get properties() {
         return {
             toolParams: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             title: {
-                type: String
-            },
+                type: String,
+            }
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.ANALYSIS_TOOL = "family-qc";
+        this.ANALYSIS_TITLE = "Family Quality Control";
+        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            relatednessMaf: "1000G:ALL>0.3",
+        };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.clinicalAnalysis = "";
+        this.family = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.family = this.toolParams.family || "";
         }
     }
 
@@ -80,7 +84,7 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return !!this.toolParams.family;
     }
 
     onFieldChange(e, field) {
@@ -95,16 +99,17 @@ export default class ExomiserAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            family: this.toolParams.family,
+            minorAlleleFreq: this.toolParams.minorAlleleFreq
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
+            this.opencgaSession.opencgaClient.variants()
+                .runFamilyQc(toolParams, params),
             this,
         );
     }
@@ -112,8 +117,7 @@ export default class ExomiserAnalysis extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysis,
+            family: this.family,
         };
         this.config = this.getDefaultConfig();
     }
@@ -136,23 +140,37 @@ export default class ExomiserAnalysis extends LitElement {
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        title: "Select Family",
+                        field: "family",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
+                            render: family => html `
                                 <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
+                                    .value="${family}"
+                                    .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
+                                    .config="${{multiple: false, disabled: !!this.family}}"
+                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
                                 </catalog-search-autocomplete>
                             `,
+                            help: {
+                                text: "Select a family to run QC"
+                            },
                         },
                     },
                 ],
             },
+            {
+                title: "Configuration Parameters",
+                elements: [
+                    {
+                        title: "Select minor allele frequency",
+                        field: "relatednessMaf",
+                        type: "input-text",
+                        display: {}
+                    },
+                ],
+            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -160,10 +178,10 @@ export default class ExomiserAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check(),
+            this.check()
         );
     }
 
 }
 
-customElements.define("exomiser-analysis", ExomiserAnalysis);
+customElements.define("family-qc-analysis", FamilyQcAnalysis);

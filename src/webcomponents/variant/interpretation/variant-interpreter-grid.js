@@ -772,6 +772,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
                     title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
@@ -821,6 +822,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
+                    eligible: false,
                     formatter: (value, row) => {
                         let copiesHtml = "";
                         if (this._config.copies) {
@@ -1271,6 +1273,8 @@ export default class VariantInterpreterGrid extends LitElement {
         const variant = this._rows.find(e => e.id === variantId);
 
         if (e.currentTarget.checked) {
+            // Add current filter executed when variant is checked
+            variant.filters = {...this.filters};
             this.checkedVariants.set(variantId, variant);
         } else {
             this.checkedVariants.delete(variantId);
@@ -1325,7 +1329,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReviewChange(e) {
         this.variantReview = e.detail.value;
-        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
     }
 
     onVariantReviewOk() {

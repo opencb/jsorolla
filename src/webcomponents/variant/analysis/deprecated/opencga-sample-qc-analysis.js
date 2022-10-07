@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaGwasAnalysis extends LitElement {
+export default class OpencgaSampleQcAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,11 +61,11 @@ export default class OpencgaGwasAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "gwas",
-            title: "GWAS",
+            id: "sample-qc",
+            title: "Sample Quality Control",
             icon: "",
             requires: "2.0.0",
-            description: "GWAS description",
+            description: "Run quality control (QC) for a given sample. It includes variant stats, FastQC,samtools/flagstat, picard/CollectHsMetrics and gene coverage stats; and for somatic samples, mutational signature",
             links: [
                 {
                     title: "OpenCGA",
@@ -76,114 +76,114 @@ export default class OpencgaGwasAnalysis extends LitElement {
             form: {
                 sections: [
                     {
-                        title: "Case Cohort Parameters",
+                        title: "Input Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "caseCohort",
-                                title: "Select cohort",
-                                type: "COHORT_FILTER",
+                                id: "sample",
+                                title: "Select samples",
+                                type: "SAMPLE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Variant Stats Parameters",
+                        collapsed: false,
+                        parameters: [
                             {
-                                id: "caseCohortSamples",
-                                title: "Select cohort samples",
+                                id: "variantStatsId",
+                                title: "Choose variant stats id",
                                 type: "text"
                             },
                             {
-                                id: "caseCohortSamplesAnnotation",
-                                title: "Select cohort sample annotation",
+                                id: "variantStatsDescription",
+                                title: "Variant stats description",
+                                type: "text"
+                            },
+                            {
+                                id: "variantStatsQuery",
+                                title: "Variant stats query",
                                 type: "text"
                             }
                         ]
                     },
                     {
-                        title: "Control Cohort Parameters",
+                        title: "Signature Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "controlCohort",
-                                title: "Select cohort",
-                                type: "COHORT_FILTER",
-                                addButton: true,
-                                showList: true,
-                                fileUpload: true
-                                // colspan: 6
-                            },
-                            {
-                                id: "controlCohortSamples",
-                                title: "Select cohort samples",
+                                id: "signatureId",
+                                title: "Choose signature id",
                                 type: "text"
                             },
                             {
-                                id: "controlCohortSamplesAnnotation",
-                                title: "Select cohort sample annotation",
+                                id: "signatureQuery",
+                                title: "Signature query",
                                 type: "text"
                             }
                         ]
                     },
                     {
-                        title: "Configuration Parameters",
+                        title: "Gene Coverage Parameters",
                         collapsed: false,
                         parameters: [
                             {
-                                id: "method",
-                                title: "Select association test",
-                                type: "category",
-                                required: true,
-                                defaultValue: "FISHER_TEST",
-                                allowedValues: ["FISHER_TEST", "CHI_SQUARE_TEST"],
-                                multiple: false,
-                                // colspan: 6
-                                //maxOptions: 1 //you don't need to define maxOptions if multiple=false
-                            },
-                            {
-                                id: "fisherMode",
-                                title: "Select Fisher mode",
-                                type: "category",
-                                defaultValue: "GREATER",
-                                allowedValues: ["GREATER", "LESS", "TWO_SIDED"],
-                                multiple: false,
-                                // colspan: 6,
-                                dependsOn: "method == FISHER_TEST"
-                            },
-                            {
-                                id: "phenotype",
-                                title: "Select phenotype",
+                                id: "genesForCoverageStats",
+                                title: "List of genes for coverage stats",
                                 type: "text"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Piccard HsMetrics Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "fastaFile",
+                                title: "Fasta file",
+                                type: "FILE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             },
                             {
-                                id: "index",
-                                title: "Index results",
-                                type: "boolean"
+                                id: "baitFile",
+                                title: "Bait file",
+                                type: "FILE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             },
                             {
-                                id: "indexScoreId",
-                                title: "Index score id",
-                                type: "text"
+                                id: "targetFile",
+                                title: "Target file",
+                                type: "FILE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "gwas-$DATE",
+                    id: "sample-qc-$DATE",
                     tags: "",
                     description: "",
-                    validation: function(params) {
+                    validation: function (params) {
                         alert("test:" + params);
                     },
                     button: "Run"
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
-                data.phenotype ? body.phenotype = data.phenotype[0] : null;
-                data.method ? body.method = data.method[0] : null;
-                data.fisherMode ? body.fisherMode = data.fisherMode[0] : null;
-                opencgaSession.opencgaClient.variants().runGwas(body, params);
+                const body = {};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                data.genesForCoverageStats ? body.genesForCoverageStats = data.genesForCoverageStats.join(",") : null;
+                opencgaSession.opencgaClient.variants().runSampleQc(body, params);
             },
             result: {
             }
@@ -195,6 +195,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
            <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
+
 }
 
-customElements.define("opencga-gwas-analysis", OpencgaGwasAnalysis);
+customElements.define("opencga-sample-qc-analysis", OpencgaSampleQcAnalysis);
