@@ -261,10 +261,9 @@ export default class FormUtils {
             ...updateParams
         };
 
-
         const currentValue = UtilsNew.getObjectValue(_original, param, "");
-        // Check if they are different
 
+        // Check if they are different
         let isDifferent;
         if (Array.isArray(currentValue)) {
             isDifferent = !arraysEqual(currentValue, value);
@@ -273,16 +272,14 @@ export default class FormUtils {
         }
         if (isDifferent) {
             UtilsNew.setObjectValue(original, param, value);
-            let rootFieldName = param;
-            if (param.includes(".")) {
-                rootFieldName = param.split(".")[0];
-            }
+            const rootFieldName = param.split(".")[0];
+
             // To Avoid reference betweent original and _updateParams.
-            const currentOriginal = {...original};
-            UtilsNew.setObjectValue(_updateParams, rootFieldName, {...currentOriginal[rootFieldName]});
+            UtilsNew.setObjectValue(_updateParams, rootFieldName, {...original[rootFieldName]});
         } else {
             UtilsNew.deleteObjectValue(_updateParams, param);
-            // const parts = param.split(".").slice(0, -1);
+
+            // Check if the parent is empty to remove from updateParams
             const props = param.split(".").slice(0, -1);
             const length = props.length;
             for (let i = 0; i < length; i++) {

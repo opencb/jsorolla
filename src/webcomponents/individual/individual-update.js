@@ -135,14 +135,13 @@ export default class IndividualUpdate extends LitElement {
             case "karyotypicSex":
             case "lifeStatus":
             case "population": // object
-            case "status": // object
             case "location": // object
             case "sex": // object
             case "ethnicity": // object
             case "samples": // arrays
             case "phenotypes": // arrays
             case "disorders": // arrays
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._individual,
                     this.individual,
                     this.updateParams,
@@ -151,7 +150,7 @@ export default class IndividualUpdate extends LitElement {
                 break;
             case "dateOfBirth": // date
                 const value = e.detail.value.substring(0, 8);
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._individual,
                     this.individual,
                     this.updateParams,
@@ -159,7 +158,6 @@ export default class IndividualUpdate extends LitElement {
                     value);
                 break;
         }
-        console.log("params:", param, ", updateParams:", this.updateParams);
         this.requestUpdate();
     }
 

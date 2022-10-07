@@ -149,6 +149,8 @@ export default class FamilyUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
+                // INFO Warning: Date is removed because it is missing in StatusParams.java
+                delete e.detail.value?.date;
                 this.updateParams = FormUtils.updateObjExperimental(
                     this._family,
                     this.family,
@@ -178,7 +180,7 @@ export default class FamilyUpdate extends LitElement {
         this.#setLoading(true);
         // CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
-        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.family[key]);
+        // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.family[key]);
         this.opencgaSession.opencgaClient.families()
             .update(this.family.id, this.updateParams, params)
             .then(response => {
@@ -192,7 +194,7 @@ export default class FamilyUpdate extends LitElement {
             .catch(reason => {
                 this.family = {};
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();

@@ -164,7 +164,8 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
-                // const value = {...e.detail.value, date: UtilsNew.dateFormatter(e.detail.value.date)};
+                // INFO Warning: Date is removed because it is missing in StatusParams.java
+                delete e.detail.value?.date;
                 this.updateParams = FormUtils.updateObjExperimental(
                     this._sample,
                     this.sample,
@@ -207,7 +208,7 @@ export default class SampleUpdate extends LitElement {
             .catch(reason => {
                 this.sample = {};
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();

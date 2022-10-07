@@ -117,7 +117,7 @@ export default class IndividualCreate extends LitElement {
             })
             .catch(reason => {
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this.individual = {};

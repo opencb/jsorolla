@@ -147,6 +147,8 @@ export default class CohortUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
+                // INFO Warning: Date is removed because it is missing in StatusParams.java
+                delete e.detail.value?.date;
                 this.updateParams = FormUtils.updateObjExperimental(
                     this._cohort,
                     this.cohort,
@@ -176,7 +178,7 @@ export default class CohortUpdate extends LitElement {
         this.#setLoading(true);
         // CAUTION: workaround for avoiding overwrite non updated keys in an object.
         //  Remove when form-utils.js revisited
-        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.cohort[key]);
+        // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.cohort[key]);
         this.opencgaSession.opencgaClient.cohorts()
             .update(this.cohort.id, this.updateParams, params)
             .then(response => {
@@ -190,7 +192,7 @@ export default class CohortUpdate extends LitElement {
             .catch(reason => {
                 this.cohort = {};
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this._config = this.getDefaultConfig();

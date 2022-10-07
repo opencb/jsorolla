@@ -144,7 +144,7 @@ export default class SampleCreate extends LitElement {
             })
             .catch(reason => {
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this.sample = {};

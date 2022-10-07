@@ -127,11 +127,10 @@ export default class FamilyCreate extends LitElement {
                     title: "Family Create",
                     message: "New family created correctly"
                 });
-                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this.family = {};
