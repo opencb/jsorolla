@@ -218,9 +218,12 @@ class IvaApp extends LitElement {
             "disease-panel",
             "diseasePanelUpdate",
             "clinicalAnalysis",
+            // Admin
             "projects-admin",
             "opencga-admin",
             "study-admin",
+            "variants-admin",
+            // REST-API
             "rest-api"];
 
         for (const component of components) {
@@ -1743,6 +1746,16 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                         </projects-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["variant-admin"] ? html`
+                    <tool-header title="Variant Admin" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <variants-admin
+                                .study="${this.opencgaSession.study}"
+                                .opencgaSession="${this.opencgaSession}">
+                        </variants-admin>
                     </div>
                 ` : null}
 

@@ -794,6 +794,33 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "study-admin",
+                    name: "Study configuration",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
+                {
+                    id: "variant-admin",
+                    name: "Variant database",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: false,
+                },
+                {
+                    id: "catalog-admin",
+                    name: "Catalog Management",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: false,
+                },
+                {
                     id: "projects-admin",
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
@@ -802,15 +829,6 @@ const SUITE = {
                     visibility: "public",
                     featured: true,
                 },
-                {
-                    id: "study-admin",
-                    name: "Study Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: true,
-                }
             ],
             fileExplorer: {
                 visibility: "private"
