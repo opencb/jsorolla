@@ -131,7 +131,6 @@ export default class SampleUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        console.log("Sample Data:", param, e.detail.value);
         switch (param) {
             case "id":
             case "description":
@@ -181,7 +180,6 @@ export default class SampleUpdate extends LitElement {
                 );
                 break;
         }
-        console.log("Update Sample", this.updateParams);
         this.requestUpdate();
     }
 
