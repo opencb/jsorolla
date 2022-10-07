@@ -173,7 +173,6 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
-        console.log("params:", param, ", updateParams:", this.updateParams);
         this.requestUpdate();
     }
 
@@ -237,24 +236,6 @@ export default class SampleUpdate extends LitElement {
             </div>
         `;
     }
-
-    // onAddOrUpdateItem(e) {
-    //     switch (e.detail.param) {
-    //         case "collection.from":
-    //         // case "phenotypes":
-    //             this.updateParams = FormUtils.updateArraysObject(
-    //                 this._sample,
-    //                 this.sample,
-    //                 this.updateParams,
-    //                 e.detail.param,
-    //                 e.detail.value
-    //             );
-    //             break;
-    //         case "annotationSets":
-    //             break;
-    //     }
-    //     this.requestUpdate();
-    // }
 
     render() {
         if (this.isLoading) {

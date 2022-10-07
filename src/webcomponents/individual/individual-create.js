@@ -297,23 +297,6 @@ export default class IndividualCreate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Sex",
-                        //     field: "sex",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: sex => html`
-                        //             <ontology-term-annotation-create
-                        //                 .displayConfig="${{
-                        //                     defaultLayout: "vertical",
-                        //                     buttonsVisible: false,
-                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //                 }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "sex")}">
-                        //             </ontology-term-annotation-create>
-                        //         `,
-                        //     },
-                        // },
                         {
                             title: "Ethnicity",
                             field: "ethnicity",
@@ -354,23 +337,6 @@ export default class IndividualCreate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Ethnicity",
-                        //     field: "ethnicity",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: ethnicity => html`
-                        //             <ontology-term-annotation-create
-                        //                 .displayConfig="${{
-                        //                     defaultLayout: "vertical",
-                        //                     buttonsVisible: false,
-                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //                 }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
-                        //             </ontology-term-annotation-create>
-                        //         `,
-                        //     },
-                        // },
                         {
                             title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
@@ -480,99 +446,6 @@ export default class IndividualCreate extends LitElement {
                         }
                     ],
                 },
-                // {
-                //     title: "Location Info",
-                //     elements: [
-                //         {
-                //             title: "Location",
-                //             field: "location",
-                //             type: "object",
-                //             elements: [
-                //                 {
-                //                     title: "Address",
-                //                     field: "location.address",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the location info...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "Postal code",
-                //                     field: "location.postalCode",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the postal code...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "City",
-                //                     field: "location.city",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the city name...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "State",
-                //                     field: "location.state",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the state name...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "Country",
-                //                     field: "location.country",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the country name...",
-                //                     },
-                //                 },
-                //             ]
-                //         }
-                //     ],
-                // },
-                // {
-                //     title: "Population Info",
-                //     elements: [
-                //         {
-                //             title: "Population",
-                //             field: "population",
-                //             type: "object",
-                //             elements: [
-                //                 {
-                //                     title: "Population Name",
-                //                     field: "population.name",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the population name...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "Sub-population",
-                //                     field: "population.subpopulation",
-                //                     type: "input-text",
-                //                     display: {
-                //                         placeholder: "Add the sub-population name...",
-                //                     },
-                //                 },
-                //                 {
-                //                     title: "Population Description",
-                //                     field: "population.description",
-                //                     type: "input-text",
-                //                     validation: {
-                //                         validate: () => this.individual?.population?.description ? !!this.individual?.population?.name : true,
-                //                         message: "The population name must be filled",
-                //                     },
-                //                     display: {
-                //                         rows: 3,
-                //                         placeholder: "Add a description about the population...",
-                //                     },
-                //                 },
-                //             ]
-                //         }
-                //     ],
-                // },
                 {
                     title: "Phenotypes",
                     elements: [
@@ -642,113 +515,6 @@ export default class IndividualCreate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Phenotypes",
-                //     elements: [
-                //         {
-                //             title: "Phenotype",
-                //             field: "phenotypes",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (pheno, callback) => html`
-                //                     <ontology-term-annotation-update
-                //                         .ontology="${pheno}"
-                //                         .entity="${"phenotype"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Save",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @updateItem="${callback}">
-                //                     </ontology-term-annotation-update>
-                //                 `,
-                //                 renderCreate: (pheno, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"phenotype"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `
-                //             }
-                //         },
-                //     ]
-                // },
-                // {
-                //     title: "Disorder",
-                //     elements: [
-                //         {
-                //             title: "",
-                //             type: "notification",
-                //             text: "Empty, create a new disorder",
-                //             display: {
-                //                 visible: individual => !(individual?.diosrders && individual?.disorders.length > 0),
-                //                 notificationType: "info",
-                //             }
-                //         },
-                //         {
-                //             field: "disorders",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: individual => html`
-                //                 <!-- Pass 'this.individual' to reflect the changes -->
-                //                     <disorder-list-update
-                //                         .disorders="${this.individual?.disorders}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeDisorders="${e => this.onFieldChange(e, "disorders")}">
-                //                     </disorder-list-update>`
-                //             }
-                //         }
-                //     ]
-                // },
-                // {
-                //     title: "Disorders",
-                //     elements: [
-                //         {
-                //             title: "Disorder",
-                //             field: "disorders",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (disorder, callback) => html`
-                //                     <ontology-term-annotation-update
-                //                         .ontology="${disorder}"
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Save",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @updateItem="${callback}">
-                //                     </ontology-term-annotation-update>
-                //                 `,
-                //                 renderCreate: (disorder, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <ontology-term-annotation-create
-                //                         .entity="${"disorder"}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </ontology-term-annotation-create>
-                //                 `
-                //             }
-                //         },
-                //     ]
-                // },
                 {
                     title: "Disorders",
                     elements: [

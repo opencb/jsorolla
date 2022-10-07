@@ -141,7 +141,7 @@ export default class FamilyUpdate extends LitElement {
             case "name":
             case "description":
             case "expectedSize":
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._family,
                     this.family,
                     this.updateParams,
@@ -149,7 +149,7 @@ export default class FamilyUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
-                this.updateParams = FormUtils.updateObjectWithObj(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._family,
                     this.family,
                     this.updateParams,
@@ -283,42 +283,6 @@ export default class FamilyUpdate extends LitElement {
                                 }
                             },
                         },
-                        // {
-                        //     title: "Individual ID",
-                        //     field: "individualId",
-                        //     type: "custom",
-                        //     display: {
-                        //         placeholder: "e.g. Homo sapiens, ...",
-                        //         render: () => html`
-                        //             <individual-id-autocomplete
-                        //                 .value="${this.members}"
-                        //                 .opencgaSession="${this.opencgaSession}"
-                        //                 @filterChange="${e => this.onSync(e, "members")}">
-                        //             </individual-id-autocomplete>`
-                        //     }
-                        // },
-                        // {
-                        //     title: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
-                        // {
-                        //     title: "Modification Date",
-                        //     field: "modificationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
                         {
                             title: "Expected Size",
                             field: "expectedSize",

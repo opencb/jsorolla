@@ -139,7 +139,7 @@ export default class CohortUpdate extends LitElement {
             case "name":
             case "description":
             case "type":
-                this.updateParams = FormUtils.updateObjectParams(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._cohort,
                     this.cohort,
                     this.updateParams,
@@ -147,7 +147,7 @@ export default class CohortUpdate extends LitElement {
                     e.detail.value);
                 break;
             case "status":
-                this.updateParams = FormUtils.updateObjectWithObj(
+                this.updateParams = FormUtils.updateObjExperimental(
                     this._cohort,
                     this.cohort,
                     this.updateParams,

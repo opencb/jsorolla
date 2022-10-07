@@ -112,7 +112,6 @@ export default class SampleCreate extends LitElement {
                 this.sample = {...this.sample, annotationSets: e.detail.value};
                 break;
         }
-        console.log("Sample", this.sample);
         this.requestUpdate();
     }
 

@@ -134,24 +134,14 @@ export default class IndividualUpdate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-            // case "location.address":
-            // case "location.postalCode":
-            // case "location.city":
-            // case "location.state":
-            // case "location.country":
-            // case "population.name":
-            // case "population.subpopulation":
-            // case "population.description":
-            // case "status.name":
-            // case "status.description":
-            // case "sex.id":
-            // case "sex.name":
-            // case "sex.source":
-            // case "sex.description":
-            // case "ethnicity.id":
-            // case "ethnicity.name":
-            // case "ethnicity.source":
-            // case "ethnicity.description":
+            case "population": // object
+            case "status": // object
+            case "location": // object
+            case "sex": // object
+            case "ethnicity": // object
+            case "samples": // arrays
+            case "phenotypes": // arrays
+            case "disorders": // arrays
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
                     this.individual,
@@ -168,30 +158,8 @@ export default class IndividualUpdate extends LitElement {
                     param,
                     value);
                 break;
-            case "population": // object
-            case "status": // object
-            case "location": // object
-            case "sex": // object
-            case "ethnicity": // object
-                this.updateParams = FormUtils.updateObjectWithObj(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "samples": // arrays
-            case "phenotypes": // arrays
-            case "disorders": // arrays
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    param,
-                    e.detail.value
-                );
-                break;
         }
+        console.log("params:", param, ", updateParams:", this.updateParams);
         this.requestUpdate();
     }
 
@@ -352,14 +320,14 @@ export default class IndividualUpdate extends LitElement {
                                         .classes="${this.updateParams.samples ? "selection-updated" : ""}"
                                         .config="${{multiple: true}}"
                                         @filterChange="${e => {
-                                            // We need to convert value from a string wth commas to an array of IDs
-                                            e.detail.value = e.detail.value
-                                                ?.split(",")
-                                                .map(sampleId => {
-                                                    return {id: sampleId};
-                                                });
-                                            this.onFieldChange(e, "samples");
-                                        }}">
+                                    // We need to convert value from a string wth commas to an array of IDs
+                                    e.detail.value = e.detail.value
+                                        ?.split(",")
+                                        .map(sampleId => {
+                                            return {id: sampleId};
+                                        });
+                                    this.onFieldChange(e, "samples");
+                                }}">
                                     </catalog-search-autocomplete>
                                 `,
                             },

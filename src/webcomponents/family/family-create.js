@@ -257,23 +257,6 @@ export default class FamilyCreate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Status",
-                        //     field: "status",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: () => html`
-                        //             <status-create
-                        //                 .displayConfig="${{
-                        //                     defaultLayout: "vertical",
-                        //                     buttonsVisible: false,
-                        //                     width: 12,
-                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //                 }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "status")}">
-                        //             </status-create>`
-                        //     }
-                        // },
                     ]
                 },
                 // {
