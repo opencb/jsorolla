@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "/src/webcomponents/admin/menu-admin.js";
+import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
 
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
@@ -417,12 +417,12 @@ export default class StudyAdmin extends LitElement {
     // }
 
     render() {
-        return html `
-            <menu-admin
-                .study="${this.opencgaSession.study}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
-            </menu-admin>`;
+        return html`
+            <custom-vertical-navbar
+                    .study="${this.opencgaSession.study}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}">
+            </custom-vertical-navbar>`;
     }
 
     getDefaultConfig() {
@@ -433,91 +433,125 @@ export default class StudyAdmin extends LitElement {
         // };
 
         return {
-            title: "Study",
+            id: "",
+            name: "",
+            logo: "",
             icon: "",
-            sections: [
+            visibility: "", // public | private | none
+            // title: "Study",
+            // sections: [
+            items: [
                 {
-                    label: "Configure",
-                    items: [
-                        {
-                            id: "Dashboard",
-                            label: "Dashboard",
-                            icon: html `<i class="fas fa-tachometer-alt"></i>`,
-                            content: html `
-                                <under-construction>
-                                    .title="Study dashboard"
-                                </under-construction>`,
-                        },
-                        {
-                            id: "UsersAndGroups",
-                            label: "Users and Groups",
-                            icon: html `<i class="fas fa-user-friends"></i>`,
-                            content: html `
-                                <study-admin-users
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .study="${this.study}">
-                                </study-admin-users>`,
-                        },
-                        {
-                            id: "Permissions",
-                            label: "Permissions",
-                            icon: html `<i class='fas fa-key'></i>`,
-                            content: html `
-                                <study-admin-permissions
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .study="${this.study}">
-                                </study-admin-permissions>`,
-                        },
-                        {
-                            id: "VariableSets",
-                            label: "Variable Sets",
-                            icon: html `<i class="fas fa-book"></i>`,
-                            content: html`
-                                <study-admin-variable
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .study="${this.study}">
-                                </study-admin-variable>`,
-                        },
-                        {
-                            id: "Audit",
-                            label: "Audit",
-                            icon: html `<i class="fas fa-book"></i>`,
-                            content: html `
-                                <study-admin-audit
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .study="${this.study}">
-                                </study-admin-audit>`,
-                        },
-                        {
-                            id: "Configuration",
-                            label: "Configuration",
-                            icon: html `<i class="fas fa-cog"></i>`,
-                            content: html `
-                                <study-admin-configuration
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .study="${this.study}">
-                                </study-admin-configuration>`,
-                        },
-                    ]
+                    id: "Configure",
+                    name: "Configure",
+                    description: "",
+                    icon: "",
+                    visibility: "",
+                    featured: "", // true | false
+                    category: true, // true | false
+                    // label: "Configure",
                 },
                 {
-                    label: "Operations",
-                    items: [
-                        {
-                            id: "Solr",
-                            label: "Solr",
-                            img: "/sites/iva/img/logos/Solr.png"
-                        },
-                        {
-                            id: "Rysnc",
-                            label: "Rysnc",
-                            img: "/sites/iva/img/logos/Solr.png"
-                        },
-                    ],
+                    separator: true,
+                    visibility: "public"
+                },
+                {
+                    id: "Dashboard",
+                    name: "Dashboard",
+                    // label: "Dashboard",
+                    icon: "fas fa-tachometer-alt",
+                    // QUESTION: Which one: (a) or (b)
+                    // question: (a)
+                    // display: {
+                    //     contentClass: "",
+                    //     contentStyle: ""
+                    //     defaultLayout: "vertical",
+                    //     render: () => html`
+                    //         <under-construction>
+                    //             .title="Study dashboard"
+                    //         </under-construction>`,
+                    // },
+                    // question: (b)
+                    render: () => html`
+                        <under-construction>
+                            .title="Study dashboard"
+                        </under-construction>`,
+                },
+                {
+                    id: "UsersAndGroups",
+                    // label: "Users and Groups",
+                    name: "Users and Groups",
+                    icon: "fas fa-user-friends",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-users
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-users>`,
+                },
+                {
+                    id: "Permissions",
+                    // label: "Permissions",
+                    name: "Permissions",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-permissions
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-permissions>`,
+                },
+                {
+                    id: "VariableSets",
+                    // label: "Variable Sets",
+                    name: "Variable Sets",
+                    icon: "fas fa-book",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-variable
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-variable>`,
+                },
+                {
+                    id: "Audit",
+                    // label: "Audit",
+                    name: "Audit",
+                    icon: "fas fa-book",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-audit
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-audit>`,
+                },
+                {
+                    id: "Configuration",
+                    // label: "Configuration",
+                    name: "Configuration",
+                    icon: "fas fa-cog",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-configuration
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-configuration>`,
+                },
+                {
+                    id: "Operations",
+                    // label: "Operations",
+                    name: "Operations",
+                    category: true, // true | false
+                },
+                {
+                    id: "Solr",
+                    // label: "Solr",
+                    name: "Solr",
+                    // CAUTION: icon vs. img in config.js?
+                    img: "/sites/iva/img/logos/Solr.png"
+                },
+                {
+                    id: "Rysnc",
+                    label: "Rysnc",
+                    icon: ""
                 },
             ],
         };
-
     }
 
 }

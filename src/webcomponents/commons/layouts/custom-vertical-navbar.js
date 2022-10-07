@@ -16,7 +16,7 @@
 import {LitElement, html} from "lit";
 
 
-export default class MenuAdmin extends LitElement {
+export default class CustomVerticalNavBar extends LitElement {
 
     constructor() {
         console.log("CONSTRUCTOR Menu Admin");
@@ -46,6 +46,7 @@ export default class MenuAdmin extends LitElement {
             }
         };
     }
+
     #init() {
         this.isLoading = false;
         this._config = {
@@ -99,21 +100,22 @@ export default class MenuAdmin extends LitElement {
         this.requestUpdate();
     }
 
+    // TODO: REFACTOR STYLE
     #renderStyle() {
         return html`
             <style>
-                .navbar.navbar-inverse.main-navbar{
-                    position:fixed;
-                    top:0;
-                    width:100%;
+                .navbar.navbar-inverse.main-navbar {
+                    position: fixed;
+                    top: 0;
+                    width: 100%;
                     z-index: 1000;
                 }
 
                 div.page-title {
-                    position:fixed;
-                    top:50px;
-                    width:100%;
-                    z-index:10
+                    position: fixed;
+                    top: 50px;
+                    width: 100%;
+                    z-index: 10
                 }
 
                 .row.left {
@@ -124,7 +126,7 @@ export default class MenuAdmin extends LitElement {
                 /*Remove rounded coners*/
                 nav.sidebar.navbar {
                     border-radius: 0;
-                    top:125px;
+                    top: 125px;
                 }
 
                 nav.sidebar, .main {
@@ -143,42 +145,42 @@ export default class MenuAdmin extends LitElement {
                 /*small/medium side display*/
                 @media (min-width: 768px) {
                     /*Allow main to be next to Nav*/
-                    .main{
+                    .main {
                         width: calc(100% - 40px); /*keeps 100% minus nav size*/
                         margin-left: 40px;
                         float: right;
                     }
 
                     /*lets nav bar to be showed on mouseover*/
-                    nav.sidebar:hover + .main{
+                    nav.sidebar:hover + .main {
                         margin-left: 200px;
                     }
 
                     /*Center Study Name*/
-                    nav.sidebar.navbar.sidebar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
-                        margin-left:0;
+                    nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
+                        margin-left: 0;
                     }
 
                     /*Center Study Name*/
-                    nav.sidebar .navbar-brand, nav.sidebar .navbar-header{
+                    nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
                         text-align: center;
                         width: 100%;
-                        margin-left:0;
+                        margin-left: 0;
                     }
 
                     /*Center Icons*/
-                    nav.sidebar a{
+                    nav.sidebar a {
                         padding-right: 13px;
                     }
 
                     /*adds border top to first nav box */
-                    nav.sidebar .navbar-nav.left > li:first-child{
+                    nav.sidebar .navbar-nav.left > li:first-child {
                         border-top: 1px #e5e5e5 solid;
                     }
 
                     /* adds border to bottom nav boxes */
-                    nav.sidebar .navbar-nav.left > li{
-                        border-bottom:0 #e5e5e5 solid;
+                    nav.sidebar .navbar-nav.left > li {
+                        border-bottom: 0 #e5e5e5 solid;
                     }
 
                     /* Colors/style dropdown box*/
@@ -194,26 +196,26 @@ export default class MenuAdmin extends LitElement {
                     }
 
                     /*allows nav box to use 100% width*/
-                    nav.sidebar .navbar-collapse, nav.sidebar .container-fluid{
+                    nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
                         padding: 0;
                     }
 
                     /*colors dropdown box text */
-                    .navbar-inverse .navbar-nav.left .open .dropdown-menu>li>a {
+                    .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
                         color: #777;
                     }
 
                     /*gives sidebar width/height*/
-                    nav.sidebar{
+                    nav.sidebar {
                         position: fixed;
                         height: 100%;
                         width: 250px;
                         margin-left: -200px;
                         float: left;
                         /* z-index: 8000; */
-                        margin-bottom:0;
-                        overflow-y:auto;
-                        padding-bottom:10%
+                        margin-bottom: 0;
+                        overflow-y: auto;
+                        padding-bottom: 10%
                     }
 
                     /*give sidebar 100% width;*/
@@ -222,11 +224,12 @@ export default class MenuAdmin extends LitElement {
                     }
 
                     /* Move nav to full on mouse over*/
-                    nav.sidebar:hover{
-                        margin-left:0;
+                    nav.sidebar:hover {
+                        margin-left: 0;
                     }
+
                     /*for hiden things when navbar hidden*/
-                    .forAnimate{
+                    .forAnimate {
                         opacity: 0;
                     }
                 }
@@ -235,47 +238,49 @@ export default class MenuAdmin extends LitElement {
                 @media (min-width: 1330px) {
 
                     /*Allow main to be next to Nav*/
-                    .main{
+                    .main {
                         width: calc(100% - 200px); /*keeps 100% minus nav size*/
                         margin-left: 200px;
                     }
 
                     /*Show all nav*/
-                    nav.sidebar{
-                        margin-left:0;
+                    nav.sidebar {
+                        margin-left: 0;
                         float: left;
                     }
+
                     /*Show hidden items on nav*/
-                    nav.sidebar .forAnimate{
+                    nav.sidebar .forAnimate {
                         opacity: 1;
                     }
                 }
 
-                nav.sidebar .navbar-nav.left .open .dropdown-menu>li>a:hover,
-                nav.sidebar .navbar-nav.left .open .dropdown-menu>li>a:focus {
+                nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:hover,
+                nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:focus {
                     color: #CCC;
                     background-color: transparent;
                 }
 
-                nav:hover .forAnimate{
+                nav:hover .forAnimate {
                     opacity: 1;
                 }
 
-                section{
+                section {
                     padding-left: 15px;
                 }
 
                 .footer {
                     position: fixed;
-                    bottom:0;
+                    bottom: 0;
                     z-index: 10;
                 }
 
             </style>`;
     }
 
+    // QUESTION: Make it optional?
     #renderToggle() {
-        return html `
+        return html`
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse"
                         data-target="#bs-sidebar-navbar-collapse-1">
@@ -289,42 +294,51 @@ export default class MenuAdmin extends LitElement {
     }
 
     #renderMenu() {
-        return html `
+        return html`
             <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                 <ul class="nav navbar-nav left">
-                    ${this._config?.sections.map(section => html`
-                        <li>
-                            <p class="navbar-text">${section.label}</p>
-                        </li>
-                        ${section.items?.map(item => html`
-                            <li>
-                                <a data-id="${item.id}" @click="${this.onSideNavClick}">
-                                    <div class="item-label">${item.label}</div>
-                                    <div class="item-icon">${item.icon}</div>
-                                </a>
-                            </li>
-                        `)}
-                    `)}
+                    ${this._config.items.length && this._config?.items.map(item =>
+            item.category ? html`
+                                <li>
+                                    <!--
+                                    <a class="nav-item-category"
+                                       style="background-color:white!important;cursor:auto!important;">
+                                        <strong>item.name}</strong>
+                                    </a>
+                                    -->
+                                    <p class="navbar-text">${item.name}</p>
+                                </li>` :
+                item.separator ? html`
+                                <li role="separator" class="divider"></li>` :
+                    html`
+                                <li>
+                                    <!-- QUESTION: ESLint error fix for formatting icon | name
+                                     <div class="item-icon"> <i class="item.icon}""></i></div>
+                                    <div class="item-label">item.name}</div>
+                                    -->
+                                    <a data-id="${item.id}" @click="${this.onSideNavClick}">${item.name}</a>
+                                </li>`)}
                 </ul>
             </div>`;
     }
 
+
     #renderContent() {
-        return html `
+        return html`
             <div class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
-                ${this._config?.sections.map(section => html `
-                    ${section.items?.map(item => html`
-                        <div id="${item.id}" role="tabpanel" class="tab-pane content-tab active">
-                            <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${item.label}</h2>
-                            ${item.content}
-                        </div>
-                    `)}
-                `)}
+                ${(this._config.items.length && this._config?.items.map(item => item.render ? html`
+                    <div id="${item.id}" role="tabpanel" class="tab-pane content-tab active">
+                        <!-- TODO: HEADER in a div-->
+                        <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${item.name}
+                        </h2>
+                        <!-- TODO: CONTENT in a div -->
+                        ${item.render(this.opencgaSession, this.study)}
+                    </div>` : ""))}
             </div>`;
     }
 
     render() {
-        return html `
+        return html`
             <!-- STYLE -->
             ${this.#renderStyle()}
             <!-- DIV -->
@@ -339,16 +353,19 @@ export default class MenuAdmin extends LitElement {
                     </nav>
                 </div>
                 <!-- 3. CONTENT -->
+                <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
+                <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
                 <div class="col-md-10" style="top:150px;">
                     ${this.#renderContent()}
                 </div>
             </div>`;
     }
 
-    getDefaultConfig() {}
+    getDefaultConfig() {
+    }
 
 
 }
-customElements.define("menu-admin", MenuAdmin);
+customElements.define("custom-vertical-navbar", CustomVerticalNavBar);
 
 
