@@ -827,13 +827,18 @@ export default class VariantInterpreterGrid extends LitElement {
                         let copiesHtml = "";
                         if (this._config.copies) {
                             for (const copy of this._config.copies) {
-                                copiesHtml = `
-                                    <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
-                                            <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
-                                        </a>
-                                    </li>
-                                `;
+                                // Check if the copy object has an execute function, this prevents two possible scenarios:
+                                // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
+                                // 2. an incorrect copy configuration
+                                if (copy.execute) {
+                                    copiesHtml = `
+                                        <li>
+                                            <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
+                                                <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                            </a>
+                                        </li>
+                                    `;
+                                }
                             }
                         }
 

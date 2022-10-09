@@ -171,8 +171,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // Add copy.execute functions
         if (this._config.filter.result.grid?.copies?.length > 0) {
             for (const copy of this._config.filter.result.grid?.copies) {
-                const originalCopy = this.settings.table.copies.find(c => c.id === copy.id);
-                if (originalCopy.execute) {
+                const originalCopy = this.settings.table?.copies?.find(c => c.id === copy.id);
+                if (originalCopy?.execute) {
                     copy.execute = originalCopy.execute;
                 }
             }
