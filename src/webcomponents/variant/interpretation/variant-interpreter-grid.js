@@ -847,8 +847,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
-                                    <span class="caret"></span>
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
@@ -906,10 +908,10 @@ export default class VariantInterpreterGrid extends LitElement {
                             </div>`;
                     },
                     align: "center",
-                    visible: this._config?.showActions,
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true // this is used in opencga-export
                     // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
                 },
