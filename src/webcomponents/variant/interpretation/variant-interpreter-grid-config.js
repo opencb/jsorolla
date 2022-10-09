@@ -70,6 +70,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.proteinCodingTranscript":
             case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
+            case "populationFrequencies.displayMode":
                 const fields = e.detail.param.split(".");
                 if (!this.config[fields[0]]) {
                     this.config[fields[0]] = {};
@@ -298,6 +299,28 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         }
+                    ]
+                },
+                {
+                    title: "Population Frequencies",
+                    // description: "Select which transcripts and consequence types are displayed in the variant grid",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        visible: false
+                    },
+                    elements: [
+                        {
+                            title: "Select the display mode of the population frequencies",
+                            field: "populationFrequencies.displayMode",
+                            type: "select",
+                            multiple: false,
+                            allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
+                            display: {
+                            },
+                        },
                     ]
                 },
                 {
