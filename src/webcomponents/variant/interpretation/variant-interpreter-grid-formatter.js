@@ -22,14 +22,23 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row, index) {
+    static roleInCancerFormatter(value, row) {
         if (value) {
             const roles = new Set();
-            for (const evidenceIndex in value) {
-                const evidence = value[evidenceIndex];
-                if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                    const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
-                    roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+            for (const evidence of value) {
+                if (evidence?.rolesInCancer?.length > 0) {
+                    for (const roleInCancer of evidence.rolesInCancer) {
+                        if (roleInCancer && evidence.genomicFeature.geneName) {
+                            const roleInCancerText = roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : roleInCancer;
+                            roles.add(`${roleInCancerText} (${evidence.genomicFeature.geneName})`);
+                        }
+                    }
+                } else {
+                    // TODO Remove this legacy code
+                    if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
+                        const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                        roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+                    }
                 }
             }
             if (roles.size > 0) {
