@@ -182,6 +182,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         field: "acmg",
                         type: "object-list",
                         display: {
+                            // visible: !this.somatic,
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             // collapsable: false,
                             // maxNumItems: 5,
@@ -207,7 +208,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 field: "acmg[].classification",
                                 type: "custom",
                                 display: {
-                                    visible: !this.somatic,
                                     render: (acmg, dataFormFilterChange) => html`
                                         <acmg-filter
                                             .acmg="${acmg || []}"
