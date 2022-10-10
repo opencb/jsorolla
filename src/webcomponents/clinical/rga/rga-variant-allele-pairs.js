@@ -75,21 +75,21 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        // this.tableData = this.variant?.allelePairs;
-        // console.log(this.variant);
-
-        this.allelePairs = this.variant.allelePairs.filter(v => !(v.knockoutType === "COMP_HET" && v.id === this.variant.id)); // removing the current variant (this.variant) from the allele Pairs array iff is a CH.
-
-        if (this.allelePairs?.length) {
-            this.variantIds = this.allelePairs.map(individual => individual.id);
-            // this is needed as `allelePairs` list has no unique id (more than 1 variant with the same id and different knockoutType might be returned)
-            this.allelePairs = this.allelePairs.map((variant, i) => ({_id: i + "__" + variant.id, ...variant}));
-
-        } else {
-            this.variantIds = [];
-            this.allelePairs = [];
-        }
-        // this.requestUpdate();
+        this.allelePairs = [];
+        this.variantIds = [];
+        this.variant.allelePairs.forEach((v, i) => {
+            // filtering out the current selected variant in case it is CH
+            if (!(v.knockoutType === "COMP_HET" && v.id === this.variant.id)) {
+                if (v.knockoutType === "DELETION_OVERLAP") {
+                    v.knockoutType = "COMP_HET";
+                }
+                this.allelePairs.push({
+                    _id: i + "__" + v.id,
+                    ...v
+                });
+                this.variantIds.push(v.id);
+            }
+        });
 
         /* const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
@@ -380,7 +380,7 @@ export default class RgaVariantAllelePairs extends LitElement {
                         class: "text-center",
                         formatter: (value, row) => {
                             return `<span> <b>${row.fatherId}</b> ${row.fatherSampleId ? `${(row.fatherSampleId)}` : ""} <br>
-                                ${value?.length && !value.missingFather ? value.map(sampleData => sampleData.GT[1] ?? "N/A").join(" | ") : "-"}</span>`;
+                                ${value?.length ? value.map(sampleData => sampleData.GT[1] ?? "N/A").join(" | ") : "-"}</span>`;
                         }
                     },
                     {
@@ -389,8 +389,8 @@ export default class RgaVariantAllelePairs extends LitElement {
                         halign: this._config.header.horizontalAlign,
                         class: "text-center",
                         formatter: (value, row) => {
-                            return `<span> <b>${row.motherId}</b> ${row.motherSampleId ? `${(row.motherSampleId)}` : ""} <br> <br>
-                                ${value?.length ? value.map(sampleData => sampleData.GT[value.missingFather ? 1 : 2] ?? "N/A").join(" | ") : "-"}</span>`;
+                            return `<span> <b>${row.motherId}</b> ${row.motherSampleId ? `${(row.motherSampleId)}` : ""} <br>
+                                ${value?.length ? value.map(sampleData => sampleData.GT[2] ?? "N/A").join(" | ") : "-"}</span>`;
                         }
                     }
                 ]
@@ -435,11 +435,11 @@ export default class RgaVariantAllelePairs extends LitElement {
                             // adding sample variant data (GTs)
                             // first variant results should be = this.variant and second should be = row.id
                             const sampleData = variantStore.getResults().map((v, i) => {
-                                if ((v.id === this.variant.id && i === 0) || (v.id === row.id && i === 1)) {
+                                if ((v.id === this.variant.id) || (v.id === row.id)) {
                                     const gtIndex = v.studies[0].sampleDataKeys.indexOf("GT"); // find the position of GT in sample array
+                                    const gts = v.studies[0].samples.map(sampleData => sampleData.data[gtIndex]);
                                     return {
-                                        GT: v.studies[0].samples.map(sampleData => sampleData.data[gtIndex]),
-                                        missingFather // this marks the second GT as either father's or mother's one
+                                        GT: [gts[0], ...(missingFather ? [null, gts[1]] : [gts[1], gts[2]])],
                                     };
                                 } else {
                                     console.error("Unexpected variant found");
