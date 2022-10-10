@@ -985,17 +985,36 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
+                        // Check disable status
                         const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
-                        return `
-                        ${this._config?.showEditReview ? `
-                            <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
-                                <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                            </button>`: ""
+                        // Prepare comments
+                        let commentsTooltipText = "";
+                        if (row.comments?.length > 0) {
+                            for (const comment of row.comments) {
+                                commentsTooltipText += `
+                                    <div style="padding: 5px">
+                                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                        <div>
+                                            ${comment.message || "-"}
+                                        </div>
+                                    </div>
+                                `;
+                            }
                         }
+                        return `
+                            ${this._config?.showEditReview ? `
+                                <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
+                                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                                </button>`: ""
+                            }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
-                        }
+                            }
+                            ${row.comments?.length > 0 ? `
+                                <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
+                            ` : ""
+                            }
                         `;
                     },
                     align: "center",
