@@ -583,10 +583,12 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
     }
 
+    // TODO consequenceType object in VB and in RGA Variant query are different. in RGA Variant query you only get sequenceOntologyTerms (accession-name pair). Same in rga-variant-view.
     consequenceTypeFormatter(value) {
         if (value) {
             const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
-            const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
+            // const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name)); // FIXME temporarily disabling filtering CTs
+            const filteredCTs = [];
             if (CTs.length) {
                 return `
                 ${CTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
