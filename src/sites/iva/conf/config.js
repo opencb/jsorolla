@@ -18,10 +18,10 @@
 
 // Josemi 20220216 NOTE: The cellbase configuration is extracted from project config (see issue #173)
 // We keep this global configuration to be backward compatible with OpenCGA 2.1, but will be removed in future releases
-const cellbase = {
-    host: "https://ws.zettagenomics.com/cellbase",
-    version: "v5.1"
-};
+// const cellbase = {
+//     host: "https://ws.zettagenomics.com/cellbase",
+//     version: "v5.1"
+// };
 
 const hosts = [
     {
@@ -39,10 +39,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[2].id
     }
 
     // This forces the following projects to be used instead of the user's project

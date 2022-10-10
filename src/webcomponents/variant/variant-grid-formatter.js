@@ -824,24 +824,26 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             let freq;
             if (arr[1] !== 0 && arr[1] !== "0") {
                 freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
             } else {
                 freq = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `<div>
-                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
-                            </span>
-                            <span style='font-weight: bold'>${freq}</span>
-                        </div>`;
+            tooltip += `
+                <div>
+                    <span>
+                        <i class='fa fa-xs fa-square' style='color: ${color};' aria-hidden='true'></i>
+                        <label style='padding-left: 5px;width: 140px;'>${arr[0]}:</label>
+                    </span>
+                    <span style='font-weight:bold;'>${freq}</span>
+                </div>
+            `;
         }
 
         // Create the table (with the tooltip info)
         const tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        let htmlPopFreqTable = `<a tooltip-title="Cohort Variant Stats" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
         for (const cohort of cohorts) {
             let color = "black";
             if (typeof cohortStats.get(cohort.id) !== "undefined") {
@@ -868,20 +870,21 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             let freq;
             if (arr[1] !== 0 && arr[1] !== "0") {
                 freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
             } else {
                 freq = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `<div>
-                            <span>
-                                <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
-                            </span>
-                            <span style='font-weight: bold'>${freq}</span>
-                        </div>`;
+            tooltip += `
+                <div>
+                    <span>
+                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                        <label style='padding-left: 5px; width: 140px'>${arr[0]}:</label>
+                    </span>
+                    <span style='font-weight: bold'>${freq}</span>
+                </div>
+            `;
         }
 
         // Create the table (with the tooltip info)

@@ -772,6 +772,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
                     title: `Reference <br> Population Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
@@ -821,17 +822,23 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
+                    eligible: false,
                     formatter: (value, row) => {
                         let copiesHtml = "";
                         if (this._config.copies) {
                             for (const copy of this._config.copies) {
-                                copiesHtml = `
-                                    <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
-                                            <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
-                                        </a>
-                                    </li>
-                                `;
+                                // Check if the copy object has an execute function, this prevents two possible scenarios:
+                                // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
+                                // 2. an incorrect copy configuration
+                                if (copy.execute) {
+                                    copiesHtml = `
+                                        <li>
+                                            <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
+                                                <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                            </a>
+                                        </li>
+                                    `;
+                                }
                             }
                         }
 
@@ -840,8 +847,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
-                                    <span class="caret"></span>
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
@@ -868,7 +877,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser")}">
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
@@ -899,10 +908,10 @@ export default class VariantInterpreterGrid extends LitElement {
                             </div>`;
                     },
                     align: "center",
-                    visible: this._config?.showActions,
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true // this is used in opencga-export
                     // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
                 },
@@ -976,17 +985,36 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
+                        // Check disable status
                         const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
-                        return `
-                        ${this._config?.showEditReview ? `
-                            <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
-                                <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                            </button>`: ""
+                        // Prepare comments
+                        let commentsTooltipText = "";
+                        if (row.comments?.length > 0) {
+                            for (const comment of row.comments) {
+                                commentsTooltipText += `
+                                    <div style="padding: 5px">
+                                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                        <div>
+                                            ${comment.message || "-"}
+                                        </div>
+                                    </div>
+                                `;
+                            }
                         }
+                        return `
+                            ${this._config?.showEditReview ? `
+                                <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
+                                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                                </button>`: ""
+                            }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
-                        }
+                            }
+                            ${row.comments?.length > 0 ? `
+                                <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
+                            ` : ""
+                            }
                         `;
                     },
                     align: "center",

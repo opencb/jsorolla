@@ -52,6 +52,9 @@ export default class VariantBrowserGrid extends LitElement {
             variants: {
                 type: Array
             },
+            populationFrequencies: {
+                type: Array
+            },
             cohorts: {
                 type: Array
             },
@@ -108,7 +111,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -585,7 +588,7 @@ export default class VariantBrowserGrid extends LitElement {
 
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let populationFrequencyColumns = [{visible: false}];
-        if (this.populationFrequencies && this.populationFrequencies.studies && this.populationFrequencies.studies.length > 0) {
+        if (this.populationFrequencies?.studies?.length > 0) {
             populationFrequencyColumns = [];
             for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                 const populations = [];
@@ -616,7 +619,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
-                    align: "center"
+                    align: "center",
                 });
             }
         }
@@ -928,6 +931,9 @@ export default class VariantBrowserGrid extends LitElement {
                 highImpactConsequenceTypeTranscript: false,
 
                 showNegativeConsequenceTypes: true
+            },
+            populationFrequencies: {
+                displayMode: "FREQUENCY_BOX"
             }
         };
     }
