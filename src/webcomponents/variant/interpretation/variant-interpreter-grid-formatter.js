@@ -345,7 +345,7 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
-                const disabled = config.locked ? "disabled" : "";
+                const disabled = (config.locked || config.interpretation?.locked) ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
