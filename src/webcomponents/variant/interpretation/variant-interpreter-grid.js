@@ -987,6 +987,28 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => {
                         // Check disable status
                         const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+
+                        // Prepare manual prediction
+                        const evidencesReviewed = this.checkedVariants.get(row.id)?.evidences?.filter(evidence => evidence.review?.acmg?.length > 0) || [];
+                        let evidencesTooltipText = "";
+                        if (evidencesReviewed?.length > 0) {
+                            for (const evidence of evidencesReviewed) {
+                                evidencesTooltipText += `
+                                    <div style="padding: 5px">
+                                        <label>${evidence.genomicFeature.transcriptId || "-"}</label>
+                                        <div style="padding: 0 5px">
+                                            <div>
+                                                <span style="padding-right: 10px">Clinical Significance:</span><span style="float: right">${evidence.review.clinicalSignificance || "-"}</span>
+                                            </div>
+                                            <div>
+                                                <span style="padding-right: 10px">ACMG:</span><span style="float: right">${evidence.review.acmg.map(acmg => acmg.classification).join(",") || "-"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+
                         // Prepare comments
                         let commentsTooltipText = "";
                         if (row.comments?.length > 0) {
@@ -1001,20 +1023,29 @@ export default class VariantInterpreterGrid extends LitElement {
                                 `;
                             }
                         }
+
                         return `
                             ${this._config?.showEditReview ? `
                                 <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
                                     <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
                                 </button>`: ""
-                            }
+                        }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
-                            }
+                        }
+
+                            ${this.clinicalAnalysis.type !== "CANCER" ? `
+                                <div>
+                                    <a class="" tooltip-title='Transcript-based Evidences' tooltip-text='${evidencesTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${evidencesReviewed.length} evidences</a>
+                                </div>
+                            ` : ""
+                        }
+
                             ${row.comments?.length > 0 ? `
                                 <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
                             ` : ""
-                            }
+                        }
                         `;
                     },
                     align: "center",
