@@ -15,8 +15,10 @@
  */
 import {LitElement, html} from "lit";
 
-
 export default class CustomVerticalNavBar extends LitElement {
+
+    #divMenu;
+    #divContent;
 
     constructor() {
         console.log("CONSTRUCTOR Menu Admin");
@@ -40,6 +42,9 @@ export default class CustomVerticalNavBar extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            activeMenuItem: {
+                type: String,
+            },
             // CAUTION: possibly a different name for this property
             config: {
                 type: Object,
@@ -49,21 +54,33 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #init() {
         this.isLoading = false;
+        this._activeMenuItem = "UsersAndGroups";
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+        // Selectors
+        this.#divMenu = "admin-vertical-navbar";
+        this.#divContent = "admin-vertical-content";
     }
 
     update(changedProperties) {
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             this.studyIdObserver();
         }
+        if (changedProperties.has("activeMenuItem")) {
+            this.activeMenuItemObserver();
+        }
         if (changedProperties.has("config")) {
             this.configObserver();
         }
 
         super.update(changedProperties);
+    }
+
+    firstUpdated() {
+        this.#initEvents();
+        this.#initActiveMenu();
     }
 
     studyIdObserver() {
@@ -77,6 +94,10 @@ export default class CustomVerticalNavBar extends LitElement {
         }
     }
 
+    activeMenuItemObserver() {
+        this._activeMenuItem = this.activeMenuItem || this._activeMenuItem;
+    }
+
     configObserver() {
         this._config = {
             ...this.getDefaultConfig(),
@@ -85,6 +106,53 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
+    #initEvents() {
+        const navItems = document.querySelectorAll("#" +`${this.#divMenu}` + " .nav-item");
+        const navContents = document.querySelectorAll("#" +`${this.#divContent}` + " div[role=tabpanel]");
+
+        // 1. Create events for menu items
+        [...navItems]
+            .map(item => {
+                // 1.1 Menu item: Event on-click
+                item.addEventListener("click", event => {
+                    event.preventDefault();
+                    const itemId = event.currentTarget.dataset.id;
+                    // Remove current active link
+                    [...navItems].forEach(item => item.classList.remove("active-item"));
+                    // Set clicked active link
+                    event.currentTarget.classList.add("active-item");
+                    // Display selected content
+                    [...navContents].forEach(item => item.style.display = "none");
+                    const currentContent = document.querySelector(`#${this.#divContent}  #${itemId}`);
+                    currentContent.style.display = "block";
+                });
+            });
+    }
+
+    #initActiveMenu() {
+        const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
+        activeElement.click();
+    }
+    /*
+    onChangeActiveMenuItem(e) {
+        event.preventDefault();
+        this._activeMenuItem = e.currentTarget.dataset.id;
+
+        // 1. Set active menu item
+        document
+            .getElementById(`${this.#divMenu} > ul > li`)
+            .classList
+            .remove("active");
+        document.getElementById(`${this.#divMenu} a[data-id=${this._activeMenuItem}]`).parentElement.classList.add("active");
+        // Display the right content
+        document.getElementBy(`${this.#divContent} > div[role=tabpanel]`).hide();
+        document.getElementById(this._activeMenuItem).show();
+
+        // Update
+        this.requestUpdate();
+    }
+    */
+    /*
     onSideNavClick(e) {
         e.preventDefault();
         const tabId = e.currentTarget.dataset.id;
@@ -99,11 +167,35 @@ export default class CustomVerticalNavBar extends LitElement {
 
         this.requestUpdate();
     }
-
+*/
     // TODO: REFACTOR STYLE
     #renderStyle() {
         return html`
             <style>
+                .nav-item {
+                    margin-bottom: 3px;
+                    padding: 10px 15px;
+                    color: white;
+                    width: 100%;
+                    border-radius: 3px;
+
+                    transform: translate3d(0px, 0, 0);
+                    transition: transform 0.3s ease 0s, opacity 0.3s ease 0s, all .15s ease-in;
+                    line-height: 30px;
+                }
+
+                .active-item {
+                    /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
+                    background-color: #E25D1D;
+                    /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
+                }
+
+                .nav-item:hover:not(.active-item) {
+                    /*background-color: #AAAABC;*/
+                    background-color: #767687;
+                    cursor: pointer;
+                }
+
                 .navbar.navbar-inverse.main-navbar {
                     position: fixed;
                     top: 0;
@@ -255,11 +347,11 @@ export default class CustomVerticalNavBar extends LitElement {
                     }
                 }
 
-                nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:hover,
-                nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:focus {
-                    color: #CCC;
-                    background-color: transparent;
-                }
+                /*nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:hover,*/
+                /*nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:focus {*/
+                /*    color: #CCC;*/
+                /*    background-color: transparent;*/
+                /*}*/
 
                 nav:hover .forAnimate {
                     opacity: 1;
@@ -295,29 +387,26 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #renderMenu() {
         return html`
-            <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
+            <div id="${this.#divMenu}" class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                 <ul class="nav navbar-nav left">
-                    ${this._config.items.length && this._config?.items.map(item =>
-            item.category ? html`
-                                <li>
-                                    <!--
-                                    <a class="nav-item-category"
-                                       style="background-color:white!important;cursor:auto!important;">
-                                        <strong>item.name}</strong>
-                                    </a>
-                                    -->
-                                    <p class="navbar-text">${item.name}</p>
-                                </li>` :
-                item.separator ? html`
-                                <li role="separator" class="divider"></li>` :
-                    html`
-                                <li>
-                                    <!-- QUESTION: ESLint error fix for formatting icon | name
-                                     <div class="item-icon"> <i class="item.icon}""></i></div>
-                                    <div class="item-label">item.name}</div>
-                                    -->
-                                    <a data-id="${item.id}" @click="${this.onSideNavClick}">${item.name}</a>
-                                </li>`)}
+                    ${this._config.items.length && this._config?.items.map(item => item.category ? html`
+                        <li>
+                            <!--
+                            <a class="nav-item-category"
+                               style="background-color:white!important;cursor:auto!important;">
+                                <strong>item.name}</strong>
+                            </a>
+                            -->
+                            <p class="navbar-text">${item.name}</p>
+                        </li>` : item.separator ? html`
+                        <li role="separator" class="divider"></li>` : html`
+                        <li  class="nav-item" data-id="${item.id}">
+                            <!-- QUESTION: ESLint error fix for formatting icon | name
+                             <div class="item-icon"> <i class="item.icon}""></i></div>
+                            <div class="item-label">item.name}</div>
+                            -->
+                            <a class="nav-link">${item.name}</a>
+                        </li>`)}
                 </ul>
             </div>`;
     }
@@ -325,7 +414,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #renderContent() {
         return html`
-            <div class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
+            <div id="${this.#divContent}" class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
                 ${(this._config.items.length && this._config?.items.map(item => item.render ? html`
                     <div id="${item.id}" role="tabpanel" class="tab-pane content-tab active">
                         <!-- TODO: HEADER in a div-->

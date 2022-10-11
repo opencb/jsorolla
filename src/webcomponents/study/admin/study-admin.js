@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
 
 import "./study-admin-users.js";
@@ -289,7 +288,7 @@ export default class StudyAdmin extends LitElement {
     //                             <span class="icon-bar"></span>
     //                             <span class="icon-bar"></span>
     //                         </button>
-    //                         <a class="navbar-brand">${this.study?.name}</a>
+    //                         <a class="navbar-brand">${this.study?x.name}</a>
     //                     </div>
     //
     //                     <!-- Collect the nav links, form, and other content for toggling -->
