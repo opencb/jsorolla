@@ -247,11 +247,13 @@ export default class RgaGeneView extends LitElement {
                 },
                 {
                     title: "Recessive Individuals",
-                    colspan: 4
+                    colspan: 4,
+                    halign: this._config.header.horizontalAlign
                 },
                 {
                     title: "Recessive Variants",
-                    colspan: 3
+                    colspan: 3,
+                    halign: this._config.header.horizontalAlign
                 }
             ],
             [
@@ -445,7 +447,11 @@ export default class RgaGeneView extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false
+            showExport: false,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            }
         };
     }
 
