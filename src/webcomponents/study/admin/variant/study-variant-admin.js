@@ -15,22 +15,17 @@
  */
 
 import {LitElement, html} from "lit";
-import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
-
-import "./study-admin-users.js";
-import "./study-admin-permissions.js";
-import "./study-admin-variable.js";
-import "./study-admin-audit.js";
-import "./study-admin-sample.js";
-import "./study-admin-individual.js";
-import "./study-admin-family.js";
-import "./study-admin-cohort.js";
-import "./study-admin-configuration.js";
-import opencgaSession from "../../opencga/catalog/variableSets/test/opencgaSession";
-import LitUtils from "../../commons/utils/lit-utils";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../study-admin-sample.js";
+import "../study-admin-individual.js";
+import "../study-admin-family.js";
+import "../study-admin-cohort.js";
+import "../study-admin-configuration.js";
+import "../../../variant/operation/variant-annotation-operation";
+import LitUtils from "../../../commons/utils/lit-utils";
 
 
-export default class StudyAdmin extends LitElement {
+export default class StudyVariantAdmin extends LitElement {
 
     constructor() {
         super();
@@ -62,7 +57,7 @@ export default class StudyAdmin extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         super.update(changedProperties);
@@ -74,16 +69,6 @@ export default class StudyAdmin extends LitElement {
     }
 
     studyIdObserver() {
-        /*
-        for (const project of this.opencgaSession?.projects) {
-            for (const study of project.studies) {
-                if (study.id === this.studyId || study.fqn === this.studyId) {
-                    this.study = study;
-                    break;
-                }
-            }
-        }
-        */
         if (this.studyId && this.opencgaSession) {
             let error;
             this.#setLoading(true);
@@ -106,6 +91,14 @@ export default class StudyAdmin extends LitElement {
             this.study = {};
         }
     }
+
+    // getDefaultConfig() {
+    //     return {
+    //         title: "Study Admin",
+    //         icon: "variant_browser.svg",
+    //         active: false
+    //     };
+    // }
 
     // onSideNavClick(e) {
     //     e.preventDefault();
@@ -309,38 +302,18 @@ export default class StudyAdmin extends LitElement {
     //                             <span class="icon-bar"></span>
     //                             <span class="icon-bar"></span>
     //                         </button>
-    //                         <a class="navbar-brand">${this.study?x.name}</a>
+    //                         <a class="navbar-brand">${this.study?.name}</a>
     //                     </div>
     //
     //                     <!-- Collect the nav links, form, and other content for toggling -->
     //                     <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
     //                         <ul class="nav navbar-nav left">
     //                             <li>
-    //                                 <p class="navbar-text">Study Administration</p>
+    //                                 <p class="navbar-text">Variant Configuration</p>
     //                             </li>
     //                             <li>
     //                                 <a data-id="Dashboard" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Dashboard
     //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-tachometer-alt"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li class="active">
-    //                                 <a data-id="UsersAndGroups" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Users and Groups
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-user-friends"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="Permissions" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Permissions
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-key"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="VaribleSets" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Variable Sets
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="Audit" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
     //                                 </a>
     //                             </li>
     //                             <li>
@@ -349,10 +322,10 @@ export default class StudyAdmin extends LitElement {
     //                                 </a>
     //                             </li>
     //                             <li>
-    //                                 <p class="navbar-text">Data Management</p>
+    //                                 <p class="navbar-text">Variant Operations</p>
     //                             </li>
     //                             <li>
-    //                                 <a data-id="Sample" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Sample
+    //                                 <a data-id="variant-annotation-index" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Variant Annotation Index
     //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-vial"></i></span>
     //                                 </a>
     //                             </li>
@@ -376,7 +349,7 @@ export default class StudyAdmin extends LitElement {
     //                 </nav>
     //             </div>
     //
-    //             <div class="col-md-10" style="top:150px;">
+    //             <div class="col-md-6" style="top:150px;">
     //                 <!-- Content Module  -->
     //                 <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
     //                     <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
@@ -387,34 +360,14 @@ export default class StudyAdmin extends LitElement {
     //                         </div>;
     //                     </div>
     //
-    //                     <div id="${this._prefix}UsersAndGroups" role="tabpanel" class="tab-pane content-tab active">
-    //                         <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>Users And Groups</h2>
-    //                         <study-admin-users .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-users>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Permissions</h2>
-    //                         <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}VaribleSets" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-code icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
-    //                         <study-admin-variable .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-variable>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-book icon-padding" style="padding-right: 10px"></i>Audit</h2>
-    //                         <study-admin-audit .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-audit>
-    //                     </div>
-    //
     //                     <div id="${this._prefix}Configuration" role="tabpanel" class="tab-pane content-tab">
     //                         <h2><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration (Coming Soon)</h2>
     //                         <study-admin-configuration .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-configuration>
     //                     </div>
     //
-    //                     <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Sample</h2>
-    //                         <study-admin-sample .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-sample>
+    //                     <div id="${this._prefix}variant-annotation-index" role="tabpanel" class="tab-pane content-tab">
+    //                         <h2><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Variant Annotation</h2>
+    //                         <variant-annotation-operation .opencgaSession="${this.opencgaSession}"></variant-annotation-operation>
     //                     </div>
     //
     //                     <div id="${this._prefix}Individual" role="tabpanel" class="tab-pane content-tab">
@@ -437,14 +390,15 @@ export default class StudyAdmin extends LitElement {
     // }
 
     render() {
-        const activeMenuItem = "UsersAndGroups";
+        const activeMenuItem = "variant-annotation-index";
         return html`
             <custom-vertical-navbar
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .activeMenuItem="${activeMenuItem}">
-            </custom-vertical-navbar>`;
+                .study="${this.opencgaSession.study}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .activeMenuItem="${activeMenuItem}">
+            </custom-vertical-navbar>
+        `;
     }
 
     getDefaultConfig() {
@@ -458,8 +412,8 @@ export default class StudyAdmin extends LitElement {
             // sections: [
             items: [
                 {
-                    id: "configuration",
-                    name: "Configuration",
+                    id: "variant-configuration",
+                    name: "Variant Configuration",
                     description: "",
                     icon: "",
                     visibility: "",
@@ -472,7 +426,7 @@ export default class StudyAdmin extends LitElement {
                     visibility: "public"
                 },
                 {
-                    id: "Dashboard",
+                    id: "dashboard",
                     name: "Dashboard",
                     // label: "Dashboard",
                     icon: "fas fa-tachometer-alt",
@@ -494,51 +448,7 @@ export default class StudyAdmin extends LitElement {
                         </under-construction>`,
                 },
                 {
-                    id: "UsersAndGroups",
-                    // label: "Users and Groups",
-                    name: "Users and Groups",
-                    icon: "fas fa-user-friends",
-                    render: (opencgaSession, study) => html`
-                        <study-admin-users
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-users>`,
-                },
-                {
-                    id: "Permissions",
-                    // label: "Permissions",
-                    name: "Permissions",
-                    icon: "fas fa-key",
-                    render: (opencgaSession, study) => html`
-                        <study-admin-permissions
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-permissions>`,
-                },
-                {
-                    id: "VariableSets",
-                    // label: "Variable Sets",
-                    name: "Variable Sets",
-                    icon: "fas fa-book",
-                    render: (opencgaSession, study) => html`
-                        <study-admin-variable
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-variable>`,
-                },
-                {
-                    id: "Audit",
-                    // label: "Audit",
-                    name: "Audit",
-                    icon: "fas fa-book",
-                    render: (opencgaSession, study) => html`
-                        <study-admin-audit
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-audit>`,
-                },
-                {
-                    id: "Configuration",
+                    id: "configuration",
                     // label: "Configuration",
                     name: "Configuration",
                     icon: "fas fa-cog",
@@ -549,22 +459,22 @@ export default class StudyAdmin extends LitElement {
                         </study-admin-configuration>`,
                 },
                 {
-                    id: "Operations",
+                    id: "variant-operations",
                     // label: "Operations",
-                    name: "Operations",
+                    name: "Variant Operations",
                     category: true, // true | false
                 },
                 {
-                    id: "Solr",
-                    // label: "Solr",
-                    name: "Solr",
-                    // CAUTION: icon vs. img in config.js?
-                    img: "/sites/iva/img/logos/Solr.png"
-                },
-                {
-                    id: "Rysnc",
-                    label: "Rysnc",
-                    icon: ""
+                    id: "variant-annotation-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Annotation Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-annotation-operation
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </variant-annotation-operation>`,
+
                 },
             ],
         };
@@ -572,4 +482,4 @@ export default class StudyAdmin extends LitElement {
 
 }
 
-customElements.define("study-admin", StudyAdmin);
+customElements.define("study-variant-admin", StudyVariantAdmin);

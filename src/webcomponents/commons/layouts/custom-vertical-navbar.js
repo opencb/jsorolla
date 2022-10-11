@@ -54,7 +54,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this._activeMenuItem = "UsersAndGroups";
+        this._activeMenuItem = "";
         this._config = this.getDefaultConfig();
         // Selectors
         this.#divMenu = "admin-vertical-navbar";
@@ -103,9 +103,10 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
+    // FIXME: poor design. Refactor: (a) delegate event or (b) @click
     #initEvents() {
-        const navItems = document.querySelectorAll("#" +`${this.#divMenu}` + " .nav-item");
-        const navContents = document.querySelectorAll("#" +`${this.#divContent}` + " div[role=tabpanel]");
+        const navItems = document.querySelectorAll("#" + `${this.#divMenu}` + " .nav-item");
+        const navContents = document.querySelectorAll("#" + `${this.#divContent}` + " div[role=tabpanel]");
 
         // 1. Create events for menu items
         [...navItems]
@@ -130,6 +131,7 @@ export default class CustomVerticalNavBar extends LitElement {
         const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
         activeElement.click();
     }
+
     /*
     onChangeActiveMenuItem(e) {
         event.preventDefault();
@@ -165,6 +167,7 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 */
+
     // TODO: REFACTOR STYLE
     #renderStyle() {
         return html`
@@ -385,34 +388,46 @@ export default class CustomVerticalNavBar extends LitElement {
     #renderMenu() {
         return html`
             <div id="${this.#divMenu}" class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
-                <ul class="nav navbar-nav left">
-                    ${this._config.items.length && this._config?.items.map(item => item.category ? html`
-                        <li>
-                            <!--
-                            <a class="nav-item-category"
-                               style="background-color:white!important;cursor:auto!important;">
-                                <strong>item.name}</strong>
-                            </a>
-                            -->
-                            <p class="navbar-text">${item.name}</p>
-                        </li>` : item.separator ? html`
-                        <li role="separator" class="divider"></li>` : html`
-                        <li  class="nav-item" data-id="${item.id}">
-                            <!-- QUESTION: ESLint error fix for formatting icon | name
-                             <div class="item-icon"> <i class="item.icon}""></i></div>
-                            <div class="item-label">item.name}</div>
-                            -->
-                            <a class="nav-link">${item.name}</a>
-                        </li>`)}
+                <ul class="nav navbar-nav left" id="admin-navbar">
+                    ${this._config.items.length && this._config?.items.map(item => {
+            if (item.category) {
+                return html`
+                    <li>
+                        <!--
+                        <a class="nav-item-category"
+                           style="background-color:white!important;cursor:auto!important;">
+                            <strong>item.name}</strong>
+                        </a>
+                        -->
+                        <p class="navbar-text">${item.name}</p>
+                    </li>
+                `;
+            } else if (item.separator) {
+                return html`
+                    <li role="separator" class="divider"></li>
+                `;
+            } else {
+                return html`
+                    <li class="nav-item" data-id="${item.id}">
+                        <!-- QUESTION: ESLint error fix for formatting icon | name
+                         <div class="item-icon"> <i class="item.icon}""></i></div>
+                        <div class="item-label">item.name}</div>
+                        -->
+                        <a class="nav-link">${item.name}</a>
+                    </li>
+                `;
+            }
+        })}
                 </ul>
-            </div>`;
+            </div>
+        `;
     }
 
 
     #renderContent() {
         return html`
             <div id="${this.#divContent}" class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
-                ${(this._config.items.length && this._config?.items.map(item => item.render ? html`
+                ${(this._config.items.length && this._config?.items.map(item => item.render ? html `
                     <div id="${item.id}" role="tabpanel" class="tab-pane content-tab active">
                         <!-- TODO: HEADER in a div-->
                         <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${item.name}
@@ -420,7 +435,8 @@ export default class CustomVerticalNavBar extends LitElement {
                         <!-- TODO: CONTENT in a div -->
                         ${item.render(this.opencgaSession, this.study)}
                     </div>` : ""))}
-            </div>`;
+            </div>
+        `;
     }
 
     render() {
@@ -444,7 +460,8 @@ export default class CustomVerticalNavBar extends LitElement {
                 <div class="col-md-10" style="top:150px;">
                     ${this.#renderContent()}
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
     getDefaultConfig() {

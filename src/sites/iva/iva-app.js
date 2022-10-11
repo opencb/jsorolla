@@ -86,7 +86,7 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
-import "../../webcomponents/study/admin/variant/study-variant-configuration.js";
+import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
@@ -220,11 +220,11 @@ class IvaApp extends LitElement {
             "diseasePanelUpdate",
             "clinicalAnalysis",
             // Admin
-            "projects-admin",
-            "opencga-admin",
             "study-admin",
-            "study-variant-configuration",
+            "study-variant-admin",
+            "opencga-admin",
             "variants-admin",
+            "projects-admin",
             // REST-API
             "rest-api"];
 
@@ -1772,14 +1772,14 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["study-variant-configuration"] ? html`
-                    <tool-header title="Study Admin" icon="${"fas fa-rocket"}"></tool-header>
+                ${this.config.enabledComponents["study-variant-admin"] ? html`
+                    <tool-header title="Study Variant Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
-                        <study-variant-configuration
+                        <study-variant-admin
                             .study="${this.opencgaSession.study}"
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
-                        </study-variant-configuration>
+                        </study-variant-admin>
                     </div>
                 ` : null}
 

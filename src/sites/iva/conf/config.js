@@ -802,15 +802,15 @@ const SUITE = {
                     visibility: "public",
                     featured: true,
                 },
-                {
-                    id: "variant-admin",
-                    name: "Variant database",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: false,
-                },
+                // {
+                //     id: "variant-admin",
+                //     name: "Variant database",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: false,
+                // },
                 {
                     id: "catalog-admin",
                     name: "Catalog Management",
@@ -821,6 +821,15 @@ const SUITE = {
                     featured: false,
                 },
                 {
+                    id: "study-variant-admin",
+                    name: "Study Variant Admin",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
+                {
                     id: "projects-admin",
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
@@ -829,15 +838,6 @@ const SUITE = {
                     visibility: "public",
                     featured: true,
                 },
-                {
-                    id: "study-variant-configuration",
-                    name: "Study VariantConfiguration",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: true,
-                }
             ],
             fileExplorer: {
                 visibility: "private"
