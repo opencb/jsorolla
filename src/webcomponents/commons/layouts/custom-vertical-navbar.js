@@ -55,10 +55,7 @@ export default class CustomVerticalNavBar extends LitElement {
     #init() {
         this.isLoading = false;
         this._activeMenuItem = "UsersAndGroups";
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this._config = this.getDefaultConfig();
         // Selectors
         this.#divMenu = "admin-vertical-navbar";
         this.#divContent = "admin-vertical-content";

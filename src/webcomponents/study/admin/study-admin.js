@@ -425,12 +425,6 @@ export default class StudyAdmin extends LitElement {
     }
 
     getDefaultConfig() {
-        // return {
-        //     title: "Study Admin",
-        //     icon: "variant_browser.svg",
-        //     active: false
-        // };
-
         return {
             id: "",
             name: "",
