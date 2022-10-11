@@ -51,7 +51,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     _init() {
         this._prefix = "ovfc" + UtilsNew.randomString(6);
-        this.modeOfInheritance = "none";
+        this.modeOfInheritance = null;
 
         // TODO This is configurable via constants
         // if (application.appConfig === "opencb") {
@@ -203,8 +203,11 @@ export default class FamilyGenotypeFilter extends LitElement {
     notifySampleFilterChange() {
         // Notify the sample change
         const _sample = [];
-        // const _sampleData = [];
-        if (this.state) {
+
+        if (this.modeOfInheritance === "X_LINKED_RECESSIVE") {
+            const probandSampleId = this.clinicalAnalysis.proband.samples[0].id;
+            _sample.push(`${probandSampleId}:X_LINKED_RECESSIVE`);
+        } else if (this.state) {
             Object.keys(this.state).forEach(id => {
                 const sample = this.state[id];
                 if (sample.genotypes.length) {
@@ -228,8 +231,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     // Queries variant/family/genotypes to get the genotypes according to family pedigree
     // @param mode {String} Mode of inheritance
     onModeOfInheritance(mode) {
-        this.modeOfInheritance = mode;
-
         this.opencgaSession.opencgaClient.variants().genotypesFamily(mode, {
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
@@ -254,6 +255,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
                 // keeps the last legal state
                 if (!this.errorState) {
+                    this.modeOfInheritance = mode;
                     this.state = {...state};
                 }
                 this.notifySampleFilterChange();
@@ -298,6 +300,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     // Change the mode and handle the different cases
     setMode(e) {
         this.mode = e.detail.value.toUpperCase();
+        this.modeOfInheritance = null;
         this.errorState = false;
         if (this.mode === "CUSTOM") {
             this.tableData.forEach(sample => {
@@ -310,7 +313,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // Mode of Inheritance
-        if (this.modeOfInheritanceList.map(_ => _.id).includes(this.mode)) {
+        if (this.modeOfInheritanceList.some(item => item.id === this.mode)) {
             this.onModeOfInheritance(this.mode);
         }
 
@@ -387,7 +390,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             <div id="opencga-variant-filter-clinical" class="row">
                 <div class="form-check col-md-12">
                     <div style="padding: 5px 5px 10px 5px; font-size: 14px">
-                        You can manually select sample genotypes or select a 
+                        You can manually select sample genotypes or select a
                         <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
@@ -519,7 +522,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.noGtSamples.length ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle align-middle icon-padding"></i> 
+                            <i class="fas fa-info-circle align-middle icon-padding"></i>
                             All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
                         </div>
                     </div>
@@ -527,7 +530,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.showModeOfInheritance && this.errorState ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i> 
+                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i>
                             ${this.errorState}
                         </div>
                     </div>

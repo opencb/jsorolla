@@ -84,9 +84,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
 
     onQueryComplete(event, item) {
         const totalResults = event.detail.value?.responses[0]?.numTotalResults || 0;
-        if (totalResults > 0) {
-            this.querySelector(`#${this._prefix}GroupCount${item}`).textContent = `(${totalResults} cases)`;
-        }
+        this.querySelector(`#${this._prefix}GroupCount${item}`).textContent = `(${totalResults} cases)`;
     }
 
     onRowUpdate() {

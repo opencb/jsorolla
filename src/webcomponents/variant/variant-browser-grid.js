@@ -52,6 +52,9 @@ export default class VariantBrowserGrid extends LitElement {
             variants: {
                 type: Array
             },
+            populationFrequencies: {
+                type: Array
+            },
             cohorts: {
                 type: Array
             },
@@ -96,6 +99,8 @@ export default class VariantBrowserGrid extends LitElement {
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
+            // update config to add new columns by filters as sample
+            this.configObserver();
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
@@ -106,7 +111,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -147,7 +152,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.variants && this.variants.length > 0) {
+        if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
@@ -183,7 +188,7 @@ export default class VariantBrowserGrid extends LitElement {
                 variantGrid: this,
                 ajax: params => {
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
@@ -193,7 +198,7 @@ export default class VariantBrowserGrid extends LitElement {
                         // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.variants().query(filters)
+                    this.opencgaSession.opencgaClient.variants().query(this.filters)
                         .then(res => {
                             // FIXME A quick temporary fix -> TASK-947
                             if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
@@ -492,8 +497,9 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     populationFrequenciesFormatter(value, row, index) {
-        if (row && row.annotation?.populationFrequencies) {
-            const popFreqMap = new Map();
+        const popFreqMap = new Map();
+        // Fill the map with the freqs if there are any
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             // eslint-disable-next-line guard-for-in
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -502,10 +508,8 @@ export default class VariantBrowserGrid extends LitElement {
                     popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
-        } else {
-            return "-";
         }
+        return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
     }
 
     onCheck(e) {
@@ -584,7 +588,7 @@ export default class VariantBrowserGrid extends LitElement {
 
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let populationFrequencyColumns = [{visible: false}];
-        if (this.populationFrequencies && this.populationFrequencies.studies && this.populationFrequencies.studies.length > 0) {
+        if (this.populationFrequencies?.studies?.length > 0) {
             populationFrequencyColumns = [];
             for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                 const populations = [];
@@ -615,7 +619,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
-                    align: "center"
+                    align: "center",
                 });
             }
         }
@@ -694,7 +698,7 @@ export default class VariantBrowserGrid extends LitElement {
                 {
                     id: "samples",
                     title: "Samples",
-                    // field: "samples",
+                    field: "samples",
                     rowspan: 1,
                     colspan: sampleColumns.length,
                     align: "center",
@@ -859,14 +863,12 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 1000,
-            summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
-            // includeSample: "all" // TODO this causes a time-out
-            ...this.query
+        const filters = {
+            ...this.filters,
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.variants().query(params)
+        this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
@@ -929,6 +931,9 @@ export default class VariantBrowserGrid extends LitElement {
                 highImpactConsequenceTypeTranscript: false,
 
                 showNegativeConsequenceTypes: true
+            },
+            populationFrequencies: {
+                displayMode: "FREQUENCY_BOX"
             }
         };
     }

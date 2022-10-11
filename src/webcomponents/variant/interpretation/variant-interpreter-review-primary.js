@@ -131,6 +131,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+                showGenomeBrowserLink: false,
             };
         }
 
@@ -223,15 +224,22 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             `;
         }
 
+        const state = this.clinicalAnalysisManager.state || {};
+        const hasVariantsToSave = state.removedVariants?.length || state.updatedVariants?.length;
+
         return html`
             <div class="pull-right save-button">
                 <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
                     Preview
                 </button>
-                <button class="btn btn-primary" @click="${this.onSaveVariants}">
-                    <i class="fas fa-save icon-padding"></i> Save ${this.clinicalAnalysisManager.state?.updatedVariants?.length > 0 ? html`
-                        <span class="badge" style="margin-left: 5px">${this.clinicalAnalysisManager.state?.updatedVariants.length}</span>
-                    `: null}
+                <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"}" @click="${this.onSaveVariants}">
+                    <i class="fas fa-save icon-padding" aria-hidden="true"></i>
+                    <strong>Save</strong>
+                    ${hasVariantsToSave ? html`
+                        <span class="badge" style="margin-left: 5px">
+                            ${(state.removedVariants?.length || 0) + (state.updatedVariants?.length || 0)}
+                        </span>
+                    ` : null}
                 </button>
             </div>
 
@@ -318,9 +326,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     exportFilename: exportFilename,
                     detailView: true,
                     showReview: true,
-                    showActions: false,
+                    showActions: true,
+                    showGenomeBrowserLink: false,
 
-                    showSelectCheckbox: false,
+                    showSelectCheckbox: true,
                     multiSelection: false,
                     nucleotideGenotype: true,
                     alleleStringLengthMax: 10,

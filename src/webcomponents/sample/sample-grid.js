@@ -28,7 +28,7 @@ export default class SampleGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,16 +46,16 @@ export default class SampleGrid extends LitElement {
             samples: {
                 type: Array
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "SampleBrowserGrid";
         this.catalogUiUtils = new CatalogWebUtils();
@@ -72,13 +72,12 @@ export default class SampleGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
+                changedProperties.has("query") ||
+                changedProperties.has("config") ||
+                changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
         }
-        // super.update(changedProperties);
     }
 
     propertyObserver() {
@@ -150,16 +149,17 @@ export default class SampleGrid extends LitElement {
                             // Fetch clinical analysis to display the Case ID
                             const individualIds = sampleResponse.getResults().map(sample => sample.individualId).filter(Boolean).join(",");
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical().search(
-                                    {
-                                        individual: individualIds,
-                                        study: this.opencgaSession.study.fqn,
-                                        include: "id,proband.id,family.members"
-                                    })
+                                this.opencgaSession.opencgaClient.clinical()
+                                    .search(
+                                        {
+                                            individual: individualIds,
+                                            study: this.opencgaSession.study.fqn,
+                                            include: "id,proband.id,family.members"
+                                        })
                                     .then(caseResponse => {
                                         sampleResponse.getResults().forEach(sample => {
                                             for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members.find(member => member.id === sample.individualId)) {
+                                                if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members?.find(member => member.id === sample.individualId)) {
                                                     if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                         sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                                     } else {
@@ -225,10 +225,6 @@ export default class SampleGrid extends LitElement {
     }
 
     renderLocalTable() {
-        // this.from = 1;
-        // this.to = Math.min(this.samples.length, this._config.pageSize);
-        // this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -247,13 +243,7 @@ export default class SampleGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPageChange: (page, size) => {
-            //     const result = this.gridCommons.onPageChange(page, size);
-            //     this.from = result.from || this.from;
-            //     this.to = result.to || this.to;
-            // },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -266,15 +256,17 @@ export default class SampleGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.target.dataset;
-
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-        }
-
-        if (action === "qualityControl") {
-            alert("Not implemented yet");
-            // UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "qualityControl":
+                alert("Not implemented yet");
+                break;
         }
     }
 
@@ -288,6 +280,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "individualId",
                 title: "Individual ID",
+                field: "individualId",
                 formatter: (value, row) => row?.individualId ?? "-"
             },
             {
@@ -315,6 +308,7 @@ export default class SampleGrid extends LitElement {
             {
                 id: "cellLine",
                 title: "Cell Line",
+                field: "cellLine",
                 formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
             },
             {
@@ -322,33 +316,38 @@ export default class SampleGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter
-            }
-        ];
-
-        if (this._config.showSelectCheckbox) {
-            _columns.push({
+            },
+            {
                 id: "state",
                 field: "state",
                 checkbox: true,
-                // formatter: this.stateFormatter,
                 class: "cursor-pointer",
-                eligible: false
-            });
-        }
+                eligible: false,
+                visible: this._config.showSelectCheckbox
+            }
+        ];
 
         if (this.opencgaSession && this._config.showActions) {
             _columns.push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                            <span class="caret"></span>
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a data-action="download" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -372,22 +371,22 @@ export default class SampleGrid extends LitElement {
                             </li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ?
-                                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                                         <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
                                            href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
                                             <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter (${clinicalAnalysis.id})
                                         </a>
                                     `).join("") :
-                                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
                                         <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
                                     </a>`
-                                }
+                }
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit...
                                 </a>
                             </li>
                             <li>
@@ -406,7 +405,6 @@ export default class SampleGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-
         return _columns;
     }
 
@@ -449,6 +447,25 @@ export default class SampleGrid extends LitElement {
             });
     }
 
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>` : ""
+            }
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}SampleBrowserGrid"></table>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -462,24 +479,6 @@ export default class SampleGrid extends LitElement {
             showToolbar: true,
             showActions: true
         };
-    }
-
-    render() {
-        return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .query="${this.query}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : ""}
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}SampleBrowserGrid"></table>
-            </div>
-        `;
     }
 
 }

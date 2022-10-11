@@ -107,8 +107,8 @@ export default class StudyAdminCohort extends LitElement {
     }
 
     onCohortSearch(e) {
-        if (e.detail.status.error) {
-            // inform
+        if (e.detail.status?.error) {
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.cohort = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -148,6 +148,7 @@ export default class StudyAdminCohort extends LitElement {
                                     ` : html`
                                         <cohort-view
                                             .cohort="${this.cohort}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @cohortSearch="${e => this.onCohortSearch(e)}">
                                         </cohort-view>`}
@@ -177,6 +178,7 @@ export default class StudyAdminCohort extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
+                        .data="${{}}"
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
                         .opencgaSession="${this.opencgaSession}">

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
@@ -26,7 +27,7 @@ export default class CohortView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,46 +42,61 @@ export default class CohortView extends LitElement {
             cohortId: {
                 type: String
             },
+            search: {
+                type: Boolean
+            },
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.cohort = {};
+        this.search = false;
         this.isLoading = false;
+
+        this.displayConfigDefault = {
+            buttonsVisible: false,
+            collapsable: true,
+            titleAlign: "left",
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-
-        if (changedProperties.has("config")) {
-            this.configObserver();
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
-            this.isLoading = true;
+            const params = {
+                study: this.opencgaSession.study.fqn,
+            };
             let error;
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                .then(res => {
-                    this.cohort = res.responses[0].results[0];
-                    console.log("this cohort:", this.cohort);
-                    this.isLoading = false;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.cohorts()
+                .info(this.cohortId, params)
+                .then(response => {
+                    this.cohort = response.responses[0].results[0];
                 })
                 .catch(reason => {
                     this.cohort = {};
@@ -88,11 +104,12 @@ export default class CohortView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this._config};
-                    this.requestUpdate();
-                    this.notify(error);
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {}, error);
+                    this.#setLoading(false);
                 });
-            this.cohortId = "";
+        } else {
+            this.cohort = {};
         }
     }
 
@@ -100,25 +117,17 @@ export default class CohortView extends LitElement {
         this.cohortId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("cohortSearch", {
-            detail: {
-                value: this.cohort,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.cohort?.id && this.search === false) {
             return html`
-                <loading-spinner></loading-spinner>
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Cohort ID found.
+                </div>
             `;
         }
 
@@ -134,24 +143,17 @@ export default class CohortView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                buttonsVisible: false,
-                collapsable: true,
-                titleAlign: "left",
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: cohort => !cohort?.id
+                        visible: cohort => !cohort?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Cohort ID",
-                            field: "cohortId",
+                            // field: "cohortId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -161,11 +163,10 @@ export default class CohortView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            }
-                        }
-                    ]
+                                    </catalog-search-autocomplete>`,
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -177,7 +178,7 @@ export default class CohortView extends LitElement {
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
                             title: "Cohort Id",
-                            field: "id"
+                            field: "id",
                         },
                         {
                             title: "Cohort Type",
@@ -193,7 +194,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
-                            }
+                            },
                         },
                         {
                             title: "Creation date",
@@ -201,7 +202,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -209,7 +210,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => html`${UtilsNew.dateFormatter(field)}`,
-                            }
+                            },
                         },
                         {
                             title: "Annotation sets",
@@ -222,9 +223,9 @@ export default class CohortView extends LitElement {
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Samples",
@@ -254,15 +255,15 @@ export default class CohortView extends LitElement {
                                         defaultValue: "-",
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                        }
-                                    }
+                                        },
+                                    },
                                 ],
                                 defaultValue: "No phenotypes found",
-                            }
-                        }
-                    ]
-                }
-            ]
+                            },
+                        },
+                    ],
+                },
+            ],
         });
     }
 

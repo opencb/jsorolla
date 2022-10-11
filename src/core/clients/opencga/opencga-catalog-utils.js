@@ -78,14 +78,18 @@ export default class OpencgaCatalogUtils {
                     .map(group => group.id);
                 aclUserIds.push(user);
                 for (const aclId of aclUserIds) {
+                    // Find the permissions for this user
+                    const userPermissions = study?.acl
+                        ?.find(acl => acl.member === user).groups
+                        ?.find(group => group.id === aclId)?.permissions || [];
                     if (Array.isArray(permissions)) {
                         for (const permission of permissions) {
-                            if (study?.acl?.[aclId]?.includes(permission)) {
+                            if (userPermissions?.includes(permission)) {
                                 return true;
                             }
                         }
                     } else {
-                        if (study?.acl?.[aclId]?.includes(permissions)) {
+                        if (userPermissions?.includes(permissions)) {
                             return true;
                         }
                     }

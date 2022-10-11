@@ -131,6 +131,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     delete this.clinicalAnalysis[field];
                 }
                 break;
+            case "panelLock":
+                this.clinicalAnalysis.panelLock = e.detail.value;
+                break;
             default:
                 this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
                 break;
@@ -411,6 +414,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                     </disease-panel-filter>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Disease Panel Lock",
+                            field: "panelLock",
+                            type: "toggle-switch",
+                            display: {
+                                helpMessage: "You must select at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
+                                disabled: clinicalAnalysis => {
+                                    return !clinicalAnalysis?.panels || clinicalAnalysis?.panels?.length === 0;
+                                },
                             },
                         },
                         {

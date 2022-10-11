@@ -261,7 +261,7 @@ export default class SelectTokenFilter extends LitElement {
             <div class="dropzone-wrapper" @change="${this.readFile}" @dragover="${this.onDragOver}" @dragleave="${this.onDragLeave}">
               <div class="dropzone-desc">
                 <i class="fa-solid fa-upload"></i>
-                <div>Choose an text file or drag it here.</div>
+                <div>Choose a text file or drag it here.</div>
               </div>
               <input type="file" class="dropzone" />
             </div>

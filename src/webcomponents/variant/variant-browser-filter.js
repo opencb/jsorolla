@@ -342,18 +342,20 @@ export default class VariantBrowserFilter extends LitElement {
                 case "sample":
                     content = html`
                         <catalog-search-autocomplete
+                            .value="${this.preparedQuery.sample}"
                             .opencgaSession="${this.opencgaSession}"
-                            resource="SAMPLE"
+                            .resource="${"SAMPLE"}"
+                            .config="${{multiple: true, maxItems: 3}}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
                         </catalog-search-autocomplete>`;
                     break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
-                    if (subsection.onlyCohortAll === true || subsection.cohorts?.[0].cohorts?.length > 0) {
+                    if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
                         content = html`
                             <cohort-stats-filter
                                 .opencgaSession="${this.opencgaSession}"
-                                .cohorts="${subsection.cohorts}"
+                                .cohorts="${subsection.studies}"
                                 .onlyCohortAll=${subsection.onlyCohortAll}
                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}"
                                 @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">

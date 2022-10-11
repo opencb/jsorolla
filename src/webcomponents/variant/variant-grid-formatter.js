@@ -15,6 +15,7 @@
  */
 
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 
 
 export default class VariantGridFormatter {
@@ -60,7 +61,7 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantFormatter(value, row, index, assembly, config) {
+    static variantFormatter(value, row, index, assembly, config = {}) {
         if (!row) {
             return;
         }
@@ -77,9 +78,23 @@ export default class VariantGridFormatter {
         alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
         // Create links for tooltip
+        let tooltipText = "";
         const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
-        const tooltipText = `
-            <div class="dropdown-header" style="padding-left: 5px">External Links</div>
+        // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
+        if (row.type === "SNV" || row.studies[0]?.files[0]?.call?.variantId) {
+            const variantId = (row.type === "SNV") ? row.id : row.studies[0].files[0].call.variantId.split(",")[0];
+            tooltipText += `
+                <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
+                <div style="padding: 5px">
+                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
+                        DECIPHER
+                    </a>
+                </div>
+            `;
+        }
+        // 2. Add links to external browsers
+        tooltipText += `
+            <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
                 <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
@@ -96,7 +111,7 @@ export default class VariantGridFormatter {
 
         // Add highlight icons
         let iconHighlights = [];
-        if (config.highlights && config.activeHighlights) {
+        if (config?.highlights && config.activeHighlights) {
             iconHighlights = config.activeHighlights.map(id => {
                 const highlight = config.highlights.find(item => item.id === id);
                 if (highlight.condition(row, index) && highlight.style?.icon) {
@@ -160,7 +175,6 @@ export default class VariantGridFormatter {
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
-        // debugger
         // FIXME
         if (!variant.annotation) {
             variant.annotation = {
@@ -203,30 +217,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>External Links</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession?.project?.organism?.assembly)}'>Ensembl</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-                        </div>
-
-                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px; font-weight: bold;
-    border-top: 1px solid #d9d9d9;'>Clinical Resources</div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
-                        </div>
-                        <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
-                        </div>
+                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
                     `;
 
                     // If query.ct exists
@@ -276,38 +267,36 @@ export default class VariantGridFormatter {
                     </div>
                 `;
             }
-
-            // First, print Genes with query CT
-            // if (query?.ct) {
-            //     for (let i = 0; i < geneWithCtLinks.length; i++) {
-            //         resultHtml += geneWithCtLinks[i];
-            //         if (i + 1 !== geneWithCtLinks.length) {
-            //             resultHtml += ",";
-            //         }
-            //         genesCount++;
-            //     }
-            //     resultHtml += "<br>";
-            // }
-
-            // // Second, the other genes
-            // for (let i = 0; i < geneLinks.length && genesCount < 10; i++) {
-            //     resultHtml += geneLinks[i];
-            //     if (i + 1 !== geneLinks.length) {
-            //         if (i === 0) {
-            //             resultHtml += ",";
-            //         } else if ((i + 1) % 2 !== 0) {
-            //             resultHtml += ",";
-            //         } else {
-            //             resultHtml += "<br>";
-            //         }
-            //     }
-            //     genesCount++;
-            // }
             return resultHtml;
-
         } else {
             return "-";
         }
+    }
+
+    static getGeneTooltip(geneName, assembly) {
+        return `
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            </div>
+
+            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+            </div>
+        `;
     }
 
     static hgvsFormatter(variant, gridConfig) {
@@ -711,13 +700,16 @@ export default class VariantGridFormatter {
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
                     const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
-                    soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                    <span style="padding-right: 5px">${so.name}</span>
-                                    <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="https://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                  </div>`);
+                    const soUrl = `${BioinfoUtils.getSequenceOntologyLink(so.accession)}`;
+                    const soTitle = `Go to Sequence Ontology ${so.accession} term`;
+                    soArray.push(`
+                        <div style="color: ${color}; margin-bottom: 5px">
+                            <span style="padding-right: 5px">${so.name}</span>
+                            <a title="${soTitle}" href="${soUrl}" target="_blank">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    `);
                 }
 
                 let transcriptFlags = ["-"];
@@ -832,24 +824,26 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             let freq;
             if (arr[1] !== 0 && arr[1] !== "0") {
                 freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
             } else {
                 freq = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `<div>
-                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
-                            </span>
-                            <span style='font-weight: bold'>${freq}</span>
-                        </div>`;
+            tooltip += `
+                <div>
+                    <span>
+                        <i class='fa fa-xs fa-square' style='color: ${color};' aria-hidden='true'></i>
+                        <label style='padding-left: 5px;width: 140px;'>${arr[0]}:</label>
+                    </span>
+                    <span style='font-weight:bold;'>${freq}</span>
+                </div>
+            `;
         }
 
         // Create the table (with the tooltip info)
         const tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        let htmlPopFreqTable = `<a tooltip-title="Cohort Variant Stats" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
         for (const cohort of cohorts) {
             let color = "black";
             if (typeof cohortStats.get(cohort.id) !== "undefined") {
@@ -876,20 +870,21 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             let freq;
             if (arr[1] !== 0 && arr[1] !== "0") {
                 freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
             } else {
                 freq = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `<div>
-                            <span>
-                                <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
-                            </span>
-                            <span style='font-weight: bold'>${freq}</span>
-                        </div>`;
+            tooltip += `
+                <div>
+                    <span>
+                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                        <label style='padding-left: 5px; width: 140px'>${arr[0]}:</label>
+                    </span>
+                    <span style='font-weight: bold'>${freq}</span>
+                </div>
+            `;
         }
 
         // Create the table (with the tooltip info)
@@ -1012,10 +1007,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                                        .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                        .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
-                                        .join("")
-                                    }
+                            .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                            .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1049,10 +1044,10 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${histologies?.size > 0 && Array.from(histologies.values())
-                                        .filter(histology => histology && histology !== "null")
-                                        .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                                        .join("")
-                                    }
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("")
+                        }
                                 </div>
                             </div>`;
                     }
@@ -1199,24 +1194,135 @@ export default class VariantGridFormatter {
         }
     }
 
-    // TODO Remove since it is DEPRECATED
-    // addTooltip(selector, title, content, config) {
-    //     $(selector).qtip({
-    //         content: {
-    //             title: title,
-    //             text: function (event, api) {
-    //                 if (UtilsNew.isNotEmpty(content)) {
-    //                     return content;
-    //                 } else {
-    //                     return $(this).attr("data-tooltip-text");
-    //                 }
-    //             }
-    //         },
-    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-    //         show: {delay: 200},
-    //         hide: {fixed: true, delay: 300}
-    //     });
-    // }
+    static reportedVariantFormatter(value, variant, index) {
+        return `
+            ${variant?.interpretations?.length > 0 ? `
+                <div>${variant.interpretations.length === 1 ? "1 case found" : `${variant.interpretations.length} cases found`}</div>
+                <div class="text-muted">
+                    <div>REPORTED: ${variant.interpretationStats?.status?.REPORTED || 0} times</div>
+                    <div>TIER 1: ${variant.interpretationStats?.tier?.TIER1 || 0} times</div>
+                    <div>DISCARDED: ${variant.interpretationStats?.status?.DISCARDED || 0} times</div>
+                </div>` : `
+                <div>No cases found</div>`
+        }
+        `;
+    }
+
+    static reportedVariantDetailFormatter(value, row, opencgaSession) {
+        if (row?.interpretations?.length > 0) {
+            let reportedHtml = `
+                <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Case</th>
+                            <th rowspan="2">Disease Panel</th>
+                            <th rowspan="2">Sample</th>
+                            <th rowspan="2">Genotype</th>
+                            <th rowspan="2">Status</th>
+                            <th rowspan="2">Discussion</th>
+                            <th rowspan="1" colspan="5" style="text-align: center; padding-top: 5px; padding-right: 2px">Evidences</th>
+                        </tr>
+                        <tr style="margin: 5px">
+                            <th rowspan="1" style="padding-top: 5px">Gene</th>
+                            <th rowspan="1">Transcript</th>
+                            <th rowspan="1">ACMG</th>
+                            <th rowspan="1">Tier</th>
+                            <th rowspan="1">Clinical Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            for (const interpretation of row.interpretations) {
+                // Prepare data info for columns
+                const caseId = interpretation.id.split(".")[0];
+                const interpretationIdHtml = `
+                    <div>
+                        <label>
+                            ${caseId}
+                       </label>
+                    </div>
+                `;
+
+                const panelsHtml = `
+                    <div>
+                        ${interpretation.panels?.map(panel => {
+                    if (panel?.source?.project === "PanelApp") {
+                        return `<a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">${panel.name}</a>`;
+                    } else {
+                        return `<span>${panel.name || "-"}</span>`;
+                    }
+                })?.join("<br>")}
+                    </div>`;
+
+                const interpretedVariant = interpretation.primaryFindings.find(variant => variant.id === row.id);
+
+                const sampleHtml = `
+                    <div>
+                        <label>${interpretedVariant.studies[0]?.samples[0]?.sampleId || "-"}</label>
+                    </div>`;
+
+                const genotype = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, interpretedVariant.studies[0]?.samples[0], "call");
+                const genotypeHtml = `
+                    <div>
+                        <span>${genotype || "-"}</span>
+                    </div>`;
+
+                const statusHtml = `
+                    <div>
+                        ${interpretedVariant.status || "-"}
+                    </div>`;
+                const discussionHtml = `
+                    <div>
+                        ${interpretedVariant?.discussion?.text || "-"}
+                    </div>`;
+
+                const genes = [];
+                const transcripts = [];
+                const acmgClassifications = [];
+                const tierClassifications = [];
+                const clinicalSignificances = [];
+                for (const evidence of interpretedVariant.evidences.filter(ev => ev.review.select)) {
+                    genes.push(`
+                        <a href="${BioinfoUtils.getGeneLink(evidence.genomicFeature.geneName, "HGNC")}" target="_blank">
+                            ${evidence.genomicFeature.geneName}
+                        </a>
+                    `);
+                    transcripts.push(`
+                        <a href="${BioinfoUtils.getTranscriptLink(evidence.genomicFeature.transcriptId)}" target="_blank">
+                            ${evidence.genomicFeature.transcriptId}
+                        </a>
+                    `);
+                    acmgClassifications.push(evidence.review.acmg?.map(acmg => acmg.classification)?.join(", ")|| "-");
+                    tierClassifications.push(evidence.review.tier || "-");
+                    clinicalSignificances.push(`
+                        <span style="color:${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance?.toUpperCase()]?.color || "black"}">
+                            ${evidence.review.clinicalSignificance || "-"}
+                        </span>
+                    `);
+                }
+
+                // Create the table row
+                reportedHtml += `
+                    <tr class="detail-view-row">
+                        <td>${interpretationIdHtml}</td>
+                        <td>${interpretation?.panels?.length > 0 ? panelsHtml : "-"}</td>
+                        <td>${sampleHtml}</td>
+                        <td>${genotypeHtml}</td>
+                        <td>${statusHtml}</td>
+                        <td style="max-width:280px;">${discussionHtml}</td>
+
+                        <td>${genes.length > 0 ? genes.join("<br>") : "-"}</td>
+                        <td>${transcripts.length > 0 ? transcripts.join("<br>") : "-"}</td>
+                        <td>${acmgClassifications.length > 0 ? acmgClassifications.join("<br>") : "-"}</td>
+                        <td>${tierClassifications.length > 0 ? tierClassifications.join("<br>") : "-"}</td>
+                        <td>${clinicalSignificances.length > 0 ? clinicalSignificances.join("<br>") : "-"}</td>
+                    </tr>
+                `;
+            }
+            reportedHtml += "</tbody></table>";
+            return reportedHtml;
+        }
+        return "-";
+    }
 
 }

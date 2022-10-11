@@ -98,6 +98,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
         }
 
+        // Check for adding the examples filters section
+        if (_activeFilterFilters?.length > 0) {
+            _activeFilterFilters.unshift({
+                category: true,
+                name: "Example Filters",
+            });
+        }
+
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this.somaticSample) {
             // Init query object if needed
@@ -171,28 +179,25 @@ class VariantInterpreterBrowserCNV extends LitElement {
             // Add filter to Active Filters menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push({
+                    category: true,
+                    name: "Variant Stats Filters",
+                });
                 _activeFilterFilters.push(
-                    ...this.somaticSample.qualityControl.variant.variantStats
-                        .map(variantStat => (
-                            {
-                                id: variantStat.id,
-                                active: false,
-                                query: variantStat.query
-                            }
-                        ))
+                    ...this.somaticSample.qualityControl.variant.variantStats.map(variantStat => ({
+                        id: variantStat.id,
+                        active: false,
+                        query: variantStat.query,
+                    })),
                 );
             }
 
             // 2. Add default initial query the active filter menu
-            _activeFilterFilters.unshift({separator: true});
-            _activeFilterFilters.unshift(
-                {
-                    id: "Default Initial Query",
-                    active: false,
-                    query: this.query
-                }
-            );
+            _activeFilterFilters.unshift({
+                id: "Default Initial Query",
+                active: false,
+                query: this.query,
+            });
 
             // Set active filters
             this._config.filter.activeFilters.filters = _activeFilterFilters;
@@ -247,10 +252,8 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 searchButtonText: "Search",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types"
+                        "ct": "Consequence Types",
+                        "sample": "Sample Genotype"
                     },
                     complexFields: [
                         {id: "sample", separator: ";"},

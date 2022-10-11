@@ -16,14 +16,15 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-
+import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalInterpretationVariantReview extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,97 +45,113 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
         this.updateParams = {};
         this.mode = "form";
         this.variant = {};
+        this._variant = {};
         this._config = this.getDefaultconfig();
-        this.newCommentsAdded = false;
     }
 
     update(changedProperties) {
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
-
         if (changedProperties.has("mode")) {
             this.modeObserver();
         }
-
         super.update(changedProperties);
     }
 
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
-        this.newCommentsAdded = false;
+        this._variant = UtilsNew.objectClone(this.variant);
+        this.updateParams = {};
+        this._config = this.getDefaultconfig();
     }
 
     modeObserver() {
         this._config = this.getDefaultconfig();
     }
 
-    onCommentChange(e) {
-        this.commentsUpdate = e.detail;
-
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            // Josemi 20220719 Note: added fix to append new comments to the variant instead of replacing
-            // the saved comment with the new comment
-            if (!this.newCommentsAdded) {
-                if (!this.variant.comments) {
-                    this.variant.comments = [];
-                }
-                this.variant.comments.push(this.commentsUpdate.newComments[0]);
-                this.newCommentsAdded = true;
-            } else {
-                this.variant.comments[this.variant.comments.length - 1] = this.commentsUpdate.newComments[0];
-            }
-        }
-
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
-    }
-
-    onSaveFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e) {
+        const param = e.detail.param;
+        switch (param) {
             case "status":
-            case "discussion":
-                if (e.detail.value !== null) {
-                    this.variant[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
+                this.updateParams = FormUtils.updateScalar(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                break;
+            case "confidence.value":
+                // Check OpenCGA version
+                const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
+                if (compareResult >= 0) {
+                    this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                    if (typeof this.updateParams?.confidence?.value !== "undefined") {
+                        this.variant.confidence.author = this.opencgaSession.user?.id || "-";
+                        this.variant.confidence.date = UtilsNew.getDatetime();
+                    } else {
+                        // We need to reset discussion author and date
+                        this.variant.confidence.author = this._variant.confidence?.author;
+                        this.variant.confidence.date = this._variant.confidence?.date;
+                    }
                 }
+                break;
+            case "discussion.text":
+                // After TASK-1472, discussion is now an object containing text, author and date
+                this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
+                if (typeof this.updateParams?.discussion?.text !== "undefined") {
+                    this.variant.discussion.author = this.opencgaSession.user?.id || "-";
+                    this.variant.discussion.date = UtilsNew.getDatetime();
+                } else {
+                    // We need to reset discussion author and date
+                    this.variant.discussion.author = this._variant.discussion?.author;
+                    this.variant.discussion.date = this._variant.discussion?.date;
+                }
+                break;
+            case "comments":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._variant,
+                    this.variant,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+
+                // Assign comment author and date (TASK-1473)
+                const lastComment = this.variant.comments[this.variant.comments.length - 1];
+                this.variant.comments[this.variant.comments.length - 1] = {
+                    ...lastComment,
+                    tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
+                    author: this.opencgaSession?.user?.id || "-",
+                    date: UtilsNew.getDatetime(),
+                };
                 break;
         }
 
-        if (this.commentsUpdate?.newComments?.length > 0) {
-            this.variant.comments = this.commentsUpdate.newComments;
-        }
+        // this.dispatchEvent(new CustomEvent("variantChange", {
+        //     detail: {
+        //         value: this.variant,
+        //         update: this.updateParams
+        //     },
+        // }));
+        LitUtils.dispatchCustomEvent(this, "variantChange", this.variant, {update: this.updateParams});
 
-        this.dispatchEvent(new CustomEvent("variantChange", {
-            detail: {
-                value: this.variant,
-                update: this.updateParams
-            },
-        }));
+        this.requestUpdate();
     }
 
     render() {
         return html`
-            <data-form 
+            <data-form
                 .data="${this.variant}"
+                .updateParams="${this.updateParams}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onSaveFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
 
     getDefaultconfig() {
+        const discussion = this.variant?.discussion || {};
+        const confidence = this.variant?.confidence || {};
         const sections = [
             {
                 elements: [
@@ -147,45 +164,81 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             "REVIEW_REQUESTED",
                             "REVIEWED",
                             "DISCARDED",
-                            "REPORTED"
+                            "REPORTED",
+                            "ARTIFACT",
                         ],
                     },
                     {
+                        title: "Confidence",
+                        field: "confidence.value",
+                        type: "select",
+                        allowedValues: [
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW",
+                        ],
+                        display: {
+                            // Ths must be only visible for OpenCGA >= 2.4.6
+                            visible: this.opencgaSession?.about?.Version ? UtilsNew.compareVersions("2.4.6", this.opencgaSession?.about?.Version) >= 0 : false,
+                            helpMessage: confidence.author ? html`Last confidence added by <b>${confidence.author}</b> on <b>${UtilsNew.dateFormatter(confidence.date)}</b>.` : null,
+                        }
+                    },
+                    {
                         title: "Discussion",
-                        field: "discussion",
+                        field: "discussion.text",
                         type: "input-text",
                         display: {
                             placeholder: "Add a discussion",
                             rows: 5,
+                            helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                         },
                     },
                     {
                         title: "Comments",
                         field: "comments",
-                        type: "custom",
+                        type: "object-list",
                         display: {
-                            // Josemi 20220719 NOTE: comments field has been removed from the comment-editor properties to allow
-                            // saving more than one comment to the variant
-                            render: comments => html`
-                                <div>
-                                    ${(this.variant?.comments || []).map(comment => html`
-                                        <div style="display:flex;margin-bottom:1rem;">
-                                            <div style="padding-right:1rem;">
-                                                <i class="fas fa-comment-dots"></i>
-                                            </div>
-                                            <div style="width:100%;">
-                                                <div>${comment.message || "-"}</div>
-                                                <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
-                                            </div>
+                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                            // collapsable: false,
+                            // maxNumItems: 5,
+                            showEditItemListButton: false,
+                            showDeleteItemListButton: false,
+                            view: comment => html`
+                                <div style="margin-bottom:1rem;">
+                                    <div style="display:flex;margin-bottom:0.5rem;">
+                                        <div style="padding-right:1rem;">
+                                            <i class="fas fa-comment-dots"></i>
                                         </div>
-                                    `)}
+                                        <div style="font-weight:bold">
+                                            ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                        </div>
+                                    </div>
+                                    <div style="width:100%;">
+                                        <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                        <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                    </div>
                                 </div>
-                                <clinical-analysis-comment-editor
-                                    .comments="${[]}"
-                                    @commentChange="${e => this.onCommentChange(e)}">
-                                </clinical-analysis-comment-editor>
                             `,
                         },
+                        elements: [
+                            {
+                                title: "Message",
+                                field: "comments[].message",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add comment...",
+                                    rows: 3
+                                }
+                            },
+                            {
+                                title: "Tags",
+                                field: "comments[].tags",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "Add tags..."
+                                }
+                            },
+                        ]
                     },
                 ]
             }

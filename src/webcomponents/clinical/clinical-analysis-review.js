@@ -78,7 +78,9 @@ export default class ClinicalAnalysisReview extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
         }
     }
 
@@ -232,11 +234,14 @@ export default class ClinicalAnalysisReview extends LitElement {
         this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
         this.updateCaseParams = {};
         this.updateInterpretationComments = [];
+        this._config = this.getDefaultConfig();
 
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
             // id: this.interpretation.id, // maybe this not would be necessary
             clinicalAnalysis: this.clinicalAnalysis
         });
+
+        this.requestUpdate();
     }
 
     onUpdateVariant(e) {
@@ -261,7 +266,6 @@ export default class ClinicalAnalysisReview extends LitElement {
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         switch (param) {
-            case "report.discussion":
             case "report.date":
             case "status.id":
             case "report.signedBy":
@@ -271,6 +275,25 @@ export default class ClinicalAnalysisReview extends LitElement {
                     this.updateCaseParams,
                     param,
                     e.detail.value);
+                break;
+            case "report.discussion.text":
+                // Josemi (2022-07-29) added very basic implementation for saving discussion data
+                // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
+                this.clinicalAnalysis.report = {
+                    ...this.clinicalAnalysis.report,
+                    discussion: {
+                        text: e.detail.value,
+                        author: this.opencgaSession?.user?.id || "-",
+                        date: UtilsNew.getDatetime(),
+                    },
+                };
+                this.updateCaseParams = {
+                    ...this.updateCaseParams,
+                    report: {
+                        ...this.updateCaseParams?.report,
+                        discussion: this.clinicalAnalysis.report.discussion,
+                    },
+                };
                 break;
         }
     }
@@ -324,6 +347,7 @@ export default class ClinicalAnalysisReview extends LitElement {
     }
 
     getDefaultConfig() {
+        const discussion = this.clinicalAnalysis?.report?.discussion || {};
         return Types.dataFormConfig({
             type: "pills",
             display: {
@@ -494,10 +518,12 @@ export default class ClinicalAnalysisReview extends LitElement {
                         {
                             title: "Discussion",
                             type: "input-text",
-                            field: "report.discussion",
+                            field: "report.discussion.text",
                             defaultValue: "",
                             display: {
                                 rows: 10,
+                                helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
+
                             },
                         },
                         {

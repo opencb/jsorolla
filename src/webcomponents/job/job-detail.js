@@ -77,11 +77,14 @@ export default class JobDetail extends LitElement {
                 .catch(function (reason) {
                     console.error(reason);
                 });
+        } else {
+            this.job = null;
         }
     }
 
     render() {
-        if (!this.opencgaSession || !this.job) {
+
+        if (!this.opencgaSession) {
             return "";
         }
 

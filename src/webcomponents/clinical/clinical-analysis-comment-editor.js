@@ -144,7 +144,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
         // Add the new comment to the list
         this.comments[this.comments.length - 1] = this.newComment;
-        if (this.newComment?.message || this.newComments?.tags) {
+        if (this.newComment?.message || this.newComment?.tags) {
             this.commentStatus["ADD"] = "ADD";
         } else {
             this.comments.pop();

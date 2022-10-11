@@ -141,7 +141,7 @@ export default class CatalogGridFormatter {
     }
 
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
-        if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
+        if (clinicalAnalysisArray?.length > 0) {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `

@@ -108,6 +108,14 @@ class VariantInterpreterBrowserRd extends LitElement {
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
         }
 
+        // Check for adding the examples filters section
+        if (_activeFilterFilters?.length > 0) {
+            _activeFilterFilters.unshift({
+                category: true,
+                name: "Example Filters",
+            });
+        }
+
         this.sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
         if (this.sample) {
             // Init query object if needed
@@ -167,7 +175,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
                 // Files matching the selected Variant Callers
-                this.files = this.clinicalAnalysis.files
+                this.files = (this.clinicalAnalysis.files || [])
                     .filter(file => file.format.toUpperCase() === "VCF")
                     .filter(file =>
                         nonSvGermlineVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
@@ -197,12 +205,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                     // Update query with default 'fileData' parameters
                     this.query.fileData = fileDataFilters.join(",");
                 } else {
-                    this.files = this.clinicalAnalysis.files
-                        .filter(file => file.format.toUpperCase() === "VCF");
+                    this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
                 }
             } else {
-                this.files = this.clinicalAnalysis.files
-                    .filter(file => file.format.toUpperCase() === "VCF");
+                this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
             // 5. Read defaultFilter from study internal configuration
@@ -217,28 +223,25 @@ class VariantInterpreterBrowserRd extends LitElement {
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.sample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push({
+                    category: true,
+                    name: "Variant Stats Filters",
+                });
                 _activeFilterFilters.push(
-                    ...this.sample.qualityControl.variant.variantStats
-                        .map(variantStat => (
-                            {
-                                id: variantStat.id,
-                                active: false,
-                                query: variantStat.query
-                            }
-                        ))
+                    ...this.sample.qualityControl.variant.variantStats.map(variantStat => ({
+                        id: variantStat.id,
+                        active: false,
+                        query: variantStat.query,
+                    })),
                 );
             }
 
             // 2. Add default initial query the active filter menu
-            _activeFilterFilters.unshift({separator: true});
-            _activeFilterFilters.unshift(
-                {
-                    id: "Default Initial Query",
-                    active: false,
-                    query: this.query
-                }
-            );
+            _activeFilterFilters.unshift({
+                id: "Default Initial Query",
+                active: false,
+                query: this.query,
+            });
 
             // Add 'file' filter if 'fileData' exists
             if (this.files) {
@@ -300,10 +303,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                 searchButtonText: "Search",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types"
+                        "ct": "Consequence Types",
+                        "sample": "Sample Genotype"
                     },
                     complexFields: [
                         {id: "sample", separator: ";"},
@@ -369,8 +370,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
-                                tooltip: tooltips.cohort
-                                // cohorts: this.cohorts
+                                tooltip: tooltips.cohort,
+                                studies: this.opencgaSession?.project?.studies
                             }
                         ]
                     },

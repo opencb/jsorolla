@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaIndividualQcAnalysis extends LitElement {
+export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -59,15 +59,13 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
         }
     }
 
-
-
     getDefaultConfig() {
         return {
-            id: "individual-qc",
-            title: "Individual Quality Control",
+            id: "mendelian-errors",
+            title: "Individual Mendelian Errors",
             icon: "",
             requires: "2.0.0",
-            description: "Run quality control (QC) for a given individual. It includes inferred sex and mendelian errors (UDP)",
+            description: "Run mendelian error analysis to infer uniparental disomy regions",
             links: [
                 {
                     title: "OpenCGA",
@@ -82,8 +80,16 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                         collapsed: false,
                         parameters: [
                             {
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
+                            },
+                            {
                                 id: "individual",
-                                title: "Select individuals",
+                                title: "Select individual",
                                 type: "INDIVIDUAL_FILTER",
                                 addButton: true,
                                 showList: true,
@@ -98,22 +104,11 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                                 fileUpload: true
                             }
                         ]
-                    },
-                    {
-                        title: "Configuration Parameters",
-                        collapsed: false,
-                        parameters: [
-                            {
-                                id: "inferredSexMethod",
-                                title: "Inferred sex method",
-                                type: "text"
-                            }
-                        ]
                     }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "individual-qc-$DATE",
+                    id: "mendelian-error-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -123,10 +118,7 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let body = {};
-                data.individual ? body.individual = data.individual.join(",") : null;
-                data.sample ? body.sample = data.sample.join(",") : null;
-                opencgaSession.opencgaClient.variants().runIndividualQc(body, params);
+                opencgaSession.opencgaClient.variants().runMendelianError(data, params);
             },
             result: {
             }
@@ -140,4 +132,4 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-individual-qc-analysis", OpencgaIndividualQcAnalysis);
+customElements.define("opencga-individual-mendelian-error-analysis", OpencgaIndividualMendelianErrorAnalysis);

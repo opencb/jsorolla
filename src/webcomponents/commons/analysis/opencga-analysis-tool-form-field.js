@@ -211,12 +211,13 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 `;
             case "CLINICAL_ANALYSIS_FILTER":
                 return html`
-                    <clinical-analysis-id-autocomplete
+                    <catalog-search-autocomplete
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
-                        .config="${fieldConfig}"
+                        .resource="${"CLINICAL_ANALYSIS"}"
                         .opencgaSession="${this.opencgaSession}"
+                        .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </clinical-analysis-id-autocomplete>
+                    </catalog-search-autocomplete>
                 `;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");

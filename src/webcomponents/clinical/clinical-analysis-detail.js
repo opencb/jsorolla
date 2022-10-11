@@ -82,24 +82,24 @@ export default class ClinicalAnalysisDetail extends LitElement {
         }
     }
 
-    render() {
-        if (!this.opencgaSession || !this.clinicalAnalysis) {
-            return null;
-        }
-
-        return html`
-            <detail-tabs
-                .opencgaSession="${this.opencgaSession}"
-                .data="${this.clinicalAnalysis}"
-                .config="${this._config}">
-            </detail-tabs>
-        `;
-    }
-
     getDefaultConfig() {
         return {
             // details config in clinical-analysis-browser
         };
+    }
+
+    render() {
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.clinicalAnalysis}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}">
+            </detail-tabs>
+        `;
     }
 
 }

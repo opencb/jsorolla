@@ -240,24 +240,7 @@ export default class IndividualBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        active: false,
-                        query: {
-                            id: "LP",
-                            samples: "HG",
-                            sex: "FEMALE",
-                            karyotypicSex: "VCF,BCF,PROTOCOL_BUFFER",
-                            ethnicity: "asiatic",
-                            disorder: "british",
-                            affectationStatus: "AFFECTED",
-                            lifeStatus: "ALIVE",
-                            phenotypes: "melanoma",
-                            creationDate: "20201004"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,

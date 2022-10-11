@@ -25,7 +25,7 @@ import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
 import "./forms/select-token-filter-static.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
 export default class OpencgaBrowserFilter extends LitElement {
 
@@ -87,14 +87,15 @@ export default class OpencgaBrowserFilter extends LitElement {
             "individualId": "INDIVIDUAL",
             "members": "INDIVIDUAL",
             "family": "FAMILY",
+            "jobId": "JOB",
             "input": "FILE",
             "output": "FILE",
         };
 
         // Select the right distinct field to be displayed
         this.filterToDistinctField = {
-            "phenotypes": "phenotypes.name",
-            "disorders": "disorders.name",
+            "phenotypes": "phenotypes.id,phenotypes.name",
+            "disorders": "disorders.id,disorders.name",
             "ethnicity": "ethnicity.id",
             "proband": "proband.id",
             "tool": "tool.id",
@@ -189,7 +190,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "id":
                 case "name":
                 case "fileIds":
-                case "directory":
                 case "father":
                 case "mother":
                 case "samples":
@@ -199,11 +199,23 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "members":
                 case "family":
                 case "input":
+                case "jobId":
                 case "output":
                     content = html`
                         <catalog-search-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .resource="${this.filterToResource[subsection.id] || this.resource}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${subsection}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                        </catalog-search-autocomplete>
+                    `;
+                    break;
+                case "directory": // Temporal Solution
+                    content = html`
+                        <catalog-search-autocomplete
+                            .value="${this.preparedQuery[subsection.id]}"
+                            resource="DIRECTORY"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"
                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
@@ -223,7 +235,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .queryField="${subsection.id}"
-                            .distinctField="${this.filterToDistinctField[subsection.id]}"
+                            .distinctFields="${this.filterToDistinctField[subsection.id]}"
                             .resource="${this.resource}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"

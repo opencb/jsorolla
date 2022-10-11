@@ -75,7 +75,7 @@ class VariantInterpreter extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
@@ -91,6 +91,8 @@ class VariantInterpreter extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -288,17 +290,17 @@ class VariantInterpreter extends LitElement {
                 active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
-                    <div class="col-md-10 col-md-offset-1">
-                        <tool-header
-                            class="bg-white"
-                            title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                        </tool-header>
-                        <case-steiner-report
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </case-steiner-report>
-                    </div>
-                `;
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <case-steiner-report
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </case-steiner-report>
+                        </div>
+                    `;
                 }
             });
         } else {
@@ -498,9 +500,9 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                            <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
+                                <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                    <!-- <variant-interpreter-report
+                                        <!-- <variant-interpreter-report
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                         .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report> -->

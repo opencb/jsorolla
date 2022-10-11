@@ -320,6 +320,11 @@ export default class KnockoutVariantView extends LitElement {
     }
 
     render() {
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
         return html`
             <div class="container-fluid">
                 <!--<div class="row">
@@ -334,15 +339,21 @@ export default class KnockoutVariantView extends LitElement {
                     </div>
                 </div> -->
 
-                <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                @columnChange="${this.onColumnChange}"
-                                @download="${this.onDownload}">
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}">
                 </opencb-grid-toolbar>
 
                 <div class="row">
                     <table id="${this.gridId}"></table>
                 </div>
-                <detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></detail-tabs>
+                <detail-tabs
+                    .data="${this.variant}"
+                    .config="${this.detailConfig}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .cellbaseClient="${this.cellbaseClient}">
+                </detail-tabs>
             </div>
         `;
     }

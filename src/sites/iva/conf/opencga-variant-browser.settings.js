@@ -4,7 +4,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         sections: [
             {
                 title: "Study and Cohorts",
-                filters: ["study", "cohort"] // "sample",
+                filters: ["study", "sample", "cohort"]
             },
             {
                 title: "Genomic",

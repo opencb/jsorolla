@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import UtilsNew from "../../../../core/utilsNew.js";
+import "../../../commons/analysis/opencga-analysis-tool.js";
 
 
-export default class OpencgaInferredSexAnalysis extends LitElement {
+export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -61,15 +61,15 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "inferred-sex",
-            title: "Inferred Sex Analysis",
+            id: "sample-variant-stats",
+            title: "Sample Variant Stats",
             icon: "",
             requires: "2.0.0",
-            description: "Inferred Sex description",
+            description: "Sample Variant Stats description",
             links: [
                 {
                     title: "OpenCGA",
-                    url: "http://docs.opencb.org/display/opencga/Genome-Wide+Association+Study",
+                    url: "http://docs.opencb.org/display/opencga/Sample+Stats",
                     icon: ""
                 }
             ],
@@ -86,23 +86,37 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
                             },
                             {
-                                id: "individual",
-                                title: "Select Individual",
-                                type: "INDIVIDUAL_FILTER",
+                                id: "family",
+                                title: "Select family",
+                                type: "FAMILY_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                                // colspan: 6
-                            },
+                            }
                         ]
                     },
+                    {
+                        title: "Configuration Parameters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "index",
+                                title: "Index results in catalog",
+                                type: "boolean"
+                            },
+                            {
+                                id: "sampleAnnotation",
+                                title: "Write sample annotation",
+                                type: "text"
+                            }
+                        ]
+                    }
                 ],
                 job: {
                     title: "Job Info",
-                    id: "inferred-sex-$DATE",
+                    id: "sample-variant-stats-$DATE",
                     tags: "",
                     description: "",
                     validation: function(params) {
@@ -112,16 +126,8 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                let _data = {};
-                if (data) {
-                    if (data.individual) {
-                        _data.individual = data.individual.join(",");
-                    }
-                    if (data.sample) {
-                        _data.sample = data.sample.join(",");
-                    }
-                }
-                opencgaSession.opencgaClient.variants().runInferredSex(_data, params);
+                params.index = true;
+                opencgaSession.opencgaClient.variants().runSampleStats(data, params);
             },
             result: {
             }
@@ -135,4 +141,4 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
     }
 }
 
-customElements.define("opencga-inferred-sex-analysis", OpencgaInferredSexAnalysis);
+customElements.define("opencga-sample-variant-stats-analysis", OpencgaSampleVariantStatsAnalysis);

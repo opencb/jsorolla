@@ -84,13 +84,16 @@ export default class CohortDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.cohort ?
-            html`
-                <detail-tabs
-                    .data="${this.cohort}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>` : null;
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.cohort}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>`;
     }
 
 }

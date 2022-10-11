@@ -133,11 +133,12 @@ export default class ClinicalAnalysisManager {
 
         // Prepare interpretation object for the update
         const interpretation = {
-            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings
+            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
+            comments: [],
         };
         // Check if a comment is provided
-        if (comment && comment.message) {
-            interpretation.comments = [comment];
+        if (comment?.message) {
+            interpretation.comments.push(comment);
         }
 
         // Add selected variants
@@ -181,27 +182,25 @@ export default class ClinicalAnalysisManager {
             study: this.opencgaSession.study.fqn,
             primaryFindingsAction: "SET",
             // secondaryFindingsAction: "SET",
-        })
-            .then(() => {
-                // Notify
-                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                    // title: "Interpretation saved",
-                    message: "The interpretation has been updated.",
-                });
-                callback(this.clinicalAnalysis);
-
-                // Reset internal state
-                this.state = {
-                    ...this.state,
-                    addedVariants: [],
-                    removedVariants: [],
-                    updatedVariants: [],
-                };
-            })
-            .catch(response => {
-                // console.error(response);
-                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+        }).then(() => {
+            // Notify
+            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+                // title: "Interpretation saved",
+                message: "The interpretation has been updated.",
             });
+            callback(this.clinicalAnalysis);
+
+            // Reset internal state
+            this.state = {
+                ...this.state,
+                addedVariants: [],
+                removedVariants: [],
+                updatedVariants: [],
+            };
+        }).catch(response => {
+            // console.error(response);
+            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+        });
     }
 
     createInterpretation(interpretation, callback) {

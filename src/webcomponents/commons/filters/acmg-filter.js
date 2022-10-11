@@ -37,6 +37,9 @@ export default class AcmgFilter extends LitElement {
             acmg: {
                 type: Array,
             },
+            multiple: {
+                type: Boolean,
+            },
         };
     }
 
@@ -54,7 +57,7 @@ export default class AcmgFilter extends LitElement {
             <select-field-filter
                 .data="${this.config.data}"
                 .value=${this.acmg || []}
-                ?multiple="${this.config.multiple}"
+                ?multiple="${this.multiple ?? this.config.multiple}"
                 ?liveSearch=${this.config.liveSearch}
                 @filterChange="${this.filterChange}">
             </select-field-filter>

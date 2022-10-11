@@ -180,20 +180,7 @@ export default class SampleBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        active: false,
-                        query: {
-                            id: "HG",
-                            individual: "LP",
-                            source: "LP",
-                            phenotypes: "melanoma",
-                            somatic: "True",
-                            creationDate: ">=20200216"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,
@@ -253,12 +240,12 @@ export default class SampleBrowser extends LitElement {
                             id: "file-view",
                             name: "Files",
                             render: (sample, active, opencgaSession) => html`
-                                <opencga-file-grid
+                                <file-grid
                                     .query="${{sampleIds: sample.id}}"
                                     .active="${active}"
                                     .config="${{downloadFile: this.config.downloadFile}}"
                                     .opencgaSession="${opencgaSession}">
-                                </opencga-file-grid>
+                                </file-grid>
                             `,
                         },
                         {

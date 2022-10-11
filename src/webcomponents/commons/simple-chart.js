@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-
+import LitUtils from "./utils/lit-utils.js";
 
 export default class SimpleChart extends LitElement {
 
@@ -102,7 +102,7 @@ export default class SimpleChart extends LitElement {
     }
 
     renderColumnChart() {
-        Highcharts.chart(this._prefix + "chart", {
+        Highcharts.chart(this._prefix, {
             chart: {
                 type: "column",
                 ...this._config.chart
@@ -145,6 +145,7 @@ export default class SimpleChart extends LitElement {
                 // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
                 data: Array.isArray(data) ? data : [data],
                 color: this.colors[name] ? this.colors[name] : undefined,
+                animation: false,
             })),
             credits: {
                 enabled: false
@@ -153,10 +154,17 @@ export default class SimpleChart extends LitElement {
     }
 
     renderBarChart() {
-        Highcharts.chart(this._prefix + "chart", {
+        const self = this;
+        Highcharts.chart(this._prefix, {
             chart: {
                 type: "bar",
-                ...this._config.chart,
+                ...this._config?.chart,
+                animation: false,
+                events: {
+                    render: function () {
+                        self.onChartRendered(this);
+                    },
+                },
             },
             title: {
                 text: this.title,
@@ -197,6 +205,7 @@ export default class SimpleChart extends LitElement {
                 // Most of the variant stats are Maps with a single datapoint, in other cases we need an array (facets)
                 data: Array.isArray(data) ? data : [data],
                 color: this.colors[name] ? this.colors[name] : undefined,
+                animation: false,
             })),
             credits: {
                 enabled: false,
@@ -205,7 +214,7 @@ export default class SimpleChart extends LitElement {
     }
 
     renderPieChart() {
-        Highcharts.chart(this._prefix + "chart", {
+        Highcharts.chart(this._prefix, {
             chart: {
                 type: "pie",
                 plotBackgroundColor: null,
@@ -239,6 +248,7 @@ export default class SimpleChart extends LitElement {
             series: [
                 {
                     data: Object.entries(this.data).map(([name, data]) => ({name: name, y: data})),
+                    animation: false,
                 }
             ],
             credits: {
@@ -247,9 +257,17 @@ export default class SimpleChart extends LitElement {
         });
     }
 
+    onChartRendered(chart) {
+        UtilsNew.convertSvgToPng(chart.container.querySelector("svg"))
+            .then(img => LitUtils.dispatchCustomEvent(this, "changeChart", img))
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
     render() {
         return html`
-            <div id="${this._prefix}chart"></div>
+            <div id="${this._prefix}"></div>
         `;
     }
 
