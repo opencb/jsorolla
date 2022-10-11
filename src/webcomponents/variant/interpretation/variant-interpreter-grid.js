@@ -843,7 +843,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
 
                         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
-                        const reviewDisabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
 
                         return `
                             <div class="dropdown">
@@ -969,7 +969,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        const disabled = this.clinicalAnalysis.locked ? "disabled" : "";
+                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
                     },
                     align: "center",
@@ -986,7 +986,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         // Check disable status
-                        const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         // Prepare comments
                         let commentsTooltipText = "";
                         if (row.comments?.length > 0) {
