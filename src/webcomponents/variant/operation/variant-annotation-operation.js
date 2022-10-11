@@ -50,9 +50,9 @@ export default class VariantAnnotationOperation extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "VariantAnnotation";
-        this.ANALYSIS_TITLE = "Variant Annotation Index Operation";
-        this.ANALYSIS_DESCRIPTION = "Executes a variant annotation index job";
+        this.TOOL = "VariantAnnotation";
+        this.TITLE = "Variant Annotation Index Operation";
+        this.DESCRIPTION = "Executes a variant annotation index job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -94,10 +94,10 @@ export default class VariantAnnotationOperation extends LitElement {
         };
         const params = {
             project: this.toolParams.project || "",
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variantOperations()
                 .indexVariantAnnotation(toolParams, params),
             this,
@@ -158,9 +158,9 @@ export default class VariantAnnotationOperation extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );
