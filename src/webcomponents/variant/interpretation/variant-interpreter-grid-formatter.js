@@ -79,39 +79,36 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static predictionFormatter(value, row) {
-        if (!row.evidences) {
+        if (row.evidences?.length > 0) {
+            let clinicalSignificanceHtml = "NA";
+
+            // Find the worst automatic prediction
+            let worstClinicalEvidence;
+            let worstClinicalSignificanceCode = 0;
+            for (const evidence of row.evidences) {
+                const evidenceCode = CLINICAL_SIGNIFICANCE_SETTINGS[evidence.classification.clinicalSignificance]?.code ?? 0;
+                if (evidenceCode > worstClinicalSignificanceCode) {
+                    worstClinicalSignificanceCode = evidenceCode;
+                    worstClinicalEvidence = evidence;
+                }
+            }
+
+            if (worstClinicalEvidence) {
+                const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[worstClinicalEvidence.classification.clinicalSignificance]?.id || "-";
+                clinicalSignificanceHtml = `
+                    <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[worstClinicalEvidence.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div class="help-block">${worstClinicalEvidence.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
+                `;
+            }
+
+            return `
+                <div>
+                    ${clinicalSignificanceHtml}
+                </div>
+            `;
+        } else {
             return "-";
         }
-
-        let clinicalSignificanceCode = 0;
-        let clinicalSignificanceHtml = "NA";
-        let clinicalSignificanceTooltipText = "";
-
-        for (const re of row.evidences) {
-            if (CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
-                clinicalSignificanceCode = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].code;
-                const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
-                clinicalSignificanceHtml = `
-                    <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
-                `;
-                clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
-                                                        <form class='form-horizontal'>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${re.classification.acmg.join(", ")}</div>
-                                                            </div>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG Tier</label>
-                                                                <div class='col-md-7'>${re.classification.tier}</div>
-                                                            </div>
-                                                        </form>
-                                                   </div>`;
-            }
-        }
-        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
-                    ${clinicalSignificanceHtml}
-                </a>`;
     }
 
 

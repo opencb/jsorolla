@@ -940,18 +940,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 // Interpretation Column
                 {
-                    id: "reported",
-                    title: `Interpreted and/or<br> Reported`,
-                    // field: "prediction",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
-                    align: "center",
-                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                },
-                {
                     id: "prediction",
-                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
+                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG Automatic <br> Prediction" : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
@@ -961,6 +951,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     },
                     align: "center",
                     visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "reported",
+                    title: "Interpreted & <br> Reported",
+                    // field: "prediction",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
+                    align: "center",
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                 },
                 {
                     id: "Select",
