@@ -51,7 +51,7 @@ const CLINICAL_SIGNIFICANCE = [
 const CLINICAL_SIGNIFICANCE_SETTINGS = {
     NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
     BENIGN: {id: "B", code: 1, color: "green"},
-    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkgreen"},
     UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
     LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
     PATHOGENIC: {id: "P", code: 5, color: "red"}
