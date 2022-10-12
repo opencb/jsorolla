@@ -15,14 +15,16 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../../commons/utils/lit-utils";
 import UtilsNew from "../../../../core/utilsNew.js";
 import "../study-admin-sample.js";
 import "../study-admin-individual.js";
 import "../study-admin-family.js";
 import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
-import "../../../variant/operation/variant-annotation-operation";
-import LitUtils from "../../../commons/utils/lit-utils";
+import "../../../variant/operation/variant-annotation-index-operation.js";
+import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-operation.js";
 
 
 export default class StudyVariantAdmin extends LitElement {
@@ -470,10 +472,34 @@ export default class StudyVariantAdmin extends LitElement {
                     name: "Variant Annotation Index",
                     icon: "fas fa-key",
                     render: (opencgaSession, study) => html`
-                        <variant-annotation-operation
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </variant-annotation-operation>`,
+                        <variant-annotation-index-operation
+                            .toolParams="${{project: this.opencgaSession.project.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-annotation-index-operation>`,
+
+                },
+                {
+                    id: "variant-secondary-annotation-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Secondary Annotation Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-annotation-index-operation
+                            .toolParams="${{project: this.opencgaSession.project.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-annotation-index-operation>`,
+
+                },
+                {
+                    id: "variant-secondary-sample-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Secondary Sample Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-sample-index-operation
+                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-sample-index-operation>`,
 
                 },
             ],

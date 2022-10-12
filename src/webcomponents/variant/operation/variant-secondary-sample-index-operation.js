@@ -23,7 +23,7 @@ import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 
 
-export default class VariantAnnotationOperation extends LitElement {
+export default class VariantSecondarySampleIndexOperation extends LitElement {
 
     constructor() {
         super();
@@ -50,9 +50,9 @@ export default class VariantAnnotationOperation extends LitElement {
     }
 
     #init() {
-        this.TOOL = "VariantAnnotation";
-        this.TITLE = "Variant Annotation Index Operation";
-        this.DESCRIPTION = "Executes a variant annotation index job";
+        this.TOOL = "VariantSecondarySampleIndex";
+        this.TITLE = "Variant Secondary Sample Index Operation";
+        this.DESCRIPTION = "Executes a variant secondary sample index operation job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -61,6 +61,13 @@ export default class VariantAnnotationOperation extends LitElement {
         };
 
         this.config = this.getDefaultConfig();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.study = this.toolParams.study || "";
+        }
     }
 
     update(changedProperties) {
@@ -90,16 +97,18 @@ export default class VariantAnnotationOperation extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            overwriteAnnotations: this.toolParams.index || false,
+            sample: this.toolParams.sample?.split(",") || [],
+            familyIndex: this.toolParams.familyIndex || false,
+            overwrite: this.toolParams.index || false,
         };
         const params = {
-            project: this.toolParams.project || "",
+            study: this.toolParams.study || this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
             this.TITLE,
             this.opencgaSession.opencgaClient.variantOperations()
-                .indexVariantAnnotation(toolParams, params),
+                .variantSecondarySampleIndex(toolParams, params),
             this,
         );
     }
@@ -126,19 +135,19 @@ export default class VariantAnnotationOperation extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Project Filters",
+                title: "Study Filter",
                 elements: [
                     {
-                        title: "Project",
+                        title: "Study",
                         type: "custom",
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.project}"
-                                    .resource="${"PROJECT"}"
+                                    .value="${toolParams?.study}"
+                                    .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "project")}">
+                                    .config="${{multiple: false, disabled: !!this.study}}}"
+                                    @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -149,8 +158,28 @@ export default class VariantAnnotationOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Overwrite Annotations",
-                        field: "overwriteAnnotations",
+                        title: "Sample",
+                        type: "custom",
+                        display: {
+                            render: toolParams => html`
+                                <catalog-search-autocomplete
+                                    .value="${toolParams?.sample}"
+                                    .resource="${"SAMPLE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: true}}"
+                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Family Index",
+                        field: "familyIndex",
+                        type: "checkbox",
+                    },
+                    {
+                        title: "Overwrite Index",
+                        field: "overwrite",
                         type: "checkbox",
                     },
                 ],
@@ -168,4 +197,4 @@ export default class VariantAnnotationOperation extends LitElement {
 
 }
 
-customElements.define("variant-annotation-operation", VariantAnnotationOperation);
+customElements.define("variant-secondary-sample-index-operation", VariantSecondarySampleIndexOperation);
