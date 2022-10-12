@@ -15,14 +15,17 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../../commons/utils/lit-utils";
 import UtilsNew from "../../../../core/utilsNew.js";
 import "../study-admin-sample.js";
 import "../study-admin-individual.js";
 import "../study-admin-family.js";
 import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
-import "../../../variant/operation/variant-annotation-operation";
-import LitUtils from "../../../commons/utils/lit-utils";
+import "../../../variant/operation/variant-annotation-index-operation.js";
+import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 
 
 export default class StudyVariantAdmin extends LitElement {
@@ -410,73 +413,103 @@ export default class StudyVariantAdmin extends LitElement {
             visibility: "", // public | private | none
             // title: "Study",
             // sections: [
-            menu: [
+            items: [
                 {
                     id: "variant-configuration",
                     name: "Variant Configuration",
                     description: "",
                     icon: "",
-                    visibility: "private",
+                    visibility: "",
                     featured: "", // true | false
                     category: true, // true | false
-                    submenu: [
-                        {
-                            id: "dashboard",
-                            name: "Dashboard",
-                            // label: "Dashboard",
-                            icon: "fas fa-tachometer-alt",
-                            visibility: "private",
-                            // QUESTION: Which one: (a) or (b)
-                            // question: (a)
-                            // display: {
-                            //     contentClass: "",
-                            //     contentStyle: ""
-                            //     defaultLayout: "vertical",
-                            //     render: () => html`
-                            //         <under-construction>
-                            //             .title="Study dashboard"
-                            //         </under-construction>`,
-                            // },
-                            // question: (b)
-                            render: () => html`
-                                <under-construction>
-                                    .title="Study dashboard"
-                                </under-construction>`,
-                        },
-                        {
-                            id: "configuration",
-                            // label: "Configuration",
-                            name: "Configuration",
-                            icon: "fas fa-cog",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-admin-configuration
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-configuration>`,
-                        },
-                    ],
+                    // label: "Configure",
+                },
+                {
+                    separator: true,
+                    visibility: "public"
+                },
+                {
+                    id: "dashboard",
+                    name: "Dashboard",
+                    // label: "Dashboard",
+                    icon: "fas fa-tachometer-alt",
+                    // QUESTION: Which one: (a) or (b)
+                    // question: (a)
+                    // display: {
+                    //     contentClass: "",
+                    //     contentStyle: ""
+                    //     defaultLayout: "vertical",
+                    //     render: () => html`
+                    //         <under-construction>
+                    //             .title="Study dashboard"
+                    //         </under-construction>`,
+                    // },
+                    // question: (b)
+                    render: () => html`
+                        <under-construction>
+                            .title="Study dashboard"
+                        </under-construction>`,
+                },
+                {
+                    id: "configuration",
+                    // label: "Configuration",
+                    name: "Configuration",
+                    icon: "fas fa-cog",
+                    render: (opencgaSession, study) => html`
+                        <study-admin-configuration
+                                .opencgaSession="${opencgaSession}"
+                                .study="${study}">
+                        </study-admin-configuration>`,
+                },
+                {
+                    id: "variant-secondary-sample-configure-index",
+                    // label: "Variant Annotation Index",
+                    name: "Sample Index Configuration",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-sample-index-configure-operation
+                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-sample-index-configure-operation>`,
                 },
                 {
                     id: "variant-operations",
                     // label: "Operations",
                     name: "Variant Operations",
                     category: true, // true | false
-                    visibility: "private",
-                    submenu: [
-                        {
-                            id: "variant-annotation-index",
-                            // label: "Variant Annotation Index",
-                            name: "Variant Annotation Index",
-                            icon: "fas fa-key",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                            <variant-annotation-operation
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${study}">
-                            </variant-annotation-operation>`,
-                        },
-                    ],
+                },
+                {
+                    id: "variant-annotation-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Annotation Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-annotation-index-operation
+                            .toolParams="${{project: this.opencgaSession.project.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-annotation-index-operation>`,
+                },
+                {
+                    id: "variant-secondary-annotation-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Secondary Annotation Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-annotation-index-operation
+                            .toolParams="${{project: this.opencgaSession.project.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-annotation-index-operation>`,
+                },
+                {
+                    id: "variant-secondary-sample-index",
+                    // label: "Variant Annotation Index",
+                    name: "Variant Secondary Sample Index",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-sample-index-operation
+                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-sample-index-operation>`,
                 },
             ],
         };
