@@ -468,7 +468,6 @@ export default class StudyAdmin extends LitElement {
                         {
                             id: "Dashboard",
                             name: "Dashboard",
-                            // label: "Dashboard",
                             visibility: "private",
                             icon: "fas fa-tachometer-alt",
                             // QUESTION: Which one: (a) or (b)

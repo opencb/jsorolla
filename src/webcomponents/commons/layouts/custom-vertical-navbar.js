@@ -180,9 +180,11 @@ export default class CustomVerticalNavBar extends LitElement {
                     width: 100%;
                     border-radius: 3px;
 
-                    transform: translate3d(0px, 0, 0);
-                    transition: transform 0.3s ease 0s, opacity 0.3s ease 0s, all .15s ease-in;
-                    line-height: 30px;
+                    /*transform: translate3d(0px, 0, 0);*/
+                    /*transition: transform*/
+                    /*    0.3s ease 0s,*/
+                    /*    opacity 0.3s ease 0s,*/
+                    /*    all .15s ease-in;*/
                 }
 
                 .active-item {
@@ -190,12 +192,16 @@ export default class CustomVerticalNavBar extends LitElement {
                     background-color: #E25D1D;
                     /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
                 }
+                .nav-item > .nav-link:hover{
+                    background-color: inherit;
+                }
 
                 .nav-item:hover:not(.active-item) {
                     /*background-color: #AAAABC;*/
                     background-color: #767687;
                     cursor: pointer;
                 }
+
 
                 .navbar.navbar-inverse.main-navbar {
                     position: fixed;
@@ -295,7 +301,9 @@ export default class CustomVerticalNavBar extends LitElement {
 
                     /*colors dropdown box text */
                     .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
-                        color: #777;
+                        /*color: #777;*/
+                        color: #d2d2d2;
+                        white-space: normal;
                     }
 
                     /*gives sidebar width/height*/
@@ -348,12 +356,6 @@ export default class CustomVerticalNavBar extends LitElement {
                     }
                 }
 
-                /*nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:hover,*/
-                /*nav.sidebar .navbar-nav.left .open .dropdown-menu > li > a:focus {*/
-                /*    color: #CCC;*/
-                /*    background-color: transparent;*/
-                /*}*/
-
                 nav:hover .forAnimate {
                     opacity: 1;
                 }
@@ -388,60 +390,67 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #renderMenu() {
         return html`
-            <div id="${this.#divMenu}" class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
-                <ul class="nav navbar-nav left" id="admin-navbar">
-                    ${this._config.menu?.filter?.(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession)).map(menuItem => html `
-                        ${menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession)) ? html `
-                            <!-- If there is submenu -->
-                            <!--
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                $menuItem.name} <span class="caret"></span>
-                            </a>
-                            -->
-                            ${menuItem.submenu
-            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
-            .map(submenuItem => {
-                if (submenuItem.category) {
-                    return html`
-                        <li>
-                            <!--
-                            <a class="nav-item-category"
-                               style="background-color:white!important;cursor:auto!important;">
-                                <strong>item.name}</strong>
-                            </a>
-                            -->
-                            <p class="navbar-text">${submenuItem.name}</p>
-                        </li>
-                    `;
-                } else if (submenuItem.separator) {
-                    return html`
-                        <li role="separator" class="divider"></li>
-                     `;
-                } else {
-                    return html`
-                        <li class="nav-item" data-id="${submenuItem.id}">
-                            <!-- QUESTION: ESLint error fix for formatting icon | name
-                             <div class="item-icon"> <i class="item.icon}""></i></div>
-                            <div class="item-label">item.name}</div>
-                            -->
-                            <a class="nav-link">${submenuItem.name}</a>
-                        </li>
-                    `;
-                }
-            })
-                }
-            ` : html `
-                <!-- If there is not submenu TODO -->
-                <li>
-                    TODO: NO SUBMENU
-                </li>`
-            }`
-        )}
+            <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar" id="${this.#divMenu}" >
+                <!-- To check the visibility of each menu and submenu item-->
+                <ul class="nav navbar-nav left">
+                    ${this._config.menu
+                        .filter(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession))
+                        .map(menuItem => {
+                            if (menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))) {
+                                return html`
+                                    <li class="dropdown open">
+                                    <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
+                                    <a class="dropdown-toggle" data-toggle="dropdown open" role="button" aria-haspopup="true" aria-expanded="true">
+                                        ${menuItem.name} <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        ${menuItem.submenu
+                                            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
+                                            .map(submenuItem => {
+                                                /*
+                                                QUESTION 1: should we consider category and separator here?
+                                                QUESTION 2: item can exclusively be of type: category | separator | nav-item.
+                                                  Proposal:
+                                                  To use switch insetad of ifelse: key 'type', with values: [category | separator | nav-item]
+                                                */
+                                                switch (["category", "separator"].find(type => type in submenuItem)) {
+                                                    case "category":
+                                                        return html`
+                                                            <li>
+                                                                <a class="nav-item-category"
+                                                                   style="cursor:auto!important;">
+                                                                    <strong>${submenuItem.name}</strong>
+                                                                </a>
+                                                                <!--<p class="navbar-text">$submenuItem.name}</p>-->
+                                                            </li>
+                                                        `;
+                                                    case "separator":
+                                                        return html`<li role="separator" class="divider"></li>`;
+                                                    default:
+                                                        return html`
+                                                            <li class="nav-item" data-id="${submenuItem.id}">
+                                                                <!-- QUESTION: ESLint error fix for formatting icon | name
+                                                                 <div class="item-icon"> <i class="item.icon}""></i></div>
+                                                                <div class="item-label">item.name}</div>
+                                                                -->
+                                                                <a class="nav-link">${submenuItem.name}</a>
+                                                            </li>
+                                                        `;
+                                                }
+                                            })
+                                        }
+                                    </ul>
+                                </li>
+                                `;
+                            } else {
+                                return html`<li>TODO: NO SUBMENU</li>`;
+                            }
+                        })
+                    }
                 </ul>
             </div>
         `;
     }
-
 
     #renderContent() {
         return html`
