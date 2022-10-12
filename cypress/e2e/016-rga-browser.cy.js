@@ -101,34 +101,30 @@ context("16.  RGA Browser", () => {
     });
 
 
-    it("16.5 - Gene View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable', 'CH - Possible' is not equal to '-' for each row (first 10).", () => {
+    it("16.5 - Gene View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable' are not equal to '-' for each row (first 10).", () => {
 
         // knockoutType
         cy.get("div[data-cy='knockoutType'] button").click();
         cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Compound Heterozygous").click();
         cy.get("div.search-button-wrapper button").click();
 
-        let definite, probable, possible;
+        let definite, probable;
 
         // iterate over result rows
         for (let i = 0; i<10; i++) {
             console.log("I", i);
-            getResult("rga-gene-view", 4, i).then($text => {
+            getResult("rga-gene-view", 3, i).then($text => {
                 console.log("CH 1", parseInt($text));
                 definite = parseInt($text);
-            });
 
-            getResult("rga-gene-view", 5, i).then($text => {
-                console.log("CH 2", parseInt($text));
-                probable = parseInt($text);
-            });
+                getResult("rga-gene-view", 4, i).then($text => {
+                    console.log("CH 2", parseInt($text));
+                    probable = parseInt($text);
 
-            getResult("rga-gene-view", 6, i).then($text => {
-                console.log("CH 3", parseInt($text));
-                possible = parseInt($text);
+                    // definite or probable could be either a number > 0 or NaN. If all are NaN the test fails.
+                    expect(definite || probable, "At least one of definite or probable is > 0").to.not.be.NaN;
+                });
             });
-            // definite, probable, possible could be either a number > 0 or NaN. If all 3 are NaN the test fails.
-            expect(definite || probable || possible, "At least one of definite, probable, possible is > 0").to.not.be.NaN;
         }
 
         cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
@@ -213,24 +209,7 @@ context("16.  RGA Browser", () => {
         checkResults("rga-gene-view");
     });
 
-    it("16.10 - Gene View. Filter: Possible. 'CH Possible' Column > 0 for each row (first 10)", () => {
-        // numParents=0
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
-        cy.get("div.search-button-wrapper button").click();
-        checkResults("rga-gene-view");
-
-        // checking the number of CH Possible is > 0 for each row
-        for (let i = 0; i<10; i++) {
-            getResult("rga-gene-view", 4, i).then($text => {
-                expect(parseInt($text), "Possible > 0").to.be.gt(0);
-            });
-        }
-        cy.get("opencga-active-filters button[data-filter-name='numParents']").click();
-        checkResults("rga-gene-view");
-    });
-
-
-    it("16.11 - Individual View. An RGA item exist in the main menu and Gene button shows the Gene View.", () => {
+    it("16.10 - Individual View. An RGA item exist in the main menu and Gene button shows the Gene View.", () => {
 
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Recessive Variant Browser");
@@ -239,7 +218,7 @@ context("16.  RGA Browser", () => {
         checkResults("rga-individual-view");
     });
 
-    it("16.12 - Individual View. Columns dropdown exists and every item toggles the related column in the table.", () => {
+    it("16.11 - Individual View. Columns dropdown exists and every item toggles the related column in the table.", () => {
 
         cy.get("rga-individual-view .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
         cy.get("rga-individual-view .columns-toggle-wrapper ul li").and("have.length.gt", 1);
@@ -252,7 +231,7 @@ context("16.  RGA Browser", () => {
 
     });
 
-    it("16.13 - Individual View. Querying for GRIK5 Gene, Gene column contains GRIK5 (not exclusively) for each fow (first 10).", () => {
+    it("16.12 - Individual View. Querying for GRIK5 Gene, Gene column contains GRIK5 (not exclusively) for each fow (first 10).", () => {
 
         selectToken("feature-filter", "grik5", true);
         cy.get("div.search-button-wrapper button").click();
@@ -267,7 +246,7 @@ context("16.  RGA Browser", () => {
         }
     });
 
-    it("16.14 - Individual View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable', 'CH - Possible' is not equal to '-' for each row (first 10).", () => {
+    it("16.13 - Individual View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable' are not equal to '-' for each row (first 10).", () => {
 
         // knockoutType
         cy.get("div[data-cy='knockoutType'] button").click();
@@ -279,36 +258,33 @@ context("16.  RGA Browser", () => {
         // iterate over result rows
         for (let i = 0; i<10; i++) {
             console.log("I", i);
-            getResult("rga-individual-view", 5, i).then($text => {
+            getResult("rga-individual-view", 4, i).then($text => {
                 console.log("CH 1", parseInt($text));
                 definite = parseInt($text);
+
+                getResult("rga-individual-view", 5, i).then($text => {
+                    console.log("CH 2", parseInt($text));
+                    probable = parseInt($text);
+
+                    // definite or probable could be either a number > 0 or NaN. If all are NaN the test fails.
+                    expect(definite || probable, "At least one of definite or probable is > 0").to.not.be.NaN;
+                });
             });
 
-            getResult("rga-individual-view", 6, i).then($text => {
-                console.log("CH 2", parseInt($text));
-                probable = parseInt($text);
-            });
-
-            getResult("rga-individual-view", 7, i).then($text => {
-                console.log("CH 3", parseInt($text));
-                possible = parseInt($text);
-            });
-            // definite, probable, possible could be either a number > 0 or NaN. If all 3 are NaN the test fails.
-            expect(definite || probable || possible, "At least one of definite, probable, possible is > 0").to.not.be.NaN;
         }
 
         cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
         checkResults("rga-individual-view");
     });
 
-    it("16.15 - Individual View. Querying by KnockoutType=HOM, column 'HOM' is not equal to '-' for each row (first 10).", () => {
+    it("16.14 - Individual View. Querying by KnockoutType=HOM, column 'HOM' is not equal to '-' for each row (first 10).", () => {
 
         // knockoutType
         cy.get("div[data-cy='knockoutType'] button").click();
         cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Homozygous").click();
         cy.get("div.search-button-wrapper button").click();
 
-        getResult("rga-individual-view", 2).then($text => {
+        getResult("rga-individual-view", 3).then($text => {
             console.log("HOM", $text);
             // checking for the number of HOM individuals > 0
             expect(parseInt($text), "HOM gt 0").to.be.gt(0);
@@ -318,9 +294,9 @@ context("16.  RGA Browser", () => {
         checkResults("rga-individual-view");
     });
 
-    it("16.16 - Individual View. Filter: Definite. 'CH Definite' Column > 0 for each row (first 10)", () => {
+    it("16.15 - Individual View. Filter: Definite. 'CH Definite' Column > 0 for each row (first 10)", () => {
         // numParents=2
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(2) > label").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("rga-individual-view");
 
@@ -334,13 +310,13 @@ context("16.  RGA Browser", () => {
         checkResults("rga-individual-view");
     });
 
-    it("16.17 - Individual View. Filter: Possible. 'CH Possible' Column > 0 for each row (first 10)", () => {
+    it("16.16 - Individual View. Filter: Probable. 'CH Probable' Column > 0 for each row (first 10)", () => {
         // numParents=1
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(1) > label").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("rga-individual-view");
 
-        // checking the number of CH Possible is > 0 for each row
+        // checking the number of CH Probable is > 0 for each row
         for (let i = 0; i<10; i++) {
             getResult("rga-individual-view", 5, i).then($text => {
                 expect(parseInt($text), "Possible > 0").to.be.gt(0);
@@ -351,7 +327,7 @@ context("16.  RGA Browser", () => {
     });
 
 
-    it("16.18 - Individual View. Columns dropdown exists and every item toggles the related column in the table.", () => {
+    it("16.17 - Individual View. Columns dropdown exists and every item toggles the related column in the table.", () => {
         let IndividualId;
 
         getResult("rga-individual-view", 0).then($text => {
@@ -378,7 +354,7 @@ context("16.  RGA Browser", () => {
 
     });
 
-    it("16.19 - Individual View. Empty query, Family table has > 0 results", () => {
+    it("16.18 - Individual View. Empty query, Family table has > 0 results", () => {
         checkResults("rga-individual-family");
     });
 
@@ -452,7 +428,7 @@ context("16.  RGA Browser", () => {
     });
 
 
-    it("16.23 - Variant View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable', 'CH - Possible' is not equal to '-' for each row (first 10).", () => {
+    it("16.23 - Variant View. Querying by KnockoutType=COMP_HET, one or more columns among 'CH - Definite', 'CH - Probable' are not equal to '-' for each row (first 10).", () => {
 
         // knockoutType
         cy.get("div[data-cy='knockoutType'] button").click();
@@ -464,22 +440,18 @@ context("16.  RGA Browser", () => {
         // iterate over result rows
         for (let i = 0; i<10; i++) {
             console.log("I", i);
-            getResult("rga-variant-view", 11, i).then($text => {
+            getResult("rga-variant-view", 10, i).then($text => {
                 console.log("CH 1", parseInt($text));
                 definite = parseInt($text);
-            });
 
-            getResult("rga-variant-view", 12, i).then($text => {
-                console.log("CH 2", parseInt($text));
-                probable = parseInt($text);
-            });
+                getResult("rga-variant-view", 11, i).then($text => {
+                    console.log("CH 2", parseInt($text));
+                    probable = parseInt($text);
 
-            getResult("rga-variant-view", 13, i).then($text => {
-                console.log("CH 3", parseInt($text));
-                possible = parseInt($text);
+                    // definite or probable could be either a number > 0 or NaN. If all are NaN the test fails.
+                    expect(definite || probable, "At least one of definite or probable is > 0").to.not.be.NaN;
+                });
             });
-            // definite, probable, possible could be either a number > 0 or NaN. If all 3 are NaN the test fails.
-            expect(definite || probable || possible, "At least one of definite, probable, possible is > 0").to.not.be.NaN;
         }
 
         cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
@@ -505,13 +477,13 @@ context("16.  RGA Browser", () => {
 
     it("16.25 - Variant View. Filter: Definite. 'CH Definite' Column > 0 for each row (first 10)", () => {
         // numParents=2
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(2) > label").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("rga-variant-view");
 
         // checking the number of CH Definite is > 0 for each row
         for (let i = 0; i<10; i++) {
-            getResult("rga-variant-view", 4, i).then($text => {
+            getResult("rga-variant-view", 10, i).then($text => {
                 expect(parseInt($text), "Definite > 0").to.be.gt(0);
             });
         }
@@ -519,16 +491,16 @@ context("16.  RGA Browser", () => {
         checkResults("rga-variant-view");
     });
 
-    it("16.26 - Variant View. Filter: Possible. 'CH Possible' Column > 0 for each row (first 10)", () => {
+    it("16.26 - Variant View. Filter: Probable. 'CH Probable' Column > 0 for each row (first 10)", () => {
         // numParents=1
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(1) > label").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("rga-variant-view");
 
-        // checking the number of CH Possible is > 0 for each row
+        // checking the number of CH Probable is > 0 for each row
         for (let i = 0; i<10; i++) {
-            getResult("rga-variant-view", 5, i).then($text => {
-                expect(parseInt($text), "Possible > 0").to.be.gt(0);
+            getResult("rga-variant-view", 11, i).then($text => {
+                expect(parseInt($text), "Probable > 0").to.be.gt(0);
             });
         }
         cy.get("opencga-active-filters button[data-filter-name='numParents']").click();
@@ -609,7 +581,7 @@ context("16.  RGA Browser", () => {
 
         // checking the CT for each row
         for (let i = 0; i<10; i++) {
-            getResult("rga-variant-view", 6, i).then($text => {
+            getResult("rga-variant-view", 7, i).then($text => {
                 const cts = $text.split(", ");
                 cts.forEach(entry => {
                     // entry is in the form "splice_donor_variant (SO:0001575)"
@@ -631,7 +603,7 @@ context("16.  RGA Browser", () => {
 
         // check that all the entries has benign OR pathogenic OR uncertain_significance Clinical Significance
         for (let i = 0; i<10; i++) {
-            getResult("rga-variant-view", 7, i).then($text => {
+            getResult("rga-variant-view", 8, i).then($text => {
                 const cs = $text.split(", ");
                 cs.forEach(entry => {
                     expect(clinicalSignificance).contains(entry);
