@@ -479,10 +479,11 @@ export default class StudyVariantAdmin extends LitElement {
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <variant-secondary-sample-index-configure-operation
-                            .toolParams="${{study: this.opencgaSession.study.id}}"
-                            .opencgaSession="${opencgaSession}">
-                        </variant-secondary-sample-index-configure-operation>`,
+                                <variant-secondary-sample-index-configure-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-sample-index-configure-operation>
+                            `,
                         },
                         {
                             id: "variant-annotation-index",
@@ -491,10 +492,11 @@ export default class StudyVariantAdmin extends LitElement {
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <variant-annotation-index-operation
-                            .toolParams="${{project: this.opencgaSession.project.id}}"
-                            .opencgaSession="${opencgaSession}">
-                        </variant-annotation-index-operation>`,
+                                <variant-annotation-index-operation
+                                    .toolParams="${{project: this.opencgaSession.project.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-annotation-index-operation>
+                            `,
                         },
                         {
                             id: "variant-secondary-annotation-index",
@@ -503,10 +505,11 @@ export default class StudyVariantAdmin extends LitElement {
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <variant-secondary-annotation-index-operation
-                            .toolParams="${{project: this.opencgaSession.project.id}}"
-                            .opencgaSession="${opencgaSession}">
-                        </variant-secondary-annotation-index-operation>`,
+                                <variant-secondary-annotation-index-operation
+                                    .toolParams="${{project: this.opencgaSession.project.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-annotation-index-operation>
+                            `,
                         },
                         {
                             id: "variant-secondary-sample-index",
@@ -514,11 +517,14 @@ export default class StudyVariantAdmin extends LitElement {
                             name: "Variant Secondary Sample Index",
                             icon: "fas fa-key",
                             visibility: "private",
+                            type: "navitem",
+                            // navitem: true,
                             render: (opencgaSession, study) => html`
-                        <variant-secondary-sample-index-operation
-                            .toolParams="${{study: this.opencgaSession.study.id}}"
-                            .opencgaSession="${opencgaSession}">
-                        </variant-secondary-sample-index-operation>`,
+                                <variant-secondary-sample-index-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-sample-index-operation>
+                            `,
                         },
                     ],
                 },

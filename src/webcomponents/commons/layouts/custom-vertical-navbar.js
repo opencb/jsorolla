@@ -77,7 +77,6 @@ export default class CustomVerticalNavBar extends LitElement {
     }
 
     firstUpdated() {
-        this.#initEvents();
         this.#initActiveMenu();
     }
 
@@ -104,70 +103,29 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
-    // FIXME: poor design. Refactor: (a) delegate event or (b) @click
-    #initEvents() {
-        const navItems = document.querySelectorAll("#" + `${this.#divMenu}` + " .nav-item");
-        const navContents = document.querySelectorAll("#" + `${this.#divContent}` + " div[role=tabpanel]");
-
-        // 1. Create events for menu items
-        [...navItems]
-            .map(item => {
-                // 1.1 Menu item: Event on-click
-                item.addEventListener("click", event => {
-                    event.preventDefault();
-                    const itemId = event.currentTarget.dataset.id;
-                    // Remove current active link
-                    [...navItems].forEach(item => item.classList.remove("active-item"));
-                    // Set clicked active link
-                    event.currentTarget.classList.add("active-item");
-                    // Display selected content
-                    [...navContents].forEach(item => item.style.display = "none");
-                    const currentContent = document.querySelector(`#${this.#divContent}  #${itemId}`);
-                    currentContent.style.display = "block";
-                });
-            });
-    }
-
     #initActiveMenu() {
         const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
         activeElement.click();
     }
 
-    /*
-    onChangeActiveMenuItem(e) {
+    onSideNavClick() {
+
+        const navItems = document.querySelectorAll(`#${this.#divMenu} .nav-item`);
+        const navContents = document.querySelectorAll(`#${this.#divContent} div[role=tabpanel]`);
+
         event.preventDefault();
-        this._activeMenuItem = e.currentTarget.dataset.id;
-
-        // 1. Set active menu item
-        document
-            .getElementById(`${this.#divMenu} > ul > li`)
-            .classList
-            .remove("active");
-        document.getElementById(`${this.#divMenu} a[data-id=${this._activeMenuItem}]`).parentElement.classList.add("active");
-        // Display the right content
-        document.getElementBy(`${this.#divContent} > div[role=tabpanel]`).hide();
-        document.getElementById(this._activeMenuItem).show();
-
-        // Update
-        this.requestUpdate();
-    }
-    */
-    /*
-    onSideNavClick(e) {
-        e.preventDefault();
-        const tabId = e.currentTarget.dataset.id;
-
-        // Set Active button
-        $(".admin-side-navbar > ul > li", this).removeClass("active");
-        $(`.admin-side-navbar > ul > li > a[data-id=${tabId}]`, this)[0].parentElement.classList.add("active");
-
-        // Display the right content
-        $(".admin-content-tab > div[role=tabpanel]", this).hide();
-        $("#" + this._prefix + tabId, this).show();
+        const itemId = event.currentTarget.dataset.id;
+        // Remove current active link
+        [...navItems].forEach(item => item.classList.remove("active-item"));
+        // Set clicked active link
+        event.currentTarget.classList.add("active-item");
+        // Display selected content
+        [...navContents].forEach(item => item.style.display = "none");
+        const currentContent = document.querySelector(`#${this.#divContent}  #${itemId}`);
+        currentContent.style.display = "block";
 
         this.requestUpdate();
     }
-*/
 
     // TODO: REFACTOR STYLE
     #renderStyle() {
@@ -179,6 +137,7 @@ export default class CustomVerticalNavBar extends LitElement {
                     color: white;
                     width: 100%;
                     border-radius: 3px;
+                    line-height: 30px;
 
                     /*transform: translate3d(0px, 0, 0);*/
                     /*transition: transform*/
@@ -373,80 +332,51 @@ export default class CustomVerticalNavBar extends LitElement {
             </style>`;
     }
 
-    // QUESTION: Make it optional?
-    #renderToggle() {
-        return html`
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                        data-target="#bs-sidebar-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand">${this.study?.name}</a>
-            </div>`;
-    }
-
+    /* QUESTION 1: in config submenu, should we consider category and separator?
+       QUESTION 2: in config, item can exclusively be of type: [category | separator | navitem] Proposal:
+         To replace [category | separator] keys with 'type'.
+    */
     #renderMenu() {
         return html`
-            <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar" id="${this.#divMenu}" >
+            <div class="collapse navbar-collapse navbar-ex1-collapse" id="${this.#divMenu}" >
                 <!-- To check the visibility of each menu and submenu item-->
-                <ul class="nav navbar-nav left">
-                    ${this._config.menu
-                        .filter(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession))
-                        .map(menuItem => {
-                            if (menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))) {
-                                return html`
-                                    <li class="dropdown open">
-                                    <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
-                                    <a class="dropdown-toggle" data-toggle="dropdown open" role="button" aria-haspopup="true" aria-expanded="true">
-                                        ${menuItem.name} <span class="caret"></span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        ${menuItem.submenu
-                                            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
-                                            .map(submenuItem => {
-                                                /*
-                                                QUESTION 1: should we consider category and separator here?
-                                                QUESTION 2: item can exclusively be of type: category | separator | nav-item.
-                                                  Proposal:
-                                                  To use switch insetad of ifelse: key 'type', with values: [category | separator | nav-item]
-                                                */
-                                                switch (["category", "separator"].find(type => type in submenuItem)) {
-                                                    case "category":
-                                                        return html`
-                                                            <li>
-                                                                <a class="nav-item-category"
-                                                                   style="cursor:auto!important;">
-                                                                    <strong>${submenuItem.name}</strong>
-                                                                </a>
-                                                                <!--<p class="navbar-text">$submenuItem.name}</p>-->
-                                                            </li>
-                                                        `;
-                                                    case "separator":
-                                                        return html`<li role="separator" class="divider"></li>`;
-                                                    default:
-                                                        return html`
-                                                            <li class="nav-item" data-id="${submenuItem.id}">
-                                                                <!-- QUESTION: ESLint error fix for formatting icon | name
-                                                                 <div class="item-icon"> <i class="item.icon}""></i></div>
-                                                                <div class="item-label">item.name}</div>
-                                                                -->
-                                                                <a class="nav-link">${submenuItem.name}</a>
-                                                            </li>
-                                                        `;
-                                                }
-                                            })
-                                        }
-                                    </ul>
-                                </li>
-                                `;
-                            } else {
-                                return html`<li>TODO: NO SUBMENU</li>`;
-                            }
-                        })
-                    }
+                <ul class="nav navbar-nav left admin-side-navbar">
+                ${UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession).map(item => item.submenu && UtilsNew.hasVisibleItems(item.submenu, this.opencgaSession) ? html `
+                    <li class="dropdown open">
+                        <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
+                        <a class="dropdown-toggle" data-toggle="dropdown open" role="button" aria-haspopup="true" aria-expanded="true">
+                            ${item.name} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                        ${UtilsNew.getVisibleItems(item.submenu, this.opencgaSession)
+            .map(subItem => {
+                const type = ["category", "separator"].find(type => type in subItem);
+                switch (type) {
+                    case "category": return html `
+                        <li>
+                            <a class="nav-item-category"
+                               style="cursor:auto!important;">
+                                <strong>${subItem.name}</strong>
+                            </a>
+                            <!--<p class="navbar-text">$submenuItem.name}</p>-->
+                        </li>
+                    `;
+                    case "separator": return html `
+                        <li role="separator" class="divider"></li>
+                    `;
+                    default: return html `
+                        <li class="nav-item" data-id="${subItem.id}" @click="${this.onSideNavClick}">
+                            <!-- QUESTION: ESLint error fix for formatting icon | name -->
+                            <a class="nav-link">${subItem.name}</a>
+                        </li>
+                    `;
+                }
+            })}
+                        </ul>
+                    </li>
+                ` : html `
+                    <li>TODO: NO SUBMENU</li>
+                `)}
                 </ul>
             </div>
         `;
@@ -455,24 +385,20 @@ export default class CustomVerticalNavBar extends LitElement {
     #renderContent() {
         return html`
             <div id="${this.#divContent}" class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
-                ${this._config.menu.filter(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession)).map(menuItem => html `
-                    ${menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession)) ? html `
-                        ${menuItem.submenu
-            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
-            .map(submenuItem => submenuItem.render ? html`
-                                <div id="${submenuItem.id}" role="tabpanel" class="tab-pane content-tab active">
-                                    <!-- TODO: HEADER in a div-->
-                                    <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${submenuItem.name}</h2>
-                                    <!-- TODO: CONTENT in a div -->
-                                    ${submenuItem.render(this.opencgaSession, this.study)}
-                                </div>
-                            ` : "")
-                        }
-                ` : html `
-                        <!-- TODO: If there is not submenu  -->
-                        <li>TODO: NO SUBMENU</li>`
-                    }
+            ${UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
+            .map(menuItem => menuItem.submenu && UtilsNew.hasVisibleItems(menuItem.submenu, this.opencgaSession) ? html `
+                ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
+                    <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
+                        <!-- TODO: HEADER in a div-->
+                        <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${subItem.name}</h2>
+                        <!-- TODO: CONTENT in a div -->
+                        ${subItem.render(this.opencgaSession, this.study)}
+                    </div>
                 `)}
+            ` : html `
+                <li>TODO: NO SUBMENU</li>
+            `)
+            }
             </div>
         `;
     }
@@ -486,13 +412,11 @@ export default class CustomVerticalNavBar extends LitElement {
                 <!-- NAVIGATION -->
                 <div class="col-md-2">
                     <nav class="navbar navbar-inverse sidebar" role="navigation">
-                        <!-- 1. Brand and toggle get grouped for better mobile display -->
-                        ${this.#renderToggle()}
-                        <!-- 2. MENU -->
+                        <!-- 1. MENU -->
                         ${this.#renderMenu()}
                     </nav>
                 </div>
-                <!-- 3. CONTENT -->
+                <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
                 <div class="col-md-10" style="top:150px;">
