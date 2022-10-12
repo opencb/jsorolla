@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utilsNew";
 
 export default class CustomVerticalNavBar extends LitElement {
 
@@ -389,35 +390,53 @@ export default class CustomVerticalNavBar extends LitElement {
         return html`
             <div id="${this.#divMenu}" class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                 <ul class="nav navbar-nav left" id="admin-navbar">
-                    ${this._config.items.length && this._config?.items.map(item => {
-            if (item.category) {
-                return html`
-                    <li>
-                        <!--
-                        <a class="nav-item-category"
-                           style="background-color:white!important;cursor:auto!important;">
-                            <strong>item.name}</strong>
-                        </a>
-                        -->
-                        <p class="navbar-text">${item.name}</p>
-                    </li>
-                `;
-            } else if (item.separator) {
-                return html`
-                    <li role="separator" class="divider"></li>
-                `;
-            } else {
-                return html`
-                    <li class="nav-item" data-id="${item.id}">
-                        <!-- QUESTION: ESLint error fix for formatting icon | name
-                         <div class="item-icon"> <i class="item.icon}""></i></div>
-                        <div class="item-label">item.name}</div>
-                        -->
-                        <a class="nav-link">${item.name}</a>
-                    </li>
-                `;
-            }
-        })}
+                    ${this._config.menu?.filter?.(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession)).map(menuItem => html `
+                        ${menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession)) ? html `
+                            <!-- If there is submenu -->
+                            <!--
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                $menuItem.name} <span class="caret"></span>
+                            </a>
+                            -->
+                            ${menuItem.submenu
+            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
+            .map(submenuItem => {
+                if (submenuItem.category) {
+                    return html`
+                        <li>
+                            <!--
+                            <a class="nav-item-category"
+                               style="background-color:white!important;cursor:auto!important;">
+                                <strong>item.name}</strong>
+                            </a>
+                            -->
+                            <p class="navbar-text">${submenuItem.name}</p>
+                        </li>
+                    `;
+                } else if (submenuItem.separator) {
+                    return html`
+                        <li role="separator" class="divider"></li>
+                     `;
+                } else {
+                    return html`
+                        <li class="nav-item" data-id="${submenuItem.id}">
+                            <!-- QUESTION: ESLint error fix for formatting icon | name
+                             <div class="item-icon"> <i class="item.icon}""></i></div>
+                            <div class="item-label">item.name}</div>
+                            -->
+                            <a class="nav-link">${submenuItem.name}</a>
+                        </li>
+                    `;
+                }
+            })
+                }
+            ` : html `
+                <!-- If there is not submenu TODO -->
+                <li>
+                    TODO: NO SUBMENU
+                </li>`
+            }`
+        )}
                 </ul>
             </div>
         `;
@@ -427,14 +446,24 @@ export default class CustomVerticalNavBar extends LitElement {
     #renderContent() {
         return html`
             <div id="${this.#divContent}" class="content-tab-wrapper admin-content-tab" style="margin: 0 20px">
-                ${(this._config.items.length && this._config?.items.map(item => item.render ? html `
-                    <div id="${item.id}" role="tabpanel" class="tab-pane content-tab active">
-                        <!-- TODO: HEADER in a div-->
-                        <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${item.name}
-                        </h2>
-                        <!-- TODO: CONTENT in a div -->
-                        ${item.render(this.opencgaSession, this.study)}
-                    </div>` : ""))}
+                ${this._config.menu.filter(menuItem => UtilsNew.isAppVisible(menuItem, this.opencgaSession)).map(menuItem => html `
+                    ${menuItem.submenu && menuItem.submenu.some(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession)) ? html `
+                        ${menuItem.submenu
+            .filter(submenuItem => UtilsNew.isAppVisible(submenuItem, this.opencgaSession))
+            .map(submenuItem => submenuItem.render ? html`
+                                <div id="${submenuItem.id}" role="tabpanel" class="tab-pane content-tab active">
+                                    <!-- TODO: HEADER in a div-->
+                                    <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${submenuItem.name}</h2>
+                                    <!-- TODO: CONTENT in a div -->
+                                    ${submenuItem.render(this.opencgaSession, this.study)}
+                                </div>
+                            ` : "")
+                        }
+                ` : html `
+                        <!-- TODO: If there is not submenu  -->
+                        <li>TODO: NO SUBMENU</li>`
+                    }
+                `)}
             </div>
         `;
     }

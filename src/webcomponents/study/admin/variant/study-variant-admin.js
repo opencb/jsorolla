@@ -410,71 +410,73 @@ export default class StudyVariantAdmin extends LitElement {
             visibility: "", // public | private | none
             // title: "Study",
             // sections: [
-            items: [
+            menu: [
                 {
                     id: "variant-configuration",
                     name: "Variant Configuration",
                     description: "",
                     icon: "",
-                    visibility: "",
+                    visibility: "private",
                     featured: "", // true | false
                     category: true, // true | false
-                    // label: "Configure",
-                },
-                {
-                    separator: true,
-                    visibility: "public"
-                },
-                {
-                    id: "dashboard",
-                    name: "Dashboard",
-                    // label: "Dashboard",
-                    icon: "fas fa-tachometer-alt",
-                    // QUESTION: Which one: (a) or (b)
-                    // question: (a)
-                    // display: {
-                    //     contentClass: "",
-                    //     contentStyle: ""
-                    //     defaultLayout: "vertical",
-                    //     render: () => html`
-                    //         <under-construction>
-                    //             .title="Study dashboard"
-                    //         </under-construction>`,
-                    // },
-                    // question: (b)
-                    render: () => html`
-                        <under-construction>
-                            .title="Study dashboard"
-                        </under-construction>`,
-                },
-                {
-                    id: "configuration",
-                    // label: "Configuration",
-                    name: "Configuration",
-                    icon: "fas fa-cog",
-                    render: (opencgaSession, study) => html`
-                        <study-admin-configuration
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-configuration>`,
+                    submenu: [
+                        {
+                            id: "dashboard",
+                            name: "Dashboard",
+                            // label: "Dashboard",
+                            icon: "fas fa-tachometer-alt",
+                            visibility: "private",
+                            // QUESTION: Which one: (a) or (b)
+                            // question: (a)
+                            // display: {
+                            //     contentClass: "",
+                            //     contentStyle: ""
+                            //     defaultLayout: "vertical",
+                            //     render: () => html`
+                            //         <under-construction>
+                            //             .title="Study dashboard"
+                            //         </under-construction>`,
+                            // },
+                            // question: (b)
+                            render: () => html`
+                                <under-construction>
+                                    .title="Study dashboard"
+                                </under-construction>`,
+                        },
+                        {
+                            id: "configuration",
+                            // label: "Configuration",
+                            name: "Configuration",
+                            icon: "fas fa-cog",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <study-admin-configuration
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-configuration>`,
+                        },
+                    ],
                 },
                 {
                     id: "variant-operations",
                     // label: "Operations",
                     name: "Variant Operations",
                     category: true, // true | false
-                },
-                {
-                    id: "variant-annotation-index",
-                    // label: "Variant Annotation Index",
-                    name: "Variant Annotation Index",
-                    icon: "fas fa-key",
-                    render: (opencgaSession, study) => html`
-                        <variant-annotation-operation
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </variant-annotation-operation>`,
-
+                    visibility: "private",
+                    submenu: [
+                        {
+                            id: "variant-annotation-index",
+                            // label: "Variant Annotation Index",
+                            name: "Variant Annotation Index",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                            <variant-annotation-operation
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
+                            </variant-annotation-operation>`,
+                        },
+                    ],
                 },
             ],
         };

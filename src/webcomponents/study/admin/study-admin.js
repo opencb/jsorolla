@@ -440,10 +440,10 @@ export default class StudyAdmin extends LitElement {
         const activeMenuItem = "UsersAndGroups";
         return html`
             <custom-vertical-navbar
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .activeMenuItem="${activeMenuItem}">
+                .study="${this.opencgaSession.study}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .activeMenuItem="${activeMenuItem}">
             </custom-vertical-navbar>`;
     }
 
@@ -453,118 +453,124 @@ export default class StudyAdmin extends LitElement {
             name: "",
             logo: "",
             icon: "",
-            visibility: "", // public | private | none
+            visibility: "private", // public | private | none
             // title: "Study",
             // sections: [
-            items: [
+            menu: [
                 {
                     id: "configuration",
                     name: "Configuration",
                     description: "",
                     icon: "",
-                    visibility: "",
                     featured: "", // true | false
-                    category: true, // true | false
-                    // label: "Configure",
-                },
-                {
-                    separator: true,
-                    visibility: "public"
-                },
-                {
-                    id: "Dashboard",
-                    name: "Dashboard",
-                    // label: "Dashboard",
-                    icon: "fas fa-tachometer-alt",
-                    // QUESTION: Which one: (a) or (b)
-                    // question: (a)
-                    // display: {
-                    //     contentClass: "",
-                    //     contentStyle: ""
-                    //     defaultLayout: "vertical",
-                    //     render: () => html`
-                    //         <under-construction>
-                    //             .title="Study dashboard"
-                    //         </under-construction>`,
-                    // },
-                    // question: (b)
-                    render: () => html`
+                    visibility: "private",
+                    submenu: [
+                        {
+                            id: "Dashboard",
+                            name: "Dashboard",
+                            // label: "Dashboard",
+                            visibility: "private",
+                            icon: "fas fa-tachometer-alt",
+                            // QUESTION: Which one: (a) or (b)
+                            // question: (a)
+                            // display: {
+                            //     contentClass: "",
+                            //     contentStyle: ""
+                            //     defaultLayout: "vertical",
+                            //     render: () => html`
+                            //         <under-construction>
+                            //             .title="Study dashboard"
+                            //         </under-construction>`,
+                            // },
+                            // question: (b)
+                            render: () => html`
                         <under-construction>
                             .title="Study dashboard"
                         </under-construction>`,
-                },
-                {
-                    id: "UsersAndGroups",
-                    // label: "Users and Groups",
-                    name: "Users and Groups",
-                    icon: "fas fa-user-friends",
-                    render: (opencgaSession, study) => html`
+                        },
+                        {
+                            id: "UsersAndGroups",
+                            // label: "Users and Groups",
+                            name: "Users and Groups",
+                            icon: "fas fa-user-friends",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
                         <study-admin-users
                                 .opencgaSession="${opencgaSession}"
                                 .study="${study}">
                         </study-admin-users>`,
-                },
-                {
-                    id: "Permissions",
-                    // label: "Permissions",
-                    name: "Permissions",
-                    icon: "fas fa-key",
-                    render: (opencgaSession, study) => html`
+                        },
+                        {
+                            id: "Permissions",
+                            // label: "Permissions",
+                            name: "Permissions",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
                         <study-admin-permissions
                                 .opencgaSession="${opencgaSession}"
                                 .study="${study}">
                         </study-admin-permissions>`,
-                },
-                {
-                    id: "VariableSets",
-                    // label: "Variable Sets",
-                    name: "Variable Sets",
-                    icon: "fas fa-book",
-                    render: (opencgaSession, study) => html`
+                        },
+                        {
+                            id: "VariableSets",
+                            // label: "Variable Sets",
+                            name: "Variable Sets",
+                            icon: "fas fa-book",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
                         <study-admin-variable
                                 .opencgaSession="${opencgaSession}"
                                 .study="${study}">
                         </study-admin-variable>`,
-                },
-                {
-                    id: "Audit",
-                    // label: "Audit",
-                    name: "Audit",
-                    icon: "fas fa-book",
-                    render: (opencgaSession, study) => html`
+                        },
+                        {
+                            id: "Audit",
+                            // label: "Audit",
+                            name: "Audit",
+                            icon: "fas fa-book",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
                         <study-admin-audit
                                 .opencgaSession="${opencgaSession}"
                                 .study="${study}">
                         </study-admin-audit>`,
-                },
-                {
-                    id: "Configuration",
-                    // label: "Configuration",
-                    name: "Configuration",
-                    icon: "fas fa-cog",
-                    render: (opencgaSession, study) => html`
+                        },
+                        {
+                            id: "Configuration",
+                            // label: "Configuration",
+                            name: "Configuration",
+                            icon: "fas fa-cog",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
                         <study-admin-configuration
                                 .opencgaSession="${opencgaSession}"
                                 .study="${study}">
                         </study-admin-configuration>`,
+                        },
+                    ],
                 },
                 {
                     id: "Operations",
-                    // label: "Operations",
                     name: "Operations",
                     category: true, // true | false
-                },
-                {
-                    id: "Solr",
-                    // label: "Solr",
-                    name: "Solr",
-                    // CAUTION: icon vs. img in config.js?
-                    img: "/sites/iva/img/logos/Solr.png"
-                },
-                {
-                    id: "Rysnc",
-                    label: "Rysnc",
-                    icon: ""
+                    visibility: "private",
+                    submenu: [
+                        {
+                            id: "Solr",
+                            // label: "Solr",
+                            name: "Solr",
+                            // CAUTION: icon vs. img in config.js?
+                            img: "/sites/iva/img/logos/Solr.png",
+                            visibility: "private",
+                        },
+                        {
+                            id: "Rysnc",
+                            label: "Rysnc",
+                            icon: "",
+                            visibility: "private",
+                        },
+                    ],
                 },
             ],
         };
