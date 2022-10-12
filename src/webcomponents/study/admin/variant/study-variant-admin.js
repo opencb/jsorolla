@@ -25,6 +25,7 @@ import "../study-admin-configuration.js";
 import "../../../variant/operation/variant-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 
 
 export default class StudyVariantAdmin extends LitElement {
@@ -461,6 +462,17 @@ export default class StudyVariantAdmin extends LitElement {
                         </study-admin-configuration>`,
                 },
                 {
+                    id: "variant-secondary-sample-configure-index",
+                    // label: "Variant Annotation Index",
+                    name: "Sample Index Configuration",
+                    icon: "fas fa-key",
+                    render: (opencgaSession, study) => html`
+                        <variant-secondary-sample-index-configure-operation
+                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                            .opencgaSession="${opencgaSession}">
+                        </variant-secondary-sample-index-configure-operation>`,
+                },
+                {
                     id: "variant-operations",
                     // label: "Operations",
                     name: "Variant Operations",
@@ -476,7 +488,6 @@ export default class StudyVariantAdmin extends LitElement {
                             .toolParams="${{project: this.opencgaSession.project.id}}"
                             .opencgaSession="${opencgaSession}">
                         </variant-annotation-index-operation>`,
-
                 },
                 {
                     id: "variant-secondary-annotation-index",
@@ -488,7 +499,6 @@ export default class StudyVariantAdmin extends LitElement {
                             .toolParams="${{project: this.opencgaSession.project.id}}"
                             .opencgaSession="${opencgaSession}">
                         </variant-secondary-annotation-index-operation>`,
-
                 },
                 {
                     id: "variant-secondary-sample-index",
@@ -500,7 +510,6 @@ export default class StudyVariantAdmin extends LitElement {
                             .toolParams="${{study: this.opencgaSession.study.id}}"
                             .opencgaSession="${opencgaSession}">
                         </variant-secondary-sample-index-operation>`,
-
                 },
             ],
         };

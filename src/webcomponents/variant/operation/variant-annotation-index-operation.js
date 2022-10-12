@@ -82,7 +82,6 @@ export default class VariantAnnotationIndexOperation extends LitElement {
     }
 
     check() {
-        // TODO: check if there are more required params for Knockout analysis
         return !!this.toolParams.project;
     }
 

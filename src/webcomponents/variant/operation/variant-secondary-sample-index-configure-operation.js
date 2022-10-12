@@ -23,7 +23,7 @@ import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 
 
-export default class VariantSecondarySampleIndexOperation extends LitElement {
+export default class VariantSecondarySampleIndexConfigureOperation extends LitElement {
 
     constructor() {
         super();
@@ -50,9 +50,9 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
     }
 
     #init() {
-        this.TOOL = "VariantSecondarySampleIndex";
-        this.TITLE = "Variant Secondary Sample Index Operation";
-        this.DESCRIPTION = "Executes a variant secondary sample index operation job";
+        this.TOOL = "VariantSecondarySampleConfigureIndex";
+        this.TITLE = "Variant Secondary Sample Index Configure Operation";
+        this.DESCRIPTION = "Executes a variant secondary sample index configure operation job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -78,6 +78,14 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
             };
             this.config = this.getDefaultConfig();
         }
+        if (changedProperties.has("opencgaSession")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.variantEngine.sampleIndex, null, 8) || "-",
+            };
+            this.config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
@@ -96,18 +104,17 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            sample: this.toolParams.sample?.split(",") || [],
-            familyIndex: this.toolParams.familyIndex || false,
-            overwrite: this.toolParams.index || false,
+            ...JSON.parse(this.toolParams.body)
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
+            skipRebuild: this.toolParams.skipRebuild || false,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
             this.TITLE,
             this.opencgaSession.opencgaClient.variantOperations()
-                .variantSecondarySampleIndex(toolParams, params),
+                .configureVariantSecondarySampleIndex(toolParams, params),
             this,
         );
     }
@@ -157,29 +164,21 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Sample",
-                        type: "custom",
+                        title: "Skip Rebuild",
+                        field: "skipRebuild",
+                        type: "checkbox",
+                    },
+                    {
+                        title: "Sample Index Configuration",
+                        field: "body",
+                        type: "input-text",
                         display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.sample}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true}}"
-                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
-                    {
-                        title: "Family Index",
-                        field: "familyIndex",
-                        type: "checkbox",
-                    },
-                    {
-                        title: "Overwrite Index",
-                        field: "overwrite",
-                        type: "checkbox",
+                            rows: 20,
+                            // help: {
+                            //     mode: "ERROR",
+                            //     text: "asdssad as a"
+                            // }
+                        }
                     },
                 ],
             }
@@ -196,4 +195,4 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
 
 }
 
-customElements.define("variant-secondary-sample-index-operation", VariantSecondarySampleIndexOperation);
+customElements.define("variant-secondary-sample-index-configure-operation", VariantSecondarySampleIndexConfigureOperation);
