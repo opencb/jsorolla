@@ -874,6 +874,12 @@ export default class VariantInterpreterGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1
+                                        </a>
+                                    </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
