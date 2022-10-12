@@ -958,7 +958,7 @@ export default class VariantGridFormatter {
                             break;
                         case "LIKELY_BENIGN":
                             code = "LB";
-                            color = "brown";
+                            color = "darkgreen";
                             tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                             break;
                         case "VUS":
