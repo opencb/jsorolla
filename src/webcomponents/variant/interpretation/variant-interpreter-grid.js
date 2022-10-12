@@ -1198,7 +1198,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 const copy = this._config.copies.find(copy => copy.id === action);
                 if (copy) {
                     // Sort and group CTs by Gene name
-                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+                    // BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
 
                     // we need to prepare evidences to be filtered properly,
                     // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
