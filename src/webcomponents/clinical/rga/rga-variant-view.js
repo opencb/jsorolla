@@ -693,18 +693,18 @@ export default class RgaVariantView extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
             count: false,
             ...this._query,
-            limit: e.detail?.exportLimit ?? 50,
+            limit: e.detail?.exportLimit ?? 100,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(params)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
-                    console.log("res", results);
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         const dataString = [

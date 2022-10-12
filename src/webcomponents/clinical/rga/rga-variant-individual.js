@@ -101,7 +101,8 @@ export default class RgaVariantIndividual extends LitElement {
 
     async renderTable() {
         this.hiddenIndividuals = 0;
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({

@@ -399,10 +399,11 @@ export default class RgaGeneView extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 50,
+            limit: e.detail?.exportLimit ?? 100,
             count: false,
             ...this._query
         };

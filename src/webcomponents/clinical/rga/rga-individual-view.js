@@ -462,13 +462,14 @@ export default class RgaIndividualView extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
             count: false,
             include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
             ...this._query,
-            limit: e.detail?.exportLimit ?? 50,
+            limit: e.detail?.exportLimit ?? 100,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(params)
             .then(restResponse => {
@@ -495,8 +496,8 @@ export default class RgaIndividualView extends LitElement {
                                 _.genes.join(", "),
                                 _.variantStats.numHomAlt,
                                 // _.variantStats.numDelOverlap,
-                                this.getChConfidenceFormatter(_, 2) + _.variantStats.numDelOverlap, // FIXME DELETION_OVERLAP replaced
-                                this.getChConfidenceFormatter(_, 1),
+                                (this.getChConfidenceFormatter(_, 2) + _.variantStats.numDelOverlap) ?? "-", // FIXME DELETION_OVERLAP replaced
+                                this.getChConfidenceFormatter(_, 1) ?? "-",
                                 // this.getChConfidenceFormatter(_, 0),
                                 _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
                                 _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
