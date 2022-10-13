@@ -87,7 +87,7 @@ export default class VariantGridFormatter {
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
                     <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
-                        DECIPHER
+                        Decipher
                     </a>
                 </div>
             `;

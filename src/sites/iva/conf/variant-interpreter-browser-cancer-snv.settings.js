@@ -10,30 +10,37 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
             },
             {
                 title: "Genomic",
+                collapsed: true,
                 filters: ["region", "feature", "biotype", "type"]
             },
             {
                 title: "Clinical",
+                collapsed: true,
                 filters: ["diseasePanels", "clinical-annotation"]
             },
             {
                 title: "Consequence Type",
+                collapsed: true,
                 filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",
+                collapsed: true,
                 filters: ["populationFrequency"]
             },
             {
                 title: "Phenotype",
+                collapsed: true,
                 filters: ["go", "hpo"]
             },
             {
                 title: "Deleteriousness",
+                collapsed: true,
                 filters: ["proteinSubstitutionScore", "cadd"]
             },
             {
                 title: "Conservation",
+                collapsed: true,
                 filters: ["conservation"]
             }
         ]
