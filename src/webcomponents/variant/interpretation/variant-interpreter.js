@@ -335,7 +335,7 @@ class VariantInterpreter extends LitElement {
                             ${this._config.title}
                             <span class="inverse">
                                 Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                                ${this.clinicalAnalysis.interpretation.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
                             </span>
                         `}"
                         .rhs="${html`
@@ -343,6 +343,7 @@ class VariantInterpreter extends LitElement {
                                 ${this.clinicalAnalysis?.interpretation ? html`
                                     <div align="center" style="margin-right:3rem;">
                                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
