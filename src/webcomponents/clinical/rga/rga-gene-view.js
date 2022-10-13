@@ -82,13 +82,26 @@ export default class RgaGeneView extends LitElement {
                     title: "Gene",
                     field: "name"
                 }, {
-
-                    title: "Recessive Individuals",
-                    field: "individualStats.count,individualStats.numHomAlt,individualStats.numDelOverlap,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.missingParents.numCompHet"
+                    title: "Recessive Individuals: Total",
+                    field: "individualStats.count"
                 }, {
-
-                    title: "Recessive Variants",
-                    field: "variantStats.count,variantStats.numHomAlt,variantStats.numPairedCompHet"
+                    title: "Recessive Individuals: Homozygous",
+                    field: "individualStats.numHomAlt"
+                }, {
+                    title: "Recessive Individuals: CH Definite",
+                    field: "individualStats.ch_def"
+                }, {
+                    title: "Recessive Individuals: CH Probable",
+                    field: "individualStats.ch_prob"
+                }, {
+                    title: "Recessive Variants: Total",
+                    field: "variantStats.count"
+                }, {
+                    title: "Recessive Variants: Homozygous",
+                    field: "variantStats.numHomAlt"
+                }, {
+                    title: "Recessive Variants: CH",
+                    field: "variantStats.numPairedCompHet"
                 }
             ],
             showColumns: true,
@@ -284,13 +297,13 @@ export default class RgaGeneView extends LitElement {
                 },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats",
-                    formatter: individualStats => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    field: "individualStats.ch_def",
+                    formatter: (_, row) => row.individualStats.bothParents.numCompHet + row.individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats",
-                    formatter: individualStats => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    field: "individualStats.ch_prob",
+                    formatter: (_, row) => row.individualStats.singleParent.numCompHet + row.individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
 
                 },
                 /* {
@@ -311,8 +324,8 @@ export default class RgaGeneView extends LitElement {
                 },
                 {
                     title: "CH",
-                    field: "variantStats",
-                    formatter: variantStats => variantStats.numPairedCompHet + variantStats.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    field: "variantStats.numPairedCompHet",
+                    formatter: (_, row) => row.variantStats.numPairedCompHet + row.variantStats.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 }
             ]
         ];
@@ -386,10 +399,11 @@ export default class RgaGeneView extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 50,
+            limit: e.detail?.exportLimit ?? 100,
             count: false,
             ...this._query
         };
