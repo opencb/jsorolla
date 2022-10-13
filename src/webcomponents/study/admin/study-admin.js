@@ -309,7 +309,7 @@ export default class StudyAdmin extends LitElement {
     //                             <span class="icon-bar"></span>
     //                             <span class="icon-bar"></span>
     //                         </button>
-    //                         <a class="navbar-brand">${this.study?x.name}</a>
+    //                         <a class="navbar-brand">${this.study?.name}</a>
     //                     </div>
     //
     //                     <!-- Collect the nav links, form, and other content for toggling -->
@@ -450,7 +450,7 @@ export default class StudyAdmin extends LitElement {
     getDefaultConfig() {
         return {
             id: "",
-            name: "",
+            name: "Study Admin",
             logo: "",
             icon: "",
             visibility: "private", // public | private | none
@@ -483,9 +483,9 @@ export default class StudyAdmin extends LitElement {
                             // },
                             // question: (b)
                             render: () => html`
-                        <under-construction>
-                            .title="Study dashboard"
-                        </under-construction>`,
+                                <under-construction>
+                                    .title="Study dashboard"
+                                </under-construction>`,
                         },
                         {
                             id: "UsersAndGroups",
@@ -494,10 +494,10 @@ export default class StudyAdmin extends LitElement {
                             icon: "fas fa-user-friends",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-users
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-users>`,
+                                <study-admin-users
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-users>`,
                         },
                         {
                             id: "Permissions",
@@ -506,10 +506,10 @@ export default class StudyAdmin extends LitElement {
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-permissions
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-permissions>`,
+                                <study-admin-permissions
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-permissions>`,
                         },
                         {
                             id: "VariableSets",
@@ -518,10 +518,10 @@ export default class StudyAdmin extends LitElement {
                             icon: "fas fa-book",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-variable
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-variable>`,
+                                <study-admin-variable
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-variable>`,
                         },
                         {
                             id: "Audit",
@@ -530,10 +530,10 @@ export default class StudyAdmin extends LitElement {
                             icon: "fas fa-book",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-audit
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-audit>`,
+                                <study-admin-audit
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-audit>`,
                         },
                         {
                             id: "Configuration",
@@ -542,10 +542,10 @@ export default class StudyAdmin extends LitElement {
                             icon: "fas fa-cog",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-configuration
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-configuration>`,
+                                <study-admin-configuration
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}">
+                                </study-admin-configuration>`,
                         },
                     ],
                 },

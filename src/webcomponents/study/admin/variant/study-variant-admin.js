@@ -407,7 +407,7 @@ export default class StudyVariantAdmin extends LitElement {
     getDefaultConfig() {
         return {
             id: "",
-            name: "",
+            name: "Study Variant Admin",
             logo: "",
             icon: "",
             visibility: "", // public | private | none
