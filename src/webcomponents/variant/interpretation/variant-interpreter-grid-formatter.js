@@ -543,6 +543,15 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
+                    case "2":
+                        if (mode === "alleles") {
+                            // TODO to decide how to display 1/2 alleles
+                            // alleles.push(variant?.studies[0]?.secondaryAlternates[0]?.reference ? variant?.studies[0]?.secondaryAlternates[0]?.reference : "-");
+                            alleles.push("*");
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
                     case "?":
                         if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
@@ -616,6 +625,10 @@ export default class VariantInterpreterGridFormatter {
                             res = "<span style='color: darkorange'>HET</span>";
                         }
                     }
+                    break;
+                case "1/2":
+                case "1|2":
+                    res = "<span style='color: red'>BIALLELIC_HET</span>";
                     break;
                 case "1/1":
                 case "1|1":
