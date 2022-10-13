@@ -87,7 +87,7 @@ export default class VariantGridFormatter {
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
                     <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
-                        DECIPHER
+                        Decipher
                     </a>
                 </div>
             `;
@@ -958,7 +958,7 @@ export default class VariantGridFormatter {
                             break;
                         case "LIKELY_BENIGN":
                             code = "LB";
-                            color = "brown";
+                            color = "darkgreen";
                             tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                             break;
                         case "VUS":

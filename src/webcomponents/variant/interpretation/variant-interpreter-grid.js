@@ -773,7 +773,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 {
                     id: "populationFrequencies",
                     columnTitle: "Reference Population Frequencies",
-                    title: `Reference <br> Population Frequencies
+                    title: `Reference Population <br> Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
@@ -872,6 +872,19 @@ export default class VariantInterpreterGrid extends LitElement {
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.type === "SNV" ? row.id : row.studies[0]?.files[0]?.call?.variantId?.split(",")[0], row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">CellBase Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
@@ -1588,7 +1601,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
+            populationFrequencies: ["1000G:ALL", "GNOMAD_GENOMES:ALL", "UK10K:ALL"],
 
             genotype: {
                 type: "VAF"
