@@ -195,6 +195,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         if (this.variantAnnotation === undefined || this.variantAnnotation === "" || this.proteinSubScore === undefined) {
             return;
         }
+
+        const variantId = this.variantAnnotation.id ? this.variantAnnotation.id : `${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}:${this.variantAnnotation.reference}:${this.variantAnnotation.alternate}`;
+
         return html`
             <div class="cellbase-variant-annotation-summary">
                 <div class="row">
@@ -205,66 +208,66 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 <label class="col-md-3 label-title">Id</label>
                                 <!-- <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=\${this.variantAnnotation.id}">\${this.variantAnnotation.id}</a></span> -->
                                 <span class="col-md-9">
-                                    <a target="_blank" href="${BioinfoUtils.getVariantLink(this.variantAnnotation.id, variantRegion, "ensembl_genome_browser", this.assembly)}">
-                                    ${this.variantAnnotation.id}
+                                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "ensembl_genome_browser", this.assembly)}">
+                                    ${variantId}
                                     </a>
                                 </span>
                             </div>
 
-                                ${this.variantAnnotation?.hgvs?.length ? html`
+                            ${this.variantAnnotation?.hgvs?.length ? html`
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">HGVS</label>
                                     <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br> `)}</span>
                                 </div>
-                                ` : null}
+                            ` : null}
 
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Alleles</label>
-                                    <span class="col-md-9 break-word">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
-                                </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Alleles</label>
+                                <span class="col-md-9 break-word">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Location</label>
-                                    <span class="col-md-9">
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Location</label>
+                                <span class="col-md-9">
                                         ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
                                         ${this.variantAnnotation.end ? html`<div>-${this.variantAnnotation.end}</div>`: null}
                                     </span>
-                                </div>
+                            </div>
 
-                                ${this.variantAnnotation.type ? html`
-                                    <div class="form-group">
-                                        <label class="col-md-3 label-title">Type</label>
-                                        <span class="col-md-9">${this.variantAnnotation.type}</span>
-                                    </div>
-                                ` : null }
-
-                                ${this.variantAnnotation.ancestralAllele ? html`
-                                    <div class="form-group">
-                                        <label class="col-md-3 label-title">Ancestral Allele</label>
-                                        <span class="col-md-9">${this.variantAnnotation.ancestralAllele}</span>
-                                    </div>
-                                ` : null}
-
-                                ${this.variantAnnotation.minorAlleleFreq ? html`
-                                    <div class="form-group">
-                                        <label class="col-md-3 label-title">MAF</label>
-                                        <span class="col-md-9">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</span>
-                                    </div>
-                                ` : null}
-
+                            ${this.variantAnnotation.type ? html`
                                 <div class="form-group">
-                                    <label class="col-md-3 label-title">Most Severe Consequence Type</label>
-                                    <span class="col-md-9">
+                                    <label class="col-md-3 label-title">Type</label>
+                                    <span class="col-md-9">${this.variantAnnotation.type}</span>
+                                </div>
+                            ` : null }
+
+                            ${this.variantAnnotation.ancestralAllele ? html`
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">Ancestral Allele</label>
+                                    <span class="col-md-9">${this.variantAnnotation.ancestralAllele}</span>
+                                </div>
+                            ` : null}
+
+                            ${this.variantAnnotation.minorAlleleFreq ? html`
+                                <div class="form-group">
+                                    <label class="col-md-3 label-title">MAF</label>
+                                    <span class="col-md-9">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</span>
+                                </div>
+                            ` : null}
+
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Most Severe Consequence Type</label>
+                                <span class="col-md-9">
                                         <span id="${this._prefix}CT">${this.variantAnnotation.displayConsequenceType}</span>
                                         ${this.ctGene ? html`
-                                        <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
+                                            <span>(<b>Gene</b> : ${this.ctGene}, <b>Transcript</b> : ${this.ctTranscript})</span>
                                         ` : null }
                                     </span>
-                                </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Most Severe Deleterious Score</label>
-                                    <span class="col-md-9">
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Most Severe Deleterious Score</label>
+                                <span class="col-md-9">
                                         <span id="${this._prefix}Sift" title="${this.proteinSubScore.sift.score}">
                                             ${this.proteinSubScore.sift.description}
                                         </span>
@@ -272,22 +275,22 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                             (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
                                         ` : null }
                                     </span>
-                                </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">Polyphen</label>
-                                    <span class="col-md-9">
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">Polyphen</label>
+                                <span class="col-md-9">
                                         <span id="${this._prefix}Polyphen" title="${this.proteinSubScore.polyphen.score}">${this.proteinSubScore.polyphen.description}</span>
                                         ${this.isTranscriptAvailable(this.proteinSubScore.polyphen.transcript) ? html`
                                             (<b>Gene:</b>${this.proteinSubScore.polyphen.gene}, <b>Transcript: </b>${this.proteinSubScore.polyphen.transcript})
                                         ` : null}
                                     </span>
-                                </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="col-md-3 label-title">CADD Scaled</label>
-                                    <span class="col-md-9"><span id="${this._prefix}Cadd">${this.caddScaled}</span></span>
-                                </div>
+                            <div class="form-group">
+                                <label class="col-md-3 label-title">CADD Scaled</label>
+                                <span class="col-md-9"><span id="${this._prefix}Cadd">${this.caddScaled}</span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
