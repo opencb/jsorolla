@@ -79,6 +79,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"},
+            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM REF)"},
             {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
         ];
 
@@ -95,7 +96,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.showModeOfInheritance = true;
         this.mode = "CUSTOM";
 
-        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "MENDELIAN_ERROR"];
+        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "DE_NOVO_STRICT", "MENDELIAN_ERROR"];
         this.state = {};
         // keeps track of the samples with no GT selected
         this.noGtSamples = [];
