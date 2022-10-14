@@ -25,6 +25,7 @@ import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -761,6 +762,76 @@ export default class VariantBrowserGrid extends LitElement {
                     },
                     visible: this._config.showSelectCheckbox
                 },
+                {
+                    id: "actions",
+                    title: "Actions",
+                    rowspan: 2,
+                    colspan: 1,
+                    eligible: false,
+                    formatter: (value, row) => {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="dropdown-header">External Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">CellBase Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
+                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>`;
+                    },
+                    align: "center",
+                    events: {
+                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                    },
+                    visible: this._config?.showActions,
+                    excludeFromExport: true // this is used in opencga-export
+                },
             ],
             [
                 {
@@ -859,6 +930,26 @@ export default class VariantBrowserGrid extends LitElement {
         return this._columns;
     }
 
+    onActionClick(e, value, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
+                break;
+            case "copy-json":
+                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            default:
+                console.warn("Option not recognize: " + action);
+                break;
+        }
+    }
+
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
@@ -887,55 +978,6 @@ export default class VariantBrowserGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
-    }
-
-    // not used as changes to exportFields is not propagated outside opencga-export anymore (they are sent on click on download button via `export` event)
-    /* onChangeExportField(e) {
-        this.exportFields = e.detail.value;
-    } */
-
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [5, 10, 25],
-            showExport: false,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
-            showToolbar: true,
-            showSelectCheckbox: false,
-            multiSelection: false,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
-            highlights: [],
-            activeHighlights: [],
-
-            geneSet: {
-                ensembl: true,
-                refseq: true,
-            },
-            consequenceType: {
-                maneTranscript: true,
-                gencodeBasicTranscript: true,
-                ensemblCanonicalTranscript: true,
-                refseqTranscript: true,
-                ccdsTranscript: false,
-                ensemblTslTranscript: false,
-                proteinCodingTranscript: false,
-                highImpactConsequenceTypeTranscript: false,
-
-                showNegativeConsequenceTypes: true
-            },
-            populationFrequencies: {
-                displayMode: "FREQUENCY_BOX"
-            }
-        };
     }
 
     onGridConfigChange(e) {
@@ -1001,6 +1043,51 @@ export default class VariantBrowserGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showExport: false,
+            detailView: true,
+            detailFormatter: this.detailFormatter,
+            showToolbar: true,
+            showSelectCheckbox: false,
+            showActions: true,
+            multiSelection: false,
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 15,
+
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+
+            highlights: [],
+            activeHighlights: [],
+
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                maneTranscript: true,
+                gencodeBasicTranscript: true,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
+            populationFrequencies: {
+                displayMode: "FREQUENCY_BOX"
+            }
+        };
     }
 
 }

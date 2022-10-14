@@ -1751,18 +1751,7 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-admin"] ? html`
-                    <tool-header title="Variant Admin" icon="${"fas fa-rocket"}"></tool-header>
-                    <div class="content">
-                        <variants-admin
-                                .study="${this.opencgaSession.study}"
-                                .opencgaSession="${this.opencgaSession}">
-                        </variants-admin>
-                    </div>
-                ` : null}
-
                 ${this.config.enabledComponents["study-admin"] ? html`
-                    <tool-header title="Study Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
                         <study-admin
                             .study="${this.opencgaSession.study}"
@@ -1773,7 +1762,6 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["study-variant-admin"] ? html`
-                    <tool-header title="Study Variant Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
                         <study-variant-admin
                             .study="${this.opencgaSession.study}"

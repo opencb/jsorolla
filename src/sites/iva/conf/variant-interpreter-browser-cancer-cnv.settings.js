@@ -10,14 +10,17 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS = {
             },
             {
                 title: "Genomic",
+                collapsed: true,
                 filters: ["region", "feature", "biotype", "type"]
             },
             {
                 title: "Clinical",
+                collapsed: true,
                 filters: ["diseasePanels"]
             },
             {
                 title: "Phenotype",
+                collapsed: true,
                 filters: ["go", "hpo"]
             },
         ]
