@@ -87,7 +87,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             _users: this._users,
-            comments: []
+            comments: [],
+            panelLock: false,
         };
     }
 
