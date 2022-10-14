@@ -76,7 +76,7 @@ context("16.  RGA Browser", () => {
         cy.get("rga-gene-view div[data-cy='gene-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
 
         cy.get("rga-gene-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-gene-view div[data-cy='gene-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("rga-gene-view div[data-cy='gene-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 8);
 
         checkResults("rga-gene-view");
     });
@@ -227,7 +227,7 @@ context("16.  RGA Browser", () => {
         cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
 
         cy.get("rga-individual-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 9);
 
     });
 
@@ -327,7 +327,7 @@ context("16.  RGA Browser", () => {
     });
 
 
-    it("16.17 - Individual View. Columns dropdown exists and every item toggles the related column in the table.", () => {
+    it("16.17 - Individual View. Querying for first individual Id from results, total results = 1.", () => {
         let IndividualId;
 
         getResult("rga-individual-view", 0).then($text => {
@@ -342,10 +342,7 @@ context("16.  RGA Browser", () => {
                 cy.wrap($resultCell).should("contain", IndividualId);
 
             });
-
-            // check detail-tabs family table
-            // ensure `IndividualId` is present in table header
-            cy.get("rga-individual-family table > thead > :nth-child(1) > :nth-child(7) > .th-inner").contains(IndividualId);
+            cy.get("rga-individual-view div[data-cy='individual-view-grid'] table tbody tr").should("have.length", 1);
 
         });
         cy.get("button.active-filter-label").click();
@@ -374,10 +371,10 @@ context("16.  RGA Browser", () => {
         cy.get("rga-variant-view .columns-toggle-wrapper ul li").and("have.length.gt", 1);
 
         cy.get("rga-variant-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // deactivate all the columns
-        cy.get("rga-variant-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 1);
+        cy.get("rga-variant-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 0);
 
         cy.get("rga-variant-view .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
-        cy.get("rga-variant-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
+        cy.get("rga-variant-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.lengthOf", 12);
 
     });
 
