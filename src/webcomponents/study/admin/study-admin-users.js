@@ -180,7 +180,8 @@ export default class StudyAdminUsers extends LitElement {
         };
 
         try {
-            const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
+            const resp = await this.opencgaSession.opencgaClient.studies()
+                .updateGroupsUsers(this.study.fqn, group, data, params);
             const results = resp.responses[0].results;
             // this.showMessage("Message", messageAlert, "success");
             // NotificationUtils.showNotify(messageAlert, "SUCCESS");
@@ -619,19 +620,19 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${[...this.groupsMap?.keys()]
-                                            .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
-                                            .map(group => html`
-                                                <div>
-                                                    <span style="margin: 0px 5px">
-                                                        <input
-                                                                type="checkbox"
-                                                                value="${group}"
-                                                                .checked="${this.removeGroupSet?.has(group)}"
-                                                                @click="${this.onGroupRemoveFieldChange}">
-                                                    </span>
-                                                    <span>${group}</span>
-                                                </div>
-                                            `)}
+            .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
+            .map(group => html`
+                                        <div>
+                                            <span style="margin: 0px 5px">
+                                                <input
+                                                        type="checkbox"
+                                                        value="${group}"
+                                                        .checked="${this.removeGroupSet?.has(group)}"
+                                                        @click="${this.onGroupRemoveFieldChange}">
+                                            </span>
+                                            <span>${group}</span>
+                                        </div>
+                                    `)}
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
                                     <button type="button" class="btn btn-primary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
