@@ -87,7 +87,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             _users: this._users,
-            comments: []
+            comments: [],
+            panelLock: false,
         };
     }
 
@@ -472,10 +473,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             .value="${probandId}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                addButton: false,
-                                                multiple: false
-                                            }}
+                                            .config=${{addButton: false, multiple: false}}
                                             @filterChange="${e => this.onIndividualChange(e)}">
                                         </catalog-search-autocomplete>
                                     `;
@@ -545,10 +543,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}"
+                                        .config="${{addButton: false, multiple: false}}"
                                         @filterChange="${e => this.onFamilyChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
@@ -667,10 +662,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}
+                                        .config=${{addButton: false, multiple: false}}
                                         @filterChange="${e => this.onCancerChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
