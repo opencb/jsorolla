@@ -359,20 +359,6 @@ export default class UtilsNew {
         }, {})))(error);
     }
 
-    // ! Deprecated function, do not use
-    static notifyError(response) {
-        // if (response?.getEvents?.("ERROR")?.length) {
-        //     const errors = response.getEvents("ERROR");
-        //     errors.forEach(error => {
-        //         new NotificationQueue().push(error.name, error.message, "ERROR");
-        //     });
-        // } else if (response instanceof Error) {
-        //     new NotificationQueue().push(response.name, response.message, "ERROR");
-        // } else {
-        //     new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
-        // }
-    }
-
     // Performs a clone object specified object
     static objectClone(obj) {
         return JSON.parse(JSON.stringify(obj));

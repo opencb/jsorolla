@@ -277,71 +277,7 @@ export default class StudyAdminAudit extends LitElement {
         this.query = {};
     }
 
-    // onServerFilterChange(e) {
-    //     // suppress if I actually have clicked on an action buttons
-    //     if (e.target.className !== "id-filter-button") {
-    //         return;
-    //     }
-    //
-    //     for (const filter of this._filters) {
-    //         if (e.currentTarget.dataset.filterId === filter.id) {
-    //             this.query = filter.query;
-    //             this.requestUpdate();
-    //             break;
-    //         }
-    //     }
-    // }
-
-    // serverFilterDelete(e) {
-    //     const { filterId } = e.currentTarget.dataset;
-    //     Swal.fire({
-    //         title: "Are you sure?",
-    //         text: "The filter will be deleted. The operation cannot be reverted.",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#d33",
-    //         cancelButtonColor: "#3085d6",
-    //         confirmButtonText: "Yes"
-    //     }).then(result => {
-    //         if (result.value) {
-    //             const data = {
-    //                 id: filterId,
-    //                 resource: this.resource,
-    //                 options: {}
-    //             };
-    //             this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, { action: "REMOVE" })
-    //                 .then(restResponse => {
-    //                     console.log("restResponse", restResponse);
-    //                     Swal.fire(
-    //                         "Filter Deleted",
-    //                         "Filter has been deleted.",
-    //                         "success"
-    //                     );
-    //                     this.refreshFilters();
-    //                 }).catch(restResponse => {
-    //                 if (restResponse.getEvents?.("ERROR")?.length) {
-    //                     const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-    //                     new NotificationQueue().push("Error deleting filter", msg, "error");
-    //                 } else {
-    //                     new NotificationQueue().push("Error deleting filter", "", "error");
-    //                 }
-    //                 console.error(restResponse);
-    //             });
-    //         }
-    //     });
-    // }
-
-    // launchModal() {
-    //     $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
-    // }
-
-    // save() {
-    //     console.log("Save Button")
-    // }
-
     render() {
-
-
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return html`
             <div class="guard-page">

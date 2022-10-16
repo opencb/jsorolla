@@ -104,7 +104,6 @@ export class JobMonitor extends LitElement {
                 const statusId = job.internal.status.id || job.internal.status.name;
                 const oldStatusId = oldList[i - k].internal.status.id || oldList[i - k].internal.status.name;
                 if (statusId !== oldStatusId) {
-                    // new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
                         message: `${job.id} The job has now status ${job?.internal?.status?.id || job?.internal?.status?.name}`,
                     });

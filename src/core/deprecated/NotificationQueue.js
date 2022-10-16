@@ -1,4 +1,4 @@
-import UtilsNew from "./utilsNew.js";
+import UtilsNew from "../utilsNew.js";
 import {html} from "lit-html";
 
 export class NotificationQueue {
