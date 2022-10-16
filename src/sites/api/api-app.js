@@ -117,9 +117,6 @@ class ApiApp extends LitElement {
             window.location.hash = this.tool;
         }
 
-        // Other initialisations
-        this._isBreadcrumbVisible = false;
-
         // Notifications
         this.notificationManager = new NotificationManager({});
 
