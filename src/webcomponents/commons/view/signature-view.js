@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../loading-spinner.js";
 
 export default class SignatureView extends LitElement {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../utils-new.js";
 
 export default class OpencgaCatalogUtils {
 

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import Utils from "./../../../core/utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 /**
  * Consequence type filter as list of checkboxes. This has been deprecated in favor of consequence-type-select-filter

@@ -1,6 +1,6 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
-import UtilsNew from "../../../core/utilsNew";
+import UtilsNew from "../../../core/utils-new";
 
 
 export default class AnalysisUtils {

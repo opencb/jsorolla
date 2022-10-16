@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/forms/text-field-filter.js";
 import "../../commons/forms/checkbox-field-filter.js";

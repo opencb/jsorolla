@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../variant/variant-browser-filter.js";
@@ -338,7 +338,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </ul>
                             </div>
                             <div class="btn-group">
-                                <data-form 
+                                <data-form
                                     .data=${this.save}
                                     .config="${this.getSaveConfig()}"
                                     @fieldChange="${e => this.onSaveFieldChange(e)}"
@@ -369,7 +369,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                             ` : html`
                                 ${this.sampleQcVariantStats ? html`
                                     <div style="padding: 0px 15px">
-                                        <sample-variant-stats-view 
+                                        <sample-variant-stats-view
                                             .sampleVariantStats="${this.sampleQcVariantStats}"
                                             .query="${this.sampleQcVariantStats.query}"
                                             .description="${this.sampleQcVariantStats.description}">

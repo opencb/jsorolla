@@ -4,7 +4,7 @@ import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
 import "./user-password-change.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class UserProfile extends LitElement {
 

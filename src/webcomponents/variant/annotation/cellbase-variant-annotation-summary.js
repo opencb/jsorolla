@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {

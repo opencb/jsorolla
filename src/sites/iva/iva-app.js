@@ -27,7 +27,7 @@ import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 

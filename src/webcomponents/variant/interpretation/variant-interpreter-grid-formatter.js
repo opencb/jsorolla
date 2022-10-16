@@ -16,7 +16,7 @@
 
 import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 

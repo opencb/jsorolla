@@ -1,5 +1,5 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./clinical-analysis-grid.js";
 
 export default class ClinicalAnalysisGroup extends LitElement {

@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";

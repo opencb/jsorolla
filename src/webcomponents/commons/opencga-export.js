@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {

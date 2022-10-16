@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 
 export default class VariantUtils {

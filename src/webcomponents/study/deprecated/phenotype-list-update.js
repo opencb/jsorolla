@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/text-field-filter.js";
 import "./phenotype-manager.js";
 import "../phenotype/phenotype-create.js";

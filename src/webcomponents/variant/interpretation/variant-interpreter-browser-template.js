@@ -20,7 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
