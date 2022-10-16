@@ -47,9 +47,9 @@ export default class ExomiserAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "interpreter-exomiser";
-        this.ANALYSIS_TITLE = "Interpreter Exomiser";
-        this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
+        this.TOOL = "interpreter-exomiser";
+        this.TITLE = "Interpreter Exomiser";
+        this.DESCRIPTION = "Executes an Exomiser Interpretation analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -65,6 +65,11 @@ export default class ExomiserAnalysis extends LitElement {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if a clinical analysis ID was passed as an argument
             this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
+
+            // If a clinicalAnalysis ID is provided as a property we must fetch the object, so we can check
+            if (this.clinicalAnalysis) {
+                this.clinicalAnalysisObserver();
+            }
         }
     }
 
@@ -79,8 +84,28 @@ export default class ExomiserAnalysis extends LitElement {
         super.update(changedProperties);
     }
 
+    clinicalAnalysisObserver() {
+        if (this.toolParams?.clinicalAnalysis && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.toolParams.clinicalAnalysis, {study: this.opencgaSession.study.fqn, include: "id,proband"})
+                .then(resp => {
+                    this.clinicalAnalysisObj = resp.responses[0].results[0];
+                    this.config = this.getDefaultConfig();
+                    this.requestUpdate();
+                });
+        }
+    }
+
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        // Proband MUST have at least one phenotype or disorder
+        if (this.clinicalAnalysisObj) {
+            return {
+                status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
+                message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
+            };
+        } else {
+            return null;
+        }
     }
 
     onFieldChange(e, field) {
@@ -88,9 +113,14 @@ export default class ExomiserAnalysis extends LitElement {
         if (param) {
             this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
         }
-        // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
-        this.requestUpdate();
+
+        // We need to fetch clinicalAnalysis object, so we can check if form is valid
+        if (param === "clinicalAnalysis") {
+            this.clinicalAnalysisObserver();
+        } else {
+            this.config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
     }
 
     onSubmit() {
@@ -99,10 +129,10 @@ export default class ExomiserAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterExomiser(toolParams, params),
             this,
@@ -156,9 +186,9 @@ export default class ExomiserAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check(),
         );
