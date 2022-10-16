@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./config-list-update.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class StudyClinicalConfig extends LitElement {
 

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./../../commons/view/detail-tabs.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";

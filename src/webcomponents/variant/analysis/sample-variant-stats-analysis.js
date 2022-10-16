@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
-import UtilsNew from "../../../core/utilsNew";
+import UtilsNew from "../../../core/utils-new";
 
 
 export default class SampleVariantStatsAnalysis extends LitElement {

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
-import UtilsNew from "./../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
 
