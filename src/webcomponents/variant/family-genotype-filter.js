@@ -34,13 +34,13 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
             genotype: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -50,7 +50,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovfc" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.modeOfInheritance = null;
 
         // TODO This is configurable via constants
@@ -112,7 +112,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     updated(changedProperties) {
-
         if (changedProperties.has("genotype")) {
             this.genotypeObserver();
         }
