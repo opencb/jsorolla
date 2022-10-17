@@ -128,7 +128,7 @@ export default class CustomVerticalNavBar extends LitElement {
         document.querySelector(`[data-id=${this.clicked}]`).classList.add("active-item");
 
         // Display selected content
-        const navContents = document.querySelectorAll(`#${this.#divContent} div[role=tabpanel]`);
+        const navContents = document.querySelectorAll(`#${this.#divContent} > div[role=tabpanel]`);
         [...navContents].forEach(item => item.style.display = "none");
         const currentContent = document.querySelector(`#${this.#divContent}  #${this.clicked}`);
         currentContent.style.display = "block";
