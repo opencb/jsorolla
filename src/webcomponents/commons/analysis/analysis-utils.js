@@ -5,6 +5,13 @@ import UtilsNew from "../../../core/utils-new";
 
 export default class AnalysisUtils {
 
+    // static check(status, message) {
+    //     return {
+    //         status: status,
+    //         message: message
+    //     };
+    // }
+
     static submit(id, promise, context) {
         promise
             .then(response => {
