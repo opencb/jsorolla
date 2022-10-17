@@ -19,7 +19,7 @@ import FormUtils from "../commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
 

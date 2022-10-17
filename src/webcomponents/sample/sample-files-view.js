@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 
 import "../file/file-preview.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class SampleFilesView extends LitElement {
 

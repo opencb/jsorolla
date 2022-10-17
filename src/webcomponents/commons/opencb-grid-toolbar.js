@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
 

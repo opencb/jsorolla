@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import "./config-list-update.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class StudyVariantConfig extends LitElement {
 

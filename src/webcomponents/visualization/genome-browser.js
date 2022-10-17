@@ -1,5 +1,5 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import Region from "../../core/bioinfo/region.js";
 import GenomeBrowser from "../../genome-browser/genome-browser.js";
 

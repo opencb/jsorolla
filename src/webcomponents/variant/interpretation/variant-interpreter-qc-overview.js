@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";

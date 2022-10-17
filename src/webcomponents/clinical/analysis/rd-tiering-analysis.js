@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
@@ -49,9 +49,9 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "rd-tiering";
-        this.ANALYSIS_TITLE = "RD Tiering Interpretation";
-        this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
+        this.TOOL = "rd-tiering";
+        this.TITLE = "RD Tiering Interpretation";
+        this.DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -84,7 +84,9 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.clinicalAnalysis;
+        return {
+            status: !!this.toolParams.clinicalAnalysis
+        };
     }
 
     onFieldChange(e, field) {
@@ -103,10 +105,10 @@ export default class RdTieringAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.clinical()
                 .runInterpreterTiering(toolParams, params),
             this,
@@ -200,9 +202,9 @@ export default class RdTieringAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

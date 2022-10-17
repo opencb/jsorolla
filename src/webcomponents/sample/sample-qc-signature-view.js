@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/view/signature-view.js";
 import "../commons/forms/data-form.js";
 import "../commons/simple-chart.js";

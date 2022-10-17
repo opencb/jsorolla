@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
@@ -254,7 +254,7 @@ export default class JobView extends LitElement {
                                     if (job.params) {
                                         return Object.entries(job.params).map(([param, value]) => html`
                                             <div>
-                                                <label>${param}</label>: 
+                                                <label>${param}</label>:
                                                 ${value && typeof value === "object" ? html`
                                                     <ul>
                                                         ${Object.keys(value).map(key => html`

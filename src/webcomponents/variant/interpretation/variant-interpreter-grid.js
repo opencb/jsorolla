@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -425,11 +425,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                     // Enable or disable evidence select
                     Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
@@ -506,11 +506,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
 
                 // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
-                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                 // Enable or disable evidence select
                 Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
@@ -843,7 +843,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
 
                         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
-                        const reviewDisabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
 
                         return `
                             <div class="dropdown">
@@ -982,7 +982,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        const disabled = this.clinicalAnalysis.locked ? "disabled" : "";
+                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
                     },
                     align: "center",
@@ -999,7 +999,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         // Check disable status
-                        const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         // Prepare comments
                         let commentsTooltipText = "";
                         if (row.comments?.length > 0) {
