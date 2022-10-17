@@ -79,7 +79,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"},
-            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM REF)"},
+            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM_REF)"},
             {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
         ];
 
