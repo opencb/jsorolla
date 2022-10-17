@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew";
+import UtilsNew from "../../../core/utils-new";
 
 export default class CustomVerticalNavBar extends LitElement {
 

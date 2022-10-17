@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../../commons/utils/lit-utils";
-import UtilsNew from "../../../../core/utilsNew.js";
 import "../study-admin-sample.js";
 import "../study-admin-individual.js";
 import "../study-admin-family.js";
@@ -55,7 +54,6 @@ export default class StudyVariantAdmin extends LitElement {
     }
 
     #init() {
-        // this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 

@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
 
 import "./study-admin-users.js";
@@ -58,7 +57,6 @@ export default class StudyAdmin extends LitElement {
     }
 
     #init() {
-        // this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
