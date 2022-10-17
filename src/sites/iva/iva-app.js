@@ -80,6 +80,7 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
@@ -206,6 +207,7 @@ class IvaApp extends LitElement {
             "clinicalAnalysis",
             // Admin
             "study-admin",
+            "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
@@ -1723,6 +1725,16 @@ class IvaApp extends LitElement {
                         </projects-admin>
                     </div>
                 ` : null}
+
+                ${this.config.enabledComponents["catalog-admin"] ? html`
+                    <div id="catalog-admin">
+                        <catalog-admin
+                                .opencgaSession="${this.opencgaSession}"
+                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </catalog-admin>
+                    </div>
+                ` : null}
+
 
                 ${this.config.enabledComponents["opencga-admin"] ? html`
                     <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
