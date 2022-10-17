@@ -48,9 +48,9 @@ export default class SampleQcAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "sample-qc";
-        this.ANALYSIS_TITLE = "Sample Quality Control";
-        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given sample. " +
+        this.TOOL = "sample-qc";
+        this.TITLE = "Sample Quality Control";
+        this.DESCRIPTION = "Run quality control (QC) for a given sample. " +
             "It includes variant stats, FastQC,samtools/flagstat, picard/CollectHsMetrics and gene coverage stats; and for somatic samples, mutational signature";
 
         this.DEFAULT_TOOLPARAMS = {};
@@ -102,10 +102,10 @@ export default class SampleQcAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runSampleQc(toolParams, params),
             this,
@@ -167,9 +167,9 @@ export default class SampleQcAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

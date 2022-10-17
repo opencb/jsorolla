@@ -49,9 +49,9 @@ export default class IndividualRelatednessAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "individual-relatedness";
-        this.ANALYSIS_TITLE = "Individual Relatedness";
-        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify relatedness between samples";
+        this.TOOL = "individual-relatedness";
+        this.TITLE = "Individual Relatedness";
+        this.DESCRIPTION = "Compute a score to quantify relatedness between samples";
 
         this.DEFAULT_TOOLPARAMS = {
             minorAlleleFreq: "1000G:ALL>0.3",
@@ -105,10 +105,10 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runRelatedness(toolParams, params),
             this,
@@ -189,9 +189,9 @@ export default class IndividualRelatednessAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

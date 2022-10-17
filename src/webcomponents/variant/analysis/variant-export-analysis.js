@@ -48,9 +48,9 @@ export default class VariantExportAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "variant-export";
-        this.ANALYSIS_TITLE = "Variant Export";
-        this.ANALYSIS_DESCRIPTION = "Executes a Variant Export analysis";
+        this.TOOL = "variant-export";
+        this.TITLE = "Variant Export";
+        this.DESCRIPTION = "Executes a Variant Export analysis";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -104,10 +104,10 @@ export default class VariantExportAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runExport(toolParams, params),
             this
@@ -186,9 +186,9 @@ export default class VariantExportAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

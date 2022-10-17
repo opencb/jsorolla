@@ -49,9 +49,9 @@ export default class FamilyQcAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "family-qc";
-        this.ANALYSIS_TITLE = "Family Quality Control";
-        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
+        this.TOOL = "family-qc";
+        this.TITLE = "Family Quality Control";
+        this.DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
         this.DEFAULT_TOOLPARAMS = {
             relatednessMaf: "1000G:ALL>0.3",
@@ -104,10 +104,10 @@ export default class FamilyQcAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runFamilyQc(toolParams, params),
             this,
@@ -174,9 +174,9 @@ export default class FamilyQcAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

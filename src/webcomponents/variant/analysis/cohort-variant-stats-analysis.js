@@ -47,9 +47,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "cohort-variant-stats";
-        this.ANALYSIS_TITLE = "Cohort Variant Stats";
-        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
+        this.TOOL = "cohort-variant-stats";
+        this.TITLE = "Cohort Variant Stats";
+        this.DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -93,10 +93,10 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runCohortStats(toolParams, params),
             this
@@ -182,9 +182,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

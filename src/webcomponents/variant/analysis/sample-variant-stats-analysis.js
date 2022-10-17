@@ -48,9 +48,9 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "sample-variant-stats";
-        this.ANALYSIS_TITLE = "Sample Variant Stats";
-        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
+        this.TOOL = "sample-variant-stats";
+        this.TITLE = "Sample Variant Stats";
+        this.DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -103,10 +103,10 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runSampleStats(toolParams, params),
             this
@@ -203,9 +203,9 @@ export default class SampleVariantStatsAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

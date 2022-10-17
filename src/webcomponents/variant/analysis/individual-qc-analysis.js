@@ -48,9 +48,9 @@ export default class IndividualQcAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "individual-qc";
-        this.ANALYSIS_TITLE = "Individual Quality Control";
-        this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given individual. It includes inferred sex and mendelian errors (UDP)";
+        this.TOOL = "individual-qc";
+        this.TITLE = "Individual Quality Control";
+        this.DESCRIPTION = "Run quality control (QC) for a given individual. It includes inferred sex and mendelian errors (UDP)";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -103,10 +103,10 @@ export default class IndividualQcAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runIndividualQc(toolParams, params),
             this,
@@ -183,9 +183,9 @@ export default class IndividualQcAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

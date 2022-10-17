@@ -47,9 +47,9 @@ export default class SampleEligibilityAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "sample-eligibility";
-        this.ANALYSIS_TITLE = "Sample Eligibility";
-        this.ANALYSIS_DESCRIPTION = "Executes a Sample Eligibility analysis job";
+        this.TOOL = "sample-eligibility";
+        this.TITLE = "Sample Eligibility";
+        this.DESCRIPTION = "Executes a Sample Eligibility analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -92,10 +92,10 @@ export default class SampleEligibilityAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runSampleEligibility(toolParams, params),
             this,
@@ -163,9 +163,9 @@ export default class SampleEligibilityAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

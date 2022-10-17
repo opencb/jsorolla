@@ -50,9 +50,9 @@ export default class KnockoutAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "knockout";
-        this.ANALYSIS_TITLE = "Knockout Analysis";
-        this.ANALYSIS_DESCRIPTION = "Executes a Knockout analysis job";
+        this.TOOL = "knockout";
+        this.TITLE = "Knockout Analysis";
+        this.DESCRIPTION = "Executes a Knockout analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -100,10 +100,10 @@ export default class KnockoutAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runKnockout(toolParams, params),
             this,
@@ -175,9 +175,9 @@ export default class KnockoutAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

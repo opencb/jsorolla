@@ -49,9 +49,9 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "mendelian-error";
-        this.ANALYSIS_TITLE = "Mendelian Error";
-        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify Mendelian Error";
+        this.TOOL = "mendelian-error";
+        this.TITLE = "Mendelian Error";
+        this.DESCRIPTION = "Compute a score to quantify Mendelian Error";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -84,10 +84,10 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runMendelianError(toolParams, params),
             this,
@@ -173,9 +173,9 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );

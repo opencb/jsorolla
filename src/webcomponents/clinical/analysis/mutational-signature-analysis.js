@@ -48,9 +48,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "mutational-signature";
-        this.ANALYSIS_TITLE = "Mutational Signature";
-        this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
+        this.TOOL = "mutational-signature";
+        this.TITLE = "Mutational Signature";
+        this.DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
             fitmethod: "FitMS",
@@ -97,6 +97,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     check() {
+        // FIXME: organ?
         return !!this.toolParams.organ;
     }
 
@@ -116,10 +117,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL)
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
+            this.TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runMutationalSignature(toolParams, params),
             this
@@ -243,9 +244,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );
