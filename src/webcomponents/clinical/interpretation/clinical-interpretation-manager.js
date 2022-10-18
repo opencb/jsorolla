@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";

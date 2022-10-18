@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "./rest-endpoint.js";
 

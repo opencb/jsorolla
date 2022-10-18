@@ -19,7 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";

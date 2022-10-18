@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
@@ -254,7 +254,7 @@ export default class JobView extends LitElement {
                                     if (job.params) {
                                         return Object.entries(job.params).map(([param, value]) => html`
                                             <div>
-                                                <label>${param}</label>: 
+                                                <label>${param}</label>:
                                                 ${value && typeof value === "object" ? html`
                                                     <ul>
                                                         ${Object.keys(value).map(key => html`
@@ -301,8 +301,18 @@ export default class JobView extends LitElement {
                                         `;
                                     }
                                     const outputFiles= [...job.output];
-                                    outputFiles.push(job.stdout);
-                                    outputFiles.push(job.stderr);
+
+                                    // Check if stdout and stderr files have been created and can be dowloaded
+                                    ["stdout", "stderr"].forEach(file => {
+                                        if (job[file]?.id && job[file]?.type === "FILE") {
+                                            outputFiles.push(job[file]);
+                                        }
+                                    });
+
+                                    if (outputFiles.length === 0) {
+                                        return "No output files yet";
+                                    }
+
                                     return html`${outputFiles.map(file => {
                                         const url = [
                                             this.opencgaSession.server.host,

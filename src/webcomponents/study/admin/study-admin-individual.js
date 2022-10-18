@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../individual/individual-update.js";
 import "../../individual/individual-create.js";
 import "../../individual/individual-view.js";

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./family-genotype-filter.js";
 
 
@@ -33,13 +33,13 @@ export default class FamilyGenotypeModal extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
             genotype: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -49,16 +49,13 @@ export default class FamilyGenotypeModal extends LitElement {
     }
 
     _init() {
-        this._prefix = "sgf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.errorState = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
     }
 
     showModal() {
@@ -74,11 +71,12 @@ export default class FamilyGenotypeModal extends LitElement {
     }
 
     confirm() {
-        this.dispatchEvent(new CustomEvent("filterChange", {
-            detail: {
-                value: this._genotype
-            }
-        }));
+        // Nacho: family-genotype-filter already notifies about the change
+        // this.dispatchEvent(new CustomEvent("filterChange", {
+        //     detail: {
+        //         value: this._genotype
+        //     }
+        // }));
     }
 
     getDefaultConfig() {
@@ -103,7 +101,7 @@ export default class FamilyGenotypeModal extends LitElement {
                 ${this._config.text ? html`<div style="padding: 5px 0px">${this._config.text}</div>` : null}
                 <div class="text-center">
                     <button type="button" class="btn btn-default multi-line" @click="${this.showModal}">
-                        Sample Genotype Filter ...
+                        Family Genotype Filter ...
                     </button>
                 </div>
             </div>
@@ -113,18 +111,20 @@ export default class FamilyGenotypeModal extends LitElement {
                 <div class="modal-dialog" style="width: 1280px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <h3>Sample Genotypes Filter</h3>
+                            <h3>Family Genotype Filter</h3>
                         </div>
                         <div class="modal-body">
-                            <family-genotype-filter .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .genotype="${this.genotype}"
-                                                    @filterChange="${this.onFilterChange}">
+                            <family-genotype-filter
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .genotype="${this.genotype}"
+                                @filterChange="${this.onFilterChange}">
                             </family-genotype-filter>
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary ripple" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
                         </div>
                     </div>
                 </div>

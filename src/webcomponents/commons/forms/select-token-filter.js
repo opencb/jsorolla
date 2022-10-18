@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../forms/file-upload.js";
 
 /**
@@ -52,17 +52,20 @@ export default class SelectTokenFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.state = [];
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     console.log("stf connected callback", this.config);
+    //     debugger
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.state = [];
+    // }
 
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
             tags: this._config.freeTag === true,
             multiple: this._config.multiple ?? true,
+            disabled: this._config.disabled ?? false,
             width: "style",
             allowClear: true,
             placeholder: this._config.placeholder,
@@ -127,10 +130,17 @@ export default class SelectTokenFilter extends LitElement {
 
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("config")) {
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update(changedProperties);
+    }
+
+    updated(_changedProperties) {
+        // if (_changedProperties.has("config")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        // }
 
         if (_changedProperties.has("classes")) {
             if (this.classes) {
@@ -172,7 +182,7 @@ export default class SelectTokenFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
+    filterChange() {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
@@ -185,7 +195,7 @@ export default class SelectTokenFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    toggleFileUpload(e) {
+    toggleFileUpload() {
         $(`#${this._prefix}-select-wrapper .file-drop-area`).collapse("toggle");
     }
 
@@ -234,6 +244,8 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         }
+        // console.log("csa _config: ", this._config);
+        // debugger
 
         return html`
             <div>

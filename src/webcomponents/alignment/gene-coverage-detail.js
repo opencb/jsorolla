@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./transcript-coverage-view.js";
 import "./transcript-coverage-low.js";
 import "../commons/view/detail-tabs.js";

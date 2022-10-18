@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "../../commons/tool-header.js";
 import "../interpretation/variant-interpreter-grid.js";

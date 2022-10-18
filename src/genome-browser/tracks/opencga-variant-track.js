@@ -1,4 +1,4 @@
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import {SVG} from "../../core/svg.js";
 import FeatureTrack from "./feature-track.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";

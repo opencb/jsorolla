@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class CheckboxFieldFilter extends LitElement {
 

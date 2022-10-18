@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
@@ -187,7 +187,7 @@ export default class OpencgaFileFilter extends LitElement {
                     <catalog-distinct-autocomplete
                         .value="${this.preparedQuery[subsection.id]}"
                         .queryField="${"path"}"
-                        .distinctField="${"path"}"
+                        .distinctFields="${"path"}"
                         .resource="${"FILE"}"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${subsection}"

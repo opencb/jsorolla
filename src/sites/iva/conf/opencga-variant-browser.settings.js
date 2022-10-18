@@ -79,7 +79,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         // activeHighlights: ["highlight1"],
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span.
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "gene", "type", "consequenceType", "deleteriousness", "conservation", "samples", "cohorts", "popfreq", "clinicalInfo"]
+        // columns: ["id", "gene", "type", "consequenceType", "deleteriousness", "conservation", "samples", "cohorts", "popfreq", "clinicalInfo", "actions"]
         // hiddenColumns: ["id", "gene", "type"]
     },
     // merge criterium: uses this array as filter for internal 1D array.

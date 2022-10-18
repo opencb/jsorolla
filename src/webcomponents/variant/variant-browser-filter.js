@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
@@ -351,11 +351,11 @@ export default class VariantBrowserFilter extends LitElement {
                     break;
                 case "cohort":
                     // FIXME subsection.cohorts must be renamed to subsection.studies
-                    if (subsection.onlyCohortAll === true || subsection.cohorts?.[0].cohorts?.length > 0) {
+                    if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
                         content = html`
                             <cohort-stats-filter
                                 .opencgaSession="${this.opencgaSession}"
-                                .cohorts="${subsection.cohorts}"
+                                .cohorts="${subsection.studies}"
                                 .onlyCohortAll=${subsection.onlyCohortAll}
                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}"
                                 @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">

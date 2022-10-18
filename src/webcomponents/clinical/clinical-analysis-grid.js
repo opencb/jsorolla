@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -70,9 +70,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
+                changedProperties.has("query") ||
+                changedProperties.has("config") ||
+                changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
         }
@@ -197,6 +197,25 @@ export default class ClinicalAnalysisGrid extends LitElement {
             `;
         }
 
+        return "-";
+    }
+
+    probandFormatter(value, row) {
+        if (row.proband) {
+            const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
+            return `
+                <div style="margin: 5px 0">
+                    <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${row.proband?.id || "-"}</span>
+                    <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${samplesHtml})</span>
+                </div>
+                ${row.family?.id ? `
+                    <div>
+                        <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
+                        <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${row.family.members?.length || 0} members)</span>
+                    </div>
+                ` : ""}
+            `;
+        }
         return "-";
     }
 
@@ -464,45 +483,53 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
             },
+            // {
+            //     id: "probandId",
+            //     title: "Proband and Samples",
+            //     field: "proband",
+            //     halign: this._config.header.horizontalAlign,
+            //     valign: "middle",
+            //     formatter: proband => `
+            //         <div>
+            //             <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
+            //         </div>
+            //         <div>
+            //             <span class="help-block" style="margin: 5px 0">
+            //                 ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
+            //             </span>
+            //         </div>
+            //     `,
+            // },
             {
                 id: "probandId",
-                title: "Proband and Samples",
+                title: "Proband (Sample) and Family",
                 field: "proband",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: proband => `
-                    <div>
-                        <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
-                    </div>
-                    <div>
-                        <span class="help-block" style="margin: 5px 0">
-                            ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
-                        </span>
-                    </div>
-                `,
+                formatter: (value, row) => this.probandFormatter(value, row),
             },
-            {
-                id: "familyId",
-                title: "Family (#members)",
-                field: "family.id",
-                halign: this._config.header.horizontalAlign,
-                valign: "middle",
-                formatter: (value, row) => {
-                    if (row.family?.id && row.family?.members?.length) {
-                        return `
-                            <div>
-                                <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
-                            </div>
-                            <div>
-                                <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
-                            </div>
-                        `;
-                    }
-
-                    // No family found
-                    return "-";
-                }
-            },
+            // {
+            //     id: "familyId",
+            //     title: "Family (#members)",
+            //     field: "family.id",
+            //     halign: this._config.header.horizontalAlign,
+            //     valign: "middle",
+            //     formatter: (value, row) => {
+            //         if (row.family?.id && row.family?.members?.length) {
+            //             return `
+            //                 <div>
+            //                     <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
+            //                 </div>
+            //                 <div>
+            //                     <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
+            //                 </div>
+            //             `;
+            //         }
+            //
+            //         // No family found
+            //         return "-";
+            //     }
+            // },
             {
                 id: "disorderId",
                 title: "Clinical Condition / Panel",
@@ -612,7 +639,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
                     // Generate actions dropdown
                     return `
-                        <div class="dropdown" align="center">
+                        <div class="dropdown">
                             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                 <span>Actions</span>
@@ -651,6 +678,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         </div>
                     `;
                 },
+                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },

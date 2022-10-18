@@ -15,13 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
-import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
-import "../../clinical/analysis/opencga-exomiser-analysis.js";
-
 
 class VariantInterpreterMethods extends LitElement {
 
@@ -81,7 +78,8 @@ class VariantInterpreterMethods extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                     // this.requestUpdate();
@@ -125,9 +123,9 @@ class VariantInterpreterMethods extends LitElement {
                             <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
                                 <exomiser-analysis
-                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
                                     .opencgaSession="${opencgaSession}"
-                                    .title="">
+                                    .title="${""}">
                                 </exomiser-analysis>
                             </div>
                         `;
@@ -145,7 +143,7 @@ class VariantInterpreterMethods extends LitElement {
                             <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
                                 <rd-tiering-analysis
-                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id, panels: clinicalAnalysis.panels?.map(panel => panel.id).join(",")}}"
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
                                 </rd-tiering-analysis>
@@ -161,10 +159,26 @@ class VariantInterpreterMethods extends LitElement {
                             <div class="col-md-6 col-md-offset-3">
                                 <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
                                 <exomiser-analysis
-                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
                                     .opencgaSession="${opencgaSession}"
-                                    .title="">
+                                    .title="${""}">
                                 </exomiser-analysis>
+                            </div>
+                        `;
+                    },
+                });
+            }
+
+            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+                items.push({
+                    id: "",
+                    name: "Cancer Analysis",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                                <div class="alert alert-warning" role="alert">
+                                    No automatic methods available for cancer analysis at this time.
+                                </div>
                             </div>
                         `;
                     },

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./opencga-browser-filter.js";
 import "./opencga-facet-result-view.js";

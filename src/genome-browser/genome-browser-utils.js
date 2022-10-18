@@ -1,4 +1,4 @@
-import UtilsNew from "../core/utilsNew.js";
+import UtilsNew from "../core/utils-new.js";
 import {SVG} from "../core/svg.js";
 import VariantInterpreterGridFormatter from "../webcomponents/variant/interpretation/variant-interpreter-grid-formatter.js";
 import GenomeBrowserConstants from "./genome-browser-constants.js";

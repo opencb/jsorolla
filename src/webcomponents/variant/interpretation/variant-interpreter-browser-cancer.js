@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
 
@@ -356,8 +356,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
                                 tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts,
-                                cohorts: this.opencgaSession?.project?.studies
+                                studies: this.opencgaSession?.project?.studies
                             }
                         ]
                     },

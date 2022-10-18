@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 
 export default class VariantExtSvtypeFilter extends LitElement {

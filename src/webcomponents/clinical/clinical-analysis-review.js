@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "./clinical-analysis-manager.js";

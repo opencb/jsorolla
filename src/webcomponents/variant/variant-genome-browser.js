@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 import "../../genome-browser/webcomponent/genome-browser.js";

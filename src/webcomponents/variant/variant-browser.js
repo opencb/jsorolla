@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -383,8 +383,7 @@ export default class VariantBrowser extends LitElement {
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts
-                                cohorts: this.opencgaSession?.project?.studies
+                                studies: this.opencgaSession?.project?.studies
                             }
                         ]
                     },

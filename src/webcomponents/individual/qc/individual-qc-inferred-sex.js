@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 export default class IndividualQcInferredSex extends LitElement {
@@ -23,7 +23,7 @@ export default class IndividualQcInferredSex extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -32,9 +32,6 @@ export default class IndividualQcInferredSex extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             individualId: {
                 type: String
             },
@@ -44,40 +41,44 @@ export default class IndividualQcInferredSex extends LitElement {
             individuals: {
                 type: Array
             },
-            config: {
+            opencgaSession: {
                 type: Object
-            }
+            },
+            // config: {
+            //     type: Object
+            // }
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("individual")) {
             this.individuals = [this.individual];
         }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("individuals")) {
-            this.requestUpdate();
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+        // if (changedProperties.has("individuals")) {
+        //     this.requestUpdate();
+        // }
+        // if (changedProperties.has("config")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        // }
+        super.update(changedProperties);
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+        if (this.individualId && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.individuals = response.responses[0].results;
                 })
@@ -134,24 +135,23 @@ export default class IndividualQcInferredSex extends LitElement {
 
     renderTable() {
         if (this.individuals && Array.isArray(this.individuals)) {
-            // let _cellPadding = "padding: 0px 15px";
             return html`
                 <table class="table table-hover table-no-bordered text-center">
                     <thead>
-                        <tr>
-                            <th>Individual ID</th>
-                            <th>Sample ID</th>
-                            <th>Reported Phenotypic Sex</th>
-                            <th>Reported Karyotypic Sex</th>
-                            <th>Ratio (avg. chrX/auto)</th>
-                            <th>Ratio (avg. chrY/auto)</th>
-                            <th>Inferred Karyotypic Sex</th>
-                            <th>Method</th>
-                            <!-- <th>Status</th> -->
-                        </tr>
+                    <tr>
+                        <th>Individual ID</th>
+                        <th>Sample ID</th>
+                        <th>Reported Phenotypic Sex</th>
+                        <th>Reported Karyotypic Sex</th>
+                        <th>Ratio (avg. chrX/auto)</th>
+                        <th>Ratio (avg. chrY/auto)</th>
+                        <th>Inferred Karyotypic Sex</th>
+                        <th>Method</th>
+                        <!-- <th>Status</th> -->
+                    </tr>
                     </thead>
                     <tbody>
-                        ${this.individuals.map(individual => {
+                    ${this.individuals.map(individual => {
                             const inferredSex = individual?.qualityControl?.inferredSexReports[0];
                             const hasSameSex = individual.karyotypicSex === inferredSex?.inferredKaryotypicSex;
                             return html`
@@ -162,21 +162,23 @@ export default class IndividualQcInferredSex extends LitElement {
                                     <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
                                     <td>${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex}</td>
                                     <td>
-                                        <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">
-                                            ${individual.karyotypicSex}
-                                        </span>
+                                    <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">
+                                        ${individual.karyotypicSex}
+                                    </span>
                                     </td>
                                     ${inferredSex ? html`
                                         <td>${inferredSex.values.ratioX.toFixed(4)}</td>
                                         <td>${inferredSex.values.ratioY.toFixed(4)}</td>
                                         <td>
-                                            <span style="color: ${hasSameSex ? "black" : "red"}">
-                                                ${inferredSex.inferredKaryotypicSex || "-"}
-                                            </span>
+                                        <span style="color: ${hasSameSex ? "black" : "red"}">
+                                            ${inferredSex.inferredKaryotypicSex || "-"}
+                                        </span>
                                         </td>
                                         <td>${inferredSex.method}</td>
                                     ` : html`
-                                        <td colspan="4"><div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div></td>
+                                        <td colspan="4">
+                                            <div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div>
+                                        </td>
                                     `}
                                 </tr>
                             `;
@@ -185,12 +187,6 @@ export default class IndividualQcInferredSex extends LitElement {
                     </tbody>
                 </table>`;
         }
-    }
-
-    getDefaultConfig() {
-        return {
-            download: ["Tab", "JSON"]
-        };
     }
 
     render() {
@@ -207,7 +203,7 @@ export default class IndividualQcInferredSex extends LitElement {
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>
                 </div>
@@ -217,6 +213,12 @@ export default class IndividualQcInferredSex extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            download: ["Tab", "JSON"]
+        };
     }
 
 }
