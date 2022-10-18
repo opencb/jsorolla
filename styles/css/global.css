@@ -162,6 +162,18 @@ input[type="number"] {
     text-align: left !important;
 }
 
+.text-left {
+    text-align: left;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
 .bg-white {
     background: white !important;
 }
@@ -1249,6 +1261,33 @@ a#waffle-icon-wrapper {
 
 .bootstrap-table .pagination-info {
     font-size: 12px;
+}
+
+/*
+    Custom sort in bootstrap-table
+*/
+th.custom-sort .th-inner {
+    background-position: right;
+    background-repeat: no-repeat;
+    padding-right: 30px!important;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAAkElEQVQoz7XQMQ5AQBCF4dWQSJxC5wwax1Cq1e7BAdxD5SL+Tq/QCM1oNiJidwox0355mXnG/DrEtIQ6azioNZQxI0ykPhTQIwhCR+BmBYtlK7kLJYwWCcJA9M4qdrZrd8pPjZWPtOqdRQy320YSV17OatFC4euts6z39GYMKRPCTKY9UnPQ6P+GtMRfGtPnBCiqhAeJPmkqAAAAAElFTkSuQmCC) !important;
+}
+th.custom-sort.enabled .th-inner {
+}
+th.custom-sort .th-inner .overlay-icon {
+    float: right;
+    height: 18px;
+    width: 25px;
+    margin-right: -30px!important;
+}
+th.custom-sort.enabled.asc .th-inner {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAMAAABFjsb+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAJxQTFRFAAAAra3hmJzdra3YnKHcfILdnqLdpqrbhIndeoDdhovdqKzbbu7ulZrdl5zdpKjcgIbdf4TdpafdqLHajpPdj5TcpLbbn6TdfYPdoaXd3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc+2ug4AAAADR0Uk5TABTPDLT/qU38//pBAtnQcf7+ahnu6w6d/5NZ+fdhB7j/vg088u5BAZGdI9vjKmv6dQaQCtuS828AAAB0SURBVHicY2AgETAyMWOIsbCyoQuxc3BycaMK8fBycnLy8aCI8QsAxQSFkIWERThBQFQMSUycVQIEWCUJOE5KWgYEpGWRxOTkFUBAUQlZobIKUEhVDUWzugZQTFMd1UQtbQUdXXRr9PQNMKw2NDIm4DgMAADCNggaIzxRNwAAAABJRU5ErkJggg==) !important;
+}
+th.custom-sort.enabled.desc .th-inner {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAAZUlEQVQ4y2NgGAWjYBSggaqGu5FA/BOIv2PBIPFEUgxjB+IdQPwfC94HxLykus4GiD+hGfQOiB3J8SojEE9EM2wuSJzcsFMG4ttQgx4DsRalkZENxL+AuJQaMcsGxBOAmGvopk8AVz1sLZgg0bsAAAAASUVORK5CYII=) !important;
+}
+th.custom-sort .th-inner {
+
 }
 
 /* qtip tooltip style */

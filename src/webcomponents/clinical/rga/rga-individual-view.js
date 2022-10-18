@@ -102,7 +102,10 @@ export default class RgaIndividualView extends LitElement {
                     field: "genes"
                 },
                 {
-
+                    title: "Homozygous",
+                    field: "hom"
+                },
+                {
                     title: "Compound Heterozygous",
                     field: "ch_def,ch_prob"
                 },
@@ -155,6 +158,10 @@ export default class RgaIndividualView extends LitElement {
             detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
+                // FIXME DELETION_OVERLAP replaced
+                if (this._query?.knockoutType?.split(",").includes("COMP_HET")) {
+                    this._query.knockoutType = [...this._query.knockoutType.split(","), "DELETION_OVERLAP"].join(",");
+                }
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: params.data.limit,
@@ -345,16 +352,18 @@ export default class RgaIndividualView extends LitElement {
                 },
                 {
                     title: "Homozygous",
-                    field: ""
+                    field: "hom",
+                    halign: this._config.header.horizontalAlign
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: ""
-                },
+                },*/
                 {
                     title: "Compound Heterozygous",
                     field: "ch",
-                    colspan: 2
+                    colspan: 2,
+                    halign: this._config.header.horizontalAlign
                 },
                 {
                     title: "Phenotypes",
@@ -384,30 +393,22 @@ export default class RgaIndividualView extends LitElement {
                         return value > 0 ? value : "-";
                     }
                 },
-                {
+                /* {
                     title: "Total",
                     field: "variantStats.numDelOverlap",
                     formatter: value => {
                         return value > 0 ? value : "-";
                     }
-                },
-                /*
-                {
-                    title: "Total",
-                    field: "ch"
-                    /!* formatter: (_, row) => {
-                        return this.getKnockoutCount(row.genes, "COMP_HET");
-                    }*!/
                 },*/
                 {
                     title: "Definite",
                     field: "ch_def",
-                    formatter: (value, row) => this.getChConfidenceFormatter(row, 2)
+                    formatter: (value, row) => (this.getChConfidenceFormatter(row, 2) + row.variantStats.numDelOverlap) ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "Probable",
                     field: "ch_prob",
-                    formatter: (value, row) => this.getChConfidenceFormatter(row, 1)
+                    formatter: (value, row) => this.getChConfidenceFormatter(row, 1) ?? "-"
                 }/* ,
                 {
                     title: "Possible",
@@ -419,10 +420,10 @@ export default class RgaIndividualView extends LitElement {
     }
 
     /*
-     * Returns variantStats.numCompHet iff numParents matches the number of parent Ids defined
+     * Returns variantStats.numPairedCompHet iff numParents matches the number of parent Ids defined
      */
     getChConfidenceFormatter(row, numParents) {
-        return row.numParents === numParents && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
+        return row.numParents === numParents ? row.variantStats.numPairedCompHet : null;
     }
 
     /**
@@ -461,13 +462,14 @@ export default class RgaIndividualView extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
             count: false,
             include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
             ...this._query,
-            limit: e.detail?.exportLimit ?? 1,
+            limit: e.detail?.exportLimit ?? 100,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(params)
             .then(restResponse => {
@@ -481,7 +483,7 @@ export default class RgaIndividualView extends LitElement {
                                 "Sample",
                                 "Gene",
                                 "HOM",
-                                "DELETION_OVERLAP",
+                                // "DELETION_OVERLAP",
                                 "CH_Definite",
                                 "CH_Probable",
                                 // "CH_Possible",
@@ -493,9 +495,9 @@ export default class RgaIndividualView extends LitElement {
                                 _.sampleId,
                                 _.genes.join(", "),
                                 _.variantStats.numHomAlt,
-                                _.variantStats.numDelOverlap,
-                                this.getChConfidenceFormatter(_, 2),
-                                this.getChConfidenceFormatter(_, 1),
+                                // _.variantStats.numDelOverlap,
+                                (this.getChConfidenceFormatter(_, 2) + _.variantStats.numDelOverlap) ?? "-", // FIXME DELETION_OVERLAP replaced
+                                this.getChConfidenceFormatter(_, 1) ?? "-",
                                 // this.getChConfidenceFormatter(_, 0),
                                 _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
                                 _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
@@ -554,7 +556,11 @@ export default class RgaIndividualView extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false
+            showExport: false,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
         };
     }
 

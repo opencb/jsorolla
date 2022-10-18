@@ -179,6 +179,22 @@ export default class RgaIndividualFamily extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(async rgaVariantResponse => {
+
+                        // FIXME DELETION_OVERLAP replaced
+                        rgaVariantResponse.getResults().forEach(row => {
+                            for (const individual of row.individuals) {
+                                for (const gene of individual.genes) {
+                                    for (const transcript of gene.transcripts) {
+                                        for (const variant of transcript.variants) {
+                                            if (variant.knockoutType === "DELETION_OVERLAP") {
+                                                variant.knockoutType = "COMP_HET";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
                         this.isApproximateCount = rgaVariantResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
 
                         const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);
@@ -426,12 +442,14 @@ export default class RgaIndividualFamily extends LitElement {
                     title: `Father (${this.trio?.father?.id})<br>${this.sampleIds[1]}`,
                     field: "id",
                     colspan: 2,
+                    halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[1]
                 },
                 {
                     title: `Mother (${this.trio?.mother?.id})<br>${this.sampleIds[2]}`,
                     field: "",
                     colspan: 2,
+                    halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[2]
                 }
             ],
@@ -577,6 +595,10 @@ export default class RgaIndividualFamily extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",
                 "GNOMAD_GENOMES:ALL",

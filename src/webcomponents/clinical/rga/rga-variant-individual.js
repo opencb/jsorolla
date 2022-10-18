@@ -101,7 +101,8 @@ export default class RgaVariantIndividual extends LitElement {
 
     async renderTable() {
         this.hiddenIndividuals = 0;
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -118,6 +119,10 @@ export default class RgaVariantIndividual extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
                 try {
+                    // FIXME DELETION_OVERLAP replaced (note that here we update this.query not this._query)
+                    if (this.query?.knockoutType?.split(",").includes("COMP_HET")) {
+                        this.query.knockoutType = [...this.query.knockoutType.split(","), "DELETION_OVERLAP"].join(",");
+                    }
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -131,6 +136,19 @@ export default class RgaVariantIndividual extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
                         .then(rgaIndividualResponse => {
                             this.isApproximateCount = rgaIndividualResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
+
+                            // FIXME DELETION_OVERLAP replaced
+                            rgaIndividualResponse.getResults().forEach(row => {
+                                for (const gene of row.genes) {
+                                    for (const transcript of gene.transcripts) {
+                                        for (const variant of transcript.variants) {
+                                            if (variant.knockoutType === "DELETION_OVERLAP") {
+                                                variant.knockoutType = "COMP_HET";
+                                            }
+                                        }
+                                    }
+                                }
+                            });
 
                             const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                             this.opencgaSession.opencgaClient.clinical().search(
@@ -184,7 +202,8 @@ export default class RgaVariantIndividual extends LitElement {
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             onPostBody: data => {
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                // this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                UtilsNew.initTooltip();
             }
 
         });

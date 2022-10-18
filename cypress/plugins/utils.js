@@ -92,9 +92,9 @@ export const checkExactResult = (gridSelector, numResults = 1) => {
  * @param {String} [gridSelector] - name gridSelector
  * @returns {void}
  */
-export const checkResults = gridSelector => {
+export const checkResults = (gridSelector, timeout = TIMEOUT) => {
     waitTable(gridSelector);
-    cy.get(gridSelector + " table", {timeout: TIMEOUT}).find("tr[data-index]", {timeout: TIMEOUT}).should("have.length.gt", 0); // .should("be.gte", 1);
+    cy.get(gridSelector + " table", {timeout}).find("tr[data-index]", {timeout}).should("have.length.gt", 0); // .should("be.gte", 1);
 };
 
 /**

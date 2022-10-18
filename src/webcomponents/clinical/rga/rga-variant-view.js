@@ -27,6 +27,7 @@ import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
+
 export default class RgaVariantView extends LitElement {
 
     constructor() {
@@ -121,10 +122,10 @@ export default class RgaVariantView extends LitElement {
                     title: "Homozygous",
                     field: "individualStats.numHomAlt"
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap"
-                },
+                },*/
                 {
                     title: "CH - Definite",
                     field: "individualStats.bothParents.numCompHet"
@@ -205,9 +206,15 @@ export default class RgaVariantView extends LitElement {
         this._columns = [
             [
                 {
-                    title: "Variant",
+                    title: `Variant
+                                <a id="variantInfoIcon" tooltip-title="Sorting" tooltip-text="Variants will be sorted automatically in case the results are less than the Page Size, which could be set up to 100.">
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                </a>
+                    `,
+                    // title: "Variant",
                     field: "id",
                     rowspan: 2,
+                    class: "custom-sort",
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
                 },
                 {
@@ -246,7 +253,8 @@ export default class RgaVariantView extends LitElement {
                         if (value) {
                             return this.consequenceTypeFormatter(value);
                         }
-                    }},
+                    }
+                },
                 {
                     title: "Clinical Significance",
                     field: "clinicalSignificances",
@@ -256,7 +264,8 @@ export default class RgaVariantView extends LitElement {
                 {
                     title: "Recessive Individuals",
                     field: "",
-                    colspan: 5
+                    colspan: 4,
+                    halign: this._config.header.horizontalAlign
                 }
             ], [
 
@@ -271,21 +280,22 @@ export default class RgaVariantView extends LitElement {
                     formatter: value => value > 0 ? value : "-"
 
                 },
-                {
+                /* {
                     title: "Deletion Overlap",
                     field: "individualStats.numDelOverlap",
                     formatter: value => value > 0 ? value : "-"
 
-                },
+                },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats.bothParents.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats.singleParent.numCompHet",
-                    formatter: value => value > 0 ? value : "-"
+                    field: "individualStats",
+                    formatter: individualStats => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+
                 },
                 /* {
                     title: "CH - Possible",
@@ -407,10 +417,12 @@ export default class RgaVariantView extends LitElement {
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
     }*/
 
+    // TODO consequenceType object in VB and in RGA Variant query are different. in RGA Variant query you only get sequenceOntologyTerms (accession-name pair). Same in rga-variant-allele-pairs.
     consequenceTypeFormatter(value, row) {
         if (value) {
             const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
-            const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
+            // const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name)); // FIXME temporarily disabling filtering CTs
+            const filteredCTs = [];
             if (CTs.length) {
                 return `
                 ${CTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
@@ -480,7 +492,11 @@ export default class RgaVariantView extends LitElement {
         if (!this.active /* || UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
             return;
         }
-        this.prevQuery = {...this._query};
+        // this.prevQuery = {...this._query};
+
+        // reset sort params
+        // this.sortOrder = null;
+        // this.sortName = null;
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -496,41 +512,115 @@ export default class RgaVariantView extends LitElement {
             pageList: this._config.pageList,
             pagination: this._config.pagination,
             paginationVAlign: "both",
+            // stickyHeader: true,
+            // stickyHeaderOffsetLeft: parseInt($("body").css("padding-left"), 50),
+            // stickyHeaderOffsetRight: parseInt($("body").css("padding-right"), 50),
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            ajax: params => {
-                const _filters = {
-                    study: this.opencgaSession.study.fqn,
-                    // order: params.data.order,
-                    limit: params.data.limit,
-                    skip: params.data.offset || 0,
-                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    ...this._query
-                };
+            ajax: async params => {
+                // FIXME DELETION_OVERLAP replaced
+                try {
+                    if (this._query?.knockoutType?.split(",").includes("COMP_HET")) {
+                        this._query.knockoutType = [...new Set([...this._query.knockoutType.split(","), "DELETION_OVERLAP"])].join(",");
+                    }
 
-                this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters)
-                    .then(rgaVariantResponse => {
-                        this.isApproximateCount = rgaVariantResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
+                    const _filters = {
+                        study: this.opencgaSession.study.fqn,
+                        // sort: this.sortName, // this.table.bootstrapTable("getOptions").sortName,
+                        // order: this.sortOrder, // this.table.bootstrapTable("getOptions").sortOrder,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        ...this._query
+                    };
+
+                    const rgaVariantResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters);
+                    const numMatches = rgaVariantResponse.getNumMatches();
+
+                    if (numMatches < this.table.bootstrapTable("getOptions").pageSize) {
+                        rgaVariantResponse.responses[0].results = [...rgaVariantResponse.getResults()].sort((a, b) => this.sortVariantPosition(a, b));
+                    }
+
+                    params.success(rgaVariantResponse);
+
+
+                    // 1. check the query. empty query shouldn't be counting
+                    // 2. if N < 100
+                    // 3.   fetch results with limit=N
+                    // 4. else
+                    // 5.   normal flow
+                    // 6. if N < 100 AND the query change only on limit or skip (paginating) keep request local
+
+                    // this is used to count but also we use this response to avoid more request if N > 100
+                    // this iff query is not empty
+                    /* const rgaVariantResponseCount = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant({..._filters, count: true});
+                    this.isApproximateCount = rgaVariantResponseCount.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
+
+                    console.log("getNumMatches", rgaVariantResponseCount.getNumMatches());
+                    const N = rgaVariantResponseCount.getNumMatches();
+
+                    console.log("this.prevQuery", this.prevQuery)
+                    console.log("_filters", _filters)
+                    if (N < this.localSortThreshold) {
+
+                        // removing limit and skip from currentQuery
+                        const {limit: currLimit, skip: currSkip, count: currCount, ...currentQuery} = _filters;
+                        // removing limit and skip from prevQuery
+                        const {limit: prevLimit, skip: prevSkip, count: prevCount, ...prevQuery} = this.prevQuery;
+
+                        console.log(currentQuery, prevQuery)
+                        console.log("compare", UtilsNew.objectCompare(currentQuery, prevQuery))
+                        console.log("currSkip, currLimit", currSkip, currLimit)
+
+                        if (UtilsNew.objectCompare(currentQuery, prevQuery) && (currLimit !== prevLimit || currSkip !== prevSkip)) {
+                            console.log("same query, changing limit or skip")
+                            // we are just changing the limit or the skip
+                            console.log("this.localRgaVariantResponse", this.localRgaVariantResponse);
+                            // changing client side
+                            this.prevQuery = {..._filters};
+                            const r = this.localRgaVariantResponse.getResults().slice(currSkip, currSkip + currLimit);
+                            console.log("results", r)
+                            console.log("r.length", r.length)
+                            const restResponse = {
+                                ...this.localRgaVariantResponse,
+                                response: [],
+                                responses: [
+                                    {
+                                        ...this.localRgaVariantResponse.getResponse(),
+                                        numResults: r.length,
+                                        results: r,
+                                        result: r
+                                    },
+                                ]
+                            };
+                            console.log("restResponse", restResponse)
+                            params.success(restResponse);
+                        } else {
+                            // normal query with limit=N
+                            const rgaVariantResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant({..._filters, ...{limit: N}});
+                            this.localRgaVariantResponse = rgaVariantResponse;
+                            this.prevQuery = {..._filters};
+                            params.success(rgaVariantResponse);
+                        }
+
+
+                    } else {
+                        const rgaVariantResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters);
+                        console.log("init rgaVariantResponse", rgaVariantResponse)
                         params.success(rgaVariantResponse);
-                    })
-                    .catch(e => {
-                        console.error(e);
-                        params.error(e);
-                    });
+                    } */
 
-                // this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
-                //     .then(rgaVariantResponse => {
-                //         console.log("rgaVariant", rgaVariantResponse)
-                //         params.success(rgaVariantResponse);
-                //     })
-                //     .catch(e => {
-                //         console.error(e);
-                //         params.error(e);
-                //     });
+
+                } catch (e) {
+                    console.error(e);
+                    params.error(e);
+                }
+
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                this.response = result.response;
                 return result.response;
             },
             onClickRow: (row, selectedElement, field) => {
@@ -544,29 +634,77 @@ export default class RgaVariantView extends LitElement {
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             onPostBody: data => {
+                // Custom sort
+                const header = $("th.custom-sort");
+                if (this?.response?.total < this.table.bootstrapTable("getOptions").pageSize) {
+                    header.addClass("enabled asc");
+                    $("a", header).attr("tooltip-text", "Results are sorted by Variant Id");
+                } else {
+                    header.removeClass("enabled asc");
+                    $("a", header).attr("tooltip-text", "Variants will be sorted automatically in case the results are less than the Page Size, which could be set up to 100.");
+                }
+
+                /*
+                if (this?.response?.total < 1000) {
+                    header.addClass("enabled");
+                } else {
+                    header.removeClass("enabled");
+                }
+                header.off("click").on("click", e => {
+                    this.customSort(e);
+                });
+                */
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
                 // it selects the first row (we don't use `selectrow` event in this case)
                 this.variant = data[0] ?? null;
                 this.requestUpdate();
+            },
+            events: {
+                // "click .custom-sort": (e) => console.log("click", e)
             }
 
         });
     }
 
+    sortVariantPosition(a, b) {
+        const diff = CHROMOSOMES.indexOf(a.chromosome) - CHROMOSOMES.indexOf(b.chromosome);
+        if (diff !== 0) {
+            return diff;
+        } else {
+            return a.start - b.start;
+        }
+    }
+
+    /* customSort(e) {
+        const header = $("th.custom-sort");
+        if (this.response.total < 1000) {
+            if (~this.sortOrder) {
+                header.removeClass("asc").addClass("desc");
+            } else {
+                header.removeClass("desc").addClass("asc");
+            }
+            // this.sortOrder *= -1;
+            // this.sortName = "id";
+            this.table.bootstrapTable("refresh");
+        } else {
+            console.warn("Total results: ", this.response.total, "sorting is not possible");
+        }
+    }*/
+
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
             count: false,
             ...this._query,
-            limit: e.detail?.exportLimit ?? 1000,
+            limit: e.detail?.exportLimit ?? 100,
         };
         this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(params)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
-                    console.log("res", results);
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         const dataString = [
@@ -578,8 +716,9 @@ export default class RgaVariantView extends LitElement {
                                 "Allele count",
                                 "Consequence type",
                                 "Clinical Significance",
+                                "Individuals_Total",
                                 "Individuals_HOM",
-                                "Individuals_DELETION_OVERLAP",
+                                // "Individuals_DELETION_OVERLAP",
                                 "Individuals_CH_Definite",
                                 "Individuals_CH_Probable",
                                 // "Individuals_CH_Possible"
@@ -592,9 +731,10 @@ export default class RgaVariantView extends LitElement {
                                 _.allelePairs ? _.allelePairs.length : "",
                                 _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
                                 _.clinicalSignificances?.length ? _.clinicalSignificances.join(",") : "-",
+                                _.individualStats?.count,
                                 _.individualStats?.numHomAlt,
-                                _.individualStats?.numDelOverlap,
-                                _.individualStats?.bothParents?.numCompHet,
+                                // _.individualStats?.numDelOverlap,
+                                _.individualStats?.bothParents?.numCompHet + _.individualStats?.numDelOverlap,
                                 _.individualStats?.singleParent?.numCompHet,
                                 // _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
@@ -619,7 +759,7 @@ export default class RgaVariantView extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [10, 25, 50, 100],
             showExport: false,
             detailView: false,
             detailFormatter: undefined, // function with the detail formatter
@@ -634,8 +774,11 @@ export default class RgaVariantView extends LitElement {
                 "MGP:ALL",
                 "DISCOVER:ALL",
                 "UK10K:ALL"
-            ]
-
+            ],
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            }
         };
     }
 
@@ -661,6 +804,7 @@ export default class RgaVariantView extends LitElement {
                 {
                     id: "allele-view",
                     name: "Allele Pairs",
+                    // active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
                             <rga-variant-allele-pairs
