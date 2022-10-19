@@ -36,6 +36,12 @@ export const SVG = {
         return this._insert(parent, el, index);
     },
 
+    addChildText(parent, text, attributes) {
+        const el = this.addChild(parent, "text", attributes);
+        el.innerHTML = text;
+        return el;
+    },
+
     addChildImage(parent, attributes, index) {
         const el = document.createElementNS("http://www.w3.org/2000/svg", "image");
         Object.keys(attributes || {}).forEach(key => {
