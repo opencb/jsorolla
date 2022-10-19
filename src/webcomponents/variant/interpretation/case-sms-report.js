@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
 import "./variant-interpreter-grid.js";
