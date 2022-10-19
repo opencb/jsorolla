@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Protein Lollipop demo</title>
+
+    <link rel="stylesheet" href="../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+
+    <script type="text/javascript" src="../../../../node_modules/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="../../../../node_modules/cookies-js/dist/cookies.js"></script>
+</head>
+<body>
+    <div style="max-width:1400px;margin-left:auto;margin-right:auto;">
+        <h1 style="font-weight:bold;">Protein Lollipop Demo</h1>
+        <hr>
+        <div id="root"></div>
+    </div>
+
+    <script type="module">
+        import {CellBaseClient} from "../../clients/cellbase/cellbase-client.js";
+        import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
+        import {proteinLollipop} from "../protein-lollipop.js";
+
+        const params = new URLSearchParams(window.location.search);
+        const cellBaseClient = new CellBaseClient({
+            host: params.get("CELLBASE_HOST") || "https://ws.zettagenomics.com/cellbase",
+            version: params.get("CELLBASE_VERSION") || "v5",
+            cache: {
+                active: false,
+            },
+        });
+        const opencgaClient = new OpenCGAClient({
+            host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+            version: params.get("OPENCGA_VERSION") || "v2",
+            // serverVersion: "1.4"
+        });
+
+        // Login into OpenCGA
+        const openCGALogin = () => {
+            const user = "demouser";
+            const password = "demouser";
+            return opencgaClient.login(user, password)
+                .then(() => {
+                    console.log(`User '${user}' successfully logged in in opencga.`);
+                })
+                .catch(error => {
+                    console.log(`Error logging in '${user}'`, e);
+                });
+        };
+
+        const target = document.getElementById("root");
+        const gene = "BRCA1";
+
+        const promisesList = [
+            cellBaseClient.getProteinClient(null, "search", {gene: gene}),
+            openCGALogin().then(() => {
+                return opencgaClient.clinical().queryVariant({
+                    study: "demo@family:platinum",
+                    xref: gene,
+                    ct: [
+                        "frameshift_variant",
+                        "incomplete_terminal_codon_variant",
+                        "start_lost",
+                        "stop_gained",
+                        "stop_lost",
+                        "splice_acceptor_variant",
+                        "splice_donor_variant",
+                        "feature_truncation",
+                        "transcript_ablation",
+                        "inframe_deletion",
+                        "inframe_insertion",
+                        "missense_variant",
+                    ].join(","),
+                });
+            }),
+        ];
+
+        Promise.all(promisesList).then(values => {
+            const protein = values[0].responses[0].results[0];
+            const variants = values[1].responses[0].results;
+
+            proteinLollipop(target, protein, variants, {});
+
+        });
+    </script>
+</body>
+</html>
