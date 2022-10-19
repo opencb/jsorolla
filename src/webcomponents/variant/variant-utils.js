@@ -67,7 +67,8 @@ export default class VariantUtils {
                 "gene",
                 "type",
                 // Adding SAMPLES (includeSample=all in VB and Case samples in Sample VB)
-                ...samples.map(sample => sample.id),
+                // ...samples.map(sample => sample.id),
+                "samples",
                 "consequenceType",
                 "deleteriousness.SIFT",
                 "deleteriousness.polyphen",
@@ -325,19 +326,25 @@ export default class VariantUtils {
                 dataToTsv["consequenceType"] = ct;
             }
 
-            if (samples?.length > 0) {
-                const gtSamples = this.getGenotypeSamples(v, samples, nucleotideGenotype);
-                gtSamples.forEach(sample => {
-                    Object.keys(sample).forEach(sampleId => {
-                        if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
-                            dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
-                        }
+            // if (samples?.length > 0) {
+            if (v.studies?.[0]?.samples?.length > 0) {
+                const gtSamples = this.getGenotypeSamples(v, v.studies?.[0]?.samples, nucleotideGenotype);
+                const sampleField = Object.keys(gtSamples).map(sample => `${sample}:${gtSamples[sample]}`).join(",");
+                if (flatFieldList.includes("samples")) {
+                    dataToTsv["samples"] = sampleField;
+                }
 
-                        if (flatFieldList.includes("samples." + sampleId)) {
-                            dataToTsv["samples."+ sampleId] = sample[sampleId];
-                        }
-                    });
-                });
+                // gtSamples.forEach(sample => {
+                //     Object.keys(sample).forEach(sampleId => {
+                //         if (flatFieldList.includes("sampleGenotypes." + sampleId)) {
+                //             dataToTsv["sampleGenotypes."+ sampleId] = sample[sampleId];
+                //         }
+
+                //         if (flatFieldList.includes("samples." + sampleId)) {
+                //             dataToTsv["samples."+ sampleId] = sample[sampleId];
+                //         }
+                //     });
+                // });
             }
 
             // deleteriousness
@@ -348,7 +355,8 @@ export default class VariantUtils {
                 dataToTsv["deleteriousness.polyphen"] = polyphen;
             }
             if (flatFieldList.includes("deleteriousness.revel")) {
-                row.push("-"); // TODO deleteriousness Revel is missing
+                // TODO deleteriousness Revel is missing
+                row.push("-");
                 dataToTsv["deleteriousness.revel"] = "-";
             }
             if (flatFieldList.includes("deleteriousness.cadd")) {
@@ -417,14 +425,13 @@ export default class VariantUtils {
             const rowValues = headerString.map(head => dataToTsv[head]);
             rows.push(rowValues.join("\t"));
         }
-
         return rows;
     }
 
     static getGenotypeSamples(variant, samples, nucleotideGenotype) {
         // Samples genotypes
 
-        const res = [];
+        let res = {};
         if (nucleotideGenotype) {
             samples.forEach((sample, indexSample) => {
                 const alternateSequence = variant.alternate;
@@ -487,12 +494,15 @@ export default class VariantUtils {
                                 tooltipText += "<br>" + reference + "/" + alternate;
                             }
                             colText = {[study.samples?.[indexSample]?.sampleId]: referenceValueColText + "/" + alternateValueColText};
-                            res.push(colText);
+                            // res.push(colText);
+                            res = {...res, ...colText};
                         } else {
                             if (study.samples?.[indexSample]?.data[0] === "?/?") {
-                                res.push({[study?.samples?.[indexSample]?.sampleId]: "0/0"});
+                                // res.push({[study?.samples?.[indexSample]?.sampleId]: "0/0"});
+                                res = {...res, [study?.samples?.[indexSample]?.sampleId]: "0/0"};
                             } else {
-                                res.push({[study?.samples?.[indexSample]?.sampleId]: "NA"});
+                                // res.push({[study?.samples?.[indexSample]?.sampleId]: "NA"});
+                                res = {...res, [study?.samples?.[indexSample]?.sampleId]: "NA"};
                             }
                         }
                     }
@@ -505,10 +515,12 @@ export default class VariantUtils {
                         if (study.samples?.[indexSample]?.data.length > 0) {
                             const currentGenotype = study.samples?.[indexSample]?.data;
                             if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                                res.push({[study?.samples?.[indexSample]?.sampleId]: currentGenotype[0]});
+                                res = {...res, [study?.samples?.[indexSample]?.sampleId]: currentGenotype[0]};
+                                // res.push({[study?.samples?.[indexSample]?.sampleId]: currentGenotype[0]});
                             }
                         }
-                        res.push({[study?.samples?.[indexSample]?.sampleId]: "-"});
+                        // res.push({[study?.samples?.[indexSample]?.sampleId]: "-"});
+                        res = {...res, [study?.samples?.[indexSample]?.sampleId]: "-"};
                     });
                 });
             }
