@@ -82,7 +82,7 @@ export default class VariantGridFormatter {
         const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
         // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
         if (row.id || row.studies[0]?.files[0]?.call?.variantId) {
-            const variantId = row.studies[0]?.files[0].call?.variantId?.split(",")[0] || row.id;
+            const variantId = row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id;
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
