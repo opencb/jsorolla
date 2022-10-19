@@ -277,7 +277,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "knockoutType",
                                 name: "Recessive Genotype",
-                                allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"}, {id: "DELETION_OVERLAP", name: "Deletion Overlap"}]
+                                allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"} /* , {id: "DELETION_OVERLAP", name: "Deletion Overlap"}*/]
                             }
                         ]
                     },

@@ -128,11 +128,11 @@ export default class RgaVariantView extends LitElement {
                 },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats.bothParents.numCompHet"
+                    field: "ch_def"
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats.singleParent.numCompHet"
+                    field: "ch_prob"
                 }/* ,
                 {
                     title: "CH - Possible",
@@ -288,13 +288,13 @@ export default class RgaVariantView extends LitElement {
                 },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats",
-                    formatter: individualStats => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    field: "ch_def",
+                    formatter: (_, {individualStats}) => individualStats.bothParents.numCompHet + individualStats.bothParents.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats",
-                    formatter: individualStats => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    field: "ch_prob",
+                    formatter: (_, {individualStats}) => individualStats.singleParent.numCompHet + individualStats.singleParent.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
 
                 },
                 /* {
