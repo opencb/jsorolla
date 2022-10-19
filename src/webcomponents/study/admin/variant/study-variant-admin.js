@@ -22,6 +22,7 @@ import "../study-admin-family.js";
 import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
 import "../../../variant/operation/variant-annotation-index-operation.js";
+import "../../../variant/operation/variant-index-operation.js";
 import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
@@ -481,6 +482,18 @@ export default class StudyVariantAdmin extends LitElement {
                                     .toolParams="${{study: this.opencgaSession.study.id}}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-secondary-sample-index-configure-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-index",
+                            name: "Variant Index",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <variant-index-operation
+                                        .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                                        .opencgaSession="${opencgaSession}">
+                                </variant-index-operation>
                             `,
                         },
                         {

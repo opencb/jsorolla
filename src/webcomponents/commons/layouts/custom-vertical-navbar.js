@@ -465,6 +465,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
 
 }
+
 customElements.define("custom-vertical-navbar", CustomVerticalNavBar);
 
 
