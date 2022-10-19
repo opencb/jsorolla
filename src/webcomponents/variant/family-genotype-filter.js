@@ -34,13 +34,13 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
             genotype: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -50,7 +50,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovfc" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.modeOfInheritance = null;
 
         // TODO This is configurable via constants
@@ -79,6 +79,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"},
+            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM_REF)"},
             {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
         ];
 
@@ -95,7 +96,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.showModeOfInheritance = true;
         this.mode = "CUSTOM";
 
-        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "MENDELIAN_ERROR"];
+        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "DE_NOVO_STRICT", "MENDELIAN_ERROR"];
         this.state = {};
         // keeps track of the samples with no GT selected
         this.noGtSamples = [];
@@ -112,7 +113,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     updated(changedProperties) {
-
         if (changedProperties.has("genotype")) {
             this.genotypeObserver();
         }

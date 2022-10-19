@@ -1019,15 +1019,15 @@ export default class VariantInterpreterGrid extends LitElement {
                                 <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
                                     <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
                                 </button>`: ""
-                            }
+                        }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
                             ` : ""
-                            }
+                        }
                             ${row.comments?.length > 0 ? `
                                 <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
                             ` : ""
-                            }
+                        }
                         `;
                     },
                     align: "center",
