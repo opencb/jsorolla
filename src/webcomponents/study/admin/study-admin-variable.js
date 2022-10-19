@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../permission/permission-browser-grid.js";
 import "../variable/variable-set-create.js";
 import "../variable/variable-set-view.js";

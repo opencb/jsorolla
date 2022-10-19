@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -87,7 +87,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             _users: this._users,
-            comments: []
+            comments: [],
+            panelLock: false,
         };
     }
 
@@ -472,10 +473,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             .value="${probandId}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                addButton: false,
-                                                multiple: false
-                                            }}
+                                            .config=${{addButton: false, multiple: false}}
                                             @filterChange="${e => this.onIndividualChange(e)}">
                                         </catalog-search-autocomplete>
                                     `;
@@ -545,10 +543,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}"
+                                        .config="${{addButton: false, multiple: false}}"
                                         @filterChange="${e => this.onFamilyChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
@@ -667,10 +662,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}
+                                        .config=${{addButton: false, multiple: false}}
                                         @filterChange="${e => this.onCancerChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,

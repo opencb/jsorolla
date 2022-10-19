@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {RestResponse} from "../../core/clients/rest-response.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";

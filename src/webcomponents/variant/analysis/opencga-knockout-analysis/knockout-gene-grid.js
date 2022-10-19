@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../../core/utilsNew.js";
+import UtilsNew from "../../../../core/utils-new.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../../commons/grid-commons.js";
 import knockoutDataGene from "../test/knockout.20201103172343.kFIvpr.gene.js";

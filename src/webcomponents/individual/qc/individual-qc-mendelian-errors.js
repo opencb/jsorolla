@@ -22,7 +22,7 @@ export default class IndividualQcMendelianErrors extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -31,46 +31,41 @@ export default class IndividualQcMendelianErrors extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             individualId: {
                 type: String
             },
             individual: {
                 type: Object
             },
-            config: {
+            opencgaSession: {
                 type: Object
-            }
+            },
+            // config: {
+            //     type: Object
+            // }
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+        // if (changedProperties.has("config")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        // }
+        super.update(changedProperties);
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+        if (this.individualId && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.individuals = response.responses[0].results;
-                    this.requestUpdate();
+                    this.individual = response.responses[0].results[0];
                 })
                 .catch(function (reason) {
                     console.error(reason);
@@ -79,10 +74,10 @@ export default class IndividualQcMendelianErrors extends LitElement {
     }
 
     renderTable() {
-        if (this.individual && this.individual?.qualityControl?.mendelianErrorReport) {
-            const mendelianErrorReport = this.individual.qualityControl.mendelianErrorReport;
+        if (this.individual?.qualityControl?.mendelianErrorReports) {
+            const mendelianErrorReport = this.individual.qualityControl.mendelianErrorReports[0];
             const sampleAggregation = mendelianErrorReport.sampleAggregation
-                .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0].id);
+                .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0]?.id);
 
             sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter(ch => !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome));
             sampleAggregation.chromAggregation.sort((a, b) => {
@@ -104,33 +99,33 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 <h4 style="padding-top: 15px">Summary</h4>
                 <table class="table table-hover table-no-bordered">
                     <thead>
-                        <tr>
-                            <th>Sample ID</th>
-                            <th>Role</th>
-                            <th>Number of Mendelian Errors</th>
-                            <th>Rate of Mendelian Errors</th>
-                            <th>Status</th>
-                        </tr>
+                    <tr>
+                        <th>Sample ID</th>
+                        <th>Role</th>
+                        <th>Number of Mendelian Errors</th>
+                        <th>Rate of Mendelian Errors</th>
+                        <th>Status</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        ${mendelianErrorReport.sampleAggregation.map(sampleAggregation => html`
-                            <tr>
-                                <td>
-                                    <label>${sampleAggregation.sample}</label>
-                                </td>
-                                <td>${roles[sampleAggregation.sample] || "-"}</td>
-                                <td>${sampleAggregation.numErrors}</td>
-                                <td>${sampleAggregation.ratio.toFixed(4)}</td>
-                                <td>
-                                    <span>
-                                        ${sampleAggregation.ratio < 0.05 ?
-                                            html`<i class='fa fa-check' style='color: green'></i>` :
-                                            html`<i class='fa fa-times' style='color: red'></i>`
-                                        }
-                                    </span>
-                                </td>
-                            </tr>
-                        `)}
+                    ${mendelianErrorReport.sampleAggregation.map(sampleAggregation => html`
+                        <tr>
+                            <td>
+                                <label>${sampleAggregation.sample}</label>
+                            </td>
+                            <td>${roles[sampleAggregation.sample] || "-"}</td>
+                            <td>${sampleAggregation.numErrors}</td>
+                            <td>${sampleAggregation.ratio.toFixed(4)}</td>
+                            <td>
+                                <span>
+                                    ${sampleAggregation.ratio < 0.05 ? html`
+                                        <i class='fa fa-check' style='color: green'></i>` : html`
+                                        <i class='fa fa-times' style='color: red'></i>`
+                                    }
+                                </span>
+                            </td>
+                        </tr>
+                    `)}
                     </tbody>
                 </table>
 
@@ -138,16 +133,17 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 <h4 style="padding-top: 15px">Mendelian Errors of ${this.individual.id}</h4>
                 <table class="table table-hover table-no-bordered">
                     <thead>
-                        <tr>
-                            <th>Sample ID</th>
-                            <th>Chromosome</th>
-                            <th>Error Code</th>
-                            <th>Number of Mendelian Errors</th>
-                        </tr>
+                    <tr>
+                        <th>Sample ID</th>
+                        <th>Chromosome</th>
+                        <th>Error Code</th>
+                        <th>Number of Mendelian Errors</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        ${sampleAggregation?.chromAggregation.map(chromAggregation => {
-                            return Object.keys(chromAggregation.errorCodeAggregation).map(key => html`
+                    ${sampleAggregation?.chromAggregation.map(chromAggregation => {
+                        return Object.keys(chromAggregation.errorCodeAggregation)
+                            .map(key => html`
                                 <tr>
                                     <td>
                                         <label>${sampleAggregation.sample}</label>
@@ -156,22 +152,16 @@ export default class IndividualQcMendelianErrors extends LitElement {
                                     <td>${key}</td>
                                     <td>${chromAggregation.errorCodeAggregation[key]}</td>
                                 </tr>`);
-                            })
-                        }
+                    })
+                    }
                     </tbody>
                 </table>
             `;
         }
     }
 
-    getDefaultConfig() {
-        return {
-        };
-    }
-
     render() {
-        if (!this.individual?.qualityControl?.mendelianErrorReport?.sampleAggregation ||
-            this.individual.qualityControl.mendelianErrorReport.sampleAggregation.length === 0) {
+        if (!this.individual?.qualityControl?.mendelianErrorReports?.length) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 
@@ -196,6 +186,12 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            download: ["Tab", "JSON"]
+        };
     }
 
 }

@@ -35,7 +35,11 @@ const hosts = [
     {
         id: "eglh",
         url: "https://eglh.app.zettagenomics.com/opencga-preprod"
-    }
+    },
+    {
+        id: "test-reference",
+        url: "https://test.app.zettagenomics.com/reference/opencga"
+    },
 ];
 
 const opencga = {

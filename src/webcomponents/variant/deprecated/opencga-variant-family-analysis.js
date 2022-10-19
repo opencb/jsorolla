@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../variant-browser-filter.js";
 import "./deprecated/opencga-variant-interpretation-grid.js";
 import "../interpretation/variant-interpreter-detail.js";
