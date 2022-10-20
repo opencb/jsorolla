@@ -19,6 +19,7 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
+import "../../commons/text-editor.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -30,8 +31,6 @@ class CaseSmsReport extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this.#init();
     }
 
@@ -57,8 +56,6 @@ class CaseSmsReport extends LitElement {
     }
 
     #init() {
-
-
         this._data = {};
         this._dataReportTest = {
             patient: {
@@ -93,11 +90,11 @@ class CaseSmsReport extends LitElement {
             },
             methodology: {
                 description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-                only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
             },
             results: [
                 {id: "Ploidy", name: "asdasd" || "NA"},
@@ -530,26 +527,18 @@ class CaseSmsReport extends LitElement {
                         titleElement("4. Methodology used"),
                         titleElement("4.1 Study Reason", "16"),
                         {
-                            // title: "Study Reason",
-                            // field: "info.project",
-                            type: "input-text",
+                            field: "methodology.description",
+                            type: "custom",
                             display: {
-                                rows: 3,
-                                defaultLayout: "vertical",
-                                placeholder: "Add a reason..."
-                            }
-                            // type: "text",
-                            // display: {
-                            //     defaultLayout: "vertical",
-                            // },
-                            // text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                            // Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                            // printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-                            // only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                            // It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                            // and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+                                render: description => {
+                                    const textClean = description?.replace(/  +/g, " ");
+                                    return html`
+                                    <text-editor
+                                        .data="${textClean}">
+                                    </text-editor>`;
+                                }
+                            },
                         },
-
                     ]
                 },
                 {
