@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
-
 import UtilsNew from "../../core/utils-new.js";
 import "../download-button.js";
 
