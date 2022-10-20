@@ -47,8 +47,9 @@ export default class JsonEditor extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
         this.jsonEditor = null;
-        this.jsonEditorId = this.prefix + "jsoneditor";
+        this.jsonEditorId = this._prefix + "jsoneditor";
         this._config = this.getDefaultConfig();
+        this.showDownloadButton = true;
     }
 
     // firstUpdated() {
@@ -112,7 +113,17 @@ export default class JsonEditor extends LitElement {
         }
 
         return html`
-            <div id="${this.jsonEditorId}"></div>
+         ${this.showDownloadButton ? html`
+                <div class="text-right">
+                    <download-button
+                        .json="${this.data}"
+                        class="btn-sm">
+                    </download-button>
+                </div>
+            ` : null
+            }
+
+            <div style="padding-top: 10px" id="${this.jsonEditorId}"></div>
         `;
     }
 
