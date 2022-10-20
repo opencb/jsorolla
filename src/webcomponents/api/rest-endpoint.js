@@ -23,6 +23,7 @@ import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
+import "../commons/jsonEditor.js";
 
 
 export default class RestEndpoint extends LitElement {
@@ -678,10 +679,10 @@ export default class RestEndpoint extends LitElement {
                             ${this.isLoading ? html`
                                 <loading-spinner></loading-spinner>
                             ` : html`
-                                <json-viewer
-                                        .data="${this.result}"
-                                        .config="${this.form}">
-                                </json-viewer>
+                                <json-editor
+                                    .data="${this.result}"
+                                    .config="${{readOnly: true}}">
+                                </json-editor>
                             `}
                         </div>
                     </div>
