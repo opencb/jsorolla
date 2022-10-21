@@ -19,7 +19,7 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
-import "../../commons/text-editor.js";
+import "../../commons/rich-text.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -527,17 +527,22 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                         titleElement("4.1 Study Reason", "16"),
                         {
                             field: "methodology.description",
-                            type: "custom",
-                            display: {
-                                render: description => {
-                                    const textClean = description?.replace(/  +/g, " ");
-                                    return html`
-                                    <text-editor
-                                        .data="${textClean}">
-                                    </text-editor>`;
-                                }
-                            },
+                            type: "rich-text",
                         },
+                        // {
+                        //     field: "methodology.description",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: description => {
+                        //             const textClean = description?.replace(/  +/g, " ");
+                        //             return html`
+                        //             <text-editor
+                        //                 .data="${textClean}">
+                        //             </text-editor>`;
+                        //         }
+                        //     },
+                        // },
+
                     ]
                 },
                 {

@@ -20,6 +20,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
+import "../rich-text.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -486,6 +487,9 @@ export default class DataForm extends LitElement {
                     break;
                 case "tree":
                     content = this._createTreeElement(element);
+                    break;
+                case "rich-text":
+                    content = this._createRichTextElement(element);
                     break;
                 case "custom":
                     content = this._createCustomElement(element);
@@ -1165,6 +1169,19 @@ export default class DataForm extends LitElement {
             } else {
                 return html`<span class="text-danger">Unexpected JSON format</span>`;
             }
+        }
+    }
+
+    _createRichTextElement(element) {
+        const content = this.getValue(element.field, this.data, this._getDefaultValue(element));
+        if (content.length || UtilsNew.isObject(content)) {
+            const contentCleaned = content?.replace(/  +/g, " ");
+            return html`
+                <rich-text
+                    .data="${contentCleaned}">
+                </rich-text>`;
+        } else {
+            return this._getDefaultValue(element);
         }
     }
 

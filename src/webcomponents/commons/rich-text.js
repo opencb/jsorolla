@@ -17,42 +17,10 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Editor from "@toast-ui/editor";
+import LitUtils from "./utils/lit-utils.js";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
-// toolbarItems
-// [
-//     [
-//         "heading",
-//         "bold",
-//         "italic",
-//         "strike"
-//     ],
-//     [
-//         "hr",
-//         "quote"
-//     ],
-//     [
-//         "ul",
-//         "ol",
-//         "task",
-//         "indent",
-//         "outdent"
-//     ],
-//     [
-//         "table",
-//         "image",
-//         "link"
-//     ],
-//     [
-//         "code",
-//         "codeblock"
-//     ],
-//     [
-//         "scrollSync"
-//     ]
-// ]
-
-export default class TextEditor extends LitElement {
+export default class RichText extends LitElement {
 
     constructor() {
         super();
@@ -115,9 +83,15 @@ export default class TextEditor extends LitElement {
         }
     }
 
+    filterChange() {
+        this.updateContent = this.textEditor.getMarkdown();
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.updateContent, null);
+    }
+
     textEditorObserver() {
         if (this.textEditor) {
             this.textEditor.setMarkdown(this.data, false);
+            this.updateContent = this.data;
         }
     }
 
@@ -133,9 +107,8 @@ export default class TextEditor extends LitElement {
     */
 
     initTextEditor() {
-        console.log("init textEditor component");
         const textEditorElm = document.getElementById(this.textEditorId);
-        if (this._config.viewer) {
+        if (this._config.viewer || this._config.disabled) {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this._config.viewer,
@@ -152,16 +125,13 @@ export default class TextEditor extends LitElement {
                 hideModeSwitch: this._config.hideModeSwitch,
                 previewStyle: this._config.previewStyle,
             });
-            this.textEditor.on("change", e => {
-                this.updateContent = this.textEditor.getMarkdown();
-            });
+            this.textEditor.on("change", e => this.filterChange());
         }
     }
 
     // Allow to show or hide
 
     onChangeMode() {
-        console.log(this.textEditor);
         this._config.viewer = !this.textEditor.isViewer();
         this.btnName = this._config.viewer ? "Edit" : "Preview";
         this.data = this.updateContent;
@@ -183,6 +153,7 @@ export default class TextEditor extends LitElement {
             height: "300px",
             previewStyle: "vertical",
             usageStatistics: false,
+            disabled: false
         };
     }
 
@@ -197,4 +168,4 @@ export default class TextEditor extends LitElement {
 
 }
 
-customElements.define("text-editor", TextEditor);
+customElements.define("rich-text", RichText);
