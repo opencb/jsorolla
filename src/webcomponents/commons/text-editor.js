@@ -85,11 +85,11 @@ export default class TextEditor extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("data")) {
-    //         this.initTextEditor();
-    //     }
-    // }
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("data")) {
+            this.initTextEditor();
+        }
+    }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
@@ -100,11 +100,14 @@ export default class TextEditor extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            if (this.data) {
-                if (document.getElementById(this.textEditorId) && !this.textEditor) {
-                    this.initTextEditor();
-                    // this.textEditor.initialValue = this.data;
-                }
+            // Check if exist the element and not the textEditor Object
+            if (this.data && document.getElementById(this.textEditorId) && !this.textEditor) {
+                this.initTextEditor();
+                // this.textEditor.initialValue = this.data;
+            }
+
+            // Check if exist the element and data
+            if (this.data && document.getElementById(this.textEditorId)) {
                 this.textEditorObserver();
             }
         }
@@ -128,19 +131,42 @@ export default class TextEditor extends LitElement {
     */
 
     initTextEditor() {
+        console.log("init textEditor component");
         const textEditorElm = document.getElementById(this.textEditorId);
-        this.textEditor = new Editor({
-            el: textEditorElm,
-            height: this._config.height,
-            initialEditType: this._config.editMode, // "wysiwyg or markdown",
-            toolbarItems: this._config.toolbarItems,
-            hideModeSwitch: this._config.hideModeSwitch,
-            previewStyle: this._config.previewStyle,
-        });
-        this.textEditor.on("change", e => {
+        if (this._config.viewer) {
+            this.textEditor = Editor.factory({
+                el: textEditorElm,
+                viewer: this._config.viewer,
+                initialValue: this.data || "",
+                height: this._config.height,
+            });
+        } else {
+            this.textEditor = Editor.factory({
+                el: textEditorElm,
+                viewer: this._config.viewer,
+                height: this._config.height,
+                initialEditType: this._config.editMode, // "wysiwyg or markdown",
+                toolbarItems: this._config.toolbarItems,
+                hideModeSwitch: this._config.hideModeSwitch,
+                previewStyle: this._config.previewStyle,
+            });
+            this.textEditor.on("change", e => {
             // console.log("getMarkdown", this.textEditor.getMarkdown());
-            // console.log("EditorObject", this.textEditor);
-        });
+            });
+        }
+
+    }
+
+    // TODO
+    // Allow to put Mode viewer or edit
+    // Allow to show or hide
+
+    editMode() {
+        console.log(this.textEditor);
+        this.textEditor.destroy();
+        this._config.viewer = true;
+        this.initTextEditor();
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -152,6 +178,7 @@ export default class TextEditor extends LitElement {
                 ["ul", "ol", "indent", "outdent"],
             ],
             hideModeSwitch: true,
+            viewer: false,
             height: "500px",
             previewStyle: "vertical",
             usageStatistics: false,
@@ -160,6 +187,9 @@ export default class TextEditor extends LitElement {
 
     render() {
         return html`
+            <button class="btn btn-default" @click="${e => this.editMode()}">
+                <i class="fa fa-edit" aria-hidden="true"></i> Edit
+            </button>
             <div id="${this.textEditorId}"></div>
         `;
     }

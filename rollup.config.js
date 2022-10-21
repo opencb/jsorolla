@@ -1,4 +1,5 @@
 import html from "@web/rollup-plugin-html";
+import styles from "rollup-plugin-styles";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
@@ -119,6 +120,16 @@ export default sites.map(site => ({
             rootDir: `${sitesPath}/${site}/`,
             input: getSiteContent(site),
         }),
+        styles(),
+        // alias({
+        //     entries: [
+        //         {
+        //             find: "@toast-ui",
+        //             replacement: path.resolve("node_modules/@toast-ui/editor")
+        //             // OR place `customResolver` here. See explanation below.
+        //         }
+        //     ],
+        // }),
         resolve(),
         minifyHTML(),
         babel({
@@ -152,7 +163,7 @@ export default sites.map(site => ({
         *`this = window` for these modules.
         */
         const thisAsWindowForModules = [
-            "node_modules/countup.js/dist/countUp.min.js"
+            "node_modules/countup.js/dist/countUp.min.js",
         ];
 
         if (thisAsWindowForModules.some(id_ => id.trimRight().endsWith(id_))) {
@@ -160,6 +171,7 @@ export default sites.map(site => ({
         }
     },
     output: {
+
         dir: `${buildPath}/${site}`,
         manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
             if (id.includes("node_modules")) {
