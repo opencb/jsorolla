@@ -34,7 +34,7 @@ const hosts = [
     },
     {
         id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga-preprod"
+        url: "https://eglh.app.zettagenomics.com/opencga"
     },
     {
         id: "test-reference",
@@ -43,10 +43,10 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[2].id
     }
 
     // This forces the following projects to be used instead of the user's project
