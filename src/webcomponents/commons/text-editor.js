@@ -83,6 +83,8 @@ export default class TextEditor extends LitElement {
         this.textEditorId = this._prefix + "TextEditor";
         this.active = true;
         this._config = this.getDefaultConfig();
+        this.btnName = "Edit";
+        this.updateContent = "";
     }
 
     firstUpdated(changedProperties) {
@@ -151,20 +153,19 @@ export default class TextEditor extends LitElement {
                 previewStyle: this._config.previewStyle,
             });
             this.textEditor.on("change", e => {
-            // console.log("getMarkdown", this.textEditor.getMarkdown());
+                this.updateContent = this.textEditor.getMarkdown();
             });
         }
-
     }
 
-    // TODO
-    // Allow to put Mode viewer or edit
     // Allow to show or hide
 
-    editMode() {
+    onChangeMode() {
         console.log(this.textEditor);
+        this._config.viewer = !this.textEditor.isViewer();
+        this.btnName = this._config.viewer ? "Edit" : "Preview";
+        this.data = this.updateContent;
         this.textEditor.destroy();
-        this._config.viewer = true;
         this.initTextEditor();
         this.requestUpdate();
     }
@@ -178,8 +179,8 @@ export default class TextEditor extends LitElement {
                 ["ul", "ol", "indent", "outdent"],
             ],
             hideModeSwitch: true,
-            viewer: false,
-            height: "500px",
+            viewer: true,
+            height: "300px",
             previewStyle: "vertical",
             usageStatistics: false,
         };
@@ -187,8 +188,8 @@ export default class TextEditor extends LitElement {
 
     render() {
         return html`
-            <button class="btn btn-default" @click="${e => this.editMode()}">
-                <i class="fa fa-edit" aria-hidden="true"></i> Edit
+            <button class="btn btn-default" style="margin-bottom:8px" @click="${e => this.onChangeMode()}">
+                <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
             </button>
             <div id="${this.textEditorId}"></div>
         `;
