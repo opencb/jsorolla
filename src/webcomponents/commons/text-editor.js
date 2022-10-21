@@ -19,6 +19,39 @@ import UtilsNew from "../../core/utils-new.js";
 import Editor from "@toast-ui/editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
+// toolbarItems
+// [
+//     [
+//         "heading",
+//         "bold",
+//         "italic",
+//         "strike"
+//     ],
+//     [
+//         "hr",
+//         "quote"
+//     ],
+//     [
+//         "ul",
+//         "ol",
+//         "task",
+//         "indent",
+//         "outdent"
+//     ],
+//     [
+//         "table",
+//         "image",
+//         "link"
+//     ],
+//     [
+//         "code",
+//         "codeblock"
+//     ],
+//     [
+//         "scrollSync"
+//     ]
+// ]
+
 export default class TextEditor extends LitElement {
 
     constructor() {
@@ -83,30 +116,49 @@ export default class TextEditor extends LitElement {
         }
     }
 
+    /**
+    * list of toolbarItems[] from textEditor
+    * split by array
+    * ["heading","bold","italic","strike"],
+    * ["hr","quote"],
+    * ["ul","ol","task","indent","outdent"],
+    * ["table","image","link"],
+    * ["code","codeblock"],
+    *  ["scrollSync"]
+    */
+
     initTextEditor() {
         const textEditorElm = document.getElementById(this.textEditorId);
         this.textEditor = new Editor({
             el: textEditorElm,
-            height: "500px",
+            height: this._config.height,
             initialEditType: this._config.editMode, // "wysiwyg or markdown",
-            previewStyle: "vertical"
+            toolbarItems: this._config.toolbarItems,
+            hideModeSwitch: this._config.hideModeSwitch,
+            previewStyle: this._config.previewStyle,
         });
         this.textEditor.on("change", e => {
-            console.log("getMarkdown", this.textEditor.getMarkdown());
+            // console.log("getMarkdown", this.textEditor.getMarkdown());
+            // console.log("EditorObject", this.textEditor);
         });
     }
 
     getDefaultConfig() {
         return {
-            editMode: "wysiwyg"
+            editMode: "wysiwyg", // "wysiwyg or markdown"
+            toolbarItems: [
+                ["heading", "bold", "italic", "strike"],
+                ["hr", "quote"],
+                ["ul", "ol", "indent", "outdent"],
+            ],
+            hideModeSwitch: true,
+            height: "500px",
+            previewStyle: "vertical",
+            usageStatistics: false,
         };
     }
 
     render() {
-        if (!this.data) {
-            return html`<h4>No valid data found</h4>`;
-        }
-
         return html`
             <div id="${this.textEditorId}"></div>
         `;
