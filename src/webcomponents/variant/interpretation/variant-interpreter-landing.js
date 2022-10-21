@@ -135,7 +135,8 @@ class VariantInterpreterLanding extends LitElement {
                                 <div style="padding: 0px 20px">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .opencgaSession="${opencgaSession}">
+                                        .opencgaSession="${opencgaSession}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </clinical-analysis-update>
                                 </div>
                             </div>

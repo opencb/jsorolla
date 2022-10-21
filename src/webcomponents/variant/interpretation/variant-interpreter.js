@@ -160,7 +160,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -504,8 +505,8 @@ class VariantInterpreter extends LitElement {
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
                                         <!-- <variant-interpreter-report
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .opencgaSession="${this.opencgaSession}">
+                                        .clinicalAnalysis="$this.clinicalAnalysis}"
+                                        .opencgaSession="$this.opencgaSession}">
                                     </variant-interpreter-report> -->
                                     <detail-tabs
                                         .data="${this.clinicalAnalysis}"
