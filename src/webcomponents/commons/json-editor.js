@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
 import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "./utils/lit-utils.js";
 import "../download-button.js";
 
 export default class JsonEditor extends LitElement {
@@ -61,8 +62,8 @@ export default class JsonEditor extends LitElement {
 
 
     initJsonEditor() {
-        let content = {
-            json: this.data || {},
+        const content = {
+            json: this.data ? this.data : {}
         };
 
         const editorElm = document.getElementById(this.jsonEditorId);
@@ -72,11 +73,7 @@ export default class JsonEditor extends LitElement {
             props: {
                 content,
                 readOnly: this._config?.readOnly,
-                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) => {
-                    console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
-                    content = updatedContent;
-                    this.data = updatedContent.text? JSON.parse(updatedContent.text) : updatedContent.json;
-                },
+                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) => this.filterChange(updatedContent, previousContent, {contentErrors, patchResult}),
             }
         });
     }
@@ -90,15 +87,20 @@ export default class JsonEditor extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            console.log("data", this.data);
+            console.log("data updated...", this.data);
             if (this.data) {
                 if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
-                    console.log("init jsonEditor.", this.data);
                     this.initJsonEditor();
                 }
-                // this.jsonEditor.update({json: this.data});
+                this.jsonEditor.update({json: this.data});
             }
         }
+    }
+
+    filterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
+        console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
+        this.data = updatedContent.text? JSON.parse(updatedContent.text) : updatedContent.json;
+        LitUtils.dispatchCustomEvent(this, "filterChange", updatedContent, null);
     }
 
     getDefaultConfig() {

@@ -23,7 +23,7 @@ import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
-import "../commons/jsonEditor.js";
+import "../commons/json-editor.js";
 
 
 export default class RestEndpoint extends LitElement {
@@ -748,19 +748,30 @@ export default class RestEndpoint extends LitElement {
                 },
                 elements: [
                     {
-                        title: "Body",
                         field: "body",
-                        type: "input-text",
-                        required: true,
+                        type: "json-editor",
                         display: {
-                            placeholder: "Data Json...",
+                            placeholder: "write json",
                             disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
-                            rows: 10,
                             help: {
                                 text: "Must be a valid json, please remove empty fields if you don't need them."
                             }
                         }
-                    }
+                    },
+                    // {
+                    //     title: "Body",
+                    //     field: "body",
+                    //     type: "input-text",
+                    //     required: true,
+                    //     display: {
+                    //         placeholder: "Data Json...",
+                    //         disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
+                    //         rows: 10,
+                    //         help: {
+                    //             text: "Must be a valid json, please remove empty fields if you don't need them."
+                    //         }
+                    //     }
+                    // }
                 ]
             }]
         };
