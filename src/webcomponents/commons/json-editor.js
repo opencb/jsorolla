@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
+import NotificationUtils from "./utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "../download-button.js";
@@ -73,9 +74,29 @@ export default class JsonEditor extends LitElement {
             props: {
                 content,
                 readOnly: this._config?.readOnly,
-                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) => this.filterChange(updatedContent, previousContent, {contentErrors, patchResult}),
+                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) =>
+                    this.filterChange(updatedContent, previousContent, {contentErrors, patchResult}),
+                onError: err => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                        message: err
+                    });
+                },
+                onRenderMenu: (mode, items) => {
+                    // Remove transforms we'dont need for the moment
+                    console.log("test items", items);
+                    return items.filter(item => item.className !== "jse-transform");
+                },
             }
         });
+
+        console.log("jsonEditor...", this.jsonEditor);
+    }
+
+    disabledTransformContextMenu() {
+        console.log("context", this);
+        const btnsElements = this.querySelectorAll(".jse-contextmenu button");
+        const transformBtn = Array.from(btnsElements).filter(btn => btn?.innerText === " Transform");
+        transformBtn[0].disabled = true;
     }
 
     update(changedProperties) {
@@ -93,6 +114,7 @@ export default class JsonEditor extends LitElement {
                     this.initJsonEditor();
                 }
                 this.jsonEditor.update({json: this.data});
+                // this.disabledTransformContextMenu();
             }
         }
     }
@@ -115,7 +137,7 @@ export default class JsonEditor extends LitElement {
         }
 
         return html`
-         ${this.showDownloadButton ? html`
+            ${this.showDownloadButton ? html`
                 <div class="text-right">
                     <download-button
                         .json="${this.data}"
