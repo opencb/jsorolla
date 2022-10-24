@@ -752,7 +752,7 @@ export default class RestEndpoint extends LitElement {
                         type: "json-editor",
                         display: {
                             placeholder: "write json",
-                            disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
+                            readOnly: !(this.isNotEndPointAdmin() || this.isAdministrator()),
                             help: {
                                 text: "Must be a valid json, please remove empty fields if you don't need them."
                             }
