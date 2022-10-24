@@ -34,8 +34,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     constructor() {
         super();
 
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,21 +44,39 @@ class ClinicalAnalysisUpdate extends LitElement {
     static get properties() {
         return {
             clinicalAnalysis: {
-                type: Object
+                type: Object,
             },
             clinicalAnalysisId: {
-                type: String
+                type: String,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
             }
         };
     }
 
-    _init() {
-        this.commentsUpdate = {};
+    #init() {
+        // this.commentsUpdate = {};
         this.updateParams = {};
-        this.config = this.getDefaultConfig();
+        this.isLoading = false;
+        this.displayConfigDefault= {
+            width: 8,
+            titleVisible: false,
+            titleWidth: 4,
+            defaultLayout: "horizontal",
+            buttonsVisible: true,
+            buttonsWidth: 8,
+            buttonsAlign: "right",
+        };
+        this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -72,79 +89,122 @@ class ClinicalAnalysisUpdate extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
     clinicalAnalysisObserver() {
-        if (this.opencgaSession && this.clinicalAnalysis) {
+        if (this.clinicalAnalysis && this.opencgaSession) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-            // QUESTION - Why is this.flags initialised?
-            this.flags = this.opencgaSession.study.internal.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()]
-                .map(flag => flag.id);
         }
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
+        if (this.clinicalAnalysisId && this.opencgaSession) {
+            const params = {
+                study: this.opencgaSession.study.fqn,
+            };
+            let error;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.clinical()
-                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .info(this.clinicalAnalysisId, params)
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                     this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
                 })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                .catch(reason => {
+                    this.clinicalAnalysis = {};
+                    this._clinicalAnalysis = {};
+                    error = reason;
+                    // FIXME: if we implement "study-admin-clinical.js",
+                    //  onClinicalAnalysisSearch should notify this error (See study-admin.sample.js)
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                        title: "Clinical Analysis error",
+                        message: reason,
+                    });
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    // FIXME: onClinicalAnalysisSearch not declared.
+                    LitUtils.dispatchCustomEvent(
+                        this,
+                        "clinicalAnalysisSearch",
+                        this.clinicalAnalysis,
+                        {},
+                        error);
+                    this.#setLoading(false);
                 });
         }
     }
 
     opencgaSessionObserver() {
+        // QUESTION 1: See:
+        //  * clinical-analysis-consent-editor.js.
+        //  * clinical-interpretation-editor.js
+        //  Which one is correct?
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
     onCommentChange(e) {
-        this.commentsUpdate = e.detail;
+        // this.commentsUpdate = e.detail;
     }
 
-    updateOrDeleteComments(notify) {
-        if (this.commentsUpdate?.updated?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this._clinicalAnalysis.id, {comments: this.commentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (notify && this.commentsUpdate?.deleted?.length === 0) {
-                        this.postUpdate(response);
-                    }
-                })
-                .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
-                });
-        }
-        if (this.commentsUpdate?.deleted?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this._clinicalAnalysis.id, {comments: this.commentsUpdate.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (notify) {
-                        this.postUpdate(response);
-                    }
-                })
-                .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
-                });
-        }
-    }
+    // updateOrDeleteComments(notify) {
+    //     // CAUTION: Delete option not available?
+    //     // TODO: manage error and finally accordingly
+    //     if (this.commentsUpdate?.updated?.length > 0) {
+    //         const data = {
+    //             comments: this.commentsUpdate.updated
+    //         };
+    //         const params = {
+    //             study: this.opencgaSession.study.fqn,
+    //             commentsAction: "REPLACE",
+    //             includeResult: true,
+    //         };
+    //         this.opencgaSession.opencgaClient.clinical()
+    //             .update(this._clinicalAnalysis.id, data, params)
+    //             .then(response => {
+    //                 if (notify && this.commentsUpdate?.deleted?.length === 0) {
+    //                     this.postUpdate(response);
+    //                 }
+    //             })
+    //             .catch(response => {
+    //                 console.error("An error occurred updating clinicalAnalysis: ", response);
+    //             });
+    //     }
+    //     if (this.commentsUpdate?.deleted?.length > 0) {
+    //         const data = {
+    //             comments: this.commentsUpdate.deleted
+    //         };
+    //         const params = {
+    //             study: this.opencgaSession.study.fqn,
+    //             commentsAction: "REMOVE",
+    //             includeResult: true
+    //         };
+    //         this.opencgaSession.opencgaClient.clinical()
+    //             .update(this._clinicalAnalysis.id, data, params)
+    //             .then(response => {
+    //                 if (notify) {
+    //                     this.postUpdate(response);
+    //                 }
+    //             })
+    //             .catch(response => {
+    //                 console.error("An error occurred updating clinicalAnalysis: ", response);
+    //             });
+    //     }
+    // }
 
     postUpdate(response) {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            message: "Case info updated successfully",
-        });
-
-        // Reset values after success update
-        // this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
         this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
         this.updateParams = {};
-
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: this._clinicalAnalysis
+        // this.commentsUpdate = {};
+        // Notify success
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            title: "Clinical Analysis update",
+            message: "Case info updated successfully",
         });
     }
 
@@ -203,61 +263,91 @@ class ClinicalAnalysisUpdate extends LitElement {
                     });
                 break;
         }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onClear() {
         // First update config
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
 
         // Reset all values
         // this.clinicalAnalysis = JSON.parse(JSON.stringify(this._clinicalAnalysis));
-        // Caution *: Reset the udpate object to the original
         this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
         this.updateParams = {};
-        this.commentsUpdate = {};
+        // this.commentsUpdate = {};
     }
 
     onSubmit() {
-        if (this.commentsUpdate) {
-            if (this.commentsUpdate.added?.length > 0) {
-                this.updateParams.comments = this.commentsUpdate.added;
-            }
-        }
+        // if (this.commentsUpdate) {
+        //     if (this.commentsUpdate.added?.length > 0) {
+        //         this.updateParams.comments = this.commentsUpdate.added;
+        //     }
+        // }
 
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            this.updateOrDeleteComments(false);
+            // this.updateOrDeleteComments(false);
 
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                flagsAction: "SET",
+                panelsAction: "SET",
+                includeResult: true,
+            };
+            let error;
+            this.#setLoading(true);
             this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, this.updateParams, {
-                    study: this.opencgaSession.study.fqn,
-                    flagsAction: "SET",
-                    panelsAction: "SET",
-                    includeResult: true,
-                })
+                .update(this.clinicalAnalysis.id, this.updateParams, params)
                 .then(response => {
                     this.postUpdate(response);
                 })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    // console.error("An error occurred updating clinicalAnalysis: ", response);
+                .catch(reason => {
+                    this._clinicalAnalysis = {};
+                    error = reason;
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                        title: "Clinical Analysis error",
+                        message: reason,
+                    });
+                    console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    // TODO: Should I call:
+                    //  (a) clinicalAnalysisUpdate or
+                    //  (b) clinicalAnalysis or
+                    //  (c) clinicalAnalysisUpdate but with clinicalAnalysis.id and let parent method run the query
+                    LitUtils.dispatchCustomEvent(
+                        this,
+                        "clinicalAnalysisUpdate",
+                        this.clinicalAnalysis,
+                        {},
+                        error
+                    );
+                    this.#setLoading(false);
                 });
-        } else {
-            this.updateOrDeleteComments(true);
         }
+        // else {
+        //     this.updateOrDeleteComments(true);
+        // }
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         if (!this._clinicalAnalysis) {
-            return "";
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    Clinical Analysis not available
+                </div>
+            `;
         }
 
         return html`
             <data-form
                 .data="${this._clinicalAnalysis}"
-                .config="${this.config}"
+                .config="${this._config}"
                 .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -275,15 +365,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                 clearText: "Cancel",
                 okText: "Update Case",
             },
-            display: {
-                width: 8,
-                titleVisible: false,
-                titleWidth: 4,
-                defaultLayout: "horizontal",
-                buttonsVisible: true,
-                buttonsWidth: 8,
-                buttonsAlign: "right",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     elements: [
@@ -360,18 +442,21 @@ class ClinicalAnalysisUpdate extends LitElement {
                                     let panelHtml = "-";
                                     if (panels?.length > 0) {
                                         panelHtml = html`
-                                            ${panels.map(panel => {
-                                                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                                                    return html`
-                                                        <div style="margin: 5px 0px">
-                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                                                ${panel.name} (${panel.source.project} v${panel.source.version})
-                                                            </a>
-                                                        </div>`;
-                                                } else {
-                                                    return html`<div>${panel.id}</div>`;
-                                                }
-                                            })}`;
+                                            ${
+                                                panels.map(panel => {
+                                                    if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                                                        return html`
+                                                            <div style="margin: 5px 0">
+                                                                <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                                                                    ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                                </a>
+                                                            </div>`;
+                                                    } else {
+                                                        return html`<div>${panel.id}</div>`;
+                                                    }
+                                                })
+                                            }
+                                        `;
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
@@ -412,19 +497,23 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "status",
                             type: "custom",
                             display: {
-                                render: status => html`
-                                    <clinical-status-filter
-                                        .status="${status.id}"
-                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
-                                        .multiple=${false}
-                                        .classes="${this.updateParams.status ? "updated" : ""}"
-                                        .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => {
-                                            e.detail.param = "status.id";
-                                            this.onFieldChange(e);
-                                        }}">
-                                    </clinical-status-filter>
-                                `,
+                                render: status => {
+                                    return html`
+                                        <clinical-status-filter
+                                            .status="${status.id}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                            .multiple=${false}
+                                            .classes="${this.updateParams.status ? "updated" : ""}"
+                                            .disabled="${!!this._clinicalAnalysis?.locked}"
+                                            @filterChange="${
+                                                e => {
+                                                    e.detail.param = "status.id";
+                                                    this.onFieldChange(e);
+                                                }
+                                            }">
+                                        </clinical-status-filter>
+                                    `;
+                                },
                             }
                         },
                         {
@@ -439,10 +528,12 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         .multiple=${false}
                                         .classes="${this.updateParams.priority ? "updated" : ""}"
                                         .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => {
-                                            e.detail.param = "priority.id";
-                                            this.onFieldChange(e);
-                                        }}">
+                                        @filterChange="${
+                                            e => {
+                                                e.detail.param = "priority.id";
+                                                this.onFieldChange(e);
+                                            }
+                                        }">
                                     </clinical-priority-filter>
                                 `,
                             }
@@ -504,9 +595,9 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             .classes="${this.updateParams.panels ? "updated" : ""}"
                                             .disabled="${!!this._clinicalAnalysis?.locked || !!this._clinicalAnalysis?.panelLock}"
                                             @filterChange="${e => {
-                                                e.detail.param = "panels.id";
-                                                this.onFieldChange(e);
-                                            }}">
+                                        e.detail.param = "panels.id";
+                                        this.onFieldChange(e);
+                                    }}">
                                         </disease-panel-filter>
                                     `;
                                 }
@@ -557,9 +648,9 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         .classes="${this.updateParams.flags ? "updated" : ""}"
                                         .disabled="${!!this._clinicalAnalysis?.locked}"
                                         @filterChange="${e => {
-                                            e.detail.param = "flags.id";
-                                            this.onFieldChange(e);
-                                        }}">
+                                    e.detail.param = "flags.id";
+                                    this.onFieldChange(e);
+                                }}">
                                     </clinical-flag-filter>
                                 `,
                             }

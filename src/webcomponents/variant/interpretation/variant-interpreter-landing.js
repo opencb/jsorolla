@@ -74,9 +74,12 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onClinicalAnalysisUpdate(e) {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: e.detail.clinicalAnalysis
-        }, null);
+        LitUtils.dispatchCustomEvent(
+            this,
+            "clinicalAnalysisUpdate",
+            null,
+            {clinicalAnalysis: e.detail.clinicalAnalysis},
+            null);
     }
 
     render() {
@@ -132,7 +135,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -151,7 +154,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <clinical-interpretation-manager
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -170,7 +173,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Clinical Data" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <individual-view
                                         .individual="${clinicalAnalysis.proband}"
                                         .opencgaSession="${opencgaSession}">
@@ -188,7 +191,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <clinical-analysis-consent-editor
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
@@ -206,7 +209,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Audit Log" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <clinical-analysis-audit-browser
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -225,7 +228,7 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 20px">
+                                <div style="padding: 0 20px">
                                     <clinical-analysis-view
                                         .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
                                         .clinicalAnalysis="${clinicalAnalysis}"

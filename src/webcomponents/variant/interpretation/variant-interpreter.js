@@ -191,7 +191,8 @@ class VariantInterpreter extends LitElement {
             locked: !this.clinicalAnalysis.locked,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .update(id, updateParams, {study: this.opencgaSession.study.fqn})
             .then(() => this.onClinicalAnalysisUpdate())
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -406,7 +407,7 @@ class VariantInterpreter extends LitElement {
                 `}
 
                 <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
+                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
