@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import {html, LitElement} from "lit";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
@@ -25,6 +25,7 @@ export default class ProjectUpdate extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -75,7 +76,6 @@ export default class ProjectUpdate extends LitElement {
     }
 
     update(changedProperties) {
-
         if (changedProperties.has("projectId")) {
             this.projectIdObserver();
         }
@@ -136,6 +136,7 @@ export default class ProjectUpdate extends LitElement {
                     )
                 };
         }
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -234,6 +235,7 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species",
                             field: "organism.scientificName",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                             }
@@ -242,6 +244,7 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species Assembly",
                             field: "organism.assembly",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "e.g. GRCh38",
                             }
@@ -252,7 +255,7 @@ export default class ProjectUpdate extends LitElement {
                             type: "object",
                             elements: [
                                 {
-                                    title: "Url",
+                                    title: "URL",
                                     field: "cellbase.url",
                                     type: "input-text",
                                     display: {
