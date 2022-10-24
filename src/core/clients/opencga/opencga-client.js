@@ -397,7 +397,7 @@ export class OpenCGAClient {
                                                     } else {
                                                         acl = await _this.studies().acl(study.fqn, {member: session.user.id});
                                                     }
-                                                    study.acl = acl.getResult(0);
+                                                    study.acl = acl.getResult(0)?.acl || [];
 
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");

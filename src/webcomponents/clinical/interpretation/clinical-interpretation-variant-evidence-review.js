@@ -97,7 +97,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             case "clinicalSignificance":
             case "tier":
                 // Fix clinical significance value --> must be in uppercase
-                const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
+                const value = (param === "clinicalSignificance" && e.detail.value) ? e.detail.value.toUpperCase() : e.detail.value;
                 this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
                 break;
             case "discussion.text":
