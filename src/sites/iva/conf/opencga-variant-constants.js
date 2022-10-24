@@ -107,14 +107,14 @@ const CONSEQUENCE_TYPES = {
         {
             name: "Protein Altering",
             description: "Filter Protein Altering variants",
-            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion"]
         },
         {
             name: "Coding Sequence",
             description: "Filter Coding variants",
-            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
-                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "synonymous_variant"]
         }
     ],
 
