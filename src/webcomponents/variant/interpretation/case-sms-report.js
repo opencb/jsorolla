@@ -19,7 +19,6 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
-import "../../commons/rich-text.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -528,6 +527,9 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                         {
                             field: "methodology.description",
                             type: "rich-text",
+                            display: {
+                                disabled: true
+                            }
                         },
                         // {
                         //     field: "methodology.description",

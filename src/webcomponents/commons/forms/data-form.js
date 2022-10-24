@@ -20,7 +20,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
-import "../rich-text.js";
+import "../rich-text-editor.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -1174,12 +1174,16 @@ export default class DataForm extends LitElement {
 
     _createRichTextElement(element) {
         const content = this.getValue(element.field, this.data, this._getDefaultValue(element));
+        const config = {
+            disabled: this._getBooleanValue(element.display?.disabled, false),
+        };
         if (content.length || UtilsNew.isObject(content)) {
             const contentCleaned = content?.replace(/  +/g, " ");
             return html`
-                <rich-text
-                    .data="${contentCleaned}">
-                </rich-text>`;
+                <rich-text-editor
+                    .data="${contentCleaned}"
+                    .config="${config}">
+                </rich-text-editor>`;
         } else {
             return this._getDefaultValue(element);
         }

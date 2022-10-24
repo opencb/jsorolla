@@ -20,7 +20,7 @@ import Editor from "@toast-ui/editor";
 import LitUtils from "./utils/lit-utils.js";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
-export default class RichText extends LitElement {
+export default class RichTextEditor extends LitElement {
 
     constructor() {
         super();
@@ -159,7 +159,7 @@ export default class RichText extends LitElement {
 
     render() {
         return html`
-            <button class="btn btn-default" style="margin-bottom:8px" @click="${e => this.onChangeMode()}">
+            <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
                 <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
             </button>
             <div id="${this.textEditorId}"></div>
@@ -168,4 +168,4 @@ export default class RichText extends LitElement {
 
 }
 
-customElements.define("rich-text", RichText);
+customElements.define("rich-text-editor", RichTextEditor);
