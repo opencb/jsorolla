@@ -59,7 +59,6 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     #init() {
-        // this.commentsUpdate = {};
         this.updateParams = {};
         this.isLoading = false;
         this.displayConfigDefault= {
@@ -148,59 +147,10 @@ class ClinicalAnalysisUpdate extends LitElement {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
-    onCommentChange(e) {
-        // this.commentsUpdate = e.detail;
-    }
-
-    // updateOrDeleteComments(notify) {
-    //     // CAUTION: Delete option not available?
-    //     // TODO: manage error and finally accordingly
-    //     if (this.commentsUpdate?.updated?.length > 0) {
-    //         const data = {
-    //             comments: this.commentsUpdate.updated
-    //         };
-    //         const params = {
-    //             study: this.opencgaSession.study.fqn,
-    //             commentsAction: "REPLACE",
-    //             includeResult: true,
-    //         };
-    //         this.opencgaSession.opencgaClient.clinical()
-    //             .update(this._clinicalAnalysis.id, data, params)
-    //             .then(response => {
-    //                 if (notify && this.commentsUpdate?.deleted?.length === 0) {
-    //                     this.postUpdate(response);
-    //                 }
-    //             })
-    //             .catch(response => {
-    //                 console.error("An error occurred updating clinicalAnalysis: ", response);
-    //             });
-    //     }
-    //     if (this.commentsUpdate?.deleted?.length > 0) {
-    //         const data = {
-    //             comments: this.commentsUpdate.deleted
-    //         };
-    //         const params = {
-    //             study: this.opencgaSession.study.fqn,
-    //             commentsAction: "REMOVE",
-    //             includeResult: true
-    //         };
-    //         this.opencgaSession.opencgaClient.clinical()
-    //             .update(this._clinicalAnalysis.id, data, params)
-    //             .then(response => {
-    //                 if (notify) {
-    //                     this.postUpdate(response);
-    //                 }
-    //             })
-    //             .catch(response => {
-    //                 console.error("An error occurred updating clinicalAnalysis: ", response);
-    //             });
-    //     }
-    // }
-
     postUpdate(response) {
         this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
         this.updateParams = {};
-        // this.commentsUpdate = {};
+
         // Notify success
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             title: "Clinical Analysis update",
@@ -271,21 +221,13 @@ class ClinicalAnalysisUpdate extends LitElement {
         this._config = this.getDefaultConfig();
 
         // Reset all values
-        // this.clinicalAnalysis = JSON.parse(JSON.stringify(this._clinicalAnalysis));
         this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
         this.updateParams = {};
-        // this.commentsUpdate = {};
     }
 
     onSubmit() {
-        // if (this.commentsUpdate) {
-        //     if (this.commentsUpdate.added?.length > 0) {
-        //         this.updateParams.comments = this.commentsUpdate.added;
-        //     }
-        // }
 
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            // this.updateOrDeleteComments(false);
 
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -325,9 +267,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.#setLoading(false);
                 });
         }
-        // else {
-        //     this.updateOrDeleteComments(true);
-        // }
     }
 
     render() {
