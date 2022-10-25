@@ -101,7 +101,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             ],
             interpretation: {},
             variantAnnotation: {},
-            notes: [],
+            notes: "",
             qcInfo: {
             },
             disclaimer: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -111,17 +111,17 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
             and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
             appendix: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
         };
         this._ready = false;
         this._config = this.getDefaultConfig();
@@ -138,6 +138,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         // }
 
         if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisReportDataLocal();
             this.clinicalAnalysisObserver();
         }
 
@@ -173,6 +174,20 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             this._config = this.getDefaultConfig();
             this.requestUpdate();
         }
+    }
+
+    clinicalAnalysisReportDataLocal() {
+
+        if (REPORT_DATA) {
+            this._dataReportTest = {...this._dataReportTest, ...REPORT_DATA};
+            // TODO: for testing interative until endpoint is available
+            // localStorage.setItem("report_data", JSON.stringify(this._dataReportTest));
+        }
+
+        // if (localStorage.getItem("report_data") !== null) {
+        //     this._dataReportTest = JSON.parse(localStorage.getItem("report_data"));
+        // }
+
     }
 
     // TODO: It's possible this function turn into a component
@@ -243,7 +258,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             ]
         });
 
-        return html `
+        return html`
             <data-form
                 .data="${patientData}"
                 .config="${_config}">
@@ -286,7 +301,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             display: {
                                 // defaultLayout: "vertical",
                                 render: field => {
-                                    return html `
+                                    return html`
                                         <p>${field.name}</p>
                                         <p>${field.specialization}</p>
                                         <p>${field.hospitalName}</p>
@@ -302,7 +317,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             ]
         });
 
-        return html `
+        return html`
             <data-form
                 .data="${requestData}"
                 .config="${_config}">
@@ -371,7 +386,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             },
         };
 
-        const titleElement = (title, size="24") => {
+        const titleElement = (title, size = "24") => {
             return {
                 text: title,
                 type: "title",
@@ -428,9 +443,9 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     {
                         id: "interpretation",
                     },
-                    {
-                        id: "variant-detail-annotation-description",
-                    },
+                    // {
+                    //     id: "variant-detail-annotation-description",
+                    // },
                     {
                         id: "notes",
                     },
@@ -459,7 +474,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return html `${this.renderIndividualSummary(data)}`;
+                                    return html`${this.renderIndividualSummary(data)}`;
                                 }
                             }
                         }
@@ -478,7 +493,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return html `${this.renderDiagnosticSummary(data)}`;
+                                    return html`${this.renderDiagnosticSummary(data)}`;
                                 }
                             }
                         }
@@ -528,7 +543,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             field: "methodology.description",
                             type: "rich-text",
                             display: {
-                                disabled: true
+                                disabled: false
                             }
                         },
                         // {
@@ -548,7 +563,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     ]
                 },
                 {
-                    id: "results",
+                    id: "results", // free text
                     // title: "5. Results",
                     elements: [
                         titleElement("5. Results"),
@@ -565,18 +580,24 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${variantsReported}"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false,
-                                                        showActions: false,
-                                                        showEditReview: false,
-                                                    }
-                                                }>
+                                                .config=${{
+                                            showExport: true,
+                                            showSettings: false,
+                                            showActions: false,
+                                            showEditReview: false,
+                                        }
+                                            }>
                                             </variant-interpreter-grid>
                                         `:
                                         "No reported variants to display";
                                 }
+                            }
+                        },
+                        {
+                            field: "results",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
                             }
                         },
                     ]
@@ -587,21 +608,28 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     elements: [
                         titleElement("6. Interpretation results"),
                         {
-                            title: "",
+                            field: "interpretations",
+                            type: "rich-text",
                             display: {
-                                defaultLayout: "vertical",
-                            },
-                            // field: "info.project",
-                            defaultValue: "'Global Section'"
-                        },
-                        {
-                            title: "",
-                            display: {
-                                defaultLayout: "vertical",
-                            },
-                            // field: "info.project",
-                            defaultValue: "'section for each variant'"
-                        },
+                                disabled: false
+                            }
+                        }
+                        // {
+                        //     title: "",
+                        //     display: {
+                        //         defaultLayout: "vertical",
+                        //     },
+                        //     // field: "info.project",
+                        //     defaultValue: "'Global Section'"
+                        // },
+                        // {
+                        //     title: "",
+                        //     display: {
+                        //         defaultLayout: "vertical",
+                        //     },
+                        //     // field: "info.project",
+                        //     defaultValue: "'section for each variant'"
+                        // },
                     ]
                 },
                 {
@@ -647,19 +675,22 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     id: "notes",
                     // title: "8. Notes",
                     elements: [
-                        titleElement("8. Notes"),
+                        titleElement("7. Notes"),
                         {
                             field: "notes",
-                            type: "custom",
+                            type: "rich-text",
                             display: {
-                                render: data => {
-                                    const textClean = UtilsNew.isEmpty(data)? "": data?.replace(/  +/g, " ");
-                                    return html`
-                                    <text-editor
-                                        .data="${textClean}">
-                                    </text-editor>`;
-                                }
-                            },
+                                disabled: false
+                            }
+                            // display: {
+                            //     render: data => {
+                            //         const textClean = UtilsNew.isEmpty(data)? "": data?.replace(/  +/g, " ");
+                            //         return html`
+                            //         <text-editor
+                            //             .data="${textClean}">
+                            //         </text-editor>`;
+                            //     }
+                            // },
                         },
                     ]
                 },
@@ -730,17 +761,24 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                         titleElement("Appendix"),
                         {
                             field: "appendix",
-                            type: "custom",
+                            type: "rich-text",
                             display: {
-                                render: data => {
-                                    const textClean = UtilsNew.isEmpty(data)? "": data?.replace(/  +/g, " ");
-                                    return html`
-                                    <text-editor
-                                        .data="${textClean}">
-                                    </text-editor>`;
-                                }
-                            },
+                                disabled: false
+                            }
                         },
+                        // {
+                        //     field: "appendix",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: data => {
+                        //             const textClean = UtilsNew.isEmpty(data)? "": data?.replace(/  +/g, " ");
+                        //             return html`
+                        //             <text-editor
+                        //                 .data="${textClean}">
+                        //             </text-editor>`;
+                        //         }
+                        //     },
+                        // },
                         // {
                         //     title: "Appendix 1",
                         //     // field: "info.project",

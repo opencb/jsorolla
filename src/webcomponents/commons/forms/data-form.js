@@ -1177,16 +1177,15 @@ export default class DataForm extends LitElement {
         const config = {
             disabled: this._getBooleanValue(element.display?.disabled, false),
         };
-        if (content.length || UtilsNew.isObject(content)) {
-            const contentCleaned = content?.replace(/  +/g, " ");
+
+            // const contentCleaned = !UtilsNew.isObject(content)? content.replace(/  +/g, " ") : "";
+            const _content = !UtilsNew.isObject(content)? content : "";
             return html`
                 <rich-text-editor
-                    .data="${contentCleaned}"
+                    .data="${_content}"
                     .config="${config}">
                 </rich-text-editor>`;
-        } else {
-            return this._getDefaultValue(element);
-        }
+
     }
 
     _createCustomElement(element) {
