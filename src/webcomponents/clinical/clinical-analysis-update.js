@@ -118,16 +118,12 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.clinicalAnalysis = {};
                     this._clinicalAnalysis = {};
                     error = reason;
-                    // FIXME: if we implement "study-admin-clinical.js",
+                    // CAUTION: if we implement "study-admin-clinical.js",
                     //  onClinicalAnalysisSearch should notify this error (See study-admin.sample.js)
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                        title: "Clinical Analysis error",
-                        message: reason,
-                    });
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    // FIXME: onClinicalAnalysisSearch not declared.
                     LitUtils.dispatchCustomEvent(
                         this,
                         "clinicalAnalysisSearch",
@@ -243,12 +239,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                     this.postUpdate(response);
                 })
                 .catch(reason => {
-                    this._clinicalAnalysis = {};
                     error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                        title: "Clinical Analysis error",
-                        message: reason,
-                    });
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                     console.error(reason);
                 })
                 .finally(() => {
