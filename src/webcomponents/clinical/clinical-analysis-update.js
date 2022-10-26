@@ -113,17 +113,13 @@ class ClinicalAnalysisUpdate extends LitElement {
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                     this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+                    this._config = this.getDefaultConfig();
                 })
                 .catch(reason => {
-                    this.clinicalAnalysis = {};
-                    this._clinicalAnalysis = {};
                     error = reason;
-                    // CAUTION: if we implement "study-admin-clinical.js",
-                    //  onClinicalAnalysisSearch should notify this error (See study-admin.sample.js)
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "clinicalAnalysisSearch", this.clinicalAnalysis, {}, error);
                     this.#setLoading(false);
                 });
@@ -132,17 +128,6 @@ class ClinicalAnalysisUpdate extends LitElement {
 
     opencgaSessionObserver() {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
-    }
-
-    postUpdate(response) {
-        this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
-        this.updateParams = {};
-
-        // Notify success
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            title: "Clinical Analysis update",
-            message: "Case info updated successfully",
-        });
     }
 
     onFieldChange(e, field) {
@@ -216,9 +201,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     onSubmit() {
-
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-
             const params = {
                 study: this.opencgaSession.study.fqn,
                 flagsAction: "SET",
@@ -230,19 +213,19 @@ class ClinicalAnalysisUpdate extends LitElement {
             this.opencgaSession.opencgaClient.clinical()
                 .update(this.clinicalAnalysis.id, this.updateParams, params)
                 .then(response => {
-                    this.postUpdate(response);
+                    this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
+                    this._config = this.getDefaultConfig();
+                    this.updateParams = {};
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        title: "Clinical Analysis update",
+                        message: "Case info updated successfully",
+                    });
                 })
                 .catch(reason => {
                     error = reason;
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                    console.error(reason);
                 })
                 .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    // TODO: Should I call:
-                    //  (a) clinicalAnalysisUpdate or
-                    //  (b) clinicalAnalysis or
-                    //  (c) clinicalAnalysisUpdate but with clinicalAnalysis.id and let parent method run the query
                     LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", this.clinicalAnalysis, {}, error);
                     this.#setLoading(false);
                 });
