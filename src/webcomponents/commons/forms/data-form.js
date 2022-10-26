@@ -1145,7 +1145,11 @@ export default class DataForm extends LitElement {
     _createJsonElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (json.length || UtilsNew.isObject(json)) {
-            return html`<json-viewer .data="${json}"></json-viewer>`;
+            return html`
+                <json-viewer
+                    .data="${json}">
+                </json-viewer>
+            `;
         } else {
             return this._getDefaultValue(element);
         }
@@ -1158,7 +1162,12 @@ export default class DataForm extends LitElement {
         };
         if (json.length || UtilsNew.isObject(json)) {
             const jsonParsed = JSON.parse(json);
-            return html`<json-editor .data="${jsonParsed}" .config="${config}"></json-editor>`;
+            return html`
+                <json-editor
+                    .data="${jsonParsed}"
+                    .config="${config}">
+                </json-editor>
+            `;
         } else {
             return this._getDefaultValue(element);
         }

@@ -21,7 +21,6 @@ export default class DownloadButton extends LitElement {
 
     constructor() {
         super();
-        this._init();
     }
 
     createRenderRoot() {
@@ -45,10 +44,6 @@ export default class DownloadButton extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-    }
-
     download() {
         const dataString = JSON.stringify(this.json || {}, null, "\t");
         const data = new Blob([dataString], {type: "application/json"});
@@ -58,14 +53,20 @@ export default class DownloadButton extends LitElement {
         a.download = (this.json?.id || this.json?.name || "download") + ".json";
         document.body.appendChild(a);
         a.click();
-        setTimeout(function() {
+        setTimeout(() => {
             document.body.removeChild(a);
         }, 0);
     }
 
     render() {
-        return html`<button class="btn btn-default ripple ${this.class ?? ""}" title="${this.title || ""}" @click="${this.download}"><i class="fa fa-download" aria-hidden="true"></i> ${this.name || "Download"}</button>`;
+        return html`
+            <button
+                class="btn btn-default ${this.class ?? ""}" title="${this.title || ""}"
+                @click="${this.download}"><i class="fa fa-download icon-padding" aria-hidden="true"></i> ${this.name || "Download"}
+            </button>
+        `;
     }
+
 }
 
 customElements.define("download-button", DownloadButton);

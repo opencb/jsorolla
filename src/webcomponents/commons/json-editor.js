@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import {JSONEditor} from "vanilla-jsoneditor";
 import NotificationUtils from "./utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -51,16 +51,26 @@ export default class JsonEditor extends LitElement {
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
         this._config = this.getDefaultConfig();
-        this.showDownloadButton = true;
     }
 
-    // firstUpdated() {
-    //     console.log("firstUpdated");
-    //     if (document.getElementById(this.jsonEditorId)) {
-    //         this.initJsonEditor();
-    //     }
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        super.update(changedProperties);
+    }
 
+    updated(changedProperties) {
+        if (changedProperties.has("data")) {
+            if (this.data) {
+                if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
+                    this.initJsonEditor();
+                }
+                this.jsonEditor.update({json: this.data});
+                // this.disabledTransformContextMenu();
+            }
+        }
+    }
 
     initJsonEditor() {
         const content = {
@@ -73,23 +83,23 @@ export default class JsonEditor extends LitElement {
             target: editorElm,
             props: {
                 content,
-                readOnly: this._config?.readOnly,
+                mode: this._config?.mode || "text",
+                indentation: this._config?.indentation || 4,
+                readOnly: this._config?.readOnly ?? false,
                 onChange: (updatedContent, previousContent, {contentErrors, patchResult}) =>
-                    this.filterChange(updatedContent, previousContent, {contentErrors, patchResult}),
+                    this.onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}),
                 onError: err => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                         message: err
                     });
                 },
                 onRenderMenu: (mode, items) => {
-                    // Remove transforms we'dont need for the moment
+                    // Remove transforms we don't need for the moment
                     console.log("test items", items);
                     return items.filter(item => item.className !== "jse-transform");
                 },
             }
         });
-
-        console.log("jsonEditor...", this.jsonEditor);
     }
 
     disabledTransformContextMenu() {
@@ -99,36 +109,13 @@ export default class JsonEditor extends LitElement {
         transformBtn[0].disabled = true;
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-        super.update(changedProperties);
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("data")) {
-            console.log("data updated...", this.data);
-            if (this.data) {
-                if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
-                    this.initJsonEditor();
-                }
-                this.jsonEditor.update({json: this.data});
-                // this.disabledTransformContextMenu();
-            }
-        }
-    }
-
-    filterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
+    onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
         console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
-        this.data = updatedContent.text? JSON.parse(updatedContent.text) : updatedContent.json;
-        LitUtils.dispatchCustomEvent(this, "filterChange", updatedContent, null);
-    }
-
-    getDefaultConfig() {
-        return {
-            readOnly: false,
-        };
+        this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
+        LitUtils.dispatchCustomEvent(this, "filterChange", {
+            json: {...this.data},
+            text: updatedContent
+        }, null);
     }
 
     render() {
@@ -137,7 +124,7 @@ export default class JsonEditor extends LitElement {
         }
 
         return html`
-            ${this.showDownloadButton ? html`
+            ${this._config.showDownloadButton ? html`
                 <div class="text-right">
                     <download-button
                         .json="${this.data}"
@@ -149,6 +136,15 @@ export default class JsonEditor extends LitElement {
 
             <div style="padding-top: 10px" id="${this.jsonEditorId}"></div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            mode: "text",
+            indentation: 4,
+            readOnly: false,
+            showDownloadButton: true
+        };
     }
 
 }
