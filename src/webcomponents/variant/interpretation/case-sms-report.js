@@ -145,6 +145,12 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         super.update(changedProperties);
     }
 
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        console.log("onChange", param);
+
+    }
+
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -261,6 +267,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         return html`
             <data-form
                 .data="${patientData}"
+                .onFieldChange={this.onFieldChange}
                 .config="${_config}">
             </data-form>
         `;
@@ -449,15 +456,30 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     {
                         id: "notes",
                     },
-                    {
-                        id: "qc-info",
-                    },
-                    {
-                        id: "disclaimer"
-                    },
+                    // {
+                    //     id: "qc-info",
+                    // },
+                    // {
+                    //     id: "disclaimer"
+                    // },
                     {
                         id: "appendix"
                     },
+                    {
+                        id: "",
+                        className: "row",
+                        sections: [
+                            {
+                                id: "responsible-detail",
+                                className: "col-md-6"
+                            },
+                            {
+                                id: "validation-detail",
+                                className: "col-md-6"
+                            },
+                        ]
+                    },
+
                 ]
             },
             sections: [
@@ -765,50 +787,43 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             display: {
                                 disabled: false
                             }
-                        },
-                        // {
-                        //     field: "appendix",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: data => {
-                        //             const textClean = UtilsNew.isEmpty(data)? "": data?.replace(/  +/g, " ");
-                        //             return html`
-                        //             <text-editor
-                        //                 .data="${textClean}">
-                        //             </text-editor>`;
-                        //         }
-                        //     },
-                        // },
-                        // {
-                        //     title: "Appendix 1",
-                        //     // field: "info.project",
-                        //     type: "text",
-                        //     display: {
-                        //         defaultLayout: "vertical",
-                        //     },
-                        //     text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                        //     Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                        //     printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-                        //     only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                        //     It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                        //     and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
-                        // },
-                        // {
-                        //     title: "Appendix 2",
-                        //     // field: "info.project",
-                        //     type: "text",
-                        //     display: {
-                        //         defaultLayout: "vertical",
-                        //     },
-                        //     text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                        //     Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                        //     printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-                        //     only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                        //     It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-                        //     and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
-                        // },
+                        }
                     ]
                 },
+                {
+                    id: "responsible-detail",
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    return html `
+                                    <p><b>${data.clinicalAnalysis.laboratory.name}</b> ${data.clinicalAnalysis.laboratory.responsible}</p>
+                                    <p><b>Fac:</b> ${data.clinicalAnalysis.laboratory.facultive?.join()}</p>
+                                    <p><b>Contacto:</b> ${data.clinicalAnalysis.laboratory.email}</p>
+                                    `;
+                                }
+                            },
+                        }
+                    ],
+                },
+                {
+                    id: "validation-detail",
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    return html`
+                                        <p><b>Validado por:</b> ${data.clinicalAnalysis.laboratory.validation}</p>
+                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data.clinicalAnalysis.laboratory.date)}</p>
+                                        `;
+                                }
+                            }
+                        }
+                    ]
+                },
+
             ]
         });
     }
