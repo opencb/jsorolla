@@ -57,18 +57,23 @@ export default class JsonEditor extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            if (this.data) {
-                if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
-                    this.initJsonEditor();
-                }
-                this.jsonEditor.update({json: this.data});
-                // this.disabledTransformContextMenu();
+            // If element exist and the jsonEditor Obj not exist
+            if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
+                this.initJsonEditor();
             }
+
+            if (this.jsonEditor) {
+                this.jsonEditor.update({json: this.data});
+            }
+
+            // this.disabledTransformContextMenu();
+
         }
     }
 
@@ -111,15 +116,16 @@ export default class JsonEditor extends LitElement {
 
     onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
         console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
+        // updatedContent is a object which content 2 props (text & json)
         this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
-        LitUtils.dispatchCustomEvent(this, "filterChange", {
+        LitUtils.dispatchCustomEvent(this, "fieldChange", {
             json: {...this.data},
-            text: updatedContent
+            text: updatedContent?.text
         }, null);
     }
 
     render() {
-        if (!this.data) {
+        if (!this.data && !this.jsonEditor) {
             return html`<h4>No valid data found</h4>`;
         }
 
