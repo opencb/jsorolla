@@ -124,22 +124,13 @@ class ClinicalAnalysisUpdate extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(
-                        this,
-                        "clinicalAnalysisSearch",
-                        this.clinicalAnalysis,
-                        {},
-                        error);
+                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisSearch", this.clinicalAnalysis, {}, error);
                     this.#setLoading(false);
                 });
         }
     }
 
     opencgaSessionObserver() {
-        // QUESTION 1: See:
-        //  * clinical-analysis-consent-editor.js.
-        //  * clinical-interpretation-editor.js
-        //  Which one is correct?
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
@@ -154,48 +145,51 @@ class ClinicalAnalysisUpdate extends LitElement {
         });
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        // Fixme FormUtils: use new methods when https://app.clickup.com/t/36631768/TASK-2037 merged
+        // Caution: swapped parameters in FormUtils.<methodName>(original, toUpdate, ...)
+        const param = field || e.detail.param;
+        switch (param) {
             case "locked":
             case "panelLock":
             case "dueDate":
             case "description":
-                this.updateParams = FormUtils
-                    // .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
-                    // Caution: updateScalar(original, toUpdate, ....)
-                    .updateScalar(this.clinicalAnalysis, this._clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateScalar(
+                    this.clinicalAnalysis,
+                    this._clinicalAnalysis,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
                 break;
             case "status.id":
             case "disorder.id":
             case "priority.id":
             case "analyst.id":
-                this.updateParams = FormUtils
-                    // .updateObject(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
-                    // Caution: updateScalar(original, toUpdate, ....)
-                    .updateObject(this.clinicalAnalysis, this._clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
+                this.updateParams = FormUtils.updateObject(
+                    this.clinicalAnalysis,
+                    this._clinicalAnalysis,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
 
                 break;
             case "panels.id":
             case "flags.id":
                 this.updateParams = FormUtils
-                    // .updateObjectArray(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value, e.detail.data);
-                    // Caution: updateObjectArray(original, toUpdate, ....)
-                    .updateObjectArray(this.clinicalAnalysis, this._clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value, e.detail.data);
+                    .updateObjectArray(
+                        this.clinicalAnalysis,
+                        this._clinicalAnalysis,
+                        this.updateParams,
+                        param,
+                        e.detail.value,
+                        e.detail.data);
                 break;
             case "comments":
-                // this.updateParams = FormUtils.updateArraysObject(
-                //     this._clinicalAnalysis,
-                //     this.clinicalAnalysis,
-                //     this.updateParams,
-                //     e.detail.param,
-                //     e.detail.value
-                // );
-                // Caution: updateArraysObject(original, toUpdate, ....)
                 this.updateParams = FormUtils.updateArraysObject(
                     this.clinicalAnalysis,
                     this._clinicalAnalysis,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value
                 );
 
@@ -249,13 +243,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     //  (a) clinicalAnalysisUpdate or
                     //  (b) clinicalAnalysis or
                     //  (c) clinicalAnalysisUpdate but with clinicalAnalysis.id and let parent method run the query
-                    LitUtils.dispatchCustomEvent(
-                        this,
-                        "clinicalAnalysisUpdate",
-                        this.clinicalAnalysis,
-                        {},
-                        error
-                    );
+                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", this.clinicalAnalysis, {}, error);
                     this.#setLoading(false);
                 });
         }
@@ -372,22 +360,17 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 render: panels => {
                                     let panelHtml = "-";
                                     if (panels?.length > 0) {
-                                        panelHtml = html`
-                                            ${
-                                                panels.map(panel => {
-                                                    if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                                                        return html`
-                                                            <div style="margin: 5px 0">
-                                                                <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                                                    ${panel.name} (${panel.source.project} v${panel.source.version})
-                                                                </a>
-                                                            </div>`;
-                                                    } else {
-                                                        return html`<div>${panel.id}</div>`;
-                                                    }
-                                                })
-                                            }
-                                        `;
+                                        panelHtml = panels.map(panel =>
+                                            (panel.source?.project?.toUpperCase() === "PANELAPP") ? html`
+                                                <div style="margin: 5px 0">
+                                                    <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                                                        ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                    </a>
+                                                </div>
+                                            ` : html `
+                                                    <div>${panel.id}</div>
+                                            `
+                                        );
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
@@ -428,23 +411,16 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "status",
                             type: "custom",
                             display: {
-                                render: status => {
-                                    return html`
-                                        <clinical-status-filter
-                                            .status="${status.id}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
-                                            .multiple=${false}
-                                            .classes="${this.updateParams.status ? "updated" : ""}"
-                                            .disabled="${!!this._clinicalAnalysis?.locked}"
-                                            @filterChange="${
-                                                e => {
-                                                    e.detail.param = "status.id";
-                                                    this.onFieldChange(e);
-                                                }
-                                            }">
-                                        </clinical-status-filter>
-                                    `;
-                                },
+                                render: status => html `
+                                    <clinical-status-filter
+                                        .status="${status.id}"
+                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .multiple=${false}
+                                        .classes="${this.updateParams.status ? "updated" : ""}"
+                                        .disabled="${!!this._clinicalAnalysis?.locked}"
+                                        @filterChange="${e => this.onFieldChange(e, "status.id")}">
+                                    </clinical-status-filter>
+                                `,
                             }
                         },
                         {
@@ -459,12 +435,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         .multiple=${false}
                                         .classes="${this.updateParams.priority ? "updated" : ""}"
                                         .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${
-                                            e => {
-                                                e.detail.param = "priority.id";
-                                                this.onFieldChange(e);
-                                            }
-                                        }">
+                                        @filterChange="${e => this.onFieldChange(e, "priority.id")}">
                                     </clinical-priority-filter>
                                 `,
                             }
@@ -525,10 +496,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                             .showExtendedFilters="${false}"
                                             .classes="${this.updateParams.panels ? "updated" : ""}"
                                             .disabled="${!!this._clinicalAnalysis?.locked || !!this._clinicalAnalysis?.panelLock}"
-                                            @filterChange="${e => {
-                                        e.detail.param = "panels.id";
-                                        this.onFieldChange(e);
-                                    }}">
+                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
                                         </disease-panel-filter>
                                     `;
                                 }
@@ -578,10 +546,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         .multiple=${true}
                                         .classes="${this.updateParams.flags ? "updated" : ""}"
                                         .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => {
-                                    e.detail.param = "flags.id";
-                                    this.onFieldChange(e);
-                                }}">
+                                        @filterChange="${e => this.onFieldChange(e, "flags.id")}">
                                     </clinical-flag-filter>
                                 `,
                             }
