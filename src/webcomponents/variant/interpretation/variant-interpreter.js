@@ -505,10 +505,6 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                        <!-- <variant-interpreter-report
-                                        .clinicalAnalysis="$this.clinicalAnalysis}"
-                                        .opencgaSession="$this.opencgaSession}">
-                                    </variant-interpreter-report> -->
                                     <detail-tabs
                                         .data="${this.clinicalAnalysis}"
                                         .config="${configReportTabs}"
