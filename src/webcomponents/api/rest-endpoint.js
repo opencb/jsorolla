@@ -413,19 +413,11 @@ export default class RestEndpoint extends LitElement {
         e.stopPropagation();
         const param = field || e.detail.param;
         // For Json input: param is called body
+
         if (param === "body") {
-            this.dataJson = {...this.dataJson, body: e.detail.value};
-            try {
-                const dataObject = JSON.parse(e.detail.value);
-                // Object.keys(dataObject).forEach(key => {
-                //     if (key in this.data.body) {
-                //         this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
-                //     }
-                // });
-            } catch (error) {
-                // json parse errors may arise at the time of writing to the json field.
-                return false;
-            }
+            // pass json as text
+            const jsonAsText = e.detail.value?.text? e.detail.value.text : JSON.stringify(e.detail.value.json, undefined, 4);
+            this.dataJson = {...this.dataJson, body: jsonAsText};
         }
     }
 
@@ -810,7 +802,7 @@ export default class RestEndpoint extends LitElement {
                         <data-form
                                 .data="${this.dataJson}"
                                 .config="${configJson}"
-                                @fieldChange="${e => this.onChangeJsonField(e)}"
+                                @fieldChange="${e => this.onChangeJsonField(e, "body")}"
                                 @clear="${e => this.onClear(e)}"
                                 @submit="${this.onSubmitJson}">
                         </data-form>
