@@ -201,15 +201,12 @@ export default class IndividualBrowser extends LitElement {
                             {
                                 id: "sex",
                                 name: "Sex",
-                                allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "karyotypicSex",
                                 name: "Karyotypic Sex",
-                                type: "category",
-                                allowedValues: ["XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER", "UNKNOWN"],
                                 multiple: true,
                                 description: ""
                             },

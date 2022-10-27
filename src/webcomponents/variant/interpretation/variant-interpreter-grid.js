@@ -435,7 +435,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                         if (row.id === element.dataset.variantId) {
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
+                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                             element.addEventListener("change", e => this.onEvidenceCheck(e));
                         }
                     });
@@ -453,7 +453,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
+                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                             element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                         }
                     });
@@ -516,7 +516,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                     if (row.id === element.dataset.variantId) {
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
+                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                         element.addEventListener("change", e => this.onEvidenceCheck(e));
                     }
                 });
@@ -534,7 +534,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
+                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                         element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                     }
                 });
