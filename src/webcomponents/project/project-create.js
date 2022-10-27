@@ -122,12 +122,13 @@ export default class ProjectCreate extends LitElement {
         const params = {
             includeResult: true
         };
-        let error;
+        let project, error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .create(this.project, params)
             .then(() => {
                 this.#initOriginalObject();
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
@@ -135,12 +136,12 @@ export default class ProjectCreate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
             })
             .catch(reason => {
+                project = this.project;
                 error = reason;
-                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                this._config = this.getDefaultConfig();
-                LitUtils.dispatchCustomEvent(this, "projectCreate", this.project, {}, error);
+                LitUtils.dispatchCustomEvent(this, "projectCreate", project, {}, error);
                 this.#setLoading(false);
             });
     }

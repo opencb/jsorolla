@@ -106,11 +106,13 @@ export default class StudyCreate extends LitElement {
     }
 
     onSubmit() {
-        let error;
+        let study, error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.studies()
             .create(this.study, {project: this.project.fqn})
             .then(res => {
+                this.study = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Study Create",
                     message: "New study created correctly"
@@ -118,13 +120,12 @@ export default class StudyCreate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
             })
             .catch(reason => {
+                study = this.study;
                 error = reason;
-                console.error(error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(()=>{
-                this.study = {};
-                this._config = this.getDefaultConfig();
-                LitUtils.dispatchCustomEvent(this, "studyCreate", this.study, {}, error);
+                LitUtils.dispatchCustomEvent(this, "studyCreate", study, {}, error);
                 this.#setLoading(false);
             });
     }

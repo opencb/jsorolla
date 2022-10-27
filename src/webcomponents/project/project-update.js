@@ -157,11 +157,12 @@ export default class ProjectUpdate extends LitElement {
         const params = {
             includeResult: true
         };
-        let error;
+        let project, error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .update(this.project?.fqn, this.updateParams, params)
             .then(res => {
+                this._config = this.getDefaultConfig();
                 this._project = UtilsNew.objectClone(res.responses[0].results[0]);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Update",
@@ -170,14 +171,13 @@ export default class ProjectUpdate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
             })
             .catch(reason => {
+                project = this.project;
                 error = reason;
-                console.error(reason);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                this.#setLoading(false);
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "projectUpdate", this.project, {}, error);
+                this.#setLoading(false);
             });
     }
 
