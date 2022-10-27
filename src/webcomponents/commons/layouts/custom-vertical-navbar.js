@@ -421,7 +421,7 @@ export default class CustomVerticalNavBar extends LitElement {
                 ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
                     <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
                         <!-- TODO: HEADER in a div-->
-                        <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>${subItem.name}</h2>
+                        <h2><i class="${subItem.icon} icon-padding" style="padding-right: 10px"></i>${subItem.name}</h2>
                         <!-- TODO: CONTENT in a div -->
                         ${subItem.render(this.opencgaSession, this.study)}
                     </div>
