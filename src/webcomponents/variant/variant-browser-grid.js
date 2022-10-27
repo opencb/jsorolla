@@ -956,6 +956,7 @@ export default class VariantBrowserGrid extends LitElement {
         await this.updateComplete;
         const filters = {
             ...this.filters,
+            skip: 0,
             limit: 1000,
             count: false
         };
