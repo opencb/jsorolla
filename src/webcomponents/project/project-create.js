@@ -106,16 +106,23 @@ export default class ProjectCreate extends LitElement {
     }
 
     onClear() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear project",
-            message: "Are you sure to clear?",
-            ok: () => {
-                this.#initOriginalObject();
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            },
-        });
-        // LitUtils.dispatchCustomEvent(this, "clearProject");
+        const resetForm = () => {
+            this.#initOriginalObject();
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        };
+        if (!this.displayConfig?.modal) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: "Clear project",
+                message: "Are you sure to clear?",
+                ok: () => {
+                    resetForm();
+                },
+            });
+        } else {
+            LitUtils.dispatchCustomEvent(this, "clearProject");
+            resetForm();
+        }
     }
 
     onSubmit() {

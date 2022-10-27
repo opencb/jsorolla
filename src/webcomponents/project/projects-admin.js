@@ -274,6 +274,7 @@ export default class ProjectsAdmin extends LitElement {
                 content=html`
                     <project-create
                         .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{modal: true, buttonClearText: "Cancel"}}"
                         @clearProject="${() => this.actionModal("createProject", "hide")}">
                     </project-create>`;
                 break;
@@ -282,6 +283,7 @@ export default class ProjectsAdmin extends LitElement {
                     <project-update
                         .projectId=${this.projectId}
                         .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{modal: true, buttonClearText: "Cancel"}}"
                         @clearProject="${() => this.actionModal("updateProject", "hide")}">
                     </project-update>`;
                 break;
@@ -290,6 +292,7 @@ export default class ProjectsAdmin extends LitElement {
                     <study-create
                         .project=${this.project}
                         .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{modal: true, buttonClearText: "Cancel"}}"
                         @clearStudy="${() => this.actionModal("createStudy", "hide")}">
                     </study-create>`;
                 break;

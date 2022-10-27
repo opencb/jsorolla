@@ -141,16 +141,24 @@ export default class ProjectUpdate extends LitElement {
     }
 
     onClear() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear project",
-            message: "Are you sure to clear new change?",
-            ok: () => {
-                this.updateParams = {};
-                this.project = UtilsNew.objectClone(this._project);
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            },
-        });
+        const resetForm = () => {
+            this.updateParams = {};
+            this.project = UtilsNew.objectClone(this._project);
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        };
+        if (!this.displayConfig?.modal) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: "Clear project",
+                message: "Are you sure to clear new change?",
+                ok: () => {
+                    resetForm();
+                },
+            });
+        } else {
+            LitUtils.dispatchCustomEvent(this, "clearProject");
+            resetForm();
+        }
     }
 
     onSubmit() {

@@ -94,15 +94,23 @@ export default class StudyCreate extends LitElement {
     }
 
     onClear() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Study",
-            message: "Are you sure to clear?",
-            ok: () => {
-                this.study = {};
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            },
-        });
+        const resetForm = () => {
+            this.study = {};
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        };
+        if (!this.displayConfig?.modal) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                title: "Clear Study",
+                message: "Are you sure to clear?",
+                ok: () => {
+                    resetForm();
+                },
+            });
+        } else {
+            LitUtils.dispatchCustomEvent(this, "clearStudy");
+            resetForm();
+        }
     }
 
     onSubmit() {
