@@ -50,15 +50,14 @@ export default class JsonEditor extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
-        this._config = this.getDefaultConfig();
         this._data = "";
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
@@ -69,13 +68,11 @@ export default class JsonEditor extends LitElement {
                 this.initJsonEditor();
             }
 
+            // We need to check if the current JSON displayed is the same that the one being passed.
+            // This avoids the cursor to move to the beginning.
             if (this.jsonEditor && !UtilsNew.isEqual(JSON.stringify(this._data), JSON.stringify(this.data))) {
-                // It is updated twice, to avoid the need to compare data.
                 this.jsonEditor.update({json: this.data});
             }
-
-            // this.disabledTransformContextMenu();
-
         }
     }
 
@@ -109,16 +106,9 @@ export default class JsonEditor extends LitElement {
         });
     }
 
-    disabledTransformContextMenu() {
-        console.log("context", this);
-        const btnsElements = this.querySelectorAll(".jse-contextmenu button");
-        const transformBtn = Array.from(btnsElements).filter(btn => btn?.innerText === " Transform");
-        transformBtn[0].disabled = true;
-    }
-
     onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
         console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
-        // updatedContent is a object which content 2 props (text & json)
+        // updatedContent is an object which content 2 props (text & json)
         this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
         // Copy the updated content
         this._data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
@@ -150,7 +140,7 @@ export default class JsonEditor extends LitElement {
 
     getDefaultConfig() {
         return {
-            mode: "text",
+            mode: "text", // Two accepted values: text, tree.
             indentation: 4,
             readOnly: false,
             showDownloadButton: true

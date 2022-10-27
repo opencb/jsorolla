@@ -416,7 +416,7 @@ export default class RestEndpoint extends LitElement {
 
         if (param === "body") {
             // pass json as text
-            const jsonAsText = e.detail.value?.text? e.detail.value.text : JSON.stringify(e.detail.value.json, undefined, 4);
+            const jsonAsText = e.detail.value?.text ? e.detail.value.text : JSON.stringify(e.detail.value.json, undefined, 4);
             this.dataJson = {...this.dataJson, body: jsonAsText};
         }
     }

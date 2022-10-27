@@ -1162,12 +1162,11 @@ export default class DataForm extends LitElement {
         };
         const jsonParsed = UtilsNew.isObject(json) ? json: JSON.parse(json);
         return html`
-                <json-editor
-                    .data="${jsonParsed}"
-                    .config="${config}">
-                </json-editor>
-            `;
-
+            <json-editor
+                .data="${jsonParsed}"
+                .config="${config}">
+            </json-editor>
+        `;
     }
 
     _createTreeElement(element) {
