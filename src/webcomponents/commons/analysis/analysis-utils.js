@@ -1,9 +1,16 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
-import UtilsNew from "../../../core/utilsNew";
+import UtilsNew from "../../../core/utils-new";
 
 
 export default class AnalysisUtils {
+
+    // static check(status, message) {
+    //     return {
+    //         status: status,
+    //         message: message
+    //     };
+    // }
 
     static submit(id, promise, context) {
         promise
@@ -90,7 +97,6 @@ export default class AnalysisUtils {
                     visible: !ignoreList?.includes("panel")
                 },
             },
-
         ];
     }
 
@@ -101,19 +107,19 @@ export default class AnalysisUtils {
             description: description,
             // display: {},
             sections: [
-                // {
-                //     display: {},
-                //     elements: [
-                //         {
-                //             type: "notification",
-                //             text: "Some changes have been done in the form. Not saved, changes will be lost",
-                //             display: {
-                //                 visible: () => ...,
-                //                 notificationType: "warning",
-                //             },
-                //         },
-                //     ]
-                // },
+                {
+                    display: {},
+                    elements: [
+                        {
+                            type: "notification",
+                            text: check?.message || "",
+                            display: {
+                                visible: () => check ? !check.status : false,
+                                notificationType: "warning",
+                            },
+                        },
+                    ]
+                },
                 ...paramSections,
                 {
                     title: "Job Info",

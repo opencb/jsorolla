@@ -1,5 +1,5 @@
 import Region from "../../core/bioinfo/region.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class NavigationBar {
 
@@ -45,7 +45,7 @@ export default class NavigationBar {
                                 id="${this.prefix}RegionInput"
                                 class="form-control input-sm"
                                 placeholder="1:10000-20000"
-                                style="width:170px;display:inline-block;" 
+                                style="width:170px;display:inline-block;"
                             />
                             <span class="input-group-btn">
                                 <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">

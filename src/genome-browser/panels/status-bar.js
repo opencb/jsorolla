@@ -1,4 +1,4 @@
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import Region from "../../core/bioinfo/region.js";
 import GenomeBrowserConstants from "../genome-browser-constants.js";
 

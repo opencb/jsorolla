@@ -109,6 +109,10 @@ export default class BioinfoUtils {
                 // To make things easier the conversion of OpenCB Variant ID to Decipher ID must happen here
                 const decipherId = id.replace(/:/g, "-");
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
+            case "CELLBASE_V5.0":
+                return `https://ws.zettagenomics.com/cellbase/webservices/rest/v5.0/hsapiens/genomic/variant/${id}/annotation`;
+            case "CELLBASE_V5.1":
+                return `https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/hsapiens/genomic/variant/${id}/annotation`;
             case "ENSEMBL_GENOME_BROWSER":
                 if (assembly?.toUpperCase() === "GRCH38") {
                     return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;

@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../configuration/study-variant-config.js";

@@ -16,20 +16,29 @@
 
 import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row, index) {
+    static roleInCancerFormatter(value, row) {
         if (value) {
             const roles = new Set();
-            for (const evidenceIndex in value) {
-                const evidence = value[evidenceIndex];
-                if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                    const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
-                    roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+            for (const evidence of value) {
+                if (evidence?.rolesInCancer?.length > 0) {
+                    for (const roleInCancer of evidence.rolesInCancer) {
+                        if (roleInCancer && evidence.genomicFeature.geneName) {
+                            const roleInCancerText = roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : roleInCancer;
+                            roles.add(`${roleInCancerText} (${evidence.genomicFeature.geneName})`);
+                        }
+                    }
+                } else {
+                    // TODO Remove this legacy code
+                    if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
+                        const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                        roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+                    }
                 }
             }
             if (roles.size > 0) {
@@ -336,7 +345,8 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
-                const disabled = config.locked ? "disabled" : "";
+                const clinicalAnalysis = variantGrid.clinicalAnalysis || {};
+                const disabled = (clinicalAnalysis.locked || clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
@@ -534,6 +544,15 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
+                    case "2":
+                        if (mode === "alleles") {
+                            // TODO to decide how to display 1/2 alleles
+                            // alleles.push(variant?.studies[0]?.secondaryAlternates[0]?.reference ? variant?.studies[0]?.secondaryAlternates[0]?.reference : "-");
+                            alleles.push("*");
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
                     case "?":
                         if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
@@ -607,6 +626,10 @@ export default class VariantInterpreterGridFormatter {
                             res = "<span style='color: darkorange'>HET</span>";
                         }
                     }
+                    break;
+                case "1/2":
+                case "1|2":
+                    res = "<span style='color: red'>BIALLELIC_HET</span>";
                     break;
                 case "1/1":
                 case "1|1":

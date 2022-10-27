@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
 import "../../commons/forms/select-field-filter.js";
 
@@ -97,7 +97,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             case "clinicalSignificance":
             case "tier":
                 // Fix clinical significance value --> must be in uppercase
-                const value = param === "clinicalSignificance" ? e.detail.value.toUpperCase() : e.detail.value;
+                const value = (param === "clinicalSignificance" && e.detail.value) ? e.detail.value.toUpperCase() : e.detail.value;
                 this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
                 break;
             case "discussion.text":
@@ -182,6 +182,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         field: "acmg",
                         type: "object-list",
                         display: {
+                            // visible: !this.somatic,
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             // collapsable: false,
                             // maxNumItems: 5,
@@ -207,7 +208,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 field: "acmg[].classification",
                                 type: "custom",
                                 display: {
-                                    visible: !this.somatic,
                                     render: (acmg, dataFormFilterChange) => html`
                                         <acmg-filter
                                             .acmg="${acmg || []}"

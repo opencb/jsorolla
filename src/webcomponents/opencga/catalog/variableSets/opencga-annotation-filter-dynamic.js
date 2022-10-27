@@ -1,5 +1,5 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utilsNew.js";
+import UtilsNew from "../../../../core/utils-new.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";

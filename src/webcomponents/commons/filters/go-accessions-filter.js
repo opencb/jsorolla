@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../variant-modal-ontology.js";
 import "./ontology-autocomplete-filter.js";
 import NotificationUtils from "../utils/notification-utils.js";

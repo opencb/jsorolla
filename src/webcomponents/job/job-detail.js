@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./job-detail-log.js";
 import "./job-view.js";
 import "../commons/view/detail-tabs.js";

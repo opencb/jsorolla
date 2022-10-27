@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
@@ -81,7 +81,7 @@ export default class SampleGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -107,8 +107,7 @@ export default class SampleGrid extends LitElement {
         if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             const filters = {...this.query};
             // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
@@ -134,7 +133,7 @@ export default class SampleGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const _filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -143,8 +142,9 @@ export default class SampleGrid extends LitElement {
                         ...filters
                     };
                     // Store the current filters
-                    this.lastFilters = {..._filters};
-                    this.opencgaSession.opencgaClient.samples().search(_filters)
+                    this.lastFilters = {...this.filters};
+                    this.opencgaSession.opencgaClient.samples()
+                        .search(this.filters)
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
                             const individualIds = sampleResponse.getResults().map(sample => sample.individualId).filter(Boolean).join(",");
@@ -409,19 +409,19 @@ export default class SampleGrid extends LitElement {
     }
 
     async onDownload(e) {
+        // Activate the GIF
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...this.query,
-            limit: e.detail?.exportLimit ?? 1000,
-            skip: 0,
-            count: false,
-            exclude: "qualityControl,annotationSets"
-        };
 
-        this.opencgaSession.opencgaClient.samples().search(params)
+        const filters = {
+            ...this.filters,
+            skip: 0,
+            limit: 1000,
+            count: false
+        };
+        this.opencgaSession.opencgaClient.samples()
+            .search(filters)
             .then(response => {
                 const results = response.getResults();
                 if (results) {

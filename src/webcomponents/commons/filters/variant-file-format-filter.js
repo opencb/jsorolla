@@ -60,6 +60,8 @@ export default class VariantFileFormatFilter extends LitElement {
     opencgaSessionObserver() {
         this.depthIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
             .find(field => field.key === "DP" && field.source === "SAMPLE");
+        this.afIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
+            .find(field => field.key === "AF" && field.source === "SAMPLE");
         this.extVafIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
             .find(field => field.key === "EXT_VAF" && field.source === "SAMPLE");
         this._config = this.getDefaultConfig();
@@ -73,6 +75,11 @@ export default class VariantFileFormatFilter extends LitElement {
             depth ? this._sampleData.DP = depth : delete this._sampleData.DP;
             this.depthIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
                 .find(field => field.key === "DP" && field.source === "SAMPLE");
+
+            const af = sampleDataFilters.find(filter => filter.startsWith("AF"))?.replace("AF", "");
+            af ? this._sampleData.AF = af : delete this._sampleData.AF;
+            this.afIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
+                .find(field => field.key === "AF" && field.source === "SAMPLE");
 
             const extVaf = sampleDataFilters.find(filter => filter.startsWith("EXT_VAF"))?.replace("EXT_VAF", "");
             extVaf ? this._sampleData.EXT_VAF = extVaf : delete this._sampleData.EXT_VAF;
@@ -137,6 +144,17 @@ export default class VariantFileFormatFilter extends LitElement {
                             defaultValue: "",
                             display: {
                                 visible: () => this.depthIndex?.thresholds?.length > 0
+                            }
+                        },
+                        {
+                            name: "AF",
+                            field: "AF",
+                            type: "input-number",
+                            comparators: this.afIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
+                            allowedValues: this.afIndex?.thresholds,
+                            defaultValue: "",
+                            display: {
+                                visible: () => this.afIndex?.thresholds?.length > 0
                             }
                         },
                         {

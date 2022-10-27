@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";

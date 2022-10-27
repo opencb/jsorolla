@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";

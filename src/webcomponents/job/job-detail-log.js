@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
@@ -231,8 +231,8 @@ export default class JobDetailLog extends LitElement {
                             <i class="fas fa-align-left icon-padding"></i> Head
                         </button>
                         <button type="button" class="btn btn-default btn-small ${this.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                            <i class="fas fa-align-left icon-padding"></i> 
-                            Tail 
+                            <i class="fas fa-align-left icon-padding"></i>
+                            Tail
                             <i class="fas fa-sync-alt ${this.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
                         </button>
                     </div>

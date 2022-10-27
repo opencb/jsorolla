@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";

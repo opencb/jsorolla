@@ -18,13 +18,8 @@
  * limitations under the License.
  */
 
-// import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
-// see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
-
 import {html, LitElement} from "lit";
 import "./getting-started.js";
-import "./obsolete/opencga-breadcrumb.js";
-import "./obsolete/category-page.js";
 import "./iva-settings.js";
 
 // @dev[jsorolla]
@@ -32,8 +27,7 @@ import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
-import UtilsNew from "../../core/utilsNew.js";
-
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
@@ -131,7 +125,6 @@ class IvaApp extends LitElement {
         const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
-        _config.tools = tools;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
@@ -141,14 +134,6 @@ class IvaApp extends LitElement {
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
 
-        // Enable tools reading the configuration
-        for (const tool in _config.tools) {
-            if (UtilsNew.isNotUndefinedOrNull(_config.tools[tool].active)) {
-                _config.enabledComponents[tool] = _config.tools[tool].active;
-            }
-        }
-
-        // console.log("this.config.enabledComponents",_config.enabledComponents)
         const components = [
             "home",
             "gettingstarted",
@@ -260,9 +245,7 @@ class IvaApp extends LitElement {
             window.location.hash = this.tool;
         }
 
-
         // Other initialisations
-        this._isBreadcrumbVisible = false;
         // This manages the sample selected in each tool for updating the breadcrumb
         this.samples = [];
         this._samplesPerTool = {};

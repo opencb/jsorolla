@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
-import UtilsNew from "../../../core/utilsNew";
+import UtilsNew from "../../../core/utils-new";
 
 
 export default class SampleVariantStatsAnalysis extends LitElement {
@@ -99,6 +99,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
             individual: this.toolParams.individual?.split(",") || [],
             variantQuery: this.toolParams.variantQuery || {},
             index: this.toolParams.index ?? false,
+            indexId: this.toolParams.indexId || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -188,9 +189,15 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                         title: "Index",
                         field: "index",
                         type: "checkbox",
-                        display: {
-                        },
                     },
+                    {
+                        title: "Index ID",
+                        field: "indexId",
+                        type: "input-text",
+                        display: {
+                            disabled: !this.toolParams.index,
+                        },
+                    }
                 ]
             }
         ];

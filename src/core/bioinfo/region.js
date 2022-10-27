@@ -1,5 +1,5 @@
 import Utils from "../utils.js";
-import UtilsNew from "../utilsNew.js";
+import UtilsNew from "../utils-new.js";
 
 
 export default class Region {

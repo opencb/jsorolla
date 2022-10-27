@@ -18,10 +18,10 @@
 
 // Josemi 20220216 NOTE: The cellbase configuration is extracted from project config (see issue #173)
 // We keep this global configuration to be backward compatible with OpenCGA 2.1, but will be removed in future releases
-const cellbase = {
-    host: "https://ws.zettagenomics.com/cellbase",
-    version: "v5.1"
-};
+// const cellbase = {
+//     host: "https://ws.zettagenomics.com/cellbase",
+//     version: "v5.1"
+// };
 
 const hosts = [
     {
@@ -34,8 +34,12 @@ const hosts = [
     },
     {
         id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga-preprod"
-    }
+        url: "https://eglh.app.zettagenomics.com/opencga"
+    },
+    {
+        id: "test-reference",
+        url: "https://test.app.zettagenomics.com/reference/opencga"
+    },
 ];
 
 const opencga = {

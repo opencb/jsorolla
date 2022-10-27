@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -186,7 +186,15 @@ export default class SampleBrowser extends LitElement {
                         pageSize: 10,
                         pageList: [10, 25, 50],
                         multiSelection: false,
-                        showSelectCheckbox: false
+                        showSelectCheckbox: false,
+                        toolbar: {
+                            showNew: true,
+                            showColumns: true,
+                            showDownload: false,
+                            showExport: true,
+                            exportTabs: ["download", "link", "code"]
+                            // columns list for the dropdown will be added in grid components based on settings.table.columns
+                        },
                     }
                 },
                 detail: {

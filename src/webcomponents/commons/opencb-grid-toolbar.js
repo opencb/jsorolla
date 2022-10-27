@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
 
@@ -110,13 +110,6 @@ export default class OpencbGridToolbar extends LitElement {
 
     }
 
-    onShareLink() {
-        this.dispatchEvent(new CustomEvent("sharelink", {
-            detail: {
-            }, bubbles: true, composed: true
-        }));
-    }
-
     isTrue(value) {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
@@ -155,24 +148,6 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
-                            ${this._config.showColumns && this._config.columns.length ? html`
-                                <div class="btn-group columns-toggle-wrapper">
-                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu btn-sm checkbox-container">
-                                        ${(this._config?.columns || []).filter(item => item.eligible ?? true).map(item => html`
-                                            <li>
-                                                <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                    <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                    <label class="checkmark-label">${item.columnTitle || item.title}</label>
-                                                </a>
-                                            </li>
-                                        `)}
-                                    </ul>
-                                </div>
-                            ` : null}
-
                             ${this._config.showDownload ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
@@ -188,25 +163,49 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null}
 
+                            ${this._config.showNew ? html`
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                        ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
+                                    </button>
+
+                                    <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
+                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>New</span>
+                                    </a>
+                                </div>
+                            ` : null}
+
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
-                                        ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                        ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
                             ` : null}
 
-                            <!--Share URL-->
-                            ${this._config.showShareLink ? html`
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="${this.onShareLink}">
-                                    <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
-                                </button>
+                            ${this._config.showColumns && this._config.columns.length ? html`
+                                <div class="btn-group columns-toggle-wrapper">
+                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>Columns <span class="caret" style="margin-left: 2px"></span>
+                                    </button>
+                                    <ul class="dropdown-menu btn-sm checkbox-container">
+                                        ${(this._config?.columns || []).filter(item => item.eligible ?? true).map(item => html`
+                                            <li>
+                                                <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                    <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
+                                                    <label class="checkmark-label">${item.columnTitle || item.title}</label>
+                                                </a>
+                                            </li>
+                                        `)}
+                                    </ul>
+                                </div>
                             ` : null}
 
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
-                                        ${rightButton}
+                                    ${rightButton}
                                 </div>
                             `) : null}
                         </div>
@@ -223,21 +222,27 @@ export default class OpencbGridToolbar extends LitElement {
                             <h4 class="modal-title">Export</h4>
                         </div>
                         <div class="modal-body">
-                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}" @changeExportField="${this.onChangeExportField}"></opencga-export>
+                            <opencga-export
+                                .config="${this._config}"
+                                .query=${this.query}
+                                .opencgaSession="${this.opencgaSession}"
+                                @export="${this.onExport}"
+                                @changeExportField="${this.onChangeExportField}">
+                            </opencga-export>
                         </div>
                     </div>
                 </div>
             </div>
-
         `;
     }
 
     getDefaultConfig() {
         return {
             label: "records",
+            showNew: false,
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
+            showDownload: false,
             download: ["Tab", "JSON"],
-            showShareLink: false,
             buttons: ["columns", "download"],
             rightToolbar: {
                 // render
