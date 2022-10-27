@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
@@ -25,7 +25,7 @@ import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/section-filter.js";
 import "./forms/select-token-filter-static.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
 export default class OpencgaBrowserFilter extends LitElement {
 
@@ -87,21 +87,24 @@ export default class OpencgaBrowserFilter extends LitElement {
             "individualId": "INDIVIDUAL",
             "members": "INDIVIDUAL",
             "family": "FAMILY",
+            "jobId": "JOB",
             "input": "FILE",
             "output": "FILE",
         };
 
         // Select the right distinct field to be displayed
         this.filterToDistinctField = {
-            "phenotypes": "phenotypes.name",
-            "disorders": "disorders.name",
+            "phenotypes": "phenotypes.id,phenotypes.name",
+            "disorders": "disorders.id,disorders.name",
             "ethnicity": "ethnicity.id",
             "proband": "proband.id",
             "tool": "tool.id",
             "genes": "genes.id",
             "categories": "categories.name",
             "source": "source.name",
-            "tags": "tags"
+            "tags": "tags",
+            "sex": "sex.id",
+            "karyotypicSex": "karyotypicSex",
         };
     }
 
@@ -198,6 +201,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "members":
                 case "family":
                 case "input":
+                case "jobId":
                 case "output":
                     content = html`
                         <catalog-search-autocomplete
@@ -229,11 +233,13 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "genes":
                 case "tags":
                 case "source":
+                case "sex":
+                case "karyotypicSex":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
                             .queryField="${subsection.id}"
-                            .distinctField="${this.filterToDistinctField[subsection.id]}"
+                            .distinctFields="${this.filterToDistinctField[subsection.id]}"
                             .resource="${this.resource}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${subsection}"
@@ -241,9 +247,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </catalog-distinct-autocomplete>
                     `;
                     break;
-                case "sex":
                 case "type": // cohort, clinical
-                case "karyotypicSex":
                 case "affectationStatus":
                 case "lifeStatus":
                 case "format":

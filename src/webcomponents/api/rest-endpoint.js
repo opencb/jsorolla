@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import {RestClient} from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -40,10 +40,10 @@ export default class RestEndpoint extends LitElement {
     static get properties() {
         return {
             endpoint: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -140,7 +140,7 @@ export default class RestEndpoint extends LitElement {
                                     defaultValue: this.getDefaultValue(dataParameter),
                                     required: !!dataParameter.required,
                                     display: {
-                                        helpMessage: parameter.description
+                                        helpMessage: dataParameter.description
                                     }
                                 }
                             );
@@ -264,6 +264,7 @@ export default class RestEndpoint extends LitElement {
                             display: {
                                 render: () => html`
                                     <detail-tabs
+                                        .data="${{}}"
                                         .config="${this.getTabsConfig(bodyElementsForm)}"
                                         .mode="${DetailTabs.PILLS_MODE}">
                                     </detail-tabs>
@@ -385,7 +386,10 @@ export default class RestEndpoint extends LitElement {
         // Display object props from object. sample.source
         if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
             params.data.forEach(param => {
-                _body[param.parentName] = {..._body[param.parentName], [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""};
+                _body[param.parentName] = {
+                    ..._body[param.parentName],
+                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+                };
             });
         }
 
@@ -393,7 +397,10 @@ export default class RestEndpoint extends LitElement {
         if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
             let paramData = {};
             params.data.forEach(param => {
-                paramData = {...paramData, [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""};
+                paramData = {
+                    ...paramData,
+                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+                };
             });
             _body[params.name] = [paramData];
         }
@@ -415,7 +422,7 @@ export default class RestEndpoint extends LitElement {
                 //     }
                 // });
             } catch (error) {
-            // json parse errors may arise at the time of writing to the json field.
+                // json parse errors may arise at the time of writing to the json field.
                 return false;
             }
         }
@@ -426,7 +433,7 @@ export default class RestEndpoint extends LitElement {
         const param = field || e.detail.param;
         // If it contains more than a dot or If the form has nested object
         // ex. body.field.prop -> sample: body.source.name
-        if ((param.match(/\./g)||[]).length > 1) {
+        if ((param.match(/\./g) || []).length > 1) {
             // For param type Object
             const paramBody = param.replace("body.", "");
             this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
@@ -477,25 +484,35 @@ export default class RestEndpoint extends LitElement {
     }
 
     #postEndpoint(url, isForm) {
+        // Add Study
         url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
+
+        // Replace PATH params
         this.endpoint.parameters
             .filter(parameter => parameter.param === "path")
             .forEach(parameter => {
                 url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
             });
 
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.data[parameter.name]}`;
+            });
+
         try {
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: isForm? this.dataForm?.body : JSON.parse(this.dataJson.body),
+                data: isForm ? this.dataForm?.body : JSON.parse(this.dataJson.body),
                 method: "POST"
             };
 
             this.isLoading = true;
             this.requestUpdate();
             this.restClient.call(url, _options)
-                .then(response => {
+                .then(() => {
                     this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
                     this.dataForm = {};
                     this.data = UtilsNew.objectClone(this._data);
@@ -580,12 +597,13 @@ export default class RestEndpoint extends LitElement {
     }
 
     renderResponseClass(responseClass) {
-        return responseClass.includes("opencga") || responseClass.includes("biodata") ? html `
-            <a target="_blank" href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
-        ` : html `${this.endpoint.responseClass}`;
+        return responseClass.includes("opencga") || responseClass.includes("biodata") ? html`
+            <a target="_blank"
+               href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
+        ` : html`${this.endpoint.responseClass}`;
     }
 
-    openModal(e) {
+    openModal() {
         $(`#${this._prefix}export-modal`, this).modal("show");
     }
 
@@ -610,6 +628,97 @@ export default class RestEndpoint extends LitElement {
         console.log("data", this.dataJson);
     }
 
+    render() {
+        if (!this.endpoint) {
+            return;
+        }
+
+        return html`
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <!-- Header Section-->
+                    <h4>
+                        <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
+                            ${this.endpoint.method}
+                        </span>
+                        ${this.endpoint.path}
+                    </h4>
+                    <div class="help-block" style="margin: 0 10px">
+                        ${this.endpoint.description}
+                    </div>
+
+                    <!-- Response Section-->
+                    <div style="padding: 5px 10px">
+                        <h3>Response Type</h3>
+                        <div>
+                            <div>Type: ${this.endpoint.response} (Source code:
+                                ${this.renderResponseClass(this.endpoint.responseClass)})
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parameters Section-->
+                    <div style="padding: 5px 10px">
+                        <h3 style="display:inline-block;">Input Parameters</h3>
+                        <div style="padding: 20px">
+                            <data-form
+                                    .data="${this.data}"
+                                    .config="${this.form}"
+                                    @fieldChange="${e => this.onFormFieldChange(e)}"
+                                    @clear="${this.onClear}"
+                                    @submit="${this.onSubmit}">
+                            </data-form>
+                        </div>
+                    </div>
+
+                    <!-- Results Section-->
+                    <div style="padding: 5px 10px">
+                        <h3>Results</h3>
+                        <div style="padding: 20px">
+                            ${this.isLoading ? html`
+                                <loading-spinner></loading-spinner>
+                            ` : html`
+                                <json-viewer
+                                        .data="${this.result}"
+                                        .config="${this.form}">
+                                </json-viewer>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        ${this._config?.downloading ? html`
+                            <div class="overlay">
+                                <loading-spinner></loading-spinner>
+                            </div>` : null}
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export
+                                    .config="${
+                                            {
+                                                resource: "API",
+                                                exportTabs: ["link", "code"]
+                                            }
+                                    }"
+                                    .query="${this.data}"
+                                    .endpoint="${this.endpoint}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @export="${this.onExport}"
+                                    @changeExportField="${this.onChangeExportField}">
+                            </opencga-export>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
     getTabsConfig(elements) {
         const configForm = {
@@ -667,11 +776,11 @@ export default class RestEndpoint extends LitElement {
                     return html`
                         <!-- Body Forms -->
                         <data-form
-                            .data="${this.dataForm}"
-                            .config="${configForm}"
-                            @fieldChange="${e => this.onFormFieldChange(e)}"
-                            @clear="${e => this.onClear(e)}"
-                            @submit="${this.onSubmitForm}">
+                                .data="${this.dataForm}"
+                                .config="${configForm}"
+                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                @clear="${e => this.onClear(e)}"
+                                @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
                 }
@@ -685,15 +794,15 @@ export default class RestEndpoint extends LitElement {
                 icon: "",
                 render: () => {
                     return html`
-                    <!-- Body Json text area -->
-                    <data-form
-                        .data="${this.dataJson}"
-                        .config="${configJson}"
-                        @fieldChange="${e => this.onChangeJsonField(e)}"
-                        @clear="${e => this.onClear(e)}"
-                        @submit="${this.onSubmitJson}">
-                    </data-form>
-                `;
+                        <!-- Body Json text area -->
+                        <data-form
+                                .data="${this.dataJson}"
+                                .config="${configJson}"
+                                @fieldChange="${e => this.onChangeJsonField(e)}"
+                                @clear="${e => this.onClear(e)}"
+                                @submit="${this.onSubmitJson}">
+                        </data-form>
+                    `;
                 }
             });
         }
@@ -701,97 +810,6 @@ export default class RestEndpoint extends LitElement {
         return {
             items: [...items]
         };
-    }
-
-    render() {
-        if (!this.endpoint) {
-            return;
-        }
-
-        return html`
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <!-- Header Section-->
-                    <h4>
-                        <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
-                            ${this.endpoint.method}
-                        </span>
-                        ${this.endpoint.path}
-                    </h4>
-                    <div class="help-block" style="margin: 0 10px">
-                        ${this.endpoint.description}
-                    </div>
-
-                    <!-- Response Section-->
-                    <div style="padding: 5px 10px">
-                        <h3>Response Type</h3>
-                        <div>
-                            <div>Type: ${this.endpoint.response} (Source code: ${this.renderResponseClass(this.endpoint.responseClass)})</div>
-                        </div>
-                    </div>
-
-                    <!-- Parameters Section-->
-                    <div style="padding: 5px 10px">
-                            <h3 style="display:inline-block;">Input Parameters</h3>
-                            <!-- ${this.endpoint.method === "GET" ?html`
-                                <button style="margin-left:8px;margin-bottom:8px"  type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
-                                    <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
-                                </button>
-                            `:null} -->
-                        <div style="padding: 20px">
-                            <data-form
-                                .data="${this.data}"
-                                .config="${this.form}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
-                            </data-form>
-                        </div>
-                    </div>
-
-                    <!-- Results Section-->
-                    <div style="padding: 5px 10px">
-                        <h3>Results</h3>
-                        <div style="padding: 20px">
-                            ${this.isLoading ? html`
-                                <loading-spinner></loading-spinner>
-                            ` : html`
-                                <json-viewer
-                                    .data="${this.result}"
-                                    .config="${this.form}">
-                                </json-viewer>
-                            `}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        ${this._config?.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Export</h4>
-                        </div>
-                        <div class="modal-body">
-                            <opencga-export
-                                .config="${
-                                    {
-                                        resource: "API",
-                                        exportTabs: ["link", "code"]
-                                    }
-                                }"
-                                .query="${this.data}"
-                                .endpoint="${this.endpoint}"
-                                .opencgaSession="${this.opencgaSession}"
-                                @export="${this.onExport}"
-                                @changeExportField="${this.onChangeExportField}">
-                        </opencga-export>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
 }

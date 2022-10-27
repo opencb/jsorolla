@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
 import "../variable/variable-create.js";
 import "../variable/variable-update.js";

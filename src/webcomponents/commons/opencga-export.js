@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {
@@ -82,29 +82,28 @@ export default class OpencgaExport extends LitElement {
             "DISEASE_PANEL": "panelClient"
         };
 
+        this.outputFileFormats = {
+            "tab": "VCF",
+            "vep": "ENSEMBL_VEP",
+            "json": "JSON",
+        };
+
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
 
         this.tabs = ["download", "export", "link", "script"]; // default tabs to show
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        /* if (changedProperties.has("opencgaSession")) {
-        }*/
-
         if (changedProperties.has("query") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            if (this.config?.resource) {
-                document.querySelectorAll("code").forEach(block => {
-                //     // hljs.highlightBlock(block);
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
 
-                });
+            if (this.config?.resource) {
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
@@ -352,6 +351,7 @@ const client = new OpenCGAClient({
                     study: this.opencgaSession.study.fqn,
                     summary: true,
                     outputFileName: "variants",
+                    outputFileFormat: this.outputFileFormats[this.format],
                 };
                 const params = {
                     study: this.opencgaSession.study.fqn,
@@ -452,13 +452,6 @@ const client = new OpenCGAClient({
         }));
     }
 
-    getDefaultConfig() {
-        return {
-            exportNote: "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.\n (If you need all records, please use 'Export Query')",
-            exportLimit: 1000,
-        };
-    }
-
     render() {
         return html`
             <div>
@@ -554,14 +547,16 @@ const client = new OpenCGAClient({
                                 <h4 class="export-section-title">Select Output Format</h4>
                                 <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
-                                    <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
+                                    <span class="export-buttons-text">
+                                        ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
+                                    </span>
                                 </button>
-                                ${this.config.resource === "VARIANT" ? html`
+                                ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
                                     <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
                                         <span class="export-buttons-text">Ensembl VEP</span>
-                                    </button>` : null
-                                }
+                                    </button>
+                                ` : null}
                                 <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
@@ -690,6 +685,16 @@ const client = new OpenCGAClient({
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            exportNote: [
+                "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.",
+                "(If you need all records, please use 'Export Query')",
+            ].join("\n"),
+            exportLimit: 1000,
+        };
     }
 
 }

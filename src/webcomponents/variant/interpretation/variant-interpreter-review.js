@@ -127,8 +127,15 @@ export default class VariantInterpreterReview extends LitElement {
 
         // Check for clinicalAnalysis
         if (this.clinicalAnalysis) {
-            const type = this.clinicalAnalysis.type.toUpperCase();
+            // Get all VariantCaller types configured
+            const variantCallerTypes = new Set();
+            this.opencgaSession.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.forEach(vc => {
+                for (const type of vc?.types) {
+                    variantCallerTypes.add(type);
+                }
+            });
 
+            const type = this.clinicalAnalysis.type.toUpperCase();
             if (type === "CANCER") {
                 items.push(
                     {
@@ -164,75 +171,79 @@ export default class VariantInterpreterReview extends LitElement {
                     }
                 );
 
-                // TODO: add a condition for displaying CNV browser
-                items.push({
-                    id: "somatic-cnv-variants",
-                    name: "Somatic CNV Variants",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                            ?.filter(v => {
-                                const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                return sample && sample.somatic;
-                            })
-                            ?.filter(v => v.type === "COPY_NUMBER");
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header
-                                    class="bg-white"
-                                    title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
-                                </tool-header>
-                                <variant-interpreter-review-primary
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .clinicalVariants="${variants || []}"
-                                    .active="${active}"
-                                    .toolId="${"variantInterpreterCancerCNV"}"
-                                    .gridConfig="${{
-                                        somatic: true,
-                                        variantTypes: ["COPY_NUMBER", "CNV"],
-                                    }}"
-                                    .settings="${this.settings.browsers["CANCER_CNV"]}">
-                                </variant-interpreter-review-primary>
-                            </div>
-                        `;
-                    },
-                });
-                // TODO: add a condition for displaying rearrangements
-                items.push({
-                    id: "somatic-rearrangements",
-                    name: "Somatic Rearrangements Variants",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                            ?.filter(v => {
-                                const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                return sample && sample.somatic;
-                            })
-                            ?.filter(v => v.type === "BREAKEND");
-
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header
-                                    class="bg-white"
-                                    title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
-                                </tool-header>
-                                ${variants?.length > 0 ? html`
-                                    <variant-interpreter-rearrangement-grid
+                if (variantCallerTypes.has("COPY_NUMBER") || variantCallerTypes.has("CNV")) {
+                    items.push({
+                        id: "somatic-cnv-variants",
+                        name: "Somatic CNV Variants",
+                        render: (clinicalAnalysis, active, opencgaSession) => {
+                            const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                                ?.filter(v => {
+                                    const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                    const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                    return sample && sample.somatic;
+                                })
+                                ?.filter(v => v.type === "COPY_NUMBER");
+                            return html`
+                                <div class="col-md-10 col-md-offset-1">
+                                    <tool-header
+                                        class="bg-white"
+                                        title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
+                                    </tool-header>
+                                    <variant-interpreter-review-primary
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants || []}"
-                                        .review="${true}">
-                                    </variant-interpreter-rearrangement-grid>
-                                ` : html`
-                                    <div class="alert alert-warning">
-                                        <b>Warning</b>: there are not selected rearrangements to display.
-                                    </div>
-                                `}
-                            </div>
-                        `;
-                    },
-                });
+                                        .active="${active}"
+                                        .toolId="${"variantInterpreterCancerCNV"}"
+                                        .gridConfig="${{
+                                            somatic: true,
+                                            variantTypes: ["COPY_NUMBER", "CNV"],
+                                        }}"
+                                        .settings="${this.settings.browsers["CANCER_CNV"]}">
+                                    </variant-interpreter-review-primary>
+                                </div>
+                            `;
+                        },
+                    });
+                }
+
+                if (variantCallerTypes.has("BREAKEND")) {
+                    items.push({
+                        id: "somatic-rearrangements",
+                        name: "Somatic Rearrangements Variants",
+                        render: (clinicalAnalysis, active, opencgaSession) => {
+                            const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                                ?.filter(v => {
+                                    const sampleId = v.studies[0]?.samples[0]?.sampleId;
+                                    const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
+                                    return sample && sample.somatic;
+                                })
+                                ?.filter(v => v.type === "BREAKEND");
+
+                            return html`
+                                <div class="col-md-10 col-md-offset-1">
+                                    <tool-header
+                                        class="bg-white"
+                                        title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
+                                    </tool-header>
+                                    ${variants?.length > 0 ? html`
+                                        <variant-interpreter-rearrangement-grid
+                                            .opencgaSession="${opencgaSession}"
+                                            .clinicalAnalysis="${clinicalAnalysis}"
+                                            .clinicalVariants="${variants || []}"
+                                            .review="${true}">
+                                        </variant-interpreter-rearrangement-grid>
+                                    ` : html`
+                                        <div class="alert alert-warning">
+                                            <b>Warning</b>: there are not selected rearrangements to display.
+                                        </div>
+                                    `}
+                                </div>
+                            `;
+                        },
+                    });
+                }
+
             } else {
                 items.push(
                     {

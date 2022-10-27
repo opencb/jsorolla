@@ -1,6 +1,6 @@
 import {CellBaseClient} from "../core/clients/cellbase/cellbase-client.js";
 import Region from "../core/bioinfo/region.js";
-import UtilsNew from "../core/utilsNew.js";
+import UtilsNew from "../core/utils-new.js";
 import TrackListPanel from "./panels/tracklist-panel.js";
 import NavigationBar from "./panels/navigation-bar.js";
 import KaryotypePanel from "./panels/karyotype-panel.js";

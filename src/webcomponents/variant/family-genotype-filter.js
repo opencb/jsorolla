@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/select-field-filter.js";
 
 
@@ -34,13 +34,13 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
             genotype: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -50,7 +50,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovfc" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.modeOfInheritance = null;
 
         // TODO This is configurable via constants
@@ -79,6 +79,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             {separator: true},
             {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
             {id: "DE_NOVO", name: "De Novo"},
+            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM_REF)"},
             {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
         ];
 
@@ -95,7 +96,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.showModeOfInheritance = true;
         this.mode = "CUSTOM";
 
-        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "MENDELIAN_ERROR"];
+        this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "DE_NOVO_STRICT", "MENDELIAN_ERROR"];
         this.state = {};
         // keeps track of the samples with no GT selected
         this.noGtSamples = [];
@@ -112,7 +113,6 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     updated(changedProperties) {
-
         if (changedProperties.has("genotype")) {
             this.genotypeObserver();
         }
@@ -313,7 +313,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // Mode of Inheritance
-        if (this.modeOfInheritanceList.map(_ => _.id).includes(this.mode)) {
+        if (this.modeOfInheritanceList.some(item => item.id === this.mode)) {
             this.onModeOfInheritance(this.mode);
         }
 
@@ -390,7 +390,7 @@ export default class FamilyGenotypeFilter extends LitElement {
             <div id="opencga-variant-filter-clinical" class="row">
                 <div class="form-check col-md-12">
                     <div style="padding: 5px 5px 10px 5px; font-size: 14px">
-                        You can manually select sample genotypes or select a 
+                        You can manually select sample genotypes or select a
                         <span style="font-weight: bold;margin: 0px">Mode of Inheritance</span>
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
@@ -522,7 +522,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.noGtSamples.length ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle align-middle icon-padding"></i> 
+                            <i class="fas fa-info-circle align-middle icon-padding"></i>
                             All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
                         </div>
                     </div>
@@ -530,7 +530,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.showModeOfInheritance && this.errorState ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i> 
+                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i>
                             ${this.errorState}
                         </div>
                     </div>

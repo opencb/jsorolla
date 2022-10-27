@@ -15,10 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 
 export default class ClinicalAnalysisView extends LitElement {
@@ -26,7 +27,7 @@ export default class ClinicalAnalysisView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -35,38 +36,87 @@ export default class ClinicalAnalysisView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            clinicalAnalysis: {
                 type: Object
             },
             clinicalAnalysisId: {
                 type: String
             },
-            clinicalAnalysis: {
+            search: {
+                type: Boolean,
+            },
+            opencgaSession: {
                 type: Object
             },
             settings: {
                 type: Object
-            }
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
+        this.clinicalAnalysis = {};
+        this.search = false;
+        this.isLoading = false;
+
+        this.displayConfigDefault = {
+            collapsable: true,
+            titleVisible: false,
+            defaultValue: "-",
+            defaultLayout: "horizontal",
+            buttonsVisible: false,
+            layout: [
+                {
+                    id: "search",
+                    className: ""
+                },
+                {
+                    id: "",
+                    className: "row",
+                    sections: [
+                        {
+                            id: "detail",
+                            className: "col-md-6"
+                        },
+                        {
+                            id: "proband",
+                            className: "col-md-6"
+                        }
+                    ]
+                },
+                {
+                    id: "family",
+                    className: ""
+                },
+                {
+                    id: "files",
+                    className: ""
+                }
+            ]
+        };
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
-
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -82,27 +132,56 @@ export default class ClinicalAnalysisView extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+        if (this.clinicalAnalysisId && this.opencgaSession) {
+            const params = {
+                study: this.opencgaSession.study.fqn
+            };
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, params)
                 .then(response => {
-                    if (response.responses[0].numResults === 1) {
-                        this.clinicalAnalysis = response.responses[0].results[0];
-                        // this.requestUpdate();
-                    }
+                    this.clinicalAnalysis = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
+                .catch(reason => {
+                    this.clinicalAnalysis = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisSearch", this.clinicalAnalysis, {}, error);
+                    this.#setLoading(false);
                 });
+        } else {
+            this.clinicalAnalysis = {};
         }
     }
 
+    onFilterChange(e) {
+        this.clinicalAnalysisId = e.detail.value;
+    }
+
     render() {
-        return this.clinicalAnalysis ? html`
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.clinicalAnalysis?.id && this.search === false) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No clinical Analysis ID found.
+                </div>
+            `;
+        }
+
+        return html`
             <data-form
                 .data=${this.clinicalAnalysis}
                 .config="${this._config}">
             </data-form>
-        ` : "";
+        `;
     }
 
     getDefaultConfig() {
@@ -111,45 +190,39 @@ export default class ClinicalAnalysisView extends LitElement {
             icon: "",
             // comes from external settings
             // hiddenFields: [],
-            display: {
-                collapsable: true,
-                titleVisible: false,
-                defaultValue: "-",
-                defaultLayout: "horizontal",
-                buttonsVisible: false,
-                layout: [
-                    {
-                        id: "",
-                        className: "row",
-                        sections: [
-                            {
-                                id: "detail",
-                                className: "col-md-6"
-                            },
-                            {
-                                id: "proband",
-                                className: "col-md-6"
-                            }
-                        ]
-                    },
-                    {
-                        id: "family",
-                        className: ""
-                    },
-                    {
-                        id: "files",
-                        className: ""
-                    }
-
-                ]
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
+                {
+                    id: "search",
+                    title: "Search",
+                    display: {
+                        visible: job => !job?.id && this.search === true,
+                    },
+                    elements: [
+                        {
+                            title: "Clinical Analysis ID",
+                            // field: "clinicalAnalysisId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <catalog-search-autocomplete
+                                        .value="${this.clinicalAnalysis?.id}"
+                                        .resource="${"CLINICAL_ANALYSIS"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </catalog-search-autocomplete>`,
+                            },
+                        },
+                    ],
+                },
                 {
                     id: "detail",
                     title: "Details",
                     display: {
                         collapsed: false,
-                        titleWidth: 3
+                        titleWidth: 3,
+                        visible: clinicalAnalysis => clinicalAnalysis?.id
                     },
                     elements: [
                         {
@@ -220,9 +293,9 @@ export default class ClinicalAnalysisView extends LitElement {
                         },
                         {
                             title: "Assigned To",
-                            field: "analyst.assignee",
+                            field: "analyst.id",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
                             },
                         },
                         {
@@ -249,7 +322,8 @@ export default class ClinicalAnalysisView extends LitElement {
                     id: "proband",
                     title: "Proband",
                     display: {
-                        titleWidth: 3
+                        titleWidth: 3,
+                        visible: clinicalAnalysis => clinicalAnalysis?.id
                     },
                     elements: [
                         {
@@ -358,7 +432,7 @@ export default class ClinicalAnalysisView extends LitElement {
                     id: "family",
                     title: "Family",
                     display: {
-                        visible: data => data.type === "FAMILY",
+                        visible: clinicalAnalysis => clinicalAnalysis?.id && clinicalAnalysis.type === "FAMILY",
                     },
                     elements: [
                         {
@@ -419,6 +493,9 @@ export default class ClinicalAnalysisView extends LitElement {
                 {
                     id: "files",
                     title: "Files",
+                    display: {
+                        visible: clinicalAnalysis => clinicalAnalysis?.id,
+                    },
                     elements: [
                         {
                             title: "File",

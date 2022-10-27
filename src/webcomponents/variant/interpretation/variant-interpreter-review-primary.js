@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../../clinical/interpretation/clinical-interpretation-view.js";
@@ -131,6 +131,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             this._config.result.grid = {
                 ...this._config.result.grid,
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
+                showGenomeBrowserLink: false,
             };
         }
 
@@ -326,6 +327,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     detailView: true,
                     showReview: true,
                     showActions: true,
+                    showGenomeBrowserLink: false,
 
                     showSelectCheckbox: true,
                     multiSelection: false,

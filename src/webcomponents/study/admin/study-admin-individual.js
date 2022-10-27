@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../individual/individual-update.js";
 import "../../individual/individual-create.js";
 import "../../individual/individual-view.js";
@@ -106,8 +106,8 @@ export default class StudyAdminIndividual extends LitElement {
     }
 
     onIndividualSearch(e) {
-        if (e.detail.status.error) {
-            // inform
+        if (e.detail?.status?.error) {
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.individual = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -145,6 +145,7 @@ export default class StudyAdminIndividual extends LitElement {
                                     ` : html`
                                         <individual-view
                                             .individual="${this.individual}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @individualSearch="${e => this.onIndividualSearch(e)}">
                                         </individual-view>`}
@@ -210,6 +211,7 @@ export default class StudyAdminIndividual extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
+                    .data="${{}}"
                     .config=${this._config}
                     .mode=${DetailTabs.PILLS_MODE}
                     .opencgaSession=${this.opencgaSession}>

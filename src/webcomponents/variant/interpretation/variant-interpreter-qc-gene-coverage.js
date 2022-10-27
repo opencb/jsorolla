@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../alignment/gene-coverage-browser.js";
 
 class VariantInterpreterQcGeneCoverage extends LitElement {

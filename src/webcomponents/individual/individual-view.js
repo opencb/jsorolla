@@ -15,18 +15,20 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 export default class IndividualView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -36,68 +38,83 @@ export default class IndividualView extends LitElement {
     static get properties() {
         return {
             individual: {
-                type: Object
+                type: Object,
             },
             individualId: {
-                type: String
+                type: String,
+            },
+            search: {
+                type: Boolean,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.individual = {};
+        this.search = false;
+
         this.isLoading = false;
+        this.displayConfigDefault = {
+            collapsable: true,
+            titleVisible: false,
+            titleWidth: 2,
+            defaultValue: "-",
+            defaultLayout: "horizontal",
+            buttonsVisible: false,
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("individual")) {
-            // to update disorders if has more than one
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+        // to update disorders if it has more than one
+        // if (changedProperties.has("individual")) {
+        //     this._config = this.getDefaultConfig();
+        // }
         if (changedProperties.has("individualId")) {
-            this.isLoading = true;
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
-            const query = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
             let error;
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, params)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    this.isLoading = false;
-                    console.log("individual: ", this.individual);
                 })
-                .catch(function (reason) {
+                .catch(reason => {
                     this.individual = {};
                     error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
-                    this.notify(error);
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
+                    this.#setLoading(false);
                 });
-            this.individualId = "";
+        } else {
+            this.individual = {};
         }
     }
 
@@ -105,24 +122,18 @@ export default class IndividualView extends LitElement {
         this.individualId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("individualSearch", {
-            detail: {
-                value: this.individual,
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.individual?.id && this.search === false) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    Individual ID not found.
+                </div>
+            `;
         }
 
         return html`
@@ -137,24 +148,17 @@ export default class IndividualView extends LitElement {
         return Types.dataFormConfig({
             title: "Summary",
             icon: "",
-            display: {
-                collapsable: true,
-                titleVisible: false,
-                titleWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal",
-                buttonsVisible: false
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "Search",
                     display: {
-                        visible: individual => !individual?.id,
+                        visible: individual => !individual?.id && this.search === true,
                     },
                     elements: [
                         {
                             title: "Individual ID",
-                            field: "individualId",
+                            // field: "individualId",
                             type: "custom",
                             display: {
                                 render: () => html `
@@ -164,11 +168,10 @@ export default class IndividualView extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            }
-                        }
-                    ]
+                                    </catalog-search-autocomplete>`,
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "General",
@@ -188,17 +191,17 @@ export default class IndividualView extends LitElement {
                         },
                         {
                             title: "Name",
-                            field: "name"
+                            field: "name",
                         },
                         {
                             title: "Father ID",
                             field: "father.id",
-                            type: "basic"
+                            type: "basic",
                         },
                         {
                             title: "Mother ID",
                             field: "mother.id",
-                            type: "basic"
+                            type: "basic",
                         },
                         {
                             title: "Reported Sex (Karyotypic)",
@@ -207,7 +210,7 @@ export default class IndividualView extends LitElement {
                                 render: individual => `
                                     ${individual.sex?.id ?? individual.sex ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Inferred Karyotypic Sex",
@@ -220,7 +223,7 @@ export default class IndividualView extends LitElement {
                                         return "-";
                                     }
                                 },
-                            }
+                            },
                         },
                         {
                             title: "Ethnicity",
@@ -233,8 +236,8 @@ export default class IndividualView extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
                             title: "Phenotypes",
@@ -245,20 +248,24 @@ export default class IndividualView extends LitElement {
                                 render: phenotype => {
                                     let id = phenotype.id;
                                     if (phenotype.id.startsWith("HP:")) {
-                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                        id = html`
+                                            <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
+                                                ${phenotype.id}
+                                            </a>
+                                        `;
                                     }
                                     return html`${phenotype.name} (${id})`;
                                 },
-                                defaultValue: "N/A"
-                            }
+                                defaultValue: "N/A",
+                            },
                         },
                         {
                             title: "Life Status",
-                            field: "lifeStatus"
+                            field: "lifeStatus",
                         },
                         {
                             title: "Version",
-                            field: "version"
+                            field: "version",
                         },
                         {
                             title: "Status",
@@ -266,7 +273,7 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Creation Date",
@@ -274,7 +281,7 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Modification Date",
@@ -282,13 +289,13 @@ export default class IndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
-                            }
+                            },
                         },
                         {
                             title: "Description",
-                            field: "description"
-                        }
-                    ]
+                            field: "description",
+                        },
+                    ],
                 },
                 {
                     title: "Samples",
@@ -319,14 +326,14 @@ export default class IndividualView extends LitElement {
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
                                         },
-                                    }
+                                    },
                                 ],
-                                defaultValue: "No phenotypes found"
-                            }
-                        }
-                    ]
-                }
-            ]
+                                defaultValue: "No phenotypes found",
+                            },
+                        },
+                    ],
+                },
+            ],
         });
     }
 

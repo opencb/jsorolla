@@ -15,12 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
 import "../commons/view/signature-view.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class SampleCancerVariantStatsPlots extends LitElement {
 
@@ -210,6 +211,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             });
     }
 
+    onChangeDeletionAggregationStatsChart(e) {
+        e.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "changeDeletionAggregationStatsChart", e.detail.value);
+    }
+
     render() {
         return html`
             <div class="row">
@@ -249,8 +255,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                                 "Deletion-repeat": "#ff3030",
                                                 "Deletion-microhomology": "#8b1a1a",
                                             }}"
-                                            .config="${this.facetConfig}"
-                                            ?active="${true}">
+                                            ?active="${true}"
+                                            @changeChart="${this.onChangeDeletionAggregationStatsChart}">
                                         </simple-chart>
                                     </div>
                                 </div>
@@ -267,7 +273,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                                 "INVERSION": "#1c86ee",
                                                 "TRANSLOCATION": "#595959",
                                             }}"
-                                            .config="${this.facetConfig}"
                                             ?active="${true}">
                                         </simple-chart>
                                     </div>

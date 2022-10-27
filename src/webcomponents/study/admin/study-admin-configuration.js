@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../configuration/study-variant-config.js";
@@ -103,6 +103,7 @@ export default class StudyAdminConfiguration extends LitElement {
         return html`
         <div style="margin: 20px">
             <detail-tabs
+                    .data="${{}}"
                     .config="${this._config}"
                     .mode="${DetailTabs.PILLS_MODE}"
                     .opencgaSession="${this.opencgaSession}">

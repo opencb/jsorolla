@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class CatalogGridFormatter {
@@ -141,7 +141,7 @@ export default class CatalogGridFormatter {
     }
 
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
-        if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
+        if (clinicalAnalysisArray?.length > 0) {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `

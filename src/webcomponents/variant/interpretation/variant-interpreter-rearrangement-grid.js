@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -112,12 +112,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...this.config,
             };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            const defaultColumns = this._createDefaultColumns();
             this.toolbarConfig = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "CLINICAL_VARIANT",
             };
+            this.requestUpdate();
+            this.renderVariants();
         }
     }
 
@@ -246,6 +247,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         ...internalQuery,
                         includeSampleId: "true",
+                        includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
                         type: "BREAKEND"
                     };
 
@@ -352,21 +354,25 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return result;
     }
 
-    vcfDataFormatter(value, row, field, separator = " / ") {
-        if (row.studies?.length > 0) {
-            if (field.vcfColumn === "info") {
+    vcfDataFormatter(value, row, field) {
+        if (row?.studies?.length > 0) {
+            let source = "FILE";
+            if (field.variantCaller?.dataFilters) {
+                const dataFilter = field.variantCaller.dataFilters.find(filter => filter.id === field.key);
+                source = dataFilter?.source || "FILE";
+            } else {
+                // TODO Search in file.attributes to guess the source
+            }
+
+            if (source === "FILE") {
                 for (const file of row.studies[0].files) {
-                    if (field.key.length === 1) {
-                        if (file.data[field.key[0]]) {
-                            return file.data[field.key[0]];
-                        }
-                    } else {
-                        return `${file.data[field.key[0]] || "-"} ${separator} <span style="white-space: nowrap;">${file.data[field.key[1]] || "-"}</span>`;
+                    if (file.data[field.key]) {
+                        return file.data[field.key];
                     }
                 }
-            } else { // This must be FORMAT column
-                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === field.sample.id);
-                const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+            } else {
+                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === field.sampleId);
+                const index = row.studies[0].sampleDataKeys.findIndex(key => key === field.key);
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
                 }
@@ -403,78 +409,53 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     _createDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
-        let vcfDataColumns = [];
-        const vcfDataColumns2 = [];
-        const fileCallers = this.clinicalAnalysis.files.filter(file => file.format === "VCF" && file.software?.name).map(file => file.software.name);
-        if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
-            for (const caller of this._config.callers) {
-                if (fileCallers.includes(caller.id)) {
-                    // New Columns
-                    // eslint-disable-next-line no-empty
-                    if (caller.columns?.length > 0) {
+        const vcfDataColumns = {
+            vcf1: [],
+            vcf2: [],
+        };
+        const vcfDataColumnNames = [];
+        const variantTypes = new Set(this._config.variantTypes || []);
+        const fileCallers = (this.clinicalAnalysis?.files || [])
+            .filter(file => file.format === "VCF" && file.software?.name)
+            .map(file => file.software.name.toUpperCase());
 
+        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+            const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                .filter(vc => vc.somatic === this._config.somatic)
+                .filter(vc => vc.types.some(type => variantTypes.has(type)));
+
+            variantCallers.forEach(variantCaller => {
+                if (fileCallers.includes(variantCaller.id.toUpperCase())) {
+                    if (!vcfDataColumnNames.includes(variantCaller.id)) {
+                        vcfDataColumnNames.push(variantCaller.id);
                     }
-                    // INFO column
-                    if (caller.info?.length > 0) {
-                        for (let i = 0; i < caller.info.length; i++) {
-                            vcfDataColumns.push({
-                                id: caller.info[i].name.toLowerCase().replace(/\s/g, ""),
-                                title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
+                    (variantCaller.columns || []).forEach(column => {
+                        ["vcf1", "vcf2"].forEach((name, index) => {
+                            const field = {
+                                key: column,
+                                sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
+                                variantCaller: variantCaller,
+                            };
+                            vcfDataColumns[name].push({
+                                id: column.replace("EXT_", ""),
+                                title: column.replace("EXT_", ""),
+                                field: field,
                                 rowspan: 1,
                                 colspan: 1,
-                                formatter: (value, row) => this.vcfDataFormatter(value, row[0], {
-                                    vcfColumn: "info",
-                                    key: caller.info[i].fields
-                                }, caller.info[i].separator),
-                                halign: "center"
+                                formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
+                                halign: "center",
                             });
-                        }
-
-                        for (let i = 0; i < caller.info.length; i++) {
-                            vcfDataColumns2.push({
-                                id: caller.info[i].name.toLowerCase().replace(/\s/g, ""),
-                                title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
-                                rowspan: 1,
-                                colspan: 1,
-                                formatter: (value, row) => this.vcfDataFormatter(value, row[1], {
-                                    vcfColumn: "info",
-                                    key: caller.info[i].fields
-                                }, caller.info[i].separator),
-                                halign: "center"
-                            });
-                        }
-                    }
-
-                    // FORMAT column
-                    if (caller.format?.length > 0) {
-                        for (let i = 0; i < caller.format.length; i++) {
-                            vcfDataColumns.push({
-                                id: caller.format[i].toLowerCase().replace(/\s/g, ""),
-                                title: caller.format[i],
-                                field: {
-                                    vcfColumn: "format",
-                                    // sample: samples[0],
-                                    sample: this.clinicalAnalysis.proband.samples[0],
-                                    key: caller.format[i]
-                                },
-                                rowspan: 1,
-                                colspan: 1,
-                                formatter: this.vcfDataFormatter,
-                                halign: "center"
-                            });
-                        }
-                    }
+                        });
+                    });
                 }
-            }
+            });
         }
+
         // IMPORTANT: empty columns are not supported in boostrap-table,
         // we need to create an empty not visible column when no VCF file data is configured.
-        if (!vcfDataColumns || vcfDataColumns.length === 0) {
-            vcfDataColumns = [
-                {
-                    visible: false
-                }
-            ];
+        if (!vcfDataColumns.vcf1 || vcfDataColumns.vcf1.length === 0) {
+            vcfDataColumns.vcf1 = [{visible: false}];
+            vcfDataColumns.vcf2 = [{visible: false}];
         }
 
         // Prepare Grid columns
@@ -522,56 +503,19 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
                     halign: "center"
                 },
-                // {
-                //     title: "SVCLASS",
-                //     // field: "type",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row) => {
-                //         return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "SVCLASS", "INFO")}</div>`;
-                //     },
-                //     halign: "center"
-                // },
-                {
-                    title: "Assembly<br>Score",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "BAS", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
-                },
-                {
-                    title: "CN Flag",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "CNCH", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
-                },
                 {
                     title: "VCF Data 1",
                     rowspan: 1,
-                    colspan: vcfDataColumns?.length,
+                    colspan: vcfDataColumns.vcf1?.length,
                     halign: "center",
-                    visible: vcfDataColumns?.length > 1
+                    visible: vcfDataColumns.vcf1?.length > 1
                 },
                 {
                     title: "VCF Data 2",
                     rowspan: 1,
-                    colspan: vcfDataColumns2?.length,
+                    colspan: vcfDataColumns.vcf2?.length,
                     halign: "center",
-                    visible: vcfDataColumns2?.length > 1
-                },
-                {
-                    title: "Fusion Flag",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "FFV", "INFO") || "-"}</div>`;
-                    },
-                    halign: "center"
+                    visible: vcfDataColumns.vcf2?.length > 1
                 },
                 {
                     title: `Interpretation
@@ -623,8 +567,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
             ],
             [
-                ...vcfDataColumns,
-                ...vcfDataColumns2,
+                ...vcfDataColumns.vcf1,
+                ...vcfDataColumns.vcf2,
                 {
                     title: "Cohorts",
                     field: "cohort",
@@ -685,146 +629,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ]
         ];
 
-        // update columns dynamically
-        this._updateTableColumns(_columns);
         return _columns;
-    }
-
-    _updateTableColumns(_columns) {
-        if (!_columns) {
-            return;
-        }
-
-        if (this.clinicalAnalysis && (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY")) {
-            // Add Samples
-            const samples = [];
-            const sampleInfo = {};
-            if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
-                for (const member of this.clinicalAnalysis.family.members) {
-                    if (member.samples && member.samples.length > 0) {
-                        // Proband must tbe the first column
-                        if (member.id === this.clinicalAnalysis.proband.id) {
-                            samples.unshift(member.samples[0]);
-                        } else {
-                            samples.push(member.samples[0]);
-                        }
-                        sampleInfo[member.samples[0].id] = {
-                            proband: member.id === this.clinicalAnalysis.proband.id,
-                            affected: member.disorders && member.disorders.length > 0 && member.disorders[0].id === this.clinicalAnalysis.disorder.id,
-                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id][member.id]?.toLowerCase(),
-                            sex: member.sex
-                        };
-                    }
-                }
-            } else {
-                if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
-                    samples.push(this.clinicalAnalysis.proband.samples[0]);
-                    sampleInfo[this.clinicalAnalysis.proband.samples[0].id] = {
-                        proband: true,
-                        affected: this.clinicalAnalysis.proband.disorders && this.clinicalAnalysis.proband.disorders.length > 0,
-                        role: "proband",
-                        sex: this.clinicalAnalysis.proband.sex
-                    };
-                }
-            }
-
-            if (samples.length > 0) {
-                _columns[0].splice(4, 0, {
-                    id: "zygosity",
-                    title: "Sample Genotypes",
-                    field: "zygosity",
-                    rowspan: 1,
-                    colspan: samples.length,
-                    align: "center"
-                });
-
-                for (let i = 0; i < samples.length; i++) {
-                    let color = "black";
-                    if (sampleInfo[samples[i].id].proband) {
-                        color = "darkred";
-                        if (UtilsNew.isEmpty(sampleInfo[samples[i].id].role)) {
-                            sampleInfo[samples[i].id].role = "proband";
-                        }
-                    }
-
-                    let affected = "<span>UnAff.</span>";
-                    if (sampleInfo[samples[i].id].affected) {
-                        affected = "<span style='color: red'>Aff.</span>";
-                    }
-
-                    _columns[1].splice(i, 0, {
-                        id: samples[i].id,
-                        title: `
-                            <div style="color:${color};word-break:break-all;max-width:192px;white-space:break-spaces;">${samples[i].id}</div>
-                            <div style="color:${color};font-style:italic;">${sampleInfo[samples[i].id].role}, ${affected}</div>
-                        `,
-                        field: {
-                            memberIdx: i,
-                            memberName: samples[i].id,
-                            sampleId: samples[i].id,
-                            quality: this._config.quality,
-                            clinicalAnalysis: this.clinicalAnalysis,
-                            config: this._config
-                        },
-                        rowspan: 1,
-                        colspan: 1,
-                        formatter: (value, row) => VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row[0]),
-                        align: "center",
-                        nucleotideGenotype: true
-                    });
-                }
-            }
-        }
-
-        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
-            // Add sample columns
-            let samples = null;
-            if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
-                // We only render somatic sample
-                if (this.query && this.query.sample) {
-                    samples = [];
-                    const _sampleGenotypes = this.query.sample.split(";");
-                    for (const sampleGenotype of _sampleGenotypes) {
-                        const sampleId = sampleGenotype.split(":")[0];
-                        samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
-                    }
-                } else {
-                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
-                }
-
-                _columns[0].splice(4, 0, {
-                    id: "sampleGenotypes",
-                    title: "Sample Genotypes",
-                    rowspan: 1,
-                    colspan: samples.length,
-                    align: "center"
-                });
-                for (let i = 0; i < samples.length; i++) {
-                    const sample = samples[i];
-                    const color = sample?.somatic ? "darkred" : "black";
-
-                    _columns[1].splice(i, 0, {
-                        id: sample.id,
-                        title: `<span>${sample.id}</span><br>
-                                <span class="help-block" style="margin: 0px">PS / RC</span>`,
-                        field: {
-                            sampleId: sample.id,
-                            quality: this._config.quality,
-                            config: this._config,
-                            clinicalAnalysis: this.clinicalAnalysis
-                        },
-                        rowspan: 1,
-                        colspan: 1,
-                        // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
-                        formatter: (value, row) => {
-                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`;
-                        },
-                        align: "center",
-                        nucleotideGenotype: true
-                    });
-                }
-            }
-        }
     }
 
     onActionClick(e, value, row) {
@@ -1047,15 +852,18 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>
-                `,
-            }
-        ];
+        if (this._config?.showSettings) {
+            return [
+                {
+                    render: () => html`
+                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        </button>
+                    `,
+                }
+            ];
+        }
+        return [];
     }
 
     render() {
@@ -1141,6 +949,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             showExport: true,
+            showSettings: true,
             detailView: true,
             showReview: true,
             showSelectCheckbox: false,
@@ -1194,6 +1003,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             evidences: {
                 showSelectCheckbox: true,
             },
+            somatic: false,
+            variantTypes: [],
         };
     }
 

@@ -4,7 +4,7 @@ import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
 import "./user-password-change.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 export default class UserProfile extends LitElement {
 
@@ -60,6 +60,7 @@ export default class UserProfile extends LitElement {
                     </div>
                     <div class="col-md-8">
                         <detail-tabs
+                            .data="${{}}"
                             .config="${this.config}"
                             .opencgaSession="${this.opencgaSession}">
                         </detail-tabs>

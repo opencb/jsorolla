@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
@@ -42,12 +42,12 @@ export default class CohortGrid extends LitElement {
             query: {
                 type: Object
             },
+            active: {
+                type: Boolean
+            },
             config: {
                 type: Object
             },
-            active: {
-                type: Boolean
-            }
         };
     }
 
@@ -75,14 +75,13 @@ export default class CohortGrid extends LitElement {
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
-        // this._columns = this._getDefaultColumns();
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
             resource: "COHORT",
-            columns: this._getDefaultColumns()[0]
+            columns: this._getDefaultColumns()
         };
 
         this.renderTable(this.active);
@@ -136,7 +135,8 @@ export default class CohortGrid extends LitElement {
                         include: "id,creationDate,status,type,numSamples",
                         ...filters
                     };
-                    this.opencgaSession.opencgaClient.cohorts().search(_filters)
+                    this.opencgaSession.opencgaClient.cohorts()
+                        .search(_filters)
                         .then(res => params.success(res))
                         .catch(e => {
                             console.error(e);
@@ -177,6 +177,7 @@ export default class CohortGrid extends LitElement {
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
             });
         }
+        this.requestUpdate();
     }
 
     onColumnChange(e) {
@@ -231,7 +232,10 @@ export default class CohortGrid extends LitElement {
     }
 
     async onDownload(e) {
-        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.toolbarConfig = {
+            ...this.toolbarConfig,
+            downloading: true
+        };
         this.requestUpdate();
         await this.updateComplete;
         const params = {
@@ -242,7 +246,8 @@ export default class CohortGrid extends LitElement {
             skipCount: true,
             include: "id,creationDate,status,type,samples"
         };
-        this.opencgaSession.opencgaClient.cohorts().search(params)
+        this.opencgaSession.opencgaClient.cohorts()
+            .search(params)
             .then(response => {
                 const results = response.getResults();
                 if (results) {
@@ -269,31 +274,12 @@ export default class CohortGrid extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.toolbarConfig = {
+                    ...this.toolbarConfig,
+                    downloading: false
+                };
                 this.requestUpdate();
             });
-    }
-
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-            customAnnotations: {
-                title: "Custom Annotation",
-                fields: []
-            },
-            // it comes from external settings and it is used in _getDefaultColumns()
-            // columns: []
-        };
     }
 
     render() {
@@ -306,13 +292,36 @@ export default class CohortGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : ""
-            }
+                </opencb-grid-toolbar>
+            ` : ""}
 
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}CohortBrowserGrid"></table>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            detailView: false,
+            detailFormatter: null, // function with the detail formatter
+            multiSelection: false,
+            showToolbar: true,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+            customAnnotations: {
+                title: "Custom Annotation",
+                fields: []
+            },
+            // It comes from external settings, and it is used in _getDefaultColumns()
+            // columns: []
+        };
     }
 
 }

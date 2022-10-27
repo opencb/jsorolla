@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -61,23 +61,29 @@ export default class ClinicalAnalysisGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
+                changedProperties.has("query") ||
+                changedProperties.has("config") ||
+                changedProperties.has("active")) &&
             this.active) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        // With each property change we must update config and create the columns again. No extra checks are needed.
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
@@ -179,18 +185,37 @@ export default class ClinicalAnalysisGrid extends LitElement {
             const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
 
             return `
-                <div style="margin: 5px 0px">
+                <div style="margin: 5px 0">
                     <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
                         ${row.id}
                         ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
                     </a>
                 </div>
-                <div style="margin: 5px 0px" data-cy="case-type">
+                <div style="margin: 5px 0" data-cy="case-type">
                     <span class="help-block">${row.type}</span>
                 </div>
             `;
         }
 
+        return "-";
+    }
+
+    probandFormatter(value, row) {
+        if (row.proband) {
+            const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
+            return `
+                <div style="margin: 5px 0">
+                    <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${row.proband?.id || "-"}</span>
+                    <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${samplesHtml})</span>
+                </div>
+                ${row.family?.id ? `
+                    <div>
+                        <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
+                        <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${row.family.members?.length || 0} members)</span>
+                    </div>
+                ` : ""}
+            `;
+        }
         return "-";
     }
 
@@ -275,7 +300,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0px;">
+                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0;">
                         ${currentPriorityText}
                     </span>
                     <span class="caret"></span>
@@ -458,45 +483,53 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
             },
+            // {
+            //     id: "probandId",
+            //     title: "Proband and Samples",
+            //     field: "proband",
+            //     halign: this._config.header.horizontalAlign,
+            //     valign: "middle",
+            //     formatter: proband => `
+            //         <div>
+            //             <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
+            //         </div>
+            //         <div>
+            //             <span class="help-block" style="margin: 5px 0">
+            //                 ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
+            //             </span>
+            //         </div>
+            //     `,
+            // },
             {
                 id: "probandId",
-                title: "Proband and Samples",
+                title: "Proband (Sample) and Family",
                 field: "proband",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: proband => `
-                    <div>
-                        <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
-                    </div>
-                    <div>
-                        <span class="help-block" style="margin: 5px 0">
-                            ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
-                        </span>
-                    </div>
-                `,
+                formatter: (value, row) => this.probandFormatter(value, row),
             },
-            {
-                id: "familyId",
-                title: "Family (#members)",
-                field: "family.id",
-                halign: this._config.header.horizontalAlign,
-                valign: "middle",
-                formatter: (value, row) => {
-                    if (row.family?.id && row.family?.members?.length) {
-                        return `
-                            <div>
-                                <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
-                            </div>
-                            <div>
-                                <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>
-                            </div>
-                        `;
-                    }
-
-                    // No family found
-                    return "-";
-                }
-            },
+            // {
+            //     id: "familyId",
+            //     title: "Family (#members)",
+            //     field: "family.id",
+            //     halign: this._config.header.horizontalAlign,
+            //     valign: "middle",
+            //     formatter: (value, row) => {
+            //         if (row.family?.id && row.family?.members?.length) {
+            //             return `
+            //                 <div>
+            //                     <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
+            //                 </div>
+            //                 <div>
+            //                     <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
+            //                 </div>
+            //             `;
+            //         }
+            //
+            //         // No family found
+            //         return "-";
+            //     }
+            // },
             {
                 id: "disorderId",
                 title: "Clinical Condition / Panel",
@@ -507,7 +540,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
                         <div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
-                        <div style="margin: 5px 0px">${panelHtml}</div>
+                        <div style="margin: 5px 0">${panelHtml}</div>
                     `;
                 },
             },
@@ -591,6 +624,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             _columns.push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
@@ -605,7 +639,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
                     // Generate actions dropdown
                     return `
-                        <div class="dropdown" align="center">
+                        <div class="dropdown">
                             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                 <span>Actions</span>
@@ -644,9 +678,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         </div>
                     `;
                 },
+                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this)
-                }
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
@@ -682,6 +718,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
     download(restResponse, format = "JSON") {
         const result = restResponse.getResults();
         if (result) {
+            const study = this.opencgaSession.study.id;
+            const filename = result.length > 1 ? `clinical-analysis-${study}` : `${result[0].id}-${study}`;
             // Check if user clicked in Tab or JSON format
             if (format?.toUpperCase() === "TAB") {
                 const dataString = [
@@ -699,10 +737,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         row.creationDate ? CatalogGridFormatter.dateFormatter(row.creationDate) : "-"
                     ].join("\t")),
                 ];
-                UtilsNew.downloadData([dataString.join("\n")], result[0].id + ".tsv", "text/plain");
+                UtilsNew.downloadData([dataString.join("\n")], filename + ".tsv", "text/plain");
             } else {
                 const json = JSON.stringify(result, null, "\t");
-                UtilsNew.downloadData(json, result[0].id + ".json", "application/json");
+                UtilsNew.downloadData(json, filename + ".json", "application/json");
             }
         } else {
             console.error("Error in result format");
@@ -745,7 +783,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            // it comes from external settings and it is used in _getDefaultColumns()
+            // It comes from external settings, and it is used in _getDefaultColumns()
             // columns: []
         };
     }

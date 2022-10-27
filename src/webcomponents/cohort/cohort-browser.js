@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
 import "./cohort-detail.js";
@@ -216,8 +216,12 @@ export default class CohortBrowser extends LitElement {
                                 return html`
                                     <sample-grid
                                         .opencgaSession="${opencgaSession}"
-                                        .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                        .config="${{showSelectCheckbox: false}}"
+                                        .query="${{
+                                            cohortIds: cohort.id,
+                                        }}"
+                                        .config="${{
+                                            showSelectCheckbox: false,
+                                        }}"
                                         .active="${active}">
                                     </sample-grid>
                                 `;

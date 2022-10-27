@@ -17,8 +17,9 @@
 import {LitElement, html} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils";
 import "../commons/tool-header.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -28,7 +29,8 @@ export default class IndividualUpdate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,21 +48,33 @@ export default class IndividualUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this.individual = {};
         this.updateParams = {};
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("individual")) {
-            this.individualObserver();
+            this.initOriginalObject();
         }
     }
 
@@ -68,30 +82,44 @@ export default class IndividualUpdate extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    individualObserver() {
+    initOriginalObject() {
         if (this.individual) {
             this._individual = UtilsNew.objectClone(this.individual);
         }
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
-            const query = {
+        if (this.individualId && this.opencgaSession) {
+            const params = {
                 study: this.opencgaSession.study.fqn,
             };
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, params)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
+                    this.initOriginalObject();
                 })
                 .catch(reason => {
+                    this.individual = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...params}}, error);
+                    this.#setLoading(false);
                 });
+        } else {
+            this.individual = {};
         }
     }
 
@@ -115,7 +143,16 @@ export default class IndividualUpdate extends LitElement {
             case "population.description":
             case "status.name":
             case "status.description":
-            // case "dateOfBirth": Problem
+                // case "dateOfBirth": Problem
+                this.updateParams = FormUtils.updateObjectParams(
+                    this._individual,
+                    this.individual,
+                    this.updateParams,
+                    param,
+                    e.detail.value);
+                break;
+            case "dateOfBirth":
+                e.detail.value = e.detail.value.substring(0, 8);
                 this.updateParams = FormUtils.updateObjectParams(
                     this._individual,
                     this.individual,
@@ -138,7 +175,7 @@ export default class IndividualUpdate extends LitElement {
                     this._individual,
                     this.individual,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value
                 );
                 break;
@@ -147,32 +184,43 @@ export default class IndividualUpdate extends LitElement {
     }
 
     onClear() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.individual = UtilsNew.objectClone(this._individual);
+        this._config = this.getDefaultConfig();
         this.updateParams = {};
         this.individualId = "";
+        this.individual = UtilsNew.objectClone(this._individual);
     }
 
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET",
-            disordersAction: "SET"
+            disordersAction: "SET",
+            includeResult: true
         };
-        console.log("individualId", this.individual.id, "updateParams:", this.updateParams, "param:", params);
+        let error;
+        this.#setLoading(true);
+        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
+        //  Remove when form-utils.js revisited
+        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.individual[key]);
         this.opencgaSession.opencgaClient.individuals()
             .update(this.individual.id, this.updateParams, params)
-            .then(() => {
-                // TODO get individual from database, ideally it should be returned by OpenCGA
-                this._individual = UtilsNew.objectClone(this.individual);
+            .then(response => {
+                this._individual = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Individual Updated",
+                    title: "Individual Update",
                     message: "Individual updated correctly",
                 });
             })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            .catch(reason => {
+                this.individual = {};
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "individualUpdate", this.individual, {}, error);
+                this.#setLoading(false);
             });
     }
 
@@ -195,6 +243,19 @@ export default class IndividualUpdate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.individual?.id) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    The sample does not have an Individual ID.
+                </div>
+            `;
+        }
+
         return html`
             <data-form
                 .data="${this.individual}"
@@ -211,12 +272,7 @@ export default class IndividualUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -227,19 +283,20 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
-                            }
+                            },
                         },
                         {
                             title: "Individual ID",
                             field: "id",
                             type: "input-text",
                             display: {
+                                disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.individual.creationDate? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate):"No creation date",
+                                helpMessage: this.individual.creationDate ? "Created on " + UtilsNew.dateFormatter(this.individual.creationDate) : "No creation date",
                                 help: {
                                     text: "short individual id for..."
                                 },
-                            }
+                            },
                         },
                         {
                             title: "Name",
@@ -247,7 +304,7 @@ export default class IndividualUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "individual name..."
-                            }
+                            },
                         },
                         {
                             title: "Father ID",
@@ -274,7 +331,7 @@ export default class IndividualUpdate extends LitElement {
                                             })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Mother ID",
@@ -293,12 +350,12 @@ export default class IndividualUpdate extends LitElement {
                                             this.onFieldChange({
                                                 detail: {
                                                     param: "mother",
-                                                    value: {id: e.detail.value}
+                                                    value: {id: e.detail.value},
                                                 }
                                             })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Date of Birth",
@@ -306,7 +363,7 @@ export default class IndividualUpdate extends LitElement {
                             type: "input-date",
                             display: {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
+                            },
                         },
                         {
                             title: "Sex",
@@ -324,7 +381,7 @@ export default class IndividualUpdate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "sex")}">
                                     </ontology-term-annotation-update>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Ethnicity",
@@ -342,29 +399,29 @@ export default class IndividualUpdate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
                                     </ontology-term-annotation-update>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Karyotypic Sex",
                             field: "karyotypicSex",
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Life Status",
                             field: "lifeStatus",
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                            display: {}
+                            display: {},
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Location Info",
@@ -373,33 +430,33 @@ export default class IndividualUpdate extends LitElement {
                             title: "Address",
                             field: "location.address",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Portal Code",
                             field: "location.postalCode",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "City",
                             field: "location.city",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "State",
                             field: "location.state",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Country",
                             field: "location.country",
                             type: "input-text",
-                            display: {}
-                        }
-                    ]
+                            display: {},
+                        },
+                    ],
                 },
                 {
                     title: "Population Info",
@@ -408,13 +465,13 @@ export default class IndividualUpdate extends LitElement {
                             title: "Population Name",
                             field: "population.name",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
-                            display: {}
+                            display: {},
                         },
                         {
                             title: "Populaton Description",
@@ -423,9 +480,9 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "add a description...",
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 // {
                 //     title: "Phenotypes",
@@ -488,7 +545,7 @@ export default class IndividualUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add phenotype ID...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "name",
@@ -496,7 +553,7 @@ export default class IndividualUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a name...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Source",
@@ -504,15 +561,16 @@ export default class IndividualUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add a source...",
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
                                     type: "input-num",
+                                    allowedValues: [0],
                                     display: {
                                         placeholder: "Add an age of onset..."
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Status",
@@ -521,7 +579,7 @@ export default class IndividualUpdate extends LitElement {
                                     allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                                     display: {
                                         placeholder: "Select a status..."
-                                    }
+                                    },
                                 },
                                 {
                                     title: "Description",
@@ -530,11 +588,11 @@ export default class IndividualUpdate extends LitElement {
                                     display: {
                                         rows: 3,
                                         placeholder: "Add a description..."
-                                    }
+                                    },
                                 },
-                            ]
+                            ],
                         },
-                    ]
+                    ],
                 },
                 // {
                 //     title: "Disorders",
@@ -624,9 +682,9 @@ export default class IndividualUpdate extends LitElement {
                                 },
                             ]
                         },
-                    ]
+                    ],
                 },
-            ]
+            ],
         });
     }
 

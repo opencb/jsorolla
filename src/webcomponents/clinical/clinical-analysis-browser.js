@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -70,7 +70,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...(this.settings || {}),
-            ...(this.config || {})
+            ...(this.config || {}),
         };
 
         // merge filter list, canned filters, detail tabs

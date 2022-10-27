@@ -19,15 +19,17 @@ import FormUtils from "../commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class DiseasePanelUpdate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,21 +47,35 @@ export default class DiseasePanelUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.diseasePanel = {};
         this.updateParams = {};
+
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Update",
+            titleWidth: 3,
+            width: "8",
+            defaultValue: "",
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("diseasePanel")) {
-            this.diseasePanelObserver();
+            this.initOriginalObject();
         }
     }
 
@@ -67,31 +83,44 @@ export default class DiseasePanelUpdate extends LitElement {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    diseasePanelObserver() {
+    initOriginalObject() {
         if (this.diseasePanel) {
             this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
         }
     }
 
     diseasePanelIdObserver() {
-        if (this.opencgaSession && this.diseasePanelId) {
+        if (this.diseasePanelId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, query)
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.panels()
+                .info(this.diseasePanelId, query)
                 .then(response => {
                     this.diseasePanel = response.responses[0].results[0];
-                    this.diseasePanelObserver();
+                    this.initOriginalObject();
                 })
                 .catch(reason => {
+                    this.diseasePanel = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.individual, {query: {...query}}, error);
+                    this.#setLoading(false);
                 });
+        } else {
+            this.diseasePanel = {};
         }
     }
 
@@ -111,13 +140,15 @@ export default class DiseasePanelUpdate extends LitElement {
                     param,
                     e.detail.value);
                 break;
-            case "variants": // arrays
+            case "disorders": // arrays
+            case "variants":
+            case "regions":
             case "genes":
                 this.updateParams = FormUtils.updateArraysObject(
                     this._diseasePanel,
                     this.diseasePanel,
                     this.updateParams,
-                    e.detail.param,
+                    param,
                     e.detail.value
                 );
                 break;
@@ -145,41 +176,57 @@ export default class DiseasePanelUpdate extends LitElement {
                 }
             }
         }
-
         this.requestUpdate();
     }
 
     onClear() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
         this.updateParams = {};
         this.diseasePanelId = "";
-        this.requestUpdate();
+        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
     }
 
-    onSubmit(e) {
+    onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
+            includeResult: true
         };
+        let error;
+        this.#setLoading(true);
+        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
+        //  Remove when form-utils.js revisited
+        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.diseasePanel[key]);
         this.opencgaSession.opencgaClient.panels()
             .update(this._diseasePanel.id, this.updateParams, params)
-            .then(res => {
-                // this.diseasePanel = {};
-                // this.requestUpdate();
-                this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
+            .then(response => {
+                this._diseasePanel = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Disease Panel Updated",
                     message: "Disease Panel updated correctly"
                 });
-                this.requestUpdate();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                this.diseasePanel = {};
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                LitUtils.dispatchCustomEvent(this, "diseasePanelUpdate", this.family, {}, error);
+                this.#setLoading(false);
             });
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.diseasePanel?.id) {
+            return html`<div>No valid object found</div>`;
+        }
+
         return html`
             <data-form
                 .data="${this.diseasePanel}"
@@ -194,15 +241,9 @@ export default class DiseasePanelUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            icon: "fas fa-edit",
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Update",
-                titleWidth: 3,
-                width: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -236,13 +277,40 @@ export default class DiseasePanelUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
+                            title: "Disorders",
+                            field: "disorders",
+                            type: "object-list",
                             display: {
-                                placeholder: "Add a description...",
-                                rows: 3,
-                            }
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: disorder => html`
+                                    <div>${disorder.id} ${disorder?.name ? `- ${disorder?.name}` : ""}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Disorder ID",
+                                    field: "disorders[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add variant ID...",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "disorders[].name",
+                                    type: "input-text",
+                                    display: {
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "disorders[].description",
+                                    type: "input-text",
+                                    display: {
+                                    }
+                                },
+                            ]
                         },
                         {
                             title: "Source",
@@ -291,50 +359,14 @@ export default class DiseasePanelUpdate extends LitElement {
                                 }
                             ]
                         },
-                    ]
-                },
-                {
-                    title: "Variants",
-                    elements: [
                         {
-                            title: "Variants",
-                            field: "variants",
-                            type: "object-list",
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
                             display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                view: variant => html`
-                                    <div>${variant.id} - ${variant?.modeOfInheritance}</div>
-                                `,
-                            },
-                            elements: [
-                                {
-                                    title: "Variant ID",
-                                    field: "variants[].id",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add variant ID...",
-                                    }
-                                },
-                                {
-                                    title: "Mode of Inheritance",
-                                    field: "variants[].modeOfInheritance",
-                                    type: "select",
-                                    allowedValues: MODE_OF_INHERITANCE,
-                                    display: {
-                                        placeholder: "Select a mode of inheritance..."
-                                    }
-                                },
-                                {
-                                    title: "Confidence",
-                                    field: "variants[].confidence",
-                                    type: "select",
-                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
-                                    display: {
-                                        placeholder: "Select a confidence..."
-                                    }
-                                },
-                            ]
+                                placeholder: "Add a description...",
+                                rows: 3,
+                            }
                         },
                     ]
                 },
@@ -366,7 +398,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                         render: (data, dataFormFilterChange) => {
                                             return html`
                                                 <feature-filter
-                                                    .cellbaseClient="${this.opencgaSession?.cellbaseClient}"
+                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                                 </feature-filter>
                                             `;
@@ -385,6 +417,105 @@ export default class DiseasePanelUpdate extends LitElement {
                                 {
                                     title: "Confidence",
                                     field: "genes[].confidence",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
+                                    display: {
+                                        placeholder: "Select a confidence..."
+                                    }
+                                },
+                                {
+                                    title: "Imprinted",
+                                    field: "genes[].imprinted",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_IMPRINTED,
+                                    display: {
+                                        placeholder: "Select imprinted..."
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    title: "Regions",
+                    elements: [
+                        {
+                            title: "Regions",
+                            field: "regions",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: region => html`
+                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Region ID",
+                                    field: "regions[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add region...",
+                                    }
+                                },
+                                {
+                                    title: "Mode of Inheritance",
+                                    field: "regions[].modeOfInheritance",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
+                                    display: {
+                                        placeholder: "Select a mode of inheritance..."
+                                    }
+                                },
+                                {
+                                    title: "Confidence",
+                                    field: "regions[].confidence",
+                                    type: "select",
+                                    allowedValues: DISEASE_PANEL_CONFIDENCE,
+                                    display: {
+                                        placeholder: "Select a confidence..."
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    title: "Variants",
+                    elements: [
+                        {
+                            title: "Variants",
+                            field: "variants",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: variant => html`
+                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Variant ID",
+                                    field: "variants[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add variant ID...",
+                                    }
+                                },
+                                {
+                                    title: "Mode of Inheritance",
+                                    field: "variants[].modeOfInheritance",
+                                    type: "select",
+                                    allowedValues: MODE_OF_INHERITANCE,
+                                    display: {
+                                        placeholder: "Select a mode of inheritance..."
+                                    }
+                                },
+                                {
+                                    title: "Confidence",
+                                    field: "variants[].confidence",
                                     type: "select",
                                     allowedValues: DISEASE_PANEL_CONFIDENCE,
                                     display: {

@@ -1,5 +1,5 @@
 import Region from "../../core/bioinfo/region.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 // import HistogramRenderer from "../renderers/histogram-renderer.js";
 import {SVG} from "../../core/svg.js";
 

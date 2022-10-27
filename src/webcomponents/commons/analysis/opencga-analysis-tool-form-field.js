@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 import "../forms/text-field-filter.js";
 import "../filters/population-frequency-filter.js";
@@ -211,12 +211,13 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 `;
             case "CLINICAL_ANALYSIS_FILTER":
                 return html`
-                    <clinical-analysis-id-autocomplete
+                    <catalog-search-autocomplete
                         .value="${fieldConfig.value ?? fieldConfig.defaultValue}"
-                        .config="${fieldConfig}"
+                        .resource="${"CLINICAL_ANALYSIS"}"
                         .opencgaSession="${this.opencgaSession}"
+                        .config="${fieldConfig}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </clinical-analysis-id-autocomplete>
+                    </catalog-search-autocomplete>
                 `;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");

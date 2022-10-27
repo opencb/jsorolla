@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
@@ -336,6 +336,27 @@ export default class DiseasePanelGrid extends LitElement {
                     halign: this._config.header.horizontalAlign
                 },
                 {
+                    id: "disorders",
+                    title: "Disorders",
+                    field: "disorders",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: disorders => {
+                        if (disorders?.length > 0) {
+                            const disordersHtml = [];
+                            for (const disorder of disorders) {
+                                let result = disorder.id;
+                                if (disorder.name) {
+                                    result += " - " + disorder.name;
+                                }
+                                disordersHtml.push(`<div style="margin: 5px 0">${result}</div>`);
+                            }
+                            return disordersHtml.join("");
+                        }
+                    },
+                    halign: this._config.header.horizontalAlign
+                },
+                {
                     id: "stats",
                     title: "Stats",
                     field: "stats",
@@ -406,6 +427,7 @@ export default class DiseasePanelGrid extends LitElement {
             _columns[0].push({
                 id: "actions",
                 title: "Actions",
+                field: "actions",
                 halign: this._config.header.horizontalAlign,
                 rowspan: 2,
                 colspan: 1,
@@ -445,7 +467,7 @@ export default class DiseasePanelGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+                visible: !this._config.columns?.hidden?.includes("actions"),
             });
         }
 

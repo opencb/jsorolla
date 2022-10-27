@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
@@ -154,6 +154,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .updateScalar(this._clinicalAnalysis, this.clinicalAnalysis, this.updateParams, e.detail.param, e.detail.value);
                 break;
             case "status.id":
+            case "disorder.id":
             case "priority.id":
             case "analyst.id":
                 this.updateParams = FormUtils
@@ -172,7 +173,15 @@ class ClinicalAnalysisUpdate extends LitElement {
                     e.detail.param,
                     e.detail.value
                 );
-                this.updateParams.comments = this.updateParams.comments.filter(comment => !comment.author);
+
+                // Get new comments and fix tags
+                this.updateParams.comments = this.updateParams.comments
+                    .filter(comment => !comment.author)
+                    .map(comment => {
+                        // eslint-disable-next-line no-param-reassign
+                        comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
+                        return comment;
+                    });
                 break;
         }
         // Enable this only when a dynamic property in the config can change
@@ -441,6 +450,23 @@ class ClinicalAnalysisUpdate extends LitElement {
                     title: "General",
                     elements: [
                         {
+                            title: "Disorder",
+                            field: "disorder.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.disorder.id,
+                            allowedValues: () => {
+                                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                                    return this.clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
+                                } else {
+                                    return [];
+                                }
+                            },
+                            display: {
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
+                                helpMessage: "Case disorder must be one of the proband's disorder",
+                            }
+                        },
+                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -573,21 +599,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Comments",
-                        //     field: "comments",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: comments => html`
-                        //             <clinical-analysis-comment-editor
-                        //                 .opencgaSession=${this.opencgaSession}
-                        //                 .comments="${comments}"
-                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
-                        //                 @commentChange="${e => this.onCommentChange(e)}">
-                        //             </clinical-analysis-comment-editor>
-                        //         `,
-                        //     }
-                        // }
                     ]
                 }
             ]

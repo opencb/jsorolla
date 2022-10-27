@@ -15,17 +15,19 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
+import "../loading-spinner.js";
 
 export default class JobView extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,59 +36,101 @@ export default class JobView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
+            job: {
+                type: Object,
             },
             jobId: {
-                type: String
+                type: String,
             },
-            job: {
-                type: Object
+            search: {
+                type: Boolean,
+            },
+            opencgaSession: {
+                type: Object,
             },
             mode: {
-                type: String
+                type: String,
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
+    #init() {
+        this.job = {};
+        this.search = false;
+        this.isLoading = false;
+
+        this.displayConfigDefault = {
+            collapsable: true,
+            showTitle: false,
+            labelWidth: 3,
+            defaultLayout: "horizontal",
+            defaultValue: "-",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
-
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
     jobIdObserver() {
-        if (this.opencgaSession && this.jobId) {
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+        if (this.jobId && this.opencgaSession) {
+            const params = {
+                study: this.opencgaSession.study.fqn
+            };
+            let error;
+            this.#setLoading(true);
+            this.opencgaSession.opencgaClient.jobs()
+                .info(this.jobId, params)
                 .then(response => {
-                    this.job = response.getResult(0);
-                    this.requestUpdate();
+                    this.job = response.responses[0].results[0];
                 })
                 .catch(reason => {
+                    this.job = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.file, {}, error);
+                    this.#setLoading(false);
                 });
+        } else {
+            this.job = {};
         }
     }
 
+    onFilterChange(e) {
+        this.jobId = e.detail.value;
+    }
+
     render() {
-        if (!this.opencgaSession || !this.job) {
-            return null;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        if (!this.job?.id && this.search === false) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    No Job ID found.
+                </div>
+            `;
         }
 
         return html`
@@ -102,28 +146,48 @@ export default class JobView extends LitElement {
             title: "Summary",
             icon: "",
             nullData: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 3,
-                defaultLayout: "horizontal",
-                defaultValue: "-"
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
+                    title: "Search",
+                    display: {
+                        visible: job => !job?.id && this.search === true,
+                    },
+                    elements: [
+                        {
+                            title: "Job ID",
+                            // field: "jobId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <catalog-search-autocomplete
+                                        .value="${this.job?.id}"
+                                        .resource="${"JOB"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </catalog-search-autocomplete>`,
+                            },
+                        },
+                    ],
+                },
+                {
                     title: "Summary",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Job ID",
-                            field: "id"
+                            field: "id",
                         },
                         {
                             name: "User",
-                            field: "userId"
+                            field: "userId",
                         },
                         {
                             name: "Tool ID",
-                            field: "tool.id"
+                            field: "tool.id",
                         },
                         {
                             name: "Status",
@@ -134,14 +198,17 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Priority",
-                            field: "priority"
+                            field: "priority",
                         },
                         {
                             name: "Tags",
                             field: "tags",
                             type: "list",
                             display: {
-                                render: field => UtilsNew.renderHTML(`<span class="badge badge-pill badge-primary">${field}</span>`)
+                                separator: "",
+                                render: tag => {
+                                    return html`<span class="badge badge-pill badge-primary">${tag}</span>`;
+                                }
                             },
                             defaultValue: "-"
                         },
@@ -154,12 +221,15 @@ export default class JobView extends LitElement {
                         },
                         {
                             name: "Description",
-                            field: "description"
+                            field: "description",
                         }
-                    ]
+                    ],
                 },
                 {
                     title: "Execution",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Start-End Date",
@@ -184,7 +254,14 @@ export default class JobView extends LitElement {
                                     if (job.params) {
                                         return Object.entries(job.params).map(([param, value]) => html`
                                             <div>
-                                                <label>${param}</label>: ${value ? value : "-"}
+                                                <label>${param}</label>:
+                                                ${value && typeof value === "object" ? html`
+                                                    <ul>
+                                                        ${Object.keys(value).map(key => html`
+                                                            <li><b>${key}</b>: ${value[key] || "-"}</li>
+                                                        `)}
+                                                    </ul>
+                                                ` : (value || "-")}
                                             </div>
                                         `);
                                     } else {
@@ -200,74 +277,94 @@ export default class JobView extends LitElement {
                             defaultValue: "N/A",
                             display: {
                                 template: "${name}",
-                                contentLayout: "bullets"
-                            }
+                                contentLayout: "bullets",
+                            },
                         },
-                        // {
-                        //     name: "Output Files",
-                        //     field: "output",
-                        //     type: "table",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         columns: [
-                        //             {
-                        //                 name: "File Name", field: "name"
-                        //             },
-                        //             {
-                        //                 name: "Size", field: "size"
-                        //             },
-                        //             {
-                        //                 name: "Download", display: {
-                        //                     render: file => {
-                        //                         debugger
-                        //                         return html`<download-button .name="${file.name}" .json="${file}"></download-button>`
-                        //                     },
-                        //                 }
-                        //                 //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
-                        //             }
-                        //         ],
-                        //         border: true
-                        //         // contentLayout: "bullets",
-                        //     }
-                        // },
                         {
                             name: "Output Directory",
-                            field: "outDir.path"
+                            field: "outDir.path",
                         },
                         {
                             name: "Output Files",
-                            field: "output",
-                            type: "list",
-                            defaultValue: "N/A",
+                            type: "custom",
                             display: {
-                                template: "${name}",
-                                contentLayout: "bullets"
-                            }
+                                render: job => {
+                                    // CAUTION: Temporary patch for managing outputFiles array of nulls.
+                                    //  See details in: https://app.clickup.com/t/36631768/TASK-1704
+                                    if (job.output.length > 0 && job.output.every(jobOut => jobOut === null)) {
+                                        return html`
+                                            <div class="alert alert-danger" role="alert">
+                                                <i class="fas fa-1x fa-exclamation-circle align-middle">
+                                                    The output files are not accessible at the moment. We are working on fixing this issue.
+                                                </i>
+                                            </div>
+                                        `;
+                                    }
+                                    const outputFiles= [...job.output];
+
+                                    // Check if stdout and stderr files have been created and can be dowloaded
+                                    ["stdout", "stderr"].forEach(file => {
+                                        if (job[file]?.id && job[file]?.type === "FILE") {
+                                            outputFiles.push(job[file]);
+                                        }
+                                    });
+
+                                    if (outputFiles.length === 0) {
+                                        return "No output files yet";
+                                    }
+
+                                    return html`${outputFiles.map(file => {
+                                        const url = [
+                                            this.opencgaSession.server.host,
+                                            "/webservices/rest/",
+                                            this.opencgaSession.server.version,
+                                            "/files/",
+                                            file.id,
+                                            "/download?study=",
+                                            this.opencgaSession.study.fqn,
+                                            "&sid=",
+                                            this.opencgaSession.token,
+                                        ];
+                                        return html`
+                                            <div>
+                                                <span style="margin-right: 10px">${file.name} ${file.size > 0 ? `(${UtilsNew.getDiskUsage(file.size)})` : ""}</span>
+                                                <a href="${url.join("")}" target="_blank">
+                                                    <i class="fas fa-download icon-padding"></i>
+                                                </a>
+                                            </div>`;
+                                    })}`;
+                                },
+                            },
                         },
                         {
                             name: "Command Line",
                             type: "complex",
                             display: {
-                                template: "<div class='cmd'>${commandLine}</div>"
-                            }
-                        }
-
-                    ]
+                                template: "<div class='cmd'>${commandLine}</div>",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Results",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
                                 render: () => AnalysisRegistry.get(this.job.tool.id)?.result(this.job, this.opencgaSession)
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Job Dependencies",
+                    display: {
+                        visible: job => job?.id,
+                    },
                     elements: [
                         {
                             name: "Dependencies",
@@ -287,16 +384,15 @@ export default class JobView extends LitElement {
                                         // format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
                                     }
                                 ],
-                                border: true
-                            }
-                        }
-
-                    ]
+                                border: true,
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Job log",
                     display: {
-                        visible: this.mode === "full",
+                        visible: job => job?.id && this.mode === "full",
                     },
                     elements: [
                         {

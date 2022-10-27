@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../family/family-create.js";
 import "../../family/family-update.js";
 import "../../family/family-view.js";
@@ -107,8 +107,8 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     onFamilySearch(e) {
-        if (e.detail.status.error) {
-            // inform
+        if (e.detail.status?.error) {
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.family = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -146,6 +146,7 @@ export default class StudyAdminFamily extends LitElement {
                                     ` : html`
                                         <family-view
                                             .family="${this.family}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @familySearch="${e => this.onFamilySearch(e)}">
                                         </family-view>`}
@@ -175,6 +176,7 @@ export default class StudyAdminFamily extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
+                        .data="${{}}"
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
                         .opencgaSession="${this.opencgaSession}">

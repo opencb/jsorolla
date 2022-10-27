@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
@@ -174,7 +174,8 @@ export default class VariantSamples extends LitElement {
             this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
-            if (!this.numSamples) {
+            if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
+                this.numSamples = 0;
                 for (const stat of stats) {
                     if (stat.cohortId === "ALL") {
                         for (const gt of Object.keys(stat.genotypeCount)) {
@@ -190,7 +191,7 @@ export default class VariantSamples extends LitElement {
             // Prepare sample variant data for next query
             const variantSamples = result.studies[0].samples;
 
-            if (variantSamples && variantSamples.length > 0) {
+            if (variantSamples?.length > 0) {
                 const variantSampleInfo = {};
                 const sampleIds = [];
                 const samples = [];
@@ -252,7 +253,11 @@ export default class VariantSamples extends LitElement {
                 };
             } else {
                 this.requestUpdate();
-                await Promise.reject(new Error("No samples found"));
+                // await Promise.reject(new Error("No samples found"));
+                return {
+                    total: 0,
+                    rows: []
+                };
             }
         } catch (e) {
             await Promise.reject(e);

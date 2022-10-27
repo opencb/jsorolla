@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./family-view.js";
 import "../commons/view/detail-tabs.js";
 
@@ -92,10 +92,17 @@ export default class FamilyDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.family ?
-            html`
-                <detail-tabs .data="${this.family}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
-            null;
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.family}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>`;
     }
 
 }

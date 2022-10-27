@@ -85,14 +85,18 @@ export default class IndividualDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.individual ?
-            html`
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
                 <detail-tabs
                     .data="${this.individual}"
                     .config="${this._config}"
                     .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
-            ` : "";
+            `;
     }
 
 }

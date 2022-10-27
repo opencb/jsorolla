@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
@@ -75,7 +75,7 @@ class VariantInterpreter extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
@@ -91,6 +91,8 @@ class VariantInterpreter extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -288,17 +290,17 @@ class VariantInterpreter extends LitElement {
                 active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
-                    <div class="col-md-10 col-md-offset-1">
-                        <tool-header
-                            class="bg-white"
-                            title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                        </tool-header>
-                        <case-steiner-report
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </case-steiner-report>
-                    </div>
-                `;
+                        <div class="col-md-10 col-md-offset-1">
+                            <tool-header
+                                class="bg-white"
+                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
+                            </tool-header>
+                            <case-steiner-report
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </case-steiner-report>
+                        </div>
+                    `;
                 }
             });
         } else {
@@ -333,7 +335,7 @@ class VariantInterpreter extends LitElement {
                             ${this._config.title}
                             <span class="inverse">
                                 Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                                ${this.clinicalAnalysis.interpretation.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
                             </span>
                         `}"
                         .rhs="${html`
@@ -341,6 +343,7 @@ class VariantInterpreter extends LitElement {
                                 ${this.clinicalAnalysis?.interpretation ? html`
                                     <div align="center" style="margin-right:3rem;">
                                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
@@ -498,9 +501,9 @@ class VariantInterpreter extends LitElement {
                             ` : null}
 
                             ${this.activeTab["report"] ? html`
-                            <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
+                                <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                    <!-- <variant-interpreter-report
+                                        <!-- <variant-interpreter-report
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                         .opencgaSession="${this.opencgaSession}">
                                     </variant-interpreter-report> -->

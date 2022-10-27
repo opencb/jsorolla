@@ -133,10 +133,10 @@ export default class ClinicalAnalysisManager {
 
         // Prepare interpretation object for the update
         const interpretation = {
-            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings
+            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
+            comments: [],
         };
         // Check if a comment is provided
-            debugger
         if (comment?.message) {
             interpretation.comments.push(comment);
         }

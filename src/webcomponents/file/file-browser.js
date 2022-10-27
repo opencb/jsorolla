@@ -16,14 +16,14 @@
 
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
-import "./opencga-file-grid.js";
-import "./opencga-file-detail.js";
+import "./file-grid.js";
+import "./file-detail.js";
 
 export default class FileBrowser extends LitElement {
 
@@ -108,7 +108,6 @@ export default class FileBrowser extends LitElement {
     }
 
     render() {
-
         if (!this.opencgaSession || !this._config) {
             return "";
         }
@@ -135,18 +134,18 @@ export default class FileBrowser extends LitElement {
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
-                        <opencga-file-grid
+                        <file-grid
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "file")}">
-                        </opencga-file-grid>
-                        <opencga-file-detail
+                        </file-grid>
+                        <file-detail
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.detail}"
                             .fileId="${params.detail.file?.id}">
-                        </opencga-file-detail>`
+                        </file-detail>`
                 },
                 {
                     id: "facet-tab",
@@ -197,6 +196,14 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
                                 description: ""
+                            },
+                            {
+                                id: "jobId",
+                                name: "Job ID",
+                                placeholder: "Job ID ...",
+                                allowedValues: "",
+                                defaultValue: "",
+                                description: "",
                             },
                             {
                                 id: "format",
