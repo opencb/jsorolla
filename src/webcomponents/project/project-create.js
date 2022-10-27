@@ -25,6 +25,7 @@ export default class ProjectCreate extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -44,15 +45,7 @@ export default class ProjectCreate extends LitElement {
     }
 
     #init() {
-        this.project = {
-            organism: {
-                scientificName: "Homo sapiens"
-            },
-            cellbase: {
-                url: "https://ws.zettagenomics.com/cellbase",
-                version: "5.1"
-            }
-        };
+        this.#initOriginalObject();
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -61,6 +54,19 @@ export default class ProjectCreate extends LitElement {
             buttonOkText: "Create"
         };
         this._config = this.getDefaultConfig();
+    }
+
+    #initOriginalObject() {
+        this.project = {
+            organism: {
+                scientificName: "Homo sapiens",
+                assembly: "GRCh38",
+            },
+            cellbase: {
+                url: "https://ws.zettagenomics.com/cellbase",
+                version: "v5.1"
+            }
+        };
     }
 
     #setLoading(value) {
@@ -104,12 +110,7 @@ export default class ProjectCreate extends LitElement {
             title: "Clear project",
             message: "Are you sure to clear?",
             ok: () => {
-                this.project = {
-                    cellbase: {
-                        url: "https://ws.zettagenomics.com/cellbase",
-                        version: "5.1"
-                    }
-                };
+                this.#initOriginalObject();
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -126,6 +127,7 @@ export default class ProjectCreate extends LitElement {
         this.opencgaSession.opencgaClient.projects()
             .create(this.project, params)
             .then(() => {
+                this.#initOriginalObject();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
@@ -137,12 +139,6 @@ export default class ProjectCreate extends LitElement {
                 console.error(error);
             })
             .finally(() => {
-                this.project = {
-                    cellbase: {
-                        url: "https://ws.zettagenomics.com/cellbase",
-                        version: "5.1"
-                    }
-                };
                 this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "projectCreate", this.project, {}, error);
                 this.#setLoading(false);
@@ -201,6 +197,7 @@ export default class ProjectCreate extends LitElement {
                             name: "Species",
                             field: "organism.scientificName",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                             }
@@ -209,6 +206,7 @@ export default class ProjectCreate extends LitElement {
                             name: "Species Assembly",
                             field: "organism.assembly",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "e.g. GRCh38",
                             }
