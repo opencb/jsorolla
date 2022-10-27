@@ -19,7 +19,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utilsNew.js";
 
 export default class ProjectCreate extends LitElement {
 
@@ -133,9 +132,11 @@ export default class ProjectCreate extends LitElement {
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .create(this.project, params)
-            .then(() => {
+            .then(response => {
                 this.#initOriginalObject();
                 this._config = this.getDefaultConfig();
+
+                project = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Create",
                     message: "New project created correctly"
