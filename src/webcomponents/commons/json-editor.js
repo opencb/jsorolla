@@ -51,6 +51,7 @@ export default class JsonEditor extends LitElement {
         this.jsonEditor = null;
         this.jsonEditorId = this._prefix + "jsoneditor";
         this._config = this.getDefaultConfig();
+        this._data = "";
     }
 
     update(changedProperties) {
@@ -68,7 +69,8 @@ export default class JsonEditor extends LitElement {
                 this.initJsonEditor();
             }
 
-            if (this.jsonEditor) {
+            if (this.jsonEditor && !UtilsNew.isEqual(JSON.stringify(this._data), JSON.stringify(this.data))) {
+                // It is updated twice, to avoid the need to compare data.
                 this.jsonEditor.update({json: this.data});
             }
 
@@ -76,6 +78,7 @@ export default class JsonEditor extends LitElement {
 
         }
     }
+
 
     initJsonEditor() {
         const content = {
@@ -100,7 +103,6 @@ export default class JsonEditor extends LitElement {
                 },
                 onRenderMenu: (mode, items) => {
                     // Remove transforms we don't need for the moment
-                    console.log("test items", items);
                     return items.filter(item => item.className !== "jse-transform");
                 },
             }
@@ -118,6 +120,8 @@ export default class JsonEditor extends LitElement {
         console.log("onChange", {updatedContent, previousContent, contentErrors, patchResult});
         // updatedContent is a object which content 2 props (text & json)
         this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
+        // Copy the updated content
+        this._data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
         LitUtils.dispatchCustomEvent(this, "fieldChange", {
             json: {...this.data},
             text: updatedContent?.text
