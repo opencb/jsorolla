@@ -98,6 +98,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.opencgaSession) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+            this._config = this.getDefaultConfig();
         }
     }
 
@@ -112,8 +113,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                 .info(this.clinicalAnalysisId, params)
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-                    this._config = this.getDefaultConfig();
                 })
                 .catch(reason => {
                     error = reason;
@@ -192,12 +191,11 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     onClear() {
-        // First update config
-        this._config = this.getDefaultConfig();
-
         // Reset all values
         this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
         this.updateParams = {};
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onSubmit() {
@@ -214,8 +212,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                 .update(this.clinicalAnalysis.id, this.updateParams, params)
                 .then(response => {
                     this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this._config = this.getDefaultConfig();
                     this.updateParams = {};
+                    this._config = this.getDefaultConfig();
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         title: "Clinical Analysis update",
                         message: "Case info updated successfully",
@@ -549,6 +547,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                             field: "comments",
                             type: "object-list",
                             display: {
+                                disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 // collapsable: false,
                                 // maxNumItems: 5,
@@ -577,7 +576,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                     field: "comments[].message",
                                     type: "input-text",
                                     display: {
-                                        disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                                         placeholder: "Add comment...",
                                         rows: 3
                                     }
@@ -587,7 +585,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                     field: "comments[].tags",
                                     type: "input-text",
                                     display: {
-                                        disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                                         placeholder: "Add tags..."
                                     }
                                 },
