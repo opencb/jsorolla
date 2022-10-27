@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
 import FormUtils from "../commons/forms/form-utils";
+import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 
 
