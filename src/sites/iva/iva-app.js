@@ -1288,7 +1288,21 @@ class IvaApp extends LitElement {
                         <disease-panel-update
                             .diseasePanelId="${this.diseasePanelId}"
                             .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}">
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
                         </disease-panel-update>
                     </div>
                 ` : null}
@@ -1321,7 +1335,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
                     <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                    <div class="container" id="sampleUpdate">
+                    <div class="content" id="sampleUpdate">
                         <sample-update
                             .sampleId="${this.sampleId}"
                             .opencgaSession="${this.opencgaSession}"

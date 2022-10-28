@@ -896,4 +896,49 @@ export default class UtilsNew {
         return versionNumber2 - versionNumber1;
     }
 
+    static getObjectValue(obj, props, defaultValue, results) {
+        if (!results) {
+            // eslint-disable-next-line no-param-reassign
+            results = [];
+        }
+        const fields = props.split(".");
+        if (fields.length === 1) {
+            if (obj?.[fields[0]] || defaultValue) {
+                results.push(obj?.[fields[0]] ?? defaultValue);
+            }
+        } else {
+            if (obj?.[fields[0]]) {
+                if (Array.isArray(obj[fields[0]])) {
+                    obj[fields[0]].map(o => this.getObjectValue(o, fields.slice(1).join("."), defaultValue, results));
+                } else {
+                    this.getObjectValue(obj[fields[0]], fields.slice(1).join("."), defaultValue, results);
+                }
+            }
+        }
+        return results;
+    }
+
+    // Wrapper around Clipboard API for supporting non secure contexts (HTTP)
+    static copyToClipboard(text) {
+        return Promise.resolve().then(() => {
+            if (window?.navigator?.clipboard?.writeText) {
+                return window.navigator.clipboard.writeText(text);
+            } else {
+                const el = document.createElement("textarea");
+                el.value = text;
+                el.setAttribute("readonly", "");
+                el.style.contain = "strict";
+                el.style.position = "absolute";
+                el.style.left = "-9999px";
+
+                document.body.appendChild(el);
+                el.select();
+                const copied = document.execCommand("copy");
+                document.body.removeChild(el);
+
+                return copied;
+            }
+        });
+    }
+
 }

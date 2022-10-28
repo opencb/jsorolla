@@ -24,7 +24,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +48,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
@@ -58,62 +58,49 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update(changedProperties);
     }
 
     familyIdObserver() {
         if (this.opencgaSession && this.familyId) {
             this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.family = response.responses[0].results[0];
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(reason => {
                     console.error(reason);
                 });
-        }
-    }
-
-    getIndividualId(sampleId) {
-        let id;
-        this.family.members.forEach( member => {
-            member.samples.forEach( sample => {
-                if (sample.id === sampleId) {
-                    id = member.id;
-                    //return id; // FIXME
-                }
-            });
-        });
-        if (id) {
-            return id;
         }
     }
 
     onDownload(e) {
         // Check if user clicked in Tab or JSON format
         const relatedness = this.family?.qualityControl?.relatedness[0];
-        if(relatedness) {
+        if (relatedness) {
             if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
                 const data = relatedness.scores.map(score => {
                     return [
                         score.sampleId1,
                         score.sampleId2,
-                        this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)] ?? "-",
+                        score.reportedRelationship || "-",
+                        score?.values?.PiHat,
                         score?.values?.z0,
                         score?.values?.z1,
                         score?.values?.z2,
-                        score?.values?.PiHat,
-                        score?.inferredRelationship
-                    ].join("\t")
+                        score?.inferredRelationship,
+                        score?.validation
+                    ].join("\t");
                 });
                 const dataString = [
-                    ["Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"].join("\t"),
+                    ["Sample ID 1", "Sample ID 2", "Reported Relationship", "PiHat", "IBD0", "IBD1", "IBD2", "Inferred Relationship", "Validation"].join("\t"),
                     data.join("\n")
                 ];
                 UtilsNew.downloadData(dataString, "family_relatedness" + this.opencgaSession.study.id + ".tsv", "text/plain");
@@ -125,57 +112,56 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
 
     renderTable() {
         if (this.family?.qualityControl?.relatedness?.length > 0) {
-            let relatedness = this.family.qualityControl.relatedness[0];
+            const relatedness = this.family.qualityControl.relatedness[0];
             return html`
                 <table class="table table-hover table-no-bordered">
                     <thead>
-                        <tr>
-                            <th>Sample ID 1</th>
-                            <th>Sample ID 2</th>
-                            <th>Reported Relationship</th>
-                            <th>IBD0</th>
-                            <th>IBD1</th>
-                            <th>IBD2</th>
-                            <th>PiHat</th>
-                            <th>Inferred Relationship</th>
-                            <th>Status</th>
-                        </tr>
+                    <tr>
+                        <th>Sample ID 1</th>
+                        <th>Sample ID 2</th>
+                        <th>Reported Relationship</th>
+                        <th>PiHat</th>
+                        <th>IBD0</th>
+                        <th>IBD1</th>
+                        <th>IBD2</th>
+                        <th>Inferred Relationship</th>
+                        <th>Status</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        ${relatedness.scores.map(score => {
-                            let role = this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)];
-                            return html`
-                                <tr>
-                                    <td>
-                                        <label>${score.sampleId1}</label>
-                                    </td>
-                                    <td>
-                                        <label>${score.sampleId2}</label>
-                                    </td>
-                                    <td>
-                                        <span style="color: ${role === score.inferredRelationship ? "black" : "red"}">
-                                            ${role ? role : "-"}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: right;">${score.values.z0}</td>
-                                    <td style="text-align: right;">${score.values.z1}</td>
-                                    <td style="text-align: right;">${score.values.z2}</td>
-                                    <td style="text-align: right;">${score.values.PiHat}</td>
-                                    <td>
-                                        <span style="color: ${role === score.inferredRelationship ? "black" : "red"}">
-                                            ${score.inferredRelationship}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>${role === score.inferredRelationship
-                                            ? html`<i class='fa fa-check' style='color: green'></i>`
-                                            : html`<i class='fa fa-times' style='color: red'></i>`
-                                        }
-                                        </span>
-                                    </td>
-                                </tr>
-                            `})
-                        }
+                    ${relatedness.scores.map(score => {
+                        return html`
+                            <tr>
+                                <td>
+                                    <label>${score.sampleId1}</label>
+                                </td>
+                                <td>
+                                    <label>${score.sampleId2}</label>
+                                </td>
+                                <td>
+                                    <span>
+                                        ${score.reportedRelationship || "-"}
+                                    </span>
+                                </td>
+                                <td>${score.values.PiHat}</td>
+                                <td>${score.values.z0}</td>
+                                <td>${score.values.z1}</td>
+                                <td>${score.values.z2}</td>
+                                <td>
+                                    <span>
+                                        ${score.inferredRelationship}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>${score.validation === "PASS" || score.reportedRelationship === "UNKNOWN" ? html`
+                                        <i class='fa fa-check' style='color: green'></i>` : html`
+                                        <i class='fa fa-times' style='color: red'></i>`
+                                    }
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    })}
                     </tbody>
                 </table>`;
         }
@@ -184,24 +170,26 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     getDefaultConfig() {
         return {
             download: ["Tab", "JSON"]
-        }
+        };
     }
 
     render() {
-        if (!this.family?.qualityControl?.relatedness || this.family.qualityControl.relatedness.length === 0) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+        if (this.family.qualityControl?.relatedness?.length === 0) {
+            return html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+            `;
         }
 
         return html`
             <div>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>
                 </div>
@@ -226,7 +214,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                     </div>
                     <div class="col-md-12">
                         <h4>Results</h4>
-                        ${this.renderTable()}
+                        <div style="padding: 5px 20px">${this.renderTable()}</div>
                     </div>
                 </div>
             </div>

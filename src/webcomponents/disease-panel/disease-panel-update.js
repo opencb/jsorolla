@@ -58,12 +58,14 @@ export default class DiseasePanelUpdate extends LitElement {
         this.updateParams = {};
 
         this.displayConfigDefault = {
-            buttonsVisible: true,
             buttonOkText: "Update",
             titleWidth: 3,
-            width: "8",
+            width: 8,
             defaultValue: "",
             defaultLayout: "horizontal",
+            buttonsVisible: true,
+            buttonsWidth: 8,
+            buttonsAlign: "right",
         };
         this._config = this.getDefaultConfig();
     }
@@ -180,10 +182,10 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     onClear() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
         this.updateParams = {};
         this.diseasePanelId = "";
         this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     onSubmit() {
@@ -201,18 +203,18 @@ export default class DiseasePanelUpdate extends LitElement {
             .then(response => {
                 this._diseasePanel = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updateParams = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Disease Panel Updated",
                     message: "Disease Panel updated correctly"
                 });
             })
             .catch(reason => {
-                this.diseasePanel = {};
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this._config = {...this.getDefaultConfig(), ...this.config};
+                // this._config = {...this.getDefaultConfig(), ...this.config};
                 LitUtils.dispatchCustomEvent(this, "diseasePanelUpdate", this.family, {}, error);
                 this.#setLoading(false);
             });
@@ -241,8 +243,14 @@ export default class DiseasePanelUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            id: "disease-panel-update",
+            title: "Disease Panel Update",
             icon: "fas fa-edit",
             type: "form",
+            buttons: {
+                clearText: "Cancel",
+                okText: "Update Panel",
+            },
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
@@ -252,7 +260,7 @@ export default class DiseasePanelUpdate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.diseasePanel).length > 0,
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
                                 notificationType: "warning",
                             }
                         },
