@@ -160,7 +160,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -190,7 +191,8 @@ class VariantInterpreter extends LitElement {
             locked: !this.clinicalAnalysis.locked,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .update(id, updateParams, {study: this.opencgaSession.study.fqn})
             .then(() => this.onClinicalAnalysisUpdate())
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -405,7 +407,7 @@ class VariantInterpreter extends LitElement {
                 `}
 
                 <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
+                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
@@ -503,10 +505,6 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                        <!-- <variant-interpreter-report
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </variant-interpreter-report> -->
                                     <detail-tabs
                                         .data="${this.clinicalAnalysis}"
                                         .config="${configReportTabs}"
