@@ -70,8 +70,8 @@ export const SVG = {
         return el;
     },
 
-    init(parent, attributes) {
-        return this.addChild(parent, "svg", attributes);
+    init(parent, attributes, index) {
+        return this.addChild(parent, "svg", attributes, index);
     },
 
     //
