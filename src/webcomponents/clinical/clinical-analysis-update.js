@@ -178,13 +178,16 @@ class ClinicalAnalysisUpdate extends LitElement {
                 );
 
                 // Get new comments and fix tags
-                this.updateParams.comments = this.updateParams.comments
-                    .filter(comment => !comment.author)
-                    .map(comment => {
-                        // eslint-disable-next-line no-param-reassign
-                        comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
-                        return comment;
-                    });
+                if (this.updateParams.comments) {
+                    this.updateParams.comments = this.updateParams.comments
+                        .filter(comment => !comment.author)
+                        .map(comment => {
+                            // eslint-disable-next-line no-param-reassign
+                            comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
+                            return comment;
+                        });
+                }
+
                 break;
         }
         this.requestUpdate();
@@ -560,7 +563,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                 <i class="fas fa-comment-dots"></i>
                                             </div>
                                             <div style="font-weight:bold">
-                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                                ${comment.author || this.opencgaSession?.user?.id || "-"} - 
+                                                ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
                                             </div>
                                         </div>
                                         <div style="width:100%;">
