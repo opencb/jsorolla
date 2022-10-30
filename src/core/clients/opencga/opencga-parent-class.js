@@ -1,5 +1,5 @@
 // parent class
-import {RestClient} from "../rest-client.js";
+import RestClient from "../rest-client.js";
 
 export default class OpenCGAParentClass {
 
