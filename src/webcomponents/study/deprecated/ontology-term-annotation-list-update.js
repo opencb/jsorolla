@@ -19,8 +19,8 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
-import "../ontology-term-annotation/ontology-term-annotation-create.js";
-import "../ontology-term-annotation/ontology-term-annotation-update.js";
+import "./ontology-term-annotation/ontology-term-annotation-create.js";
+import "./ontology-term-annotation/ontology-term-annotation-update.js";
 
 export default class OntologyTermAnnotationListUpdate extends LitElement {
 

@@ -15,12 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import Types from "../../commons/types.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
+import Types from "../../../commons/types.js";
+import FormUtils from "../../../commons/forms/form-utils.js";
 
-export default class OntologyTermAnnotationUpdate extends LitElement {
+// the following attribute are OntologyTermAnnotation:
+// Sample -> SampleProcessing -> product
+// Individual -> Ethnicity
+export default class OntologyTermAnnotationCreate extends LitElement {
 
     constructor() {
         super();
@@ -36,8 +38,11 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             ontology: {
                 type: Object
             },
-            ontologyId: {
-                type: String
+            entity: {
+                type: String,
+            },
+            mode: {
+                type: String,
             },
             displayConfig: {
                 type: Object
@@ -46,6 +51,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
     }
 
     _init() {
+        this.mode = "";
         this.displayConfigDefault = {
             buttonsAlign: "right",
             buttonClearText: "Clear",
@@ -57,20 +63,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    firstUpdated(changedProperties) {
-        // To avoid override data
-        if (changedProperties.has("ontology")) {
-            this.ontologyObserver();
-        }
-    }
-
     update(changedProperties) {
-        /*
-        *    if (changedProperties.has("ontology")) {
-        *        this.ontologyObserver();
-        *    }
-        */
-
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
@@ -78,41 +71,29 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    ontologyObserver() {
-        if (this.ontology) {
-            this._ontology = UtilsNew.objectClone(this.ontology);
-        }
-    }
-
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         e.stopPropagation();
-        // No need to switch(field) since all of them are processed in the same way
-        this.data = FormUtils.updateScalarParams(
-            this._ontology,
-            this.ontology,
-            this.data?.updateParams,
-            e.detail.param,
-            e.detail.value);
-
-        LitUtils.dispatchCustomEvent(this, "fieldChange", {...this.data?.updateParams}, null, null, {bubbles: false, composed: true});
-        // to reflect which field is updating...
-        this.requestUpdate();
+        const param = field || e.detail.param;
+        this.ontology = {
+            ...FormUtils.createObject(
+                this.ontology,
+                param,
+                e.detail.value
+            )};
+        LitUtils.dispatchCustomEvent(this, "fieldChange", this.ontology);
     }
 
+    // Submit to upper component.
     onSendOntology(e) {
-        // Send the ontology to the upper component
+        // Avoid others onSubmit...ex. sample-create::onSubmit
         e.stopPropagation();
-        this.updateParams = {};
-        this.ontology = {...this.data?.original};
-        this.data = {};
-        LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
+        // Send the ontology to the upper component
+        LitUtils.dispatchCustomEvent(this, "addItem", this.ontology);
     }
 
-    onClear(e) {
+    onClearForm(e) {
         e.stopPropagation();
-        this.ontology = JSON.parse(JSON.stringify(this._ontology));
-        this.updateParams = {};
-        this.data = {};
+        this.ontology = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
@@ -121,24 +102,23 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
             <data-form
                 .data="${this.ontology}"
                 .config="${this._config}"
-                .updateParams="${this.data?.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
+                @clear="${this.onClearForm}"
                 @submit="${e => this.onSendOntology(e)}">
             </data-form>
         `;
     }
 
-    _configOntology(entity) {
-        switch (entity) {
-            case "phenotype":
+    #configOntology(entity) {
+        switch (entity?.toUpperCase()) {
+            case "PHENOTYPE":
                 return [
                     {
                         name: "Age of onset",
                         field: "ageOfOnset",
                         type: "input-num",
                         display: {
-                            placeholder: "Add an age of on set..."
+                            placeholder: "Add an age of onset..."
                         }
                     },
                     {
@@ -149,7 +129,11 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                         display: {
                             placeholder: "Select a status..."
                         }
-                    }];
+                    }
+                ];
+            case "DISORDER":
+                // Nacho (02/03/2022): At the moment IVA DOES NOT SUPPORT creating list inside other lists.
+                return [];
             default:
                 return [];
         }
@@ -157,6 +141,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
+            type: this.mode,
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
@@ -165,9 +150,9 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                             name: "ID",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
-                                placeholder: "add short id",
-                                // disabled: true,
+                                placeholder: "Add short id...",
                             }
                         },
                         {
@@ -175,7 +160,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "add a name"
+                                placeholder: "Add a name..."
                             }
                         },
                         {
@@ -183,10 +168,10 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "add a source"
+                                placeholder: "Add a source..."
                             }
                         },
-                        ...this._configOntology(this.entity),
+                        ...this.#configOntology(this.entity),
                         {
                             name: "Description",
                             field: "description",
@@ -195,7 +180,7 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
                                 rows: 3,
                                 placeholder: "Add a description..."
                             }
-                        }
+                        },
                     ]
                 }
             ]
@@ -204,4 +189,4 @@ export default class OntologyTermAnnotationUpdate extends LitElement {
 
 }
 
-customElements.define("ontology-term-annotation-update", OntologyTermAnnotationUpdate);
+customElements.define("ontology-term-annotation-create", OntologyTermAnnotationCreate);

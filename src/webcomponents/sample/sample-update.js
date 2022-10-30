@@ -21,8 +21,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
-import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
-import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
 import "../study/status/status-update.js";
 import "./external-source/external-source-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
