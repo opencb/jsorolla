@@ -21,7 +21,7 @@
     <script type="module">
         import {CellBaseClient} from "../../clients/cellbase/cellbase-client.js";
         import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
-        import {proteinLollipop} from "../protein-lollipop.js";
+        import ProteinLollipop from "../protein-lollipop.js";
 
         const params = new URLSearchParams(window.location.search);
         const cellBaseClient = new CellBaseClient({
@@ -81,7 +81,7 @@
             const protein = values[0].responses[0].results[0];
             const variants = values[1].responses[0].results;
 
-            proteinLollipop(target, protein, variants, {});
+            ProteinLollipop.draw(target, protein, variants, {});
 
         });
     </script>

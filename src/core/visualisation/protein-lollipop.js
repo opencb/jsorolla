@@ -19,7 +19,7 @@ const getDefaultConfig = () => ({
     },
 });
 
-export const proteinLollipop = (target, protein, variants, customConfig) => {
+const draw = (target, protein, variants, customConfig) => {
     const prefix = UtilsNew.randomString(8);
     const config = {
         ...getDefaultConfig(),
@@ -140,4 +140,9 @@ export const proteinLollipop = (target, protein, variants, customConfig) => {
     svg.setAttribute("height", `${offset}px`);
 
     return svg;
+};
+
+export default {
+    getDefaultConfig,
+    draw,
 };
