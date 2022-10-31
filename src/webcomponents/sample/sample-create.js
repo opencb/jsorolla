@@ -19,6 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-create.js";
 import "./external-source/external-source-create.js";

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -639,7 +639,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
                     // Generate actions dropdown
                     return `
-                        <div class="dropdown" align="center">
+                        <div class="dropdown">
                             <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                 <span>Actions</span>
@@ -678,6 +678,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         </div>
                     `;
                 },
+                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },

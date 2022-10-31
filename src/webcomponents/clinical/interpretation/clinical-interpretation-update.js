@@ -19,7 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
@@ -177,13 +177,16 @@ export default class ClinicalInterpretationCreate extends LitElement {
                     e.detail.param,
                     e.detail.value
                 );
-                this.updateParams.comments = this.updateParams.comments
-                    .filter(comment => !comment.author)
-                    .map(comment => {
-                        // eslint-disable-next-line no-param-reassign
-                        comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
-                        return comment;
-                    });
+
+                if (this.updateParams.comments) {
+                    this.updateParams.comments = this.updateParams.comments
+                        .filter(comment => !comment.author)
+                        .map(comment => {
+                            // eslint-disable-next-line no-param-reassign
+                            comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
+                            return comment;
+                        });
+                }
 
                 break;
         }
@@ -365,7 +368,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                                 <i class="fas fa-comment-dots"></i>
                                             </div>
                                             <div style="font-weight:bold">
-                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                                ${comment.author || this.opencgaSession?.user?.id || "-"} - 
+                                                ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
                                             </div>
                                         </div>
                                         <div style="width:100%;">
@@ -393,26 +397,11 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                         placeholder: "Add tags..."
                                     }
                                 },
-                            ]
+                            ],
                         },
-                        // {
-                        //     title: "Comments",
-                        //     field: "comments",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: comments => html`
-                        //             <clinical-analysis-comment-editor
-                        //                 .opencgaSession="${this.opencgaSession}"
-                        //                 .comments="${comments}"
-                        //                 .disabled="${!!this.clinicalAnalysis?.locked}"
-                        //                 @commentChange="${e => this.onCommentChange(e)}">
-                        //             </clinical-analysis-comment-editor>
-                        //         `,
-                        //     }
-                        // }
-                    ]
+                    ],
                 },
-            ]
+            ],
         };
     }
 

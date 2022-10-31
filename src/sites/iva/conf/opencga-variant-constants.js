@@ -51,7 +51,7 @@ const CLINICAL_SIGNIFICANCE = [
 const CLINICAL_SIGNIFICANCE_SETTINGS = {
     NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
     BENIGN: {id: "B", code: 1, color: "green"},
-    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkgreen"},
     UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
     LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
     PATHOGENIC: {id: "P", code: 5, color: "red"}
@@ -107,14 +107,14 @@ const CONSEQUENCE_TYPES = {
         {
             name: "Protein Altering",
             description: "Filter Protein Altering variants",
-            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion"]
         },
         {
             name: "Coding Sequence",
             description: "Filter Coding variants",
-            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
-                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "synonymous_variant"]
         }
     ],
 

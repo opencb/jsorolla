@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
 import LitUtils from "../../commons/utils/lit-utils.js";

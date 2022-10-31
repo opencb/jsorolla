@@ -1,6 +1,6 @@
 import {RestResponse} from "./rest-response.js";
 
-export class RestClient {
+export default class RestClient {
 
     constructor() {
         if (!RestClient.instance) {

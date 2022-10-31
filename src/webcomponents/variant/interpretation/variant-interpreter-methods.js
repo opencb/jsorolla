@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
@@ -135,25 +135,9 @@ class VariantInterpreterMethods extends LitElement {
 
             if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
                 items.push({
-                    id: "rd-tiering",
-                    name: "RD Tiering",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-6 col-md-offset-3">
-                                <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
-                                <rd-tiering-analysis
-                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id, panels: clinicalAnalysis.panels?.map(panel => panel.id).join(",")}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .title="${""}">
-                                </rd-tiering-analysis>
-                            </div>
-                        `;
-                    },
-                });
-                items.push({
                     id: "exomiser",
                     name: "Exomiser",
+                    active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-6 col-md-offset-3">
@@ -163,6 +147,22 @@ class VariantInterpreterMethods extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .title="${""}">
                                 </exomiser-analysis>
+                            </div>
+                        `;
+                    },
+                });
+                items.push({
+                    id: "rd-tiering",
+                    name: "RD Tiering",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-6 col-md-offset-3">
+                                <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
+                                <rd-tiering-analysis
+                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id, panels: clinicalAnalysis.panels?.map(panel => panel.id).join(",")}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .title="${""}">
+                                </rd-tiering-analysis>
                             </div>
                         `;
                     },

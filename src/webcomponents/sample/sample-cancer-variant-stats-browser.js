@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./sample-cancer-variant-stats-plots.js";
 import "../variant/variant-browser-filter.js";
 import "../commons/opencga-active-filters.js";

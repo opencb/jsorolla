@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -321,7 +321,7 @@ export default class OpencgaFileGrid extends LitElement {
             skip: 0,
             count: false,
             study: this.opencgaSession.study.fqn,
-            include: "name,path,format,bioformat,size,creationDate,modificationDate,internal",
+            include: "id,name,path,format,bioformat,size,creationDate,modificationDate,internal,sampleIds",
             type: "FILE"
         };
         this.opencgaSession.opencgaClient.files().search(params)
@@ -330,7 +330,7 @@ export default class OpencgaFileGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import FormUtils from "../commons/forms/form-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 class ClinicalAnalysisCommentEditor extends LitElement {

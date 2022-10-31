@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {RestClient} from "../rest-client.js";
+import RestClient from "../rest-client.js";
 
 export class ReactomeClient {
 

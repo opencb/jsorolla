@@ -20,7 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -171,8 +171,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // Add copy.execute functions
         if (this._config.filter.result.grid?.copies?.length > 0) {
             for (const copy of this._config.filter.result.grid?.copies) {
-                const originalCopy = this.settings.table.copies.find(c => c.id === copy.id);
-                if (originalCopy.execute) {
+                const originalCopy = this.settings.table?.copies?.find(c => c.id === copy.id);
+                if (originalCopy?.execute) {
                     copy.execute = originalCopy.execute;
                 }
             }
@@ -402,6 +402,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     icon="${this._config.icon}">
                 </tool-header>
             ` : null}
+
+            ${this.clinicalAnalysis.interpretation.locked ? html`
+                <div class="row">
+                    <div class="panel panel-warning col-sm-8 col-sm-offset-2" style="padding: 0">
+                        <div class="panel-heading" style="font-size: 1.1em">
+                            <label>Interpretation locked:</label> you cannot modify this interpretation. You can unlock the interpretation in
+                            <span style="font-style: italic;">Case Info >> Interpretation Manager</span>.
+                        </div>
+                    </div>
+                </div>` : null
+            }
 
             <div class="row">
                 <div class="col-md-2">

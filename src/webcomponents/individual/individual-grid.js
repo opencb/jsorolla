@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
@@ -340,8 +340,8 @@ export default class IndividualGrid extends LitElement {
     }
 
     sexFormatter(value, row) {
-        let sexHtml = `<span>${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}</span>`;
-        if (row.karyotypicSex) {
+        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}`;
+        if (row?.karyotypicSex) {
             sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }
         return sexHtml;
@@ -499,8 +499,10 @@ export default class IndividualGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex", "lifeStatus", "dateOfBirth", "creationDate"];
-                        const data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex.id", "lifeStatus", "dateOfBirth", "creationDate"];
+                        const data = UtilsNew.toTableString(results, fields, {
+                            "sex.id": this.sexFormatter,
+                        });
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "individuals_" + this.opencgaSession.study.id + ".json", "application/json");

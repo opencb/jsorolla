@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import "../../commons/analysis/opencga-analysis-tool.js";
@@ -83,7 +83,10 @@ export default class IndividualQcAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.individual || !!this.toolParams.sample;
+        // return !!this.toolParams.individual || !!this.toolParams.sample;
+        return {
+            status: true
+        };
     }
 
     onFieldChange(e, field) {
@@ -101,6 +104,12 @@ export default class IndividualQcAnalysis extends LitElement {
             sample: this.toolParams.sample || "",
             individual: this.toolParams.individual || "",
         };
+        if (toolParams.sample) {
+            delete toolParams.individual;
+        }
+        if (toolParams.individual) {
+            delete toolParams.sample;
+        }
         const params = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),

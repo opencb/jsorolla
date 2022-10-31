@@ -1,5 +1,5 @@
 import Utils from "./../utils.js";
-import UtilsNew from "./../utilsNew.js";
+import UtilsNew from "../utils-new.js";
 import LinearFeatureTrack from "./FeatureTrack.js";
 import CoverageRenderer from "./renderers/CoverageRenderer.js";
 import {SVG} from "./../svg.js";

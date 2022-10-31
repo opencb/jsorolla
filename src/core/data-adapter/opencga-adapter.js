@@ -25,7 +25,7 @@
 
 import FeatureAdapter from "./feature-adapter.js";
 import Region from "../bioinfo/region.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../utils-new.js";
 
 export default class OpencgaAdapter extends FeatureAdapter {
 

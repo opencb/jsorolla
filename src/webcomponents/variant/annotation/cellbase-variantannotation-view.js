@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./cellbase-variant-annotation-summary.js";
 import "./variant-consequence-type-view.js";
 import "./cellbase-population-frequency-grid.js";

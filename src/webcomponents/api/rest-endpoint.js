@@ -15,8 +15,8 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import {RestClient} from "../../core/clients/rest-client.js";
+import UtilsNew from "../../core/utils-new.js";
+import RestClient from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";

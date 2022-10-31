@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
@@ -102,7 +102,9 @@ export default class OpencgaBrowserFilter extends LitElement {
             "genes": "genes.id",
             "categories": "categories.name",
             "source": "source.name",
-            "tags": "tags"
+            "tags": "tags",
+            "sex": "sex.id",
+            "karyotypicSex": "karyotypicSex",
         };
     }
 
@@ -231,6 +233,8 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "genes":
                 case "tags":
                 case "source":
+                case "sex":
+                case "karyotypicSex":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -243,9 +247,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </catalog-distinct-autocomplete>
                     `;
                     break;
-                case "sex":
                 case "type": // cohort, clinical
-                case "karyotypicSex":
                 case "affectationStatus":
                 case "lifeStatus":
                 case "format":

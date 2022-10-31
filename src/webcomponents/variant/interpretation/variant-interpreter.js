@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
@@ -160,7 +160,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -190,7 +191,8 @@ class VariantInterpreter extends LitElement {
             locked: !this.clinicalAnalysis.locked,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .update(id, updateParams, {study: this.opencgaSession.study.fqn})
             .then(() => this.onClinicalAnalysisUpdate())
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -335,7 +337,7 @@ class VariantInterpreter extends LitElement {
                             ${this._config.title}
                             <span class="inverse">
                                 Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
+                                ${this.clinicalAnalysis.interpretation.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
                             </span>
                         `}"
                         .rhs="${html`
@@ -343,6 +345,7 @@ class VariantInterpreter extends LitElement {
                                 ${this.clinicalAnalysis?.interpretation ? html`
                                     <div align="center" style="margin-right:3rem;">
                                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
                                         <div class="text-muted">
@@ -404,7 +407,7 @@ class VariantInterpreter extends LitElement {
                 `}
 
                 <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
+                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
@@ -502,10 +505,6 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                        <!-- <variant-interpreter-report
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </variant-interpreter-report> -->
                                     <detail-tabs
                                         .data="${this.clinicalAnalysis}"
                                         .config="${configReportTabs}"
