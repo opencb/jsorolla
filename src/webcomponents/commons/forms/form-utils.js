@@ -274,7 +274,7 @@ export default class FormUtils {
             UtilsNew.setObjectValue(original, param, value);
             const rootFieldName = param.split(".")[0];
 
-            // To Avoid reference betweent original and _updateParams.
+            // Use spread operator to avoid reference between original and _updateParams
             UtilsNew.setObjectValue(_updateParams, rootFieldName, {...original[rootFieldName]});
         } else {
             UtilsNew.deleteObjectValue(_updateParams, param);

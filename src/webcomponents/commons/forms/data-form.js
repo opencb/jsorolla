@@ -1356,45 +1356,46 @@ export default class DataForm extends LitElement {
         if (maxNumItems > 0) {
             const view = html`
                 <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
-                    ${items?.slice(0, maxNumItems).map((item, index) => {
-                        const _element = JSON.parse(JSON.stringify(element));
-                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                        // items have a virtual element associated, this will allow to get the proper value later.
-                        for (let i = 0; i< _element.elements.length; i++) {
-                            // const [left, right] = _element.elements[i].field.split(".");
-                            // This support object nested
-                            const [left, right] = _element.elements[i].field.split("[].");
-                            // _element.elements[i].field = left "." + index + "." + right;
-                            _element.elements[i].field = left + "[]." + index + "." + right;
-                            if (_element.elements[i].type === "custom") {
-                                _element.elements[i].display.render = element.elements[i].display.render;
+                    ${items?.slice(0, maxNumItems)
+                        .map((item, index) => {
+                            const _element = JSON.parse(JSON.stringify(element));
+                            // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                            // items have a virtual element associated, this will allow to get the proper value later.
+                            for (let i = 0; i< _element.elements.length; i++) {
+                                // const [left, right] = _element.elements[i].field.split(".");
+                                // This support object nested
+                                const [left, right] = _element.elements[i].field.split("[].");
+                                // _element.elements[i].field = left "." + index + "." + right;
+                                _element.elements[i].field = left + "[]." + index + "." + right;
+                                if (_element.elements[i].type === "custom") {
+                                    _element.elements[i].display.render = element.elements[i].display.render;
+                                }
                             }
-                        }
-                        return html`
-                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
-                                <div>
-                                    ${element.display.view(item)}
+                            return html`
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
+                                    <div>
+                                        ${element.display.view(item)}
+                                    </div>
+                                    <div>
+                                        ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                            <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
+                                                <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                                                Edit
+                                            </button>` : null}
+                                        ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                            <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                                Remove
+                                            </button>` : null}
+                                    </div>
                                 </div>
-                                <div>
-                                    ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
-                                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
-                                            Edit
-                                        </button>` : null}
-                                    ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                            Remove
-                                        </button>` : null}
-                                </div>
-                            </div>
-                            <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
-                                ${this._createObjectElement(_element)}
-                                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
-                                </div>
-                            </div>`;
-                    })}
+                                <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
+                                    ${this._createObjectElement(_element)}
+                                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
+                                    </div>
+                                </div>`;
+                        })}
                 </div>
 
                 ${element.display.collapsed && items?.length > 0? html`
@@ -1511,14 +1512,13 @@ export default class DataForm extends LitElement {
                 }
             }
         } else {
+            // We need to find out if the parent of the element is type 'object'
             let isObjectType = false;
-            let elementFieldName = "";
             let objectFieldName = "";
             // Check if element is part of a 'object' element
             if (element.field.includes(".")) {
                 // Get the name of the possible object element: all fields but last one
                 const split = element.field.split(".");
-                elementFieldName = split[split.length - 1];
                 split.splice(split.length - 1, 1);
                 objectFieldName = split.join(".");
 
@@ -1526,7 +1526,7 @@ export default class DataForm extends LitElement {
                 for (const section of this.config.sections) {
                     for (const element of section.elements) {
                         if (element.field === objectFieldName) {
-                            isObjectType = element.type === "object";
+                            isObjectType = (element.type === "object");
                             break;
                         }
                     }
