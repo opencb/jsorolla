@@ -929,7 +929,8 @@ export default class UtilsNew {
         return versionNumber2 - versionNumber1;
     }
 
-    static getObjectValue(obj, props, defaultValue, results) {
+    // It always returns an array
+    static getObjectValues(obj, props, defaultValue, results) {
         if (!results) {
             // eslint-disable-next-line no-param-reassign
             results = [];

@@ -273,12 +273,13 @@ export default class DataForm extends LitElement {
             } else {
                 field = element.field;
             }
-
-            if (prop) {
-                return typeof this.updateParams[field]?.[prop] !== "undefined";
-            } else {
-                return typeof this.updateParams[field] !== "undefined";
-            }
+            // support nested object
+            return typeof UtilsNew.getObjectValue(this.updateParams, element.field, undefined) !== "undefined";
+            // if (prop) {
+            //     return typeof this.updateParams[field]?.[prop] !== "undefined";
+            // } else {
+            //     return typeof this.updateParams[field] !== "undefined";
+            // }
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
             return element.display?.updated;

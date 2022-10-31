@@ -275,8 +275,20 @@ export default class FormUtils {
             const rootFieldName = param.split(".")[0];
 
             // Use spread operator to avoid reference between original and _updateParams
-            UtilsNew.setObjectValue(_updateParams, rootFieldName, {...original[rootFieldName]});
+            // If it's object, use spread operator
+            const originalValue = UtilsNew.isObject(original[rootFieldName]) ? {...original[rootFieldName]} : "" + original[rootFieldName];
+            UtilsNew.setObjectValue(_updateParams, rootFieldName, originalValue);
         } else {
+
+            // Original: restore the original value in our copy.
+            const restoredOriginalValue = UtilsNew.getObjectValue(_original, param, undefined);
+            if (restoredOriginalValue === "undefined") {
+                UtilsNew.deleteObjectValue(_original, param);
+            } else {
+                UtilsNew.setObjectValue(original, param, restoredOriginalValue);
+            }
+
+            // Remove from updateParams
             UtilsNew.deleteObjectValue(_updateParams, param);
 
             // Check if the parent is empty to remove from updateParams
