@@ -1,5 +1,6 @@
 import LollipopLayout from "./lollipop-layout.js";
 import {SVG} from "../svg.js";
+import UtilsNew from "../utils-new.js";
 
 const getDefaultConfig = () => ({
     showProteinScale: true,
@@ -7,9 +8,19 @@ const getDefaultConfig = () => ({
     showProteinLollipops: true,
     showLegend: true,
     labelsWidth: 200,
+    proteinFeatures: [
+        "domain",
+        "region of interest",
+    ],
+    proteinFeaturesColors: {
+        "domain": "#fd9843",
+        "region of interest": "#3d8bfd",
+        "other": "#adb5bd",
+    },
 });
 
 export const proteinLollipop = (target, protein, variants, customConfig) => {
+    const prefix = UtilsNew.randomString(8);
     const config = {
         ...getDefaultConfig(),
         ...customConfig,
@@ -17,10 +28,20 @@ export const proteinLollipop = (target, protein, variants, customConfig) => {
     console.log(protein);
     console.log(variants);
 
-    const svg = SVG.init(target, {
-        style: "user-select:none;",
-        width: "100%",
-    });
+    // Initialize template
+    const template = `
+        <div id="${prefix}" class="" style="user-select:none;">
+        </div>
+    `;
+    const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
+
+    // Append HTML content into target element (if provided)
+    if (target) {
+        target.appendChild(parent);
+    }
+
+    // Initialize SVG for reindering protein tracks
+    const svg = SVG.init(parent, {width: "100%"}, 0);
     const width = svg.clientWidth;
     let offset = 0;
 
@@ -81,6 +102,8 @@ export const proteinLollipop = (target, protein, variants, customConfig) => {
     // Show protein structure
     if (config.showProteinStructure) {
         offset = offset + 50;
+
+        const defaultColor = config.proteinFeaturesColors["other"];
         const group = SVG.addChild(svg, "g", {
             "transform": `translate(0, ${offset})`,
         });
@@ -95,19 +118,20 @@ export const proteinLollipop = (target, protein, variants, customConfig) => {
 
         // Append protein domains
         protein.feature
-            .filter(feature => feature.type === "domain" || feature.type === "region of interest")
+            .filter(feature => config.proteinFeatures.includes(feature.type))
             .forEach(feature => {
                 const featureStart = getPixelPosition(feature.location.begin.position);
                 const featureEnd = getPixelPosition(feature.location.end.position);
 
                 SVG.addChild(group, "rect", {
-                    "fill": "#fdb462",
+                    "fill": config.proteinFeaturesColors[feature.type] || defaultColor,
                     "height": 40,
                     "stroke": "black",
                     "stroke-width": "1px",
                     "width": (featureEnd - featureStart),
                     "x": featureStart,
                     "y": -40,
+                    "title": feature.description,
                 });
             });
     }
