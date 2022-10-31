@@ -13,7 +13,12 @@ export default class LollipopLayout {
         const minSeparation = Math.min(this.config.minSeparation, width / features.length);
         const positions = [];
         const initialPositions = features.map(feature => {
-            const position = feature.start + Math.max(Math.abs(feature.end - feature.start + 1), 1) / 2;
+            let position = null;
+            if (typeof feature.position === "number") {
+                position = feature.position;
+            } else {
+                position = feature.start + Math.max(Math.abs(feature.end - feature.start + 1), 1) / 2;
+            }
             return width * (position - region.start) / length;
         });
         let i = 0;
