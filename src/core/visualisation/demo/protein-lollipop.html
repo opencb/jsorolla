@@ -26,7 +26,7 @@
         const params = new URLSearchParams(window.location.search);
         const cellBaseClient = new CellBaseClient({
             host: params.get("CELLBASE_HOST") || "https://ws.zettagenomics.com/cellbase",
-            version: params.get("CELLBASE_VERSION") || "v5",
+            version: params.get("CELLBASE_VERSION") || "v5.1",
             cache: {
                 active: false,
             },
@@ -51,14 +51,16 @@
         };
 
         const target = document.getElementById("root");
-        const gene = "BRCA1";
+        const geneName = "BRCA1";
+        // const proteinName = "BRCA1_HUMAN";
 
         const promisesList = [
-            cellBaseClient.getProteinClient(null, "search", {gene: gene}),
+            // cellBaseClient.getProteinClient(null, "search", {gene: gene}),
+            ProteinLollipop.getProteinInfoFromGene(cellBaseClient, geneName),
             openCGALogin().then(() => {
                 return opencgaClient.clinical().queryVariant({
                     study: "demo@family:platinum",
-                    xref: gene,
+                    xref: geneName,
                     ct: [
                         "frameshift_variant",
                         "incomplete_terminal_codon_variant",
@@ -78,7 +80,7 @@
         ];
 
         Promise.all(promisesList).then(values => {
-            const protein = values[0].responses[0].results[0];
+            const protein = values[0]; // values[0].responses[0].results[0];
             const variants = values[1].responses[0].results;
 
             ProteinLollipop.draw(target, protein, variants, {});
