@@ -257,52 +257,68 @@ export default class FormUtils {
             (o, idx) => UtilsNew.objectCompare(o, b[idx])
         );
 
+        // 1. Make a deep copy of the updateParams
         const _updateParams = {
             ...updateParams
         };
 
+        // 2. Get current value in the original object, this will be used to check if the value has changed
         const currentValue = UtilsNew.getObjectValue(_original, param, "");
 
-        // Check if they are different
+        // 3. Check if the values are actually different.
+        // We must implement different comparison depending on the field type.
         let isDifferent;
         if (Array.isArray(currentValue)) {
             isDifferent = !arraysEqual(currentValue, value);
         } else {
-            isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
+            if (typeof currentValue === "object") {
+                isDifferent = !UtilsNew.objectCompare(currentValue, value);
+            } else {
+                // Compare primitive fields: string, number, boolean
+                isDifferent = isValueDifferent(currentValue, value) && isNotEmpty(currentValue, value);
+            }
         }
-        if (isDifferent) {
-            UtilsNew.setObjectValue(original, param, value);
-            const rootFieldName = param.split(".")[0];
 
+        // 4. Set or delete values
+        if (isDifferent) {
+            // 4.1 If value isDifferent we must set the new value in the _updateParams
+            UtilsNew.setObjectValue(original, param, value);
+
+            // 4.2 We must return the root parent object. OpenCGA needs the root object!
+            const rootFieldName = param.split(".")[0];
+            UtilsNew.setObjectValue(_updateParams, rootFieldName, original[rootFieldName]);
+
+            // Deprecated:
             // Use spread operator to avoid reference between original and _updateParams
             // If it's object, use spread operator
-            const originalValue = UtilsNew.isObject(original[rootFieldName]) ? {...original[rootFieldName]} : "" + original[rootFieldName];
-            UtilsNew.setObjectValue(_updateParams, rootFieldName, originalValue);
+            // const originalValue = UtilsNew.isObject(original[rootFieldName]) ? {...original[rootFieldName]} : original[rootFieldName];
+            // UtilsNew.setObjectValue(_updateParams, rootFieldName, originalValue);
         } else {
-
-            // Original: restore the original value in our copy.
+            // 4.1 Values are equals, so we must restore the original value in our copy.
             const restoredOriginalValue = UtilsNew.getObjectValue(_original, param, undefined);
-            if (restoredOriginalValue === "undefined") {
-                UtilsNew.deleteObjectValue(_original, param);
+            if (restoredOriginalValue) {
+                UtilsNew.setObjectValue(original, param, JSON.parse(JSON.stringify(restoredOriginalValue)));
             } else {
-                UtilsNew.setObjectValue(original, param, restoredOriginalValue);
+                UtilsNew.deleteObjectValue(original, param);
             }
 
-            // Remove from updateParams
-            UtilsNew.deleteObjectValue(_updateParams, param);
-
-            // Check if the parent is empty to remove from updateParams
+            // 4.2 Check if any parent object is empty or equals to original data, then we must remove from _updateParams
             const props = param.split(".").slice(0, -1);
             const length = props.length;
             for (let i = 0; i < length; i++) {
                 const prefix = props.join(".");
-                if (UtilsNew.isEmpty(UtilsNew.getObjectValue(_updateParams, prefix, ""))) {
+                const originalDataValue = UtilsNew.getObjectValue(_original, prefix, "");
+                const updateValue = UtilsNew.getObjectValue(_updateParams, prefix, "");
+                if (UtilsNew.isEmpty() || UtilsNew.objectCompare(originalDataValue, updateValue)) {
                     UtilsNew.deleteObjectValue(_updateParams, prefix);
                     props.pop();
                 } else {
                     break;
                 }
             }
+
+            // 4.3 No need to remove from _updateParams after the loop above, delete this??
+            // UtilsNew.deleteObjectValue(_updateParams, param);
         }
         return _updateParams;
     }

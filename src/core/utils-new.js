@@ -411,26 +411,23 @@ export default class UtilsNew {
      * Compares the objects by key and value (nested object are not supported yet)
      * @param {Object} a First object
      * @param {Object} b Second object
-     * @returns {boolean} true if the oject are equals
+     * @returns {boolean} true if the objects are equals
      */
     static objectCompare(a, b) {
         if (a && b) {
-            const _a = UtilsNew.objectSort(a);
-            const _b = UtilsNew.objectSort(b);
-            return JSON.stringify(_a) === JSON.stringify(_b);
+            const _a = JSON.stringify(UtilsNew.objectSort(a));
+            const _b = JSON.stringify(UtilsNew.objectSort(b));
+            return _a === _b;
         } else {
             return false;
         }
     }
 
     static isObjectValuesEmpty(obj) {
-
         return Object.values(obj).every(val => {
-
             if (val !== null && (typeof val === "object" || Array.isArray(val))) {
                 return UtilsNew.isObjectValuesEmpty(val);
             }
-
             return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
         });
     }

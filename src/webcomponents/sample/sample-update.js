@@ -254,6 +254,7 @@ export default class SampleUpdate extends LitElement {
             ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
             <data-form
                 .data="${this.sample}"
+                .originalData="${this._sample}"
                 .config="${this._config}"
                 .updateParams="${this.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"

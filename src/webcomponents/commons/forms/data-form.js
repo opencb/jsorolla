@@ -52,6 +52,9 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
+            originalData: {
+                type: Object
+            },
             updateParams: {
                 type: Object
             },
@@ -263,18 +266,24 @@ export default class DataForm extends LitElement {
     }
 
     _isUpdated(element) {
-        if (!UtilsNew.isEmpty(this.updateParams)) {
+        if (UtilsNew.isNotEmpty(this.updateParams)) {
             // const [field, prop] = element.field.split(".");
-            let field, prop;
-            if (element.field.includes(".")) {
-                const lastIndexOf = element.field.lastIndexOf(".");
-                field = element.field.substring(0, lastIndexOf);
-                prop = element.field.substring(lastIndexOf + 1);
-            } else {
-                field = element.field;
-            }
-            // support nested object
-            return typeof UtilsNew.getObjectValue(this.updateParams, element.field, undefined) !== "undefined";
+            // let field, prop;
+            // if (element.field.includes(".")) {
+            //     const lastIndexOf = element.field.lastIndexOf(".");
+            //     field = element.field.substring(0, lastIndexOf);
+            //     prop = element.field.substring(lastIndexOf + 1);
+            // } else {
+            //     field = element.field;
+            // }
+
+            // Support nested object
+            // Check if updateValue exists and is different from the originalValue
+            const originalValue = UtilsNew.getObjectValue(this.originalData, element.field, undefined);
+            const updatedValue = UtilsNew.getObjectValue(this.updateParams, element.field, undefined);
+            return updatedValue && originalValue !== updatedValue;
+
+            // return typeof UtilsNew.getObjectValue(this.updateParams, element.field, undefined) !== "undefined";
             // if (prop) {
             //     return typeof this.updateParams[field]?.[prop] !== "undefined";
             // } else {
@@ -1473,14 +1482,10 @@ export default class DataForm extends LitElement {
 
         // Notify change to provoke the update
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        this.onFilterChange(element, dataElementList, "added", dataElementList.length - 1);
-
-        // TODO clear the nested form
-        // ...
+        this.onFilterChange(element, dataElementList);
     }
 
     #editItemOfObjectList(e, item, index, element) {
-
         // const htmlElement = document.getElementById(this._prefix + "_" + index);
         const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
@@ -1493,7 +1498,7 @@ export default class DataForm extends LitElement {
 
         // Notify change to provoke the update
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        this.onFilterChange(element, dataElementList, "updated", index);
+        this.onFilterChange(element, dataElementList);
     }
 
     #removeFromObjectList(e, item, index, element) {
@@ -1502,11 +1507,11 @@ export default class DataForm extends LitElement {
         dataElementList.splice(index, 1);
 
         // Notify change to provoke the update
-        this.onFilterChange(element, dataElementList, "removed", index);
+        this.onFilterChange(element, dataElementList);
     }
 
-    onFilterChange(element, value, objectListAction, objectListIndex) {
-        // Check if the element is an 'object-list'
+    onFilterChange(element, value) {
+        // 1. Check if the element is an 'object-list'
         if (element.field.includes("[]")) {
             // Example: [variants, id]
             const [parentArrayField, itemField] = element.field.split("[].");
@@ -1526,17 +1531,17 @@ export default class DataForm extends LitElement {
                 }
             }
         } else {
-            // We need to find out if the parent of the element is type 'object'
+            // 2. We need to check if the parent of the element is type 'object'
             let isObjectType = false;
             let objectFieldName = "";
-            // Check if element is part of a 'object' element
+            // 2.1 Check if element is part of a 'object' element
             if (element.field.includes(".")) {
-                // Get the name of the possible object element: all fields but last one
+                // 2.2 Get the name of the possible object element: all fields but last one
                 const split = element.field.split(".");
                 split.splice(split.length - 1, 1);
                 objectFieldName = split.join(".");
 
-                // Check if the possible object element exists
+                // 2.3 Check if the possible object element exists
                 for (const section of this.config.sections) {
                     for (const element of section.elements) {
                         if (element.field === objectFieldName) {
@@ -1547,6 +1552,7 @@ export default class DataForm extends LitElement {
                 }
             }
 
+            // 3. Prepare the detail to be sent in the event, this depends on the element type
             let detail;
             if (isObjectType) {
                 // Make sure the object field exists
@@ -1558,34 +1564,36 @@ export default class DataForm extends LitElement {
                 //     this.data[objectFieldName] = {};
                 // }
 
-                if (value) {
-                    // this.data[objectFieldName][elementFieldName] = value;
-                    UtilsNew.setObjectValue(this.data, element.field, value);
-                } else {
-                    // not sure about this one
-                    UtilsNew.deleteObjectValue(this.data, element.field);
-                    // delete this.data[objectFieldName][elementFieldName];
-                }
+                // if (value) {
+                //     // this.data[objectFieldName][elementFieldName] = value;
+                //     UtilsNew.setObjectValue(this.data, element.field, value);
+                // } else {
+                //     // not sure about this one
+                //     // UtilsNew.deleteObjectValue(this.data, element.field);
+                //     // delete this.data[objectFieldName][elementFieldName];
+                // }
 
+                // 3.1 We need to set the value to the object
+                UtilsNew.setObjectValue(this.data, element.field, value);
                 // detail = {
                 //     param: objectFieldName,
                 //     value: this.data[objectFieldName]
                 // };
 
+                // 3.2 We must return the parent object
                 detail = {
                     param: objectFieldName,
                     value: UtilsNew.getObjectValue(this.data, objectFieldName, "")
                 };
             } else {
+                // 3.1 This element is not type 'object', we just return the value
                 detail = {
                     param: element.field,
                     value: value
                 };
-                if (objectListAction) {
-                    detail[objectListAction] = objectListIndex;
-                }
             }
 
+            // 4. Send the custom event
             this.dispatchEvent(new CustomEvent("fieldChange", {
                 detail: detail,
                 bubbles: true,
