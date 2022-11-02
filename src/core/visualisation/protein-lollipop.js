@@ -256,7 +256,7 @@ export default {
                         "fill": this.PROTEIN_FEATURES_COLORS[feature.type] || defaultColor,
                         "height": 40,
                         "stroke": "#212529",
-                        "stroke-width": "2px",
+                        "stroke-width": "1px",
                         "width": (featureEnd - featureStart),
                         "x": featureStart,
                         "y": -41,
@@ -275,7 +275,7 @@ export default {
                 const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
                 return `
                     <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-                        <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
+                        <div style="background-color:${color};border-radius:0.5em;padding:0.6em 1em;"></div>
                         <div style="margin-left:0.5em;">
                             <strong style="color:${color};">${id.toUpperCase()}</strong>
                         </div>
