@@ -1,7 +1,6 @@
 import LollipopLayout from "./lollipop-layout.js";
 import {SVG} from "../svg.js";
 import UtilsNew from "../utils-new.js";
-import Region from "../bioinfo/region.js";
 
 const getDefaultConfig = () => ({
     showProteinScale: true,
@@ -74,10 +73,6 @@ const draw = (target, protein, variants, customConfig) => {
         throw new Error("No 'chain' feature found in protein");
     }
     const proteinLength = chainFeature.location.end.position;
-    const proteinRegion = new Region({
-        start: chainFeature.location?.begin?.position || 1,
-        end: chainFeature.location?.end?.position,
-    });
 
     // Tiny utility to calculate the positin in px from the given protein coordinate
     const getPixelPosition = p => p * width / proteinLength;
@@ -124,46 +119,48 @@ const draw = (target, protein, variants, customConfig) => {
         const group = SVG.addChild(svg, "g", {
             "transform": `translate(0, ${offset})`,
         });
-        const lollipops = [];
-        const lollipopLayout = new LollipopLayout({});
 
-        (variants || []).forEach(variant => {
-            const ct = variant?.annotation?.consequenceTypes?.find(item => {
-                return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
-            });
-
-            if (ct) {
-                lollipops.push({
-                    position: ct.proteinVariantAnnotation.position,
+        const lollipopsVariants = (variants || [])
+            .map(variant => {
+                let info = null;
+                const ct = variant?.annotation?.consequenceTypes?.find(item => {
+                    return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
                 });
-            }
-        });
 
-        // Sort lollipops by position
-        lollipops.sort((a, b) => a.position < b.position ? -1 : +1);
+                if (ct) {
+                    info = {
+                        position: ct.proteinVariantAnnotation.position,
+                    };
+                }
+                return info;
+            })
+            .filter(item => !!item)
+            .sort((a, b) => a.position < b.position ? -1 : +1);
 
         // Render lollipops
-        lollipopLayout.layout(lollipops, proteinRegion, width).forEach((item, index) => {
-            const info = lollipops[index];
-            const x0 = getPixelPosition(info.position);
-            const x1 = item; // getPixelPosition(info.start);
+        LollipopLayout
+            .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), LollipopLayout.MIN_SEPARATION)
+            .forEach((item, index) => {
+                const info = lollipopsVariants[index];
+                const x0 = getPixelPosition(info.position);
+                const x1 = item; // getPixelPosition(info.start);
 
-            // Lollipop line
-            SVG.addChild(group, "path", {
-                "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
-                "fill": "none",
-                "stroke": "black",
-                "stroke-width": "2px",
-            });
+                // Lollipop line
+                SVG.addChild(group, "path", {
+                    "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
+                    "fill": "none",
+                    "stroke": "black",
+                    "stroke-width": "2px",
+                });
 
-            // Lollipop circle
-            SVG.addChild(group, "circle", {
-                "cx": x1 - 0.5,
-                "cy": -70,
-                "r": 10,
-                "fill": "black",
+                // Lollipop circle
+                SVG.addChild(group, "circle", {
+                    "cx": x1 - 0.5,
+                    "cy": -70,
+                    "r": 10,
+                    "fill": "black",
+                });
             });
-        });
     }
 
     // Show protein structure
