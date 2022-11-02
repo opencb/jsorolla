@@ -3,22 +3,33 @@ import {SVG} from "../svg.js";
 import UtilsNew from "../utils-new.js";
 
 export default {
-    getDefaultConfig: () => ({
-        showProteinScale: true,
-        showProteinStructure: true,
-        showProteinLollipops: true,
-        showLegend: true,
-        labelsWidth: 200,
-        proteinFeatures: [
-            "domain",
-            "region of interest",
-        ],
-        proteinFeaturesColors: {
-            "domain": "#fd9843",
-            "region of interest": "#3d8bfd",
-            "other": "#adb5bd",
-        },
-    }),
+
+    CONSEQUENCE_TYPES_COLORS: {
+        "missense_variant": "#cc9a06",
+        "frameshift_variant": "#dc3545",
+        "stop_gained": "#6f42c1",
+        "splice_region_variant": "#0d6efd",
+        "other": "#6c757d",
+    },
+    PROTEIN_FEATURES_COLORS: {
+        "domain": "#fd9843",
+        "region of interest": "#3d8bfd",
+        "other": "#adb5bd",
+    },
+
+    getDefaultConfig() {
+        return {
+            showProteinScale: true,
+            showProteinStructure: true,
+            showProteinLollipops: true,
+            showLegend: true,
+            labelsWidth: 200,
+            proteinFeatures: [
+                "domain",
+                "region of interest",
+            ],
+        };
+    },
 
     // This is a terrible hack to find the correct protein ID and the transcript ID
     getProteinInfoFromGene(client, geneName) {
@@ -48,12 +59,10 @@ export default {
             ...this.getDefaultConfig(),
             ...customConfig,
         };
-        console.log(protein);
-        console.log(variants);
 
         // Initialize template
         const template = `
-            <div id="${prefix}" class="" style="user-select:none;">
+            <div id="${prefix}" class="" style="user-select:none;font-size:16px;">
             </div>
         `;
         const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
@@ -128,9 +137,11 @@ export default {
                         return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
                     });
 
-                    if (ct) {
+                    if (ct && ct.proteinVariantAnnotation?.position) {
                         info = {
+                            variantId: variant.id,
                             position: ct.proteinVariantAnnotation.position,
+                            sequenceOntologyTerms: ct.sequenceOntologyTerms,
                         };
                     }
                     return info;
@@ -140,26 +151,40 @@ export default {
 
             // Render lollipops
             LollipopLayout
-                .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), LollipopLayout.MIN_SEPARATION)
-                .forEach((item, index) => {
+                .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), 20)
+                .forEach((x1, index) => {
                     const info = lollipopsVariants[index];
                     const x0 = getPixelPosition(info.position);
-                    const x1 = item; // getPixelPosition(info.start);
+                    const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
+                    const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
 
                     // Lollipop line
                     SVG.addChild(group, "path", {
                         "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
                         "fill": "none",
-                        "stroke": "black",
-                        "stroke-width": "2px",
+                        "stroke": color,
+                        "stroke-width": "1px",
                     });
 
                     // Lollipop circle
                     SVG.addChild(group, "circle", {
                         "cx": x1 - 0.5,
                         "cy": -70,
-                        "r": 10,
-                        "fill": "black",
+                        "r": 8,
+                        "fill": color,
+                        "stroke": "#fff",
+                        "stroke-width": "2px",
+                    });
+
+                    // Variant ID
+                    SVG.addChildText(group, info.variantId, {
+                        // "x": x1,
+                        // "y": -80,
+                        "fill": color,
+                        "text-anchor": "start",
+                        "dominant-baseline": "middle",
+                        // "transform": "rotate(-90)",
+                        "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
                     });
                 });
         }
@@ -168,17 +193,17 @@ export default {
         if (config.showProteinStructure) {
             offset = offset + 50;
 
-            const defaultColor = config.proteinFeaturesColors["other"];
+            const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(svg, "g", {
                 "transform": `translate(0, ${offset})`,
             });
 
             // Append structure line
             SVG.addChild(group, "path", {
-                "d": `M0.5,-19.5H${(width - 0.5)}`,
+                "d": `M0.5,-20.5H${(width - 0.5)}`,
                 "fill": "none",
-                "stroke": "black",
-                "stroke-width": "1px",
+                "stroke": "#212529",
+                "stroke-width": "2px",
             });
 
             // Append protein domains
@@ -189,13 +214,13 @@ export default {
                     const featureEnd = getPixelPosition(feature.location.end.position);
 
                     SVG.addChild(group, "rect", {
-                        "fill": config.proteinFeaturesColors[feature.type] || defaultColor,
+                        "fill": this.PROTEIN_FEATURES_COLORS[feature.type] || defaultColor,
                         "height": 40,
-                        "stroke": "black",
-                        "stroke-width": "1px",
+                        "stroke": "#212529",
+                        "stroke-width": "2px",
                         "width": (featureEnd - featureStart),
                         "x": featureStart,
-                        "y": -40,
+                        "y": -41,
                         "title": feature.description,
                     });
                 });
