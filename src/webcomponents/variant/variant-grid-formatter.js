@@ -967,6 +967,7 @@ export default class VariantGridFormatter {
 
     static clinicalPhenotypeFormatter(value, row, index) {
         const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+        // Check for ClinVar and Cosmic annotations
         if (row?.annotation?.traitAssociation) {
             // Filter the traits for this column and check the number of existing traits
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
@@ -974,74 +975,75 @@ export default class VariantGridFormatter {
                 return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
             }
 
-            if (this.field === "clinvar") {
-                const results = [];
-                let tooltipText = "";
-                const clinicalSignificanceVisited = new Set();
-                for (const trait of traits) {
-                    let clinicalSignificance,
-                        drugResponseClassification;
-                    if (trait?.variantClassification?.clinicalSignificance) {
-                        clinicalSignificance = trait.variantClassification.clinicalSignificance;
-                    } else {
-                        if (trait?.variantClassification?.drugResponseClassification) {
-                            clinicalSignificance = "drug_response";
-                            drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+            let tooltipText = "";
+            switch (this.field) {
+                case "clinvar":
+                    const results = [];
+                    const clinicalSignificanceVisited = new Set();
+                    for (const trait of traits) {
+                        let clinicalSignificance,
+                            drugResponseClassification;
+                        if (trait?.variantClassification?.clinicalSignificance) {
+                            clinicalSignificance = trait.variantClassification.clinicalSignificance;
                         } else {
-                            clinicalSignificance = "unknown";
+                            if (trait?.variantClassification?.drugResponseClassification) {
+                                clinicalSignificance = "drug_response";
+                                drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+                            } else {
+                                clinicalSignificance = "unknown";
+                            }
                         }
-                    }
-                    let code = "";
-                    let color = "";
-                    let tooltip = "";
-                    switch (clinicalSignificance.toUpperCase()) {
-                        case "BENIGN":
-                            code = "B";
-                            color = "green";
-                            tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "LIKELY_BENIGN":
-                            code = "LB";
-                            color = "darkgreen";
-                            tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "VUS":
-                        case "UNCERTAIN_SIGNIFICANCE":
-                            code = "US";
-                            color = "darkorange";
-                            tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "LIKELY_PATHOGENIC":
-                            code = "LP";
-                            color = "darkred";
-                            tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "PATHOGENIC":
-                            code = "P";
-                            color = "red";
-                            tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "DRUG_RESPONSE":
-                            code = "DR";
-                            color = "darkred";
-                            tooltip = "Classified as drug response following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "UNKNOWN":
-                            code = "NP";
-                            color = "grey";
-                            tooltip = "ClinVar submissions without an interpretation of clinical significance";
-                            break;
-                    }
+                        let code = "";
+                        let color = "";
+                        let tooltip = "";
+                        switch (clinicalSignificance.toUpperCase()) {
+                            case "BENIGN":
+                                code = "B";
+                                color = "green";
+                                tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "LIKELY_BENIGN":
+                                code = "LB";
+                                color = "darkgreen";
+                                tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "VUS":
+                            case "UNCERTAIN_SIGNIFICANCE":
+                                code = "US";
+                                color = "darkorange";
+                                tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "LIKELY_PATHOGENIC":
+                                code = "LP";
+                                color = "darkred";
+                                tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "PATHOGENIC":
+                                code = "P";
+                                color = "red";
+                                tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "DRUG_RESPONSE":
+                                code = "DR";
+                                color = "darkred";
+                                tooltip = "Classified as drug response following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "UNKNOWN":
+                                code = "NP";
+                                color = "grey";
+                                tooltip = "ClinVar submissions without an interpretation of clinical significance";
+                                break;
+                        }
 
-                    if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
-                        results.push(`<span style="color: ${color}">${code}</span>`);
-                        clinicalSignificanceVisited.add(code);
-                    }
+                        if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
+                            results.push(`<span style="color: ${color}">${code}</span>`);
+                            clinicalSignificanceVisited.add(code);
+                        }
 
-                    // Prepare the tooltip links
-                    if (!trait.id?.startsWith("SCV")) {
-                        // We display the link plus the clinical significance and all the heritable trait descriptions
-                        tooltipText += `
+                        // Prepare the tooltip links
+                        if (!trait.id?.startsWith("SCV")) {
+                            // We display the link plus the clinical significance and all the heritable trait descriptions
+                            tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${trait.url}" target="_blank">${trait.id}</a>
@@ -1051,25 +1053,23 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                            .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                            .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
-                            .join("")
-                        }
+                                .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                                .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                .join("")
+                            }
                                 </div>
                             </div>`;
+                        }
                     }
-                }
 
-                // This can only be shown if nothing else exists
-                if (results.length === 0) {
-                    return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
-                }
+                    // This can only be shown if nothing else exists
+                    if (results.length === 0) {
+                        return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
+                    }
 
-                return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
-            } else {
-                if (this.field === "cosmic") {
+                    return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
+                case "cosmic":
                     // Prepare the tooltip links
-                    let tooltipText = "";
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
                         if (trait?.somaticInformation?.primaryHistology) {
@@ -1096,14 +1096,35 @@ export default class VariantGridFormatter {
                             </div>`;
                     }
 
-                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                                <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
-                            </a>`;
-                } else {
+                    return `
+                        <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
+                        </a>`;
+                default:
                     console.error("Wrong clinical source : " + this.field);
-                }
+                    break;
             }
         }
+
+        if (row?.annotation?.cancerHotspots?.length > 0) {
+            const cancerHotspotsHtml = [];
+            for (const ct of row.annotation.consequenceTypes) {
+                for (const hotspot of row.annotation.cancerHotspots) {
+                    if (ct.geneName === hotspot.geneName && ct.proteinVariantAnnotation?.position === hotspot.aminoacidPosition) {
+                        cancerHotspotsHtml.push(hotspot);
+                    }
+                }
+            }
+            if (cancerHotspotsHtml.length > 0) {
+                return `
+                    <a>
+                        <span style="color: green">${cancerHotspotsHtml.length} mutations</span>
+                    </a>`;
+            } else {
+                return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+            }
+        }
+
         return phenotypeHtml;
     }
 
@@ -1164,7 +1185,7 @@ export default class VariantGridFormatter {
                 }
             }
 
-            // Sort bu key and prepare column data
+            // Sort by key and prepare column data
             for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
                 const values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
@@ -1220,7 +1241,21 @@ export default class VariantGridFormatter {
                                 <div>${cosmicTable}</div>
                             </div>`;
 
-        return clinvarTraits + cosmicTraits;
+        // Cancer Hotspots
+        const cancerHotspotsColumns = [
+            {title: "Gene Name"},
+            {title: "Aminoacid Position"},
+            {title: "Aminoacid Reference"},
+            {title: "Cancer Type"},
+            {title: "Number of Variants"},
+        ];
+        const cancerHotspotsTable = VariantGridFormatter.renderTable("", cancerHotspotsColumns, cosmic, {defaultMessage: "No Cancer Hotspots data found"});
+        const cancerHotspotsHtml = `<div style="margin-top: 15px">
+                                <label>Cancer Hotspots</label>
+                                <div>${cancerHotspotsTable}</div>
+                            </div>`;
+
+        return clinvarTraits + cosmicTraits + cancerHotspotsHtml;
     }
 
     /*

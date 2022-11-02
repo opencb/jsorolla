@@ -799,7 +799,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 {
@@ -945,6 +945,16 @@ export default class VariantInterpreterGrid extends LitElement {
                     id: "cosmic",
                     title: "Cosmic",
                     field: "cosmic",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
