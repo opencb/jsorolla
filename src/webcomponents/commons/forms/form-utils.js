@@ -303,22 +303,25 @@ export default class FormUtils {
             }
 
             // 4.2 Check if any parent object is empty or equals to original data, then we must remove from _updateParams
-            const props = param.split(".").slice(0, -1);
-            const length = props.length;
-            for (let i = 0; i < length; i++) {
-                const prefix = props.join(".");
-                const originalDataValue = UtilsNew.getObjectValue(_original, prefix, "");
-                const updateValue = UtilsNew.getObjectValue(_updateParams, prefix, "");
-                if (UtilsNew.isEmpty() || UtilsNew.objectCompare(originalDataValue, updateValue)) {
-                    UtilsNew.deleteObjectValue(_updateParams, prefix);
-                    props.pop();
-                } else {
-                    break;
+            if (param.includes(".")) {
+                // 4.2.1 Check all parents
+                const props = param.split(".").slice(0, -1);
+                const length = props.length;
+                for (let i = 0; i < length; i++) {
+                    const prefix = props.join(".");
+                    const originalDataValue = UtilsNew.getObjectValue(_original, prefix, "");
+                    const updateValue = UtilsNew.getObjectValue(_updateParams, prefix, "");
+                    if (UtilsNew.isEmpty() || UtilsNew.objectCompare(originalDataValue, updateValue)) {
+                        UtilsNew.deleteObjectValue(_updateParams, prefix);
+                        props.pop();
+                    } else {
+                        break;
+                    }
                 }
+            } else {
+                // 4.2.2 We need to remove from _updateParams after the loop above, delete this??
+                UtilsNew.deleteObjectValue(_updateParams, param);
             }
-
-            // 4.3 No need to remove from _updateParams after the loop above, delete this??
-            // UtilsNew.deleteObjectValue(_updateParams, param);
         }
         return _updateParams;
     }
