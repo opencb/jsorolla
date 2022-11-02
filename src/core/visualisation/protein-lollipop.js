@@ -52,6 +52,18 @@ export default {
             });
     },
 
+    generateLegendField(parent, title, content) {
+        const field = UtilsNew.renderHTML(`
+            <div style="font-size:0.8em;color:#6c757d;">
+                <strong>${title.toUpperCase()}</strong>
+            </div>
+            <div style="display:flex;">
+                ${content}
+            </div>
+        `);
+        parent.appendChild(field);
+    },
+
     // Draw protein visualization
     draw(target, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
@@ -63,9 +75,16 @@ export default {
         // Initialize template
         const template = `
             <div id="${prefix}" class="" style="user-select:none;font-size:16px;">
+                <div style="margin-top:1em;">
+                    <div style="font-size:0.8em;border-bottom:1px solid #adb5bd;margin-bottom:1em;">
+                        <strong style="color:#6c757d;">Legend</strong>
+                    </div>
+                    <div id="${prefix}Legends" style="display:grid;grid-template-columns:120px 1fr;row-gap:1em;"></div>
+                </div>
             </div>
         `;
         const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
+        const legendsParent = parent.querySelector(`div#${prefix}Legends`);
 
         // Append HTML content into target element (if provided)
         if (target) {
@@ -129,6 +148,7 @@ export default {
             const group = SVG.addChild(svg, "g", {
                 "transform": `translate(0, ${offset})`,
             });
+            const variantsCounts = {};
 
             const lollipopsVariants = (variants || [])
                 .map(variant => {
@@ -178,21 +198,41 @@ export default {
 
                     // Variant ID
                     SVG.addChildText(group, info.variantId, {
-                        // "x": x1,
-                        // "y": -80,
                         "fill": color,
                         "text-anchor": "start",
                         "dominant-baseline": "middle",
-                        // "transform": "rotate(-90)",
                         "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
                     });
+
+                    // Add the consequence type of this variant to the legend
+                    if (typeof variantsCounts[consequenceType] !== "number") {
+                        variantsCounts[consequenceType] = 0;
+                    }
+                    variantsCounts[consequenceType]++;
                 });
+
+            // Generate variants legend
+            const variantsLegend = Object.keys(variantsCounts).map(id => {
+                const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
+                const count = variantsCounts[id];
+                return `
+                    <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
+                        <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
+                        <div style="margin-left:0.5em;">
+                            <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
+                        </div>
+                    </div>
+                `;
+            });
+
+            this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
         }
 
         // Show protein structure
         if (config.showProteinStructure) {
             offset = offset + 50;
 
+            const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(svg, "g", {
                 "transform": `translate(0, ${offset})`,
@@ -223,7 +263,28 @@ export default {
                         "y": -41,
                         "title": feature.description,
                     });
+
+                    // Register this feature for the legend
+                    if (typeof featuresCounts[feature.type] !== "number") {
+                        featuresCounts[feature.type] = 0;
+                    }
+                    featuresCounts[feature.type]++;
                 });
+
+            // Generate protein features legend
+            const featuresLegend = Object.keys(featuresCounts).map(id => {
+                const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
+                return `
+                    <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
+                        <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
+                        <div style="margin-left:0.5em;">
+                            <strong style="color:${color};">${id.toUpperCase()}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+
+            this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
         }
 
         // Update SVG size
