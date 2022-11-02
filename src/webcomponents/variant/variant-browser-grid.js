@@ -510,7 +510,7 @@ export default class VariantBrowserGrid extends LitElement {
                 }
             }
         }
-        return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
+        return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style, this.meta.populationFrequenciesConfig);
     }
 
     onCheck(e) {
@@ -615,6 +615,7 @@ export default class VariantBrowserGrid extends LitElement {
                         populations: populations,
                         populationMap: populationMap,
                         colors: this.populationFrequencies.style,
+                        populationFrequenciesConfig: this._config.populationFrequenciesConfig,
                         context: this
                     },
                     rowspan: 1,
@@ -1085,7 +1086,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                 showNegativeConsequenceTypes: true
             },
-            populationFrequencies: {
+            populationFrequenciesConfig: {
                 displayMode: "FREQUENCY_BOX"
             }
         };

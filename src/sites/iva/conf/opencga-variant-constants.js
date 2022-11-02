@@ -457,9 +457,6 @@ const POPULATION_FREQUENCIES = {
                 {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 }
-                // {
-                //     id: "SAS", title: "South Asian [SAS]"
-                // }
             ]
         }
     ]

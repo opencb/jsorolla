@@ -857,7 +857,7 @@ export default class VariantGridFormatter {
     }
 
     // Creates the colored table with one row and as many columns as populations.
-    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
+    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
         // This is used by the tooltip function below to display all population frequencies
         const popFreqsArray = [];
         for (const population of populations) {
@@ -888,20 +888,64 @@ export default class VariantGridFormatter {
         }
 
         // Create the table (with the tooltip info)
-        const tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+        let htmlPopFreqTable;
+        if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
+            const tableSize = populations.length * 15;
+            htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
                                 <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
                                     <tr>`;
-        for (const population of populations) {
-            // This array contains "study:population"
-            let color = "black";
-            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                const freq = populationFrequenciesMap.get(population);
-                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+            for (const population of populations) {
+                // This array contains "study:population"
+                let color = "black";
+                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                    const freq = populationFrequenciesMap.get(population);
+                    color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                }
+                htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
             }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
+            htmlPopFreqTable += "</tr></table></a>";
+        } else {
+            htmlPopFreqTable = "<div>";
+            const populationFrequenciesHtml = [];
+            for (const population of populations) {
+                let color = "black";
+                if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
+                    const freq = populationFrequenciesMap.get(population);
+                    const percentage = (Number(freq) * 100).toPrecision(4);
+                    // Only color the significant ones
+                    if (freq <= 0.005) {
+                        color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                    }
+
+                    if (populations.length > 1) {
+                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
+                        populationFrequenciesHtml.push("</div>");
+                    } else {
+                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
+                        populationFrequenciesHtml.push("</div>");
+                    }
+                } else { // Freq does not exist
+                    if (populations.length > 1) {
+                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
+                        populationFrequenciesHtml.push("</div>");
+                    } else {
+                        populationFrequenciesHtml.push("<div>");
+                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
+                        populationFrequenciesHtml.push("</div>");
+                    }
+                }
+            }
+            htmlPopFreqTable += `${populationFrequenciesHtml.join("")}`;
+            htmlPopFreqTable += "</div>";
         }
-        htmlPopFreqTable += "</tr></table></a>";
+
         return htmlPopFreqTable;
     }
 
