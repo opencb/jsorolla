@@ -51,7 +51,8 @@
         };
 
         const target = document.getElementById("root");
-        const geneName = "BRCA1";
+        const study = "demo@family:platinum";
+        const geneName = "MTM1";
         // const proteinName = "BRCA1_HUMAN";
 
         const promisesList = [
@@ -59,7 +60,7 @@
             ProteinLollipop.getProteinInfoFromGene(cellBaseClient, geneName),
             openCGALogin().then(() => {
                 return opencgaClient.clinical().queryVariant({
-                    study: "demo@family:platinum",
+                    study: study,
                     xref: geneName,
                     ct: [
                         "frameshift_variant",
