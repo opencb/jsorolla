@@ -23,7 +23,6 @@ export default {
             showProteinStructure: true,
             showProteinLollipops: true,
             showLegend: true,
-            labelsWidth: 200,
             proteinFeatures: [
                 "domain",
                 "region of interest",
@@ -75,7 +74,7 @@ export default {
         // Initialize template
         const template = `
             <div id="${prefix}" class="" style="user-select:none;font-size:16px;">
-                <div style="margin-top:1em;">
+                <div style="display:${config.showLegend ? "block" : "none"};margin-top:1em;">
                     <div style="font-size:0.8em;border-bottom:1px solid #adb5bd;margin-bottom:1em;">
                         <strong style="color:#6c757d;">Legend</strong>
                     </div>
