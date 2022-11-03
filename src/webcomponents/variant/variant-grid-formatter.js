@@ -965,7 +965,7 @@ export default class VariantGridFormatter {
         return color;
     }
 
-    static clinicalPhenotypeFormatter(value, row, index) {
+    static clinicalTraitAssociationFormatter(value, row, index) {
         const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
         // Check for ClinVar and Cosmic annotations
         if (row?.annotation?.traitAssociation) {
@@ -1105,34 +1105,52 @@ export default class VariantGridFormatter {
                     break;
             }
         }
+        return phenotypeHtml;
+    }
 
+    static clinicalCancerHotspotsFormatter(value, row) {
         if (row?.annotation?.cancerHotspots?.length > 0) {
-            const cancerHotspotsHtml = [];
+            const cancerHotspotsHtml = new Map();
             for (const ct of row.annotation.consequenceTypes) {
                 for (const hotspot of row.annotation.cancerHotspots) {
                     if (ct.geneName === hotspot.geneName && ct.proteinVariantAnnotation?.position === hotspot.aminoacidPosition) {
-                        cancerHotspotsHtml.push(hotspot);
+                        cancerHotspotsHtml.set(`${hotspot.geneName}_${hotspot.aminoacidPosition}`, hotspot);
                     }
                 }
             }
-            if (cancerHotspotsHtml.length > 0) {
+            let tooltipText = "";
+            for (const [key, hotspot] of cancerHotspotsHtml.entries()) {
+                tooltipText += `
+                    <div style="margin: 10px 5px">
+                        <div>
+                            <label style="">Gene: ${hotspot.geneName} - Aminoacid: ${hotspot.aminoacidPosition} (${AMINOACID_CODE[hotspot.aminoacidReference]})</label>
+                            <div style="">Cancer Type: ${hotspot.cancerType} - ${hotspot.variants.length} ${hotspot.variants.length === 1 ? "mutation" : "mutations"}</div>
+                        </div>
+                        <div>
+                            ${hotspot.variants
+                                .map(variant => `<span class="help-block" style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)</span>`)
+                                .join("")
+                            }
+                        </div>
+                    </div>`;
+            }
+
+            if (cancerHotspotsHtml.size > 0) {
                 return `
-                    <a>
-                        <span style="color: green">${cancerHotspotsHtml.length} mutations</span>
+                     <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <span style="color: green">${cancerHotspotsHtml.size} ${cancerHotspotsHtml.size === 1 ? "variant" : "variants"}</span>
                     </a>`;
-            } else {
-                return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
             }
         }
-
-        return phenotypeHtml;
+        return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
     }
 
     static clinicalTableDetail(value, row, index) {
         const clinvar = [];
-        const cosmicIntermdiate = new Map();
         const cosmic = [];
-        if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
+        const hotspots = [];
+        if (row.annotation?.traitAssociation?.length > 0) {
+            const cosmicIntermediate = new Map();
             for (const trait of row.annotation.traitAssociation) {
                 const values = [];
                 const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
@@ -1154,8 +1172,8 @@ export default class VariantGridFormatter {
                     const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
                     const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
                     const zygosity = trait.additionalProperties.find(p => p.id === "MUTATION_ZYGOSITY");
-                    if (!cosmicIntermdiate.has(key)) {
-                        cosmicIntermdiate.set(key, {
+                    if (!cosmicIntermediate.has(key)) {
+                        cosmicIntermediate.set(key, {
                             id: trait.id,
                             url: trait.url,
                             primarySite: trait.somaticInformation.primarySite,
@@ -1169,32 +1187,32 @@ export default class VariantGridFormatter {
                     }
                     // Only add the new terms for this key
                     if (trait.somaticInformation.histologySubtype) {
-                        if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
-                            cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
+                        if (!cosmicIntermediate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
+                            cosmicIntermediate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
                         }
                         // Increment the counter always
-                        cosmicIntermdiate.get(key).histologySubtypesCounter
-                            .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
+                        cosmicIntermediate.get(key).histologySubtypesCounter
+                            .set(trait.somaticInformation.histologySubtype, cosmicIntermediate.get(key).histologySubtypesCounter.size + 1);
                     }
                     if (trait?.bibliography?.length > 0) {
-                        cosmicIntermdiate.get(key).pubmed.add(...trait.bibliography);
+                        cosmicIntermediate.get(key).pubmed.add(...trait.bibliography);
                     }
                     if (zygosity) {
-                        cosmicIntermdiate.get(key).zygosity.add(zygosity.value);
+                        cosmicIntermediate.get(key).zygosity.add(zygosity.value);
                     }
                 }
             }
 
             // Sort by key and prepare column data
-            for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
+            for (const [key, c] of new Map([...cosmicIntermediate.entries()].sort())) {
                 const values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
                 values.push(c.primarySite);
                 values.push(c.primaryHistology);
                 values.push(c.histologySubtypes
                     .map(value => {
-                        if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
-                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")";
+                        if (cosmicIntermediate.get(key).histologySubtypesCounter.get(value) > 1) {
+                            return value + " (x" + cosmicIntermediate.get(key).histologySubtypesCounter.get(value) + ")";
                         } else {
                             return "-";
                         }
@@ -1209,6 +1227,29 @@ export default class VariantGridFormatter {
             }
         }
 
+        if (row?.annotation?.cancerHotspots?.length > 0) {
+            const visited = {};
+            for (const ct of row.annotation.consequenceTypes) {
+                for (const hotspot of row.annotation.cancerHotspots) {
+                    if (ct.geneName === hotspot.geneName && ct.proteinVariantAnnotation?.position === hotspot.aminoacidPosition && !visited[hotspot.geneName + "_" + hotspot.aminoacidPosition]) {
+                        const reference = AMINOACID_CODE[hotspot.aminoacidReference];
+                        const position = hotspot.aminoacidPosition;
+                        const values = [];
+                        values.push(hotspot.geneName);
+                        values.push(reference);
+                        values.push(hotspot.aminoacidPosition);
+                        values.push(hotspot.cancerType);
+                        values.push(hotspot.variants.length);
+                        values.push(hotspot.variants.map(m => `${reference}${position}${AMINOACID_CODE[m.aminoacidAlternate]}: ${m.count} sample(s)`).join("; "));
+                        hotspots.push({
+                            values: values
+                        });
+                        visited[hotspot.geneName + "_" + hotspot.aminoacidPosition] = true;
+                    }
+                }
+            }
+        }
+
         // Clinvar
         const clinvarColumns = [
             {title: "ID"},
@@ -1220,10 +1261,11 @@ export default class VariantGridFormatter {
             {title: "Traits"}
         ];
         const clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
-        const clinvarTraits = `<div>
-                                <label>ClinVar</label>
-                                <div>${clinvarTable}</div>
-                             </div>`;
+        const clinvarTraits = `
+            <div>
+                <label>ClinVar</label>
+                <div style="padding: 0 10px">${clinvarTable}</div>
+            </div>`;
 
         // Cosmic
         const cosmicColumns = [
@@ -1236,24 +1278,27 @@ export default class VariantGridFormatter {
             {title: "Pubmed"}
         ];
         const cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
-        const cosmicTraits = `<div style="margin-top: 15px">
-                                <label>Cosmic</label>
-                                <div>${cosmicTable}</div>
-                            </div>`;
+        const cosmicTraits = `
+            <div style="margin-top: 15px">
+                <label>Cosmic</label>
+                <div style="padding: 0 10px">${cosmicTable}</div>
+            </div>`;
 
         // Cancer Hotspots
         const cancerHotspotsColumns = [
             {title: "Gene Name"},
-            {title: "Aminoacid Position"},
             {title: "Aminoacid Reference"},
+            {title: "Aminoacid Position"},
             {title: "Cancer Type"},
-            {title: "Number of Variants"},
+            {title: "Number of Mutations"},
+            {title: "Mutations"},
         ];
-        const cancerHotspotsTable = VariantGridFormatter.renderTable("", cancerHotspotsColumns, cosmic, {defaultMessage: "No Cancer Hotspots data found"});
-        const cancerHotspotsHtml = `<div style="margin-top: 15px">
-                                <label>Cancer Hotspots</label>
-                                <div>${cancerHotspotsTable}</div>
-                            </div>`;
+        const cancerHotspotsTable = VariantGridFormatter.renderTable("", cancerHotspotsColumns, hotspots, {defaultMessage: "No Cancer Hotspots data found"});
+        const cancerHotspotsHtml = `
+            <div style="margin-top: 15px">
+                <label>Cancer Hotspots</label>
+                <div style="padding: 0 10px">${cancerHotspotsTable}</div>
+            </div>`;
 
         return clinvarTraits + cosmicTraits + cancerHotspotsHtml;
     }
