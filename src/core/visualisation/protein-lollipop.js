@@ -3,7 +3,6 @@ import {SVG} from "../svg.js";
 import UtilsNew from "../utils-new.js";
 
 export default {
-
     CONSEQUENCE_TYPES_COLORS: {
         "missense_variant": "#cc9a06",
         "frameshift_variant": "#dc3545",
@@ -141,13 +140,11 @@ export default {
             });
         }
 
-        // Show protein lollipops
+        // Show protein lollipops track
         if (config.showProteinLollipops) {
-            offset = offset + 200;
-            const group = SVG.addChild(svg, "g", {
-                "transform": `translate(0, ${offset})`,
-            });
+            const group = SVG.addChild(svg, "g", {});
             const variantsCounts = {};
+            let maxHeight = 0; // Track maximum height
 
             const lollipopsVariants = (variants || [])
                 .map(variant => {
@@ -195,13 +192,16 @@ export default {
                         "stroke-width": "2px",
                     });
 
-                    // Variant ID
-                    SVG.addChildText(group, info.variantId, {
+                    // Variant text
+                    const text = SVG.addChildText(group, info.variantId, {
                         "fill": color,
                         "text-anchor": "start",
                         "dominant-baseline": "middle",
                         "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
                     });
+
+                    // Update track max height, using the size of the variant ID
+                    maxHeight = Math.max(maxHeight, text.getBBox().width);
 
                     // Add the consequence type of this variant to the legend
                     if (typeof variantsCounts[consequenceType] !== "number") {
@@ -225,6 +225,10 @@ export default {
             });
 
             this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
+
+            // Update the lollipop track position
+            offset = offset + 100 + maxHeight;
+            group.setAttribute("transform", `translate(0, ${offset})`);
         }
 
         // Show protein structure
