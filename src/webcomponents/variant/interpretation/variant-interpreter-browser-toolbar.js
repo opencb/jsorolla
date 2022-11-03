@@ -119,15 +119,25 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
-            <span
+            <div
                 title="${Object.entries(inclusion.query).map(([k, v]) => `${k} = ${v}`).join("\n")}"
-                style="float: right; cursor: pointer">
+                style="cursor: pointer;">
                 <i class="fas fa-eye"></i>
-            </span>`;
+            </div>`;
+
+        const inclusionHtml = html`
+            <div
+                style="width: 80%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-right: 10px;">
+                ${inclusion.id}
+            </div>
+        `;
 
         return html`
             <div style="border-left: 2px solid #0c2f4c; margin: 15px 0">
-                <div style="margin: 5px 10px">${inclusion.id} ${iconHtml}</div>
+                <div style="margin: 5px 10px; display: flex; align-items: center; justify-content: space-between;">${inclusionHtml} ${iconHtml}</div>
                 ${
                     inclusion.variants?.length > 0 ? inclusion.variants.map(variant => {
                         const GT = variant.studies[0]?.samples[0]?.data[0] || "No GT found";
@@ -146,7 +156,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     renderVariant(variant, icon) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        const iconHtml = icon ? html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>` : "";
+        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
 
         return html`
             <div class="break-word" style="border-left: 2px solid #0c2f4c; margin: 15px 0;">
