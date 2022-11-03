@@ -133,7 +133,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         const GT = variant.studies[0]?.samples[0]?.data[0] || "No GT found";
                         const FILTER = variant.studies[0]?.files[0]?.data.FILTER || "NA";
                         return html`
-                            <div class="help-block">
+                            <div class="help-block" style="display: flex; flex-direction: column; overflow-wrap: break-word;">
                                 <span style="margin: 0 20px">${variant.id}</span>
                                 <span style="margin: 0 20px;float: right">Genotype: ${GT} (${FILTER})</span>
                             </div>
