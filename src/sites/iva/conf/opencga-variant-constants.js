@@ -75,6 +75,32 @@ const DISEASE_PANEL_IMPRINTED = ["NOT", "MATERNALLY", "PATERNALLY", "UNKNOWN"];
 
 const ACMG_STRENGTH_LEVEL = ["SUPPORTING", "MODERATE", "STRONG", "VERY_STRONG"];
 
+const AMINOACID_CODE = {
+    "A": "Ala",
+    "R": "Arg",
+    "N": "Asn",
+    "D": "Asp",
+    "B": "Asx",
+    "C": "Cys",
+    "E": "Glu",
+    "Q": "Gln",
+    "Z": "Glx",
+    "G": "Gly",
+    "H": "His",
+    "I": "Ile",
+    "L": "Leu",
+    "K": "Lys",
+    "M": "Met",
+    "F": "Phe",
+    "P": "Pro",
+    "S": "Ser",
+    "T": "Thr",
+    "W": "Trp",
+    "Y": "Tyr",
+    "V": "Val",
+    "*": "Stop"
+};
+
 const CONSEQUENCE_TYPES = {
     style: {
         // This is the impact color. It allows to customise both the impact categories and desired colors
