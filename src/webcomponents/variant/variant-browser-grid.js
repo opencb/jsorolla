@@ -912,7 +912,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center"
                 },
                 {
@@ -921,7 +921,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center"
                 },
             ]
