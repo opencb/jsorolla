@@ -18,6 +18,7 @@ export default {
 
     getDefaultConfig() {
         return {
+            padding: 10,
             showProteinScale: true,
             showProteinStructure: true,
             showProteinLollipops: true,
@@ -91,7 +92,7 @@ export default {
 
         // Initialize SVG for reindering protein tracks
         const svg = SVG.init(parent, {width: "100%"}, 0);
-        const width = svg.clientWidth;
+        const width = svg.clientWidth - 2 * config.padding;
         let offset = 0;
 
         // Get protein length
@@ -101,17 +102,17 @@ export default {
         }
         const proteinLength = chainFeature.location.end.position;
 
-        // Tiny utility to calculate the positin in px from the given protein coordinate
+        // Tiny utility to calculate the position in px from the given protein coordinate
         const getPixelPosition = p => p * width / proteinLength;
 
         if (config.showProteinScale) {
             offset = offset + 25;
             const group = SVG.addChild(svg, "g", {
-                "transform": `translate(0,${offset})`,
+                "transform": `translate(${config.padding},${offset})`,
             });
 
             // Append scale ticks
-            for (let i = 1; i * 200 < proteinLength; i++) {
+            for (let i = 0; i * 200 < proteinLength; i++) {
                 const tickValue = i * 200;
                 const tickPosition = getPixelPosition(tickValue) - 0.5;
                 SVG.addChild(group, "path", {
@@ -228,7 +229,7 @@ export default {
 
             // Update the lollipop track position
             offset = offset + 100 + maxHeight;
-            group.setAttribute("transform", `translate(0, ${offset})`);
+            group.setAttribute("transform", `translate(${config.padding}, ${offset})`);
         }
 
         // Show protein structure
@@ -238,7 +239,7 @@ export default {
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(svg, "g", {
-                "transform": `translate(0, ${offset})`,
+                "transform": `translate(${config.padding}, ${offset})`,
             });
 
             // Append structure line
@@ -259,8 +260,8 @@ export default {
                     SVG.addChild(group, "rect", {
                         "fill": this.PROTEIN_FEATURES_COLORS[feature.type] || defaultColor,
                         "height": 40,
-                        "stroke": "#212529",
-                        "stroke-width": "1px",
+                        // "stroke": "#212529",
+                        // "stroke-width": "1px",
                         "width": (featureEnd - featureStart),
                         "x": featureStart,
                         "y": -41,
