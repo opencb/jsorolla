@@ -3,6 +3,20 @@ import {SVG} from "../svg.js";
 import UtilsNew from "../utils-new.js";
 
 export default {
+    CONSEQUENCE_TYPES: [
+        "frameshift_variant",
+        "incomplete_terminal_codon_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "feature_truncation",
+        "transcript_ablation",
+        "inframe_deletion",
+        "inframe_insertion",
+        "missense_variant",
+    ],
     CONSEQUENCE_TYPES_COLORS: {
         "missense_variant": "#cc9a06",
         "frameshift_variant": "#dc3545",
