@@ -45,18 +45,19 @@ export default {
     },
 
     // This is a terrible hack to find the correct protein ID and the transcript ID
-    getProteinInfoFromGene(client, geneName) {
+    getProteinInfoFromGene(cellbaseClient, geneName) {
         let protein = null;
-        return client.getProteinClient(null, "search", {gene: geneName})
+        return cellbaseClient.getProteinClient(null, "search", {gene: geneName})
             .then(response => {
                 protein = response.responses[0].results[0];
                 // const gene = protein?.gene[0]?.name?.find(item => item.type === "primary");
-                return client.getGeneClient(geneName, "transcript", {});
+                return cellbaseClient.getGeneClient(geneName, "transcript", {});
             })
             .then(response => {
                 const transcript = response.responses[0]?.results?.find(item => {
                     return item.proteinSequence === protein.sequence.value;
                 });
+
                 if (transcript) {
                     protein.proteinId = transcript.proteinId;
                     protein.transcriptId = transcript.id;
