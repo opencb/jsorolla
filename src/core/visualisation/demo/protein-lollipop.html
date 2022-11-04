@@ -13,8 +13,17 @@
 </head>
 <body>
     <div style="max-width:1400px;margin-left:auto;margin-right:auto;">
-        <h1 style="font-weight:bold;">Protein Lollipop Demo</h1>
+        <h1 style="font-weight:bold;margin-bottom:16px;">Protein Lollipop Demo</h1>
+        <div class="form-inline">
+            <div class="form-group">
+                <input type="text" class="form-control" id="geneInput" placeholder="TP53">
+            </div>
+            <button id="geneSubmit" class="btn btn-primary">
+                <strong>Go</strong>
+            </button>
+        </div>
         <hr>
+        <h3 id="geneTitle" style="font-weight:bold;"></h3>
         <div id="root"></div>
     </div>
 
@@ -22,6 +31,11 @@
         import {CellBaseClient} from "../../clients/cellbase/cellbase-client.js";
         import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
         import ProteinLollipop from "../protein-lollipop.js";
+
+        const target = document.getElementById("root");
+        const study = "demo@family:platinum";
+        let opencgaClient = null;
+        let isRunning = false;
 
         const params = new URLSearchParams(window.location.search);
         const cellBaseClient = new CellBaseClient({
@@ -31,14 +45,18 @@
                 active: false,
             },
         });
-        const opencgaClient = new OpenCGAClient({
-            host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
-            version: params.get("OPENCGA_VERSION") || "v2",
-            // serverVersion: "1.4"
-        });
 
-        // Login into OpenCGA
-        const openCGALogin = () => {
+        const initOpencgaClient = () => {
+            if (opencgaClient) {
+                return Promise.resolve();
+            }
+            opencgaClient = new OpenCGAClient({
+                host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+                version: params.get("OPENCGA_VERSION") || "v2",
+                // serverVersion: "1.4"
+            });
+
+            // Login into OpenCGA
             const user = "demouser";
             const password = "demouser";
             return opencgaClient.login(user, password)
@@ -50,43 +68,54 @@
                 });
         };
 
-        const target = document.getElementById("root");
-        const study = "demo@family:platinum";
-        const geneName = "MTM1";
-        // const proteinName = "BRCA1_HUMAN";
+        // Draw protein lollipop
+        const drawProteinLollipop = geneName => {
+            isRunning = true;
+            document.getElementById("geneTitle").textContent = geneName;
 
-        const promisesList = [
-            // cellBaseClient.getProteinClient(null, "search", {gene: gene}),
-            ProteinLollipop.getProteinInfoFromGene(cellBaseClient, geneName),
-            openCGALogin().then(() => {
-                return opencgaClient.clinical().queryVariant({
-                    study: study,
-                    xref: geneName,
-                    ct: [
-                        "frameshift_variant",
-                        "incomplete_terminal_codon_variant",
-                        "start_lost",
-                        "stop_gained",
-                        "stop_lost",
-                        "splice_acceptor_variant",
-                        "splice_donor_variant",
-                        "feature_truncation",
-                        "transcript_ablation",
-                        "inframe_deletion",
-                        "inframe_insertion",
-                        "missense_variant",
-                    ].join(","),
+            while (target.firstChild) {
+                target.removeChild(target.firstChild);
+            }
+
+            const promisesList = [
+                // cellBaseClient.getProteinClient(null, "search", {gene: gene}),
+                ProteinLollipop.getProteinInfoFromGene(cellBaseClient, geneName),
+                initOpencgaClient().then(() => {
+                    return opencgaClient.clinical().queryVariant({
+                        study: study,
+                        xref: geneName,
+                        ct: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
+                    });
+                }),
+            ];
+
+            Promise.all(promisesList)
+                .then(values => {
+                    const protein = values[0]; // values[0].responses[0].results[0];
+                    const variants = values[1].responses[0].results;
+
+                    ProteinLollipop.draw(target, protein, variants, {});
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    isRunning = false;
                 });
-            }),
-        ];
+        };
 
-        Promise.all(promisesList).then(values => {
-            const protein = values[0]; // values[0].responses[0].results[0];
-            const variants = values[1].responses[0].results;
-
-            ProteinLollipop.draw(target, protein, variants, {});
-
+        // Register gene submit event
+        document.getElementById("geneSubmit").addEventListener("click", () => {
+            const geneName = document.getElementById("geneInput").value;
+            
+            if (geneName && !isRunning) {
+                drawProteinLollipop(geneName);
+            }
         });
+
+        // Initial gene
+        drawProteinLollipop("MTM1");
+
     </script>
 </body>
 </html>
