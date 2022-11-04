@@ -15,14 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class ClinicalInterpretationSummary extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -101,6 +100,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                     <div class="row" style="padding-left: 5px">
                                         <div class="col-md-6">
                                             <span style="font-size: 1.2em">${interpretation.id}</span>
+
                                             <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
                                         </div>
                                         <div class="col-md-6">
@@ -186,6 +186,54 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                     }
                                 `
                             }
+                        },
+                        {
+                            title: "Comments",
+                            field: "comments",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showAddItemListButton: false,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
+                                        </div>
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        </div>
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
                         },
                     ]
                 }

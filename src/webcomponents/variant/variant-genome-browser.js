@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 import "../../genome-browser/webcomponent/genome-browser.js";
@@ -408,7 +408,7 @@ export default class VariantGenomeBrowser extends LitElement {
         <!--</div>-->
 
         <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="${this._prefix}GenomeBrowserSettings">
+            <div class="panel-body" role="tab" id="${this._prefix}GenomeBrowserSettings">
                 <h3 class="panel-title">
                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                        href="#${this._prefix}Position" aria-expanded="true" aria-controls="${this._prefix}Position">

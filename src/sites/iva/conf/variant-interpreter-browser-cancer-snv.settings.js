@@ -6,34 +6,41 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
         sections: [ // sections and subsections, structure and order is respected
             {
                 title: "Sample And File",
-                filters: ["sample-genotype", "variant-file", "variant-file-sample-filter", "variant-file-info-filter"],
+                filters: ["sample-genotype", "variant-file", "variant-file-sample-filter", "variant-file-info-filter", "cohort"],
             },
             {
                 title: "Genomic",
+                collapsed: true,
                 filters: ["region", "feature", "biotype", "type"]
             },
             {
                 title: "Clinical",
+                collapsed: true,
                 filters: ["diseasePanels", "clinical-annotation"]
             },
             {
                 title: "Consequence Type",
+                collapsed: true,
                 filters: ["consequence-type"]
             },
             {
                 title: "Population Frequency",
+                collapsed: true,
                 filters: ["populationFrequency"]
             },
             {
                 title: "Phenotype",
+                collapsed: true,
                 filters: ["go", "hpo"]
             },
             {
                 title: "Deleteriousness",
+                collapsed: true,
                 filters: ["proteinSubstitutionScore", "cadd"]
             },
             {
                 title: "Conservation",
+                collapsed: true,
                 filters: ["conservation"]
             }
         ]

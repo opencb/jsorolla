@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -67,24 +67,23 @@ export default class ClinicalAnalysisBrowser extends LitElement {
     }
 
     settingsObserver() {
-        const defaultConfig = this.getDefaultConfig();
         this._config = {
-            ...defaultConfig,
+            ...this.getDefaultConfig(),
             ...(this.settings || {}),
-            ...(this.config || {})
+            ...(this.config || {}),
         };
 
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFiltersAndDetails(defaultConfig.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config.filter, this.settings);
         }
 
         if (this.settings?.table) {
             this._config.filter.result.grid = {
-                ...defaultConfig.filter.result.grid,
+                ...this._config.filter.result.grid,
                 ...this.settings.table,
                 toolbar: {
-                    ...defaultConfig.filter.result.grid.toolbar,
+                    ...this._config.filter.result.grid.toolbar,
                     ...(this.settings.table.toolbar || {}),
                 },
             };
@@ -110,7 +109,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         return {
             title: "Clinical Analysis Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Search",
+            // searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -121,8 +120,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         <clinical-analysis-grid
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
+                            .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
-                            .search="${params.executedQuery}"
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
@@ -150,6 +149,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         name: "section title",

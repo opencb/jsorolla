@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -23,13 +23,15 @@ import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
+import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class IndividualCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,15 +43,36 @@ export default class IndividualCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
     }
 
-    _init() {
-        this._config = this.getDefaultConfig();
+    #init() {
         this.individual = {};
+        this.displayConfigDefault = {
+            buttonsVisible: true,
+            buttonOkText: "Create",
+            titleWidth: 3,
+            with: "8",
+            defaultValue: "",
+            defaultLayout: "horizontal"
+        };
+        this._config = this.getDefaultConfig();
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e, field) {
@@ -65,31 +88,47 @@ export default class IndividualCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onClear(e) {
-        this.individual = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear individual",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.individual = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
-    onSubmit(e) {
-        e.stopPropagation();
-        console.log("saved", this.individual);
+    onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: true
+        };
+        let error;
+        this.#setLoading(true);
         this.opencgaSession.opencgaClient.individuals()
-            .create(this.individual, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.individual = {};
-                this.requestUpdate();
+            .create(this.individual, params)
+            .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Individual",
+                    title: "Individual Create",
                     message: "New Individual created correctly"
                 });
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this.individual = {};
+                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
+                this.#setLoading(false);
             });
     }
 
     onAddOrUpdateItem(e) {
+        console.log("Test onAddOrUpdateItem", e);
         const param = e.detail.param;
         const value = e.detail.value;
         if (UtilsNew.isNotEmpty(value)) {
@@ -112,6 +151,10 @@ export default class IndividualCreate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.individual}"
@@ -124,22 +167,10 @@ export default class IndividualCreate extends LitElement {
         `;
     }
 
-
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                titleWidth: 3,
-                with: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal"
-            },
-            // validation: {
-            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-            //     message: "The father and mother must be different individuals",
-            // },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
@@ -150,7 +181,7 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 visible: () => Object.keys(this.individual).length > 0,
                                 notificationType: "warning",
-                            }
+                            },
                         },
                         {
                             title: "Individual ID",
@@ -160,17 +191,17 @@ export default class IndividualCreate extends LitElement {
                             display: {
                                 placeholder: "Add an ID...",
                                 help: {
-                                    text: "Add an ID"
-                                }
-                            }
+                                    text: "Add an ID",
+                                },
+                            },
                         },
                         {
                             title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the Individual name..."
-                            }
+                                placeholder: "Add the Individual name...",
+                            },
                         },
                         {
                             title: "Father ID",
@@ -180,20 +211,20 @@ export default class IndividualCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: father => html`
                                     <catalog-search-autocomplete
-                                        .value="${father}"
+                                        .value="${father?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
-                                            detail: {
-                                                param: "father",
-                                                value: {id: e.detail.value}
-                                            }
-                                        })}">
+                                                detail: {
+                                                    param: "father",
+                                                    value: {id: e.detail.value},
+                                                }
+                                            })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Mother ID",
@@ -203,31 +234,28 @@ export default class IndividualCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: mother => html`
                                     <catalog-search-autocomplete
-                                        .value="${mother}"
+                                        .value="${mother?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e =>
                                             this.onFieldChange({
-                                            detail: {
-                                                param: "mother",
-                                                value: {id: e.detail.value}
-                                            }
-                                        })}">
+                                                detail: {
+                                                    param: "mother",
+                                                    value: {id: e.detail.value},
+                                                }
+                                            })}">
                                     </catalog-search-autocomplete>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Date of Birth",
                             field: "dateOfBirth",
                             type: "input-date",
                             display: {
-                                render: date =>
-                                    moment(date, "YYYYMMDDHHmmss").format(
-                                        "DD/MM/YYYY"
-                                    )
-                            }
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                            },
                         },
                         {
                             title: "Sex",
@@ -244,7 +272,7 @@ export default class IndividualCreate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "sex")}">
                                     </ontology-term-annotation-create>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Ethnicity",
@@ -261,7 +289,7 @@ export default class IndividualCreate extends LitElement {
                                         @fieldChange="${e => this.onFieldChange(e, "ethnicity")}">
                                     </ontology-term-annotation-create>
                                 `,
-                            }
+                            },
                         },
                         {
                             title: "Karyotypic Sex",
@@ -269,8 +297,8 @@ export default class IndividualCreate extends LitElement {
                             type: "select",
                             allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
                             display: {
-                                placeholder: "Select the Karyotypic Sex..."
-                            }
+                                placeholder: "Select the Karyotypic Sex...",
+                            },
                         },
                         {
                             title: "Life Status",
@@ -278,16 +306,16 @@ export default class IndividualCreate extends LitElement {
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                             display: {
-                                placeholder: "Select the life status..."
-                            }
+                                placeholder: "Select the life status...",
+                            },
                         },
                         {
                             title: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
-                            checked: false
+                            checked: false,
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Location Info",
@@ -297,42 +325,42 @@ export default class IndividualCreate extends LitElement {
                             field: "location.address",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the location info..."
-                            }
+                                placeholder: "Add the location info...",
+                            },
                         },
                         {
                             title: "Postal code",
                             field: "location.postalCode",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the postal code..."
-                            }
+                                placeholder: "Add the postal code...",
+                            },
                         },
                         {
                             title: "City",
                             field: "location.city",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the city name..."
-                            }
+                                placeholder: "Add the city name...",
+                            },
                         },
                         {
                             title: "State",
                             field: "location.state",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the state name..."
-                            }
+                                placeholder: "Add the state name...",
+                            },
                         },
                         {
                             title: "Country",
                             field: "location.country",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the country name..."
-                            }
-                        }
-                    ]
+                                placeholder: "Add the country name...",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Population Info",
@@ -342,16 +370,16 @@ export default class IndividualCreate extends LitElement {
                             field: "population.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the population name..."
-                            }
+                                placeholder: "Add the population name...",
+                            },
                         },
                         {
                             title: "Sub-population",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the sub-population name..."
-                            }
+                                placeholder: "Add the sub-population name...",
+                            },
                         },
                         {
                             title: "Population Description",
@@ -363,78 +391,118 @@ export default class IndividualCreate extends LitElement {
                             },
                             display: {
                                 rows: 3,
-                                placeholder: "Add a description about the population..."
-                            }
-                        }
-                    ]
+                                placeholder: "Add a description about the population...",
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Phenotypes",
+                    elements: [
+                        {
+                            title: "Phenotypes",
+                            field: "phenotypes",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                view: pheno => html`
+                                    <div>${pheno.id} - ${pheno?.name}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Phenotype ID",
+                                    field: "phenotypes[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "name",
+                                    field: "phenotypes[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "phenotypes[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Age of onset",
+                                    field: "phenotypes[].ageOfOnset",
+                                    type: "input-num",
+                                    display: {
+                                        placeholder: "Add an age of onset...",
+                                    },
+                                },
+                                {
+                                    title: "Status",
+                                    field: "phenotypes[].status",
+                                    type: "select",
+                                    allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                                    display: {
+                                        placeholder: "Select a status...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "phenotypes[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description...",
+                                    },
+                                },
+                            ],
+                        },
+                    ],
                 },
                 // {
                 //     title: "Phenotypes",
                 //     elements: [
                 //         {
-                //             title: "",
-                //             type: "notification",
-                //             text: "Empty, create a new phenotype",
-                //             display: {
-                //                 visible: individual => !(individual?.phenotypes && individual?.phenotypes.length > 0),
-                //                 notificationType: "info",
-                //             }
-                //         },
-                //         {
+                //             title: "Phenotype",
                 //             field: "phenotypes",
-                //             type: "custom",
+                //             type: "custom-list",
                 //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: individual => html`
-                //                     <phenotype-list-update
-                //                         .phenotypes="${individual?.phenotypes}"
-                //                         @changePhenotypes="${e => this.onFieldChange(e, "phenotypes")}">
-                //                     </phenotype-list-update>`
+                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                //                 collapsedUpdate: true,
+                //                 renderUpdate: (pheno, callback) => html`
+                //                     <ontology-term-annotation-update
+                //                         .ontology="${pheno}"
+                //                         .entity="${"phenotype"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Save",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @updateItem="${callback}">
+                //                     </ontology-term-annotation-update>
+                //                 `,
+                //                 renderCreate: (pheno, callback) => html`
+                //                     <label>Create new item</label>
+                //                     <ontology-term-annotation-create
+                //                         .entity="${"phenotype"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Add",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @addItem="${callback}">
+                //                     </ontology-term-annotation-create>
+                //                 `
                 //             }
                 //         },
                 //     ]
                 // },
-                {
-                    title: "Phenotypes",
-                    elements: [
-                        {
-                            title: "Phenotype",
-                            field: "phenotypes",
-                            type: "custom-list",
-                            display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                collapsedUpdate: true,
-                                renderUpdate: (pheno, callback) => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${pheno}"
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </ontology-term-annotation-update>
-                                `,
-                                renderCreate: (pheno, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .entity="${"phenotype"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>
-                                `
-                            }
-                        },
-                    ]
-                },
                 // {
                 //     title: "Disorder",
                 //     elements: [
@@ -466,45 +534,96 @@ export default class IndividualCreate extends LitElement {
                 //         }
                 //     ]
                 // },
+                // {
+                //     title: "Disorders",
+                //     elements: [
+                //         {
+                //             title: "Disorder",
+                //             field: "disorders",
+                //             type: "custom-list",
+                //             display: {
+                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                //                 collapsedUpdate: true,
+                //                 renderUpdate: (disorder, callback) => html`
+                //                     <ontology-term-annotation-update
+                //                         .ontology="${disorder}"
+                //                         .entity="${"disorder"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Save",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @updateItem="${callback}">
+                //                     </ontology-term-annotation-update>
+                //                 `,
+                //                 renderCreate: (disorder, callback) => html`
+                //                     <label>Create new item</label>
+                //                     <ontology-term-annotation-create
+                //                         .entity="${"disorder"}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Add",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @addItem="${callback}">
+                //                     </ontology-term-annotation-create>
+                //                 `
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "Disorders",
                     elements: [
                         {
-                            title: "Disorder",
+                            title: "Disorders",
                             field: "disorders",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (disorder, callback) => html`
-                                    <ontology-term-annotation-update
-                                        .ontology="${disorder}"
-                                        .entity="${"disorder"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </ontology-term-annotation-update>
+                                view: disorder => html`
+                                    <div>${disorder.id} - ${disorder?.name}</div>
                                 `,
-                                renderCreate: (disorder, callback) => html`
-                                    <label>Create new item</label>
-                                    <ontology-term-annotation-create
-                                        .entity="${"disorder"}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </ontology-term-annotation-create>
-                                `
-                            }
+                            },
+                            elements: [
+                                {
+                                    title: "Disorder ID",
+                                    field: "disorders[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add phenotype ID...",
+                                    },
+                                },
+                                {
+                                    title: "name",
+                                    field: "disorders[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Source",
+                                    field: "disorders[].source",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a source...",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "disorders[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add a description..."
+                                    },
+                                },
+                            ],
                         },
-                    ]
+                    ],
                 },
-
                 // {
                 //     title: "Annotations Sets",
                 //     elements: [

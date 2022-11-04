@@ -19,7 +19,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 import "../filters/clinical-status-filter.js";
 import "../../commons/forms/data-form.js";
@@ -168,6 +168,26 @@ export default class ClinicalInterpretationCreate extends LitElement {
             case "panels.id":
                 this.updateParams = FormUtils
                     .updateObjectArray(this._interpretation, this.interpretation, this.updateParams, param, e.detail.value, e.detail.data);
+                break;
+            case "comments":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._interpretation,
+                    this.interpretation,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value
+                );
+
+                if (this.updateParams.comments) {
+                    this.updateParams.comments = this.updateParams.comments
+                        .filter(comment => !comment.author)
+                        .map(comment => {
+                            // eslint-disable-next-line no-param-reassign
+                            comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
+                            return comment;
+                        });
+                }
+
                 break;
         }
         // Enable this only when a dynamic property in the config can change
@@ -334,20 +354,54 @@ export default class ClinicalInterpretationCreate extends LitElement {
                         {
                             title: "Comments",
                             field: "comments",
-                            type: "custom",
+                            type: "object-list",
                             display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .comments="${comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || this.opencgaSession?.user?.id || "-"} - 
+                                                ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
+                                            </div>
+                                        </div>
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        </div>
+                                    </div>
                                 `,
-                            }
-                        }
-                    ]
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ],
+                        },
+                    ],
                 },
-            ]
+            ],
         };
     }
 

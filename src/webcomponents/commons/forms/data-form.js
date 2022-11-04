@@ -17,7 +17,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
@@ -72,6 +72,8 @@ export default class DataForm extends LitElement {
         this.invalidFields = new Set();
         this.activeSection = 0; // Initial active section (only for tabs and pills type)
 
+        this.objectListItems = {};
+
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
     }
@@ -98,8 +100,22 @@ export default class DataForm extends LitElement {
         let value = object;
         if (field) {
             const _object = object ? object : this.data;
-            // optional chaining is needed when "res" is undefined
-            value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+            // If field contains [] means the element type is object-list,
+            // we need to get the value from the array, information is encoded as:
+            //  1. phenotypes[].1.id: field id from second item of phenotypes
+            //  2. phenotypes[].id: when no position is found is part of the Create New Item section
+            if (field.includes("[]")) {
+                const [parentItemArray, right] = field.split("[].");
+                if (right.includes(".")) {
+                    const [itemIndex, itemFieldId] = right.split(".");
+                    value = _object[parentItemArray][itemIndex]?.[itemFieldId];
+                } else {
+                    value = this.objectListItems[parentItemArray]?.[right];
+                }
+            } else {
+                // optional chaining is needed when "res" is undefined
+                value = field.split(".").reduce((res, prop) => res?.[prop], _object);
+            }
 
             // needed for handling falsy values
             if (value !== undefined && value !== "") {
@@ -164,7 +180,7 @@ export default class DataForm extends LitElement {
 
     /**
      * Check if visible field is defined and not null, be careful since 'visible' can be a 'boolean' or a 'function'.
-     * @param visible Filed from config
+     * @param value
      * @param defaultValue
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
@@ -373,6 +389,8 @@ export default class DataForm extends LitElement {
         const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
         const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
 
+        const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
+
         return html`
             <div class="row" style="margin-bottom: 12px;">
                 <div class="${sectionWidth}">
@@ -393,6 +411,7 @@ export default class DataForm extends LitElement {
                     </div>
                 </div>
             </div>
+            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : null}
         `;
     }
 
@@ -477,9 +496,21 @@ export default class DataForm extends LitElement {
                 case "download":
                     content = this._createDownloadElement(element);
                     break;
+                case "object":
+                    content = this._createObjectElement(element);
+                    break;
+                case "object-list":
+                    content = this._createObjectListElement(element);
+                    break;
                 default:
                     throw new Error("Element type not supported:" + element.type);
             }
+        }
+
+        // Only nested in 'object' and 'object-list', in these cases we do not want to create
+        // the rest of the HTML
+        if (element?.display?.nested) {
+            return content;
         }
 
         // Initialize element values
@@ -514,7 +545,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth}">
-                            <label class="control-label ${titleClassName}" style="padding-top: 0px; text-align:${titleAlign};${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0; text-align:${titleAlign};${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         </div>
@@ -522,7 +553,7 @@ export default class DataForm extends LitElement {
                     <div class="col-md-${(width - titleWidth)}">
                         <div>${content}</div>
                         ${helpMessage && helpMode === "block" ? html`
-                            <div class="col-md-1" style="padding:0%; margin-top:8px" title="${helpMessage}">
+                            <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
                                 <span><i class="${this._getHelpIcon(element, section)}"></i></span>
                             </div>
                         ` : null}
@@ -534,7 +565,7 @@ export default class DataForm extends LitElement {
                 <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="control-label ${titleClassName}" style="padding-top: 0px; ${titleStyle}">
+                            <label class="control-label ${titleClassName}" style="padding-top: 0; ${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : null}
@@ -653,6 +684,8 @@ export default class DataForm extends LitElement {
     _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const [min = undefined, max = undefined] = element.allowedValues || [];
+        const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
 
         const content = html`
@@ -662,9 +695,12 @@ export default class DataForm extends LitElement {
                 .type="${type}"
                 ?disabled="${disabled}"
                 ?required="${element.required}"
+                .min="${min}"
+                .max="${max}"
+                .step="${step}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </text-field-filter>
         `;
 
@@ -688,7 +724,7 @@ export default class DataForm extends LitElement {
                 .step="${step}"
                 .placeholder="${element.display?.placeholder || ""}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </number-field-filter>
         `;
 
@@ -708,7 +744,7 @@ export default class DataForm extends LitElement {
                 type="date"
                 value="${value ? UtilsNew.dateFormatter(value, "YYYY-MM-DD") : ""}"
                 class="form-control ${this._isUpdated(element) ? "updated" : ""}"
-                @change="${e => this.onFilterChange(element.field, parseInputDate(e))}"
+                @change="${e => this.onFilterChange(element, parseInputDate(e))}"
                 ?disabled="${disabled}">
         `;
 
@@ -719,9 +755,6 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
-        // if (element.field.endsWith("FILTER")) {
-        // }
-
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";
@@ -729,13 +762,13 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <label style="padding-top: 0px; font-weight: normal;margin: 0">
+            <label style="padding-top: 0; font-weight: normal;margin: 0">
                 <input
                     type="checkbox"
                     class="${this._prefix}FilterCheckbox"
                     .checked="${value}"
                     ?disabled="${disabled}"
-                    @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}">
+                    @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
                 <span style="margin: 0 5px">${element.text}</span>
             </label>
         `;
@@ -764,7 +797,7 @@ export default class DataForm extends LitElement {
                     .activeClass="${activeClassName}"
                     .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
                 ${disabled && element.display?.helpMessage ? html`
                     <div class="help-block small">
@@ -789,7 +822,7 @@ export default class DataForm extends LitElement {
                     .activeClass="${activeClassName}"
                     .inactiveClass="${inactiveClassName}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-buttons>
             </div>
         `;
@@ -852,7 +885,7 @@ export default class DataForm extends LitElement {
             defaultValue = this.getValue(element.field);
             if (defaultValue) {
                 // If apply is defined we need to apply the same transformation to be selected
-                if (element.display?.apply) {
+                if (element.display?.apply && allowedValues) {
                     for (const allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
                             defaultValue = allowedValue;
@@ -877,25 +910,21 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         // const width = this._getWidth(element);
 
-        if (allowedValues && allowedValues.length > 0) {
-            const content = html`
-                <div class="">
-                    <select-field-filter
-                        .data="${allowedValues}"
-                        ?multiple="${element.multiple}"
-                        ?disabled="${disabled}"
-                        ?required="${element.required}"
-                        .value="${defaultValue}"
-                        .classes="${this._isUpdated(element) ? "updated" : ""}"
-                        @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                    </select-field-filter>
-                </div>
-            `;
+        const content = html`
+            <div class="">
+                <select-field-filter
+                    .data="${allowedValues}"
+                    ?multiple="${element.multiple}"
+                    ?disabled="${disabled}"
+                    ?required="${element.required}"
+                    .value="${defaultValue}"
+                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+                </select-field-filter>
+            </div>
+        `;
 
-            return this._createElementTemplate(element, null, content);
-        } else {
-            return this._getErrorMessage(element);
-        }
+        return this._createElementTemplate(element, null, content);
     }
 
     _createComplexElement(element, data = this.data) {
@@ -953,8 +982,13 @@ export default class DataForm extends LitElement {
         let content = "-";
         switch (contentLayout) {
             case "horizontal":
-                const separator = element?.display?.separator || ", ";
-                content = html`${values.join(separator)}`;
+                const separator = element?.display?.separator ?? ", ";
+                content = html`
+                    ${values.map(elem => html`
+                        <span>${elem}</span>
+                        ${separator ? html`<span>${separator}</span>` : ""}
+                    `)}
+                `;
                 break;
             case "vertical":
                 content = html`
@@ -1060,7 +1094,7 @@ export default class DataForm extends LitElement {
     }
 
     _createPlotElement(element) {
-        // By default we use data field in the element
+        // By default, we use data field in the element
         let data = element.data;
 
         // If a valid field object or arrays is defined we use it
@@ -1140,20 +1174,13 @@ export default class DataForm extends LitElement {
         }
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
-        let data = this.data;
-        if (element.field) {
-            data = this.getValue(element.field);
-        }
+        const data = element.field ? this.getValue(element.field) : this.data;
 
-        // Call to render function if defined
-        // It covers the case the result of this.getValue is actually undefined
-
-        const result = element.display.render(data);
-        if (result) {
-            // const width = this._getWidth(element);
-            // const style = element.display.style ? element.display.style : "";
-            // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
-            return this._createElementTemplate(element, data, result);
+        // Call to render function, it must be defined!
+        // We also allow to call to 'onFilterChange' function.
+        const content = element.display.render(data, value => this.onFilterChange(element, value));
+        if (content) {
+            return this._createElementTemplate(element, data, content);
         } else {
             return this._getErrorMessage(element);
         }
@@ -1250,33 +1277,251 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    postRender() {
-        // init any jquery plugin we might have used
-        // $('.json-renderer').jsonViewer(data);
+    _createObjectElement(element) {
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const contents = [];
+        for (const childElement of element.elements) {
+            // make sure this elem is nested
+            childElement.display = {
+                ...childElement.display,
+                disabled: isDisabled, // We set the disabled attribute from the parent element.
+                nested: true
+            };
+
+            // childElement.display.disabled = isDisabled;
+            // Call to createElement to get HTML content
+            const elemContent = this._createElement(childElement);
+
+            // Read Help message
+            const helpMessage = this._getHelpMessage(element);
+            const helpMode = this._getHelpMode(element);
+
+            // Assume vertical layout for nested forms
+            contents.push(
+                html`
+                    <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                        ${childElement.title ? html`
+                            <div>
+                                <label class="control-label" style="padding-top: 0;">
+                                    ${childElement.title}
+                                </label>
+                            </div>
+                        ` : null
+                        }
+                        <div>
+                            <div>${elemContent}</div>
+                            ${helpMessage && helpMode === "block" ? html`
+                                <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
+                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                </div>
+                            ` : null
+                            }
+                        </div>
+                    </div>
+                `);
+        }
+        return html`${contents}`;
     }
 
+    _createObjectListElement(element) {
+        const items = this.getValue(element.field);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const contents = [];
 
-    onFilterChange(field, value) {
-        this.dispatchEvent(new CustomEvent("fieldChange", {
-            detail: {
-                param: field,
+        // Get initial collapsed status, only executed the first time
+        const collapsable = this._getBooleanValue(element.display?.collapsable, true);
+        if (typeof element.display.collapsed === "undefined") {
+            // eslint-disable-next-line no-param-reassign
+            element.display.collapsed = collapsable;
+        }
+
+        let maxNumItems;
+        if (element.display.collapsed) {
+            maxNumItems = element.display.maxNumItems ?? 5;
+            if (maxNumItems >= items?.length) {
+                // eslint-disable-next-line no-param-reassign
+                element.display.collapsed = false;
+                maxNumItems = items?.length;
+            }
+        } else {
+            maxNumItems = items?.length;
+        }
+
+        // Render all existing items
+        if (maxNumItems > 0) {
+            const view = html`
+                <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    ${items?.slice(0, maxNumItems).map((item, index) => {
+                        const _element = JSON.parse(JSON.stringify(element));
+
+                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                        // items have a virtual element associated, this will allow to get the proper value later.
+                        for (let i = 0; i< _element.elements.length; i++) {
+                            const [left, right] = _element.elements[i].field.split(".");
+                            _element.elements[i].field = left + "." + index + "." + right;
+                            if (_element.elements[i].type === "custom") {
+                                _element.elements[i].display.render = element.elements[i].display.render;
+                            }
+                        }
+                        return html`
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
+                                <div>
+                                    ${element.display.view(item)}
+                                </div>
+                                <div>
+                                    ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                        <button type="button" class="btn btn-sm btn-primary" ?disabled="${isDisabled}"
+                                                @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
+                                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
+                                            Edit
+                                        </button>` : null}
+                                    ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                        <button type="button" class="btn btn-sm btn-danger" ?disabled="${isDisabled}"
+                                                @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                            Remove
+                                        </button>` : null}
+                                </div>
+                            </div>
+                            <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
+                                ${this._createObjectElement(_element)}
+                                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
+                                </div>
+                            </div>`;
+                    })}
+                </div>
+
+                ${element.display.collapsed && items?.length > 0? html`
+                    <div style="padding: 0 0 10px 0">
+                        <button type="button" class="btn btn-link" style="padding: 0"
+                                @click="${e => this.#toggleObjectListCollapse(element, false)}">
+                            Show more ... (${items?.length} items)
+                        </button>
+                    </div>
+                ` : null
+                }
+
+                ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
+                    <div style="padding: 0 0 10px 0">
+                        <button type="button" class="btn btn-link" style="padding: 0"
+                                @click="${e => this.#toggleObjectListCollapse(element, true)}">
+                            Show less ...
+                        </button>
+                    </div>
+                ` : null
+                }
+            `;
+            contents.push(view);
+        }
+
+        // Add the form to create the next item
+        if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
+            const createHtml = html`
+                <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
+                    <label>Create new item</label>
+                    ${this._createObjectElement(element)}
+                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                        <button type="button" class="btn btn-sm btn-primary"
+                                @click="${e => this.#addToObjectList(e, element)}" ?disabled="${isDisabled}">
+                            Add
+                        </button>
+                    </div>
+                </div>`;
+            contents.push(createHtml);
+        }
+
+        return contents;
+    }
+
+    #toggleObjectListCollapse(element, collapsed) {
+        // eslint-disable-next-line no-param-reassign
+        element.display.collapsed = collapsed;
+        this.requestUpdate();
+    }
+
+    #addToObjectList(e, element) {
+        // Check if object array exists
+        if (!this.data[element.field]) {
+            this.data[element.field] = [];
+        }
+
+        // Add the new item to the array and delete the temp item
+        if (this.objectListItems[element.field]) {
+            this.data[element.field].push(this.objectListItems[element.field]);
+            delete this.objectListItems[element.field];
+        }
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field], "added", this.data[element.field].length - 1);
+
+        // TODO clear the nested form
+        // ...
+    }
+
+    #editItemOfObjectList(e, item, index, element) {
+        const htmlElement = document.getElementById(this._prefix + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+    }
+
+    #saveItemInObjectList(e, item, index, element) {
+        const htmlElement = document.getElementById(this._prefix + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field], "updated", index);
+    }
+
+    #removeFromObjectList(e, item, index, element) {
+        // Delete the removed item
+        this.data[element.field].splice(index, 1);
+
+        // Notify change to provoke the update
+        this.onFilterChange(element, this.data[element.field], "removed", index);
+    }
+
+    onFilterChange(element, value, objectListAction, objectListIndex) {
+        if (element.field.includes("[]")) {
+            // Example: [variants, id]
+            const [parentArrayField, itemField] = element.field.split("[].");
+            if (itemField.includes(".")) {
+                // Items in the array
+                const [index, field] = itemField.split(".");
+                this.data[parentArrayField][index][field] = value;
+            } else {
+                // Check if value is empty
+                if (value) {
+                    this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
+                } else {
+                    delete this.objectListItems[parentArrayField][itemField];
+                }
+            }
+        } else {
+            const detail = {
+                param: element.field,
                 value: value
-            },
-            bubbles: true,
-            composed: true
-        }));
+            };
+            if (objectListAction) {
+                detail[objectListAction] = objectListIndex;
+            }
+            this.dispatchEvent(new CustomEvent("fieldChange", {
+                detail: detail,
+                bubbles: true,
+                composed: true
+            }));
+        }
     }
 
-    onBlurChange(field, value) {
-        this.dispatchEvent(new CustomEvent("blurChange", {
-            detail: {
-                param: field,
-                value: value
-            },
-            bubbles: false,
-            composed: true
-        }));
-    }
+    // onBlurChange(field, value) {
+    //     this.dispatchEvent(new CustomEvent("blurChange", {
+    //         detail: {
+    //             param: field,
+    //             value: value
+    //         },
+    //         bubbles: false,
+    //         composed: true
+    //     }));
+    // }
 
 
     onClear(e) {
@@ -1285,7 +1530,7 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, "clear", null, {}, null);
     }
 
-    onSubmit(e) {
+    onSubmit(e, section=null) {
         // Check if it has invalid fields (not valid or required not filled)
         const hasInvalidFields = this.emptyRequiredFields.size > 0 || this.invalidFields.size > 0;
         if (hasInvalidFields) {
@@ -1304,7 +1549,7 @@ export default class DataForm extends LitElement {
         // Form valid --> dispatch submit event
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
-        LitUtils.dispatchCustomEvent(this, "submit", null, {}, null);
+        LitUtils.dispatchCustomEvent(this, "submit", section, {}, null);
     }
 
     onCustomEvent(e, eventName, data) {
@@ -1335,7 +1580,7 @@ export default class DataForm extends LitElement {
         return null;
     }
 
-    renderButtons(dismiss) {
+    renderButtons(dismiss, sectionId=null) {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
         const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
         const btnWidth = this.config.display?.buttonsWidth ?? 12;
@@ -1360,7 +1605,7 @@ export default class DataForm extends LitElement {
                     }
                     ${buttonOkVisible? html`
                         <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
-                                @click="${this.onSubmit}">
+                                @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>
                     `: null
@@ -1482,8 +1727,9 @@ export default class DataForm extends LitElement {
         // Check for pills style
         if (type === "pills") {
             return html`
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
                             ${this._getVisibleSections().map((section, index) => {
                                 const active = index === this.activeSection;
@@ -1501,6 +1747,7 @@ export default class DataForm extends LitElement {
                         ${this.renderData()}
                     </div>
                 </div>
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 

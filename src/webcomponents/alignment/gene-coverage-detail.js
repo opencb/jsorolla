@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./transcript-coverage-view.js";
 import "./transcript-coverage-low.js";
 import "../commons/view/detail-tabs.js";
@@ -90,12 +90,17 @@ export default class GeneCoverageDetail extends LitElement {
     }
 
     render() {
-        if (this.opencgaSession && this.transcriptCoverageStats) {
-            return html`
-                <detail-tabs .data="${this.transcriptCoverageStats}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`;
-        } else {
-            return html`<h3>No valid session or transcript found</h3>`;
+
+        if (!this.opencgaSession) {
+            return html`<h3>No valid session</h3>`;
         }
+
+        return html`
+                <detail-tabs
+                    .data="${this.transcriptCoverageStats}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>`;
     }
 
 }

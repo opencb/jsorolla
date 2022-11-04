@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
@@ -143,7 +143,7 @@ export default class OpencgaPanelFilter extends LitElement {
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             <!-- Panel -->
             <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="${this._prefix}PanelSelectionHeading">
+                <div class="panel-body" role="tab" id="${this._prefix}PanelSelectionHeading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
                            href="#${this._prefix}PanelSelection" aria-expanded="true"

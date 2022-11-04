@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
 
@@ -105,13 +105,19 @@ export default class OpencgaAnalysisTool extends LitElement {
 
         return html`
             <div class="opencga-analysis-tool">
-                <tool-header
-                    title="${this._config.title}"
-                    icon="${this._config.icon}"
-                    .rhs="${html`<button class="btn btn-default ripple"
-                    @click="${e => this.openModal()}">
-                    <i class="fas fa-info-circle"></i> Info</button>`}">
-                </tool-header>
+                ${this._config.title ? html`
+                    <tool-header
+                        title="${this._config.title}"
+                        icon="${this._config.icon}"
+                        .rhs="${html`
+                            <button class="btn btn-default ripple"
+                                    @click="${e => this.openModal()}">
+                                <i class="fas fa-info-circle"></i> Info
+                            </button>
+                        `}">
+                    </tool-header>` : null
+                }
+
                 <div class="container">
                     <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession}
                                                 .cellbaseClient="${this.cellbaseClient}"

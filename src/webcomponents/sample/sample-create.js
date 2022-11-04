@@ -19,7 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-create.js";
 import "../study/ontology-term-annotation/ontology-term-annotation-update.js";
@@ -31,7 +31,8 @@ export default class SampleCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,27 +44,38 @@ export default class SampleCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
-            }
+            },
         };
     }
 
-    _init() {
+    #init() {
         this.sample = {};
         this.collection = {from: []};
         this.annotationSet = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            buttonOkText: "Create"
+        };
+        this._config = this.getDefaultConfig();
     }
 
-    refreshForm() {
-        // When using data-form we need to update config object and render again
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
         this.requestUpdate();
     }
 
-    dispatchSessionUpdateRequest() {
-        LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e, field) {
@@ -71,8 +83,8 @@ export default class SampleCreate extends LitElement {
         switch (param) {
             case "id":
             case "description":
-            case "somatic":
             case "individualId":
+            case "somatic":
             case "status": // it's object
             case "source": // it's object
             case "processing.product": // it's object
@@ -85,8 +97,8 @@ export default class SampleCreate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-            // case "collection.from": // this is list object
-            // case "phenotypes": // this is object
+                // case "collection.from": // this is list object
+                // case "phenotypes": // this is object
                 this.sample = {
                     ...FormUtils.createObject(
                         this.sample,
@@ -110,26 +122,36 @@ export default class SampleCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this.sample = {};
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
         });
     }
 
-    onSubmit(e) {
-        e.stopPropagation();
-        this.opencgaSession.opencgaClient
-            .samples()
-            .create(this.sample, {study: this.opencgaSession.study.fqn})
+    onSubmit() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            includeResult: true
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.samples()
+            .create(this.sample, params)
             .then(() => {
-                this.sample = {};
-                this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Sample",
+                    title: "Sample Create",
                     message: "Sample created correctly"
                 });
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(reason => {
+                error = reason;
+                console.error(reason);
+            })
+            .finally(() => {
+                this.sample = {};
+                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
+                this.#setLoading(false);
             });
     }
 
@@ -153,13 +175,17 @@ export default class SampleCreate extends LitElement {
                 }
                 break;
             case "annotationSets":
-                // Comming Soon
+                // Coming Soon
                 break;
         }
         this.requestUpdate();
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.sample}"
@@ -174,306 +200,296 @@ export default class SampleCreate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             type: "form",
-            display: {
-                style: "margin: 10px",
-                titleWidth: 3,
-                defaultLayout: "horizontal",
-                buttonOkText: "Create"
-            },
-            sections: [{
-                title: "General Information",
-                elements: [
-                    {
-                        type: "notification",
-                        text: "Some changes have been done in the form. Not saved, changes will be lost",
-                        display: {
-                            visible: () => Object.keys(this.sample).length > 0,
-                            notificationType: "warning",
-                        }
-                    },
-                    {
-                        title: "Sample ID",
-                        field: "id",
-                        type: "input-text",
-                        required: true,
-                        display: {
-                            placeholder: "Add a short ID...",
-                            helpMessage: "short sample id...",
-                        },
-                    },
-                    {
-                        title: "Individual ID",
-                        field: "individualId",
-                        type: "custom",
-                        display: {
-                            placeholder: "e.g. Homo sapiens, ...",
-                            render: individualId => html`
-                                <catalog-search-autocomplete
-                                    .value="${individualId}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    @filterChange="${e =>
-                                        this.onFieldChange({
-                                        detail: {
-                                            param: "individualId",
-                                            value: e.detail.value
-                                        }
-                                    })}">
-                                </catalog-search-autocomplete>
-                            `
-                        }
-                    },
-                    {
-                        title: "Somatic",
-                        field: "somatic",
-                        type: "checkbox",
-                        checked: false
-                    },
-                    {
-                        title: "Description",
-                        field: "description",
-                        type: "input-text",
-                        display: {
-                            rows: 3,
-                            placeholder: "Add a description..."
-                        }
-                    },
-                    {
-                        title: "Source",
-                        field: "source",
-                        type: "custom",
-                        display: {
-                            render: source => html`
-                                <external-source-create
-                                    .source="${source}"
-                                    .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        buttonsVisible: false,
-                                        width: 12,
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                    }}"
-                                    @fieldChange="${e => this.onFieldChange(e, "source")}">
-                                </external-source-create>`
-                        }
-                    },
-                    {
-                        title: "Status",
-                        field: "status",
-                        type: "custom",
-                        display: {
-                            render: status => html`
-                                <status-create
-                                    .status="${status}"
-                                    .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        buttonsVisible: false,
-                                        width: 12,
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                    }}"
-                                    @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                </status-create>`
-                        }
-                    },
-                ]
-            },
-            {
-                title: "Processing Info",
-                elements: [
-                    {
-                        title: "Product",
-                        field: "processing.product",
-                        type: "custom",
-                        display: {
-                            render: product => html`
-                                <ontology-term-annotation-create
-                                    .ontology="${product}"
-                                    .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        buttonsVisible: false,
-                                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                    }}"
-                                    @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
-                                </ontology-term-annotation-create>`
-                        }
-                    },
-                    {
-                        title: "Preparation Method",
-                        field: "processing.preparationMethod",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a preparation method..."
-                        }
-                    },
-                    {
-                        title: "Extraction Method",
-                        field: "processing.extractionMethod",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a extraction method..."
-                        }
-                    },
-                    {
-                        title: "Lab Sample ID",
-                        field: "processing.labSambpleId",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add the lab sample ID..."
-                        }
-                    },
-                    {
-                        title: "Quantity",
-                        field: "processing.quantity",
-                        type: "input-num",
-                        display: {
-                            placeholder: "Add a quantity..."
-                        }
-                    },
-                    {
-                        title: "Date",
-                        field: "processing.date",
-                        type: "input-date",
-                        display: {
-                            render: date =>
-                                moment(date, "YYYYMMDDHHmmss").format(
-                                    "DD/MM/YYYY"
-                                )
-                        }
-                    }
-                ]
-            },
-            {
-                title: "Collection Info",
-                elements: [
-                    {
-                        title: "From",
-                        field: "collection.from",
-                        type: "custom-list",
-                        display: {
-                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                            collapsedUpdate: true,
-                            renderUpdate: (from, callback) => {
-                                return html`
-                                <ontology-term-annotation-update
-                                    .ontology="${from}"
-                                    .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            style: "margin-bottom:0px",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                    @updateItem="${callback}">
-                                </ontology-term-annotation-update>`;
+            display: this.displayConfig || this.displayConfigDefault,
+            sections: [
+                {
+                    title: "General Information",
+                    elements: [
+                        {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => Object.keys(this.sample).length > 0,
+                                notificationType: "warning",
                             },
-                            renderCreate: (from, callback) => html`
-                                <label>Create new item</label>
-                                <ontology-term-annotation-create
-                                    .displayConfig="${{
+                        },
+                        {
+                            title: "Sample ID",
+                            field: "id",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                placeholder: "Add a short ID...",
+                                helpMessage: "short sample id...",
+                            },
+                        },
+                        {
+                            title: "Individual ID",
+                            field: "individualId",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: individualId => html`
+                                    <catalog-search-autocomplete
+                                        .value="${individualId}"
+                                        .resource="${"INDIVIDUAL"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                                detail: {
+                                                    param: "individualId",
+                                                    value: e.detail.value,
+                                                }
+                                            })}">
+                                    </catalog-search-autocomplete>`
+                            },
+                        },
+                        {
+                            title: "Somatic",
+                            field: "somatic",
+                            type: "checkbox",
+                            checked: false,
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description...",
+                            },
+                        },
+                        {
+                            title: "Source",
+                            field: "source",
+                            type: "custom",
+                            display: {
+                                render: source => html`
+                                    <external-source-create
+                                        .source="${source}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange="${e => this.onFieldChange(e, "source")}">
+                                    </external-source-create>`
+                            },
+                        },
+                        {
+                            title: "Status",
+                            field: "status",
+                            type: "custom",
+                            display: {
+                                render: status => html`
+                                    <status-create
+                                        .status="${status}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            width: 12,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
+                                    </status-create>`
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Processing Info",
+                    elements: [
+                        {
+                            title: "Product",
+                            field: "processing.product",
+                            type: "custom",
+                            display: {
+                                render: product => html`
+                                    <ontology-term-annotation-create
+                                        .ontology="${product}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonsVisible: false,
+                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
+                                        }}"
+                                        @fieldChange="${e => this.onFieldChange(e, "processing.product")}">
+                                    </ontology-term-annotation-create>`
+                            },
+                        },
+                        {
+                            title: "Preparation Method",
+                            field: "processing.preparationMethod",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a preparation method...",
+                            },
+                        },
+                        {
+                            title: "Extraction Method",
+                            field: "processing.extractionMethod",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a extraction method...",
+                            },
+                        },
+                        {
+                            title: "Lab Sample ID",
+                            field: "processing.labSambpleId",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add the lab sample ID...",
+                            },
+                        },
+                        {
+                            title: "Quantity",
+                            field: "processing.quantity",
+                            type: "input-num",
+                            display: {
+                                placeholder: "Add a quantity...",
+                            },
+                        },
+                        {
+                            title: "Date",
+                            field: "processing.date",
+                            type: "input-date",
+                            display: {
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Collection Info",
+                    elements: [
+                        {
+                            title: "From",
+                            field: "collection.from",
+                            type: "custom-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (from, callback) => {
+                                    return html`
+                                        <ontology-term-annotation-update
+                                            .ontology="${from}"
+                                            .displayConfig="${{
+                                                defaultLayout: "vertical",
+                                                style: "margin-bottom:0px",
+                                                buttonOkText: "Save",
+                                                buttonClearText: "",
+                                            }}"
+                                            @updateItem="${callback}">
+                                        </ontology-term-annotation-update>`;
+                                },
+                                renderCreate: (from, callback) => html`
+                                    <label>Create new item</label>
+                                    <ontology-term-annotation-create
+                                        .displayConfig="${{
                                             defaultLayout: "vertical",
                                             buttonOkText: "Add",
                                             buttonClearText: "",
                                         }}"
-                                    @addItem="${callback}">
-                                </ontology-term-annotation-create>`
-                        }
-                    },
-                    {
-                        title: "Type",
-                        field: "collection.type",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add an type..."
-                        }
-                    },
-                    {
-                        title: "Quantity",
-                        field: "collection.quantity",
-                        type: "input-num",
-                        display: {
-                            placeholder: "Add a quantity..."
-                        }
-                    },
-                    {
-                        title: "Method",
-                        field: "collection.method",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a method..."
-                        }
-                    },
-                    {
-                        title: "Date",
-                        field: "collection.date",
-                        type: "input-date",
-                        display: {
-                            render: date =>
-                                moment(date, "YYYYMMDDHHmmss")
-                                    .format("DD/MM/YYYY")
-                        }
-                    },
-                ]
-            },
-            {
-                title: "Phenotypes",
-                elements: [
-                    {
-                        title: "Phenotype",
-                        field: "phenotypes",
-                        type: "custom-list",
-                        display: {
-                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                            collapsedUpdate: true,
-                            renderUpdate: (pheno, callback) => html`
-                                <ontology-term-annotation-update
-                                    .ontology="${pheno}"
-                                    .entity="${"phenotype"}"
-                                    .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        buttonOkText: "Save",
-                                        buttonClearText: "",
-                                    }}"
-                                    @updateItem="${callback}">
-                                </ontology-term-annotation-update>
-                            `,
-                            renderCreate: (pheno, callback) => html`
-                                <label>Create new item</label>
-                                <ontology-term-annotation-create
-                                    .entity="${"phenotype"}"
-                                    .displayConfig="${{
-                                        defaultLayout: "vertical",
-                                        buttonOkText: "Add",
-                                        buttonClearText: "",
-                                    }}"
-                                    @addItem="${callback}">
-                                </ontology-term-annotation-create>
-                            `
-                        }
-                    },
-                ]
-            },
-            // {
-            //     title: "Annotations Sets",
-            //     elements: [
-            //         {
-            //             field: "annotationSets",
-            //             type: "custom",
-            //             display: {
-            //                 layout: "vertical",
-            //                 defaultLayout: "vertical",
-            //                 width: 12,
-            //                 style: "padding-left: 0px",
-            //                 render: sample => html`
-            //                     <annotation-set-update
-            //                         .annotationSets="${sample?.annotationSets}"
-            //                         .opencgaSession="${this.opencgaSession}"
-            //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-            //                     </annotation-set-update>
-            //                 `
-            //             }
-            //         }
-            //     ]
-            // }
-            ]
+                                        @addItem="${callback}">
+                                    </ontology-term-annotation-create>`
+                            },
+                        },
+                        {
+                            title: "Type",
+                            field: "collection.type",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add an type...",
+                            },
+                        },
+                        {
+                            title: "Quantity",
+                            field: "collection.quantity",
+                            type: "input-num",
+                            display: {
+                                placeholder: "Add a quantity...",
+                            },
+                        },
+                        {
+                            title: "Method",
+                            field: "collection.method",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a method...",
+                            },
+                        },
+                        {
+                            title: "Date",
+                            field: "collection.date",
+                            type: "input-date",
+                            display: {
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Phenotypes",
+                    elements: [
+                        {
+                            title: "Phenotype",
+                            field: "phenotypes",
+                            type: "custom-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                collapsedUpdate: true,
+                                renderUpdate: (pheno, callback) => html`
+                                    <ontology-term-annotation-update
+                                        .ontology="${pheno}"
+                                        .entity="${"phenotype"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Save",
+                                            buttonClearText: "",
+                                        }}"
+                                        @updateItem="${callback}">
+                                    </ontology-term-annotation-update>
+                                `,
+                                renderCreate: (pheno, callback) => html`
+                                    <label>Create new item</label>
+                                    <ontology-term-annotation-create
+                                        .entity="${"phenotype"}"
+                                        .displayConfig="${{
+                                            defaultLayout: "vertical",
+                                            buttonOkText: "Add",
+                                            buttonClearText: "",
+                                        }}"
+                                        @addItem="${callback}">
+                                    </ontology-term-annotation-create>
+                                `
+                            },
+                        },
+                    ],
+                },
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: sample => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${sample?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
+            ],
         });
     }
 

@@ -15,12 +15,13 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import {RestClient} from "../../core/clients/rest-client.js";
+import UtilsNew from "../../core/utils-new.js";
+import RestClient from "../../core/clients/rest-client.js";
 import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
 
 
@@ -39,10 +40,10 @@ export default class RestEndpoint extends LitElement {
     static get properties() {
         return {
             endpoint: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -52,6 +53,7 @@ export default class RestEndpoint extends LitElement {
         this.data = {};
         this._data = {};
         this.dataJson = {};
+        this.dataForm = {body: {}};
         this.form = {};
         this.methodColor = {
             "GET": "blue",
@@ -61,13 +63,25 @@ export default class RestEndpoint extends LitElement {
         this.paramsTypeToHtml = {
             "string": "input-text",
             "integer": "input-text",
+            "int": "input-text",
             "boolean": "checkbox",
             "enum": "select",
             "object": "input-text",
         };
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
-        this.passwordKeys = ["password", "newPassword"];
-        // Type not support by the moment..
+        this.specialTypeKeys = inputType => {
+            const passwordKeys = ["password", "newPassword"];
+            const dateKeys = ["creationDate", "modificationDate", "dateOfBirth", "date"];
+            if (passwordKeys.includes(inputType)) {
+                return "input-password";
+            }
+
+            if (dateKeys.includes(inputType)) {
+                return "input-date";
+            }
+            return false;
+        };
+        // Type not support by the moment
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
 
@@ -87,59 +101,66 @@ export default class RestEndpoint extends LitElement {
 
     endpointObserver() {
         this.result = "";
+
+        const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
+        const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data) && dataParameter.type !== "List";
+        const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
+
         if (this.endpoint?.parameters?.length > 0) {
             const queryElements = [];
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
+
+            // 1. Split params in body and query/path params
             for (const parameter of this.endpoint.parameters) {
+                this.data = {
+                    body: {}
+                };
 
-                if (parameter.param === "body") {
-                    this.data = {body: {}};
+                if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
 
-                    // Generate Body Form
-                    if (UtilsNew.hasProp(parameter, "data")) {
+                    for (const dataParameter of parameter.data) {
+                        const paramType = dataParameter.type?.toLowerCase();
 
-                        for (const dataParameter of parameter.data) {
-                            const paramType = dataParameter.type?.toLowerCase();
+                        // Prepare data, Use for sync between form and json
+                        this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
 
-                            // this.data.body[dataParameter.name] =
-                            //     UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
-                            //         dataParameter.defaultValue || "" : dataParameter?.type === "List" ? [] : {};
+                        // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
+                        // Format, BioFormat, software, Map,ResourceType, Resource, Query, QueryOptions, etc..
 
-                            // TODO: Rename 'setDataBody' function
-                            this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
-
-                            if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType)) {
-
-                                // Primitive type or Enum
-                                if ((!dataParameter.innerParam && !dataParameter.complex) || dataParameter.type === "enum") {
-                                    bodyElements.push(
-                                        {
-                                            name: dataParameter.name,
-                                            field: "body." + dataParameter.name,
-                                            type: this.passwordKeys.includes(dataParameter.name) ?"input-password":this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                            allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: this.getDefaultValue(dataParameter),
-                                            required: !!dataParameter.required,
-                                            display: {
-                                                helpMessage: parameter.description
-                                            }
-                                        }
-                                    );
+                        // Pass Enum, primitive or scalar type element.
+                        if (isPrimitiveOrEnum(dataParameter) && this.paramsTypeToHtml[paramType]) {
+                            bodyElements.push(
+                                {
+                                    name: dataParameter.name,
+                                    field: "body." + dataParameter.name,
+                                    type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
+                                    allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
+                                    defaultValue: this.getDefaultValue(dataParameter),
+                                    required: !!dataParameter.required,
+                                    display: {
+                                        helpMessage: dataParameter.description
+                                    }
                                 }
-                                // For Objects
-                                if (dataParameter.complex === false && dataParameter.innerParam === true) {
+                            );
+                        }
+
+                        // Pass Object element.
+                        if (isObject(dataParameter)) {
+                            for (const param of dataParameter.data) {
+                                // primitive or scalar Type Elements
+                                if (this.paramsTypeToHtml[param?.type?.toLowerCase()]) {
                                     bodyElements.push(
                                         {
-                                            name: `${dataParameter.parentParamName}.${dataParameter.name}`,
-                                            field: `body.${dataParameter.parentParamName}.${dataParameter.name}`,
-                                            type: this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                            allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: this.getDefaultValue(dataParameter),
-                                            required: !!dataParameter.required,
+                                            name: `${param.parentName}.${param.name}`,
+                                            field: `body.${param.parentName}.${param.name}`,
+                                            type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
+                                            allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
+                                            defaultValue: this.getDefaultValue(param),
+                                            required: !!param.required,
                                             display: {
-                                                helpMessage: dataParameter.description
+                                                helpMessage: param.description
                                             }
                                         }
                                     );
@@ -147,13 +168,13 @@ export default class RestEndpoint extends LitElement {
                             }
                         }
                     }
-                } else {
-                    // this.data[parameter.name] = parameter.defaultValue || "";
+                } else { // Parameter IS NOT body,
+                    //  Path and Query Params
                     this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
                         field: parameter.name,
-                        type: this.paramsTypeToHtml[parameter.type],
+                        type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
                         defaultValue: this.getDefaultValue(parameter),
                         required: !!parameter.required,
@@ -162,7 +183,6 @@ export default class RestEndpoint extends LitElement {
                             disabled: parameter.name === "study"
                         },
                     };
-
 
                     if (parameter.param === "path") {
                         pathElements.push(element);
@@ -176,23 +196,16 @@ export default class RestEndpoint extends LitElement {
                 }
             }
 
-            const pathElementSorted = this.#sortArray(pathElements);
-            const queryElementSorted = this.#sortArray(queryElements)
-                .sort((a, b) => {
-                    if (a.name === "study") {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                });
-            const filterElementSorted = this.#sortArray(filterElements);
-            const elements = [...pathElementSorted, ...queryElementSorted, ...filterElementSorted];
-            const fieldElements =
-                this.isNotEndPointAdmin() ? elements :
-                    this.isAdministrator() ? elements :
-                        this.disabledElements(elements);
+            // 2. Sort and move 'study/ to first position
+            const byStudy = elm => elm.name === "study" ? -1 : 1;
+            const elements = [
+                ...this.#sortArray(pathElements),
+                ...this.#sortArray(queryElements).sort(byStudy),
+                ...this.#sortArray(filterElements)
+            ];
+            const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator() ? elements : this.disabledElements(elements);
 
-
+            // 3. Init Form
             this.form = {
                 type: "form",
                 display: {
@@ -201,15 +214,31 @@ export default class RestEndpoint extends LitElement {
                     defaultLayout: "horizontal",
                     buttonClearText: "Clear",
                     buttonOkText: "Try it out!",
-                    buttonsVisible: this.isNotEndPointAdmin() ? true : this.isAdministrator()
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator())
                 },
-                sections: this.#notificationSection(this.endpoint?.notes)
+                sections: []
             };
 
+            // Add Elemenets to the form
             if (fieldElements.length > 0) {
+                // Check if there are 'notes' to display
+                if (this.endpoint?.notes) {
+                    this.form.sections.push({
+                        elements: [
+                            {
+                                type: "notification",
+                                text: this.endpoint?.notes,
+                                display: {
+                                    notificationType: "info",
+                                },
+                            }
+                        ]
+                    });
+                }
+
                 this.form.sections.push(
                     {
-                        title: "Parameters",
+                        title: "Path and Query Params",
                         display: {
                             titleHeader: "h4",
                             style: "margin-left: 20px",
@@ -219,12 +248,10 @@ export default class RestEndpoint extends LitElement {
                 );
             }
 
-            if (bodyElements.length > 0) {
-                const bodyElementsT =
-                    this.isNotEndPointAdmin() ? bodyElements :
-                        this.isAdministrator() ? bodyElements:
-                            this.disabledElements(bodyElements);
-
+            // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
+            // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
+            if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
+                const bodyElementsForm = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
                 this.form.sections.push({
                     title: "Body",
                     display: {
@@ -236,23 +263,29 @@ export default class RestEndpoint extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                        <detail-tabs
-                                            .config="${this.getTabsConfig(bodyElementsT)}"
-                                            .mode="${DetailTabs.PILLS_MODE}">
-                                        </detail-tabs>
-                                    `
+                                    <detail-tabs
+                                        .data="${{}}"
+                                        .config="${this.getTabsConfig(bodyElementsForm)}"
+                                        .mode="${DetailTabs.PILLS_MODE}">
+                                    </detail-tabs>
+                                `
                             }
                         }
                     ]
                 });
             }
 
-            if (this.opencgaSession?.study && fieldElements.some(field => field.name === "study")) {
+            // 5. If the user is logged in, it will show the current study.
+            if (hasStudyField(fieldElements)) {
                 this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
             }
+
+            // 6. Get data.body to JSON.
             this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
-            this._data = this.data;
+
+            this._data = UtilsNew.objectClone(this.data);
         } else {
+            // If parameters no found
             this.form = Types.dataFormConfig({
                 type: "form",
                 display: {
@@ -260,17 +293,21 @@ export default class RestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: this.isNotEndPointAdmin() ? true: this.isAdministrator()
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator()),
                 },
-                sections: [{
-                    elements: [{
-                        type: "notification",
-                        text: "No parameters...",
-                        display: {
-                            notificationType: "info",
-                        },
-                    }]
-                }]
+                sections: [
+                    {
+                        elements: [
+                            {
+                                type: "notification",
+                                text: "No parameters...",
+                                display: {
+                                    notificationType: "info",
+                                },
+                            }
+                        ]
+                    }
+                ]
             });
         }
         this.requestUpdate();
@@ -298,11 +335,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     disabledElements(elements) {
-
-        return elements.map(element => {
-            const obj = {...element, display: {disabled: true}};
-            return obj;
-        });
+        return elements.map(element => ({...element, display: {disabled: true}}));
     }
 
     #sortArray(elements) {
@@ -333,27 +366,15 @@ export default class RestEndpoint extends LitElement {
         return _elements;
     }
 
-    #notificationSection(notes) {
-        if (notes) {
-            return [{
-                elements: [{
-                    type: "notification",
-                    text: notes,
-                    display: {
-                        notificationType: "info",
-                    },
-                }]
-            }];
-        }
-        return [];
-    }
-
     #setDataBody(body, params) {
-        const paramType = params.type?.toLowerCase();
         const _body = body;
+        const paramValueByType = {
+            map: {},
+            list: [],
+        };
 
         // Basic Type
-        if (UtilsNew.hasProp(this.paramsTypeToHtml, paramType) && !params.innerParam) {
+        if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
             _body[params.name] = params.value || "";
         }
 
@@ -362,153 +383,190 @@ export default class RestEndpoint extends LitElement {
         }
 
         // Support object nested as 2nd Level
-        if (params.innerParam && !params.complex) {
-            _body[params.parentParamName] = {..._body[params.parentParamName], [params.name]: params.defaultValue || ""};
+        // Display object props from object. sample.source
+        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
+            params.data.forEach(param => {
+                _body[param.parentName] = {
+                    ..._body[param.parentName],
+                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+                };
+            });
+        }
+
+        // Display object props from list ex. List<Phenotypes>
+        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
+            let paramData = {};
+            params.data.forEach(param => {
+                paramData = {
+                    ...paramData,
+                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+                };
+            });
+            _body[params.name] = [paramData];
         }
 
         return _body;
-        // body[params.name] = UtilsNew.hasProp(this.paramsTypeToHtml, paramType) ?
-        //     params.defaultValue || "" : params?.type === "List" ? [] : {};
     }
 
-
-    onFormFieldChange(e, field) {
+    onChangeJsonField(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
+        // For Json input: param is called body
         if (param === "body") {
             this.dataJson = {...this.dataJson, body: e.detail.value};
             try {
                 const dataObject = JSON.parse(e.detail.value);
-                Object.keys(dataObject).forEach(key => {
-                    if (key in this.data.body) {
-                        this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
-                    }
-                });
+                // Object.keys(dataObject).forEach(key => {
+                //     if (key in this.data.body) {
+                //         this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
+                //     }
+                // });
             } catch (error) {
+                // json parse errors may arise at the time of writing to the json field.
                 return false;
             }
+        }
+    }
+
+    onFormFieldChange(e, field) {
+        e.stopPropagation();
+        const param = field || e.detail.param;
+        // If it contains more than a dot or If the form has nested object
+        // ex. body.field.prop -> sample: body.source.name
+        if ((param.match(/\./g) || []).length > 1) {
+            // For param type Object
+            const paramBody = param.replace("body.", "");
+            this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
+            this.dataForm.body = {...FormUtils.createObject(this.dataForm.body, paramBody, e.detail.value)};
         } else {
-            // if (param.split(".").length > 2) {
-            // If the form has nested object
-            // ex. body.field.pro -> sample: body.source.name
-            if ((param.match(/\./g)||[]).length > 1) {
-                // For param type Object
-                const paramBody = param.replace("body.", "");
-                this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
-            } else {
-                this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
-            }
-            this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+            this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
+            this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
         }
         this.requestUpdate();
     }
 
-    onClear() {
+    onClear(e) {
+        e.stopPropagation();
         this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
-        if (this.opencgaSession?.study && this.data?.study) {
-            this.data = {study: this.opencgaSession.study.fqn};
-        } else {
-            this.data = this._data;
-        }
+        this.dataForm = {};
+        this.data = UtilsNew.objectClone(this._data);
         this.requestUpdate();
     }
 
-    onSubmit() {
+    #getOrDeleteEndpoint(url) {
+        // Replace PATH params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "path")
+            .forEach(parameter => {
+                url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+            });
 
-        let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
-        if (this.endpoint.method === "GET") {
-            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.data[parameter.name]}`;
+            });
 
-            // Replace PATH params
-            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
-            this.endpoint.parameters
-                .filter(parameter => parameter.param === "path")
-                .forEach(parameter => {
-                    url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
-                });
+        this.isLoading = true;
+        this.requestUpdate();
+        this.restClient.call(url, {method: this.endpoint.method})
+            .then(response => {
+                this.result = response.responses[0];
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
+                this.isLoading = false;
+                this.requestUpdate();
+            });
+    }
 
-            // Add QUERY params
-            this.endpoint.parameters
-                .filter(parameter => parameter.param === "query" && this.data[parameter.name])
-                .forEach(parameter => {
-                    url += `&${parameter.name}=${this.data[parameter.name]}`;
-                });
+    #postEndpoint(url, isForm) {
+        // Add Study
+        url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
 
-            this.isLoading = true;
-            this.requestUpdate();
+        // Replace PATH params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "path")
+            .forEach(parameter => {
+                url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+            });
 
-            this.restClient.call(url, {})
-                .then(response => {
-                    this.result = response.responses[0];
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                    this.requestUpdate();
-                });
-        }
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.data[parameter.name]}`;
+            });
 
-        if (this.endpoint.method === "POST") {
-            url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
-            url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
-
+        try {
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: this.data?.body,
+                data: isForm ? this.dataForm?.body : JSON.parse(this.dataJson.body),
                 method: "POST"
             };
 
+            this.isLoading = true;
+            this.requestUpdate();
             this.restClient.call(url, _options)
-                .then(response => {
-                    this.data.body = {};
+                .then(() => {
+                    this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
+                    this.dataForm = {};
+                    this.data = UtilsNew.objectClone(this._data);
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "New Item",
-                        message: "Data created correctly"
+                        message: "Endpoint successfully executed"
                     });
                 })
                 .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    // Sometimes response is an instance of an String
+                    if (typeof response == "string") {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            message: response
+                        });
+                    } else {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    }
+                    console.error(response);
                 })
                 .finally(() => {
                     this.isLoading = false;
                     this.requestUpdate();
                 });
+
+        } catch (e) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: e
+            });
+            console.error(e);
         }
+
     }
 
-    getJsonDataForm() {
-        return {
-            type: "form",
-            display: {
-                width: "12",
-                labelWidth: "3",
-                defaultLayout: "horizontal",
-                buttonClearText: "Clear",
-                buttonOkText: "Try it out!"
-            },
-            sections: [
-                {
-                    elements: [
-                        {
-                            title: "Individual id",
-                            field: "id",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                placeholder: "Add an ID...",
-                                rows: 10,
-                                help: {
-                                    text: "json data model"
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
+    onSubmitJson(e) {
+        e.stopPropagation(); // avoid call parent component
+        LitUtils.dispatchCustomEvent(this, "submit", false);
+    }
+
+    onSubmitForm(e) {
+        e.stopPropagation(); // avoid call parent component
+        LitUtils.dispatchCustomEvent(this, "submit", true);
+    }
+
+    onSubmit(e) {
+        let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
+        url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+
+        if (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") {
+            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+            this.#getOrDeleteEndpoint(url);
+        }
+
+        if (this.endpoint.method === "POST") {
+            this.#postEndpoint(url, e.detail.value);
+        }
     }
 
     getUrlLinkModelClass(responseClass) {
@@ -527,8 +585,8 @@ export default class RestEndpoint extends LitElement {
         if (responseClass.includes("avro")) {
             const response = responseClass.split(".");
             const className = response[response.length - 1].replace(";", "");
-            const modelClassName = className => {
-                return className.charAt(0).toLowerCase() + className.slice(1);
+            const modelClassName = name => {
+                return name.charAt(0).toLowerCase() + name.slice(1);
             };
             return `https://github.com/opencb/biodata/blob/develop/biodata-models/src/main/avro/${modelClassName(className)}.avdl`;
         }
@@ -539,93 +597,35 @@ export default class RestEndpoint extends LitElement {
     }
 
     renderResponseClass(responseClass) {
-        return responseClass.includes("opencga") || responseClass.includes("biodata") ? html `
-            <a target="_blank" href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
-            ` : html `${this.endpoint.responseClass}`;
+        return responseClass.includes("opencga") || responseClass.includes("biodata") ? html`
+            <a target="_blank"
+               href="${this.getUrlLinkModelClass(this.endpoint.responseClass)}">${this.endpoint.responseClass}</a>
+        ` : html`${this.endpoint.responseClass}`;
     }
 
-    getTabsConfig(elements) {
+    openModal() {
+        $(`#${this._prefix}export-modal`, this).modal("show");
+    }
 
-        const configForm = {
-            buttonsVisible: false,
-            display: {
-                buttonsVisible: false
-            },
-            sections: [{
-                display: {
-                    titleHeader: "h4",
-                },
-                elements: [...elements]
-            }]
+    onExport(e) {
+        // simply forwarding from opencga-export to grid components
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                ...e.detail
+            }
+        }));
+    }
 
-        };
+    // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
+    onChangeExportField(e) {
+        // simply forwarding from opencga-export to grid components
+        LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
+    }
 
-
-        const configJson = {
-            display: {
-                buttonsVisible: false
-            },
-            sections: [{
-                display: {
-                    titleHeader: "h4",
-                },
-                elements: [
-                    {
-                        title: "Body",
-                        field: "body",
-                        type: "input-text",
-                        required: true,
-                        display: {
-                            placeholder: "Data Json...",
-                            rows: 10,
-                            help: {
-                                text: "json data model"
-                            }
-                        }
-                    }
-                ]
-            }]
-        };
-
-        return {
-            items: [
-                {
-                    id: "form",
-                    name: "Form",
-                    icon: "fab fa-wpforms",
-                    active: true,
-                    render: () => {
-                        return html`
-                        <!-- Body Forms -->
-                            <data-form
-                                .data="${this.data}"
-                                .config="${configForm}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
-                            </data-form>
-                    `;
-                    }
-                },
-                {
-                    id: "json",
-                    name: "JSON",
-                    icon: "",
-                    render: () => {
-                        return html`
-                        <!-- Body Json -->
-                            <data-form
-                                .data="${this.dataJson}"
-                                .config="${configJson}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
-                            </data-form>
-                    `;
-                    }
-                }
-            ]
-        };
+    onViewModel() {
+        this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+        this.requestUpdate();
+        console.log("data", this.dataJson);
     }
 
     render() {
@@ -649,26 +649,24 @@ export default class RestEndpoint extends LitElement {
 
                     <!-- Response Section-->
                     <div style="padding: 5px 10px">
-                        <h3>Response</h3>
+                        <h3>Response Type</h3>
                         <div>
-                            <div>Type: ${this.endpoint.response} (Source code: ${this.renderResponseClass(this.endpoint.responseClass)})</div>
+                            <div>Type: ${this.endpoint.response} (Source code:
+                                ${this.renderResponseClass(this.endpoint.responseClass)})
+                            </div>
                         </div>
                     </div>
 
                     <!-- Parameters Section-->
                     <div style="padding: 5px 10px">
-                        <!-- <h3>Parameters</h3> -->
-                        <!-- <blockquote>
-                            <p>\${this.endpoint?.notes}</p>
-                        </blockquote> -->
-
+                        <h3 style="display:inline-block;">Input Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
-                                .data="${this.data}"
-                                .config="${this.form}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${this.onClear}"
-                                @submit="${this.onSubmit}">
+                                    .data="${this.data}"
+                                    .config="${this.form}"
+                                    @fieldChange="${e => this.onFormFieldChange(e)}"
+                                    @clear="${this.onClear}"
+                                    @submit="${this.onSubmit}">
                             </data-form>
                         </div>
                     </div>
@@ -681,16 +679,137 @@ export default class RestEndpoint extends LitElement {
                                 <loading-spinner></loading-spinner>
                             ` : html`
                                 <json-viewer
-                                    .data="${this.result}"
-                                    .config="${this.form}">
+                                        .data="${this.result}"
+                                        .config="${this.form}">
                                 </json-viewer>
                             `}
-
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        ${this._config?.downloading ? html`
+                            <div class="overlay">
+                                <loading-spinner></loading-spinner>
+                            </div>` : null}
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export
+                                    .config="${
+                                            {
+                                                resource: "API",
+                                                exportTabs: ["link", "code"]
+                                            }
+                                    }"
+                                    .query="${this.data}"
+                                    .endpoint="${this.endpoint}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @export="${this.onExport}"
+                                    @changeExportField="${this.onChangeExportField}">
+                            </opencga-export>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getTabsConfig(elements) {
+        const configForm = {
+            display: {
+                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
+            },
+            sections: [{
+                display: {
+                    titleHeader: "h4",
+                },
+                elements: [...elements]
+            }]
+        };
+
+        const configJson = {
+            display: {
+                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
+            },
+            sections: [{
+                display: {
+                    titleHeader: "h4",
+                },
+                elements: [
+                    {
+                        title: "Body",
+                        field: "body",
+                        type: "input-text",
+                        required: true,
+                        display: {
+                            placeholder: "Data Json...",
+                            disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
+                            rows: 10,
+                            help: {
+                                text: "Must be a valid json, please remove empty fields if you don't need them."
+                            }
+                        }
+                    }
+                ]
+            }]
+        };
+
+        const items = [];
+
+        if (elements.length > 0) {
+            items.push({
+                id: "form",
+                name: "Form",
+                icon: "fab fa-wpforms",
+                active: true,
+                render: () => {
+                    return html`
+                        <!-- Body Forms -->
+                        <data-form
+                                .data="${this.dataForm}"
+                                .config="${configForm}"
+                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                @clear="${e => this.onClear(e)}"
+                                @submit="${this.onSubmitForm}">
+                        </data-form>
+                    `;
+                }
+            });
+        }
+
+        if (this.dataJson) {
+            items.push({
+                id: "json",
+                name: "JSON",
+                icon: "",
+                render: () => {
+                    return html`
+                        <!-- Body Json text area -->
+                        <data-form
+                                .data="${this.dataJson}"
+                                .config="${configJson}"
+                                @fieldChange="${e => this.onChangeJsonField(e)}"
+                                @clear="${e => this.onClear(e)}"
+                                @submit="${this.onSubmitJson}">
+                        </data-form>
+                    `;
+                }
+            });
+        }
+
+        return {
+            items: [...items]
+        };
     }
 
 }

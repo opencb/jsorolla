@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utilsNew.js";
+import UtilsNew from "../../../../core/utils-new.js";
 import "../../forms/select-token-filter.js";
 
 // Rodiel 06-05-2022 - DEPRECATED: use catalog-search-autocomplete now.

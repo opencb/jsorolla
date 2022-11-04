@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "../forms/number-field-filter.js";
 
@@ -56,7 +56,8 @@ export default class ConservationFilter extends LitElement {
         if (changedProperties.has("conservation")) {
             this.state = {};
             if (this.conservation) {
-                this.logicalOperator = this.conservation.split(",") > this.conservation.split(";") ? "," : ";";
+                // this.logicalOperator = this.conservation.split(",") > this.conservation.split(";") ? "," : ";";
+                this.logicalOperator = this.conservation?.includes(",") ? "," : ";";
                 const con = this.conservation.split(this.logicalOperator);
                 this.logicalSwitchDisabled = con.length <= 1;
                 con.forEach(c => {
@@ -120,7 +121,7 @@ export default class ConservationFilter extends LitElement {
                             </number-field-filter>
                         </div>
                     </div>`;
-            })}
+        })}
 
             <div style="padding-top: 10px">
                 <fieldset class="switch-toggle-wrapper">

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
@@ -24,6 +24,8 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -49,6 +51,9 @@ export default class VariantBrowserGrid extends LitElement {
                 type: Object
             },
             variants: {
+                type: Array
+            },
+            populationFrequencies: {
                 type: Array
             },
             cohorts: {
@@ -95,6 +100,8 @@ export default class VariantBrowserGrid extends LitElement {
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
+            // update config to add new columns by filters as sample
+            this.configObserver();
             this.renderVariants();
         }
         if (changedProperties.has("config")) {
@@ -105,7 +112,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -114,14 +121,15 @@ export default class VariantBrowserGrid extends LitElement {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query?.sample) {
-            for (const sampleId of this.query.sample.split("[,;]")) {
-                _samples.push({
-                    id: sampleId.split(":")[0]
-                });
+            for (const sampleId of this.query.sample.split(new RegExp("[,;]"))) {
+                _samples.push(
+                    {
+                        id: sampleId.split(":")[0]
+                    }
+                );
             }
         }
         this.samples = _samples;
-
         this.requestUpdate();
     }
 
@@ -145,7 +153,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        if (this.variants && this.variants.length > 0) {
+        if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
             this.renderRemoteVariants();
@@ -181,17 +189,77 @@ export default class VariantBrowserGrid extends LitElement {
                 variantGrid: this,
                 ajax: params => {
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeStudy: "all",
-                        summary: !this.query.sample && !this.query.family,
+                        includeSampleId: "true",
+                        // summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then(res => params.success(res))
+                    this.opencgaSession.opencgaClient.variants().query(this.filters)
+                        .then(res => {
+                            // FIXME A quick temporary fix -> TASK-947
+                            if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
+                                let found = false;
+                                const variants = res.responses[0].results;
+                                for (const variant of variants) {
+                                    for (const ct of variant.annotation.consequenceTypes) {
+                                        if (ct.transcriptFlags || ct.transcriptAnnotationFlags) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!found) {
+                                    this.cellbaseClient = new CellBaseClient({
+                                        host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
+                                        // host: "https://ws.opencb.org/cellbase-4.8.2",
+                                        version: "v4",
+                                        species: "hsapiens",
+                                    });
+                                    const variantIds = variants.map(v => v.id);
+                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {
+                                        assembly: this.opencgaSession.project.organism.assembly,
+                                        exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"
+                                    }).then(response => {
+                                        const annotatedVariants = response.responses;
+                                        for (let i = 0; i < variants.length; i++) {
+                                            // Store annotatedVariant in a Map, so we can search later and we do not need them to have the same order
+                                            const annotatedVariantsMap = new Map();
+                                            for (const av of annotatedVariants[i].results[0].consequenceTypes) {
+                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                if (av.ensemblTranscriptId) {
+                                                    annotatedVariantsMap.set(av.ensemblTranscriptId, av);
+                                                }
+                                            }
+
+                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
+                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                    // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
+                                                    const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                    if (annotatedVariant) {
+                                                        variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
+                                                        variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
+                                                    }
+                                                }
+                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
+                                                // }
+                                            }
+                                        }
+                                    }).catch(error => {
+                                        console.log(error);
+                                    });
+                                }
+                            }
+
+                            params.success(res);
+                        })
                         .catch(e => params.error(e))
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
@@ -209,10 +277,10 @@ export default class VariantBrowserGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => {
+                onClickRow: (row, selectedElement) => {
                     this.gridCommons.onClickRow(row.id, row, selectedElement);
                 },
-                onDblClickRow: (row, element, field) => {
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -229,7 +297,9 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
+                onExpandRow: (index, row) => {
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO Remove this
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
@@ -268,7 +338,9 @@ export default class VariantBrowserGrid extends LitElement {
                 $(".success").removeClass("success");
                 $($element).addClass("success");
             },
-            onExpandRow: (index, row, $detail) => {
+            onExpandRow: (index, row) => {
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                 // Listen to Show/Hide link in the detail formatter consequence type table
                 // TODO Remove this
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
@@ -426,8 +498,9 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     populationFrequenciesFormatter(value, row, index) {
-        if (row && row.annotation?.populationFrequencies) {
-            const popFreqMap = new Map();
+        const popFreqMap = new Map();
+        // Fill the map with the freqs if there are any
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             // eslint-disable-next-line guard-for-in
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -436,10 +509,8 @@ export default class VariantBrowserGrid extends LitElement {
                     popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
-        } else {
-            return "-";
         }
+        return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style, this.meta.populationFrequenciesConfig);
     }
 
     onCheck(e) {
@@ -470,13 +541,19 @@ export default class VariantBrowserGrid extends LitElement {
     _getDefaultColumns() {
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let sampleColumns = [{visible: false}];
-        if (this._columns && this.samples && this.samples.length > 0) {
+        if (this.samples?.length > 0) {
             sampleColumns = [];
             for (let i = 0; i < this.samples.length; i++) {
                 sampleColumns.push({
                     id: this.samples[i].id,
                     title: this.samples[i].id,
-                    field: "samples",
+                    // field: "samples",
+                    field: {
+                        memberIdx: i,
+                        memberName: this.samples[i].id,
+                        sampleId: this.samples[i].id,
+                        config: this._config
+                    },
                     rowspan: 1,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
@@ -512,7 +589,7 @@ export default class VariantBrowserGrid extends LitElement {
 
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let populationFrequencyColumns = [{visible: false}];
-        if (this.populationFrequencies && this.populationFrequencies.studies && this.populationFrequencies.studies.length > 0) {
+        if (this.populationFrequencies?.studies?.length > 0) {
             populationFrequencyColumns = [];
             for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
                 const populations = [];
@@ -524,7 +601,8 @@ export default class VariantBrowserGrid extends LitElement {
                 }
 
                 // FIXME CellBase v5 uses 1000G while v4 uses 1kG_phase3, remove this in v2.3
-                if (this.populationFrequencies.studies[j].id === "1000G" && this.opencgaSession.project?.cellbase?.version === "v4") {
+                if (this.populationFrequencies.studies[j].id === "1000G" &&
+                    (this.opencgaSession.project?.cellbase?.version === "v4" || this.opencgaSession.project?.internal?.cellbase?.version === "v4")) {
                     this.populationFrequencies.studies[j].id = "1kG_phase3";
                 }
 
@@ -537,12 +615,13 @@ export default class VariantBrowserGrid extends LitElement {
                         populations: populations,
                         populationMap: populationMap,
                         colors: this.populationFrequencies.style,
+                        populationFrequenciesConfig: this._config.populationFrequenciesConfig,
                         context: this
                     },
                     rowspan: 1,
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
-                    align: "center"
+                    align: "center",
                 });
             }
         }
@@ -684,6 +763,76 @@ export default class VariantBrowserGrid extends LitElement {
                     },
                     visible: this._config.showSelectCheckbox
                 },
+                {
+                    id: "actions",
+                    title: "Actions",
+                    rowspan: 2,
+                    colspan: 1,
+                    eligible: false,
+                    formatter: (value, row) => {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="dropdown-header">External Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">CellBase Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
+                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>`;
+                    },
+                    align: "center",
+                    events: {
+                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                    },
+                    visible: this._config?.showActions,
+                    excludeFromExport: true // this is used in opencga-export
+                },
             ],
             [
                 {
@@ -763,7 +912,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center"
                 },
                 {
@@ -772,7 +921,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center"
                 },
             ]
@@ -782,18 +931,37 @@ export default class VariantBrowserGrid extends LitElement {
         return this._columns;
     }
 
+    onActionClick(e, value, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
+                break;
+            case "copy-json":
+                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            default:
+                console.warn("Option not recognize: " + action);
+                break;
+        }
+    }
+
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            limit: e.detail?.exportLimit ?? 1000,
-            summary: !this.query.sample && !this.query.family, // remove this to test includeSample param
-            // includeSample: "all" // TODO this causes a time-out
-            ...this.query
+        const filters = {
+            ...this.filters,
+            skip: 0,
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.variants().query(params)
+        this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
@@ -812,52 +980,6 @@ export default class VariantBrowserGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
-    }
-
-    // not used as changes to exportFields is not propagated outside opencga-export anymore (they are sent on click on download button via `export` event)
-    /* onChangeExportField(e) {
-        this.exportFields = e.detail.value;
-    } */
-
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [5, 10, 25],
-            showExport: false,
-            detailView: true,
-            detailFormatter: this.detailFormatter,
-            showToolbar: true,
-            showSelectCheckbox: false,
-            multiSelection: false,
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
-
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-
-            highlights: [],
-            activeHighlights: [],
-
-            geneSet: {
-                ensembl: true,
-                refseq: true,
-            },
-            consequenceType: {
-                maneTranscript: true,
-                gencodeBasicTranscript: true,
-                ensemblCanonicalTranscript: true,
-                refseqTranscript: true,
-                ccdsTranscript: false,
-                ensemblTslTranscript: false,
-                proteinCodingTranscript: false,
-                highImpactConsequenceTypeTranscript: false,
-
-                showNegativeConsequenceTypes: true
-            }
-        };
     }
 
     onGridConfigChange(e) {
@@ -923,6 +1045,51 @@ export default class VariantBrowserGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showExport: false,
+            detailView: true,
+            detailFormatter: this.detailFormatter,
+            showToolbar: true,
+            showSelectCheckbox: false,
+            showActions: true,
+            multiSelection: false,
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 15,
+
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+
+            highlights: [],
+            activeHighlights: [],
+
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                maneTranscript: true,
+                gencodeBasicTranscript: true,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            }
+        };
     }
 
 }

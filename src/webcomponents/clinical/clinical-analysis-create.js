@@ -18,7 +18,8 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
+import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -66,6 +67,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             if (this.opencgaSession?.study) {
                 this._users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.initClinicalAnalysis();
+                this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             }
 
             this.requestUpdate();
@@ -85,7 +87,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 id: this.opencgaSession?.user?.id
             },
             _users: this._users,
-            comments: []
+            comments: [],
+            panelLock: false,
         };
     }
 
@@ -93,12 +96,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
         const param = field || e.detail.param;
         switch (param) {
             case "type":
-                this.clinicalAnalysis.type = e.detail.value.toUpperCase();
+                this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
                 break;
             case "proband.id":
                 this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
                 if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-                    this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                    this.clinicalAnalysis.disorder = {
+                        id: this.clinicalAnalysis.proband.disorders[0].id
+                    };
                 }
                 break;
             case "disorder.id":
@@ -127,8 +132,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     delete this.clinicalAnalysis[field];
                 }
                 break;
+            case "panelLock":
+                this.clinicalAnalysis.panelLock = e.detail.value;
+                break;
             default:
-                this.clinicalAnalysis[param] = e.detail.value;
+                this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
                 break;
         }
 
@@ -137,7 +145,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     onCustomFieldChange(field, e) {
-        this.onFieldChange({detail: {value: e.detail.value, param: field}});
+        this.onFieldChange({
+            detail: {
+                value: e.detail.value,
+                param: field
+            }
+        });
     }
 
     onIndividualChange(e) {
@@ -148,7 +161,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     this.clinicalAnalysis.proband = response.responses[0].results[0];
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                        this.clinicalAnalysis.disorder = {
+                            id: this.clinicalAnalysis.proband.disorders[0].id
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -160,10 +175,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
         } else {
             // Single Analyisis Configuration
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            // refresh the form
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -186,7 +201,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     }
 
                     if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                        this.clinicalAnalysis.disorder = {
+                            id: this.clinicalAnalysis.proband.disorders[0].id
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -197,11 +214,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 });
         } else {
             // Empty family fields
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-                family: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            delete this.clinicalAnalysis["family"];
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -211,10 +227,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis.proband = response.responses[0].results[0];
+                    this.clinicalAnalysis = {
+                        ...this.clinicalAnalysis,
+                        proband: response.responses[0].results[0]
+                    };
 
-                    if (this.clinicalAnalysis.proband?.disorders?.length === 1) {
-                        this.clinicalAnalysis.disorder = {id: this.clinicalAnalysis.proband.disorders[0].id};
+                    if (this.clinicalAnalysis?.proband?.disorders?.length === 1) {
+                        this.clinicalAnalysis = {
+                            ...this.clinicalAnalysis,
+                            disorder: {
+                                id: this.clinicalAnalysis.proband.disorders[0].id
+                            }
+                        };
                     }
 
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
@@ -225,10 +249,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                 });
         } else {
             // Empty disorder and samples field when remove item from proband field.
-            this.clinicalAnalysis = {
-                ...this.clinicalAnalysis,
-                proband: null,
-            };
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
@@ -247,25 +270,31 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onClear() {
         this.initClinicalAnalysis();
         // This reset all date elements such as dueDate, check TASK-340
-        Array.from(this.querySelectorAll('input[type="date"]')).forEach(el => el.value = "");
+        Array.from(this.querySelectorAll("input[type='date']")).forEach(el => el.value = "");
         this.requestUpdate();
     }
 
     onSubmit() {
         // Prepare the data for the REST create
-        const data = {...this.clinicalAnalysis};
+        let data = {...this.clinicalAnalysis};
 
         // remove private fields
         delete data._users;
-
-        data.proband = {
-            id: this.clinicalAnalysis.proband?.id ? this.clinicalAnalysis.proband.id : null
+        data = {
+            ...data,
+            proband: {
+                id: this.clinicalAnalysis?.proband?.id ? this.clinicalAnalysis?.proband?.id : null
+            }
         };
 
         if (data.type === "FAMILY") {
-            data.family = {
-                id: this.clinicalAnalysis.family.id,
-                members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
+
+            data = {
+                ...data,
+                family: {
+                    id: this.clinicalAnalysis.family.id,
+                    members: this.clinicalAnalysis.family.members.map(e => ({id: e.id}))
+                }
             };
         }
 
@@ -345,7 +374,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.clinicalAnalysis).length > 0,
+                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
                                 notificationType: "warning",
                             }
                         },
@@ -389,6 +418,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             },
                         },
                         {
+                            title: "Disease Panel Lock",
+                            field: "panelLock",
+                            type: "toggle-switch",
+                            display: {
+                                helpMessage: "You must select at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
+                                disabled: clinicalAnalysis => {
+                                    return !clinicalAnalysis?.panels || clinicalAnalysis?.panels?.length === 0;
+                                },
+                            },
+                        },
+                        {
                             title: "Flags",
                             field: "flags",
                             type: "custom",
@@ -396,7 +436,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 render: flags => html`
                                     <clinical-flag-filter
                                         .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
                                         .multiple=${true}
                                         @filterChange="${e => this.onFieldChange(e, "flags.id")}">
                                     </clinical-flag-filter>
@@ -433,10 +473,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             .value="${probandId}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                addButton: false,
-                                                multiple: false
-                                            }}
+                                            .config=${{addButton: false, multiple: false}}
                                             @filterChange="${e => this.onIndividualChange(e)}">
                                         </catalog-search-autocomplete>
                                     `;
@@ -506,10 +543,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"FAMILY"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}"
+                                        .config="${{addButton: false, multiple: false}}"
                                         @filterChange="${e => this.onFamilyChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,
@@ -628,10 +662,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}
+                                        .config=${{addButton: false, multiple: false}}
                                         @filterChange="${e => this.onCancerChange(e)}">
                                     </catalog-search-autocomplete>
                                 `,

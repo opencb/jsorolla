@@ -21,7 +21,7 @@
 import {LitElement, html} from "lit";
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
@@ -117,9 +117,6 @@ class ApiApp extends LitElement {
             window.location.hash = this.tool;
         }
 
-        // Other initialisations
-        this._isBreadcrumbVisible = false;
-
         // Notifications
         this.notificationManager = new NotificationManager({});
 
@@ -180,11 +177,10 @@ class ApiApp extends LitElement {
                 },
             });
 
-            if (UtilsNew.isNotEmpty(sid)) { // && !this._publicMode
-                this._createOpenCGASession();
-                // This must happen after creating the OpencgaClient
+            if (sid) {
                 this.checkSessionActive();
                 this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+                this._createOpenCGASession();
             } else {
                 this._createOpencgaSessionFromConfig();
             }
@@ -204,6 +200,10 @@ class ApiApp extends LitElement {
     }
 
     async _createOpenCGASession() {
+        // This check prevents displaying the annoying message of 'No valid token:null' when the token has expired
+        if (!this.opencgaClient._config.token) {
+            return;
+        }
         this.signingIn = "Creating session..";
         this.requestUpdate();
         await this.updateComplete;

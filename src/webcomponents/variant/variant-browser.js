@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "./../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -339,6 +339,7 @@ export default class VariantBrowser extends LitElement {
         try {
             await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
             this.settingsObserver();
+            this.requestUpdate();
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",
@@ -358,15 +359,7 @@ export default class VariantBrowser extends LitElement {
             filter: {
                 title: "Filter",
                 activeFilters: {
-                    alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types",
-                        "biotype": "Biotype",
-                        "alternate_frequency": "Population Frequency",
-                        "proteinSubstitution": "Protein Substitution"
-                    },
+                    alias: {},
                     complexFields: [],
                     hiddenFields: []
                 },
@@ -382,12 +375,16 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.study
                             },
                             {
+                                id: "sample",
+                                title: "Sample Filter (up to 3 samples)",
+                                tooltip: "Select up to 3 samples"
+                            },
+                            {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts
-                                cohorts: this.opencgaSession?.project?.studies
+                                studies: this.opencgaSession?.project?.studies
                             }
                         ]
                     },

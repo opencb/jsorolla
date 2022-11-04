@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import UtilsNew from "../utilsNew.js";
+import UtilsNew from "../utils-new.js";
 import {SVG} from "../svg.js";
 
 export default class ExonViewer {
@@ -465,7 +465,7 @@ export default class ExonViewer {
     }
 
     _adjustLastSVGGroupAndAddText(svg, title, currentHeight, trackHeight, svgGroupHeight, config) {
-        svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${currentHeight}) 
+        svg.lastChild.setAttribute("transform", `translate(${config.display.titleWidth + 20} ${currentHeight})
                                                  scale (1 ${trackHeight / svgGroupHeight})`);
 
         // Add the text to the left of the SVG

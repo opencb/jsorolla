@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../forms/file-upload.js";
 
 /**
@@ -53,11 +53,13 @@ export default class SelectTokenFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.state = [];
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     console.log("stf connected callback", this.config);
+    //     debugger
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.state = [];
+    // }
 
     firstUpdated() {
         this.select = $("#" + this._prefix);
@@ -67,8 +69,10 @@ export default class SelectTokenFilter extends LitElement {
             // https://select2.org/appearance#container-width
             width: this._config.width ?? "style",
             allowClear: this._config.allowClear ?? true,
+            disabled: this._config.disabled ?? false,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
+            maximumSelectionLength: this._config.maxItems || 0,
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
@@ -78,7 +82,7 @@ export default class SelectTokenFilter extends LitElement {
                     return {
                         results: this._config.preprocessResults(restResponse.getResults()),
                         pagination: {
-                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: !this._config.disablePagination && (_params.page * this._config.limit) < restResponse.getResponse().numMatches,
                         }
                     };
                 }
@@ -128,10 +132,17 @@ export default class SelectTokenFilter extends LitElement {
 
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("config")) {
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update(changedProperties);
+    }
+
+    updated(_changedProperties) {
+        // if (_changedProperties.has("config")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        // }
 
         if (_changedProperties.has("classes")) {
             if (this.classes) {
@@ -173,7 +184,7 @@ export default class SelectTokenFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
+    filterChange() {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
@@ -188,7 +199,7 @@ export default class SelectTokenFilter extends LitElement {
         // this.dispatchEvent(event);
     }
 
-    toggleFileUpload(e) {
+    toggleFileUpload() {
         $(`#${this._prefix}-select-wrapper .file-drop-area`).collapse("toggle");
     }
 
@@ -196,8 +207,10 @@ export default class SelectTokenFilter extends LitElement {
         return {
             separator: [","],
             limit: 10,
+            disablePagination: false,
             minimumInputLength: 0,
             maxItems: 0,
+            disabled: false,
             placeholder: "Start typing",
             freeTag: false,
             fileUpload: false,
@@ -235,10 +248,17 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         }
+        // console.log("csa _config: ", this._config);
+        // debugger
 
         return html`
             <div>
-                <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                <select
+                    class="form-control"
+                    id="${this._prefix}"
+                    ?disabled="${this._config.disabled}"
+                    @change="${this.filterChange}">
+                </select>
             </div>
         `;
     }

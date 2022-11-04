@@ -51,7 +51,7 @@ const CLINICAL_SIGNIFICANCE = [
 const CLINICAL_SIGNIFICANCE_SETTINGS = {
     NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
     BENIGN: {id: "B", code: 1, color: "green"},
-    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "darkgreen"},
     UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
     LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
     PATHOGENIC: {id: "P", code: 5, color: "red"}
@@ -70,6 +70,36 @@ const MODE_OF_INHERITANCE = [
 const ROLE_IN_CANCER = ["ONCOGENE", "TUMOR_SUPPRESSOR_GENE", "FUSION"];
 
 const DISEASE_PANEL_CONFIDENCE = ["HIGH", "MEDIUM", "LOW", "REJECTED"];
+
+const DISEASE_PANEL_IMPRINTED = ["NOT", "MATERNALLY", "PATERNALLY", "UNKNOWN"];
+
+const ACMG_STRENGTH_LEVEL = ["SUPPORTING", "MODERATE", "STRONG", "VERY_STRONG"];
+
+const AMINOACID_CODE = {
+    "A": "Ala",
+    "R": "Arg",
+    "N": "Asn",
+    "D": "Asp",
+    "B": "Asx",
+    "C": "Cys",
+    "E": "Glu",
+    "Q": "Gln",
+    "Z": "Glx",
+    "G": "Gly",
+    "H": "His",
+    "I": "Ile",
+    "L": "Leu",
+    "K": "Lys",
+    "M": "Met",
+    "F": "Phe",
+    "P": "Pro",
+    "S": "Ser",
+    "T": "Thr",
+    "W": "Trp",
+    "Y": "Tyr",
+    "V": "Val",
+    "*": "Stop"
+};
 
 const CONSEQUENCE_TYPES = {
     style: {
@@ -103,14 +133,14 @@ const CONSEQUENCE_TYPES = {
         {
             name: "Protein Altering",
             description: "Filter Protein Altering variants",
-            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion"]
         },
         {
             name: "Coding Sequence",
             description: "Filter Coding variants",
-            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
-                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "synonymous_variant"]
         }
     ],
 
@@ -453,9 +483,6 @@ const POPULATION_FREQUENCIES = {
                 {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 }
-                // {
-                //     id: "SAS", title: "South Asian [SAS]"
-                // }
             ]
         }
     ]

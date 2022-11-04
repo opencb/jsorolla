@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -67,27 +67,25 @@ export default class VariantInterpreterGrid extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.gridId = this._prefix + "VariantBrowserGrid";
+
+        // Keep the status of selected variants
+        this._rows = [];
         this.checkedVariants = new Map();
+        this.queriedVariants = {};
         this.review = false;
 
         // Set colors
+        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
+    // }
 
-        // this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-    }
-
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.table = $("#" + this.gridId);
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -120,13 +118,13 @@ export default class VariantInterpreterGrid extends LitElement {
 
             // Config for the grid toolbar
             // some columns have tooltips in title, we cannot used them for the dropdown
+            const defaultColumns = this._getDefaultColumns();
             this.toolbarConfig = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
                 resource: "CLINICAL_VARIANT",
-                // showExport: true,
-                columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-                gridColumns: this._getDefaultColumns() // original column structure
+                columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
+                gridColumns: defaultColumns, // original column structure
             };
             this.requestUpdate();
             this.renderVariants();
@@ -178,6 +176,69 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    // FIXME Temporary code to check which variants are being interpreted or have been reported
+    // This should be implemented by OpenCGA
+    fillReportedVariants(variants) {
+        // Prepare queried variants to contain the interpretations
+        this.queriedVariants = {};
+        return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
+            primaryFindings: variants.map(variant => variant.id).join(","),
+            study: this.opencgaSession.study.fqn,
+        })
+            .then(interpretationSearchResponse => {
+                const interpretations = interpretationSearchResponse.responses[0]?.results;
+                if (interpretations?.length > 0) {
+                    variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
+
+                    // Add interpretations to the variants to be returned
+                    for (const interpretation of interpretations) {
+                        for (const variant of interpretation.primaryFindings) {
+                            if (this.queriedVariants[variant.id]) {
+                                if (!this.queriedVariants[variant.id].interpretations) {
+                                    this.queriedVariants[variant.id].interpretations = [];
+                                }
+                                this.queriedVariants[variant.id].interpretations.push(interpretation);
+                            }
+                        }
+                    }
+
+                    // Calculate stats
+                    for (const v of variants) {
+                        const variant = this.queriedVariants[v.id];
+                        if (variant.interpretations) {
+                            variant.interpretationStats = {
+                                status: {},
+                                tier: {},
+                                clinicalSignificance: {},
+                            };
+                            for (const interpretation of variant.interpretations) {
+                                interpretation?.primaryFindings
+                                    ?.filter(primaryFinding => primaryFinding.id === variant.id)
+                                    .forEach(primaryFinding => {
+                                        // Status stats
+                                        if (!variant.interpretationStats.status[primaryFinding.status]) {
+                                            variant.interpretationStats.status[primaryFinding.status] = 0;
+                                        }
+                                        variant.interpretationStats.status[primaryFinding.status]++;
+
+                                        // Tier stats
+                                        primaryFinding.evidences
+                                            .filter(evidence => evidence.review.tier)
+                                            .forEach(evidence => {
+                                                if (!variant.interpretationStats.tier[evidence.review.tier]) {
+                                                    variant.interpretationStats.tier[evidence.review.tier] = 0;
+                                                }
+                                                variant.interpretationStats.tier[evidence.review.tier]++;
+                                            });
+                                    });
+                            }
+                        }
+                    }
+                }
+                return this.queriedVariants;
+            });
+    }
+
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
@@ -185,7 +246,11 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (this.clinicalVariants?.length > 0) {
-            this.renderLocalVariants();
+            // FIXME Temporary code to check which variants are being interpreted or have been reported
+            // This should be implemented by OpenCGA
+            this.fillReportedVariants(this.clinicalVariants)
+                .catch(error => console.error(error))
+                .finally(() => this.renderLocalVariants());
         } else {
             this.renderRemoteVariants();
         }
@@ -281,18 +346,28 @@ export default class VariantInterpreterGrid extends LitElement {
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
 
+                        // TODO to be enabled once this is supported in OpenCGA
+                        // interpretationId: this.clinicalAnalysis?.interpretation.id,
+
                         approximateCount: true,
                         approximateCountSamplingSize: 500,
 
                         ...internalQuery,
-                        unknownGenotype: "0/0"
+                        unknownGenotype: "0/0",
+                        includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
                     };
 
+                    let variantResponse = null;
                     this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
-                        .then(res => {
-                            this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            params.success(res);
+                        .then(variantQueryResponse => {
+                            this.isApproximateCount = variantQueryResponse.responses[0].attributes?.approximateCount ?? false;
+                            variantResponse = variantQueryResponse;
+
+                            // FIXME Temporary code to check which variants are being interpreted or have been reported
+                            // This should be implemented by OpenCGA
+                            return this.fillReportedVariants(variantResponse.responses[0].results);
                         })
+                        .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
                             LitUtils.dispatchCustomEvent(this, "queryComplete", null);
@@ -300,34 +375,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-
-                    // Merge response rows with user information (comments, status, ...) stored in primaryFindings
-                    if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
-                        result.response.rows = result.response.rows.map(row => {
-                            if (!this.checkedVariants.has(row.id)) {
-                                return row;
-                            }
-
-                            // Merge row with comments and other user properties
-                            const savedVariant = this.checkedVariants.get(row.id);
-                            return {
-                                ...row,
-                                comments: savedVariant.comments,
-                                status: savedVariant.status,
-                                attributes: savedVariant.attributes,
-                                discussion: savedVariant.discussion,
-                                evidences: row.evidences.map((evidence, index) => ({
-                                    ...evidence,
-                                    review: savedVariant.evidences[index],
-                                })),
-                            };
-                        });
-                    }
-
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -368,20 +419,23 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row, $detail) => {
+                onExpandRow: (index, row) => {
+                    // Automatically select this row after clicking on "+" icons
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                     // Enable or disable evidence select
                     Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                         if (row.id === element.dataset.variantId) {
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
+                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                             element.addEventListener("change", e => this.onEvidenceCheck(e));
                         }
                     });
@@ -399,7 +453,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
-                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
+                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                             element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                         }
                     });
@@ -435,8 +489,8 @@ export default class VariantInterpreterGrid extends LitElement {
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onDblClickRow: (row, element, field) => {
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                 if (this._config.detailView) {
@@ -447,19 +501,22 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 }
             },
-            onExpandRow: (index, row, $detail) => {
-                // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+            onExpandRow: (index, row) => {
+                // Automatically select this row after clicking on "+" icons
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
 
-                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                // Listen to Show/Hide link in the detail formatter consequence type table
+                document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+
+                document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                 // Enable or disable evidence select
                 Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
                     if (row.id === element.dataset.variantId) {
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked;
+                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                         element.addEventListener("change", e => this.onEvidenceCheck(e));
                     }
                 });
@@ -477,7 +534,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
-                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked;
+                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
                         element.addEventListener("click", e => this.onVariantEvidenceReview(e));
                     }
                 });
@@ -487,8 +544,8 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
-            onLoadSuccess: () => {
+                this._rows = data;
+
                 // Add events for displaying genes list
                 const gridElement = document.querySelector(`#${this.gridId}`);
                 if (gridElement) {
@@ -517,10 +574,8 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    /*
-     *  GRID FORMATTERS
-     */
-    detailFormatter(value, row, a) {
+    // Grid formatters
+    detailFormatter(value, row) {
         let variant = row;
         if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
             variant = this.checkedVariants.get(variant.id);
@@ -531,6 +586,11 @@ export default class VariantInterpreterGrid extends LitElement {
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Evidences</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, variant, this, this.query, this.review, this._config);
+            detailHtml += "</div>";
+
+            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, this.queriedVariants[row.id], this.opencgaSession);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
@@ -583,7 +643,7 @@ export default class VariantInterpreterGrid extends LitElement {
         let vcfDataColumns = [];
         const vcfDataColumnNames = [];
         const variantTypes = new Set(this._config.variantTypes || []);
-        const fileCallers = this.clinicalAnalysis.files
+        const fileCallers = (this.clinicalAnalysis?.files || [])
             .filter(file => file.format === "VCF" && file.software?.name)
             .map(file => file.software.name.toUpperCase());
 
@@ -675,7 +735,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "consequenceType",
-                    title: "Gene Annotation",
+                    title: "Consequence Type",
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
@@ -701,18 +761,31 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    id: "frequencies",
-                    title: `Variant Allele Frequency
+                    id: "cohort",
+                    title: "Cohort Stats",
+                    field: "cohort",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
+                    title: `Reference Population <br> Frequencies
                         <a class="pop-preq-info-icon"
-                            tooltip-title="Population Frequencies"
+                            tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </a>`,
-                    field: "frequencies",
-                    rowspan: 1,
-                    colspan: 2,
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    colspan: 1,
                     align: "center",
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
                 },
                 {
                     id: "clinicalInfo",
@@ -726,7 +799,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 {
@@ -741,7 +814,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     halign: "center"
                 },
                 {
@@ -749,27 +822,35 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
+                    eligible: false,
                     formatter: (value, row) => {
                         let copiesHtml = "";
                         if (this._config.copies) {
                             for (const copy of this._config.copies) {
-                                copiesHtml = `
-                                    <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
-                                            <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
-                                        </a>
-                                    </li>
-                                `;
+                                // Check if the copy object has an execute function, this prevents two possible scenarios:
+                                // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
+                                // 2. an incorrect copy configuration
+                                if (copy.execute) {
+                                    copiesHtml = `
+                                        <li>
+                                            <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
+                                                <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                            </a>
+                                        </li>
+                                    `;
+                                }
                             }
                         }
 
                         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
-                        const reviewDisabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">Actions
-                                    <span class="caret"></span>
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
@@ -778,10 +859,38 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Genome Browser</li>
+                                    ${this._config.showGenomeBrowserLink ? `
+                                        <li class="dropdown-header">Genome Browser</li>
+                                        <li>
+                                            <a class="btn force-text-left" data-action="genome-browser">
+                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                            </a>
+                                        </li>
+                                    ` : ""}
+                                    <li class="dropdown-header">External Links</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser")}">
+                                                href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">CellBase Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
@@ -815,6 +924,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
+                    visible: this._config?.showActions,
                     excludeFromExport: true // this is used in opencga-export
                     // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
                 },
@@ -822,30 +932,12 @@ export default class VariantInterpreterGrid extends LitElement {
             [
                 ...vcfDataColumns,
                 {
-                    id: "cohort",
-                    title: "Cohorts",
-                    field: "cohort",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                },
-                {
-                    id: "populationFrequencies",
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
-                    visible: !this._config.hidePopulationFrequencies,
-                },
-                {
                     id: "clinvar",
                     title: "ClinVar",
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
@@ -855,11 +947,31 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
+                {
+                    id: "reported",
+                    title: `Interpreted and/or<br> Reported`,
+                    // field: "prediction",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
+                    align: "center",
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
                 {
                     id: "prediction",
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
@@ -880,7 +992,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        const disabled = this.clinicalAnalysis.locked ? "disabled" : "";
+                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
                     },
                     align: "center",
@@ -896,13 +1008,34 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const disabled = !this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked ? "disabled" : "";
+                        // Check disable status
+                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        // Prepare comments
+                        let commentsTooltipText = "";
+                        if (row.comments?.length > 0) {
+                            for (const comment of row.comments) {
+                                commentsTooltipText += `
+                                    <div style="padding: 5px">
+                                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                        <div>
+                                            ${comment.message || "-"}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
                         return `
-                            <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
-                                <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                            </button>
+                            ${this._config?.showEditReview ? `
+                                <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
+                                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                                </button>`: ""
+                        }
                             ${this.checkedVariants?.has(row.id) ? `
                                 <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
+                            ` : ""
+                        }
+                            ${row.comments?.length > 0 ? `
+                                <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
                             ` : ""
                         }
                         `;
@@ -947,7 +1080,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         sampleInfo[member.samples[0].id] = {
                             proband: member.id === this.clinicalAnalysis.proband.id,
                             affected: member.disorders && member.disorders.length > 0 && member.disorders[0].id === this.clinicalAnalysis.disorder.id,
-                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id][member.id]?.toLowerCase(),
+                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id]?.[member.id]?.toLowerCase(),
                             sex: member.sex
                         };
                     }
@@ -966,9 +1099,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
             if (samples.length > 0) {
                 _columns[0].splice(5, 0, {
-                    id: "zygosity",
+                    id: "sampleGenotypes",
                     title: "Sample Genotypes",
-                    field: "zygosity",
                     rowspan: 1,
                     colspan: samples.length,
                     align: "center"
@@ -1074,8 +1206,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     $("#" + this._prefix + "ReviewSampleModal").modal("show");
                 }
                 break;
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
+                break;
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -1083,10 +1220,29 @@ export default class VariantInterpreterGrid extends LitElement {
             default:
                 const copy = this._config.copies.find(copy => copy.id === action);
                 if (copy) {
-                    BioinfoUtils.sort(row.annotation?.consequenceTypes, v => v.geneName);
-                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation?.consequenceTypes, this._config).indexes;
+                    // Sort and group CTs by Gene name
+                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
 
-                    navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
+                    // we need to prepare evidences to be filtered properly,
+                    // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
+                    // so we need to add consequenceType information
+                    const transcriptMap = new Map();
+                    row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
+                    const newEvidences = [];
+                    row.evidences.forEach((evidence, index) => {
+                        // we are missing regulatory variants
+                        if (evidence.genomicFeature?.transcriptId) {
+                            const newEvidence = {
+                                index,
+                                ...evidence,
+                                ...transcriptMap.get(evidence.genomicFeature.transcriptId)
+                            };
+                            newEvidences.push(newEvidence);
+                        }
+                    });
+                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
+
+                    UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
                 }
                 break;
         }
@@ -1096,38 +1252,53 @@ export default class VariantInterpreterGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const filters = {
-            ...this.filters,
-            limit: e.detail?.exportLimit ?? 1000,
-            count: false,
-        };
-        this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
-            .then(restResponse => {
-                const results = restResponse.getResults();
-                // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
-                // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
-                const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
-                const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
-                // Check if user clicked in Tab or JSON format
-                if (e.detail.option.toLowerCase() === "tab") {
-                    // List of samples for generating the TSV file
-                    const samples = this.query.sample.split(";").map(sample => ({
-                        id: sample.split(":")[0],
-                    }));
-                    const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
-                    UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
-                } else {
-                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
-                }
-            })
-            .catch(response => {
-                console.error(response);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            })
-            .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-                this.requestUpdate();
-            });
+
+        // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+        // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+        const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+        const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
+        if (this.clinicalVariants?.length > 0) {
+            // Check if user clicked in Tab or JSON format
+            if (e.detail.option.toLowerCase() === "tab") {
+                // List of samples for generating the TSV file
+                const samples = this.clinicalVariants[0].studies[0].samples.map(sample => sample.sampleId);
+                const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+            } else {
+                UtilsNew.downloadData(JSON.stringify(this.clinicalVariants, null, "\t"), filename + ".json", "application/json");
+            }
+            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            this.requestUpdate();
+        } else {
+            const filters = {
+                ...this.filters,
+                limit: e.detail?.exportLimit ?? 1000,
+                count: false,
+            };
+            this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                .then(restResponse => {
+                    const results = restResponse.getResults();
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        // List of samples for generating the TSV file
+                        const samples = this.query.sample.split(";").map(sample => ({
+                            id: sample.split(":")[0],
+                        }));
+                        const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                        UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
+                    }
+                })
+                .catch(response => {
+                    console.error(response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                })
+                .finally(() => {
+                    this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                    this.requestUpdate();
+                });
+        }
     }
 
     showLoading() {
@@ -1151,6 +1322,8 @@ export default class VariantInterpreterGrid extends LitElement {
         const variant = this._rows.find(e => e.id === variantId);
 
         if (e.currentTarget.checked) {
+            // Add current filter executed when variant is checked
+            variant.filters = {...this.filters};
             this.checkedVariants.set(variantId, variant);
         } else {
             this.checkedVariants.delete(variantId);
@@ -1205,7 +1378,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReviewChange(e) {
         this.variantReview = e.detail.value;
-        // this.checkedVariants?.set(e.detail.value.id, e.detail.value);
     }
 
     onVariantReviewOk() {
@@ -1291,14 +1463,17 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
-            }
-        ];
+        if (this._config?.showSettings) {
+            return [
+                {
+                    render: () => html`
+                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        </button>`
+                }
+            ];
+        }
+        return [];
     }
 
     render() {
@@ -1326,7 +1501,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 @export="${this.onDownload}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
@@ -1412,9 +1587,12 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: false,
             detailView: true,
             showReview: true,
+            showSettings: true,
             showSelectCheckbox: false,
             showActions: true,
+            showEditReview: true,
             showType: true,
+            showGenomeBrowserLink: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
@@ -1433,7 +1611,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
+
+            populationFrequencies: ["1000G:ALL", "GNOMAD_GENOMES:ALL", "UK10K:ALL"],
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            },
 
             genotype: {
                 type: "VAF"

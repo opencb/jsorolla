@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../sample/sample-view.js";
 import "../../sample/sample-update.js";
 import "../../sample/sample-create.js";
@@ -107,7 +107,7 @@ export default class StudyAdminSample extends LitElement {
 
     onSampleSearch(e) {
         if (e.detail.status?.error) {
-            console.log(this, "error:", e.detail.status?.error);
+            console.log(this, "error:", e.detail.status.error);
         } else {
             this.sample = e.detail.value;
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -146,6 +146,7 @@ export default class StudyAdminSample extends LitElement {
                                     ` : html`
                                         <sample-view
                                             .sample="${this.sample}"
+                                            .search="${true}"
                                             .opencgaSession="${opencgaSession}"
                                             @sampleSearch="${e => this.onSampleSearch(e)}">
                                         </sample-view>`}
@@ -175,6 +176,7 @@ export default class StudyAdminSample extends LitElement {
         return html`
             <div style="margin: 25px 40px">
                 <detail-tabs
+                        .data="${{}}"
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
                         .opencgaSession="${this.opencgaSession}">

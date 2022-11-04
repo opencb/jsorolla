@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
@@ -59,6 +59,8 @@ class VariantInterpreterBrowser extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._activeTab = null;
+        this._genomeBrowserRegion = null;
 
         this._config = this.getDefaultConfig();
     }
@@ -108,6 +110,19 @@ class VariantInterpreterBrowser extends LitElement {
     //     }, null);
     // }
 
+    onGenomeBrowserRegionChange(event) {
+        this._genomeBrowserRegion = event.detail.region;
+        this._config = this.getDefaultConfig();
+        this._activeTab = "genome-browser";
+
+        this.requestUpdate();
+    }
+
+    onActiveTabChange(event) {
+        this._activeTab = event.detail.value;
+        this.requestUpdate();
+    }
+
     render() {
         // Check if project exists
         if (!this.opencgaSession?.project) {
@@ -140,7 +155,9 @@ class VariantInterpreterBrowser extends LitElement {
             <detail-tabs
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
+                .activeTab="${this._activeTab}"
+                .opencgaSession="${this.opencgaSession}"
+                @activeTabChange="${e => this.onActiveTabChange(e)}">
             </detail-tabs>
         `;
     }
@@ -152,7 +169,8 @@ class VariantInterpreterBrowser extends LitElement {
         if (this.clinicalAnalysis) {
             const type = this.clinicalAnalysis.type.toUpperCase();
 
-            // Genome browser tracks and configuration
+            // Genome browser configuration
+            const genomeBrowserRegion = this._genomeBrowserRegion || this.clinicalAnalysis.interpretation.primaryFindings[0];
             const genomeBrowserTracks = [
                 {
                     type: "gene-overview",
@@ -174,7 +192,6 @@ class VariantInterpreterBrowser extends LitElement {
                         query: {
                             sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
                         },
-                        height: 120,
                     },
                 },
                 ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
@@ -191,7 +208,7 @@ class VariantInterpreterBrowser extends LitElement {
             };
 
             // Add interpretation panels to features of interest
-            if (this.clinicalAnalysis.interpretation.panels.length > 0) {
+            if (this.clinicalAnalysis?.interpretation?.panels?.length > 0) {
                 genomeBrowserConfig.featuresOfInterest.push({
                     name: "Panels of the interpretation",
                     category: true,
@@ -204,7 +221,7 @@ class VariantInterpreterBrowser extends LitElement {
                         name: panel.name,
                         features: panel.genes
                             .map(gene => {
-                                const coordinates = gene.coordinates.find(c => c.assembly === assembly);
+                                const coordinates = gene?.coordinates?.find(c => c.assembly === assembly);
                                 if (!coordinates) {
                                     return null;
                                 } else {
@@ -284,8 +301,12 @@ class VariantInterpreterBrowser extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .cellbaseClient="${this.cellbaseClient}"
-                                    .settings="${this.settings.browsers["RD"]}"
+                                    .settings="${{
+                                        ...this.settings.browsers["RD"],
+                                        hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                    }}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                    @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                     @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
                             </div>
@@ -309,7 +330,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .cellbaseClient="${this.cellbaseClient}"
-                                        .settings="${this.settings.browsers["CANCER_SNV"]}"
+                                        .settings="${{
+                                            ...this.settings.browsers["CANCER_SNV"],
+                                            hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                        }}"
+                                        @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-cancer>
                                 </div>
@@ -334,7 +359,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .query="${this.query}"
                                         .cellbaseClient="${this.cellbaseClient}"
-                                        .settings="${this.settings.browsers["CANCER_CNV"]}"
+                                        .settings="${{
+                                            ...this.settings.browsers["CANCER_CNV"],
+                                            hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                        }}"
+                                        @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-cnv>
                                 </div>
@@ -357,7 +386,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .cellbaseClient="${this.cellbaseClient}"
-                                        .settings="${this.settings.browsers["REARRANGEMENT"]}"
+                                        .settings="${{
+                                            ...this.settings.browsers["REARRANGEMENT"],
+                                            hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                        }}"
+                                        ?active="${active}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rearrangement>
                                 </div>
@@ -381,8 +414,12 @@ class VariantInterpreterBrowser extends LitElement {
                                             .opencgaSession="${opencgaSession}"
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
-                                            .settings="${this._config}"
+                                            .settings="${{
+                                                ...this._config,
+                                                hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                            }}"
                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                            @genomeBrowserRegionChange="${e => this.onGenomeBrowserRegionChange(e)}"
                                             @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-browser-rd>
                                     </div>
@@ -403,7 +440,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${false}"
                                         .cellbaseClient="${this.cellbaseClient}"
-                                        .settings="${this.settings.browsers["REARRANGEMENT"]}"
+                                        .settings="${{
+                                            ...this.settings.browsers["REARRANGEMENT"],
+                                            hideGenomeBrowser: !!this.settings.hideGenomeBrowser,
+                                        }}"
+                                        ?active="${active}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rearrangement>
                                 </div>
@@ -414,21 +455,23 @@ class VariantInterpreterBrowser extends LitElement {
             }
 
             // Append genome browser
-            items.push({
-                id: "genome-browser",
-                name: "Genome Browser (Beta)",
-                render: (clinicalAnalysis, active, opencgaSession) => html`
-                    <div style="margin-top:16px;">
-                        <genome-browser
-                            .opencgaSession="${opencgaSession}"
-                            .region="${clinicalAnalysis.interpretation.primaryFindings[0]}"
-                            .active="${active}"
-                            .config="${genomeBrowserConfig}"
-                            .tracks="${genomeBrowserTracks}">
-                        </genome-browser>
-                    </div>
-                `,
-            });
+            if (this.settings.hideGenomeBrowser === undefined || this.settings.hideGenomeBrowser === false) {
+                items.push({
+                    id: "genome-browser",
+                    name: "Genome Browser (Beta)",
+                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <div style="margin-top:16px;">
+                            <genome-browser
+                                .opencgaSession="${opencgaSession}"
+                                .region="${clinicalAnalysis.interpretation?.primaryFindings?.[0] || ""}"
+                                .active="${active}"
+                                .config="${genomeBrowserConfig}"
+                                .tracks="${genomeBrowserTracks}">
+                            </genome-browser>
+                        </div>
+                    `,
+                });
+            }
         }
 
         // Return tabs configuration

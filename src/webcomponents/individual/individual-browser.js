@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
@@ -201,15 +201,12 @@ export default class IndividualBrowser extends LitElement {
                             {
                                 id: "sex",
                                 name: "Sex",
-                                allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "karyotypicSex",
                                 name: "Karyotypic Sex",
-                                type: "category",
-                                allowedValues: ["XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER", "UNKNOWN"],
                                 multiple: true,
                                 description: ""
                             },
@@ -240,24 +237,7 @@ export default class IndividualBrowser extends LitElement {
                         ]
                     }
                 ],
-                examples: [
-                    {
-                        id: "Full",
-                        active: false,
-                        query: {
-                            id: "LP",
-                            samples: "HG",
-                            sex: "FEMALE",
-                            karyotypicSex: "VCF,BCF,PROTOCOL_BUFFER",
-                            ethnicity: "asiatic",
-                            disorder: "british",
-                            affectationStatus: "AFFECTED",
-                            lifeStatus: "ALIVE",
-                            phenotypes: "melanoma",
-                            creationDate: "20201004"
-                        }
-                    }
-                ],
+                examples: [],
                 result: {
                     grid: {
                         pageSize: 10,

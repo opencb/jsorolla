@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
+import "../../visualization/split-genome-browser.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
 
@@ -48,6 +49,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            active: {
+                type: Boolean,
+            },
             settings: {
                 type: Object
             }
@@ -72,6 +76,11 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
+        if (changedProperties.has("active")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -100,6 +109,14 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         } else {
             // Load default filters if not custom defined
             _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+        }
+
+        // Check for adding the examples filters section
+        if (_activeFilterFilters?.length > 0) {
+            _activeFilterFilters.unshift({
+                category: true,
+                name: "Example Filters",
+            });
         }
 
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic === this.somatic);
@@ -183,28 +200,25 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
             if (this.somaticSample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.length > 0 ? _activeFilterFilters.push({separator: true}) : null;
+                _activeFilterFilters.push({
+                    category: true,
+                    name: "Example filters",
+                });
                 _activeFilterFilters.push(
-                    ...this.somaticSample.qualityControl.variant.variantStats
-                        .map(variantStat => (
-                            {
-                                id: variantStat.id,
-                                active: false,
-                                query: variantStat.query
-                            }
-                        ))
+                    ...this.somaticSample.qualityControl.variant.variantStats.map(variantStat => ({
+                        id: variantStat.id,
+                        active: false,
+                        query: variantStat.query,
+                    })),
                 );
             }
 
             // 2. Add default initial query the active filter menu
-            _activeFilterFilters.unshift({separator: true});
-            _activeFilterFilters.unshift(
-                {
-                    id: "Default Initial Query",
-                    active: false,
-                    query: this.query
-                }
-            );
+            _activeFilterFilters.unshift({
+                id: "Default Initial Query",
+                active: false,
+                query: this.query,
+            });
 
             // Add 'file' filter if 'fileData' exists
             if (this.files) {
@@ -368,10 +382,10 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         pagination: true,
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        showExport: false,
+                        showExport: true,
                         detailView: true,
                         showReview: false,
-                        showActions: false,
+                        showActions: true,
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
@@ -385,106 +399,64 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        }
+                        },
+                        somatic: !!this.somatic,
+                        variantTypes: ["BREAKEND"],
                     }
                 },
                 detail: {
-                    title: "Selected Variant:",
+                    title: variants => {
+                        return `Selected Variants: ${variants[0].id} - ${variants[1].id}`;
+                    },
                     showTitle: true,
                     items: [
                         {
-                            id: "annotationSummary",
-                            name: "Summary",
+                            id: "browser",
+                            name: "Rearrangements Browser",
                             active: true,
-                            render: variant => html`
-                                <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                    .assembly=${this.opencgaSession.project.organism.assembly}>
-                                </cellbase-variant-annotation-summary>
+                            render: variants => html`
+                                <split-genome-browser
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .regions="${variants}"
+                                    ?active="${this.active}"
+                                    .tracks="${[
+                                        {
+                                            type: "gene",
+                                            config: {},
+                                        },
+                                        {
+                                            type: "opencga-variant",
+                                            config: {
+                                                title: "Variants",
+                                                query: {
+                                                    sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                                                },
+                                                height: 120,
+                                            },
+                                        },
+                                        ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
+                                            type: "opencga-alignment",
+                                            config: {
+                                                title: `Alignments - ${sample.id}`,
+                                                sample: sample.id,
+                                            },
+                                        })),
+                                    ]}"
+                                    .config="${{
+                                        cellBaseClient: this.cellbaseClient,
+                                        karyotypePanelVisible: false,
+                                        overviewPanelVisible: false,
+                                        navigationPanelHistoryControlsVisible: false,
+                                        navigationPanelGeneSearchVisible: false,
+                                        navigationPanelRegionSearchVisible: false,
+                                    }}">
+                                </split-genome-browser>
                             `,
                         },
-                        {
-                            id: "annotationConsType",
-                            name: "Consequence Type",
-                            render: (variant, active) => html`
-                                <variant-consequence-type-view
-                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
-                                    .active="${active}">
-                                </variant-consequence-type-view>
-                            `,
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            name: "Population Frequencies",
-                            render: (variant, active) => html`
-                                <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
-                                    .active="${active}">
-                                </cellbase-population-frequency-grid>
-                            `,
-                        },
-                        {
-                            id: "annotationClinical",
-                            name: "Clinical",
-                            render: variant => html`
-                                <variant-annotation-clinical-view
-                                    .traitAssociation="${variant.annotation.traitAssociation}"
-                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
-                                </variant-annotation-clinical-view>
-                            `,
-                        },
-                        {
-                            id: "fileMetrics",
-                            name: "File Metrics",
-                            render: (variant, active, opencgaSession) => html`
-                                <opencga-variant-file-metrics
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .files="${this.clinicalAnalysis}">
-                                </opencga-variant-file-metrics>
-                            `,
-                        },
-                        {
-                            id: "cohortStats",
-                            name: "Cohort Stats",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-cohort-stats
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-cohort-stats>
-                            `,
-                        },
-                        {
-                            id: "samples",
-                            name: "Samples",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-samples
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
-                                    .active="${active}">
-                                </variant-samples>
-                            `,
-                        },
-                        {
-                            id: "beacon",
-                            name: "Beacon",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-beacon-network
-                                    .variant="${variant.id}"
-                                    .assembly="${opencgaSession.project.organism.assembly}"
-                                    .config="${this.beaconConfig}"
-                                    .active="${active}">
-                                </variant-beacon-network>
-                            `,
-                        }
                     ]
                 }
             },
-            aggregation: {
-            }
+            aggregation: {},
         };
     }
 

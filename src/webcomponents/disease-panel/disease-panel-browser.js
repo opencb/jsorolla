@@ -15,13 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
-import "../gene/gene-grid.js";
-import "../commons/opencga-browser.js";
+import "./disease-panel-gene-view.js";
+import "./disease-panel-region-view.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-grid.js";
 import "./disease-panel-detail.js";
+import "../commons/opencga-browser.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -138,8 +139,28 @@ export default class DiseasePanelBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Disease Panel Id",
+                                name: "Disease Panel ID",
                                 description: ""
+                            },
+                            // {
+                            //     id: "name",
+                            //     name: "Disease Panel Name",
+                            //     placeholder: "Amelogenesis...",
+                            //     description: "",
+                            //     multiple: true,
+                            //     freeTag: true,
+                            //     field: "name",
+                            //     resource: "DISEASE_PANEL"
+                            // },
+                            {
+                                id: "source",
+                                name: "Panel Source Name",
+                                placeholder: "Amelogenesis...",
+                                description: "",
+                                multiple: true,
+                                freeTag: true,
+                                field: "source.name",
+                                resource: "DISEASE_PANEL"
                             },
                             {
                                 id: "disorders",
@@ -149,20 +170,6 @@ export default class DiseasePanelBrowser extends LitElement {
                                 freeTag: true,
                                 field: "disorders.id",
                                 resource: "DISEASE_PANEL"
-                            },
-                            {
-                                id: "genes",
-                                name: "Genes",
-                                description: "",
-                                multiple: true,
-                                freeTag: true,
-                                field: "genes.id",
-                                resource: "DISEASE_PANEL"
-                            },
-                            {
-                                id: "region",
-                                name: "Region",
-                                description: ""
                             },
                             {
                                 id: "categories",
@@ -175,14 +182,20 @@ export default class DiseasePanelBrowser extends LitElement {
                                 resource: "DISEASE_PANEL"
                             },
                             {
-                                id: "source",
-                                name: "Source",
-                                placeholder: "Amelogenesis...",
+                                id: "genes",
+                                name: "Genes",
+                                placeholder: "Select genes...",
                                 description: "",
                                 multiple: true,
                                 freeTag: true,
-                                field: "source.name",
+                                field: "genes.id",
                                 resource: "DISEASE_PANEL"
+                            },
+                            {
+                                id: "region",
+                                name: "Region",
+                                placeholder: "Comma-separated list of regions...",
+                                description: ""
                             },
                             {
                                 id: "tags",
@@ -194,11 +207,11 @@ export default class DiseasePanelBrowser extends LitElement {
                                 field: "tags",
                                 resource: "DISEASE_PANEL"
                             },
-                            {
-                                id: "date",
-                                name: "Date",
-                                description: ""
-                            }
+                            // {
+                            //     id: "date",
+                            //     name: "Date",
+                            //     description: ""
+                            // }
                         ]
                     }
                 ],
@@ -223,23 +236,27 @@ export default class DiseasePanelBrowser extends LitElement {
                                 <disease-panel-summary
                                     .diseasePanel="${diseasePanel}"
                                     .opencgaSession="${opencgaSession}">
-                                </disease-panel-summary>
-                            `,
+                                </disease-panel-summary>`,
                         },
                         {
                             id: "disease-panel-genes",
                             name: "Genes",
                             render: (diseasePanel, _active, opencgaSession) => html`
-                                <gene-grid
+                                <disease-panel-gene-view
                                     .genePanels="${diseasePanel.genes}"
                                     .opencgaSession=${opencgaSession}>
-                                </gene-grid>
-                            `,
+                                </disease-panel-gene-view>`,
                         },
                         {
                             id: "disease-panel-regions",
                             name: "Regions",
-                            render: () => construction,
+                            render: (diseasePanel, active, opencgaSession) => {
+                                return html`
+                                    <disease-panel-region-view
+                                        .regions="${diseasePanel.regions}"
+                                        .opencgaSession=${opencgaSession}>
+                                    </disease-panel-region-view>`;
+                            }
                         },
                         {
                             id: "disease-panel-variants",
@@ -254,8 +271,7 @@ export default class DiseasePanelBrowser extends LitElement {
                                 <json-viewer
                                     .data="${diseasePanel}"
                                     .active="${active}">
-                                </json-viewer>
-                            `,
+                                </json-viewer>`,
                         },
                     ],
                 },

@@ -1,5 +1,5 @@
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 
@@ -99,7 +99,7 @@ export default class UserPasswordChange extends LitElement {
                         {
                             type: "text",
                             text: `
-                                Here you can change your password. We recommend that your new password has at least 
+                                Here you can change your password. We recommend that your new password has at least
                                 8 characters long and uses uppercase and lowercase letters and numbers.
                             `,
                             display: {

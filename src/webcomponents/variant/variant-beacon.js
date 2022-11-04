@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import Utils from "./../../core/utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "./variant-beacon-network.js";
 
 
@@ -77,7 +77,6 @@ export default class VariantBeacon extends LitElement {
     }
 
     loadExample() {
-        //console.log(this.opencgaSession.project.studies);
         this.querySelector("#" + this._prefix + "datasetInput").value = this.opencgaSession.project.studies[0].alias;
         this.querySelector("#" + this._prefix + "refNameInput").value = "21";
         this.querySelector("#" + this._prefix + "startInput").value = "46047686";
@@ -184,7 +183,7 @@ export default class VariantBeacon extends LitElement {
                                 ${this.checkResult(this.result) ? html`
                                     <div class="col-xs-3" style="padding-left: 0px">
                                         <div class="panel panel-primary">
-                                            <div class="panel-heading">
+                                            <div class="panel-body">
                                                 <h3 class="panel-title">Response</h3>
                                             </div>
                                             <div class="panel-body">

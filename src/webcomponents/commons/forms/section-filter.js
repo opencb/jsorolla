@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 /**
  * This is a wrapper component of a group of filters
@@ -55,7 +55,7 @@ export default class SectionFilter extends LitElement {
         const id = this.config.title.replace(/ /g, "");
         return this.config && this.filters?.length > 0 ? html`
             <div class="panel panel-default filter-section shadow-sm" data-cy-section-id="${id}">
-                <div class="panel-heading" role="tab" id="${this._prefix}Heading">
+                <div class="panel-body" role="tab" id="${this._prefix}Heading">
                     <h4 class="panel-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
                            href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">

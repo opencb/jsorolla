@@ -16,20 +16,29 @@
 
 import {html} from "lit-html";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row, index) {
+    static roleInCancerFormatter(value, row) {
         if (value) {
             const roles = new Set();
-            for (const evidenceIndex in value) {
-                const evidence = value[evidenceIndex];
-                if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                    const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
-                    roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+            for (const evidence of value) {
+                if (evidence?.rolesInCancer?.length > 0) {
+                    for (const roleInCancer of evidence.rolesInCancer) {
+                        if (roleInCancer && evidence.genomicFeature.geneName) {
+                            const roleInCancerText = roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : roleInCancer;
+                            roles.add(`${roleInCancerText} (${evidence.genomicFeature.geneName})`);
+                        }
+                    }
+                } else {
+                    // TODO Remove this legacy code
+                    if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
+                        const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                        roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+                    }
                 }
             }
             if (roles.size > 0) {
@@ -63,7 +72,7 @@ export default class VariantInterpreterGridFormatter {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style, this._config.populationFrequenciesConfig);
         } else {
             return "-";
         }
@@ -84,7 +93,7 @@ export default class VariantInterpreterGridFormatter {
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
                 `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
@@ -185,12 +194,14 @@ export default class VariantInterpreterGridFormatter {
                                    <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
                                    <th rowspan="2" style="padding: 2px 5px">Disease Panel</th>
                                    <th rowspan="2" style="padding: 2px 5px">Role in Cancer</th>
-                                   <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding: 5px 5px">Classification</th>
+                                   <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
+                                   <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
                                </tr>
                                <tr>
-                                   <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
-                                   ${review ? "<th rowspan=\"1\">Select</th>" : ""}
-                                   ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
+                                    <th rowspan="1" style="padding-top: 5px">ACMG</th>
+                                    <th rowspan="1">Tier</th>
+                                    ${review ? "<th rowspan=\"1\">Select</th>" : ""}
+                                    ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
                                </tr>
                            </thead>
                            <tbody>`;
@@ -246,7 +257,7 @@ export default class VariantInterpreterGridFormatter {
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span>
                                         <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                            href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                       </div>`);
@@ -306,7 +317,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.classification.acmg?.join(", ")}</div>
+                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
                     `;
                 }
 
@@ -320,7 +331,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.review.acmg?.join(", ")}</div>
+                        <div class="help-block">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
                     `;
                 }
 
@@ -334,7 +345,8 @@ export default class VariantInterpreterGridFormatter {
                     tier = `<span style="color: ${color}">${re.review.tier}</span>`;
                 }
 
-                const disabled = config.locked ? "disabled" : "";
+                const clinicalAnalysis = variantGrid.clinicalAnalysis || {};
+                const disabled = (clinicalAnalysis.locked || clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                 // Evidence selected checkbox
                 const checboxHtml = `
                     <input
@@ -384,6 +396,8 @@ export default class VariantInterpreterGridFormatter {
                             <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panelHtml}</td>
                             <td>${roleInCancer}</td>
+                            <td>${acmgPrediction}</td>
+                            <td>${acmgCustom}</td>
                             <td>${tier}</td>
                             ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
@@ -427,7 +441,7 @@ export default class VariantInterpreterGridFormatter {
 
                 // Render genotypes
                 let content;
-                switch (this.field.config.genotype.type.toUpperCase()) {
+                switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
@@ -447,8 +461,12 @@ export default class VariantInterpreterGridFormatter {
                         break;
                     case "ALLELE_FREQUENCY":
                         const alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
-                        if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
-                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
+                        content = `<span>${Number.parseFloat(alleleFreqs.alt).toFixed(4)} / ${alleleFreqs.depth}</span>`;
+                        break;
+                    case "ALLELE_FREQUENCY_BAR":
+                        const alleleFreqsBar = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
+                        if (alleleFreqsBar && alleleFreqsBar.ref >= 0 && alleleFreqsBar.alt >= 0) {
+                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqsBar.ref, alleleFreqsBar.alt, file, {width: 80});
                         } else { // Just in case we cannot render freqs, this should never happen.
                             content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
@@ -473,7 +491,7 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static vafGenotypeRenderer(vaf, depth, file, config) {
-        return `<span>${vaf.toFixed(3)} / ${depth}</span>`;
+        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
     }
 
     static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
@@ -526,6 +544,22 @@ export default class VariantInterpreterGridFormatter {
                             alleles.push(allele);
                         }
                         break;
+                    case "2":
+                        if (mode === "alleles") {
+                            // TODO to decide how to display 1/2 alleles
+                            // alleles.push(variant?.studies[0]?.secondaryAlternates[0]?.reference ? variant?.studies[0]?.secondaryAlternates[0]?.reference : "-");
+                            alleles.push("*");
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
+                    case "?":
+                        if (mode === "alleles") {
+                            alleles.push(variant.reference ? variant.reference : "-");
+                        } else {
+                            alleles.push("0");
+                        }
+                        break;
                 }
             }
 
@@ -545,7 +579,7 @@ export default class VariantInterpreterGridFormatter {
 
             const allelesHtml = [];
             for (let i = 0; i < allelesSeq.length; i++) {
-                const color = allelesArray[i] === "0" ? "black" : "darkorange";
+                const color = (allelesArray[i] === "0" || allelesArray[i] === "?") ? "black" : "darkorange";
                 allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
             }
 
@@ -592,6 +626,10 @@ export default class VariantInterpreterGridFormatter {
                             res = "<span style='color: darkorange'>HET</span>";
                         }
                     }
+                    break;
+                case "1/2":
+                case "1|2":
+                    res = "<span style='color: red'>BIALLELIC_HET</span>";
                     break;
                 case "1/1":
                 case "1|1":
@@ -727,35 +765,33 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static _getAlleleFrequencies(variant, sampleEntry, file) {
-        let af, ad, dp, afIndex, adIndex, dpIndex, refFreq, altFreq;
+        let af, ad, dp, adIndex, refFreq, altFreq;
 
         // Find and get the DP
-        dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
+        const dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
         if (dpIndex === -1) {
             dp = file ? file.DP : null;
         } else {
             dp = Number.parseInt(sampleEntry.data[dpIndex]);
         }
 
-        // Get Allele Frequencies
-        adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
-        if (adIndex !== -1) {
-            ad = sampleEntry.data[adIndex];
-            const adCounts = ad.split(",");
-            if (!dp && adCounts.length > 1) {
-                dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
-            }
-            if (dp > 0) {
-                refFreq = Number.parseInt(adCounts[0]) / dp;
-                altFreq = Number.parseInt(adCounts[1]) / dp;
-            }
+        const afIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+        if (afIndex !== -1) {
+            af = Number.parseFloat(sampleEntry.data[afIndex]);
+            refFreq = 1 - af;
+            altFreq = af;
         } else {
-            // In cancer data AF has just one single value for the ALT
-            afIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-            if (afIndex !== -1) {
-                af = Number.parseFloat(sampleEntry.data[afIndex]);
-                refFreq = 1 - af;
-                altFreq = af;
+            adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
+            if (adIndex !== -1) {
+                ad = sampleEntry.data[adIndex];
+                const adCounts = ad.split(",");
+                if (!dp && adCounts.length > 1) {
+                    dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
+                }
+                if (dp > 0) {
+                    refFreq = Number.parseInt(adCounts[0]) / dp;
+                    altFreq = Number.parseInt(adCounts[1]) / dp;
+                }
             }
         }
         return {ref: refFreq, alt: altFreq, depth: dp};

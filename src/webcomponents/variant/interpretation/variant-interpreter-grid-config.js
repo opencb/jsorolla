@@ -70,6 +70,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.proteinCodingTranscript":
             case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
+            case "populationFrequenciesConfig.displayMode":
                 const fields = e.detail.param.split(".");
                 if (!this.config[fields[0]]) {
                     this.config[fields[0]] = {};
@@ -135,7 +136,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             title: "Select how genotypes are displayed",
                             field: "genotype.type",
                             type: "select",
-                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
+                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "ALLELE_FREQUENCY_BAR", "CIRCLE"],
                             display: {
                                 width: 6,
                             }
@@ -298,6 +299,28 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 disabled: () => this.config?.consequenceType?.all
                             }
                         }
+                    ]
+                },
+                {
+                    title: "Population Frequencies",
+                    // description: "Select which transcripts and consequence types are displayed in the variant grid",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        visible: true
+                    },
+                    elements: [
+                        {
+                            title: "Select the display mode of the population frequencies",
+                            field: "populationFrequenciesConfig.displayMode",
+                            type: "select",
+                            multiple: false,
+                            allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
+                            display: {
+                            },
+                        },
                     ]
                 },
                 {

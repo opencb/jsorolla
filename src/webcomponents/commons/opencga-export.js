@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "./utils/notification-utils.js";
 
 export default class OpencgaExport extends LitElement {
@@ -34,6 +34,9 @@ export default class OpencgaExport extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            endpoint: {
                 type: Object
             },
             query: {
@@ -79,29 +82,28 @@ export default class OpencgaExport extends LitElement {
             "DISEASE_PANEL": "panelClient"
         };
 
+        this.outputFileFormats = {
+            "tab": "VCF",
+            "vep": "ENSEMBL_VEP",
+            "json": "JSON",
+        };
+
         this.mode = "sync";
         this.format = "tab";
         this.query = {};
 
         this.tabs = ["download", "export", "link", "script"]; // default tabs to show
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        /* if (changedProperties.has("opencgaSession")) {
-        }*/
-
         if (changedProperties.has("query") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            if (this.config?.resource) {
-                document.querySelectorAll("code").forEach(block => {
-                    // hljs.highlightBlock(block);
-                });
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
 
+            if (this.config?.resource) {
                 new ClipboardJS(".clipboard-button");
             }
             if (this.config.gridColumns) {
@@ -174,57 +176,123 @@ export default class OpencgaExport extends LitElement {
 
     }
 
+    buildUrl(auth=true) {
+        let url = this.opencgaSession.opencgaClient._config.host + "/webservices/rest" + this.endpoint.path + "?";
+        if (auth) {
+            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
+        }
+        // Replace PATH params
+        url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "path")
+            .forEach(parameter => {
+                url = url.replace(`{${parameter.name}}`, this.query[parameter.name]);
+            });
+
+        // Add QUERY params
+        this.endpoint.parameters
+            .filter(parameter => parameter.param === "query" && this.query[parameter.name])
+            .forEach(parameter => {
+                url += `&${parameter.name}=${this.query[parameter.name]}`;
+            });
+
+        return url;
+
+    }
+
+    buildCurl() {
+        return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+        Bearer ${this.opencgaSession.token}" "${this.buildUrl(false)}"`;
+    }
+
+    buildWget() {
+        const currentDate = new Date();
+        return `wget -O ${this.endpoint.path.split("/").at(-1)}_${currentDate.getTime()}.json "${this.buildUrl()}"`;
+    }
+
     generateCode(language) {
+
         if (!this.config?.resource) {
             return "Resource not defined";
         }
+
         if (!this.opencgaSession?.study) {
             return "OpencgaSession not available";
         }
 
         let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: this.limit};
+
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
 
         let ws = `${this.resourceMap[this.config.resource]}/${this.method}`;
+
         if (this.config.resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
         } else if (this.config.resource === "CLINICAL_VARIANT") {
             this.method = "query_variant";
             ws = "analysis/clinical/variant/query";
-
         } else {
             this.method = "search";
         }
-
-        switch (language) {
-            case "url":
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
-            case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: \
+        // Temporal code for export in rest-api
+        if (this.config?.resource === "API") {
+            switch (language) {
+                case "url":
+                    return `${this.buildUrl()}`;
+                case "curl":
+                    return `${this.buildCurl()}`;
+                case "wget":
+                    return `${this.buildWget()}`;
+                case "cli":
+                    let client = this.resourceMap[this.config.resource];
+                    let method = this.method;
+                    if (this.config.resource === "CLINICAL_VARIANT") {
+                        client = "clinical";
+                        method = "variant-query";
+                    }
+                    const params = {...this.query};
+                    params.token = params.sid;
+                    delete params.body;
+                    delete params.sid;
+                    return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                case "js":
+                    return this.generateJs();
+                case "python":
+                    return this.generatePython();
+                case "r":
+                    return this.generateR();
+            }
+        } else {
+            switch (language) {
+                case "url":
+                    return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
+                case "curl":
+                    return `curl -X GET --header "Accept: application/json" --header "Authorization: \
                 Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}"`;
-            case "wget":
-                return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
-            case "cli":
+                case "wget":
+                    return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
+                case "cli":
                 // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
-                let client = this.resourceMap[this.config.resource];
-                let method = this.method;
-                if (this.config.resource === "CLINICAL_VARIANT") {
-                    client = "clinical";
-                    method = "variant-query";
-                }
-                const params = {...q};
-                params.token = params.sid;
-                delete params.sid;
-                return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
-            case "js":
-                return this.generateJs();
-            case "python":
-                return this.generatePython();
-            case "r":
-                return this.generateR();
+                    let client = this.resourceMap[this.config.resource];
+                    let method = this.method;
+                    if (this.config.resource === "CLINICAL_VARIANT") {
+                        client = "clinical";
+                        method = "variant-query";
+                    }
+                    const params = {...q};
+                    params.token = params.sid;
+                    delete params.sid;
+                    return `opencga.sh ${client} ${method} ${Object.entries(params).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+                case "js":
+                    return this.generateJs();
+                case "python":
+                    return this.generatePython();
+                case "r":
+                    return this.generateR();
+            }
         }
     }
 
@@ -275,17 +343,21 @@ const client = new OpenCGAClient({
         return this.lineSplitter(str);
     }
 
-    async launchJob(e) {
-        if (this.config.resource === "VARIANT") {
+    async launchJob() {
+        if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
             try {
-                const data = {...this.query,
+                const data = {
+                    ...this.query,
                     study: this.opencgaSession.study.fqn,
                     summary: true,
-                    outputFileName: "variants"
+                    outputFileName: "variants",
+                    outputFileFormat: this.outputFileFormats[this.format],
                 };
-                let params = {study: this.opencgaSession.study.fqn};
+                const params = {
+                    study: this.opencgaSession.study.fqn,
+                };
                 if (this.jobId) {
-                    params = {...params, jobId: this.jobId};
+                    params["jobId"] = this.jobId;
                 }
                 const restResponse = await this.opencgaSession.opencgaClient.variants().runExport(data, params);
                 const job = restResponse.getResult(0);
@@ -380,13 +452,6 @@ const client = new OpenCGAClient({
         }));
     }
 
-    getDefaultConfig() {
-        return {
-            exportNote: "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.\n (If you need all records, please use 'Export Query')",
-            exportLimit: 1000,
-        };
-    }
-
     render() {
         return html`
             <div>
@@ -416,11 +481,11 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <span class="export-buttons-text">TSV</span>
                                 </button>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
@@ -428,10 +493,10 @@ const client = new OpenCGAClient({
                         </div>
                         <div>
                             ${this.format === "tab" && this.exportFields?.length ? html`
-                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#exportFields">
+                                <span data-toggle="collapse" class="export-fields-button collapsed" data-target="#${this._prefix}exportFields">
                                     Customise export fields
                                 </span>
-                                <div id="exportFields" class="collapse">
+                                <div id="${this._prefix}exportFields" class="collapse">
                                     <ul>
                                         ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                         <li>
@@ -454,8 +519,8 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onDownloadClick}">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" @click="${this.onDownloadClick}">
                             ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                             <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
                         </button>
@@ -480,17 +545,19 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
-                                    <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
+                                    <span class="export-buttons-text">
+                                        ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
+                                    </span>
                                 </button>
-                                ${this.config.resource === "VARIANT" ? html`
-                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
+                                ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
+                                    <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
                                         <i class="fas fa-file-code fa-2x"></i>
                                         <span class="export-buttons-text">Ensembl VEP</span>
-                                    </button>` : null
-                                }
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                    </button>
+                                ` : null}
+                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
@@ -510,20 +577,20 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer" style="padding-top: 25px">
-                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary ripple" @click="${this.launchJob}">Launch job</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" @click="${this.launchJob}">Launch job</button>
                     </div>
                 </div>
 
                 <div id="link" class="tab-pane ${classMap({active: this.tabs[0] === "link"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="url">URL
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="curl">cURL
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="wget">WGET
                         </button>
                     </div>
@@ -555,7 +622,7 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -563,16 +630,16 @@ const client = new OpenCGAClient({
 
                 <div id="code" class="tab-pane ${classMap({active: this.tabs[0] === "code"})}">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["cli"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["python"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="python">Python
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["r"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="r">R
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}"
+                        <button type="button" class="btn btn-success content-pills ${classMap({active: this.activeTab.code["js"]})}"
                                 @click="${this._changeTab}" data-view-id="code" data-tab-id="js">Javascript
                         </button>
                     </div>
@@ -612,12 +679,22 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            exportNote: [
+                "This option will <b>automatically download</b> the table, note that only first <b>%limit% records</b> will be downloaded.",
+                "(If you need all records, please use 'Export Query')",
+            ].join("\n"),
+            exportLimit: 1000,
+        };
     }
 
 }

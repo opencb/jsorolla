@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
-import UtilsNew from "./../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
 
@@ -110,7 +110,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
         $("#" + this._prefix + "Container").highcharts({
             chart: {
-                type: "bar"
+                type: "bar",
+                height: 100 + popArray.length * 20,
             },
             title: {
                 text: "Population Frequencies"
@@ -119,7 +120,12 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 categories: popArray,
                 title: {
                     text: null
-                }
+                },
+                labels: {
+                    style: {
+                        fontSize: "10px",
+                    },
+                },
             },
             yAxis: {
                 min: 0,
@@ -132,9 +138,6 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 },
                 max: 0.5
             },
-            //                        tooltip: {
-            //                            valueSuffix: ' millions'
-            //                        },
             plotOptions: {
                 bar: {
                     dataLabels: {
@@ -146,8 +149,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                 layout: "vertical",
                 align: "right",
                 verticalAlign: "top",
-                x: -40,
-                y: 80,
+                x: -10,
+                y: 35,
                 floating: true,
                 borderWidth: 1,
                 backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || "#FFFFFF"),
@@ -272,7 +275,11 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     render() {
         if (!this.populationFrequencies) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.
+                </div>
+            `;
         }
 
         return html`

@@ -1,7 +1,7 @@
 {
   "name": "jsorolla",
-  "version": "2.4.0-dev",
-  "description": "JSorolla is a JavaScript bioinformatic library for data analysis and genomics visualization",
+  "version": "2.4.23-dev",
+  "description": "JSorolla is a JavaScript bioinformatic library for data analysis and genomic visualization",
   "repository": {
     "type": "git",
     "url": "https://github.com/opencb/jsorolla.git"
@@ -19,7 +19,6 @@
     "prepare": "husky install",
     "browser-support": "npx browserslist",
     "build-deprecated": "npm run clean && npm run dist && npx webpack && npm run package && npm run build-genome-browser",
-    "build-network-viewer": "mkdir -p build/network-viewer && ./build-network-viewer.sh",
     "build-genome-browser-demo": "for i in `ls src/genome-browser/demo`; do cat src/genome-browser/demo/$i | sed 's/..\\/..\\/..\\/node_modules/vendors/' | sed 's/..\\/..\\/..\\/dist/dist/' | sed 's/..\\/webcomponent\\//webcomponent\\//'> build/genome-browser/$i; done",
     "build-new-genome-browser-demo": "npx webpack --config webpack_genome.config.js",
     "build-genome-browser": "mkdir -p build/genome-browser/vendors && npm run build-genome-browser-demo && cp -r dist src/genome-browser/webcomponent build/genome-browser && cp -r node_modules/jquery node_modules/qtip2 node_modules/urijs node_modules/cookies-js node_modules/crypto-js node_modules/underscore node_modules/backbone node_modules/@fortawesome/fontawesome-free node_modules/@webcomponents node_modules/@polymer build/genome-browser/vendors",

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import "../commons/simple-chart.js";
 import "../commons/forms/data-form.js";
 
@@ -149,7 +149,7 @@ class SampleVariantStatsView extends LitElement {
             console.error("unexpected QC data model");
         }
 
-        if (this.sample?.qualityControl?.[this._variantStatsPath].variantStats?.length) {
+        if (this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
             this.statsSelect = this.sample.qualityControl[this._variantStatsPath].variantStats.map(stat => stat.id);
             this.variantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl[this._variantStatsPath].variantStats[0];

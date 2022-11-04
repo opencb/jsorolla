@@ -400,7 +400,7 @@ h3.page-title {
 }
 
 .panel-default > .panel-heading {
-    background: none;
+    /* background: none; */
 }
 
 .panel-default > .panel-heading + .panel-collapse > .panel-body {
@@ -2847,10 +2847,6 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
 
 opencga-export code {
     white-space: pre;
-}
-
-opencga-export button[data-tab-id="cli"][data-view-id="code"] {
-    margin-right: 10px;
 }
 
 opencga-export .btn-group-tab {

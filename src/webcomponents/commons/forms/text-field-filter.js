@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 
 export default class TextFieldFilter extends LitElement {
@@ -34,28 +34,37 @@ export default class TextFieldFilter extends LitElement {
     static get properties() {
         return {
             value: {
-                type: String
+                type: String,
             },
             placeholder: {
-                type: String
+                type: String,
             },
             disabled: {
-                type: Boolean
+                type: Boolean,
             },
             required: {
-                type: Boolean
+                type: Boolean,
             },
             rows: {
-                type: Number
+                type: Number,
             },
             classes: {
-                type: String
+                type: String,
             },
             separator: {
-                type: String
+                type: String,
             },
             type: {
                 type: String,
+            },
+            min: {
+                type: Number,
+            },
+            max: {
+                type: Number,
+            },
+            step: {
+                type: Number,
             },
         };
     }
@@ -64,8 +73,12 @@ export default class TextFieldFilter extends LitElement {
         this._prefix = UtilsNew.randomString(9);
         this.rows = 1;
         this.type = "text";
+        this.min = undefined;
+        this.max = undefined;
+        this.step = 1;
         this.separator = ",";
         this.classes = "";
+
     }
 
     updated(changedProperties) {
@@ -125,13 +138,17 @@ export default class TextFieldFilter extends LitElement {
     render() {
         const rows = this.rows ? this.rows : 1;
         const placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
+
         return html`
-            <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
+            <div id="${this._prefix}-wrapper" class="" style="margin-left: 0">
                 ${rows === 1 ? html`
                     <input
                         type="${this.type || "text"}"
                         id="${this._prefix}-input"
                         class="form-control ${this.classes}"
+                        min="${this.min}"
+                        max="${this.max}"
+                        step="${this.step}"
                         ?disabled="${this.disabled}"
                         ?required="${this.required}"
                         placeholder="${placeholder}"

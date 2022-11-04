@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utilsNew.js";
-import "./opencga-job-detail-log.js";
-import "./opencga-job-view.js";
+import UtilsNew from "../../core/utils-new.js";
+import "./job-detail-log.js";
+import "./job-view.js";
 import "../commons/view/detail-tabs.js";
 
 export default class JobDetail extends LitElement {
@@ -49,40 +49,52 @@ export default class JobDetail extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.job = null;
-        }
-
-        if (changedProperties.has("jobId")) {
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("jobId")) {
             this.jobIdObserver();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
+        super.update(changedProperties);
     }
 
     jobIdObserver() {
-        if (this.opencgaSession) {
-            if (this.jobId) {
-                this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        this.job = response.getResult(0);
-                    })
-                    .catch(function (reason) {
-                        console.error(reason);
-                    });
-            } else {
-                this.job = null;
-            }
-
+        if (this.opencgaSession && this.jobId) {
+            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.job = response.getResult(0);
+                })
+                .catch(function (reason) {
+                    console.error(reason);
+                });
+        } else {
+            this.job = null;
         }
+    }
+
+    render() {
+
+        if (!this.opencgaSession) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.job}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
     }
 
     getDefaultConfig() {
@@ -94,39 +106,27 @@ export default class JobDetail extends LitElement {
                     id: "job-view",
                     name: "Overview",
                     active: true,
-                    render: (job, active, opencgaSession) => {
-                        return html`<opencga-job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-job-view>`;
-                    }
+                    render: (job, _active, opencgaSession) => html`
+                        <job-view
+                            .opencgaSession="${opencgaSession}"
+                            mode="simple"
+                            .job="${job}">
+                        </job-view>
+                    `,
                 },
                 {
                     id: "job-log",
                     name: "Logs",
-                    render: (job, active, opencgaSession) => {
-                        return html`
-                            <opencga-job-detail-log
-                                .opencgaSession="${opencgaSession}"
-                                .active="${active}"
-                                .job="${job}">
-                            </opencga-job-detail-log>
-                        `;
-                    }
-                }
-            ]
+                    render: (job, active, opencgaSession) => html`
+                        <job-detail-log
+                            .opencgaSession="${opencgaSession}"
+                            .active="${active}"
+                            .job="${job}">
+                        </job-detail-log>
+                    `,
+                },
+            ],
         };
-    }
-
-    render() {
-        if (!this.opencgaSession || !this.job) {
-            return "";
-        }
-
-        return html`
-            <detail-tabs
-                .data="${this.job}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
-        `;
     }
 
 }
