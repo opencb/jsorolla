@@ -183,7 +183,9 @@ export default {
 
             // Render lollipops
             LollipopLayout
-                .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), 20)
+                .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), {
+                    minSeparation: 20,
+                })
                 .forEach((x1, index) => {
                     const info = lollipopsVariants[index];
                     const x0 = getPixelPosition(info.position);
