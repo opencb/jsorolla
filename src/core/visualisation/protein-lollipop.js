@@ -219,7 +219,7 @@ export default {
                     });
 
                     // Update track max height, using the size of the variant ID
-                    maxHeight = Math.max(maxHeight, text.getBBox().width);
+                    maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
 
                     // Add the consequence type of this variant to the legend
                     if (typeof variantsCounts[consequenceType] !== "number") {
@@ -229,23 +229,27 @@ export default {
                 });
 
             // Generate variants legend
-            const variantsLegend = Object.keys(variantsCounts).map(id => {
-                const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
-                const count = variantsCounts[id];
-                return `
-                    <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-                        <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
-                        <div style="margin-left:0.5em;">
-                            <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
+            const variantsLegend = Object.keys(variantsCounts)
+                .sort((a, b) => variantsCounts[a] < variantsCounts[b] ? +1 : -1)
+                .map(id => {
+                    const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
+                    const count = variantsCounts[id];
+                    return `
+                        <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
+                            <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
+                            <div style="margin-left:0.5em;">
+                                <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
 
-            this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
+            if (variantsLegend.length > 0) {
+                this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
+            }
 
             // Update the lollipop track position
-            offset = offset + 100 + maxHeight;
+            offset = offset + maxHeight;
             group.setAttribute("transform", `translate(${config.padding}, ${offset})`);
         }
 
@@ -297,7 +301,7 @@ export default {
                 const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
                 return `
                     <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-                        <div style="background-color:${color};border-radius:0.5em;padding:0.6em 1em;"></div>
+                        <div style="background-color:${color};border-radius:0.25em;padding:0.6em 1em;"></div>
                         <div style="margin-left:0.5em;">
                             <strong style="color:${color};">${id.toUpperCase()}</strong>
                         </div>
