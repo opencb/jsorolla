@@ -53,18 +53,11 @@ export default class SelectTokenFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     console.log("stf connected callback", this.config);
-    //     debugger
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     this.state = [];
-    // }
-
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
-            tags: this._config.freeTag === true,
+            separator: this._config.separator ?? [","],
+            tags: this._config.freeTag ?? true,
             multiple: this._config.multiple ?? true,
             // https://select2.org/appearance#container-width
             width: this._config.width ?? "style",
@@ -140,9 +133,6 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        // if (_changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
 
         if (_changedProperties.has("classes")) {
             if (this.classes) {
@@ -191,12 +181,6 @@ export default class SelectTokenFilter extends LitElement {
         const selection = this.select.select2("data").map(el => el.id).join(",");
         // console.log("filterChange", selection);
         LitUtils.dispatchCustomEvent(this, "filterChange", selection);
-        // const event = new CustomEvent("filterChange", {
-        //     detail: {
-        //         value: selection
-        //     }
-        // });
-        // this.dispatchEvent(event);
     }
 
     toggleFileUpload() {
@@ -248,8 +232,6 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         }
-        // console.log("csa _config: ", this._config);
-        // debugger
 
         return html`
             <div>
