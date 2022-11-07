@@ -2,13 +2,8 @@ export default {
     MIN_SEPARATION: 10,
 
     // Generate lollipop layout from features list
-    fromFeaturesList(features, region, width, customConfig) {
-        const config = {
-            minSeparation: this.MIN_SEPARATION,
-            ...customConfig,
-        };
+    fromFeaturesList(features, region, width, config) {
         const length = region.length();
-        const minSeparation = Math.min(config.minSeparation, width / features.length);
         const initialPositions = features.map(feature => {
             let position = null;
             if (typeof feature.position === "number") {
@@ -19,11 +14,15 @@ export default {
             return width * (position - region.start) / length;
         });
 
-        return this.layout(initialPositions, minSeparation);
+        return this.layout(initialPositions, {
+            ...config,
+            minSeparation: Math.min(config?.minSeparation ?? this.MIN_SEPARATION, width / features.length),
+        });
     },
 
     // Layout generator
-    layout(initialPositions, minSeparation) {
+    layout(initialPositions, config) {
+        const minSeparation = config?.minSeparation ?? this.MIN_SEPARATION;
         const positions = [];
         let i = 0;
         while (i < initialPositions.length) {
