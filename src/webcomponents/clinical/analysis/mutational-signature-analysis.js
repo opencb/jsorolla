@@ -236,7 +236,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     visible: signatures.length === 0,
                 },
                 elements: [
-                    ...AnalysisUtils.getVariantQueryConfiguration("", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                    ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
                 ],
             },
             {
