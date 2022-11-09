@@ -19,6 +19,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/view/signature-view.js";
 
 export default class MutationalSignatureAnalysis extends LitElement {
 
@@ -209,6 +210,23 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "counts",
                         type: "select",
                         allowedValues: signatures.map(item => item.id),
+                    },
+                    {
+                        title: "Counts Plot",
+                        field: "counts",
+                        type: "custom",
+                        display: {
+                            visible: !!this.toolParams?.counts,
+                            render: id => {
+                                const signature = signatures.find(item => item.id === id);
+                                return html`
+                                    <signature-view
+                                        .signature="${signature}"
+                                        ?active="${true}">
+                                    </signature-view>
+                                `;
+                            },
+                        },
                     },
                 ],
             },
