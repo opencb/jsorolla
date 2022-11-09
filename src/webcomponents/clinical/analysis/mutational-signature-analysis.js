@@ -164,7 +164,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query")}">
+                                    @filterChange="${e => this.onFieldChange(e, "query.sample")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
