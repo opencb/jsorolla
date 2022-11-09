@@ -20,7 +20,6 @@ import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
-
 export default class MutationalSignatureAnalysis extends LitElement {
 
     constructor() {
@@ -75,6 +74,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
             "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
 
         this.query = {};
+        this.selectedSample = null;
         this.config = this.getDefaultConfig();
     }
 
@@ -92,6 +92,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
+            this.onChangeSample();
         }
         super.update(changedProperties);
     }
@@ -108,6 +109,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
+        // this.onChangeSample();
     }
 
     onSubmit() {
@@ -136,6 +138,30 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
+    onChangeSample() {
+        if (this.toolParams?.query?.sample) {
+            if (this.toolParams.query.sample !== this.selectedSample?.id) {
+                this.opencgaSession.opencgaClient.samples()
+                    .search({
+                        id: this.toolParams.query.sample,
+                        include: "id,qualityControl.variant.signatures",
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                        this.selectedSample = response?.responses?.[0]?.results?.[0] || null;
+                        this.toolParams.counts = null; // Force to remove selected counts
+                        this.config = this.getDefaultConfig();
+                        this.requestUpdate();
+                    });
+            }
+        } else {
+            this.selectedSample = null;
+            this.toolParams.counts = null; // Force to remove selected counts
+            this.config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
     render() {
         return html`
             <data-form
@@ -149,6 +175,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
+        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
         const params = [
             {
                 title: "Configuration Parameters",
@@ -169,6 +196,34 @@ export default class MutationalSignatureAnalysis extends LitElement {
                             `,
                         },
                     },
+                ],
+            },
+            {
+                title: "Counts Parameters",
+                display: {
+                    visible: signatures.length > 0,
+                },
+                elements: [
+                    {
+                        title: "Counts",
+                        field: "counts",
+                        type: "select",
+                        allowedValues: signatures.map(item => item.id),
+                    },
+                ],
+            },
+            {
+                title: "Counts Parameters",
+                display: {
+                    visible: signatures.length === 0,
+                },
+                elements: [
+                    ...AnalysisUtils.getVariantQueryConfiguration("", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                ],
+            },
+            {
+                title: "Fitting Parameters",
+                elements: [
                     {
                         title: "Fit Method",
                         field: "fitmethod",
