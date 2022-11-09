@@ -273,13 +273,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "b",
-                        field: "b",
-                        type: "checkbox",
-                        display: {
-                        },
-                    },
-                    {
                         title: "thresholdperc",
                         field: "thresholdperc",
                         type: "input-text",
