@@ -56,7 +56,7 @@ export default class SampleUpdate extends LitElement {
 
     #init() {
         this.sample = {};
-        this.updateParams = {};
+        this.updatedFields = {};
         this.isLoading = false;
 
         this.displayConfigDefault = {
@@ -130,54 +130,56 @@ export default class SampleUpdate extends LitElement {
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         switch (param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-            case "processing.product":
-            case "processing.preparationMethod":
-            case "processing.extractionMethod":
-            case "processing.labSampleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.type":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-            case "collection.from":
-            case "phenotypes":
-            case "source":
-            // case "collection.tissue":
-                // Nested Object
-                // processing it's nested object
-                //  -----------------------------------
-                // NOTE: updateObjectWithObj only works if the value is an OBJECT
-                // In this new config (type: object) it's return value is a primitive type
-                //  -----------------------------------
-                this.updateParams = FormUtils.updateObjExperimental(
+            // case "id":
+            // case "description":
+            // case "individualId":
+            // case "somatic":
+            // case "processing.product":
+            // case "processing.preparationMethod":
+            // case "processing.extractionMethod":
+            // case "processing.labSampleId":
+            // case "processing.quantity":
+            // case "processing.date":
+            // case "collection.type":
+            // case "collection.quantity":
+            // case "collection.method":
+            // case "collection.date":
+            // case "collection.from":
+            // case "phenotypes":
+            // case "source":
+            //     this.updatedFields = FormUtils.updateObjExperimental2(
+            //         this._sample,
+            //         this.sample,
+            //         this.updatedFields,
+            //         param,
+            //         e.detail.value);
+            //     break;
+            // case "status":
+            //     // INFO Warning: Date is removed because it is missing in StatusParams.java
+            //     delete e.detail.value?.date;
+            //     this.updatedFields = FormUtils.updateObjExperimental2(
+            //         this._sample,
+            //         this.sample,
+            //         this.updatedFields,
+            //         param,
+            //         e.detail.value);
+            //     break;
+            default:
+                this.updatedFields = FormUtils.updateObjExperimental2(
                     this._sample,
                     this.sample,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "status":
-                // INFO Warning: Date is removed because it is missing in StatusParams.java
-                delete e.detail.value?.date;
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._sample,
-                    this.sample,
-                    this.updateParams,
+                    this.updatedFields,
                     param,
                     e.detail.value);
                 break;
         }
+        debugger
         this.requestUpdate();
     }
 
     onClear() {
         this._config = this.getDefaultConfig();
-        this.updateParams = {};
+        this.updatedFields = {};
         this.sampleId = "";
         this.sample = UtilsNew.objectClone(this._sample);
     }
@@ -192,12 +194,12 @@ export default class SampleUpdate extends LitElement {
         this.#setLoading(true);
         // FIXME CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
         //  Remove when form-utils.js revisited
-        // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.sample[key]);
+        // Object.keys(this.updatedFields).forEach(key => this.updatedFields[key] = this.sample[key]);
         this.opencgaSession.opencgaClient.samples()
-            .update(this.sample.id, this.updateParams, params)
+            .update(this.sample.id, this.updatedFields, params)
             .then(response => {
                 this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
-                this.updateParams = {};
+                this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Update",
                     message: "Sample updated correctly"
@@ -256,7 +258,7 @@ export default class SampleUpdate extends LitElement {
                 .data="${this.sample}"
                 .originalData="${this._sample}"
                 .config="${this._config}"
-                .updateParams="${this.updateParams}"
+                .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -277,7 +279,7 @@ export default class SampleUpdate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
                                 notificationType: "warning",
                             },
                         },
@@ -302,7 +304,7 @@ export default class SampleUpdate extends LitElement {
                                         .value="${individualId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams.individualId ? "selection-updated" : ""}"
+                                        .classes="${this.updatedFields.individualId ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => this.onFieldChange(e, "individualId")}">
                                     </catalog-search-autocomplete>

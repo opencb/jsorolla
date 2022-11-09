@@ -267,28 +267,21 @@ export default class DataForm extends LitElement {
 
     _isUpdated(element) {
         if (UtilsNew.isNotEmpty(this.updateParams)) {
-            // const [field, prop] = element.field.split(".");
-            // let field, prop;
-            // if (element.field.includes(".")) {
-            //     const lastIndexOf = element.field.lastIndexOf(".");
-            //     field = element.field.substring(0, lastIndexOf);
-            //     prop = element.field.substring(lastIndexOf + 1);
-            // } else {
-            //     field = element.field;
-            // }
-
-            // Support nested object
-            // Check if updateValue exists and is different from the originalValue
-            const originalValue = UtilsNew.getObjectValue(this.originalData, element.field, undefined);
-            const updatedValue = UtilsNew.getObjectValue(this.updateParams, element.field, undefined);
-            return updatedValue && originalValue !== updatedValue;
-
-            // return typeof UtilsNew.getObjectValue(this.updateParams, element.field, undefined) !== "undefined";
-            // if (prop) {
-            //     return typeof this.updateParams[field]?.[prop] !== "undefined";
-            // } else {
-            //     return typeof this.updateParams[field] !== "undefined";
-            // }
+            // 1. Check if element.field exists
+            const fieldExists = this.updateParams[element.field];
+            if (fieldExists) {
+                return true;
+            } else {
+                // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
+                if (element.field.includes("[]")) {
+                    const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+                    const match = element.field.match(re);
+                    return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
+                } else {
+                    // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
+                    return Object.keys(this.updateParams).some(key => key.startsWith(element.field));
+                }
+            }
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
             return element.display?.updated;
@@ -1442,6 +1435,7 @@ export default class DataForm extends LitElement {
         }
 
         // Add the form to create the next item
+        //  || UtilsNew.isEmpty(this.objectListItems[element.field])
         if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
             const createHtml = html`
                 <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
@@ -1466,6 +1460,12 @@ export default class DataForm extends LitElement {
         this.requestUpdate();
     }
 
+    #editItemOfObjectList(e, item, index, element) {
+        // const htmlElement = document.getElementById(this._prefix + "_" + index);
+        const htmlElement = document.getElementById(element?.field + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+    }
+
     #addToObjectList(e, element) {
         // Check if object array exists
         // if (!this.data[element.field]) {
@@ -1474,21 +1474,22 @@ export default class DataForm extends LitElement {
 
         // Add the new item to the array and delete the temp item
         if (this.objectListItems[element.field]) {
-            const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
-            UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
-            // this.data[element.field].push(this.objectListItems[element.field]);
-            delete this.objectListItems[element.field];
+            // const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
+            // UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
+            // delete this.objectListItems[element.field];
+
+
+            // Notify change to provoke the update
+            // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+            // const newItemIndex = dataElementList.length;
+            // const newElement = {field: element.field + "[]." + newItemIndex};
+
+            // this.onFilterChange(element, dataElementList);
+            const event = {
+                action: "ADD",
+            };
+            this.onFilterChange(element, this.objectListItems[element.field], event);
         }
-
-        // Notify change to provoke the update
-        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        this.onFilterChange(element, dataElementList);
-    }
-
-    #editItemOfObjectList(e, item, index, element) {
-        // const htmlElement = document.getElementById(this._prefix + "_" + index);
-        const htmlElement = document.getElementById(element?.field + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
     #saveItemInObjectList(e, item, index, element) {
@@ -1497,105 +1498,90 @@ export default class DataForm extends LitElement {
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
 
         // Notify change to provoke the update
-        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        this.onFilterChange(element, dataElementList);
+        // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        const event = {
+            action: "SAVE",
+            index: index,
+        };
+        this.onFilterChange(element, null, event);
     }
 
     #removeFromObjectList(e, item, index, element) {
         // Delete the removed item
-        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        dataElementList.splice(index, 1);
+        // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        // dataElementList.splice(index, 1);
 
         // Notify change to provoke the update
-        this.onFilterChange(element, dataElementList);
+        const event = {
+            action: "REMOVE",
+            index: index,
+        };
+        this.onFilterChange(element, null, event);
     }
 
-    onFilterChange(element, value) {
-        // 1. Check if the element is an 'object-list'
-        if (element.field.includes("[]")) {
-            // Example: [variants, id]
-            const [parentArrayField, itemField] = element.field.split("[].");
-            if (itemField.includes(".")) {
-                // Items in the array
-                const [index, field] = itemField.split(".");
-                // this.data[parentArrayField][index][field] = value;
-                const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
-                currentElementList[index][field] = value;
-                UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
-            } else {
-                // Check if value is empty
-                if (value) {
-                    this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
-                } else {
-                    delete this.objectListItems[parentArrayField][itemField];
-                }
+    onFilterChange(element, value, objectListEvent) {
+        let eventDetail;
+
+        // 1. Check if ADD, SAVE, REMOVE has been clicked, this happens in 'object-list'
+        if (objectListEvent) {
+            const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+            switch (objectListEvent.action) {
+                case "ADD":
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, this.objectListItems[element.field]]);
+                    eventDetail = {
+                        param: element.field + "[]." + dataElementList.length,
+                        value: {...this.objectListItems[element.field]}
+                    };
+                    delete this.objectListItems[element.field];
+                    break;
+                case "SAVE":
+                    // nothing to do
+                    break;
+                case "REMOVE":
+                    dataElementList.splice(objectListEvent.index, 1);
+                    eventDetail = {
+                        param: element.field + "[]." + objectListEvent.index,
+                        value: undefined
+                    };
+                    break;
             }
         } else {
-            // 2. We need to check if the parent of the element is type 'object'
-            let isObjectType = false;
-            let objectFieldName = "";
-            // 2.1 Check if element is part of a 'object' element
-            if (element.field.includes(".")) {
-                // 2.2 Get the name of the possible object element: all fields but last one
-                const split = element.field.split(".");
-                split.splice(split.length - 1, 1);
-                objectFieldName = split.join(".");
+            // 2. Check if the element field is part of an object-list
+            if (element.field.includes("[]")) {
+                const [parentArrayField, itemField] = element.field.split("[].");
+                if (itemField.includes(".")) {
+                    // 2.1 Updating a field in an item in the array
+                    const [index, field] = itemField.split(".");
+                    const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
+                    currentElementList[index][field] = value;
+                    UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
 
-                // 2.3 Check if the possible object element exists
-                for (const section of this.config.sections) {
-                    for (const element of section.elements) {
-                        if (element.field === objectFieldName) {
-                            isObjectType = (element.type === "object");
-                            break;
-                        }
+                    eventDetail = {
+                        param: element.field,
+                        value: value
+                    };
+                } else {
+                    // 2. Adding a new element to the object-list array. Check if value is empty.
+                    if (value) {
+                        this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
+                    } else {
+                        delete this.objectListItems[parentArrayField][itemField];
                     }
                 }
-            }
-
-            // 3. Prepare the detail to be sent in the event, this depends on the element type
-            let detail;
-            if (isObjectType) {
-                // Make sure the object field exists
-                // ----------------------
-                // issue:Example: It's pass 'processing.product' as objectFieldName;
-                // instead create processing as object and then product inside processing.
-                // ----------------------
-                // if (!this.data[objectFieldName]) {
-                //     this.data[objectFieldName] = {};
-                // }
-
-                // if (value) {
-                //     // this.data[objectFieldName][elementFieldName] = value;
-                //     UtilsNew.setObjectValue(this.data, element.field, value);
-                // } else {
-                //     // not sure about this one
-                //     // UtilsNew.deleteObjectValue(this.data, element.field);
-                //     // delete this.data[objectFieldName][elementFieldName];
-                // }
-
-                // 3.1 We need to set the value to the object
-                UtilsNew.setObjectValue(this.data, element.field, value);
-                // detail = {
-                //     param: objectFieldName,
-                //     value: this.data[objectFieldName]
-                // };
-
-                // 3.2 We must return the parent object
-                detail = {
-                    param: objectFieldName,
-                    value: UtilsNew.getObjectValue(this.data, objectFieldName, "")
-                };
             } else {
-                // 3.1 This element is not type 'object', we just return the value
-                detail = {
+                // 3. Normal field: primitive or object
+                UtilsNew.setObjectValue(this.data, element.field, value);
+                eventDetail = {
                     param: element.field,
                     value: value
                 };
             }
+        }
 
-            // 4. Send the custom event
+        // 4. Send the custom event if eventDetail has been created, this is not created when a new item is being updated
+        if (eventDetail) {
             this.dispatchEvent(new CustomEvent("fieldChange", {
-                detail: detail,
+                detail: eventDetail,
                 bubbles: true,
                 composed: true
             }));

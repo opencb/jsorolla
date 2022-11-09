@@ -444,4 +444,31 @@ export default class FormUtils {
         return data;
     }
 
+
+    static updateObjExperimental2(_original, original, updateParams, param, value) {
+        const _updateParams = {
+            ...updateParams
+        };
+
+        const originalValue = UtilsNew.getObjectValue(_original, param, undefined);
+        if (Array.isArray(value)) {
+            _updateParams[param] = {
+                before: originalValue,
+                after: value
+            };
+        } else {
+            // this works well for both objects and primitives
+            _updateParams[param] = {
+                before: originalValue,
+                after: value
+            };
+        }
+
+        if ((_updateParams[param].before === undefined && !_updateParams[param].after) || _updateParams[param].before === _updateParams[param].after) {
+            delete _updateParams[param];
+        }
+
+        return _updateParams;
+    }
+
 }
