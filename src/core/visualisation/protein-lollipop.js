@@ -171,8 +171,10 @@ export default {
 
                     if (ct && ct.proteinVariantAnnotation?.position) {
                         info = {
-                            variantId: variant.id,
+                            // variantId: variant.id,
                             position: ct.proteinVariantAnnotation.position,
+                            reference: ct.proteinVariantAnnotation.reference,
+                            alternate: ct.proteinVariantAnnotation.alternate,
                             sequenceOntologyTerms: ct.sequenceOntologyTerms,
                         };
                     }
@@ -210,8 +212,9 @@ export default {
                         "stroke-width": "2px",
                     });
 
-                    // Variant text
-                    const text = SVG.addChildText(group, info.variantId, {
+                    // Lollipop ID text
+                    const id = `${info.reference}${info.position}${info.alternate}`;
+                    const text = SVG.addChildText(group, id, {
                         "fill": color,
                         "text-anchor": "start",
                         "dominant-baseline": "middle",
