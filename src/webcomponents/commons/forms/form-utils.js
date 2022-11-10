@@ -36,12 +36,10 @@ export default class FormUtils {
                 if (field instanceof Function) {
                     field(params);
                 } else {
-                    // TODO if string we MUST remove the field
-                    // For Custom Element
-                    // const valueField = UtilsNew.getObjectValue(updatedFields, field, undefined);
-                    // if (valueField) {
-                    //     UtilsNew.setObjectValue(params, field, valueField?.after);
-                    // }
+                    // String
+                    if (UtilsNew.getObjectValue(params, field, undefined)) {
+                        UtilsNew.deleteObjectValue(params, field);
+                    }
                 }
             });
         }
