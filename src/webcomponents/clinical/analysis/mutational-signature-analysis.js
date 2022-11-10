@@ -186,6 +186,16 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
+                        title: "Signature ID",
+                        field: "id",
+                        type: "input-text",
+                    },
+                    {
+                        title: "Signature Description",
+                        field: "description",
+                        type: "input-text",
+                    },
+                    {
                         title: "Sample ID",
                         field: "query.sample",
                         type: "custom",
