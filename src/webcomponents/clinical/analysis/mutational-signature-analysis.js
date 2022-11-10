@@ -126,6 +126,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
             fitOrgan: this.toolParams.fitOrgan,
             fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
             fitNBoot: this.toolParams.fitNBoot,
+            fitThresholdPerc: this.toolParams.fitThresholdPerc,
+            fitThresholdPval: this.toolParams.fitThresholdPval,
         };
 
         // Check if we have provided an existing counts list
@@ -299,12 +301,12 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     },
                     {
                         title: "thresholdperc",
-                        field: "thresholdperc",
+                        field: "fitThresholdPerc",
                         type: "input-text",
                     },
                     {
                         title: "thresholdpval",
-                        field: "thresholdpval",
+                        field: "fitThresholdPval",
                         type: "input-text",
                     },
                     {
