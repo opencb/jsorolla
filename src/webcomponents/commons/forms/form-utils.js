@@ -19,16 +19,30 @@ import UtilsNew from "../../../core/utils-new.js";
 export default class FormUtils {
 
 
-    static getUpdateParam(modified, updatedFields, fnc) {
-
+    static getUpdateParam(modified, updatedFields, customField) {
         const params = {};
-        const updatedFieldKeyPrefixes = Object.keys(updatedFields).map(key => key.replace(/[.[].*$/, ''));
+        const updatedFieldKeyPrefixes = Object.keys(updatedFields).map(key => key.replace(/[.[].*$/, ""));
         const uniqueUpdateFieldKeys = [...new Set(updatedFieldKeyPrefixes)];
 
         uniqueUpdateFieldKeys.forEach(key => {
             params[key] = modified[key];
         });
 
+
+        if (UtilsNew.isNotEmptyArray(customField)) {
+            customField.forEach(field => {
+                // Special Case
+                if (field instanceof Function) {
+                    field(params);
+                } else {
+                    // For Custom Element
+                    const valueField = UtilsNew.getObjectValue(updatedFields, field, undefined);
+                    if (valueField) {
+                        UtilsNew.setObjectValue(params, field, valueField?.after);
+                    }
+                }
+            });
+        }
         return params;
 
     }
