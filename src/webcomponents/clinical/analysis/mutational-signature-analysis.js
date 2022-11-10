@@ -119,12 +119,31 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            ...this.toolParams,
+            // id: this.toolParams.id,
+            // description: this.toolParams.description,
+            fitMethod: this.toolParams.fitMethod,
+            fitSigVersion: this.toolParams.fitSigVersion,
+            fitOrgan: this.toolParams.fitOrgan,
+            fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
+            fitNBoot: this.toolParams.fitNBoot,
         };
+
+        // Check if we have provided an existing counts list
+        if (this.toolParams.counts) {
+            toolParams.skip = "catalogue";
+            toolParams.id = this.toolParams.counts;
+            toolParams.sample = this.toolParams.query.sample;
+        } else {
+            toolParams.query = {
+                ...this.toolParams.query,
+            };
+        }
+
         const params = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
@@ -186,16 +205,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Signature ID",
-                        field: "id",
-                        type: "input-text",
-                    },
-                    {
-                        title: "Signature Description",
-                        field: "description",
-                        type: "input-text",
-                    },
-                    {
                         title: "Sample ID",
                         field: "query.sample",
                         type: "custom",
@@ -250,6 +259,16 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     visible: signatures.length === 0,
                 },
                 elements: [
+                    {
+                        title: "Signature ID",
+                        field: "id",
+                        type: "input-text",
+                    },
+                    {
+                        title: "Signature Description",
+                        field: "description",
+                        type: "input-text",
+                    },
                     ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
                 ],
             },
