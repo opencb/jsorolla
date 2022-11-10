@@ -635,7 +635,18 @@ export default class VariantBrowser extends LitElement {
                                 id: "biotypes", name: "Biotype", type: "string"
                             },
                             {
-                                id: "consequenceType", name: "Consequence Type", type: "string"
+                                // id: "consequence-type",
+                                id: "consequenceType",
+                                name: "Consequence Type",
+                                type: "component",
+                                // type: "string"
+                                // render: facetId => html `
+                                //     <consequence-type-select-filter
+                                //         .ct="${this.preparedQuery.ct}"
+                                //         .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                //         @filterChange="${e => this.onNestedFacetFieldChange(e, facetId)}">
+                                //     </consequence-type-select-filter>
+                                // `,
                             }
                         ]
                     },
