@@ -192,7 +192,7 @@ export default class SampleUpdate extends LitElement {
         let error;
         this.#setLoading(true);
         // const updateParam = FormUtils.getUpdateParam(this.sample, this.updatedFields, ["status.date"]);
-        const updateParams = FormUtils.getUpdateParam(this.sample, this.updatedFields, ["individualId", up => delete up.status.date]);
+        const updateParams = FormUtils.getUpdateParam(this.sample, this.updatedFields, [up => delete up?.status?.date]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, updateParams, params)
             .then(response => {
@@ -297,14 +297,14 @@ export default class SampleUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Individual ID ...",
-                                render: individualId => html`
+                                render: (individualId, dataFormFilterChange) => html`
                                     <catalog-search-autocomplete
                                         .value="${individualId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${this.updatedFields.individualId ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individualId")}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
