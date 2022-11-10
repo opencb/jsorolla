@@ -450,22 +450,70 @@ export default class FormUtils {
             ...updateParams
         };
 
-        const originalValue = UtilsNew.getObjectValue(_original, param, undefined);
-        if (Array.isArray(value)) {
-            _updateParams[param] = {
-                before: originalValue,
-                after: value
-            };
-        } else {
-            // this works well for both objects and primitives
-            _updateParams[param] = {
-                before: originalValue,
-                after: value
-            };
-        }
+        // 1. Check if are updating an object-list
+        if (param.includes("[].")) {
+            // Parse 'param' in 3 parts, in this example 'collection.from[].1.name':
+            //  - arrayFieldName: collection.from
+            //  - index: 1
+            //  - field: name
+            const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+            const match = param.match(re);
 
-        if ((_updateParams[param].before === undefined && !_updateParams[param].after) || _updateParams[param].before === _updateParams[param].after) {
-            delete _updateParams[param];
+            // 1.1 If field exist we are just updating an existing field, example: 'phenotypes[].0.name' where 'name' is the field
+            if (match?.groups?.field) {
+                // 1.1.1 Check if we are updating an item just ADDED, example: 'phenotypes[].1'
+                if (_updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]) {
+                    _updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index].after[match.groups.field] = value;
+                } else {
+                    // 1.1.2 We are updating an existing field, example: 'phenotypes[].0.name'
+                    const originalArray = UtilsNew.getObjectValue(_original, match?.groups?.arrayFieldName, undefined);
+                    _updateParams[param] = {
+                        before: originalArray[match.groups.index][match.groups.field],
+                        after: value
+                    };
+                    if (_updateParams[param].before === _updateParams[param].after) {
+                        delete _updateParams[param];
+                    }
+                }
+            } else {
+                // 1.2 Check 'value' to decide if we are adding or removing a new item
+                if (value) {
+                    // 1.2.1 New item ADDED
+                    _updateParams[param] = {
+                        before: undefined,
+                        after: value
+                    };
+                } else {
+                    // 1.2.2 Item REMOVED
+                    let [arrayFieldName, removedIndex] = param.split("[].");
+                    removedIndex = Number.parseInt(removedIndex);
+                    const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
+                    _updateParams[param] = {
+                        before: originalArray[removedIndex],
+                        after: undefined
+                    };
+
+                    const keys = Object.keys(_updateParams).filter(key => key.startsWith(arrayFieldName + "[]."));
+                    for (const key of keys) {
+                        const keyIndex = Number.parseInt(key.split("[].")[1]);
+                        if (keyIndex > removedIndex) {
+                            _updateParams[arrayFieldName + "[]." + (keyIndex - 1)] = _updateParams[arrayFieldName + "[]." + keyIndex];
+                            delete _updateParams[arrayFieldName + "[]." + keyIndex];
+                        }
+                    }
+                }
+            }
+        } else {
+            // 2. This works well for both objects and primitives
+            const originalValue = UtilsNew.getObjectValue(_original, param, undefined);
+            _updateParams[param] = {
+                before: originalValue,
+                after: value
+            };
+
+            if ((_updateParams[param].before === undefined && !_updateParams[param].after) || _updateParams[param].before === _updateParams[param].after) {
+                delete _updateParams[param];
+            }
         }
 
         return _updateParams;

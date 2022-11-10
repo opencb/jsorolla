@@ -173,7 +173,6 @@ export default class SampleUpdate extends LitElement {
                     e.detail.value);
                 break;
         }
-        debugger
         this.requestUpdate();
     }
 
@@ -192,9 +191,8 @@ export default class SampleUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        // FIXME CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
-        //  Remove when form-utils.js revisited
-        // Object.keys(this.updatedFields).forEach(key => this.updatedFields[key] = this.sample[key]);
+        // const updateParam = FormUtils.getUpdateParam(this.sample, this.updatedFields, ["status.date"]);
+        // const updateParam = FormUtils.getUpdateParam(this.sample, this.updatedFields, up => delete up.status.date);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, this.updatedFields, params)
             .then(response => {
@@ -590,6 +588,7 @@ export default class SampleUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
+                                // unique: "phenotypes[].id"
                             },
                             elements: [
                                 {

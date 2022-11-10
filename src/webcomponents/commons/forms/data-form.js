@@ -279,7 +279,7 @@ export default class DataForm extends LitElement {
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
                     // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
-                    return Object.keys(this.updateParams).some(key => key.startsWith(element.field));
+                    return Object.keys(this.updateParams).some(key => key.startsWith(element.field + "[]."));
                 }
             }
         } else {
