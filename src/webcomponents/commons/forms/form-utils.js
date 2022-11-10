@@ -18,6 +18,21 @@ import UtilsNew from "../../../core/utils-new.js";
 
 export default class FormUtils {
 
+
+    static getUpdateParam(modified, updatedFields, fnc) {
+
+        const params = {};
+        const updatedFieldKeyPrefixes = Object.keys(updatedFields).map(key => key.replace(/[.[].*$/, ''));
+        const uniqueUpdateFieldKeys = [...new Set(updatedFieldKeyPrefixes)];
+
+        uniqueUpdateFieldKeys.forEach(key => {
+            params[key] = modified[key];
+        });
+
+        return params;
+
+    }
+
     //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
     /**
      * ! Rodiel 2022-09-27 DEPRECATED use updateObjectParams

@@ -192,9 +192,9 @@ export default class SampleUpdate extends LitElement {
         let error;
         this.#setLoading(true);
         // const updateParam = FormUtils.getUpdateParam(this.sample, this.updatedFields, ["status.date"]);
-        // const updateParam = FormUtils.getUpdateParam(this.sample, this.updatedFields, up => delete up.status.date);
+        const updateParams = FormUtils.getUpdateParam(this.sample, this.updatedFields, up => delete up.status.date);
         this.opencgaSession.opencgaClient.samples()
-            .update(this.sample.id, this.updatedFields, params)
+            .update(this.sample.id, updateParams, params)
             .then(response => {
                 this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
