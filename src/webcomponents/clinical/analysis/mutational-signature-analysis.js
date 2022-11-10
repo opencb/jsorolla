@@ -44,6 +44,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
             title: {
                 type: String
             },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -75,6 +78,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
             "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
 
         this.query = {};
+        this.active = true;
         this.selectedSample = null;
         this.config = this.getDefaultConfig();
     }
@@ -140,7 +144,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     onChangeSample() {
-        if (this.toolParams?.query?.sample) {
+        if (this.toolParams?.query?.sample && this.active) {
             if (this.toolParams.query.sample !== this.selectedSample?.id) {
                 this.opencgaSession.opencgaClient.samples()
                     .search({
