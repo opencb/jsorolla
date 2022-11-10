@@ -258,65 +258,47 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Fit Method",
-                        field: "fitmethod",
+                        field: "fitMethod",
                         type: "select",
-                        // defaultValue: "FitMS",
                         allowedValues: ["Fit", "FitMS"],
-                        display: {
-                        },
                     },
                     {
                         title: "Sig Version",
-                        field: "sigversion",
+                        field: "fitSigVersion",
                         type: "select",
-                        // defaultValue: "RefSigv2",
                         allowedValues: ["COSMICv2", "COSMICv3.2", "RefSigv1", "RefSigv2"],
-                        display: {
-                        },
                     },
                     {
                         title: "Organ",
-                        field: "organ",
+                        field: "fitOrgan",
                         type: "select",
                         allowedValues: this.toolParams.sigversion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
                         display: {
                             disabled: this.toolParams.sigversion !== "RefSigv1" && this.toolParams.sigversion !== "RefSigv2",
                             help: {
-                                text: "Only available for RefSigv1 or RefSigv2"
-                            }
+                                text: "Only available for RefSigv1 or RefSigv2",
+                            },
                         },
                     },
                     {
                         title: "thresholdperc",
                         field: "thresholdperc",
                         type: "input-text",
-                        // defaultValue: "5",
-                        display: {
-                        },
                     },
                     {
                         title: "thresholdpval",
                         field: "thresholdpval",
                         type: "input-text",
-                        // defaultValue: "0.05",
-                        display: {
-                        },
                     },
                     {
                         title: "maxraresigs",
-                        field: "maxraresigs",
+                        field: "fitMaxRareSigs",
                         type: "input-text",
-                        // defaultValue: "1",
-                        display: {
-                        },
                     },
                     {
                         title: "nboot",
-                        field: "nboot",
+                        field: "fitNBoot",
                         type: "input-text",
-                        // defaultValue: "200",
-                        display: {
-                        },
                     },
                 ]
             }
