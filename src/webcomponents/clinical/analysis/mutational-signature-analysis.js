@@ -121,6 +121,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         const toolParams = {
             // id: this.toolParams.id,
             // description: this.toolParams.description,
+            fitId: this.toolParams.fitId,
             fitMethod: this.toolParams.fitMethod,
             fitSigVersion: this.toolParams.fitSigVersion,
             fitOrgan: this.toolParams.fitOrgan,
@@ -275,6 +276,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
             {
                 title: "Fitting Parameters",
                 elements: [
+                    {
+                        title: "Fit ID",
+                        field: "fitId",
+                        type: "input-text",
+                    },
                     {
                         title: "Fit Method",
                         field: "fitMethod",
