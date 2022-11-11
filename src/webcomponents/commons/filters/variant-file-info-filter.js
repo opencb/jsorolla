@@ -338,7 +338,10 @@ export default class VariantFileInfoFilter extends LitElement {
                 const filterString = Object.entries(callerEntry[1])
                     .map(filterEntry => {
                         // FILTER requires a PASS value when true
-                        const value = filterEntry[0] !== "FILTER" ? filterEntry[1] : "=PASS";
+                        let value = filterEntry[1]; //  : "=PASS";
+                        if (filterEntry[0] === "FILTER" && typeof filterEntry[1] === "boolean") {
+                            value = "=PASS";
+                        }
                         return filterEntry[0] + "" + value;
                     })
                     .join(";");
