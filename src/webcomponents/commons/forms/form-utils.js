@@ -18,8 +18,7 @@ import UtilsNew from "../../../core/utils-new.js";
 
 export default class FormUtils {
 
-
-    static getUpdateParam(original, updatedFields, customisations) {
+    static getUpdateParams(original, updatedFields, customisations) {
         const params = {};
         const updatedFieldKeyPrefixes = Object.keys(updatedFields)
             .map(key => key.replace(/[.[].*$/, ""));
@@ -29,14 +28,14 @@ export default class FormUtils {
             params[key] = original[key];
         });
 
-
+        // 'customisations' array allows to perform some modifications in the updateParams object
         if (customisations?.length > 0) {
             customisations.forEach(field => {
-                // Special Case
+                // 1. You can pass a lambda function
                 if (field instanceof Function) {
                     field(params);
                 } else {
-                    // String
+                    // 2. When String then we delete the field
                     if (UtilsNew.getObjectValue(params, field, undefined)) {
                         UtilsNew.deleteObjectValue(params, field);
                     }
@@ -44,8 +43,123 @@ export default class FormUtils {
             });
         }
         return params;
-
     }
+
+    static getUpdatedFields(_original, updatedFields, param, value) {
+        const _updatedFields = {
+            ...updatedFields
+        };
+
+        // 1. Check if are updating an object-list
+        if (param.includes("[].")) {
+            // Parse 'param' in 3 parts, in this example 'collection.from[].1.name':
+            //  - arrayFieldName: collection.from
+            //  - index: 1
+            //  - field: name
+            const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+            const match = param.match(re);
+
+            // 1.1 If field exist we are just updating an existing field, example: 'phenotypes[].0.name' where 'name' is the field
+            if (match?.groups?.field) {
+                // 1.1.1 Check if we are updating an item just ADDED, example: 'phenotypes[].1'
+                if (_updatedFields[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]) {
+                    _updatedFields[match?.groups?.arrayFieldName + "[]." + match?.groups?.index].after[match.groups.field] = value;
+                } else {
+                    // 1.1.2 We are updating an existing field, example: 'phenotypes[].0.name'
+                    const originalArray = UtilsNew.getObjectValue(_original, match?.groups?.arrayFieldName, undefined);
+                    _updatedFields[param] = {
+                        before: originalArray[match.groups.index][match.groups.field],
+                        after: value
+                    };
+                    if (_updatedFields[param].before === _updatedFields[param].after) {
+                        delete _updatedFields[param];
+                    }
+                }
+            } else {
+                // 1.2 Check 'value' to decide if we are adding or removing a new item
+                if (value) {
+                    // 1.2.1 New item ADDED
+                    _updatedFields[param] = {
+                        before: undefined,
+                        after: value
+                    };
+                } else {
+                    // 1.2.2 Item REMOVED
+                    let [arrayFieldName, removedIndex] = param.split("[].");
+                    removedIndex = Number.parseInt(removedIndex);
+                    const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
+                    _updatedFields[param] = {
+                        before: originalArray[removedIndex],
+                        after: undefined
+                    };
+
+                    const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
+                    for (const key of keys) {
+                        const split = key.split("[].")[1];
+                        let keyIndex, newKey;
+                        if (split.includes(".")) {
+                            const [index, field] = split.split(".");
+                            keyIndex = Number.parseInt(index);
+                            newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
+                        } else {
+                            keyIndex = Number.parseInt(key.split("[].")[1]);
+                            newKey = arrayFieldName + "[]." + (keyIndex - 1);
+                        }
+
+                        if (keyIndex > removedIndex) {
+                            _updatedFields[newKey] = _updatedFields[key];
+                            delete _updatedFields[key];
+
+                            // If we rename a bigger version we need to delete the original item deleted
+                            delete _updatedFields[param];
+                        }
+                    }
+                }
+            }
+        } else {
+            // 2. This works well for both objects and primitives
+            const originalValue = UtilsNew.getObjectValue(_original, param, undefined);
+            _updatedFields[param] = {
+                before: originalValue,
+                after: value
+            };
+
+            if ((_updatedFields[param].before === undefined && !_updatedFields[param].after) || _updatedFields[param].before === _updatedFields[param].after) {
+                delete _updatedFields[param];
+            }
+        }
+
+        return _updatedFields;
+    }
+
+    static createObject(object, params, value) {
+        let data = {...object};
+        const [field, prop] = params.split(".");
+
+        // Rodiel (07/03/22): For object type values it is necessary to check if it is empty.
+        // otherwise it would create an empty object instead of removing the empty object.
+        if (UtilsNew.isNotEmpty(value)) {
+            if (prop) {
+                data[field] = {
+                    ...data[field],
+                    [prop]: value
+                };
+            } else {
+                data = {
+                    ...data,
+                    [field]: value
+                };
+            }
+        } else {
+            if (prop) {
+                delete data[field][prop];
+            } else {
+                delete data[field];
+            }
+        }
+        return data;
+    }
+
 
     //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
     /**
@@ -439,109 +553,6 @@ export default class FormUtils {
             } else {
                 original[field] = _original[field];
                 delete _updateParams[field];
-            }
-        }
-
-        return _updateParams;
-    }
-
-    static createObject(object, params, value) {
-        let data = {...object};
-        const [field, prop] = params.split(".");
-
-        // Rodiel (07/03/22): For object type values it is necessary to check if it is empty.
-        // otherwise it would create an empty object instead of removing the empty object.
-        if (UtilsNew.isNotEmpty(value)) {
-            if (prop) {
-                data[field] = {
-                    ...data[field],
-                    [prop]: value
-                };
-            } else {
-                data = {
-                    ...data,
-                    [field]: value
-                };
-            }
-        } else {
-            if (prop) {
-                delete data[field][prop];
-            } else {
-                delete data[field];
-            }
-        }
-        return data;
-    }
-
-
-    static updateObjExperimental2(_original, original, updateParams, param, value) {
-        const _updateParams = {
-            ...updateParams
-        };
-
-        // 1. Check if are updating an object-list
-        if (param.includes("[].")) {
-            // Parse 'param' in 3 parts, in this example 'collection.from[].1.name':
-            //  - arrayFieldName: collection.from
-            //  - index: 1
-            //  - field: name
-            const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
-            const match = param.match(re);
-
-            // 1.1 If field exist we are just updating an existing field, example: 'phenotypes[].0.name' where 'name' is the field
-            if (match?.groups?.field) {
-                // 1.1.1 Check if we are updating an item just ADDED, example: 'phenotypes[].1'
-                if (_updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]) {
-                    _updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index].after[match.groups.field] = value;
-                } else {
-                    // 1.1.2 We are updating an existing field, example: 'phenotypes[].0.name'
-                    const originalArray = UtilsNew.getObjectValue(_original, match?.groups?.arrayFieldName, undefined);
-                    _updateParams[param] = {
-                        before: originalArray[match.groups.index][match.groups.field],
-                        after: value
-                    };
-                    if (_updateParams[param].before === _updateParams[param].after) {
-                        delete _updateParams[param];
-                    }
-                }
-            } else {
-                // 1.2 Check 'value' to decide if we are adding or removing a new item
-                if (value) {
-                    // 1.2.1 New item ADDED
-                    _updateParams[param] = {
-                        before: undefined,
-                        after: value
-                    };
-                } else {
-                    // 1.2.2 Item REMOVED
-                    let [arrayFieldName, removedIndex] = param.split("[].");
-                    removedIndex = Number.parseInt(removedIndex);
-                    const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
-                    _updateParams[param] = {
-                        before: originalArray[removedIndex],
-                        after: undefined
-                    };
-
-                    const keys = Object.keys(_updateParams).filter(key => key.startsWith(arrayFieldName + "[]."));
-                    for (const key of keys) {
-                        const keyIndex = Number.parseInt(key.split("[].")[1]);
-                        if (keyIndex > removedIndex) {
-                            _updateParams[arrayFieldName + "[]." + (keyIndex - 1)] = _updateParams[arrayFieldName + "[]." + keyIndex];
-                            delete _updateParams[arrayFieldName + "[]." + keyIndex];
-                        }
-                    }
-                }
-            }
-        } else {
-            // 2. This works well for both objects and primitives
-            const originalValue = UtilsNew.getObjectValue(_original, param, undefined);
-            _updateParams[param] = {
-                before: originalValue,
-                after: value
-            };
-
-            if ((_updateParams[param].before === undefined && !_updateParams[param].after) || _updateParams[param].before === _updateParams[param].after) {
-                delete _updateParams[param];
             }
         }
 

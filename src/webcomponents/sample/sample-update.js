@@ -129,50 +129,11 @@ export default class SampleUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            // case "id":
-            // case "description":
-            // case "individualId":
-            // case "somatic":
-            // case "processing.product":
-            // case "processing.preparationMethod":
-            // case "processing.extractionMethod":
-            // case "processing.labSampleId":
-            // case "processing.quantity":
-            // case "processing.date":
-            // case "collection.type":
-            // case "collection.quantity":
-            // case "collection.method":
-            // case "collection.date":
-            // case "collection.from":
-            // case "phenotypes":
-            // case "source":
-            //     this.updatedFields = FormUtils.updateObjExperimental2(
-            //         this._sample,
-            //         this.sample,
-            //         this.updatedFields,
-            //         param,
-            //         e.detail.value);
-            //     break;
-            // case "status":
-            //     // INFO Warning: Date is removed because it is missing in StatusParams.java
-            //     delete e.detail.value?.date;
-            //     this.updatedFields = FormUtils.updateObjExperimental2(
-            //         this._sample,
-            //         this.sample,
-            //         this.updatedFields,
-            //         param,
-            //         e.detail.value);
-            //     break;
-            default:
-                this.updatedFields = FormUtils.updateObjExperimental2(
-                    this._sample,
-                    this.sample,
-                    this.updatedFields,
-                    param,
-                    e.detail.value);
-                break;
-        }
+        this.updatedFields = FormUtils.getUpdatedFields(
+            this._sample,
+            this.updatedFields,
+            param,
+            e.detail.value);
         this.requestUpdate();
     }
 
@@ -191,7 +152,7 @@ export default class SampleUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        const updateParams = FormUtils.getUpdateParam(this.sample, this.updatedFields, ["status.date"]);
+        const updateParams = FormUtils.getUpdateParams(this.sample, this.updatedFields, ["status.date"]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, updateParams, params)
             .then(response => {
@@ -253,7 +214,6 @@ export default class SampleUpdate extends LitElement {
             ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
             <data-form
                 .data="${this.sample}"
-                .originalData="${this._sample}"
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"

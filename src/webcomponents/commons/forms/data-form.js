@@ -52,9 +52,6 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
-            originalData: {
-                type: Object
-            },
             updateParams: {
                 type: Object
             },
