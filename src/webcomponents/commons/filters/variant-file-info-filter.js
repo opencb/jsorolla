@@ -118,7 +118,7 @@ export default class VariantFileInfoFilter extends LitElement {
 
                     infoFieldToBasicInfo[line.id].push({
                         fileName: file.name,
-                        callerId: file.software?.name,
+                        callerId: this.fileNameToCallerId[file.name],
                         description: line.description
                     });
                 });
@@ -151,17 +151,35 @@ export default class VariantFileInfoFilter extends LitElement {
                         if (dataFilter?.source === "FILE" && indexedCustomFields[dataFilter.id]) {
                             const _dataFilter = {...dataFilter};
                             const indexedCustomField = indexedCustomFields[_dataFilter.id];
-                            if (indexedCustomField.type.startsWith("RANGE_")) {
-                                _dataFilter.comparators = indexedCustomField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                                _dataFilter.allowedValues = indexedCustomField.thresholds;
-                            } else {
-                                // Categorical: check if the variant caller defines a allowedValues, if yes we must use it
-                                if (dataFilter.allowedValues?.length > 0) {
-                                    _dataFilter.allowedValues = dataFilter.allowedValues;
+
+                            // Check if field id is FILTER and has only PASS value
+                            if (_dataFilter.id === "FILTER") {
+                                if (_dataFilter.allowedValues?.length > 0) {
+                                    if (_dataFilter.allowedValues?.length === 1 && _dataFilter.allowedValues[0] === "PASS") {
+                                        _dataFilter.name = "PASS";
+                                        _dataFilter.type = "BOOLEAN";
+                                    } else {
+                                        // Check if the variant caller defines a allowedValues, if yes we must use it
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                    }
                                 } else {
+                                    // We use the default configuration
                                     _dataFilter.allowedValues = indexedCustomField.values;
                                 }
+                            } else {
+                                if (indexedCustomField.type.startsWith("RANGE_")) {
+                                    _dataFilter.comparators = indexedCustomField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                    _dataFilter.allowedValues = indexedCustomField.thresholds;
+                                } else {
+                                    // Categorical: check if the variant caller defines a allowedValues, if yes we must use it
+                                    if (dataFilter.allowedValues?.length > 0) {
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                    } else {
+                                        _dataFilter.allowedValues = indexedCustomField.values;
+                                    }
+                                }
                             }
+
                             _dataFilters.push(_dataFilter);
                         }
                     }
@@ -287,7 +305,10 @@ export default class VariantFileInfoFilter extends LitElement {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
                                 comparator = "";
-                                value = value === "PASS";
+                                const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
+                                if (type?.toUpperCase() === "BOOLEAN") {
+                                    value = value === "PASS";
+                                }
                             } else {
                                 // number-field-filter needs the equal operator
                                 isNaN(value) ? comparator = "" : comparator = "=";
