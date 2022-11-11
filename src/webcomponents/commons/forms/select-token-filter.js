@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/file-upload.js";
@@ -151,6 +151,19 @@ export default class SelectTokenFilter extends LitElement {
 
     }
 
+
+    toggleDisabled() {
+        const selectElm = document.querySelector("#" + this._prefix);
+        this.select.empty();
+        if (!selectElm.disabled) {
+            this.addOptions(["all"]);
+        }
+        selectElm.disabled = !selectElm.disabled;
+        // Notify to the form
+        const selection = this.select.select2("data").map(el => el.id).join(",");
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
+    }
+
     addOptions(ids) {
         if (ids) {
             const _ids = [...new Set(ids)];
@@ -190,6 +203,7 @@ export default class SelectTokenFilter extends LitElement {
     getDefaultConfig() {
         return {
             separator: [","],
+            allowSelectAll: false,
             limit: 10,
             disablePagination: false,
             minimumInputLength: 0,
@@ -216,6 +230,13 @@ export default class SelectTokenFilter extends LitElement {
         };
     }
 
+    renderAllowSelectAll() {
+        return html`
+            <span class="input-group-addon">
+                <input type="checkbox" aria-label="..." @click=${this.toggleDisabled}> <span style="font-weight: 700;">All</span>
+            </span>`;
+    }
+
     render() {
         if (this._config.fileUpload) {
             return html`
@@ -235,12 +256,17 @@ export default class SelectTokenFilter extends LitElement {
 
         return html`
             <div>
-                <select
-                    class="form-control"
-                    id="${this._prefix}"
-                    ?disabled="${this._config.disabled}"
-                    @change="${this.filterChange}">
-                </select>
+                <div class="input-group">
+                    <select
+                        class="form-control"
+                        id="${this._prefix}"
+                        ?disabled="${this._config.disabled}"
+                        @change="${this.filterChange}">
+                    </select>
+                    ${this._config.allowSelectAll ?
+                        this.renderAllowSelectAll() :
+                        nothing}
+                </div>
             </div>
         `;
     }
