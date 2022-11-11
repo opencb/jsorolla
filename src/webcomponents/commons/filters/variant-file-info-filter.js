@@ -118,7 +118,7 @@ export default class VariantFileInfoFilter extends LitElement {
 
                     infoFieldToBasicInfo[line.id].push({
                         fileName: file.name,
-                        callerId: file.software?.name,
+                        callerId: this.fileNameToCallerId[file.name],
                         description: line.description
                     });
                 });
@@ -129,32 +129,57 @@ export default class VariantFileInfoFilter extends LitElement {
         const variantCallersWithInfoField = studyInternalConfiguration?.clinical?.interpretation?.variantCallers
             ?.filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
         const variantCallers = [];
+
+        // 1. Check if variant callers configuration is defined
         if (variantCallersWithInfoField?.length > 0) {
-            const indexedFields = {};
+            const indexedCustomFields = {};
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
                     if (customField.source === "FILE") {
-                        indexedFields[customField.key] = customField;
+                        indexedCustomFields[customField.key] = customField;
                     }
                 }
             }
 
             // Add caller INDEXED-FILE filters from study configuration
-            for (const caller of variantCallersWithInfoField) {
-                if (this.callerIdToFile?.[caller.id]) {
+            for (const variantCaller of variantCallersWithInfoField) {
+                if (this.callerIdToFile?.[variantCaller.id]) {
                     const _dataFilters = [];
-                    for (const dataFilter of caller.dataFilters) {
+                    for (const dataFilter of variantCaller.dataFilters) {
                         // Make sure that only FILE filters are added
                         // Check if dataFilter are indexed
-                        if (dataFilter.source && dataFilter.source === "FILE" && indexedFields[dataFilter.id]) {
+                        if (dataFilter?.source === "FILE" && indexedCustomFields[dataFilter.id]) {
                             const _dataFilter = {...dataFilter};
-                            const field = indexedFields[_dataFilter.id];
-                            if (field.type.startsWith("RANGE_")) {
-                                _dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                                _dataFilter.allowedValues = field.thresholds;
+                            const indexedCustomField = indexedCustomFields[_dataFilter.id];
+
+                            // Check if field id is FILTER and has only PASS value
+                            if (_dataFilter.id === "FILTER") {
+                                if (_dataFilter.allowedValues?.length > 0) {
+                                    if (_dataFilter.allowedValues?.length === 1 && _dataFilter.allowedValues[0] === "PASS") {
+                                        _dataFilter.name = "PASS";
+                                        _dataFilter.type = "BOOLEAN";
+                                    } else {
+                                        // Check if the variant caller defines a allowedValues, if yes we must use it
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                    }
+                                } else {
+                                    // We use the default configuration
+                                    _dataFilter.allowedValues = indexedCustomField.values;
+                                }
                             } else {
-                                _dataFilter.allowedValues = field.values;
+                                if (indexedCustomField.type.startsWith("RANGE_")) {
+                                    _dataFilter.comparators = indexedCustomField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                    _dataFilter.allowedValues = indexedCustomField.thresholds;
+                                } else {
+                                    // Categorical: check if the variant caller defines a allowedValues, if yes we must use it
+                                    if (dataFilter.allowedValues?.length > 0) {
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                    } else {
+                                        _dataFilter.allowedValues = indexedCustomField.values;
+                                    }
+                                }
                             }
+
                             _dataFilters.push(_dataFilter);
                         }
                     }
@@ -162,39 +187,39 @@ export default class VariantFileInfoFilter extends LitElement {
                     // If at least one FILE filter has been found
                     if (_dataFilters.length > 0) {
                         variantCallers.push({
-                            ...caller,
+                            ...variantCaller,
                             dataFilters: _dataFilters,
-                            fileId: this.callerIdToFile[caller.id]?.name
+                            fileId: this.callerIdToFile[variantCaller.id]?.name
                         });
                     }
                 }
             }
         } else {
-            // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
-            // Example:
-            // "customFields": [
-            //     {
-            //         "source": "FILE",
-            //         "key": "FILTER",
-            //         "type": "CATEGORICAL",
-            //         "values": [
-            //             "PASS"
-            //         ],
-            //         "nullable": true
-            //     },
-            //     {
-            //         "source": "FILE",
-            //         "key": "ASMD",
-            //         "type": "RANGE_LT",
-            //         "thresholds": [
-            //             20,
-            //             30,
-            //             250,
-            //             300
-            //         ],
-            //         "nullable": true
-            //     }
-            // ]
+            // 2. If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
+            //      Example:
+            //      "customFields": [
+            //          {
+            //              "source": "FILE",
+            //              "key": "FILTER",
+            //              "type": "CATEGORICAL",
+            //              "values": [
+            //                  "PASS"
+            //              ],
+            //              "nullable": true
+            //          },
+            //          {
+            //              "source": "FILE",
+            //              "key": "ASMD",
+            //              "type": "RANGE_LT",
+            //              "thresholds": [
+            //                  20,
+            //                  30,
+            //                  250,
+            //                  300
+            //              ],
+            //              "nullable": true
+            //          }
+            //      ]
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
@@ -280,7 +305,10 @@ export default class VariantFileInfoFilter extends LitElement {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
                                 comparator = "";
-                                value = value === "PASS";
+                                const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
+                                if (type?.toUpperCase() === "BOOLEAN") {
+                                    value = value === "PASS";
+                                }
                             } else {
                                 // number-field-filter needs the equal operator
                                 isNaN(value) ? comparator = "" : comparator = "=";
