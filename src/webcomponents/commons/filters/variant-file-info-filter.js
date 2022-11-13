@@ -161,6 +161,8 @@ export default class VariantFileInfoFilter extends LitElement {
                                     } else {
                                         // Check if the variant caller defines a allowedValues, if yes we must use it
                                         _dataFilter.allowedValues = dataFilter.allowedValues;
+                                        _dataFilter.multiple = true;
+                                        _dataFilter.maxOptions = 5;
                                     }
                                 } else {
                                     // We use the default configuration
@@ -226,6 +228,8 @@ export default class VariantFileInfoFilter extends LitElement {
                     // At the moment we support all FILE fields but QUAL, since the values do not follow any standard
                     if (customField.source === "FILE" && customField.key !== "QUAL") {
                         let fieldName, fieldType, fieldValues, fieldComparators;
+                        let multiple = false;
+                        let maxOptions = 1;
 
                         // Check if field id is FILTER and has only PASS value
                         if (customField.key === "FILTER") {
@@ -235,6 +239,8 @@ export default class VariantFileInfoFilter extends LitElement {
                             } else {
                                 fieldType = "CATEGORICAL";
                                 fieldValues = customField.values;
+                                multiple = true;
+                                maxOptions = 5;
                             }
                         } else {
                             // All other fields are processed normally
@@ -260,6 +266,8 @@ export default class VariantFileInfoFilter extends LitElement {
                                 type: fieldType,
                                 source: customField.source,
                                 allowedValues: fieldValues,
+                                multiple: multiple,
+                                maxOptions: maxOptions,
                                 comparators: fieldComparators || [],
                             });
                         });
@@ -284,6 +292,30 @@ export default class VariantFileInfoFilter extends LitElement {
         this.requestUpdate();
     }
 
+    // This function can split filters in filterData in a safe way.
+    // Some values can have semicolon characters, example: "FILTER=PASS;A,B;CLPM<=0.5;ASMD>=1,400"
+    //
+    #splitFilters(filtersString) {
+        // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
+        const re = /(?<file>[a-zA-Z]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const match1 = filtersString.match(re);
+        // 2. Get the indexes: [0, 16, 26]
+        const filters = [];
+        const indexes = [];
+        for (const m of match1) {
+            indexes.push(filtersString.indexOf(m));
+        }
+        // 3. substring the whole values: ["FILTER=PASS;A,B", "CLPM<=0.5", "ASMD>=1,400"]
+        for (let i = 0; i < indexes.length; i++) {
+            if (i < indexes.length - 1) {
+                filters.push(filtersString.substring(indexes[i], indexes[i+1] - 1));
+            } else {
+                filters.push(filtersString.substring(indexes[i]));
+            }
+        }
+        return filters;
+    }
+
     /*
      * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.
@@ -297,14 +329,14 @@ export default class VariantFileInfoFilter extends LitElement {
                 if (fileDataItem.includes(":")) {
                     const [fileId, filters] = fileDataItem.split(":");
                     _fileDataQuery[this.fileNameToCallerId[fileId]] = {};
-                    for (const filter of filters.split(";")) {
+                    for (const filter of this.#splitFilters(filters)) {
                         let key, comparator, value;
                         if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
                             [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
                         } else {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
-                                comparator = "=";
+                                comparator = "";
                                 const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
                                 if (type?.toUpperCase() === "BOOLEAN") {
                                     value = value === "PASS";
@@ -381,6 +413,16 @@ export default class VariantFileInfoFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", fileData);
     }
 
+    render() {
+        return html`
+            <data-form
+                .data=${this.fileDataQuery}
+                .config="${this._config}"
+                @fieldChange="${this.filterChange}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         const _sections = this.callers?.map(caller => {
             // Generate the caller section
@@ -407,6 +449,8 @@ export default class VariantFileInfoFilter extends LitElement {
                         type: this.callerParamTypeToDataForm[field.type],
                         comparators: (field.comparators || []).join(","),
                         allowedValues: field.allowedValues,
+                        multiple: field.multiple ?? false,
+                        maxOptions: field.maxOptions ?? 1,
                         defaultValue: "",
                     }))
                 ],
@@ -426,16 +470,6 @@ export default class VariantFileInfoFilter extends LitElement {
             },
             sections: _sections,
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.fileDataQuery}
-                .config="${this._config}"
-                @fieldChange="${this.filterChange}">
-            </data-form>
-        `;
     }
 
 }
