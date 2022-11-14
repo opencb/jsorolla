@@ -340,7 +340,6 @@ export default class VariantFileInfoFilter extends LitElement {
                                 const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
                                 if (type?.toUpperCase() === "BOOLEAN") {
                                     value = value === "PASS";
-                                    comparator = "";
                                 }
                             } else {
                                 // number-field-filter needs the equal operator
@@ -374,15 +373,6 @@ export default class VariantFileInfoFilter extends LitElement {
         // ADD, UPDATE or DELETE the field
         if (value) {
             this.fileDataQuery[caller][field] = value;
-
-            // Fix categorical fields (related to TASK-1458)
-            const callerInfo = this.callers?.find(c => c.id === caller);
-            if (callerInfo) {
-                const fieldInfo = callerInfo.dataFilters?.find(f => f.id === field);
-                if (fieldInfo && fieldInfo.type === "CATEGORICAL") {
-                    this.fileDataQuery[caller][field] = "=" + value;
-                }
-            }
         } else {
             delete this.fileDataQuery[caller][field];
             // If not filter left we delete the caller section
@@ -402,7 +392,15 @@ export default class VariantFileInfoFilter extends LitElement {
                         let value = filterEntry[1]; //  : "=PASS";
                         if (filterEntry[0] === "FILTER" && typeof filterEntry[1] === "boolean") {
                             value = "=PASS";
+                        } else {
+                            // Fix categorical fields (related to TASK-1458 and TASK-2322)
+                            const callerInfo = this.callers?.find(caller => caller.id === callerEntry[0]);
+                            const fieldInfo = callerInfo?.dataFilters?.find(f => f.id === filterEntry[0]);
+                            if (fieldInfo && fieldInfo.type === "CATEGORICAL") {
+                                value = "=" + value;
+                            }
                         }
+
                         return filterEntry[0] + "" + value;
                     })
                     .join(";");
