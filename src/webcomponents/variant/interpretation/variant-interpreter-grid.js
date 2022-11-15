@@ -1202,7 +1202,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 });
                 break;
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -1232,7 +1232,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     });
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
-                    navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
+                    UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
                 }
                 break;
         }
