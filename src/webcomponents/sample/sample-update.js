@@ -56,6 +56,7 @@ export default class SampleUpdate extends LitElement {
 
     #init() {
         this.sample = {};
+        this.sampleId = "";
         this.updatedFields = {};
         this.isLoading = false;
 
@@ -74,13 +75,10 @@ export default class SampleUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("sample")) {
-            this.initOriginalObject();
-        }
-    }
-
     update(changedProperties) {
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
+        }
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
@@ -91,11 +89,17 @@ export default class SampleUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    initOriginalObject() {
-        // When updating we need to keep a private copy of the original object
-        if (this.sample) {
-            this._sample = UtilsNew.objectClone(this.sample);
+    sampleObserver() {
+        if (this.sample && this.opencgaSession) {
+            this.initOriginalObjects();
         }
+    }
+
+    initOriginalObjects() {
+        this._sample = UtilsNew.objectClone(this.sample);
+        this._config = this.getDefaultConfig();
+        this.updatedFields = {};
+        this.sampleId = "";
     }
 
     sampleIdObserver() {
@@ -110,27 +114,22 @@ export default class SampleUpdate extends LitElement {
                 .info(this.sampleId, params)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    this.initOriginalObject();
                 })
                 .catch(reason => {
-                    this.sample = {};
                     error = reason;
-                    console.error(reason);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {...params}}, error);
+                    LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {query: {...params}}, error);
                     this.#setLoading(false);
                 });
-        } else {
-            this.sample = {};
         }
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         this.updatedFields = FormUtils.getUpdatedFields(
-            this._sample,
+            this.sample,
             this.updatedFields,
             param,
             e.detail.value);
@@ -138,10 +137,14 @@ export default class SampleUpdate extends LitElement {
     }
 
     onClear() {
-        this._config = this.getDefaultConfig();
-        this.updatedFields = {};
-        this.sampleId = "";
-        this.sample = UtilsNew.objectClone(this._sample);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Discard changes",
+            message: "Are you sure you want to discard the changes made?",
+            ok: () => {
+                this.initOriginalObjects();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit() {
@@ -152,11 +155,11 @@ export default class SampleUpdate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        const updateParams = FormUtils.getUpdateParams(this.sample, this.updatedFields, ["status.date"]);
+        const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, updateParams, params)
             .then(response => {
-                this._sample = UtilsNew.objectClone(response.responses[0].results[0]);
+                this.sample = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Update",
@@ -164,18 +167,16 @@ export default class SampleUpdate extends LitElement {
                 });
             })
             .catch(reason => {
-                this.sample = {};
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
                 this.#setLoading(false);
             });
     }
 
-    // display a button to back sample browser.
+    // Display a button to back sample browser.
     onShowBtnSampleBrowser() {
         const query = {
             xref: this.sampleId
@@ -202,7 +203,7 @@ export default class SampleUpdate extends LitElement {
         }
 
         if (!this.sample?.id) {
-            return html`
+            return html `
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
                     The sample does not have a Sample ID.
@@ -213,7 +214,7 @@ export default class SampleUpdate extends LitElement {
         return html`
             ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
             <data-form
-                .data="${this.sample}"
+                .data="${this._sample}"
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
@@ -227,6 +228,10 @@ export default class SampleUpdate extends LitElement {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
             type: "form",
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Update",
+            },
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
@@ -246,7 +251,7 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.sample.creationDate? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate):"No creation date",
+                                helpMessage: this.sample.creationDate ? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate):"No creation date",
                                 disabled: true,
                             },
                         },
