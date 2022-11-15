@@ -147,7 +147,7 @@ input[type="number"] {
 
 .break-word {
     word-break: break-all;
-    overflow-wrap: break-word
+    overflow-wrap: break-word;
 }
 
 .multi-line {
@@ -179,14 +179,14 @@ input[type="number"] {
     border: 0;
     transition: 0.5s;
     border-bottom: 1px solid #ccc;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, .1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, .1);
 }
 
 .input:focus {
     transition: 0.5s;
     border-radius: 0;
     border-bottom: 1px solid rgba(12, 47, 76);
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, .3);
+    box-shadow: 0 0 4px rgba(0, 0, 0, .3);
 }
 
 #welcome-page-title {
@@ -219,8 +219,8 @@ span.subtitle {
     font-variant: all-small-caps;
     display: inline-block;
     vertical-align: top;
-    letter-spacing: 0px;
-    margin: 0px 0 0 10px;
+    letter-spacing: 0;
+    margin: 0 0 0 10px;
     position: absolute;
 }
 
@@ -274,7 +274,7 @@ span.subtitle {
 }
 
 .footer-item {
-    padding: 0px 20px;
+    padding: 0 20px;
     margin: 5px;
     border-right: gainsboro solid 1px;
     /*height: 40px;*/
@@ -304,7 +304,7 @@ span.subtitle {
 
 .main-navbar {
     margin: 0;
-    border-radius: 0px;
+    border-radius: 0;
 }
 
 .main-navbar .nav-item-category{
@@ -448,14 +448,13 @@ h3.page-title {
 }
 
 .ripple {
-    margin: 0 .375rem; /* visual issues with toggle-switch*/
     margin: 0;
     text-transform: uppercase;
     word-wrap: break-word;
     white-space: normal;
     cursor: pointer;
     border: 0;
-    border-radius: 0px;
+    border-radius: 0;
     -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
     -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
@@ -646,9 +645,6 @@ h3.page-title {
     width: 40px;
 }
 
-.variant-interpreter-interpretation > tool-header > .page-title .page-title-right i{
-    /*font-size: 14px;*/
-}
 .variant-interpreter-interpretation .page-title-right {
     padding: 7px;
 }
@@ -734,7 +730,7 @@ h3.page-title {
     line-height: 34px;
     margin: 0;
     border: none;
-    padding: 0px 10px;
+    padding: 0 10px;
     vertical-align: middle;
 }
 
@@ -803,7 +799,7 @@ button.active-filter-label:hover {
 
 .saved-filter-wrapper .filtersLink .id-filter-button {
     /*padding: 0px 10px;*/
-    margin: 0px 25px 0px 10px;
+    margin: 0 25px 0 10px;
 }
 
 .saved-filter-wrapper .action-buttons {
@@ -1075,7 +1071,7 @@ a#waffle-icon-wrapper {
     */
     background: linear-gradient(135deg, #c4d3e0 0%, #c4d3e0 50%, #c4d3e0 100%);
     background: #c6ddf3;
-    text-shadow: 2px 2px 0px rgba(12, 47, 76, 0.3),
+    text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgba(163, 191, 216, 1),
     6px 6px 3px rgba(163, 191, 216, 1),
     8px 8px 3px rgba(163, 191, 216, 1),
@@ -1104,7 +1100,7 @@ a#waffle-icon-wrapper {
     color: var(--main-bg-color);
     background: linear-gradient(135deg, #c4d3e0 0%, #c4d3e0 50%, #c4d3e0 100%);
     background: #ffffff;
-    text-shadow: 2px 2px 0px rgba(12, 47, 76, 0.3),
+    text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgb(236, 236, 236),
     6px 6px 3px rgb(236, 236, 236),
     8px 8px 3px rgb(236, 236, 236),
@@ -1132,7 +1128,7 @@ a#waffle-icon-wrapper {
     border: 5px solid green;
     color: green;
     background: #d2ffd2;
-    text-shadow: 2px 2px 0px rgba(12, 47, 76, 0.3),
+    text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgba(171, 211, 174, 1),
     6px 6px 3px rgba(171, 211, 174, 1),
     8px 8px 3px rgba(171, 211, 174, 1),
@@ -1160,7 +1156,7 @@ a#waffle-icon-wrapper {
     background: #e4c5c5;
     border: 5px solid #bb0000;
     color: #bb0000;
-    text-shadow: 2px 2px 0px rgba(12, 47, 76, 0.3),
+    text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgba(218, 166, 166, 1),
     6px 6px 3px rgba(218, 166, 166, 1),
     8px 8px 3px rgba(218, 166, 166, 1),
@@ -1260,7 +1256,7 @@ a#waffle-icon-wrapper {
 .browser-subsection {
     font-size: 1.6rem;
     font-weight: bold;
-    padding: 7px 0px 5px 0px;
+    padding: 7px 0 5px 0;
     color: #444444;
     border: none
 }
@@ -1283,7 +1279,7 @@ opencga-facet .panel-body > .form-group:not(:first-child) {
 
 }
 .map-field-wrapper {
-    margin-: 10px 0;
+    margin: 10px 0;
 }
 .map-field-inputs {
     margin-top: 10px;
@@ -1578,7 +1574,7 @@ Toggle Changes
 
 /********** interpreter ************/
 .save-button {
-    padding: 20px 0px 10px 10px;
+    padding: 20px 0 10px 10px;
 }
 
 /********** interpreter side-nav & opencga-project side-nav ************/
@@ -1605,7 +1601,6 @@ Toggle Changes
     text-align: center;
     margin: 0 auto;
     padding: 2em 0 3em;
-    padding-top: 10px;
     padding-top: 10px;
     padding-bottom: 20px;
 }
@@ -2013,7 +2008,7 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 
 .file-manager-tree .file {
     word-break: break-all;
-    padding: 5px 0 0px 12px;
+    padding: 5px 0 0 12px;
     cursor: pointer;
     color: #337ab7;
     transition: 0.3s background-color;
@@ -2074,7 +2069,7 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 
 .notification-nav .media-body .media-heading {
     font-size: 14px;
-    margin: 3px 0 0px 0;
+    margin: 3px 0 0 0;
 }
 .notification-nav .media-body small {
     color: #5d5d5d;
@@ -2162,22 +2157,22 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 @keyframes spaceOutUp {
     0% {
         opacity: 1;
-        -webkit-transform-origin: 50% 0%;
-        transform-origin: 50% 0%;
+        -webkit-transform-origin: 50% 0;
+        transform-origin: 50% 0;
         -webkit-transform: scale(1) translate(-200%, 200%);
         transform: scale(1) translate(-200%, 200%);
     }
     50% {
         opacity: 1;
-        -webkit-transform-origin: 50% 0%;
-        transform-origin: 50% 0%;
+        -webkit-transform-origin: 50% 0;
+        transform-origin: 50% 0;
         -webkit-transform: scale(1) translate(0%, 0%);
         transform: scale(1) translate(0%, 0%);
     }
     100% {
         opacity: 0;
-        -webkit-transform-origin: 50% 0%;
-        transform-origin: 50% 0%;
+        -webkit-transform-origin: 50% 0;
+        transform-origin: 50% 0;
         -webkit-transform: scale(.2) translate(200%, -200%);
         transform: scale(.2) translate(200%, -200%);
     }
@@ -2235,7 +2230,7 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 }
 .zygosity-formatter .col-md-4,
 .predictionTooltip-inner .col-md-5,
-.zygosity-formatter .col-md-8
+.zygosity-formatter .col-md-8,
 .predictionTooltip-inner .col-md-7{
     padding: 0;
 }
@@ -2462,7 +2457,7 @@ interpretation-editor .status-wrapper .row > div:last-child {
 .interpretation-audit-timeline .event {
     border-left: 2px solid var(--main-bg-color);
     padding: 5px 5px 5px 20px;
-    margin: 0 0px 15px 60px;
+    margin: 0 0 15px 60px;
     position: relative;
     background: #f1f1f1;
 }
@@ -2530,16 +2525,16 @@ interpretation-editor .status-wrapper .row > div:last-child {
 }
 
 .number-field-filter {
-    margin: 5px 0px;
+    margin: 5px 0;
 }
 
 .number-field-filter > div:not(:first-child) {
-    padding: 0px 10px
+    padding: 0 10px
 }
 
 @media (max-width: 1650px) {
     .number-field-filter > div:not(:first-child) {
-        padding: 0px 2px
+        padding: 0 2px
     }
 }
 @media (max-width: 1900px) {
@@ -2772,7 +2767,7 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
 #notifications-queue .alert .close {
     position: absolute;
     top: 5px;
-    right: 0px;
+    right: 0;
     font-size: 1em;
     opacity: .4;
 }
@@ -2897,7 +2892,7 @@ opencga-export .btn-group-tab {
     left: -15px;
     color: rgb(92, 105, 117);
     width: 24px;
-    bottom: 0px;
+    bottom: 0;
     content: counter(line);
     display: inline-block;
     overflow: hidden;
@@ -2994,7 +2989,7 @@ go-accessions-filter .select2-selection {
 }
 
 .ontology-tree .ontology-node.active, .ontology-node.active:hover {
-    background: rgba(178 218 162, 1.5);
+    background: rgba(178, 218, 162, 1.5);
 }
 
 .ontology-node .leaf {

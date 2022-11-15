@@ -119,25 +119,36 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
-            <span
+            <div
                 title="${Object.entries(inclusion.query).map(([k, v]) => `${k} = ${v}`).join("\n")}"
-                style="float: right; cursor: pointer">
+                style="cursor: pointer;">
                 <i class="fas fa-eye"></i>
-            </span>`;
+            </div>`;
+
+        const inclusionHtml = html`
+            <div
+                style="width: 80%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-right: 10px;">
+                ${inclusion.id}
+            </div>
+        `;
 
         return html`
             <div style="border-left: 2px solid #0c2f4c; margin: 15px 0">
-                <div style="margin: 5px 10px">${inclusion.id} ${iconHtml}</div>
-                ${inclusion.variants?.length > 0 ? inclusion.variants
-                    .map(variant => {
+                <div style="margin: 5px 10px; display: flex; align-items: center; justify-content: space-between;">${inclusionHtml} ${iconHtml}</div>
+                ${
+                    inclusion.variants?.length > 0 ? inclusion.variants.map(variant => {
                         const GT = variant.studies[0]?.samples[0]?.data[0] || "No GT found";
                         const FILTER = variant.studies[0]?.files[0]?.data.FILTER || "NA";
                         return html`
-                            <div class="help-block">
+                            <div class="help-block" style="display: flex; flex-direction: column; overflow-wrap: break-word;">
                                 <span style="margin: 0 20px">${variant.id}</span>
                                 <span style="margin: 0 20px;float: right">Genotype: ${GT} (${FILTER})</span>
-                            </div>`;
-                    }) : html`<div class="help-block"><span style="margin: 0 20px">No variants found.</span></div>`
+                            </div>
+                        `;
+                    }) : html `<div class="help-block"><span style="margin: 0 20px">No variants found.</span></div>`
                 }
             </div>
         `;
@@ -145,10 +156,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     renderVariant(variant, icon) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
-        const iconHtml = icon ? html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>` : "";
+        const iconHtml = icon ? html`<span style="cursor: pointer"><i class="${icon}"></i></span>` : "";
 
         return html`
-            <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
+            <div class="break-word" style="border-left: 2px solid #0c2f4c; margin: 15px 0;">
                 <div style="margin: 5px 10px">${variant.id} (${variant.type}) ${iconHtml}</div>
                 <div style="margin: 5px 10px">${variant.annotation.displayConsequenceType}</div>
                 <div style="margin: 5px 10px">${geneNames.join(", ")}</div>
@@ -161,7 +172,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
 
         return html`
-            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
+            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0 5px 20px 0">
                 <div class="pull-right" role="group">
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
@@ -171,7 +182,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Variants Included</span>
                                 </div>
                                 <div>
@@ -204,7 +215,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Primary Findings</span>
                                 </div>
                                 <div>
@@ -235,7 +246,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Added Variants</span>
                                 </div>
                                 <div>
@@ -248,7 +259,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Removed Variants</span>
                                 </div>
                                 <div>
@@ -288,7 +299,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Change summary</span>
                                 </div>
                                 <div style="margin: 5px 10px">
@@ -308,14 +319,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Add new comment</span>
                                 </div>
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <text-field-filter
                                         placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onSaveFieldsChange("message", e)}"></text-field-filter>
                                 </div>
-                                <div style="margin: 5px 0px">
+                                <div style="margin: 5px 0">
                                     <text-field-filter
                                         placeholder="Add tags..."
                                         .rows=${1}

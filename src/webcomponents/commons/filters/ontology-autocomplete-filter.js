@@ -74,44 +74,42 @@ export default class OntologyAutocompleteFilter extends LitElement {
             }),
             // * enables copy/paste of multiple terms
             freeTag: true,
-            select2Config: {
-                maximumSelectionLength: 100,
-                tokenSeparators: this._config?.separator ?? [","],
-                ajax: {
-                    transport: async (params, success, failure) => {
-                        const _params = params;
-                        _params.data.page = params.data.page || 1;
-                        const query = {
-                            id: `^${_params?.data?.term ? _params.data.term : ""}`,
-                            limit: this._config.limit,
-                            source: this._config.ontologyFilter
-                        };
-                        try {
-                            // FIXME to support old cellbase v4
-                            let fetchGoOntologies;
-                            if (this.cellbaseClient?._config?.version === "v4") {
-                                const cellbaseClient = new CellBaseClient({host: "https://ws.opencb.org/cellbase-5.0.0/", version: "v5"});
-                                fetchGoOntologies = await cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
-                            } else {
-                                fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
-                            }
-                            const results = fetchGoOntologies.responses[0].results;
-                            const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
-                            success(data);
-                        } catch (e) {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-                            failure(e);
+            maximumSelectionLength: 100,
+            tokenSeparators: this._config?.separator ?? [","],
+            ajax: {
+                transport: async (params, success, failure) => {
+                    const _params = params;
+                    _params.data.page = params.data.page || 1;
+                    const query = {
+                        id: `^${_params?.data?.term ? _params.data.term : ""}`,
+                        limit: this._config.limit,
+                        source: this._config.ontologyFilter
+                    };
+                    try {
+                        // FIXME to support old cellbase v4
+                        let fetchGoOntologies;
+                        if (this.cellbaseClient?._config?.version === "v4") {
+                            const cellbaseClient = new CellBaseClient({host: "https://ws.opencb.org/cellbase-5.0.0/", version: "v5"});
+                            fetchGoOntologies = await cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+                        } else {
+                            fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
                         }
-                    },
-                    processResults: (response, params) => {
-                        const _params = params;
-                        _params.page = _params.page || 1;
-                        return {
-                            results: response,
-                        };
+                        const results = fetchGoOntologies.responses[0].results;
+                        const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
+                        success(data);
+                    } catch (e) {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
+                        failure(e);
                     }
                 },
-            }
+                processResults: (response, params) => {
+                    const _params = params;
+                    _params.page = _params.page || 1;
+                    return {
+                        results: response,
+                    };
+                }
+            },
         };
     }
 
