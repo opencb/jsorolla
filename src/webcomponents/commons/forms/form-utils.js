@@ -15,8 +15,32 @@
  */
 
 import UtilsNew from "../../../core/utils-new.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
+
+    static submit(object, updateParams, params, endpoint, method) {
+
+        let error, result;
+        endpoint[method](object.id, updateParams, params)
+            .then(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Sample Update",
+                    message: "Sample updated correctly"
+                });
+                result = UtilsNew.objectClone(response.responses[0].results[0]);
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                result = false;
+            })
+            .finally(() => {
+                LitUtils.dispatchCustomEvent(this, "sampleUpdate", object, {}, error);
+            });
+        return result;
+    }
 
     static getUpdateParams(original, updatedFields, customisations) {
         const params = {};

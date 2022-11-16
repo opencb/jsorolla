@@ -17,7 +17,6 @@
 import {html, LitElement, nothing} from "lit";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -153,9 +152,15 @@ export default class SampleUpdate extends LitElement {
             phenotypesAction: "SET",
             includeResult: true
         };
+
+        const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
+        this.#setLoading(true);
+        const result = FormUtils.submit(this.sample, updateParams, params, this.opencgaSession.opencgaClient.samples(), "update");
+        this.#setLoading(false);
+
+    /*
         let error;
         this.#setLoading(true);
-        const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
         this.opencgaSession.opencgaClient.samples()
             .update(this.sample.id, updateParams, params)
             .then(response => {
@@ -174,6 +179,7 @@ export default class SampleUpdate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
                 this.#setLoading(false);
             });
+    */
     }
 
     // Display a button to back sample browser.
