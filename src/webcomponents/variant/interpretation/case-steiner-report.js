@@ -115,6 +115,8 @@ class CaseSteinerReport extends LitElement {
 
             // Initialize report data
             this._data = {
+                somaticSample,
+                germlineSample,
                 info: {
                     project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
                     study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
@@ -701,17 +703,15 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && !sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
                                             .config="${{
                                                 ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
