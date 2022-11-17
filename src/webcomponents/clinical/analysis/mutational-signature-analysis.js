@@ -19,7 +19,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-
+import "../../commons/view/signature-view.js";
 
 export default class MutationalSignatureAnalysis extends LitElement {
 
@@ -43,6 +43,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
             },
             title: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
         };
     }
@@ -75,6 +78,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
             "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
 
         this.query = {};
+        this.active = true;
+        this.selectedSample = null;
         this.config = this.getDefaultConfig();
     }
 
@@ -92,6 +97,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
+            this.onChangeSample();
         }
         super.update(changedProperties);
     }
@@ -108,16 +114,37 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
+        // this.onChangeSample();
     }
 
     onSubmit() {
         const toolParams = {
-            ...this.toolParams,
+            // id: this.toolParams.id,
+            // description: this.toolParams.description,
+            fitId: this.toolParams.fitId,
+            fitMethod: this.toolParams.fitMethod,
+            fitSigVersion: this.toolParams.fitSigVersion,
+            fitOrgan: this.toolParams.fitOrgan,
+            fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
+            fitNBoot: this.toolParams.fitNBoot,
+            fitThresholdPerc: this.toolParams.fitThresholdPerc,
+            fitThresholdPval: this.toolParams.fitThresholdPval,
         };
+
+        // Check if we have provided an existing counts list
+        if (this.toolParams.counts) {
+            toolParams.skip = "catalogue";
+            toolParams.id = this.toolParams.counts;
+            toolParams.sample = this.toolParams.query.sample;
+        } else {
+            toolParams.query = JSON.stringify(this.toolParams.query);
+        }
+
         const params = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
         };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
@@ -136,6 +163,30 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
+    onChangeSample() {
+        if (this.toolParams?.query?.sample && this.active) {
+            if (this.toolParams.query.sample !== this.selectedSample?.id) {
+                this.opencgaSession.opencgaClient.samples()
+                    .search({
+                        id: this.toolParams.query.sample,
+                        include: "id,qualityControl.variant.signatures",
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                        this.selectedSample = response?.responses?.[0]?.results?.[0] || null;
+                        this.toolParams.counts = null; // Force to remove selected counts
+                        this.config = this.getDefaultConfig();
+                        this.requestUpdate();
+                    });
+            }
+        } else {
+            this.selectedSample = null;
+            this.toolParams.counts = null; // Force to remove selected counts
+            this.config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
     render() {
         return html`
             <data-form
@@ -149,6 +200,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
+        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
         const params = [
             {
                 title: "Configuration Parameters",
@@ -164,79 +216,114 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query")}">
+                                    @filterChange="${e => this.onFieldChange(e, "query.sample")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
+                ],
+            },
+            {
+                title: "Counts Parameters",
+                display: {
+                    visible: signatures.length > 0,
+                },
+                elements: [
+                    {
+                        title: "Counts",
+                        field: "counts",
+                        type: "select",
+                        allowedValues: signatures.map(item => item.id),
+                    },
+                    {
+                        title: "Counts Plot",
+                        field: "counts",
+                        type: "custom",
+                        display: {
+                            visible: !!this.toolParams?.counts,
+                            render: id => {
+                                const signature = signatures.find(item => item.id === id);
+                                return html`
+                                    <signature-view
+                                        .signature="${signature}"
+                                        ?active="${true}">
+                                    </signature-view>
+                                `;
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                title: "Counts Parameters",
+                display: {
+                    visible: signatures.length === 0,
+                },
+                elements: [
+                    {
+                        title: "Signature ID",
+                        field: "id",
+                        type: "input-text",
+                    },
+                    {
+                        title: "Signature Description",
+                        field: "description",
+                        type: "input-text",
+                    },
+                    ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                ],
+            },
+            {
+                title: "Fitting Parameters",
+                elements: [
+                    {
+                        title: "Fit ID",
+                        field: "fitId",
+                        type: "input-text",
+                    },
                     {
                         title: "Fit Method",
-                        field: "fitmethod",
+                        field: "fitMethod",
                         type: "select",
-                        // defaultValue: "FitMS",
                         allowedValues: ["Fit", "FitMS"],
-                        display: {
-                        },
                     },
                     {
                         title: "Sig Version",
-                        field: "sigversion",
+                        field: "fitSigVersion",
                         type: "select",
-                        // defaultValue: "RefSigv2",
                         allowedValues: ["COSMICv2", "COSMICv3.2", "RefSigv1", "RefSigv2"],
-                        display: {
-                        },
                     },
                     {
                         title: "Organ",
-                        field: "organ",
+                        field: "fitOrgan",
                         type: "select",
                         allowedValues: this.toolParams.sigversion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
                         display: {
                             disabled: this.toolParams.sigversion !== "RefSigv1" && this.toolParams.sigversion !== "RefSigv2",
                             help: {
-                                text: "Only available for RefSigv1 or RefSigv2"
-                            }
-                        },
-                    },
-                    {
-                        title: "b",
-                        field: "b",
-                        type: "checkbox",
-                        display: {
+                                text: "Only available for RefSigv1 or RefSigv2",
+                            },
                         },
                     },
                     {
                         title: "thresholdperc",
-                        field: "thresholdperc",
+                        field: "fitThresholdPerc",
                         type: "input-text",
-                        // defaultValue: "5",
-                        display: {
-                        },
                     },
                     {
                         title: "thresholdpval",
-                        field: "thresholdpval",
+                        field: "fitThresholdPval",
                         type: "input-text",
-                        // defaultValue: "0.05",
-                        display: {
-                        },
                     },
                     {
                         title: "maxraresigs",
-                        field: "maxraresigs",
+                        field: "fitMaxRareSigs",
                         type: "input-text",
-                        // defaultValue: "1",
-                        display: {
-                        },
                     },
                     {
                         title: "nboot",
-                        field: "nboot",
+                        field: "fitNBoot",
                         type: "input-text",
-                        // defaultValue: "200",
-                        display: {
-                        },
                     },
                 ]
             }
