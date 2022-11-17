@@ -706,6 +706,13 @@ class CaseSteinerReport extends LitElement {
                                         .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
 
+                                    const germlineGridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: false,
+                                        variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
@@ -713,12 +720,7 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalVariants="${filteredVariants}"
                                             .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: false,
-                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                                            }}">
+                                            .config="${germlineGridConfig}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
