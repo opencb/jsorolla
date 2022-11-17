@@ -249,7 +249,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </catalog-distinct-autocomplete>
                     `;
                     break;
-                // case "type": // cohort, clinical
                 case "affectationStatus":
                 case "lifeStatus":
                 case "format":
