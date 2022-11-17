@@ -20,26 +20,28 @@ import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
 
-    static submit(object, updateParams, params, endpoint, method) {
+    static async update({component, original, updateParams, params, endpoint, setLoading, successNotification, updateEventId}) {
+        let error = null;
+        let result = null;
 
-        let error, result;
-        endpoint[method](object.id, updateParams, params)
-            .then(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Sample Update",
-                    message: "Sample updated correctly"
-                });
-                result = UtilsNew.objectClone(response.responses[0].results[0]);
-            })
-            .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                result = false;
-            })
-            .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "sampleUpdate", object, {}, error);
-            });
-        return result;
+        try {
+            setLoading(true);
+            const response = await endpoint.update(original.id, updateParams, params);
+            NotificationUtils.dispatch(component, NotificationUtils.NOTIFY_SUCCESS, successNotification);
+            result = UtilsNew.objectClone(response.responses[0].results[0]);
+        } catch (reason) {
+            error = reason;
+            NotificationUtils.dispatch(component, NotificationUtils.NOTIFY_RESPONSE, reason);
+        }
+
+        LitUtils.dispatchCustomEvent(component, updateEventId, result, {}, error);
+        setLoading(false);
+
+        if (error) {
+            throw error;
+        } else {
+            return result;
+        }
     }
 
     static getUpdateParams(original, updatedFields, customisations) {
