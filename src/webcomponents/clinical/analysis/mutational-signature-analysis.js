@@ -129,10 +129,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
             fitThresholdPval: this.toolParams.fitThresholdPval,
         };
 
-        // Check if we have provided an existing counts list
-        if (this.toolParams.counts) {
+        // Check if we have provided an existing signature list
+        if (this.toolParams.signature) {
             toolParams.skip = "catalogue";
-            toolParams.id = this.toolParams.counts;
+            toolParams.id = this.toolParams.signature;
             toolParams.sample = this.toolParams.query.sample;
         } else {
             toolParams.id = this.toolParams.id || `signature-${UtilsNew.getDatetime()}`;
@@ -174,14 +174,14 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     })
                     .then(response => {
                         this.selectedSample = response?.responses?.[0]?.results?.[0] || null;
-                        this.toolParams.counts = null; // Force to remove selected counts
+                        this.toolParams.signature = null; // Force to remove selected signature
                         this.config = this.getDefaultConfig();
                         this.requestUpdate();
                     });
             }
         } else {
             this.selectedSample = null;
-            this.toolParams.counts = null; // Force to remove selected counts
+            this.toolParams.signature = null; // Force to remove selected signature
             this.config = this.getDefaultConfig();
             this.requestUpdate();
         }
@@ -227,9 +227,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     getDefaultConfig() {
         const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+        const signaturesQuery = AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this));
         const params = [
             {
-                title: "Configuration Parameters",
+                title: "Input Parameters",
                 elements: [
                     {
                         title: "Sample ID",
@@ -247,36 +248,29 @@ export default class MutationalSignatureAnalysis extends LitElement {
                             `,
                         },
                     },
-                ],
-            },
-            {
-                title: "Counts Parameters",
-                display: {
-                    visible: signatures.length > 0,
-                },
-                elements: [
                     {
-                        title: "Counts",
-                        field: "counts",
+                        title: "Signature",
+                        field: "signature",
                         type: "custom",
                         display: {
-                            render: counts => html`
+                            visible: signatures.length > 0,
+                            render: signature => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdown()}"
-                                    .value=${counts}
+                                    .value=${signature}
                                     ?multiple="${false}"
                                     ?liveSearch=${false}
-                                    @filterChange="${e => this.onFieldChange(e, "counts")}">
+                                    @filterChange="${e => this.onFieldChange(e, "signature")}">
                                 </select-field-filter>
                             `,
                         },
                     },
                     {
-                        title: "Counts Query",
-                        field: "counts",
+                        title: "Signature Query",
+                        field: "signature",
                         type: "custom",
                         display: {
-                            visible: !!this.toolParams?.counts,
+                            visible: signatures.length > 0 && !!this.toolParams?.signature,
                             render: id => {
                                 const signature = signatures.find(item => item.id === id);
                                 if (signature?.query) {
@@ -291,11 +285,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Counts Plot",
-                        field: "counts",
+                        title: "Signature Plot",
+                        field: "signature",
                         type: "custom",
                         display: {
-                            visible: !!this.toolParams?.counts,
+                            visible: signatures.length > 0 && !!this.toolParams?.signature,
                             render: id => {
                                 const signature = signatures.find(item => item.id === id);
                                 return html`
@@ -308,19 +302,12 @@ export default class MutationalSignatureAnalysis extends LitElement {
                             },
                         },
                     },
-                ],
-            },
-            {
-                title: "Counts Parameters",
-                display: {
-                    visible: signatures.length === 0,
-                },
-                elements: [
                     {
                         title: "Signature ID",
                         field: "id",
                         type: "input-text",
                         display: {
+                            visible: signatures.length === 0,
                             placeholder: `signature-${UtilsNew.getDatetime()}`,
                         },
                     },
@@ -328,8 +315,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Signature Description",
                         field: "description",
                         type: "input-text",
+                        display: {
+                            visible: signatures.length === 0,
+                        },
                     },
-                    ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                    ...(signatures.length === 0 ? signaturesQuery : []),
                 ],
             },
             {
