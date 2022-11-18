@@ -706,7 +706,7 @@ class CaseSteinerReport extends LitElement {
                                         .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
 
-                                    const germlineGridConfig = {
+                                    const gridConfig = {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: false,
@@ -720,7 +720,7 @@ class CaseSteinerReport extends LitElement {
                                             .clinicalVariants="${filteredVariants}"
                                             .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${germlineGridConfig}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -735,22 +735,22 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && !sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...defaultGridConfig,
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
-                                                ...defaultGridConfig,
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-rearrangement-grid>
                                     `: null;
                                 },
@@ -780,24 +780,24 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["SNV", "INDEL"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: true,
-                                                variantTypes: ["SNV", "INDEL"],
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -812,22 +812,22 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...defaultGridConfig,
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
-                                                ...defaultGridConfig,
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-rearrangement-grid>
                                     ` : null;
                                 },
@@ -843,24 +843,24 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["COPY_NUMBER", "CNV"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: true,
-                                                variantTypes: ["COPY_NUMBER", "CNV"],
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
