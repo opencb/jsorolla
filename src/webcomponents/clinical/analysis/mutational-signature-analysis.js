@@ -272,6 +272,25 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
+                        title: "Counts Query",
+                        field: "counts",
+                        type: "custom",
+                        display: {
+                            visible: !!this.toolParams?.counts,
+                            render: id => {
+                                const signature = signatures.find(item => item.id === id);
+                                if (signature?.query) {
+                                    return Object.keys(signature.query).map(key => html`
+                                        <span class="badge">
+                                            ${key}: ${signature.query[key]}
+                                        </span>
+                                    `);
+                                }
+                                return "-";
+                            },
+                        },
+                    },
+                    {
                         title: "Counts Plot",
                         field: "counts",
                         type: "custom",
