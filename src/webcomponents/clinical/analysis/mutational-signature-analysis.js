@@ -56,13 +56,12 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
-            fitmethod: "FitMS",
-            sigversion: "RefSigv2",
-            b: false,
-            thresholdperc: "5",
-            thresholdpval: "0.05",
-            maxraresigs: "1",
-            nboot: "200"
+            fitMethod: "FitMS",
+            fitSigVersion: "RefSigv2",
+            fitThresholdPerc: "5",
+            fitThresholdPval: "0.05",
+            fitMaxRareSigs: "1",
+            fitNBoot: "200"
         };
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
