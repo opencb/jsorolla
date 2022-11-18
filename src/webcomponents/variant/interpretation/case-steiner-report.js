@@ -313,9 +313,26 @@ class CaseSteinerReport extends LitElement {
                 style: "border-top: 1px solid lightgrey;",
             },
         };
-        const SUBSTITUTIONS_AND_INDELS_TYPES = ["SNV", "MNV", "INDEL"];
-        const REARRANGEMENTS_TYPES = ["BREAKEND", "SV", "DUPLICATION", "TANDEM_DUPLICATION", "TRANSLOCATION", "DELETION", "INSERTION", "INVERSION"];
-        const COPY_NUMBER_TYPES = ["COPY_NUMBER", "COPY_NUMBER_GAIN", "COPY_NUMBER_LOSS"];
+        const SUBSTITUTIONS_AND_INDELS_TYPES = [
+            "SNV",
+            "MNV",
+            "INDEL",
+        ];
+        const REARRANGEMENTS_TYPES = [
+            "BREAKEND",
+            "SV",
+            "DUPLICATION",
+            "TANDEM_DUPLICATION",
+            "TRANSLOCATION",
+            "DELETION",
+            "INSERTION",
+            "INVERSION",
+        ];
+        const COPY_NUMBER_TYPES = [
+            "COPY_NUMBER",
+            "COPY_NUMBER_GAIN",
+            "COPY_NUMBER_LOSS",
+        ];
 
         // Default grid config
         const defaultGridConfig = {
