@@ -301,6 +301,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 return html`
                                     <signature-view
                                         .signature="${signature}"
+                                        .mode="${signature.type.toUpperCase() === "SV" ? "SV" : "SBS"}"
                                         ?active="${true}">
                                     </signature-view>
                                 `;
