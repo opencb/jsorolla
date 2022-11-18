@@ -19,6 +19,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 import "../../commons/view/signature-view.js";
 
 export default class MutationalSignatureAnalysis extends LitElement {
@@ -186,6 +187,32 @@ export default class MutationalSignatureAnalysis extends LitElement {
         }
     }
 
+    generateSignaturesDropdown() {
+        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+
+        if (signatures.length > 0) {
+            const signaturesbyType = {};
+            signatures.forEach(signature => {
+                const type = signature.type?.toUpperCase();
+                if (!signaturesbyType[type]) {
+                    signaturesbyType[type] = [];
+                }
+                signaturesbyType[type].push(signature.id);
+            });
+
+            return Object.keys(signaturesbyType)
+                .map(type => {
+                    return {
+                        id: type,
+                        fields: signaturesbyType[type],
+                    };
+                });
+
+        } else {
+            return [];
+        }
+    }
+
     render() {
         return html`
             <data-form
@@ -231,8 +258,18 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     {
                         title: "Counts",
                         field: "counts",
-                        type: "select",
-                        allowedValues: signatures.map(item => item.id),
+                        type: "custom",
+                        display: {
+                            render: counts => html`
+                                <select-field-filter
+                                    .data="${this.generateSignaturesDropdown()}"
+                                    .value=${counts}
+                                    ?multiple="${false}"
+                                    ?liveSearch=${false}
+                                    @filterChange="${e => this.onFieldChange(e, "counts")}">
+                                </select-field-filter>
+                            `,
+                        },
                     },
                     {
                         title: "Counts Plot",
