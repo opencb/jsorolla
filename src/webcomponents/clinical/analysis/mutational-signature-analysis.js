@@ -359,9 +359,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Organ",
                         field: "fitOrgan",
                         type: "select",
-                        allowedValues: this.toolParams.sigversion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
+                        allowedValues: this.toolParams.fitSigVersion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
                         display: {
-                            disabled: this.toolParams.sigversion !== "RefSigv1" && this.toolParams.sigversion !== "RefSigv2",
+                            disabled: this.toolParams.fitSigVersion !== "RefSigv1" && this.toolParams.fitSigVersion !== "RefSigv2",
                             help: {
                                 text: "Only available for RefSigv1 or RefSigv2",
                             },
