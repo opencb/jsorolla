@@ -120,7 +120,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         const toolParams = {
             // id: this.toolParams.id,
             // description: this.toolParams.description,
-            fitId: this.toolParams.fitId,
+            fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
             fitMethod: this.toolParams.fitMethod,
             fitSigVersion: this.toolParams.fitSigVersion,
             fitOrgan: this.toolParams.fitOrgan,
@@ -263,6 +263,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Signature ID",
                         field: "id",
                         type: "input-text",
+                        display: {
+                            placeholder: `signature-${UtilsNew.getDatetime()}`,
+                        },
                     },
                     {
                         title: "Signature Description",
@@ -279,6 +282,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Fit ID",
                         field: "fitId",
                         type: "input-text",
+                        display: {
+                            placeholder: `fit-${UtilsNew.getDatetime()}`,
+                        },
                     },
                     {
                         title: "Fit Method",
