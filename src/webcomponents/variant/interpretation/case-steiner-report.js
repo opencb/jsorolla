@@ -958,9 +958,7 @@ class CaseSteinerReport extends LitElement {
                                                 .active="${true}"
                                                 .fileId="${qcPlots.deletionAggregationStatsPlotFile}"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .config="${{
-                                                    showFileTitle: false,
-                                                }}">
+                                                .config="${{showFileTitle: false}}">
                                             </file-preview>
                                         </div>
                                     </div>
