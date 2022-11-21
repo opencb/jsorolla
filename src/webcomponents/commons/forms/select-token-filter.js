@@ -146,7 +146,8 @@ export default class SelectTokenFilter extends LitElement {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
             if (UtilsNew.isNotEmpty(this.value) && this._config?.separatorRegex) {
-                const valuesMatched = this.value?.match(this._config?.separatorRegex);
+                // const valuesMatched = this.value?.match(this._config?.separatorRegex);
+                const valuesMatched = UtilsNew.splitByRegex(this.value, this._config?.separatorRegex);
                 this.addOptions(UtilsNew.isNotEmpty(valuesMatched) ? valuesMatched : "");
             } else {
                 const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
@@ -195,7 +196,8 @@ export default class SelectTokenFilter extends LitElement {
     getDefaultConfig() {
         return {
             separator: [","],
-            separatorRegex: /[^,]+/g,
+            // separatorRegex: /[^,]+/g, comma
+            separatorRegex: /(?:(?!,\S).)+/g, // comma without space
             limit: 10,
             disablePagination: false,
             minimumInputLength: 0,
