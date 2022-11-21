@@ -23,12 +23,11 @@ import "../forms/file-upload.js";
  * Token filter. Select2 version with opencga dynamic datasource
  *
  */
-
 export default class SelectTokenFilter extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,7 +48,7 @@ export default class SelectTokenFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
     }
 
@@ -94,7 +93,6 @@ export default class SelectTokenFilter extends LitElement {
                     } else {
                         return item.id;
                     }
-
                 } catch (e) {
                     console.error(e);
                 }
@@ -122,7 +120,6 @@ export default class SelectTokenFilter extends LitElement {
             .on("select2:unselect", e => {
                 this.filterChange(e);
             });
-
     }
 
     update(changedProperties) {
@@ -132,9 +129,8 @@ export default class SelectTokenFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    updated(_changedProperties) {
-
-        if (_changedProperties.has("classes")) {
+    updated(changedProperties) {
+        if (changedProperties.has("classes")) {
             if (this.classes) {
                 this.select.data("select2").$selection.addClass(this.classes);
             } else {
@@ -142,26 +138,26 @@ export default class SelectTokenFilter extends LitElement {
             }
         }
 
-        if (_changedProperties.has("value")) {
+        if (changedProperties.has("value")) {
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
             const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
             this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(regExpSeparators) : "");
         }
-
     }
-
 
     toggleDisabled() {
         const selectElm = document.querySelector("#" + this._prefix);
         this.select.empty();
+        let ids = "";
         if (!selectElm.disabled) {
             this.addOptions(["all"]);
+            ids = "all";
         }
         selectElm.disabled = !selectElm.disabled;
         // Notify to the form
-        const selection = this.select.select2("data").map(el => el.id).join(",");
-        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
+        // const selection = this.select.select2("data").map(el => el.id).join(",");
+        LitUtils.dispatchCustomEvent(this, "filterChange", ids);
     }
 
     addOptions(ids) {
@@ -200,10 +196,50 @@ export default class SelectTokenFilter extends LitElement {
         $(`#${this._prefix}-select-wrapper .file-drop-area`).collapse("toggle");
     }
 
+    renderShowSelectAll() {
+        return html`
+            <span class="input-group-addon">
+                <input type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
+                <span style="font-weight: bold">All</span>
+            </span>`;
+    }
+
+    render() {
+        if (this._config.fileUpload) {
+            return html`
+                <form>
+                    <div id="${this._prefix}-select-wrapper">
+                        <div class="input-group">
+                            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
+                            <span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                        </div>
+                        <file-upload @filterChange="${this.fileUploaded}"></file-upload>
+                    </div>
+                </form>
+            `;
+        } else {
+            return html`
+                <div>
+                    <div class="input-group">
+                        <select
+                            class="form-control"
+                            id="${this._prefix}"
+                            ?disabled="${this._config.disabled}"
+                            @change="${this.filterChange}">
+                        </select>
+                        ${this._config.showSelectAll ? this.renderShowSelectAll() : nothing}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
     getDefaultConfig() {
         return {
             separator: [","],
-            allowSelectAll: false,
+            showSelectAll: false,
             limit: 10,
             disablePagination: false,
             minimumInputLength: 0,
@@ -228,47 +264,6 @@ export default class SelectTokenFilter extends LitElement {
                 return results;
             }
         };
-    }
-
-    renderAllowSelectAll() {
-        return html`
-            <span class="input-group-addon">
-                <input type="checkbox" aria-label="..." @click=${this.toggleDisabled}> <span style="font-weight: 700;">All</span>
-            </span>`;
-    }
-
-    render() {
-        if (this._config.fileUpload) {
-            return html`
-                <form>
-                    <div id="${this._prefix}-select-wrapper">
-                        <div class="input-group">
-                            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
-                            <span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}">
-                                <i class="fas fa-upload"></i>
-                            </span>
-                        </div>
-                        <file-upload @filterChange="${this.fileUploaded}"></file-upload>
-                    </div>
-                </form>
-            `;
-        }
-
-        return html`
-            <div>
-                <div class="input-group">
-                    <select
-                        class="form-control"
-                        id="${this._prefix}"
-                        ?disabled="${this._config.disabled}"
-                        @change="${this.filterChange}">
-                    </select>
-                    ${this._config.allowSelectAll ?
-                        this.renderAllowSelectAll() :
-                        nothing}
-                </div>
-            </div>
-        `;
     }
 
 }

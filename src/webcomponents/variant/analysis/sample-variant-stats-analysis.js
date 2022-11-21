@@ -148,7 +148,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                         .value="${toolParams?.sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.individual, allowSelectAll: true} }"
+                                        .config="${{multiple: true, disabled: !!toolParams.individual, showSelectAll: true} }"
                                         @filterChange="${e => this.onFieldChange(e, "sample")}">
                                     </catalog-search-autocomplete>`;
                             },
