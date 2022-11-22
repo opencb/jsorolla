@@ -135,7 +135,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
             toolParams.id = this.toolParams.signature;
             toolParams.sample = this.toolParams.query.sample;
         } else {
-            toolParams.id = this.toolParams.id || `signature-${UtilsNew.getDatetime()}`;
+            toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
             toolParams.description = this.toolParams.description || "";
             toolParams.query = JSON.stringify(this.toolParams.query);
         }
@@ -308,7 +308,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "input-text",
                         display: {
                             visible: signatures.length === 0,
-                            placeholder: `signature-${UtilsNew.getDatetime()}`,
+                            placeholder: `catalogue-${UtilsNew.getDatetime()}`,
                         },
                     },
                     {
