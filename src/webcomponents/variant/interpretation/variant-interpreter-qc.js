@@ -322,6 +322,22 @@ class VariantInterpreterQc extends LitElement {
                         `;
                     },
                 });
+                items.push({
+                    id: "hrdetect",
+                    name: "HRDetect",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-8 col-md-offset-2">
+                                <tool-header title="HRDetect - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
+                                <hrdetect-analysis
+                                    .toolParams="${{query: {sample: this.somaticSample?.id}}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
+                                </hrdetect-analysis>
+                            </div>
+                        `;
+                    },
+                });
             }
 
             if (this._tabs.includes("somaticVariantStats") && type === "CANCER") {
