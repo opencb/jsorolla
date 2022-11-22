@@ -15,14 +15,12 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-update.js";
-import "./external-source/external-source-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/opencga-update.js";
 
 export default class SampleUpdate extends LitElement {
 
@@ -56,8 +54,8 @@ export default class SampleUpdate extends LitElement {
     #init() {
         this.sample = {};
         this.sampleId = "";
-        this.updatedFields = {};
-        this.isLoading = false;
+        // this.updatedFields = {};
+        // this.isLoading = false;
 
         this.displayConfigDefault = {
             style: "margin: 10px",
@@ -66,182 +64,215 @@ export default class SampleUpdate extends LitElement {
             labelWidth: 3,
             buttonOkText: "Update"
         };
+
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
+    // #setLoading(value) {
+    //     this.isLoading = value;
+    //     this.requestUpdate();
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("sample")) {
-            this.sampleObserver();
+            // this.sampleObserver();
         }
         if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
+            // this.sampleIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig,
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    sampleObserver() {
-        if (this.sample && this.opencgaSession) {
-            this.initOriginalObjects();
-        }
-    }
+    // sampleObserver() {
+    //     if (this.sample && this.opencgaSession) {
+    //         this.initOriginalObjects();
+    //     }
+    // }
 
-    initOriginalObjects() {
-        this._sample = UtilsNew.objectClone(this.sample);
-        this._config = this.getDefaultConfig();
-        this.updatedFields = {};
-        this.sampleId = "";
-    }
+    // initOriginalObjects() {
+    //     this._sample = UtilsNew.objectClone(this.sample);
+    //     this._config = this.getDefaultConfig();
+    //     this.updatedFields = {};
+    //     this.sampleId = "";
+    // }
 
-    sampleIdObserver() {
-        if (this.sampleId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.samples()
-                .info(this.sampleId, params)
-                .then(response => {
-                    this.sample = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {query: {...params}}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
+    // sampleIdObserver() {
+    //     if (this.sampleId && this.opencgaSession) {
+    //         const params = {
+    //             study: this.opencgaSession.study.fqn,
+    //             includeIndividual: true
+    //         };
+    //         let error;
+    //         this.#setLoading(true);
+    //         this.opencgaSession.opencgaClient.samples()
+    //             .info(this.sampleId, params)
+    //             .then(response => {
+    //                 this.sample = response.responses[0].results[0];
+    //             })
+    //             .catch(reason => {
+    //                 error = reason;
+    //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+    //             })
+    //             .finally(() => {
+    //                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {query: {...params}}, error);
+    //                 this.#setLoading(false);
+    //             });
+    //     }
+    // }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        this.updatedFields = FormUtils.getUpdatedFields(
-            this.sample,
-            this.updatedFields,
-            param,
-            e.detail.value);
-        this.requestUpdate();
-    }
+    // onFieldChange(e, field) {
+    //     const param = field || e.detail.param;
+    //     this.updatedFields = FormUtils.getUpdatedFields(
+    //         this.sample,
+    //         this.updatedFields,
+    //         param,
+    //         e.detail.value);
+    //     this.requestUpdate();
+    // }
 
-    onClear() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Discard changes",
-            message: "Are you sure you want to discard the changes made?",
-            ok: () => {
-                this.initOriginalObjects();
-                this.requestUpdate();
-            },
-        });
-    }
+    // onClear() {
+    //     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+    //         title: "Discard changes",
+    //         message: "Are you sure you want to discard the changes made?",
+    //         ok: () => {
+    //             this.initOriginalObjects();
+    //             this.requestUpdate();
+    //         },
+    //     });
+    // }
 
-    onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            phenotypesAction: "SET",
-            includeResult: true
-        };
-
-        const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
-
-        FormUtils.update({
-            component: this,
-            updateEventId: "sampleUpdate",
-            setLoading: loading => this.#setLoading(loading),
-            original: this.sample,
-            updateParams,
-            params,
-            endpoint: this.opencgaSession.opencgaClient.samples(),
-            successNotification: {
-                title: "Sample Update",
-                message: "Sample updated correctly"
-            }
-        }).then(result => {
-            this.sample = result;
-        }).catch(error => {
-            console.log(error);
-        });
-
-    /*
-        let error;
-        this.#setLoading(true);
-        this.opencgaSession.opencgaClient.samples()
-            .update(this.sample.id, updateParams, params)
-            .then(response => {
-                this.sample = UtilsNew.objectClone(response.responses[0].results[0]);
-                this.updatedFields = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Sample Update",
-                    message: "Sample updated correctly"
-                });
-            })
-            .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
-                this.#setLoading(false);
-            });
-    */
-    }
+    // onSubmit() {
+    //     const params = {
+    //         study: this.opencgaSession.study.fqn,
+    //         phenotypesAction: "SET",
+    //         includeResult: true
+    //     };
+    //
+    //     const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
+    //
+    //     FormUtils.update({
+    //         component: this,
+    //         resource: "SAMPLE",
+    //         // updateEventId: "sampleUpdate",
+    //         // setLoading: loading => this.#setLoading(loading),
+    //         // original: this.sample,
+    //         updateParams,
+    //         params,
+    //         // endpoint: this.opencgaSession.opencgaClient.samples(),
+    //         // successNotification: {
+    //         //     title: "Sample Update",
+    //         //     message: "Sample updated correctly"
+    //         // }
+    //     }).then(result => {
+    //         this.sample = result;
+    //     }).catch(error => {
+    //         console.log(error);
+    //     });
+    //
+    // /*
+    //     let error;
+    //     this.#setLoading(true);
+    //     this.opencgaSession.opencgaClient.samples()
+    //         .update(this.sample.id, updateParams, params)
+    //         .then(response => {
+    //             this.sample = UtilsNew.objectClone(response.responses[0].results[0]);
+    //             this.updatedFields = {};
+    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+    //                 title: "Sample Update",
+    //                 message: "Sample updated correctly"
+    //             });
+    //         })
+    //         .catch(reason => {
+    //             error = reason;
+    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+    //         })
+    //         .finally(() => {
+    //             LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
+    //             this.#setLoading(false);
+    //         });
+    // */
+    // }
 
     // Display a button to back sample browser.
-    onShowBtnSampleBrowser() {
-        const query = {
-            xref: this.sampleId
-        };
+    // onShowBtnSampleBrowser() {
+    //     const query = {
+    //         xref: this.sampleId
+    //     };
+    //
+    //     const showBrowser = () => {
+    //         LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
+    //         const hash = window.location.hash.split("/");
+    //         window.location.hash = "#sample/" + hash[1] + "/" + hash[2];
+    //     };
+    //
+    //     return html `
+    //         <div style="float: right;padding: 10px 5px 10px 5px">
+    //             <button type="button" class="btn btn-primary" @click="${showBrowser}">
+    //                 <i class="fa fa-hand-o-left-borrame" aria-hidden="true"></i> Sample Browser
+    //             </button>
+    //         </div>
+    //     `;
+    // }
 
-        const showBrowser = () => {
-            LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
-            const hash = window.location.hash.split("/");
-            window.location.hash = "#sample/" + hash[1] + "/" + hash[2];
-        };
+    // render() {
+    //     if (this.isLoading) {
+    //         return html`<loading-spinner></loading-spinner>`;
+    //     }
+    //
+    //     if (!this.sample?.id) {
+    //         return html `
+    //             <div class="alert alert-info">
+    //                 <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+    //                 The sample does not have a Sample ID.
+    //             </div>
+    //         `;
+    //     }
+    //
+    //     return html`
+    //         ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
+    //         <data-form
+    //             .data="${this._sample}"
+    //             .config="${this._config}"
+    //             .updateParams="${this.updatedFields}"
+    //             @fieldChange="${e => this.onFieldChange(e)}"
+    //             @clear="${this.onClear}"
+    //             @submit="${this.onSubmit}">
+    //         </data-form>
+    //     `;
+    // }
 
-        return html `
-            <div style="float: right;padding: 10px 5px 10px 5px">
-                <button type="button" class="btn btn-primary" @click="${showBrowser}">
-                    <i class="fa fa-hand-o-left-borrame" aria-hidden="true"></i> Sample Browser
-                </button>
-            </div>
-        `;
-    }
+    // render() {
+    //
+    //     return html`
+    //         ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
+    //         <data-form
+    //             .data="${this._sample}"
+    //             .config="${this._config}"
+    //             .updateParams="${this.updatedFields}"
+    //             @fieldChange="${e => this.onFieldChange(e)}"
+    //             @clear="${this.onClear}"
+    //             @submit="${this.onSubmit}">
+    //         </data-form>
+    //     `;
+    // }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.sample?.id) {
-            return html `
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    The sample does not have a Sample ID.
-                </div>
-            `;
-        }
-
         return html`
-            ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
-            <data-form
-                .data="${this._sample}"
-                .config="${this._config}"
-                .updateParams="${this.updatedFields}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
+            <opencga-update
+                .resource="${"SAMPLE"}"
+                .component="${this.sample}"
+                .componentId="${this.sampleId}"
+                .params="${this.params}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}">
+            </opencga-update>
         `;
     }
 
@@ -258,14 +289,14 @@ export default class SampleUpdate extends LitElement {
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                                notificationType: "warning",
-                            },
-                        },
+                        // {
+                        //     type: "notification",
+                        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
+                        //     display: {
+                        //         visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
+                        //         notificationType: "warning",
+                        //     },
+                        // },
                         {
                             title: "Sample ID",
                             field: "id",
@@ -282,12 +313,12 @@ export default class SampleUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Individual ID ...",
-                                render: (individualId, dataFormFilterChange) => html`
+                                render: (individualId, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
                                         .value="${individualId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updatedFields.individualId ? "selection-updated" : ""}"
+                                        .classes="${updateParams?.individualId ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>

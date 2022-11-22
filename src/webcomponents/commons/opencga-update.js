@@ -21,7 +21,6 @@ import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
 import "../study/status/status-update.js";
-import "./external-source/external-source-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import NotificationUtils from "./utils/notification-utils";
 
@@ -65,13 +64,10 @@ export default class OpencgaUpdate extends LitElement {
         this.component = {};
         this.componentId = {};
         this.params = {};
+
         this.updatedFields = {};
         this.isLoading = false;
-
-        this.endpoint = {
-            "SAMPLE": this.opencgaSession.opencgaClient.samples(),
-        };
-
+        this.endpoint = {};
         this.displayConfigDefault = {
             style: "margin: 10px",
             defaultLayout: "horizontal",
@@ -105,6 +101,9 @@ export default class OpencgaUpdate extends LitElement {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
+
+        super.update(changedProperties);
+
     }
 
     componentObserver() {
@@ -118,15 +117,30 @@ export default class OpencgaUpdate extends LitElement {
 
     resourceObserver() {}
 
-    opencgaSessionObserver() {}
+    opencgaSessionObserver() {
+        if (this?.opencgaSession?.study?.fqn) {
+            this.endpoint = {
+                "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+            };
+        }
 
-    configObserver() {}
+    }
+
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+    }
 
     initOriginalObjects() {
         this._component = UtilsNew.objectClone(this.component);
         this.updatedFields = {};
         this.componentId = "";
-        this._config = this.getDefaultConfig();
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     onFieldChange(e, field) {
@@ -175,26 +189,22 @@ export default class OpencgaUpdate extends LitElement {
     onSubmit() {
 
         const payload = FormUtils.getUpdateParams(this._component, this.updatedFields, ["status.date"]);
+
+        // TODO: params in sample-update
         const params = {
             study: this.opencgaSession.study.fqn,
             phenotypesAction: "SET",
             includeResult: true
         };
 
+        // TODO: query here, not in form-utils
         FormUtils.update({
             target: this,
-            // updateEventId: "sampleUpdate",
-            // setLoading: loading => this.#setLoading(loading),
-            // original: this.sample,
             params: params,
             payload: payload,
-            // endpoint: this.endpoint[this.resource],
-            // successNotification: {
-            //     title: "Sample Update",
-            //     message: "Sample updated correctly"
-            // }
         }).then(result => {
-            this.sample = result;
+            this.component = result;
+            this.updatedFields = {};
         }).catch(error => {
             console.log(error);
         });
@@ -206,7 +216,7 @@ export default class OpencgaUpdate extends LitElement {
             return html`<loading-spinner></loading-spinner>`;
         }
 
-        if (!this.sample?.id) {
+        if (!this.component?.id) {
             return html `
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
@@ -228,9 +238,7 @@ export default class OpencgaUpdate extends LitElement {
         `;
     }
 
-    getDefaultConfig() {
-
-    }
+    getDefaultConfig() {}
 
 }
 
