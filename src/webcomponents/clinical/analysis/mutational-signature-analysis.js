@@ -249,7 +249,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Signature",
+                        title: "Catalogue ID",
                         field: "signature",
                         type: "custom",
                         display: {
@@ -266,7 +266,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Signature Query",
+                        title: "Catalogue Query",
                         field: "signature",
                         type: "custom",
                         display: {
@@ -285,7 +285,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Signature Plot",
+                        title: "Catalogue Plot",
                         field: "signature",
                         type: "custom",
                         display: {
@@ -303,7 +303,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Signature ID",
+                        title: "Catalogue ID",
                         field: "id",
                         type: "input-text",
                         display: {
@@ -312,7 +312,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Signature Description",
+                        title: "Catalogue Description",
                         field: "description",
                         type: "input-text",
                         display: {
