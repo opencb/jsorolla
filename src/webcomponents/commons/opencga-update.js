@@ -45,11 +45,11 @@ export default class OpencgaUpdate extends LitElement {
                 type: Object,
             },
             componentId: {
-                type: Object,
+                type: String,
             },
-            params: {
-                type: Object,
-            },
+            // params: {
+            //     type: Object,
+            // },
             opencgaSession: {
                 type: Object,
             },
@@ -62,8 +62,9 @@ export default class OpencgaUpdate extends LitElement {
     #init() {
         this.resource = "";
         this.component = {};
-        this.componentId = {};
+        this.componentId = "";
         this.params = {};
+        this.updateCustomisation = [];
 
         this.updatedFields = {};
         this.isLoading = false;
@@ -77,7 +78,6 @@ export default class OpencgaUpdate extends LitElement {
         };
 
         this._config = this.getDefaultConfig();
-
     }
 
     setLoading(value) {
@@ -103,7 +103,6 @@ export default class OpencgaUpdate extends LitElement {
         }
 
         super.update(changedProperties);
-
     }
 
     componentObserver() {
@@ -112,18 +111,68 @@ export default class OpencgaUpdate extends LitElement {
         }
     }
 
-    // TODO: retrieve the object from the database
-    componentIdObserver() {}
+    #initComponent() {
+        if (this.resource) {
+            // this.endpoint = {
+            //     "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+            // };
+            switch (this.resource?.toUpperCase()) {
+                case "SAMPLE":
+                    this.endpoint = this.opencgaSession.opencgaClient.samples();
+                    this.resourceInfoParams = {includeIndividual: true};
+                    this.resourceUpdateParams = {phenotypesAction: "SET"};
+                    this.updateCustomisation = ["status.date"];
+                    break;
+            }
+        }
+    }
 
-    resourceObserver() {}
+    resourceObserver() {
+        this.#initComponent();
+    }
+
+    // // TODO: retrieve the object from the database
+    componentIdObserver() {
+        if (this.componentId && this.opencgaSession) {
+            this.#initComponent();
+
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                ...this.resourceInfoParams
+            };
+            let error;
+            this.setLoading(true);
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, params)
+                .then(response => {
+                    this.component = response.responses[0].results[0];
+                })
+                .catch(reason => {
+                    error = reason;
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.component, {query: {...params}}, error);
+                    this.setLoading(false);
+                });
+        }
+    }
 
     opencgaSessionObserver() {
-        if (this?.opencgaSession?.study?.fqn) {
-            this.endpoint = {
-                "SAMPLE": this.opencgaSession.opencgaClient.samples(),
-            };
+        if (this.opencgaSession?.study?.fqn) {
+            this.#initComponent();
+            //     // this.endpoint = {
+            //     //     "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+            //     // };
+            //     switch (this.resource?.toUpperCase()) {
+            //         case "SAMPLE":
+            //             this.endpoint = this.opencgaSession.opencgaClient.samples();
+            //             this.resourceUpdateParams = {
+            //                 phenotypesAction: "SET"
+            //             };
+            //             break;
+            //     }
         }
-
     }
 
     configObserver() {
@@ -187,14 +236,13 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     onSubmit() {
-
-        const payload = FormUtils.getUpdateParams(this._component, this.updatedFields, ["status.date"]);
+        const payload = FormUtils.getUpdateParams(this._component, this.updatedFields, this.updateCustomisation);
 
         // TODO: params in sample-update
         const params = {
             study: this.opencgaSession.study.fqn,
-            phenotypesAction: "SET",
-            includeResult: true
+            includeResult: true,
+            ...this.resourceUpdateParams
         };
 
         // TODO: query here, not in form-utils
@@ -208,7 +256,6 @@ export default class OpencgaUpdate extends LitElement {
         }).catch(error => {
             console.log(error);
         });
-
     }
 
     render() {
@@ -238,7 +285,17 @@ export default class OpencgaUpdate extends LitElement {
         `;
     }
 
-    getDefaultConfig() {}
+    getDefaultConfig() {
+        return {
+            display: {
+                style: "margin: 10px",
+                defaultLayout: "horizontal",
+                labelAlign: "right",
+                labelWidth: 3,
+                buttonOkText: "Update",
+            }
+        };
+    }
 
 }
 

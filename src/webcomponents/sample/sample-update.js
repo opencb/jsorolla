@@ -57,13 +57,13 @@ export default class SampleUpdate extends LitElement {
         // this.updatedFields = {};
         // this.isLoading = false;
 
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            defaultLayout: "horizontal",
-            labelAlign: "right",
-            labelWidth: 3,
-            buttonOkText: "Update"
-        };
+        // this.displayConfigDefault = {
+        //     style: "margin: 10px",
+        //     defaultLayout: "horizontal",
+        //     labelAlign: "right",
+        //     labelWidth: 3,
+        //     buttonOkText: "Update"
+        // };
 
         this._config = this.getDefaultConfig();
     }
@@ -74,15 +74,15 @@ export default class SampleUpdate extends LitElement {
     // }
 
     update(changedProperties) {
-        if (changedProperties.has("sample")) {
+        // if (changedProperties.has("sample")) {
             // this.sampleObserver();
-        }
-        if (changedProperties.has("sampleId")) {
+        // }
+        // if (changedProperties.has("sampleId")) {
             // this.sampleIdObserver();
-        }
+        // }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {
-                ...this.displayConfigDefault,
+                // ...this.displayConfigDefault,
                 ...this.displayConfig,
             };
             this._config = this.getDefaultConfig();
@@ -269,7 +269,6 @@ export default class SampleUpdate extends LitElement {
                 .resource="${"SAMPLE"}"
                 .component="${this.sample}"
                 .componentId="${this.sampleId}"
-                .params="${this.params}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}">
             </opencga-update>
@@ -284,7 +283,7 @@ export default class SampleUpdate extends LitElement {
                 clearText: "Discard Changes",
                 okText: "Update",
             },
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig, // || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",

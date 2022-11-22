@@ -30,7 +30,7 @@ export default class FormUtils {
         const resourceName = FormUtils.capitalize(target.resource);
         try {
             target.setLoading(true);
-            const response = await target.endpoint[target.resource].update(target.component.id, payload, params);
+            const response = await target.endpoint.update(target.component.id, payload, params);
             NotificationUtils.dispatch(target, NotificationUtils.NOTIFY_SUCCESS, {
                 title: `${resourceName} Update`,
                 message: `${resourceName} updated correctly`,
