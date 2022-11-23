@@ -447,23 +447,6 @@ export default class VariantBrowserGrid extends LitElement {
         return "-";
     }
 
-    caddScaledFormatter(value, row, index) {
-        if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
-            for (const functionalScore of row.annotation.functionalScore) {
-                if (functionalScore.source === "cadd_scaled") {
-                    const value = Number(functionalScore.score).toFixed(2);
-                    if (value < 15) {
-                        return value;
-                    } else {
-                        return "<span style=\"color: red\">" + value + "</span>";
-                    }
-                }
-            }
-        } else {
-            return "-";
-        }
-    }
-
     conservationFormatter(value, row, index) {
         if (row?.annotation?.conservation?.length > 0) {
             for (const conservation of row.annotation.conservation) {
@@ -672,11 +655,15 @@ export default class VariantBrowserGrid extends LitElement {
                         Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
                         Please, leave the cursor over each tag to visualize the actual score value.
                         SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
-                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.">
+                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.
+                        CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
+                        C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
+                        and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
+                        SpliceAI: a deep learning-based tool to identify splice variants.">
                         <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 5,
                     align: "center"
                 },
                 {
@@ -868,7 +855,17 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "cadd",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.caddScaledFormatter,
+                    formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
+                    align: "right",
+                    halign: "center"
+                },
+                {
+                    id: "splaiceai",
+                    title: "SpliceAI",
+                    field: "spliceai",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: "center"
                 },

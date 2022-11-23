@@ -22,6 +22,7 @@ import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
+import "../json-editor.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../forms/text-field-filter.js";
@@ -484,6 +485,9 @@ export default class DataForm extends LitElement {
                 case "json":
                     content = this._createJsonElement(element);
                     break;
+                case "json-editor":
+                    content = this._createJsonEditorElement(element);
+                    break;
                 case "tree":
                     content = this._createTreeElement(element);
                     break;
@@ -915,6 +919,7 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     ?multiple="${element.multiple}"
+                    .maxOptions="${element.maxOptions || false}"
                     ?disabled="${disabled}"
                     ?required="${element.required}"
                     .value="${defaultValue}"
@@ -1141,10 +1146,28 @@ export default class DataForm extends LitElement {
     _createJsonElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (json.length || UtilsNew.isObject(json)) {
-            return html`<json-viewer .data="${json}"></json-viewer>`;
+            return html`
+                <json-viewer
+                    .data="${json}">
+                </json-viewer>
+            `;
         } else {
             return this._getDefaultValue(element);
         }
+    }
+
+    _createJsonEditorElement(element) {
+        const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
+        const config = {
+            readOnly: this._getBooleanValue(element.display?.readOnly, false)
+        };
+        const jsonParsed = UtilsNew.isObject(json) ? json: JSON.parse(json);
+        return html`
+            <json-editor
+                .data="${jsonParsed}"
+                .config="${config}">
+            </json-editor>
+        `;
     }
 
     _createTreeElement(element) {
