@@ -64,6 +64,20 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         this.preparedQuery = {};
         this.deletionTypeStats = {};
         this.typeStats = {};
+
+        this.deletionsInsertionsPlotColors = {
+            "Complex": "#bebebe",
+            "Insertion": "#006400",
+            "Deletion-other": "#cd2626",
+            "Deletion-repeat": "#ff3030",
+            "Deletion-microhomology": "#8b1a1a",
+        };
+        this.rearrangementsPlotColors = {
+            "DUPLICATION": "#006400",
+            "DELETION": "#ee6a50",
+            "INVERSION": "#1c86ee",
+            "TRANSLOCATION": "#595959",
+        };
     }
 
     connectedCallback() {
@@ -248,13 +262,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
-                                            .colors="${{
-                                                "Complex": "#bebebe",
-                                                "Insertion": "#006400",
-                                                "Deletion-other": "#cd2626",
-                                                "Deletion-repeat": "#ff3030",
-                                                "Deletion-microhomology": "#8b1a1a",
-                                            }}"
+                                            .colors="${this.deletionsInsertionsPlotColors}"
                                             ?active="${true}"
                                             @changeChart="${this.onChangeDeletionAggregationStatsChart}">
                                         </simple-chart>
@@ -267,12 +275,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
-                                            .colors="${{
-                                                "DUPLICATION": "#006400",
-                                                "DELETION": "#ee6a50",
-                                                "INVERSION": "#1c86ee",
-                                                "TRANSLOCATION": "#595959",
-                                            }}"
+                                            .colors="${this.rearrangementsPlotColors}"
                                             ?active="${true}">
                                         </simple-chart>
                                     </div>
