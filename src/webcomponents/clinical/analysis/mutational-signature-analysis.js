@@ -137,7 +137,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         } else {
             toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
             toolParams.description = this.toolParams.description || "";
-            toolParams.query = JSON.stringify(this.toolParams.query);
+            toolParams.query = {...this.toolParams.query};
         }
 
         const params = {
