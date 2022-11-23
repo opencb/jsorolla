@@ -227,7 +227,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     getDefaultConfig() {
         const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
-        const signaturesQuery = AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this));
         const params = [
             {
                 title: "Input Parameters",
@@ -302,12 +301,19 @@ export default class MutationalSignatureAnalysis extends LitElement {
                             },
                         },
                     },
+                ],
+            },
+            {
+                title: "Catalogue Parameters",
+                display: {
+                    visible: signatures.length === 0,
+                },
+                elements: [
                     {
                         title: "Catalogue ID",
                         field: "id",
                         type: "input-text",
                         display: {
-                            visible: signatures.length === 0,
                             placeholder: `catalogue-${UtilsNew.getDatetime()}`,
                         },
                     },
@@ -315,11 +321,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Catalogue Description",
                         field: "description",
                         type: "input-text",
-                        display: {
-                            visible: signatures.length === 0,
-                        },
                     },
-                    ...(signatures.length === 0 ? signaturesQuery : []),
+                    ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
                 ],
             },
             {
