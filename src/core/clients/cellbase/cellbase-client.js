@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import {RestClient} from "../rest-client.js";
+import RestClient from "../rest-client.js";
+import UtilsNew from "../../utils-new.js";
 import "../../cache/indexeddb-cache.js";
 
 
 export class CellBaseClient {
 
     constructor(config) {
-        if (config) {
+        if (UtilsNew.isNotEmpty(config)) {
             this._config = config;
         } else {
             this._config = this.getDefaultConfig();
@@ -37,8 +38,8 @@ export class CellBaseClient {
 
     getDefaultConfig() {
         return {
-            host: "http://bioinfo.hpc.cam.ac.uk/cellbase",
-            version: "v4",
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.1",
             species: "hsapiens",
             query: {
                 batchSize: "",

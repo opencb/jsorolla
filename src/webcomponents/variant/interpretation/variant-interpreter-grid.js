@@ -743,6 +743,18 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "deleteriousness",
+                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
+                            C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
+                            and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
+                            SpliceAI: a deep learning-based tool to identify splice variants.">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    field: "deleteriousness",
+                    rowspan: 1,
+                    colspan: 2,
+                    align: "center"
+                },
+                {
                     id: "evidences",
                     title: "Role in Cancer",
                     field: "evidences",
@@ -773,7 +785,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 {
                     id: "populationFrequencies",
                     columnTitle: "Reference Population Frequencies",
-                    title: `Reference Population <br> Frequencies
+                    title: `Reference <br> Population <br> Frequencies
                         <a class="pop-preq-info-icon"
                             tooltip-title="Reference Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
@@ -799,7 +811,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 {
@@ -930,6 +942,26 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
             ],
             [
+                {
+                    id: "cadd",
+                    title: "CADD",
+                    field: "cadd",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
+                    align: "right",
+                    halign: "center"
+                },
+                {
+                    id: "splaiceai",
+                    title: "SpliceAI",
+                    field: "spliceai",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
+                    align: "right",
+                    halign: "center"
+                },
                 ...vcfDataColumns,
                 {
                     id: "clinvar",
@@ -937,7 +969,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
@@ -947,7 +979,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
@@ -1088,7 +1130,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             if (samples.length > 0) {
-                _columns[0].splice(5, 0, {
+                _columns[0].splice(6, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
@@ -1110,7 +1152,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         affected = "<span style='color: red'>Aff.</span>";
                     }
 
-                    _columns[1].splice(i, 0, {
+                    _columns[1].splice(i + 2, 0, {
                         id: samples[i].id,
                         title: `<span style="color: ${color}">${samples[i].id}</span>
                                 <br>
@@ -1148,7 +1190,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
                 }
 
-                _columns[0].splice(6, 0, {
+                _columns[0].splice(7, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
@@ -1159,7 +1201,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const sample = samples[i];
                     const color = sample?.somatic ? "darkred" : "black";
 
-                    _columns[1].splice(i, 0, {
+                    _columns[1].splice(i + 2, 0, {
                         id: sample.id,
                         title: `
                             <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>
@@ -1202,7 +1244,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 });
                 break;
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -1232,7 +1274,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     });
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
-                    navigator.clipboard.writeText(copy.execute(row, showArrayIndexes));
+                    UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
                 }
                 break;
         }
@@ -1601,7 +1643,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
+
             populationFrequencies: ["1000G:ALL", "GNOMAD_GENOMES:ALL", "UK10K:ALL"],
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            },
 
             genotype: {
                 type: "VAF"

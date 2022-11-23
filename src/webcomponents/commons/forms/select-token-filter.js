@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/file-upload.js";
 
@@ -52,22 +53,16 @@ export default class SelectTokenFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     console.log("stf connected callback", this.config);
-    //     debugger
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     this.state = [];
-    // }
-
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
-            tags: this._config.freeTag === true,
+            separator: this._config.separator ?? [","],
+            tags: this._config.freeTag ?? true,
             multiple: this._config.multiple ?? true,
+            // https://select2.org/appearance#container-width
+            width: this._config.width ?? "style",
+            allowClear: this._config.allowClear ?? true,
             disabled: this._config.disabled ?? false,
-            width: "style",
-            allowClear: true,
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             maximumSelectionLength: this._config.maxItems || 0,
@@ -108,7 +103,7 @@ export default class SelectTokenFilter extends LitElement {
             templateSelection: item => {
                 return item.id ?? item.text;
             },
-            ...this._config.select2Config
+            ...this._config
         })
             .on("select2:select", e => {
                 this.filterChange(e);
@@ -138,9 +133,6 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     updated(_changedProperties) {
-        // if (_changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
 
         if (_changedProperties.has("classes")) {
             if (this.classes) {
@@ -187,12 +179,8 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const selection = this.select.select2("data").map(el => el.id).join(",");
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: selection
-            }
-        });
-        this.dispatchEvent(event);
+        // console.log("filterChange", selection);
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
     }
 
     toggleFileUpload() {
@@ -244,8 +232,6 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         }
-        // console.log("csa _config: ", this._config);
-        // debugger
 
         return html`
             <div>
