@@ -915,6 +915,7 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     ?multiple="${element.multiple}"
+                    .maxOptions="${element.maxOptions || false}"
                     ?disabled="${disabled}"
                     ?required="${element.required}"
                     .value="${defaultValue}"

@@ -646,13 +646,14 @@ export default class VariantGridFormatter {
                                       <th rowspan="2">Transcript</th>
                                       <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
+                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
                                       <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
                                   <tr style="margin: 5px">
                                       <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
                                       <th rowspan="1">Codon</th>
-                                      <th rowspan="1" style="padding-right: 20px">Exon (%)</th>
+                                      <th rowspan="1" style="">Exon (%)</th>
+                                      <th rowspan="1" style="padding-right: 20px">SpliceAI</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
@@ -733,6 +734,23 @@ export default class VariantGridFormatter {
                     `);
                 }
 
+                let spliceAIScore = "-";
+                if (ct.spliceScores?.length > 0) {
+                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                    if (spliceAi) {
+                        const keys = ["DS_AG", "DS_AL", "DS_DG", "DS_DL"];
+                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                        const index = [spliceAi.scores[keys[0]], spliceAi.scores[keys[1]], spliceAi.scores[keys[2]], spliceAi.scores[keys[3]]].findIndex(e => e === max);
+
+                        const color = (max >= 0.8) ? "red" : (max >= 0.5) ? "darkorange" : "black";
+                        spliceAIScore = `
+                            <div>
+                                <span style="color: ${color}">${max} (${keys[index]})</span>
+                            </div>
+                        `;
+                    }
+                }
+
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
                 let uniprotAccession = "-";
                 if (pva.uniprotAccession) {
@@ -781,6 +799,7 @@ export default class VariantGridFormatter {
                                 <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
                                 <td>${ct.codon || "-"}</td>
                                 <td>${exons.join("<br>")}</td>
+                                <td>${spliceAIScore}</td>
 
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
@@ -792,6 +811,54 @@ export default class VariantGridFormatter {
             return ctHtml;
         }
         return "-";
+    }
+
+    static caddScaledFormatter(value, row, index) {
+        if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
+            for (const functionalScore of row.annotation.functionalScore) {
+                if (functionalScore.source === "cadd_scaled") {
+                    const value = Number(functionalScore.score).toFixed(2);
+                    if (value < 15) {
+                        return value;
+                    } else {
+                        return "<span style=\"color: red\">" + value + "</span>";
+                    }
+                }
+            }
+        } else {
+            return "-";
+        }
+    }
+
+    static spliceAIFormatter(value, row) {
+        if (row.annotation.consequenceTypes?.length > 0) {
+            // We need to find the max Delta Score:
+            //      Delta score of a variant, defined as the maximum of (DS_AG, DS_AL, DS_DG, DS_DL),
+            //      ranges from 0 to 1 and can be interpreted as the probability of the variant being splice-altering.
+            let dscore = 0;
+            let transcriptId;
+            for (const ct of row.annotation.consequenceTypes) {
+                if (ct.spliceScores?.length > 0) {
+                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                    if (spliceAi) {
+                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                        if (max > dscore) {
+                            dscore = max;
+                            transcriptId = ct.transcriptId;
+                        }
+                    }
+                }
+            }
+
+            const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
+            return `
+                <div>
+                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore}</span>
+                </div>
+            `;
+        } else {
+            return "-";
+        }
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
@@ -1128,9 +1195,9 @@ export default class VariantGridFormatter {
                         </div>
                         <div>
                             ${hotspot.variants
-                                .map(variant => `<span class="help-block" style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)</span>`)
-                                .join("")
-                            }
+                    .map(variant => `<span class="help-block" style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)</span>`)
+                    .join("")
+                }
                         </div>
                     </div>`;
             }

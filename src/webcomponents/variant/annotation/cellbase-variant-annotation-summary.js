@@ -120,7 +120,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                     for (let j = 0; j < _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
                         if (_this.variantAnnotation.displayConsequenceType === _this.variantAnnotation.consequenceTypes[i].sequenceOntologyTerms[j].name) {
                             _this.ctGene = _this.variantAnnotation.consequenceTypes[i].geneName;
-                            _this.ctTranscript = _this.variantAnnotation.consequenceTypes[i].ensemblTranscriptId;
+                            _this.ctTranscript = _this.variantAnnotation.consequenceTypes[i].transcriptId;
                             break;
                         }
                     }
