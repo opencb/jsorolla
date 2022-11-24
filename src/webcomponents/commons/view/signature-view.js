@@ -75,7 +75,7 @@ export default class SignatureView extends LitElement {
         }
 
         const mode = this.mode.toUpperCase();
-        const counts = this.signature.counts;
+        const counts = this.signature?.counts || [];
         const categories = counts.map(point => point?.context);
         const data = counts.map(point => point?.total);
 
