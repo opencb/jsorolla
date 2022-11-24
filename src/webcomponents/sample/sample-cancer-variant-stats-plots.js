@@ -28,7 +28,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -58,7 +58,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
@@ -103,12 +103,13 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     }
 
     signatureQuery() {
+        this.signature = null;
         const params = {
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query,
-            ...this.queries?.["SNV"]
+            // ...this.queries?.["SNV"]
         };
 
         // Add default region filter including only canonical chromosomes
@@ -116,9 +117,25 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
         }
 
-        this.opencgaSession.opencgaClient.variants().queryMutationalSignature(params)
-            .then(restResult => {
-                this.signature = restResult.responses[0].results[0];
+        const allPromises = [
+            this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+                ...params,
+                ...this.queries?.["SNV"],
+                type: "SNV",
+            }),
+            this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+                ...params,
+                ...this.queries?.["SV"],
+                type: "SV",
+            }),
+        ];
+
+        Promise.all(allPromises)
+            .then(results => {
+                this.signature = {
+                    SNV: results[0].responses[0].results[0],
+                    SV: results[1].responses[0].results[0],
+                };
                 this.dispatchEvent(new CustomEvent("changeSignature", {
                     detail: {
                         signature: this.signature
@@ -127,9 +144,9 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                     composed: true
                 }));
             }).catch(response => {
-                this.signature = {
-                    errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
-                };
+                // this.signature = {
+                //     errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
+                // };
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             }).finally(() => {
                 this.requestUpdate();
@@ -250,8 +267,16 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                             <div class="col-md-5">
                                 <div style="margin-bottom: 20px">
                                     <h2>Mutational Catalogue</h2>
+                                    <h4>SNV Catalogue</h4>
                                     <signature-view
-                                        .signature="${this.signature}"
+                                        .signature="${this.signature?.["SNV"] || null}"
+                                        .mode="${"SBS"}"
+                                        ?active="${this.active}">
+                                    </signature-view>
+                                    <h4>SV Catalogue</h4>
+                                    <signature-view
+                                        .signature="${this.signature?.["SV"] || null}"
+                                        .mode="${"SV"}"
                                         ?active="${this.active}">
                                     </signature-view>
                                 </div>
