@@ -56,196 +56,38 @@ export default class IndividualUpdate extends LitElement {
     #init() {
         this.individual = {};
         this.updateParams = {};
-        this.isLoading = false;
+        this.displayConfig = {};
 
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Update",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-        };
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("individual")) {
-            this.initOriginalObject();
-        }
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("individualId")) {
-            this.individualIdObserver();
-        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            // this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    initOriginalObject() {
-        if (this.individual) {
-            this._individual = UtilsNew.objectClone(this.individual);
-        }
-    }
-
-    individualIdObserver() {
-        if (this.individualId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId, params)
-                .then(response => {
-                    this.individual = response.responses[0].results[0];
-                    this.initOriginalObject();
-                })
-                .catch(reason => {
-                    this.individual = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {query: {...params}}, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.individual = {};
-        }
-    }
-
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "father.id":
-            case "mother.id":
-            case "parentalConsanguinity":
-            case "karyotypicSex":
-            case "lifeStatus":
-            case "population": // object
-            case "location": // object
-            case "sex": // object
-            case "ethnicity": // object
-            case "samples": // arrays
-            case "phenotypes": // arrays
-            case "disorders": // arrays
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "dateOfBirth": // date
-                const value = e.detail.value.substring(0, 8);
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._individual,
-                    this.individual,
-                    this.updateParams,
-                    param,
-                    value);
-                break;
-        }
-        this.requestUpdate();
-    }
-
-    onClear() {
-        this._config = this.getDefaultConfig();
-        this.updateParams = {};
-        this.individualId = "";
-        this.individual = UtilsNew.objectClone(this._individual);
-    }
-
-    onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            samplesAction: "SET",
-            phenotypesAction: "SET",
-            disordersAction: "SET",
-            includeResult: true
-        };
-        let error;
-        this.#setLoading(true);
-        // FIXME CAUTION: workaround for avoiding overwrite non updated keys in an object.
-        //  Remove when form-utils.js revisited
-        // Object.keys(this.updateParams).forEach(key => {
-        //     this.updateParams[key] = this.individual[key];
-        // });
-        this.opencgaSession.opencgaClient.individuals()
-            .update(this.individual.id, this.updateParams, params)
-            .then(response => {
-                this._individual = UtilsNew.objectClone(response.responses[0].results[0]);
-                this.updateParams = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Individual Update",
-                    message: "Individual updated correctly",
-                });
-            })
-            .catch(reason => {
-                this.individual = {};
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                this._config = this.getDefaultConfig();
-                LitUtils.dispatchCustomEvent(this, "individualUpdate", this.individual, {}, error);
-                this.#setLoading(false);
-            });
-    }
-
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.individual?.id) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    The sample does not have an Individual ID.
-                </div>
-            `;
-        }
-
         return html`
-            <data-form
-                .data="${this.individual}"
-                .config="${this._config}"
-                .updateParams="${this.updateParams}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
+            <opencga-update
+                .resource="${"INDIVIDUAL"}"
+                .component="${this.individual}"
+                .componentId="${this.individualId}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}">
+            </opencga-update>
         `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             title: "Individual ID",
                             field: "id",
@@ -269,36 +111,36 @@ export default class IndividualUpdate extends LitElement {
                         },
                         {
                             title: "Father ID",
-                            field: "father",
+                            field: "father.id",
                             type: "custom",
                             display: {
                                 placeholder: "Select the father ID ...",
-                                render: father => html`
+                                render: (father, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
                                         .value="${father?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams?.father?.id ? "selection-updated" : ""}"
+                                        .classes="${updateParams?.father ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFieldChange(e, "father.id")}">
+                                        @filterChange="${e => dataFormFilterChange("father.id", e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
                         },
                         {
                             title: "Mother ID",
-                            field: "mother",
+                            field: "mother.id",
                             type: "custom",
                             display: {
                                 placeholder: "Select the mother ID ...",
-                                render: mother => html`
+                                render: (mother, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
                                         .value="${mother?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams?.mother ? "selection-updated" : ""}"
+                                        .classes="${updateParams?.mother ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFieldChange(e, "mother.id")}">
+                                        @filterChange="${e => dataFormFilterChange("mother.id", e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -309,12 +151,12 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the sample IDs ...",
-                                render: samples => html`
+                                render: (samples, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
-                                        .value="${samples.map(s => s.id).join(",")}"
+                                        .value="${samples?.detail?.value?.map(s => s.id).join(",")}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${this.updateParams.samples ? "selection-updated" : ""}"
+                                        .classes="${updateParams.samples ? "selection-updated" : ""}"
                                         .config="${{multiple: true}}"
                                         @filterChange="${e => {
                                     // We need to convert value from a string wth commas to an array of IDs
@@ -323,7 +165,7 @@ export default class IndividualUpdate extends LitElement {
                                         .map(sampleId => {
                                             return {id: sampleId};
                                         });
-                                    this.onFieldChange(e, "samples");
+                                    dataFormFilterChange("samples", e.detail.value);
                                 }}">
                                     </catalog-search-autocomplete>
                                 `,

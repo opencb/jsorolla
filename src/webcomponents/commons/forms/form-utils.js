@@ -20,37 +20,6 @@ import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
 
-    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
-
-    // TODO: move back to opencga-update.js
-    static async update({target, params, payload}) {
-        let error = null;
-        let result = null;
-
-        const resourceName = FormUtils.capitalize(target.resource);
-        try {
-            target.setLoading(true);
-            const response = await target.endpoint.update(target.component.id, payload, params);
-            NotificationUtils.dispatch(target, NotificationUtils.NOTIFY_SUCCESS, {
-                title: `${resourceName} Update`,
-                message: `${resourceName} updated correctly`,
-            });
-            result = UtilsNew.objectClone(response.responses[0].results[0]);
-        } catch (reason) {
-            error = reason;
-            NotificationUtils.dispatch(target, NotificationUtils.NOTIFY_RESPONSE, reason);
-        }
-
-        LitUtils.dispatchCustomEvent(target, target.updateEventId, result, {}, error);
-        target.setLoading(false);
-
-        if (error) {
-            throw error;
-        } else {
-            return result;
-        }
-    }
-
     static getUpdateParams(original, updatedFields, customisations) {
         const params = {};
         const updatedFieldKeyPrefixes = Object.keys(updatedFields)

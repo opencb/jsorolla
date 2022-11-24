@@ -291,6 +291,12 @@ export default class UtilsNew {
 
 
     /*
+     * This function capitalizes the first letter of a string and lowercase the rest.
+     */
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
+
+
+    /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */

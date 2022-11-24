@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import {html, LitElement} from "lit";
+import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
@@ -54,214 +55,19 @@ export default class SampleUpdate extends LitElement {
     #init() {
         this.sample = {};
         this.sampleId = "";
-        // this.updatedFields = {};
-        // this.isLoading = false;
-
-        // this.displayConfigDefault = {
-        //     style: "margin: 10px",
-        //     defaultLayout: "horizontal",
-        //     labelAlign: "right",
-        //     labelWidth: 3,
-        //     buttonOkText: "Update"
-        // };
+        this.displayConfig = {};
 
         this._config = this.getDefaultConfig();
     }
 
-    // #setLoading(value) {
-    //     this.isLoading = value;
-    //     this.requestUpdate();
-    // }
-
     update(changedProperties) {
-        // if (changedProperties.has("sample")) {
-            // this.sampleObserver();
-        // }
-        // if (changedProperties.has("sampleId")) {
-            // this.sampleIdObserver();
-        // }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                // ...this.displayConfigDefault,
-                ...this.displayConfig,
-            };
+            // FIXME: Do we need this?
+            // this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
-
-    // sampleObserver() {
-    //     if (this.sample && this.opencgaSession) {
-    //         this.initOriginalObjects();
-    //     }
-    // }
-
-    // initOriginalObjects() {
-    //     this._sample = UtilsNew.objectClone(this.sample);
-    //     this._config = this.getDefaultConfig();
-    //     this.updatedFields = {};
-    //     this.sampleId = "";
-    // }
-
-    // sampleIdObserver() {
-    //     if (this.sampleId && this.opencgaSession) {
-    //         const params = {
-    //             study: this.opencgaSession.study.fqn,
-    //             includeIndividual: true
-    //         };
-    //         let error;
-    //         this.#setLoading(true);
-    //         this.opencgaSession.opencgaClient.samples()
-    //             .info(this.sampleId, params)
-    //             .then(response => {
-    //                 this.sample = response.responses[0].results[0];
-    //             })
-    //             .catch(reason => {
-    //                 error = reason;
-    //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-    //             })
-    //             .finally(() => {
-    //                 LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {query: {...params}}, error);
-    //                 this.#setLoading(false);
-    //             });
-    //     }
-    // }
-
-    // onFieldChange(e, field) {
-    //     const param = field || e.detail.param;
-    //     this.updatedFields = FormUtils.getUpdatedFields(
-    //         this.sample,
-    //         this.updatedFields,
-    //         param,
-    //         e.detail.value);
-    //     this.requestUpdate();
-    // }
-
-    // onClear() {
-    //     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-    //         title: "Discard changes",
-    //         message: "Are you sure you want to discard the changes made?",
-    //         ok: () => {
-    //             this.initOriginalObjects();
-    //             this.requestUpdate();
-    //         },
-    //     });
-    // }
-
-    // onSubmit() {
-    //     const params = {
-    //         study: this.opencgaSession.study.fqn,
-    //         phenotypesAction: "SET",
-    //         includeResult: true
-    //     };
-    //
-    //     const updateParams = FormUtils.getUpdateParams(this._sample, this.updatedFields, ["status.date"]);
-    //
-    //     FormUtils.update({
-    //         component: this,
-    //         resource: "SAMPLE",
-    //         // updateEventId: "sampleUpdate",
-    //         // setLoading: loading => this.#setLoading(loading),
-    //         // original: this.sample,
-    //         updateParams,
-    //         params,
-    //         // endpoint: this.opencgaSession.opencgaClient.samples(),
-    //         // successNotification: {
-    //         //     title: "Sample Update",
-    //         //     message: "Sample updated correctly"
-    //         // }
-    //     }).then(result => {
-    //         this.sample = result;
-    //     }).catch(error => {
-    //         console.log(error);
-    //     });
-    //
-    // /*
-    //     let error;
-    //     this.#setLoading(true);
-    //     this.opencgaSession.opencgaClient.samples()
-    //         .update(this.sample.id, updateParams, params)
-    //         .then(response => {
-    //             this.sample = UtilsNew.objectClone(response.responses[0].results[0]);
-    //             this.updatedFields = {};
-    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-    //                 title: "Sample Update",
-    //                 message: "Sample updated correctly"
-    //             });
-    //         })
-    //         .catch(reason => {
-    //             error = reason;
-    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-    //         })
-    //         .finally(() => {
-    //             LitUtils.dispatchCustomEvent(this, "sampleUpdate", this.sample, {}, error);
-    //             this.#setLoading(false);
-    //         });
-    // */
-    // }
-
-    // Display a button to back sample browser.
-    // onShowBtnSampleBrowser() {
-    //     const query = {
-    //         xref: this.sampleId
-    //     };
-    //
-    //     const showBrowser = () => {
-    //         LitUtils.dispatchCustomEvent(this, "querySearch", null, {query: query}, null);
-    //         const hash = window.location.hash.split("/");
-    //         window.location.hash = "#sample/" + hash[1] + "/" + hash[2];
-    //     };
-    //
-    //     return html `
-    //         <div style="float: right;padding: 10px 5px 10px 5px">
-    //             <button type="button" class="btn btn-primary" @click="${showBrowser}">
-    //                 <i class="fa fa-hand-o-left-borrame" aria-hidden="true"></i> Sample Browser
-    //             </button>
-    //         </div>
-    //     `;
-    // }
-
-    // render() {
-    //     if (this.isLoading) {
-    //         return html`<loading-spinner></loading-spinner>`;
-    //     }
-    //
-    //     if (!this.sample?.id) {
-    //         return html `
-    //             <div class="alert alert-info">
-    //                 <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-    //                 The sample does not have a Sample ID.
-    //             </div>
-    //         `;
-    //     }
-    //
-    //     return html`
-    //         ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
-    //         <data-form
-    //             .data="${this._sample}"
-    //             .config="${this._config}"
-    //             .updateParams="${this.updatedFields}"
-    //             @fieldChange="${e => this.onFieldChange(e)}"
-    //             @clear="${this.onClear}"
-    //             @submit="${this.onSubmit}">
-    //         </data-form>
-    //     `;
-    // }
-
-    // render() {
-    //
-    //     return html`
-    //         ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
-    //         <data-form
-    //             .data="${this._sample}"
-    //             .config="${this._config}"
-    //             .updateParams="${this.updatedFields}"
-    //             @fieldChange="${e => this.onFieldChange(e)}"
-    //             @clear="${this.onClear}"
-    //             @submit="${this.onSubmit}">
-    //         </data-form>
-    //     `;
-    // }
 
     render() {
         return html`
@@ -277,13 +83,7 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            icon: "fas fa-edit",
-            type: "form",
-            buttons: {
-                clearText: "Discard Changes",
-                okText: "Update",
-            },
-            display: this.displayConfig, // || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",
@@ -434,7 +234,7 @@ export default class SampleUpdate extends LitElement {
                                     field: "processing.product.id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "Add a processing ID...",
                                     },
                                 },
                                 {
@@ -442,7 +242,7 @@ export default class SampleUpdate extends LitElement {
                                     field: "processing.product.name",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add a name...",
+                                        placeholder: "Add a processing name...",
                                     },
                                 },
                                 {
@@ -459,7 +259,7 @@ export default class SampleUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         rows: 2,
-                                        placeholder: "Add a description..."
+                                        placeholder: "Add a processing description..."
                                     },
                                 },
                             ]
@@ -477,7 +277,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.extractionMethod",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a extraction method...",
+                                placeholder: "Add an extraction method...",
                             },
                         },
                         {
