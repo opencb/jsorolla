@@ -194,10 +194,12 @@ export default class MutationalSignatureAnalysis extends LitElement {
             const signaturesbyType = {};
             signatures.forEach(signature => {
                 const type = signature.type?.toUpperCase();
-                if (!signaturesbyType[type]) {
-                    signaturesbyType[type] = [];
+                if (type && signature.id) {
+                    if (!signaturesbyType[type]) {
+                        signaturesbyType[type] = [];
+                    }
+                    signaturesbyType[type].push(signature.id);
                 }
-                signaturesbyType[type].push(signature.id);
             });
 
             return Object.keys(signaturesbyType)
