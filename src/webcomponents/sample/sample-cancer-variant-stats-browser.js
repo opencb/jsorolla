@@ -313,21 +313,34 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             };
         }
 
-        // Prepare SNV Signature to be saved
-        if (this.sample.qualityControl.variant.signatures) {
-            // Check ID is unique before saving
-            const index = this.sample.qualityControl.variant.signatures.findIndex(signature => signature.id === this.save.id);
-            if (index === -1) {
-                this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
-            } else {
-                console.warn("Signature ID already exists", this.sample.qualityControl.variant.signatures);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                    title: "Warning",
-                    message: "Signature ID already exists"
+        // Prepare signatures list to be saved
+        if (!this.sample.qualityControl.variant.signatures) {
+            this.sample.qualityControl.variant.signatures = [];
+        }
+
+        // Check ID is unique before saving
+        const signatureIndex = this.sample.qualityControl.variant.signatures.findIndex(signature => signature.id === this.save.id);
+        if (signatureIndex === -1) {
+            if (this.signature?.["SNV"]) {
+                this.sample.qualityControl.variant.signatures.push({
+                    id: this.save.id,
+                    type: "SNV",
+                    ...this.signature["SNV"],
+                });
+            }
+            if (this.signature?.["SV"]) {
+                this.sample.qualityControl.variant.signatures.push({
+                    id: this.save.id,
+                    type: "SV",
+                    ...this.signature["SV"],
                 });
             }
         } else {
-            this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
+            console.warn("Signature ID already exists", this.sample.qualityControl.variant.signatures);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                title: "Warning",
+                message: "Signature ID already exists"
+            });
         }
 
         // Prepare file params
@@ -374,7 +387,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 this.opencgaSession.opencgaClient.samples().update(this.sample.id, sampleParams, {
                     study: this.opencgaSession.study.fqn,
                 })
-                    .then(restResponse => {
+                    .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: "Success",
                             message: "Variant Stats saved successfully"
