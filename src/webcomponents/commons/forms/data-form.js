@@ -502,9 +502,6 @@ export default class DataForm extends LitElement {
                 case "custom":
                     content = this._createCustomElement(element);
                     break;
-                case "custom-list":
-                    content = this._createCustomListElement(element);
-                    break;
                 case "download":
                     content = this._createDownloadElement(element);
                     break;
@@ -1197,88 +1194,6 @@ export default class DataForm extends LitElement {
         } else {
             return this._getErrorMessage(element);
         }
-    }
-
-    _createCustomListElement(element) {
-        if (typeof element.display?.renderCreate !== "function" && typeof element.display?.renderUpdate !== "function") {
-            return "All 'custom-list' elements must implement a 'display.renderCreate' && 'display.renderUpdate' function.";
-        }
-
-        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
-        let data = this.data;
-        if (element.field) {
-            data = this.getValue(element.field);
-        }
-
-        // Call to render function if defined
-        // It covers the case the result of this.getValue is actually undefined
-        // Approach #1
-        let contents;
-
-        // Collapse only for renderUpdate
-        const collapsedUpdate = this._getBooleanValue(element?.display?.collapsedUpdate, false);
-
-        // Functions for different actions in the custom list
-        const onChange = {
-            create: e => this._onChangeArray(e, element.field, "CREATE", data),
-            update: e => this._onChangeArray(e, element.field, "UPDATE", data),
-            remove: item => this._onChangeArray(item, element.field, "REMOVE", data)
-        };
-
-        const renderCreate = element.display.renderCreate({}, onChange.create);
-        const renderUpdate = item => element.display.renderUpdate(item, onChange.update);
-
-        if (data && Array.isArray(data)) {
-
-            // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
-            contents = data.map(item => this._createCustomElementTemplate(element, item, collapsedUpdate, renderUpdate(item), e => onChange.remove(item)));
-            contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
-            return contents.map(content => html`${content}`);
-        } else {
-            if (renderCreate) {
-                return this._createCustomElementTemplate(element, data, false, renderCreate);
-            } else {
-                this._getErrorMessage(element);
-            }
-        }
-    }
-
-    _onChangeArray(e, field, action, data) {
-        let results = {};
-        let _data = data ? [...data]:[];
-        const item = {...e?.detail?.value};
-        let isRepeat = false;
-        switch (action) {
-            case "CREATE":
-                _data.some(d => d?.id === item?.id) ?
-                    isRepeat = true :
-                    results = {param: field, value: [..._data, item]};
-                break;
-            case "UPDATE":
-                // change id for index array.. because the user can change the ID.
-                const indexItem = _data.findIndex(obj => obj.id === item.id);
-                _data[indexItem] = item;
-                results = {param: field, value: _data};
-                const regexPunctuation = /[()+,-.\/:; ?@[\]_{|}]/g;
-                const collapseTarget =`${field}${item?.id}Collapse`;
-                $(`#${collapseTarget.replace(regexPunctuation, "")}`).collapse("hide");
-                break;
-            case "REMOVE":
-                // This 'e' is the item to remove from array
-                const removedItem = {...e};
-                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(obj => obj.id === removedItem.id));
-                results = {param: field, value: _data};
-                break;
-        }
-        if (isRepeat) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                title: "Duplicated data",
-                message: "You have already added a data with the same id."
-            });
-        } else {
-            LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
-        }
-
     }
 
     _createDownloadElement(element) {
