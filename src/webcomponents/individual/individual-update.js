@@ -115,14 +115,14 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the father ID ...",
-                                render: (father, dataFormFilterChange, updateParams) => html`
+                                render: (fatherId, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
-                                        .value="${father?.id}"
+                                        .value="${fatherId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${updateParams?.father ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange("father.id", e.detail.value)}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -133,14 +133,14 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the mother ID ...",
-                                render: (mother, dataFormFilterChange, updateParams) => html`
+                                render: (motherId, dataFormFilterChange, updateParams) => html`
                                     <catalog-search-autocomplete
-                                        .value="${mother?.id}"
+                                        .value="${motherId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .classes="${updateParams?.mother ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange("mother.id", e.detail.value)}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -151,24 +151,27 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the sample IDs ...",
-                                render: (samples, dataFormFilterChange, updateParams) => html`
-                                    <catalog-search-autocomplete
-                                        .value="${samples?.detail?.value?.map(s => s.id).join(",")}"
-                                        .resource="${"SAMPLE"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams.samples ? "selection-updated" : ""}"
-                                        .config="${{multiple: true}}"
-                                        @filterChange="${e => {
-                                    // We need to convert value from a string wth commas to an array of IDs
-                                    e.detail.value = e.detail.value
-                                        ?.split(",")
-                                        .map(sampleId => {
-                                            return {id: sampleId};
-                                        });
-                                    dataFormFilterChange("samples", e.detail.value);
-                                }}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                render: (samples, dataFormFilterChange, updateParams) => {
+                                    const handleSamplesFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        // eslint-disable-next-line no-param-reassign
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .map(sampleId => ({id: sampleId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .value="${samples?.map(s => s.id).join(",")}"
+                                            .resource="${"SAMPLE"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .classes="${updateParams.samples ? "selection-updated" : ""}"
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => handleSamplesFilterChange(e)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                         },
                         {
