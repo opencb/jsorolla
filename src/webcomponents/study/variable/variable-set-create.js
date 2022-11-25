@@ -93,6 +93,7 @@ export default class VariableSetCreate extends LitElement {
             //     this.variableSet = {...this.variableSet, variables: e.detail.value};
             //     break;
         }
+        this.requestUpdate();
     }
 
     // Option2 : Event for valiations ... this dispatch when user out the input field.
@@ -385,7 +386,7 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-text",
                                     display: {
-                                        visible: false,
+                                        visible: true,
                                         // visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
                                         disabled: variable => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
                                     }
