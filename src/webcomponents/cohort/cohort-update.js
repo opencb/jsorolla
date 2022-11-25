@@ -54,196 +54,48 @@ export default class CohortUpdate extends LitElement {
 
     #init() {
         this.cohort = {};
+        this.cohortId = "";
         this.updateParams = {};
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Update",
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            defaultValue: "",
-        };
+        this.displayConfig = {};
+
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("cohort")) {
-            this.initOriginalObject();
-        }
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("cohortId")) {
-            this.cohortIdObserver();
-        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            // this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    initOriginalObject() {
-        if (this.cohort) {
-            this._cohort = UtilsNew.objectClone(this.cohort);
-        }
-    }
-
-    cohortIdObserver() {
-        if (this.cohortId && this.opencgaSession) {
-            const query = {
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.cohorts()
-                .info(this.cohortId, query)
-                .then(response => {
-                    this.cohort = response.responses[0].results[0];
-                    this.initOriginalObject();
-                })
-                .catch(reason => {
-                    this.cohort = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "cohortSearch", this.cohort, {query: {...query}}, error);
-                    this.#setLoading(true);
-                });
-        } else {
-            this.cohort = {};
-        }
-    }
-
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        switch (param) {
-            case "samples.id":
-                this.updateParams = FormUtils.updateObjectArray(
-                    this._cohort,
-                    this.cohort,
-                    this.updateParams,
-                    param,
-                    e.detail.value
-                );
-                break;
-            case "id":
-            case "name":
-            case "description":
-            case "type":
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._cohort,
-                    this.cohort,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "status":
-                // INFO Warning: Date is removed because it is missing in StatusParams.java
-                delete e.detail.value?.date;
-                this.updateParams = FormUtils.updateObjExperimental(
-                    this._cohort,
-                    this.cohort,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-        }
-        this.requestUpdate();
-    }
-
-    onClear() {
-        this._config = this.getDefaultConfig();
-        this.updateParams = {};
-        this.cohortId = "";
-        this.cohort = UtilsNew.objectClone(this._cohort);
-    }
-
-    onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            samplesAction: "SET",
-            annotationSetsAction: "SET",
-            includeResult: true
-        };
-        let error;
-        this.#setLoading(true);
-        // CAUTION: workaround for avoiding overwrite non updated keys in an object.
-        //  Remove when form-utils.js revisited
-        // Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.cohort[key]);
-        this.opencgaSession.opencgaClient.cohorts()
-            .update(this.cohort.id, this.updateParams, params)
-            .then(response => {
-                this._cohort = UtilsNew.objectClone(response.responses[0].results[0]);
-                this.updateParams = {};
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Update Cohort",
-                    message: "cohort updated correctly"
-                });
-            })
-            .catch(reason => {
-                this.cohort = {};
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                this._config = this.getDefaultConfig();
-                LitUtils.dispatchCustomEvent(this, "cohortUpdate", this.cohort, {}, error);
-                this.#setLoading(false);
-            });
-    }
-
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.cohort?.id) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No cohort ID found.
-                </div>
-            `;
-        }
-
         return html`
-            <data-form
-                .data="${this.cohort}"
-                .config="${this._config}"
-                .updateParams="${this.updateParams}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
+            <opencga-update
+                    .resource="${"COHORT"}"
+                    .component="${this.cohort}"
+                    .componentId="${this.cohortId}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}">
+            </opencga-update>
         `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            icon: "fas fa-edit",
-            type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            }
-                        },
+                        // {
+                        //     type: "notification",
+                        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
+                        //     display: {
+                        //         visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                        //         notificationType: "warning",
+                        //     }
+                        // },
                         {
                             title: "Cohort ID",
                             field: "id",
@@ -258,11 +110,11 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
-                            title: "Sample IDs",
+                            title: "Sample ID(s)",
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: samples => {
+                                render: (samples, dataFormFilterChange, updateParams) => {
                                     const sampleIds = Array.isArray(samples) ?
                                         samples?.map(sample => sample.id).join(",") :
                                         samples;
@@ -271,11 +123,12 @@ export default class CohortUpdate extends LitElement {
                                             .value="${sampleIds}"
                                             .resource="${"SAMPLE"}"
                                             .opencgaSession="${this.opencgaSession}"
+                                            .classes="${updateParams.samples ? "selection-updated" : ""}"
                                             .config="${{multiple: false}}"
-                                            @filterChange="${e => this.onFieldChange(e, "samples.id")}">
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
-                                }
+                                },
                             }
                         },
                         {
@@ -319,40 +172,8 @@ export default class CohortUpdate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Cohort Type",
-                        //     field: "type",
-                        //     type: "select",
-                        //     allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
-                        //     display: {
-                        //         placeholder: "Select a cohort type..."
-                        //     }
-                        // },
-                        // {
                     ]
                 },
-                // {
-                //     title: "Annotations Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: cohort => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${cohort?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onSync(e, "annotationSets")}">
-                //                     </annotation-set-update>
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // }
             ]
         });
     }

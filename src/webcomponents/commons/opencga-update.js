@@ -128,9 +128,38 @@ export default class OpencgaUpdate extends LitElement {
                         phenotypesAction: "SET",
                         disordersAction: "SET",
                     };
-                    this.updateCustomisation = ["status.date"];
+                    this.updateCustomisation = [
+                        "status.date",
+                        params => {
+                            // Note: we need to remove additional fields to the father and mather objects that are
+                            // added by OpenCGA and are not accepted in the update endpoint
+                            if (params.father?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.father = {id: params.father.id};
+                            }
+                            if (params.mother?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.mother = {id: params.mother.id};
+                            }
+                        },
+                    ];
                     break;
-
+                case "COHORT":
+                    this.endpoint = this.opencgaSession.opencgaClient.cohorts();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        samplesAction: "SET",
+                        annotationSetsAction: "SET",
+                    };
+                    break;
+                case "FAMILY":
+                    this.endpoint = this.opencgaSession.opencgaClient.families();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        updateRoles: false,
+                        annotationSetsAction: "SET",
+                    };
+                    break;
             }
         }
     }
