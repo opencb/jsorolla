@@ -21,12 +21,13 @@ import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
 import "../variable/variable-create.js";
 import "../variable/variable-update.js";
+import "../../commons/forms/select-token-filter-static.js";
 
 export default class VariableSetCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,13 +45,14 @@ export default class VariableSetCreate extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.variableSet = {
             variables: [],
             unique: true
         };
         this.variable = {};
         this._config = this.getDefaultConfig();
+        this.dependsOn = [];
     }
 
     refreshForm() {
@@ -60,6 +62,7 @@ export default class VariableSetCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
+        console.log("Test change field ");
         e.stopPropagation();
         const param = field || e.detail.param;
         switch (param) {
@@ -190,6 +193,17 @@ export default class VariableSetCreate extends LitElement {
         this.requestUpdate();
     }
 
+    #onAddValues(e) {
+        console.log("Execute this function ", this.variable);
+        e.stopPropagation();
+        if (this.variable.type === "CATEGORICAL") {
+            this.variable.allowedValues = e.detail.value ?? [];
+        } else {
+            this.variable.allowedKeys = e.detail.value ?? [];
+        }
+        this.refreshForm();
+    }
+
     render() {
         return html `
             <data-form
@@ -226,7 +240,7 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "ID",
+                            title: "ID",
                             field: "id",
                             type: "input-text",
                             required: "required",
@@ -244,7 +258,7 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
@@ -255,7 +269,7 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Entities",
+                            title: "Entities",
                             field: "entities",
                             type: "select",
                             allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
@@ -265,18 +279,18 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Unique",
+                            title: "Unique",
                             field: "unique",
                             type: "checkbox",
                         },
                         {
-                            name: "Confidential",
+                            title: "Confidential",
                             field: "confidential",
                             type: "checkbox",
                             checked: false
                         },
                         {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -292,35 +306,173 @@ export default class VariableSetCreate extends LitElement {
                         {
                             title: "Variables",
                             field: "variables",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (variable, callback) => html `
-                                    <variable-update
-                                        .variable="${variable}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </variable-update>
-                                `,
-                                renderCreate: (variable, callback) => html`
-                                    <label>Create new item</label>
-                                    <variable-create
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </variable-create>`
-                            }
+                                view: variable => html`<div>${variable.id}</div>`,
+                            },
+                            elements: [
+                                {
+                                    title: "Variable ID",
+                                    field: "variables[].id",
+                                    type: "input-text",
+                                    required: true,
+                                    display: {
+                                        placeholder: "Add variable ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "variables[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Required",
+                                    field: "variables[].required",
+                                    type: "checkbox",
+                                },
+                                {
+                                    title: "Internal",
+                                    field: "variables[].internal",
+                                    type: "checkbox",
+                                },
+                                {
+                                    title: "Multivalue",
+                                    field: "variables[].multivalue",
+                                    type: "checkbox",
+                                    display: {
+                                        // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
+                                    },
+                                },
+                                {
+                                    title: "Type",
+                                    field: "variables[].type",
+                                    type: "select",
+                                    allowedValues: ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING"],
+                                    display: {
+                                        placeholder: "select a variable type..."
+                                    },
+                                },
+                                {
+                                    title: "Allowed Values",
+                                    field: "variables[].allowedValues",
+                                    type: "custom",
+                                    display: {
+                                        // disabled: variable => variable?.type !== "CATEGORICAL",
+                                        render: allowedValues => html`
+                                            <select-token-filter-static
+                                                .values="${allowedValues}"
+                                                .disabled="${this.variable?.type !== "CATEGORICAL"}"
+                                                @addToken=${e => this.#onAddValues(e)}>
+                                            </select-token-filter-static>`
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "checkbox",
+                                    display: {
+                                        // visible: variable => variable?.type === "BOOLEAN",
+                                        visible: false,
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "input-text",
+                                    display: {
+                                        visible: false,
+                                        // visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
+                                        disabled: variable => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "input-num",
+                                    display: {
+                                        visible: false,
+                                        // visible: variable => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                                    }
+                                },
+                                {
+                                    title: "Depends On",
+                                    field: "variables[].dependsOn",
+                                    type: "select",
+                                    allowedValues: this.dependsOn?.map(variable => variable.name),
+                                    display: {
+                                        visible: false,
+                                        placeholder: "select an allow key or values..."
+                                    }
+                                },
+                                {
+                                    title: "Category",
+                                    field: "variables[].category",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Name ..."
+                                    }
+                                },
+                                {
+                                    title: "Rank",
+                                    field: "variables[].rank",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "select a variable type..."
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "variables[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "VariableSet description..."
+                                    }
+                                }
+                            ],
                         },
-                    ]
+                    ],
                 },
+                // {
+                //     title: "Variables",
+                //     elements: [
+                //         {
+                //             title: "Variables",
+                //             field: "variables",
+                //             type: "custom-list",
+                //             display: {
+                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                //                 collapsedUpdate: true,
+                //                 renderUpdate: (variable, callback) => html `
+                //                     <variable-update
+                //                         .variable="${variable}"
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Save",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @updateItem="${callback}">
+                //                     </variable-update>
+                //                 `,
+                //                 renderCreate: (variable, callback) => html`
+                //                     <label>Create new item</label>
+                //                     <variable-create
+                //                         .displayConfig="${{
+                //                             defaultLayout: "vertical",
+                //                             buttonOkText: "Add",
+                //                             buttonClearText: "",
+                //                         }}"
+                //                         @addItem="${callback}">
+                //                     </variable-create>`
+                //             }
+                //         },
+                //     ]
+                // },
                 // {
                 //     title: "Variables",
                 //     elements: [
