@@ -594,11 +594,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 {
                     elements: [
                         {
-                            name: "Filter ID",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter ID",
+                                placeholder: "Add an identifier.",
                             }
                         },
                         {
@@ -606,7 +606,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter description",
+                                placeholder: "Add a description",
                                 rows: 2
                             }
                         }
