@@ -132,7 +132,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Check if we have provided an existing signature list
         if (this.toolParams.signature) {
             toolParams.skip = "catalogue";
-            toolParams.id = this.toolParams.signature;
+            toolParams.id = this.toolParams.signature.split(":")[1];
             toolParams.sample = this.toolParams.query.sample;
         } else {
             toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
@@ -198,7 +198,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
                     if (!signaturesbyType[type]) {
                         signaturesbyType[type] = [];
                     }
-                    signaturesbyType[type].push(signature.id);
+                    signaturesbyType[type].push({
+                        id: `${signature.type}:${signature.id}`,
+                        name: signature.id,
+                    });
                 }
             });
 
@@ -272,8 +275,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             visible: signatures.length > 0 && !!this.toolParams?.signature,
-                            render: id => {
-                                const signature = signatures.find(item => item.id === id);
+                            render: signatureId => {
+                                const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === id && item.type === type);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
                                         <span class="badge">
@@ -291,8 +295,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             visible: signatures.length > 0 && !!this.toolParams?.signature,
-                            render: id => {
-                                const signature = signatures.find(item => item.id === id);
+                            render: signatureId => {
+                                const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === id && item.type === type);
                                 return html`
                                     <signature-view
                                         .signature="${signature}"
