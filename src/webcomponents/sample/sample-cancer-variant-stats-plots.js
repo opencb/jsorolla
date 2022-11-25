@@ -117,7 +117,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
         }
 
-        const allPromises = [
+        Promise.all([
             this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
                 ...params,
                 ...this.queries?.["SNV"],
@@ -128,9 +128,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 ...this.queries?.["SV"],
                 type: "SV",
             }),
-        ];
-
-        Promise.all(allPromises)
+        ])
             .then(results => {
                 this.signature = {
                     SNV: results[0].responses[0].results[0],
