@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
+import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../study/status/status-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class FamilyUpdate extends LitElement {
 
@@ -55,7 +52,6 @@ export default class FamilyUpdate extends LitElement {
     #init() {
         this.family = {};
         this.familyId = "";
-        this.phenotype = {};
         this.displayConfig = {};
 
         this._config = this.getDefaultConfig();
@@ -83,7 +79,7 @@ export default class FamilyUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",

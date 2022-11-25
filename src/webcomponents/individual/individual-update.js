@@ -15,11 +15,8 @@
  */
 
 import {html, LitElement} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
-import LitUtils from "../commons/utils/lit-utils";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
@@ -55,7 +52,7 @@ export default class IndividualUpdate extends LitElement {
 
     #init() {
         this.individual = {};
-        this.updateParams = {};
+        this.individualId = "";
         this.displayConfig = {};
 
         this._config = this.getDefaultConfig();

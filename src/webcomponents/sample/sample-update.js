@@ -15,7 +15,6 @@
  */
 
 import {html, LitElement} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import "../study/annotationset/annotation-set-update.js";
