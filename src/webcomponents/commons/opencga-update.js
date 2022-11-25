@@ -144,7 +144,22 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
-
+                case "COHORT":
+                    this.endpoint = this.opencgaSession.opencgaClient.cohorts();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        samplesAction: "SET",
+                        annotationSetsAction: "SET",
+                    };
+                    break;
+                case "FAMILY":
+                    this.endpoint = this.opencgaSession.opencgaClient.families();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        updateRoles: false,
+                        annotationSetsAction: "SET",
+                    };
+                    break;
             }
         }
     }
