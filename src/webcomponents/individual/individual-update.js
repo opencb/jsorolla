@@ -60,7 +60,7 @@ export default class IndividualUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            // this.displayConfig = {...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -103,7 +103,7 @@ export default class IndividualUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "individual name..."
+                                placeholder: "Add an individual name..."
                             },
                         },
                         {
@@ -112,16 +112,18 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the father ID ...",
-                                render: (fatherId, dataFormFilterChange, updateParams) => html`
+                                render: (fatherId, dataFormFilterChange, updateParams) => {
+                                    return html`
                                     <catalog-search-autocomplete
                                         .value="${fatherId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams?.father ? "selection-updated" : ""}"
+                                        .classes="${updateParams["father.id"] ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
-                                `,
+                                `;
+                                }
                             },
                         },
                         {
@@ -130,16 +132,18 @@ export default class IndividualUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "Select the mother ID ...",
-                                render: (motherId, dataFormFilterChange, updateParams) => html`
+                                render: (motherId, dataFormFilterChange, updateParams) => {
+                                    return html`
                                     <catalog-search-autocomplete
                                         .value="${motherId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .classes="${updateParams?.mother ? "selection-updated" : ""}"
+                                        .classes="${updateParams["mother.id"] ? "selection-updated" : ""}"
                                         .config="${{multiple: false}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
-                                `,
+                                `;
+                                }
                             },
                         },
                         {
@@ -154,6 +158,7 @@ export default class IndividualUpdate extends LitElement {
                                         // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
+                                            .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
                                         dataFormFilterChange(e.detail.value);
                                     };

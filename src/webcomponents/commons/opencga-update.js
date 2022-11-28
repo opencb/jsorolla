@@ -53,9 +53,6 @@ export default class OpencgaUpdate extends LitElement {
             config: {
                 type: Object,
             },
-            // displayConfig: {
-            //     type: Object,
-            // }
         };
     }
 
@@ -131,8 +128,8 @@ export default class OpencgaUpdate extends LitElement {
                     this.updateCustomisation = [
                         "status.date",
                         params => {
-                            // Note: we need to remove additional fields to the father and mather objects that are
-                            // added by OpenCGA and are not accepted in the update endpoint
+                            // Note: we need to remove additional fields to the father and mother objects that are
+                            // added by OpenCGA but not accepted in the update endpoint
                             if (params.father?.id) {
                                 // eslint-disable-next-line no-param-reassign
                                 params.father = {id: params.father.id};
@@ -159,6 +156,22 @@ export default class OpencgaUpdate extends LitElement {
                         updateRoles: false,
                         annotationSetsAction: "SET",
                     };
+                    this.updateCustomisation = ["status.date"];
+                    break;
+                case "DISEASE-PANEL":
+                    this.endpoint = this.opencgaSession.opencgaClient.panels();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {};
+                    this.updateCustomisation = [];
+                    break;
+                case "CLINICAL-ANALYSIS":
+                    this.endpoint = this.opencgaSession.opencgaClient.clinical();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        flagsAction: "SET",
+                        panelsAction: "SET",
+                    };
+                    this.updateCustomisation = [];
                     break;
             }
         }
@@ -217,6 +230,16 @@ export default class OpencgaUpdate extends LitElement {
             ...this.config,
             ...this.getDefaultConfig(),
         };
+
+        // TODO: Add the notification element
+        // {
+        //     type: "notification",
+        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
+        //     display: {
+        //         visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+        //         notificationType: "warning",
+        //     }
+        // },
     }
 
     initOriginalObjects() {
@@ -224,8 +247,9 @@ export default class OpencgaUpdate extends LitElement {
         this.updatedFields = {};
         this.componentId = "";
         this._config = {
-            ...this.config,
             ...this.getDefaultConfig(),
+            ...this.config,
+            // ...this.getDefaultConfig(),
         };
     }
 

@@ -61,7 +61,7 @@ export default class SampleUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            // this.displayConfig = {...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);

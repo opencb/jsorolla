@@ -59,7 +59,7 @@ export default class FamilyUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            // this.displayConfig = {...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -89,6 +89,7 @@ export default class FamilyUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
+                                disabled: true,
                                 placeholder: "Add a short ID...",
                                 helpMessage: this.family.creationDate? "Created on " + UtilsNew.dateFormatter(this.family.creationDate):"No creation date",
                                 validation: {}
