@@ -322,6 +322,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: `catalogue-${UtilsNew.getDatetime()}`,
+                            help: {
+                                text: "If empty then it is automatically filled using the current date.",
+                            },
                         },
                     },
                     {
