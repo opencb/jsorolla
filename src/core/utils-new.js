@@ -843,6 +843,25 @@ export default class UtilsNew {
         return stringArray;
     }
 
+    // split comma with any characters or space
+    // [^,]+/g
+    // split comma without any characters or space
+    // (?:(?!,\S).)+
+    static splitByCommas(value) {
+        if (!value) {
+            return [];
+        }
+        return value.match(/[^,]+/g);
+    }
+
+    static splitByRegex(value, regex) {
+        if (!value) {
+            return [];
+        }
+        return value.match(regex);
+    }
+
+
     // Escape HTML characters from the provided string
     static escapeHtml(str) {
         return str
