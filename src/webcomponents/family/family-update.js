@@ -170,7 +170,7 @@ export default class FamilyUpdate extends LitElement {
                                     field: "status.name",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add source name"
+                                        placeholder: "Add a name"
                                     }
                                 },
                                 {

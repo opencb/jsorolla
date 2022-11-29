@@ -68,7 +68,7 @@ export default class SampleUpdate extends LitElement {
     }
 
     render() {
-        return html`
+        return html `
             <opencga-update
                 .resource="${"SAMPLE"}"
                 .component="${this.sample}"

@@ -106,14 +106,25 @@ export default class CohortUpdate extends LitElement {
                                     const sampleIds = Array.isArray(samples) ?
                                         samples?.map(sample => sample.id).join(",") :
                                         samples;
+
+                                    const handleSamplesFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        // eslint-disable-next-line no-param-reassign
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(sampleId => sampleId)
+                                            .map(sampleId => ({id: sampleId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+
                                     return html `
                                         <catalog-search-autocomplete
                                             .value="${sampleIds}"
                                             .resource="${"SAMPLE"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .classes="${updateParams.samples ? "selection-updated" : ""}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => handleSamplesFilterChange(e)}">
                                         </catalog-search-autocomplete>
                                     `;
                                 },
