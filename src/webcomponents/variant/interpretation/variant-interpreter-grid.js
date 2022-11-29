@@ -953,7 +953,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    id: "splaiceai",
+                    id: "spliceai",
                     title: "SpliceAI",
                     field: "spliceai",
                     colspan: 1,

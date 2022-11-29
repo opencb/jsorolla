@@ -863,7 +863,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    id: "splaiceai",
+                    id: "spliceai",
                     title: "SpliceAI",
                     field: "spliceai",
                     colspan: 1,
