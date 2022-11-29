@@ -112,12 +112,13 @@ export default class RestEndpoint extends LitElement {
             const pathElements = [];
             const bodyElements = [];
 
+            // this will clean up when the endpoint is changed.
+            this.dataForm = {};
+            this.data = {
+                body: {}
+            };
             // 1. Split params in body and query/path params
             for (const parameter of this.endpoint.parameters) {
-                this.data = {
-                    body: {}
-                };
-
                 if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
 
                     for (const dataParameter of parameter.data) {
