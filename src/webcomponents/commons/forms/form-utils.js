@@ -34,11 +34,11 @@ export default class FormUtils {
         if (customisations?.length > 0) {
             customisations.forEach(field => {
                 // 1. You can pass a lambda function
-                if (field instanceof Function) {
+                if (typeof field === "function") {
                     field(params);
                 } else {
                     // 2. When String then we delete the field
-                    if (UtilsNew.getObjectValue(params, field, undefined)) {
+                    if (typeof UtilsNew.getObjectValue(params, field, undefined) !== "undefined") {
                         UtilsNew.deleteObjectValue(params, field);
                     }
                 }
