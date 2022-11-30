@@ -28,6 +28,7 @@ import "../commons/filters/disease-panel-filter.js";
 
 import LitUtils from "../commons/utils/lit-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import Types from "../commons/types";
 
 class ClinicalAnalysisUpdate extends LitElement {
 
@@ -59,12 +60,23 @@ class ClinicalAnalysisUpdate extends LitElement {
     }
 
     #init() {
-        this.updateParams = {};
-        this.isLoading = false;
-        this.displayConfigDefault= {
+        this.clinicalAnalysis = {};
+        this.clinicalAnalysisId = "";
+        // this.updateParams = {};
+        // this.isLoading = false;
+        // this.displayConfigDefault = {
+        //     width: 8,
+        //     titleVisible: false,
+        //     titleWidth: 4,
+        //     defaultLayout: "horizontal",
+        //     buttonsVisible: true,
+        //     buttonsWidth: 8,
+        //     buttonsAlign: "right",
+        // };
+        this.displayConfig = {
+            titleWidth: 3,
             width: 8,
             titleVisible: false,
-            titleWidth: 4,
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
@@ -73,18 +85,12 @@ class ClinicalAnalysisUpdate extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
+    // #setLoading(value) {
+    //     this.isLoading = value;
+    //     this.requestUpdate();
+    // }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
-        if (changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
-        }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -95,40 +101,11 @@ class ClinicalAnalysisUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    clinicalAnalysisObserver() {
-        if (this.clinicalAnalysis && this.opencgaSession) {
-            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-            this._config = this.getDefaultConfig();
-        }
-    }
-
-    clinicalAnalysisIdObserver() {
-        if (this.clinicalAnalysisId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.clinical()
-                .info(this.clinicalAnalysisId, params)
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisSearch", this.clinicalAnalysis, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
     opencgaSessionObserver() {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
+    // FIXME: how to refactor "comments"
     onFieldChange(e, field) {
         // Fixme FormUtils: use new methods when https://app.clickup.com/t/36631768/TASK-2037 merged
         // Caution: swapped parameters in FormUtils.<methodName>(original, toUpdate, ...)
@@ -193,95 +170,43 @@ class ClinicalAnalysisUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    onClear() {
-        // Reset all values
-        this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-        this.updateParams = {};
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-    }
-
-    onSubmit() {
-        if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                flagsAction: "SET",
-                panelsAction: "SET",
-                includeResult: true,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, this.updateParams, params)
-                .then(response => {
-                    this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
-                    this.updateParams = {};
-                    this._config = this.getDefaultConfig();
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "Clinical Analysis update",
-                        message: "Case info updated successfully",
-                    });
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", this.clinicalAnalysis, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this._clinicalAnalysis) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Clinical Analysis not available
-                </div>
-            `;
-        }
-
         return html`
-            <data-form
-                .data="${this._clinicalAnalysis}"
-                .config="${this._config}"
-                .updateParams="${this.updateParams}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
+            <opencga-update
+                    .resource="${"CLINICAL-ANALYSIS"}"
+                    .component="${this.clinicalAnalysis}"
+                    .componentId="${this.clinicalAnalysisId}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}">
+            </opencga-update>
         `;
     }
 
     getDefaultConfig() {
-        return {
-            id: "clinical-analysis",
-            title: "Case Editor",
-            icon: "fas fa-user-md",
-            buttons: {
-                clearText: "Cancel",
-                okText: "Update Case",
-            },
-            display: this.displayConfig || this.displayConfigDefault,
+        return Types.dataFormConfig({
+            // return {
+            id: "clinical-analysis", // Fixme: clinical-analysis-update.js?
+            title: "Case Editor", // Fixme: Clinical Analysis update?
+            icon: "fas fa-user-md", // Fixme: to overwrite?
+            // buttons: {
+            //     clearText: "Cancel",
+            //     okText: "Update Case",
+            // },
+            // display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfigDefault,
             sections: [
-                {
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            }
-                        }
-                    ]
-                },
+                // {
+                //     elements: [
+                //         {
+                //             type: "notification",
+                //             text: "Some changes have been done in the form. Not saved, changes will be lost",
+                //             display: {
+                //                 visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
+                //                 notificationType: "warning",
+                //             }
+                //         }
+                //     ]
+                // },
                 {
                     id: "summary",
                     title: "Summary",
@@ -392,48 +317,54 @@ class ClinicalAnalysisUpdate extends LitElement {
                         },
                         {
                             title: "Status",
-                            field: "status",
+                            field: "status.id",
                             type: "custom",
                             display: {
-                                render: status => html `
+                                render: (statusId, dataFormFilterChange, updateParams) => {
+                                    // .disabled="${!!this._clinicalAnalysis?.locked}"
+                                    return html `
                                     <clinical-status-filter
-                                        .status="${status.id}"
+                                        .status="${statusId}"
                                         .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
                                         .multiple=${false}
-                                        .classes="${this.updateParams.status ? "updated" : ""}"
-                                        .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => this.onFieldChange(e, "status.id")}">
+                                        .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
+                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </clinical-status-filter>
-                                `,
+                                `;
+                                }
                             }
                         },
+
                         {
                             title: "Priority",
                             field: "priority.id",
                             type: "custom",
                             display: {
-                                render: priority => html`
+                                render: (priorityId, dataFormFilterChange, updateParams) => html`
                                     <clinical-priority-filter
-                                        .priority="${priority}"
+                                        .priority="${priorityId}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
                                         .multiple=${false}
-                                        .classes="${this.updateParams.priority ? "updated" : ""}"
-                                        .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => this.onFieldChange(e, "priority.id")}">
+                                        .classes="${updateParams?.["priority.id"] ? "selection-updated" : ""}"
+                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </clinical-priority-filter>
                                 `,
                             }
                         },
+
                         {
                             title: "Analyst",
                             field: "analyst.id",
                             type: "select",
-                            defaultValue: this._clinicalAnalysis?.analyst?.id ?? this._clinicalAnalysis?.analyst?.assignee,
+                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
                             allowedValues: () => this.users,
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
+
                         {
                             title: "Due Date",
                             field: "dueDate",
@@ -442,8 +373,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             },
                         }
+
                     ]
                 },
+
                 {
                     id: "general",
                     title: "General",
@@ -452,10 +385,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                             title: "Disorder",
                             field: "disorder.id",
                             type: "select",
-                            defaultValue: this._clinicalAnalysis?.disorder.id,
+                            defaultValue: this.clinicalAnalysis?.disorder?.id,
                             allowedValues: () => {
-                                if (this._clinicalAnalysis.proband?.disorders?.length > 0) {
-                                    return this._clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
+                                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+                                    return this.clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
                                 } else {
                                     return [];
                                 }
@@ -465,27 +398,35 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 helpMessage: "Case disorder must be one of the proband's disorder",
                             }
                         },
+
                         {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
                             display: {
-                                // disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                                render: panels => {
+                                render: (panels, dataFormFilterChange, updateParams) => {
+                                    const handlePanelsFilterChange = e => {
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(panelId => panelId)
+                                            .map(panelId => ({id: panelId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
                                     return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
                                             .diseasePanels="${this.opencgaSession.study?.panels}"
-                                            .panel="${panels.map(panel => panel.id).join(",")}"
+                                            .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
-                                            .classes="${this.updateParams.panels ? "updated" : ""}"
-                                            .disabled="${!!this._clinicalAnalysis?.locked || !!this._clinicalAnalysis?.panelLock}"
-                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                            .classes="${updateParams?.panels ? "selection-updated" : ""}"
+                                            .disabled="${(updateParams?.locked?.after || updateParams?.panelLock?.after) ?? (!!this.clinicalAnalysis?.locked || !!this.clinicalAnalysis?.panelLock)}"
+                                            @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
                                 }
                             }
                         },
+
                         {
                             title: "Disease Panel Lock",
                             field: "panelLock",
@@ -518,23 +459,40 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             },
                         },
+
                         {
                             title: "Flags",
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: flags => html`
+                                render: (flags, dataFormFilterChange, updateParams) => {
+
+                                    const handleFlagsFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        // eslint-disable-next-line no-param-reassign
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(flagId => flagId)
+                                            .map(flagId => ({id: flagId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+
+                                    // Note 2022/11/30: currently the form does not allow to change the case type.
+                                    //  If allowed, to consider a possible change in updateParams for property .flags.
+                                    return html`
                                     <clinical-flag-filter
                                         .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this._clinicalAnalysis.type.toUpperCase()]}"
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type.toUpperCase()]}"
                                         .multiple=${true}
-                                        .classes="${this.updateParams.flags ? "updated" : ""}"
-                                        .disabled="${!!this._clinicalAnalysis?.locked}"
-                                        @filterChange="${e => this.onFieldChange(e, "flags.id")}">
+                                        .classes="${updateParams?.flags ? "selection-updated" : ""}"
+                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                        @filterChange="${e => handleFlagsFilterChange(e)}">
                                     </clinical-flag-filter>
-                                `,
+                                `;
+                                }
                             }
                         },
+                        /*
                         {
                             title: "Description",
                             field: "description",
@@ -563,7 +521,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                                 <i class="fas fa-comment-dots"></i>
                                             </div>
                                             <div style="font-weight:bold">
-                                                ${comment.author || this.opencgaSession?.user?.id || "-"} - 
+                                                ${comment.author || this.opencgaSession?.user?.id || "-"} -
                                                 ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
                                             </div>
                                         </div>
@@ -594,10 +552,11 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
+                        */
                     ]
                 }
             ]
-        };
+        });
     }
 
 }

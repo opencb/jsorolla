@@ -124,6 +124,7 @@ export default class OpencgaUpdate extends LitElement {
                     .join(" ");
         }
     }
+
     #initComponent() {
         if (this.resource) {
             switch (this.resource?.toUpperCase()) {
@@ -186,7 +187,21 @@ export default class OpencgaUpdate extends LitElement {
                         flagsAction: "SET",
                         panelsAction: "SET",
                     };
-                    this.updateCustomisation = [];
+                    this.updateCustomisation = [
+                        params => {
+                            // Note: we need to remove additional fields to the father and mother objects that are
+                            // added by OpenCGA but not accepted in the update endpoint
+                            if (params.status?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.status = {id: params.status.id};
+                            }
+                            if (params.priority?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.priority = {id: params.priority.id};
+                            }
+
+                        },
+                    ];
                     break;
             }
         }
@@ -199,7 +214,7 @@ export default class OpencgaUpdate extends LitElement {
     componentIdObserver() {
         if (this.componentId && this.opencgaSession) {
             this.#initComponent();
-
+            // QUESTION: eventId is *Update or *Search?
             const eventId = this.#getResourceName("event").concat("Update");
 
             const params = {
@@ -251,7 +266,7 @@ export default class OpencgaUpdate extends LitElement {
     initOriginalObjects() {
         this._component = UtilsNew.objectClone(this.component);
         this.updatedFields = {};
-        this.componentId = "";
+        // this.componentId = "";
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -320,9 +335,12 @@ export default class OpencgaUpdate extends LitElement {
             .then(response => {
                 this.component = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
+                // QUESTION: missing update config?
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `${resourceName} Update`,
                     message: `${resourceName} updated correctly`,
+                    // Fixme: in clinical analysis update, message different from resource name
+                    // message: "Case info updated successfully",
                 });
             })
             .catch(reason => {
