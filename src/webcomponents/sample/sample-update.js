@@ -452,7 +452,10 @@ export default class SampleUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         rows: 2,
-                                        placeholder: "Add a description..."
+                                        placeholder: "Add a description...",
+                                        disabled: (sample, phenotype) => {
+                                            return phenotype?.status === "OBSERVED";
+                                        }
                                     },
                                 },
                             ],
