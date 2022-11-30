@@ -1163,7 +1163,7 @@ export default class DataForm extends LitElement {
         const contents = [];
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
-            const isVisible = this._getBooleanValue(childElement.display?.visible, true);
+            const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
             if (!isVisible) {
                 continue;
             }
