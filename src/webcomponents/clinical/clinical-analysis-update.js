@@ -95,10 +95,26 @@ class ClinicalAnalysisUpdate extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
+    }
+
+    onClinicalAnalysisUpdate(e) {
+        this.clinicalAnalysis = e.detail.clinicalAnalysis;
+    /*
+        // Fixme: discuss what to do with:
+        //  (a) the custom event received.
+        //  (b) event.status error and message (notified to the user  in opencga-update catch)
+
+        LitUtils.dispatchCustomEvent(
+            this,
+            "clinicalAnalysisUpdate",
+            e.detail.value,
+            e.detail,
+            null);
+    */
     }
 
     opencgaSessionObserver() {
@@ -177,7 +193,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .component="${this.clinicalAnalysis}"
                     .componentId="${this.clinicalAnalysisId}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}">
+                    .config="${this._config}"
+                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
             </opencga-update>
         `;
     }
@@ -193,7 +210,7 @@ class ClinicalAnalysisUpdate extends LitElement {
             //     okText: "Update Case",
             // },
             // display: this.displayConfig || this.displayConfigDefault,
-            display: this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 // {
                 //     elements: [
@@ -325,7 +342,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                     return html `
                                     <clinical-status-filter
                                         .status="${statusId}"
-                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis.type.toUpperCase()]}"
+                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
                                         .multiple=${false}
                                         .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
                                         .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
@@ -387,8 +404,8 @@ class ClinicalAnalysisUpdate extends LitElement {
                             type: "select",
                             defaultValue: this.clinicalAnalysis?.disorder?.id,
                             allowedValues: () => {
-                                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-                                    return this.clinicalAnalysis.proband.disorders.map(disorder => disorder.id);
+                                if (this.clinicalAnalysis?.proband?.disorders?.length > 0) {
+                                    return this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id);
                                 } else {
                                     return [];
                                 }
@@ -479,10 +496,10 @@ class ClinicalAnalysisUpdate extends LitElement {
 
                                     // Note 2022/11/30: currently the form does not allow to change the case type.
                                     //  If allowed, to consider a possible change in updateParams for property .flags.
-                                    return html`
+                                    return html `
                                     <clinical-flag-filter
                                         .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type.toUpperCase()]}"
+                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type?.toUpperCase()]}"
                                         .multiple=${true}
                                         .classes="${updateParams?.flags ? "selection-updated" : ""}"
                                         .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
@@ -492,7 +509,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 }
                             }
                         },
-                        /*
+
                         {
                             title: "Description",
                             field: "description",
@@ -503,6 +520,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
+
                         {
                             title: "Comments",
                             field: "comments",
@@ -552,7 +570,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
-                        */
+
                     ]
                 }
             ]
