@@ -215,7 +215,7 @@ export default class OpencgaUpdate extends LitElement {
         if (this.componentId && this.opencgaSession) {
             this.#initComponent();
             // QUESTION: eventId is *Update or *Search?
-            const eventId = this.#getResourceName("event");
+            // const eventId = this.#getResourceName("event");
 
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -234,9 +234,9 @@ export default class OpencgaUpdate extends LitElement {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, `${eventId}`.concat("Update"), this.component, {
+                    LitUtils.dispatchCustomEvent(this, "componentIdObserver", this.component, {
                         query: {...params},
-                        [eventId]: this.component,
+                        // [eventId]: this.component,
                     }, error);
                     this.#setLoading(false);
                 });

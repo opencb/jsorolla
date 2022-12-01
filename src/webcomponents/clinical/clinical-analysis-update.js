@@ -101,8 +101,8 @@ class ClinicalAnalysisUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    onClinicalAnalysisUpdate(e) {
-        this.clinicalAnalysis = e.detail.clinicalAnalysis;
+    clinicalAnalysisIdObserver(e) {
+        this.clinicalAnalysis = e.detail.value;
     /*
         // Fixme: discuss what to do with:
         //  (a) the custom event received.
@@ -194,7 +194,7 @@ class ClinicalAnalysisUpdate extends LitElement {
                     .componentId="${this.clinicalAnalysisId}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"
-                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                    @componentIdObserver="${this.clinicalAnalysisIdObserver}">
             </opencga-update>
         `;
     }
@@ -352,7 +352,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 }
                             }
                         },
-
                         {
                             title: "Priority",
                             field: "priority.id",
@@ -370,7 +369,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 `,
                             }
                         },
-
                         {
                             title: "Analyst",
                             field: "analyst.id",
@@ -381,7 +379,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
-
                         {
                             title: "Due Date",
                             field: "dueDate",
@@ -393,7 +390,6 @@ class ClinicalAnalysisUpdate extends LitElement {
 
                     ]
                 },
-
                 {
                     id: "general",
                     title: "General",
@@ -415,7 +411,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 helpMessage: "Case disorder must be one of the proband's disorder",
                             }
                         },
-
                         {
                             title: "Disease Panels",
                             field: "panels",
@@ -443,7 +438,6 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 }
                             }
                         },
-
                         {
                             title: "Disease Panel Lock",
                             field: "panelLock",
@@ -476,14 +470,12 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             },
                         },
-
                         {
                             title: "Flags",
                             field: "flags",
                             type: "custom",
                             display: {
                                 render: (flags, dataFormFilterChange, updateParams) => {
-
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
                                         // eslint-disable-next-line no-param-reassign
