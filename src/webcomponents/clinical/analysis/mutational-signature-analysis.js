@@ -62,20 +62,22 @@ export default class MutationalSignatureAnalysis extends LitElement {
             fitThresholdPerc: "5",
             fitThresholdPval: "0.05",
             fitMaxRareSigs: "1",
-            fitNBoot: "200"
+            fitNBoot: "200",
         };
         this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
         this.REFSIGV1_ORGANS = [
             "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "Cervix", "CNS",
             "Colorectal", "Esophagus", "Head_neck", "Kidney", "Liver", "Lung",
-            "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
+            "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus",
+        ];
         this.REFSIGV2_ORGANS = [
             "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "CNS", "Colorectal",
             "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "NET",
-            "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
+            "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus",
+        ];
 
         this.query = {};
         this.active = true;
@@ -114,7 +116,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
-        // this.onChangeSample();
     }
 
     onSubmit() {
@@ -142,14 +143,14 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
 
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runMutationalSignature(toolParams, params),
-            this
+            this,
         );
     }
 
@@ -157,8 +158,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             query: {
-                ...this.query
-            }
+                ...this.query,
+            },
         };
         this.config = this.getDefaultConfig();
     }
@@ -399,7 +400,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
         );
     }
 
