@@ -120,6 +120,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
+            sample: this.toolParams.query.sample,
             fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
             fitMethod: this.toolParams.fitMethod,
             fitSigVersion: this.toolParams.fitSigVersion,
@@ -134,11 +135,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
         if (this.toolParams.signature) {
             toolParams.skip = "catalogue";
             toolParams.id = this.toolParams.signature.split(":")[1];
-            toolParams.sample = this.toolParams.query.sample;
         } else {
             toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
             toolParams.description = this.toolParams.description || "";
-            toolParams.query = {...this.toolParams.query};
+            toolParams.query = JSON.stringify({...this.toolParams.query});
         }
 
         const params = {
