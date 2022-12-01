@@ -78,39 +78,46 @@ export default class SampleCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-            case "status": // it's object
-            case "source": // it's object
-            case "processing.product": // it's object
-            case "processing.preparationMethod":
-            case "processing.extractionMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.type":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-            case "collection.from":
-            case "phenotypes": // this is object
-                this.sample = {
-                    ...FormUtils.createObject(
-                        this.sample,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-            case "annotationSets":
-                // Rodiel (03/03/2022): At the moment IVA DOES NOT SUPPORT
-                // creating annotation sets
-                this.sample = {...this.sample, annotationSets: e.detail.value};
-                break;
-        }
+        this.newSample = FormUtils.createObjectTest(
+            this.sample, // form
+            this.newSample, // to submit
+            param,
+            e.detail.value);
+        console.log("new", this.newSample);
+        this.sample = {...this.sample};
+        // switch (param) {
+        //     case "id":
+        //     case "description":
+        //     case "individualId":
+        //     case "somatic":
+        //     case "status": // it's object
+        //     case "source": // it's object
+        //     case "processing.product": // it's object
+        //     case "processing.preparationMethod":
+        //     case "processing.extractionMethod":
+        //     case "processing.labSambpleId":
+        //     case "processing.quantity":
+        //     case "processing.date":
+        //     case "collection.type":
+        //     case "collection.quantity":
+        //     case "collection.method":
+        //     case "collection.date":
+        //     case "collection.from":
+        //     case "phenotypes": // this is object
+        //         this.sample = {
+        //             ...FormUtils.createObject(
+        //                 this.sample,
+        //                 param,
+        //                 e.detail.value
+        //             )
+        //         };
+        //         break;
+        //     case "annotationSets":
+        //         // Rodiel (03/03/2022): At the moment IVA DOES NOT SUPPORT
+        //         // creating annotation sets
+        //         this.sample = {...this.sample, annotationSets: e.detail.value};
+        //         break;
+        // }
         this.requestUpdate();
     }
 
