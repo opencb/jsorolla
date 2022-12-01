@@ -20,6 +20,7 @@ import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/forms/select-field-filter.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/view/signature-view.js";
 
 export default class MutationalSignatureAnalysis extends LitElement {
@@ -105,7 +106,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.organ;
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -129,6 +130,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
             fitNBoot: this.toolParams.fitNBoot,
             fitThresholdPerc: this.toolParams.fitThresholdPerc,
             fitThresholdPval: this.toolParams.fitThresholdPval,
+            fitSignaturesFile: this.toolParams.fitSignaturesFile,
+            fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
         };
 
         // Check if we have provided an existing signature list
@@ -233,6 +236,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     getDefaultConfig() {
         const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+        const fileQuery = {
+            type: "FILE",
+            format: "TAB_SEPARATED_VALUES",
+            include: "id,name,format,size,path",
+        };
         const params = [
             {
                 title: "Input Parameters",
@@ -390,6 +398,40 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "nboot",
                         field: "fitNBoot",
                         type: "input-text",
+                    },
+                    {
+                        title: "Fit Signatures File",
+                        field: "fitSignaturesFile",
+                        type: "custom",
+                        display: {
+                            render: fitSignaturesFile => html`
+                                <catalog-search-autocomplete
+                                    .value="${fitSignaturesFile}"
+                                    .resource="${"FILE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false}}"
+                                    .query="${fileQuery}"
+                                    @filterChange="${e => this.onFieldChange(e.detail.value, "fitSignaturesFile")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Fit Rare Signatures File",
+                        field: "fitRareSignaturesFile",
+                        type: "custom",
+                        display: {
+                            render: fitRareSignaturesFile => html`
+                                <catalog-search-autocomplete
+                                    .value="${fitRareSignaturesFile}"
+                                    .resource="${"FILE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false}}"
+                                    .query="${fileQuery}"
+                                    @filterChange="${e => this.onFieldChange(e.detail.value, "fitRareSignaturesFile")}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
                     },
                 ]
             }
