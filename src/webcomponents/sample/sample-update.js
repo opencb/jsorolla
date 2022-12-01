@@ -61,14 +61,14 @@ export default class SampleUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            // this.displayConfig = {...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     render() {
-        return html`
+        return html `
             <opencga-update
                 .resource="${"SAMPLE"}"
                 .component="${this.sample}"
@@ -452,7 +452,7 @@ export default class SampleUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         rows: 2,
-                                        placeholder: "Add a description..."
+                                        placeholder: "Add a description...",
                                     },
                                 },
                             ],

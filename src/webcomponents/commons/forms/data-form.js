@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
-import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
@@ -29,6 +28,8 @@ import "./toggle-switch.js";
 import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
+
+    static re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
 
     static NOTIFICATION_TYPES = {
         error: "alert alert-danger",
@@ -188,14 +189,25 @@ export default class DataForm extends LitElement {
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
      */
-    _getBooleanValue(value, defaultValue) {
+    _getBooleanValue(value, defaultValue, element) {
         let _value = typeof defaultValue !== "undefined" ? defaultValue : true;
         if (typeof value !== "undefined" && value !== null) {
             if (typeof value === "boolean") {
                 _value = value;
             } else {
                 if (typeof value === "function") {
-                    _value = value(this.data);
+                    // example: phenotypes[].1.description
+                    if (element?.field?.includes("[].")) {
+                        const match = element.field.match(DataForm.re);
+                        if (match) {
+                            const itemArray = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                            _value = value(this.data, itemArray);
+                        } else {
+                            _value = value(this.data);
+                        }
+                    } else {
+                        _value = value(this.data);
+                    }
                 } else {
                     console.error(`Expected boolean or function value, but got '${typeof value}'`);
                 }
@@ -271,8 +283,8 @@ export default class DataForm extends LitElement {
             } else {
                 // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
                 if (element.field.includes("[]")) {
-                    const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
-                    const match = element.field.match(re);
+                    // const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
+                    const match = element.field.match(DataForm.re);
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
                     // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
@@ -633,7 +645,7 @@ export default class DataForm extends LitElement {
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
     _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
@@ -1151,18 +1163,22 @@ export default class DataForm extends LitElement {
         const contents = [];
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
-            const isVisible = this._getBooleanValue(childElement.display?.visible, true);
+            const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
             if (!isVisible) {
                 continue;
             }
 
             // 2. Check if the element is disabled
-            const isChildDisabled = this._getBooleanValue(childElement.display?.disabled, false);
+            // const isChildDisabled = this._getBooleanValue(childElement.display?.disabled, false);
             childElement.display = {
                 ...childElement.display,
-                disabled: isChildDisabled || isDisabled, // We set the disabled attribute from the parent element.
+                // disabled: isChildDisabled || isDisabled, // We set the disabled attribute from the parent element.
                 nested: true
             };
+            // If parent is disabled then we must overwrite disabled field
+            if (isDisabled) {
+                childElement.display.disabled = isDisabled;
+            }
 
             // Call to createElement to get HTML content
             const elemContent = this._createElement(childElement);
@@ -1239,6 +1255,13 @@ export default class DataForm extends LitElement {
                                 _element.elements[i].field = left + "[]." + index + "." + right;
                                 if (_element.elements[i].type === "custom") {
                                     _element.elements[i].display.render = element.elements[i].display.render;
+                                }
+                                // Copy JSON stringify and parse ignores functions, we need to copy them
+                                if (typeof element.elements[i]?.display?.disabled === "function") {
+                                    _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                                }
+                                if (typeof element.elements[i]?.display?.visible === "function") {
+                                    _element.elements[i].display.visible = element.elements[i].display.visible;
                                 }
                             }
                             return html`
@@ -1409,7 +1432,7 @@ export default class DataForm extends LitElement {
             if (element.field.includes("[]")) {
                 const [parentArrayField, itemField] = element.field.split("[].");
                 if (itemField.includes(".")) {
-                    // 2.1 Updating a field in an item in the array
+                    // 2.1 Updating a field in an existing item in the array
                     const [index, field] = itemField.split(".");
                     const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
                     currentElementList[index][field] = value;
@@ -1420,7 +1443,7 @@ export default class DataForm extends LitElement {
                         value: value
                     };
                 } else {
-                    // 2. Adding a new element to the object-list array. Check if value is empty.
+                    // 2.2 Updating a field in a "Create New Item" form
                     if (value) {
                         this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
                     } else {

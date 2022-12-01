@@ -15,13 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 export default class CohortUpdate extends LitElement {
 
@@ -55,7 +52,6 @@ export default class CohortUpdate extends LitElement {
     #init() {
         this.cohort = {};
         this.cohortId = "";
-        this.updateParams = {};
         this.displayConfig = {};
 
         this._config = this.getDefaultConfig();
@@ -63,7 +59,7 @@ export default class CohortUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            // this.displayConfig = {...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -88,14 +84,6 @@ export default class CohortUpdate extends LitElement {
                 {
                     title: "General Information",
                     elements: [
-                        // {
-                        //     type: "notification",
-                        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
-                        //     display: {
-                        //         visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                        //         notificationType: "warning",
-                        //     }
-                        // },
                         {
                             title: "Cohort ID",
                             field: "id",
@@ -104,7 +92,7 @@ export default class CohortUpdate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate):"No creation date",
+                                helpMessage: this.cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this.cohort.creationDate) : "No creation date",
                                 validation: {
                                 }
                             }
@@ -118,14 +106,25 @@ export default class CohortUpdate extends LitElement {
                                     const sampleIds = Array.isArray(samples) ?
                                         samples?.map(sample => sample.id).join(",") :
                                         samples;
+
+                                    const handleSamplesFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        // eslint-disable-next-line no-param-reassign
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(sampleId => sampleId)
+                                            .map(sampleId => ({id: sampleId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+
                                     return html `
                                         <catalog-search-autocomplete
                                             .value="${sampleIds}"
                                             .resource="${"SAMPLE"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .classes="${updateParams.samples ? "selection-updated" : ""}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => handleSamplesFilterChange(e)}">
                                         </catalog-search-autocomplete>
                                     `;
                                 },
