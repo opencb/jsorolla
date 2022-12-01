@@ -411,7 +411,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false}}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e.detail.value, "fitSignaturesFile")}">
+                                    @filterChange="${e => this.onFieldChange(e, "fitSignaturesFile")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -428,7 +428,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false}}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e.detail.value, "fitRareSignaturesFile")}">
+                                    @filterChange="${e => this.onFieldChange(e, "fitRareSignaturesFile")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
