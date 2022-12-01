@@ -21,7 +21,6 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
 import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-update.js";
 
 
 export default class IndividualCreate extends LitElement {

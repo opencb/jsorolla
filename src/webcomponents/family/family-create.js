@@ -20,7 +20,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-update.js";
 import "../commons/tool-header.js";
 
 

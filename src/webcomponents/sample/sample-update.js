@@ -17,8 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
-import "../study/annotationset/annotation-set-update.js";
-import "../study/status/status-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/opencga-update.js";
 

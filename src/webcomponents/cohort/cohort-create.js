@@ -19,8 +19,6 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
-import "../study/annotationset/annotation-set-update.js";
-import "../study/status/status-create.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
 

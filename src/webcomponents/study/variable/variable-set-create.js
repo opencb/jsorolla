@@ -19,8 +19,6 @@ import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
-import "../variable/variable-create.js";
-import "../variable/variable-update.js";
 import "../../commons/forms/select-token-filter-static.js";
 
 export default class VariableSetCreate extends LitElement {
@@ -388,7 +386,10 @@ export default class VariableSetCreate extends LitElement {
                                     display: {
                                         visible: true,
                                         // visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
-                                        disabled: variable => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
+                                        disabled: variable => {
+                                            console.log("the variable is ...", variable);
+                                            return !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL");
+                                        }
                                     }
                                 },
                                 {
