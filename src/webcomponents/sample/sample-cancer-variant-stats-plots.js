@@ -124,8 +124,11 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 type: "SNV",
             }),
             this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
-                ...params,
-                ...this.queries?.["SV"],
+                study: this.opencgaSession.study.fqn,
+                sample: this.sampleId,
+                region: params.region,
+                // ...params,
+                // ...this.queries?.["SV"],
                 type: "SV",
             }),
         ])
