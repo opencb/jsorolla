@@ -189,7 +189,7 @@ export default class OpencgaUpdate extends LitElement {
                     };
                     this.updateCustomisation = [
                         params => {
-                            // Note: we need to remove additional fields to the father and mother objects that are
+                            // Note: we need to remove additional fields to the status and priority objects that are
                             // added by OpenCGA but not accepted in the update endpoint
                             if (params.status?.id) {
                                 // eslint-disable-next-line no-param-reassign
@@ -199,7 +199,10 @@ export default class OpencgaUpdate extends LitElement {
                                 // eslint-disable-next-line no-param-reassign
                                 params.priority = {id: params.priority.id};
                             }
-
+                            if (params.comments) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.comments = params.comments.filter(comment => !comment.author);
+                            }
                         },
                     ];
                     break;

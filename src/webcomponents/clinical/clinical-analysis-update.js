@@ -62,17 +62,6 @@ class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
-        // this.updateParams = {};
-        // this.isLoading = false;
-        // this.displayConfigDefault = {
-        //     width: 8,
-        //     titleVisible: false,
-        //     titleWidth: 4,
-        //     defaultLayout: "horizontal",
-        //     buttonsVisible: true,
-        //     buttonsWidth: 8,
-        //     buttonsAlign: "right",
-        // };
         this.displayConfig = {
             titleWidth: 3,
             width: 8,
@@ -84,11 +73,6 @@ class ClinicalAnalysisUpdate extends LitElement {
         };
         this._config = this.getDefaultConfig();
     }
-
-    // #setLoading(value) {
-    //     this.isLoading = value;
-    //     this.requestUpdate();
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -119,71 +103,6 @@ class ClinicalAnalysisUpdate extends LitElement {
 
     opencgaSessionObserver() {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
-    }
-
-    // FIXME: how to refactor "comments"
-    onFieldChange(e, field) {
-        // Fixme FormUtils: use new methods when https://app.clickup.com/t/36631768/TASK-2037 merged
-        // Caution: swapped parameters in FormUtils.<methodName>(original, toUpdate, ...)
-        const param = field || e.detail.param;
-        switch (param) {
-            case "locked":
-            case "panelLock":
-            case "dueDate":
-            case "description":
-                this.updateParams = FormUtils.updateScalar(
-                    this.clinicalAnalysis,
-                    this._clinicalAnalysis,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "status.id":
-            case "disorder.id":
-            case "priority.id":
-            case "analyst.id":
-                this.updateParams = FormUtils.updateObject(
-                    this.clinicalAnalysis,
-                    this._clinicalAnalysis,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-
-                break;
-            case "panels.id":
-            case "flags.id":
-                this.updateParams = FormUtils
-                    .updateObjectArray(
-                        this.clinicalAnalysis,
-                        this._clinicalAnalysis,
-                        this.updateParams,
-                        param,
-                        e.detail.value,
-                        e.detail.data);
-                break;
-            case "comments":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this.clinicalAnalysis,
-                    this._clinicalAnalysis,
-                    this.updateParams,
-                    param,
-                    e.detail.value
-                );
-
-                // Get new comments and fix tags
-                if (this.updateParams.comments) {
-                    this.updateParams.comments = this.updateParams.comments
-                        .filter(comment => !comment.author)
-                        .map(comment => {
-                            // eslint-disable-next-line no-param-reassign
-                            comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(" ");
-                            return comment;
-                        });
-                }
-
-                break;
-        }
-        this.requestUpdate();
     }
 
     render() {
@@ -524,7 +443,10 @@ class ClinicalAnalysisUpdate extends LitElement {
                                 // maxNumItems: 5,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
-                                view: comment => html`
+                                view: comment => {
+                                    // eslint-disable-next-line no-param-reassign
+                                    comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(/,\s*/);
+                                    return html `
                                     <div style="margin-bottom:1rem;">
                                         <div style="display:flex;margin-bottom:0.5rem;">
                                             <div style="padding-right:1rem;">
@@ -537,10 +459,11 @@ class ClinicalAnalysisUpdate extends LitElement {
                                         </div>
                                         <div style="width:100%;">
                                             <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                            <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                            <div class="text-muted">Tags: ${(comment.tags || []).join(", ") || "-"}</div>
                                         </div>
                                     </div>
-                                `,
+                                `;
+                                }
                             },
                             elements: [
                                 {
