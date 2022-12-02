@@ -335,14 +335,10 @@ export default class SignatureView extends LitElement {
     }
 
     signatureFittingObserver() {
-        if (!this.signature?.fitting || !this.fittingId) {
-            return;
-        }
-
         const self = this;
-        const scores = this.signature.fitting[this.fittingId]?.scores;
+        const fitting = (this.signature?.fittings || []).find(fitting => fitting.id === this.fittingId);
+        const scores = fitting?.scores;
 
-        // Check if this fitting does not have any scores
         if (!scores || scores.length === 0) {
             return;
         }
