@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import "../commons/view/signature-view.js";
-import "../commons/forms/data-form.js";
-import "../commons/simple-chart.js";
+import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/view/signature-view.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/simple-chart.js";
 
-class SampleQcSignatureView extends LitElement {
+class MutationalSignatureView extends LitElement {
 
     constructor() {
         super();
@@ -242,4 +242,4 @@ class SampleQcSignatureView extends LitElement {
 
 }
 
-customElements.define("sample-qc-signature-view", SampleQcSignatureView);
+customElements.define("mutational-signature-view", MutationalSignatureView);
