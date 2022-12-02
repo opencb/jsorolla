@@ -195,20 +195,29 @@ class MutationalSignatureView extends LitElement {
                     display: {
                         visible: !!this.selectedSignature,
                     },
-                    elements: (this.selectedSignature?.fittings || []).map(fitting => ({
-                        title: fitting.id,
-                        type: "custom",
-                        display: {
-                            render: () => html`
-                                <signature-view
-                                    .signature="${this.selectedSignature}"
-                                    .plots="${["fitting"]}"
-                                    .fittingId="${fitting.id}"
-                                    ?active="${true}">
-                                </signature-view>
-                            `,
+                    elements: [
+                        {
+                            type: "notification",
+                            text: "No fittings ddata to display.",
+                            display: {
+                                visible: (this.selectedSignature?.fittings || []).length === 0,
+                            },
                         },
-                    })),
+                        ...(this.selectedSignature?.fittings || []).map(fitting => ({
+                            title: fitting.id,
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <signature-view
+                                        .signature="${this.selectedSignature}"
+                                        .plots="${["fitting"]}"
+                                        .fittingId="${fitting.id}"
+                                        ?active="${true}">
+                                    </signature-view>
+                                `,
+                            },
+                        })),
+                    ],
                 },
             ]
         };
