@@ -16,15 +16,13 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../sample/sample-qc-signature-view.js";
+import "../../clinical/analysis/mutational-signature-view.js";
 
 class VariantInterpreterQcSignature extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,15 +46,9 @@ class VariantInterpreterQcSignature extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -69,13 +61,17 @@ class VariantInterpreterQcSignature extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
     }
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                     this.prepareSignatures();
@@ -96,26 +92,23 @@ class VariantInterpreterQcSignature extends LitElement {
         this.requestUpdate();
     }
 
-    getDefaultConfig() {
-        return {
-        }
-    }
-
     render() {
         // Check Project exists
-        if (!this.opencgaSession.project) {
+        if (!this.opencgaSession?.project) {
             return html`
-                    <div>
-                        <h4><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h4>
-                    </div>`;
+                <div>
+                    <h4><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h4>
+                </div>
+            `;
         }
 
         // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case found</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case found</h3>
+                </div>
+            `;
         }
         // if (!this.signature) {
         //     return html`
@@ -123,13 +116,18 @@ class VariantInterpreterQcSignature extends LitElement {
         //                 <h4 style="padding: 20px"><i class="fas fa-lock"></i>No signature found</h4>
         //             </div>`;
         // }
-// debugger
-        // <signature-view .signature="${this.signature}"></signature-view>
         return html`
             <div style="margin: 20px 10px">
-                <sample-qc-signature-view .sample="${this.somaticSample}" .opencgaSession="${this.opencgaSession}"></sample-qc-signature-view>
+                <mutational-signature-view
+                    .sample="${this.somaticSample}"
+                    .opencgaSession="${this.opencgaSession}">
+                </mutational-signature-view>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
