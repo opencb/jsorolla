@@ -40,6 +40,9 @@ class VariantInterpreterQcSignature extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            active: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }
@@ -49,10 +52,11 @@ class VariantInterpreterQcSignature extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+        this.signatures = [];
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("active")) {
             this.prepareSignatures();
         }
 
@@ -74,7 +78,7 @@ class VariantInterpreterQcSignature extends LitElement {
                 .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.prepareSignatures();
+                    // this.prepareSignatures();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -83,17 +87,27 @@ class VariantInterpreterQcSignature extends LitElement {
     }
 
     prepareSignatures() {
-        if (this.clinicalAnalysis) {
-            this.somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
-            // if (somaticSample) {
-            //     this.signature = somaticSample.qualityControl?.variantMetrics?.signatures[0];
-            // }
+        this.signatures = [];
+        const somaticSample = (this.clinicalAnalysis?.proband?.samples || []).find(s => s.somatic);
+        if (this.opencgaSession && somaticSample && this.active) {
+            // We need to import the signatures data from the sample.qualityControl field
+            this.opencgaSession.opencgaClient.samples()
+                .search({
+                    id: somaticSample.id,
+                    include: "id,qualityControl.variant.signatures",
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    const sample = response?.responses?.[0]?.results?.[0];
+                    if (sample) {
+                        this.signatures = sample.qualityControl?.variant?.signatures || [];
+                    }
+                    this.requestUpdate();
+                });
         }
-        this.requestUpdate();
     }
 
     render() {
-        // Check Project exists
         if (!this.opencgaSession?.project) {
             return html`
                 <div>
@@ -102,7 +116,6 @@ class VariantInterpreterQcSignature extends LitElement {
             `;
         }
 
-        // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
                 <div>
@@ -110,16 +123,11 @@ class VariantInterpreterQcSignature extends LitElement {
                 </div>
             `;
         }
-        // if (!this.signature) {
-        //     return html`
-        //             <div>
-        //                 <h4 style="padding: 20px"><i class="fas fa-lock"></i>No signature found</h4>
-        //             </div>`;
-        // }
+
         return html`
             <div style="margin: 20px 10px">
                 <mutational-signature-view
-                    .sample="${this.somaticSample}"
+                    .signatures="${this.signatures}"
                     .opencgaSession="${this.opencgaSession}">
                 </mutational-signature-view>
             </div>
