@@ -74,6 +74,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
         this.queries = {};
         this.circosPlot = null;
+        this.signature = {};
         this.deletionAggregationStatsPlot = null;
     }
 
@@ -292,7 +293,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     // Save signature for onSave function.
     onChangeSignature(e) {
-        this.signature = e.detail.signature;
+        this.signature = {
+            ...this.signature,
+            ...e.detail.signature,
+        };
     }
 
     onChangeCircosPlot(e) {
@@ -343,30 +347,41 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             });
         }
 
-        // Prepare file params
-        const circosPlotParams = {
-            content: this.circosPlot.split(", ")[1],
-            path: "/circos/" + this.save.id + ".png",
-            type: "FILE",
-            format: "IMAGE",
-        };
-        const deletionAggregationStatsPlotParams = {
-            content: this.deletionAggregationStatsPlot.split("base64,")[1].trim(),
-            path: `/deletionAggregationStats/${this.sample.id}-${this.save.id}.png`,
-            type: "FILE",
-            format: "IMAGE",
-        };
+        const plotsPromises = [];
 
-        Promise.all([
-            this.opencgaSession.opencgaClient.files().create(circosPlotParams, {
-                study: this.opencgaSession.study.fqn,
-                parents: true,
-            }),
-            this.opencgaSession.opencgaClient.files().create(deletionAggregationStatsPlotParams, {
-                study: this.opencgaSession.study.fqn,
-                parents: true,
-            }),
-        ])
+        // Prepare circos plot image
+        if (this.circosPlot) {
+            const circosPlotParams = {
+                content: this.circosPlot.split(", ")?.[1],
+                path: "/circos/" + this.save.id + ".png",
+                type: "FILE",
+                format: "IMAGE",
+            };
+            plotsPromises.push(
+                this.opencgaSession.opencgaClient.files().create(circosPlotParams, {
+                    study: this.opencgaSession.study.fqn,
+                    parents: true,
+                })
+            );
+        }
+
+        // Prepare deletion aggregation plot image
+        if (this.deletionAggregationStatsPlot) {
+            const deletionAggregationStatsPlotParams = {
+                content: this.deletionAggregationStatsPlot.split("base64,")[1].trim(),
+                path: `/deletionAggregationStats/${this.sample.id}-${this.save.id}.png`,
+                type: "FILE",
+                format: "IMAGE",
+            };
+            plotsPromises.push(
+                this.opencgaSession.opencgaClient.files().create(deletionAggregationStatsPlotParams, {
+                    study: this.opencgaSession.study.fqn,
+                    parents: true,
+                }),
+            );
+        }
+
+        Promise.all(plotsPromises)
             .then(results => {
                 // results[0] --> circos plot response
                 // results[1] --> deletion aggregation plot response
@@ -375,10 +390,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 if (!this.sample.qualityControl.variant.genomePlot) {
                     this.sample.qualityControl.variant["genomePlot"] = {};
                 }
-                this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+
+                // Append circos plot
+                if (this.circosPlot) {
+                    this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                }
 
                 // Append the deletion aggregation plot
-                this.sample.qualityControl.variant.files.push(results[1].responses[0].results[0].id);
+                if (this.deletionAggregationStatsPlot) {
+                    this.sample.qualityControl.variant.files.push(results[results.length - 1].responses[0].results[0].id);
+                }
 
                 // Update sample
                 const sampleParams = {
