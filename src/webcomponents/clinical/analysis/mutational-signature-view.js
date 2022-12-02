@@ -24,9 +24,7 @@ class MutationalSignatureView extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -53,14 +51,9 @@ class MutationalSignatureView extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -81,7 +74,10 @@ class MutationalSignatureView extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
     }
 
@@ -105,7 +101,6 @@ class MutationalSignatureView extends LitElement {
     }
 
     getSignaturesFromSample() {
-
         // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
         if (this.sample?.qualityControl?.variantMetrics) {
             this._variantStatsPath = "variantMetrics";
@@ -118,14 +113,12 @@ class MutationalSignatureView extends LitElement {
         this.signatureSelect = this.sample?.qualityControl?.[this._variantStatsPath]?.signatures.map(signature => signature.id) ?? [];
         if (this.sample.qualityControl?.[this._variantStatsPath]?.signatures?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            let selectedSignature = this.sample.qualityControl?.[this._variantStatsPath].signatures.find(signature => signature.id === "ALL") ?? this.sample.qualityControl?.[this._variantStatsPath].signatures[0];
-            // debugger
+            const selectedSignature = this.sample.qualityControl?.[this._variantStatsPath].signatures.find(signature => signature.id === "ALL") ?? this.sample.qualityControl?.[this._variantStatsPath].signatures[0];
             this.signatureSelected = selectedSignature.id;
             this._signature = selectedSignature;
         } else {
-            //TODO recheck
             // Check if sample variant stats has been indexed in annotationSets
-            let annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
+            const annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
             this._signature = annotationSet?.annotations;
         }
 
@@ -136,6 +129,42 @@ class MutationalSignatureView extends LitElement {
     signatureChange(e) {
         this._signature = this.sample.qualityControl?.[this._variantStatsPath].signatures.find(stat => stat.id === e.detail.value);
         this.requestUpdate();
+    }
+
+    render() {
+        if (!this._signature?.id) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Signature found.
+                </div>
+            `;
+        }
+
+        return html`
+            ${this.signatureSelector ? html`
+                <div style="margin: 20px 10px">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-2">Select Signature</label>
+                            <div class="col-md-2">
+                                <select-field-filter
+                                    forceSelection
+                                    .data="${this.signatureSelect}"
+                                    .value=${this.signatureSelected}
+                                    @filterChange="${this.signatureChange}">
+                                </select-field-filter>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : null}
+            <div>
+                <data-form
+                    .data=${this._signature}
+                    .config="${this._config}">
+                </data-form>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -152,7 +181,6 @@ class MutationalSignatureView extends LitElement {
             sections: [
                 {
                     title: "Summary",
-                    display: {},
                     elements: [
                         {
                             name: "ID",
@@ -170,10 +198,16 @@ class MutationalSignatureView extends LitElement {
                             field: "query",
                             type: "custom",
                             display: {
-                                render: query => query && !UtilsNew.isEmpty(query)
-                                    ? Object.entries(query).map((k, v) => html`<span class="badge">${k}: ${v}</span>`)
-                                    : "none"
-                            }
+                                render: query => {
+                                    if (query && !UtilsNew.isEmpty(query)) {
+                                        return Object.entries(query).map((k, v) => html`
+                                            <span class="badge">${k}: ${v}</span>
+                                        `);
+                                    } else {
+                                        return "none";
+                                    }
+                                },
+                            },
                         },
                     ]
                 }, {
@@ -187,12 +221,12 @@ class MutationalSignatureView extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: data => {
-                                    return html`
-                                            <signature-view .signature="${this._signature}"></signature-view>
-                                        `;
-                                }
-                            }
+                                render: () => html`
+                                    <signature-view
+                                        .signature="${this._signature}">
+                                    </signature-view>
+                                `,
+                            },
                         },
                     ]
                 }, {
@@ -212,32 +246,6 @@ class MutationalSignatureView extends LitElement {
                 }
             ]
         };
-    }
-
-    render() {
-        if (!this._signature?.id) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Signature found.</div>`;
-        }
-
-        return html`
-            ${this.signatureSelector
-                ? html`
-                            <div style="margin: 20px 10px">
-                                <div class="form-horizontal">
-                                    <div class="form-group">
-                                        <label class="col-md-2">Select Signature</label>
-                                        <div class="col-md-2">
-                                            <select-field-filter forceSelection .data="${this.signatureSelect}" .value=${this.signatureSelected} @filterChange="${this.signatureChange}"></select-field-filter>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`
-                : null
-            }
-            <div>
-                <data-form .data=${this._signature} .config="${this._config}"></data-form>
-            </div>
-        `;
     }
 
 }
