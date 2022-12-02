@@ -129,6 +129,9 @@ class MutationalSignatureView extends LitElement {
     getDefaultConfig() {
         return {
             // title: "Mutational Signature",
+            display: {
+                buttonsVisible: false,
+            },
             sections: [
                 {
                     elements: [
