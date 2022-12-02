@@ -131,8 +131,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         ])
             .then(results => {
                 this.signature = {
-                    SNV: results[0].responses[0].results[0],
-                    SV: results[1].responses[0].results[0],
+                    SNV: results?.[0]?.responses?.[0]?.results?.[0] || null,
+                    SV: results?.[1]?.responses?.[0]?.results?.[0] || null,
                 };
                 this.dispatchEvent(new CustomEvent("changeSignature", {
                     detail: {
