@@ -60,37 +60,38 @@ export default class VariableSetCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        console.log("Test change field ");
-        e.stopPropagation();
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-            case "entities":
-                const entities = e.detail.value ? e.detail.value.split(",") : [];
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        entities
-                    )
-                };
-                break;
-            // case "variables":
-            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
-            //     break;
-        }
+        // console.log("Test change field ");
+        // // e.stopPropagation();
+        // const param = field || e.detail.param;
+        // switch (param) {
+        //     case "id":
+        //     case "name":
+        //     case "unique":
+        //     case "confidential":
+        //     case "description":
+        //         this.variableSet = {
+        //             ...FormUtils.createObject(
+        //                 this.variableSet,
+        //                 param,
+        //                 e.detail.value
+        //             )
+        //         };
+        //         break;
+        //     case "entities":
+        //         const entities = e.detail.value ? e.detail.value.split(",") : [];
+        //         this.variableSet = {
+        //             ...FormUtils.createObject(
+        //                 this.variableSet,
+        //                 param,
+        //                 entities
+        //             )
+        //         };
+        //         break;
+        //     // case "variables":
+        //     //     this.variableSet = {...this.variableSet, variables: e.detail.value};
+        //     //     break;
+        // }
+        this.variableSet = {...this.variableSet};
         this.requestUpdate();
     }
 
@@ -362,9 +363,9 @@ export default class VariableSetCreate extends LitElement {
                                     type: "custom",
                                     display: {
                                         // disabled: variable => variable?.type !== "CATEGORICAL",
-                                        render: allowedValues => html`
+                                        render: (variableSet, variable) => html`
                                             <select-token-filter-static
-                                                .values="${allowedValues}"
+                                                .values="${variable.allowedValues}"
                                                 .disabled="${this.variable?.type !== "CATEGORICAL"}"
                                                 @addToken=${e => this.#onAddValues(e)}>
                                             </select-token-filter-static>`
@@ -375,8 +376,8 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "checkbox",
                                     display: {
-                                        // visible: variable => variable?.type === "BOOLEAN",
-                                        visible: false,
+                                        visible: (variableSet, variable) => variable?.type === "BOOLEAN",
+                                        // visible: false,
                                     }
                                 },
                                 {
@@ -384,12 +385,12 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-text",
                                     display: {
-                                        visible: true,
-                                        // visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
-                                        disabled: variable => {
-                                            console.log("the variable is ...", variable);
-                                            return !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL");
-                                        }
+                                        // visible: true,
+                                        visible: (variableSet, variable) => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
+                                        // disabled: (variableSet, variable) => {
+                                        //     console.log("the variable is ...", variable);
+                                        //     return !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL");
+                                        // }
                                     }
                                 },
                                 {
@@ -397,8 +398,8 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-num",
                                     display: {
-                                        visible: false,
-                                        // visible: variable => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                                        // visible: false,
+                                        visible: (variableSet, variable) => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
                                     }
                                 },
                                 {

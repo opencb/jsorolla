@@ -74,7 +74,6 @@ export default class SampleCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
         this.sample = {...this.sample}; // force to refresh the object-list
         this.requestUpdate();
     }
