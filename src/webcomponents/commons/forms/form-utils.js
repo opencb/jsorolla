@@ -95,27 +95,27 @@ export default class FormUtils {
                         after: undefined
                     };
 
-                    const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
-                    for (const key of keys) {
-                        const split = key.split("[].")[1];
-                        let keyIndex, newKey;
-                        if (split.includes(".")) {
-                            const [index, field] = split.split(".");
-                            keyIndex = Number.parseInt(index);
-                            newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
-                        } else {
-                            keyIndex = Number.parseInt(key.split("[].")[1]);
-                            newKey = arrayFieldName + "[]." + (keyIndex - 1);
-                        }
-
-                        if (keyIndex > removedIndex) {
-                            _updatedFields[newKey] = _updatedFields[key];
-                            delete _updatedFields[key];
-
-                            // If we rename a bigger version we need to delete the original item deleted
-                            delete _updatedFields[param];
-                        }
-                    }
+                    // const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
+                    // for (const key of keys) {
+                    //     const split = key.split("[].")[1];
+                    //     let keyIndex, newKey;
+                    //     if (split.includes(".")) {
+                    //         const [index, field] = split.split(".");
+                    //         keyIndex = Number.parseInt(index);
+                    //         newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
+                    //     } else {
+                    //         keyIndex = Number.parseInt(key.split("[].")[1]);
+                    //         newKey = arrayFieldName + "[]." + (keyIndex - 1);
+                    //     }
+                    //
+                    //     if (keyIndex > removedIndex) {
+                    //         _updatedFields[newKey] = _updatedFields[key];
+                    //         delete _updatedFields[key];
+                    //
+                    //         // If we rename a bigger version we need to delete the original item deleted
+                    //         delete _updatedFields[param];
+                    //     }
+                    // }
                 }
             }
         } else {

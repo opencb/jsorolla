@@ -1284,7 +1284,7 @@ export default class DataForm extends LitElement {
                                             </button>` : null}
                                     </div>
                                 </div>
-                                <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
+                                <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
                                     ${this._createObjectElement(_element)}
                                     <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
                                         <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
@@ -1318,11 +1318,11 @@ export default class DataForm extends LitElement {
 
         // Add the form to create the next item
         //  || UtilsNew.isEmpty(this.objectListItems[element.field])
+        // ${this._createObjectElement(element)}
         if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
             const createHtml = html`
                 <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
                     <label>Create new item</label>
-                    ${this._createObjectElement(element)}
                     <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
                         <button type="button" class="btn btn-sm btn-primary"
                                 @click="${e => this.#addToObjectList(e, element)}" ?disabled="${isDisabled}">
@@ -1355,23 +1355,31 @@ export default class DataForm extends LitElement {
         // }
 
         // Add the new item to the array and delete the temp item
-        if (this.objectListItems[element.field]) {
-            // const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
-            // UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
-            // delete this.objectListItems[element.field];
+        // if (this.objectListItems[element.field]) {
+        //     // const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
+        //     // UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
+        //     // delete this.objectListItems[element.field];
+        //
+        //
+        //     // Notify change to provoke the update
+        //     // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        //     // const newItemIndex = dataElementList.length;
+        //     // const newElement = {field: element.field + "[]." + newItemIndex};
+        //
+        //     // this.onFilterChange(element, dataElementList);
+        //     const event = {
+        //         action: "ADD",
+        //     };
+        //     this.onFilterChange(element, this.objectListItems[element.field], event);
+        // }
 
+        const event = {
+            action: "ADD",
+        };
+        this.onFilterChange(element, {}, event);
 
-            // Notify change to provoke the update
-            // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-            // const newItemIndex = dataElementList.length;
-            // const newElement = {field: element.field + "[]." + newItemIndex};
-
-            // this.onFilterChange(element, dataElementList);
-            const event = {
-                action: "ADD",
-            };
-            this.onFilterChange(element, this.objectListItems[element.field], event);
-        }
+        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        this.editOpen = dataElementList.length - 1;
     }
 
     #saveItemInObjectList(e, item, index, element) {
@@ -1409,12 +1417,18 @@ export default class DataForm extends LitElement {
             const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
             switch (objectListEvent.action) {
                 case "ADD":
-                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, this.objectListItems[element.field]]);
+                    // UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, this.objectListItems[element.field]]);
+                    // eventDetail = {
+                    //     param: element.field + "[]." + dataElementList.length,
+                    //     value: {...this.objectListItems[element.field]}
+                    // };
+                    // delete this.objectListItems[element.field];
+
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, value]);
                     eventDetail = {
                         param: element.field + "[]." + dataElementList.length,
-                        value: {...this.objectListItems[element.field]}
+                        value: value
                     };
-                    delete this.objectListItems[element.field];
                     break;
                 case "SAVE":
                     // nothing to do
@@ -1444,6 +1458,7 @@ export default class DataForm extends LitElement {
                     };
                 } else {
                     // 2.2 Updating a field in a "Create New Item" form
+                    debugger
                     if (value) {
                         this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
                     } else {
