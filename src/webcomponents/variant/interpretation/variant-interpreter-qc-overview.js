@@ -200,6 +200,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Summary"
                             },
                             {
+                                id: "MutationalSignature",
+                                title: "Mutational Signature",
+                            },
+                            {
                                 id: "VariantStats",
                                 title: "Variant Stats"
                             },
@@ -218,10 +222,6 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                            },
-                            {
-                                id: "GenomicContext",
-                                title: "Genomic Context (Signature)"
                             },
                             // {
                             //     id: "GeneCoverageStats",
@@ -358,7 +358,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             </file-qc-ascat-metrics>
                         </div>
 
-                        <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
+                        <div id="${this._prefix}MutationalSignature" role="tabpanel" class="tab-pane content-tab">
                             <h3>Mutational Signature</h3>
                             <variant-interpreter-qc-signature
                                 .opencgaSession=${this.opencgaSession}
