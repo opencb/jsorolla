@@ -103,7 +103,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     }
 
     signatureQuery() {
-        this.signature = null;
+        this.signature = {};
         const params = {
             study: this.opencgaSession.study.fqn,
             fitting: false,
@@ -117,39 +117,43 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
         }
 
-        Promise.all([
-            this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
-                ...params,
-                ...this.queries?.["SNV"],
-                type: "SNV",
-            }),
-            this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
-                study: this.opencgaSession.study.fqn,
-                sample: this.sampleId,
-                region: params.region,
-                // ...params,
-                // ...this.queries?.["SV"],
-                type: "SV",
-            }),
-        ])
-            .then(results => {
-                this.signature = {
-                    SNV: results?.[0]?.responses?.[0]?.results?.[0] || null,
-                    SV: results?.[1]?.responses?.[0]?.results?.[0] || null,
-                };
-                this.dispatchEvent(new CustomEvent("changeSignature", {
-                    detail: {
-                        signature: this.signature
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            }).catch(response => {
-                // this.signature = {
-                //     errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
-                // };
+        // Query SNV
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+            ...params,
+            ...this.queries?.["SNV"],
+            type: "SNV",
+        })
+            .then(response => {
+                this.signature["SNV"] = response.responses?.[0]?.results?.[0] || null;
+                LitUtils.dispatchCustomEvent(this, "changeSignature", null, {
+                    signature: this.signature,
+                });
+            })
+            .catch(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            }).finally(() => {
+            })
+            .finally(() => {
+                this.requestUpdate();
+            });
+
+        // Query for SV
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+            ...params,
+            // ...params,
+            // ...this.queries?.["SV"],
+            fileData: "", // We need to remove the fileData param of the query
+            type: "SV",
+        })
+            .then(response => {
+                this.signature["SV"] = response.responses?.[0]?.results?.[0] || null;
+                LitUtils.dispatchCustomEvent(this, "changeSignature", null, {
+                    signature: this.signature,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
                 this.requestUpdate();
             });
     }
