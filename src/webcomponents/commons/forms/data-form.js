@@ -1478,7 +1478,10 @@ export default class DataForm extends LitElement {
         // 4. Send the custom event if eventDetail has been created, this is not created when a new item is being updated
         if (eventDetail) {
             this.dispatchEvent(new CustomEvent("fieldChange", {
-                detail: eventDetail,
+                detail: {
+                    ...eventDetail,
+                    data: this.data
+                },
                 bubbles: true,
                 composed: true
             }));

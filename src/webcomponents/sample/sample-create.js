@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
-import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleCreate extends LitElement {
@@ -64,7 +62,6 @@ export default class SampleCreate extends LitElement {
         this.requestUpdate();
     }
 
-
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -73,8 +70,8 @@ export default class SampleCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
-        this.sample = {...this.sample}; // force to refresh the object-list
+    onFieldChange(e) {
+        this.sample = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -95,6 +92,7 @@ export default class SampleCreate extends LitElement {
             study: this.opencgaSession.study.fqn,
             includeResult: true
         };
+        debugger
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.samples()
