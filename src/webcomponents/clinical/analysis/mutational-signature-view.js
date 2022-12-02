@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/signature-view.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 import "../../commons/simple-chart.js";
 
 class MutationalSignatureView extends LitElement {
@@ -34,46 +35,28 @@ class MutationalSignatureView extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            sampleId: {
-                type: String
-            },
-            sample: {
-                type: Object
-            },
-            signature: {
-                type: Object
+            signatures: {
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
+        this.selectedSignature = null;
+        this.selectedSignatureId = null;
         this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
-
-        if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
-        }
-
-        if (changedProperties.has("sample")) {
-            this.getSignaturesFromSample();
-        }
-
-        if (changedProperties.has("signature")) {
-            this.signatureObserver();
-        }
-
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("signatures") || changedProperties.has("config")) {
+            this.selectedSignature = null;
+            this.selectedSignatureId = null;
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -81,169 +64,149 @@ class MutationalSignatureView extends LitElement {
         }
     }
 
-    sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.sample = response.getResult(0);
-                    this.getSignaturesFromSample();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+    onChangeSignature(signatureId) {
+        this.selectedSignatureId = signatureId;
+        this.selectedSignature = null;
+        const [type, id] = (signatureId || "").split(":");
+        if (type && id) {
+            this.selectedSignature = this.signatures.find(signature => {
+                return signature.id === id && signature.type === type;
+            });
+        }
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+        this.requestUpdate();
+    }
+
+    generateSignaturesDropdown() {
+        if (this.signatures?.length > 0) {
+            const signaturesbyType = {};
+            this.signatures.forEach(signature => {
+                const type = signature.type?.toUpperCase();
+                if (type && signature.id) {
+                    if (!signaturesbyType[type]) {
+                        signaturesbyType[type] = [];
+                    }
+                    signaturesbyType[type].push({
+                        id: `${signature.type}:${signature.id}`,
+                        name: signature.id,
+                    });
+                }
+            });
+
+            return Object.keys(signaturesbyType)
+                .map(type => {
+                    return {
+                        id: type,
+                        fields: signaturesbyType[type],
+                    };
                 });
-        }
-    }
 
-    signatureObserver() {
-        this._signature = this.signature;
-        this.signatureSelector = false;
-        this.requestUpdate();
-    }
-
-    getSignaturesFromSample() {
-        // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
-        if (this.sample?.qualityControl?.variantMetrics) {
-            this._variantStatsPath = "variantMetrics";
-        } else if (this.sample?.qualityControl?.variant) {
-            this._variantStatsPath = "variant";
         } else {
-            console.error("unexpected QC data model");
+            return [];
         }
-
-        this.signatureSelect = this.sample?.qualityControl?.[this._variantStatsPath]?.signatures.map(signature => signature.id) ?? [];
-        if (this.sample.qualityControl?.[this._variantStatsPath]?.signatures?.length) {
-            // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            const selectedSignature = this.sample.qualityControl?.[this._variantStatsPath].signatures.find(signature => signature.id === "ALL") ?? this.sample.qualityControl?.[this._variantStatsPath].signatures[0];
-            this.signatureSelected = selectedSignature.id;
-            this._signature = selectedSignature;
-        } else {
-            // Check if sample variant stats has been indexed in annotationSets
-            const annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
-            this._signature = annotationSet?.annotations;
-        }
-
-        this.signatureSelector = true;
-        this.requestUpdate();
-    }
-
-    signatureChange(e) {
-        this._signature = this.sample.qualityControl?.[this._variantStatsPath].signatures.find(stat => stat.id === e.detail.value);
-        this.requestUpdate();
     }
 
     render() {
-        if (!this._signature?.id) {
+        if (!this.signatures || this.signatures.length === 0) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Signature found.
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Signatures available.
                 </div>
             `;
         }
 
         return html`
-            ${this.signatureSelector ? html`
-                <div style="margin: 20px 10px">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-md-2">Select Signature</label>
-                            <div class="col-md-2">
-                                <select-field-filter
-                                    forceSelection
-                                    .data="${this.signatureSelect}"
-                                    .value=${this.signatureSelected}
-                                    @filterChange="${this.signatureChange}">
-                                </select-field-filter>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ` : null}
-            <div>
-                <data-form
-                    .data=${this._signature}
-                    .config="${this._config}">
-                </data-form>
-            </div>
+            <data-form
+                .data=${{}}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                // showTitle: false,
-                labelWidth: 3,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
+            // title: "Mutational Signature",
             sections: [
                 {
-                    title: "Summary",
                     elements: [
                         {
-                            name: "ID",
-                            field: "id",
-                            display: {
-                                style: "font-weight: bold",
-                            }
-                        },
-                        {
-                            name: "Variant Type",
-                            field: "type"
-                        },
-                        {
-                            name: "Signature Query Filters",
-                            field: "query",
+                            name: "Select Signature",
                             type: "custom",
                             display: {
-                                render: query => {
-                                    if (query && !UtilsNew.isEmpty(query)) {
-                                        return Object.entries(query).map((k, v) => html`
-                                            <span class="badge">${k}: ${v}</span>
-                                        `);
-                                    } else {
-                                        return "none";
-                                    }
-                                },
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${this.generateSignaturesDropdown()}"
+                                        .value=${this.selectedSignatureId || ""}
+                                        ?multiple="${false}"
+                                        ?liveSearch=${false}
+                                        @filterChange="${e => this.onChangeSignature(e.detail.value)}">
+                                    </select-field-filter>
+                                `,
                             },
-                        },
-                    ]
-                }, {
-                    title: "Genomic Context",
+                        }
+                    ],
+                },
+                {
+                    title: "Catalogue",
                     display: {
-                        visible: signature => signature?.counts?.length > 0
+                        visible: !!this.selectedSignature,
                     },
                     elements: [
                         {
-                            name: "",
+                            name: "Catalogue Query",
                             type: "custom",
                             display: {
-                                defaultLayout: "vertical",
+                                render: () => {
+                                    if (this.selectedSignature?.query) {
+                                        return Object.keys(this.selectedSignature.query).map(key => html`
+                                            <span class="badge">
+                                                ${key}: ${this.selectedSignature.query[key]}
+                                            </span>
+                                        `);
+                                    }
+                                    return "-";
+                                },
+                            },
+                        },
+                        {
+                            title: "Catalogue Plot",
+                            type: "custom",
+                            display: {
                                 render: () => html`
                                     <signature-view
-                                        .signature="${this._signature}">
+                                        .signature="${this.selectedSignature}"
+                                        .plots="${["counts"]}"
+                                        .mode="${this.selectedSignature.type.toUpperCase() === "SV" ? "SV" : "SBS"}"
+                                        ?active="${true}">
                                     </signature-view>
                                 `,
                             },
                         },
                     ]
-                }, {
-                    title: "Genomic Context",
+                },
+                {
+                    title: "Fittings",
                     display: {
-                        visible: signature => signature?.counts?.length === 0
+                        visible: !!this.selectedSignature,
                     },
-                    elements: [
-                        {
-                            name: "Warning",
-                            type: "custom",
-                            display: {
-                                render: () => html`<span>No variants found</span>`
-                            }
-                        }
-                    ]
-                }
+                    elements: (this.selectedSignature?.fittings || []).map(fitting => ({
+                        title: fitting.id,
+                        type: "custom",
+                        display: {
+                            render: () => html`
+                                <signature-view
+                                    .signature="${this.selectedSignature}"
+                                    .plots="${["fitting"]}"
+                                    .fittingId="${fitting.id}"
+                                    ?active="${true}">
+                                </signature-view>
+                            `,
+                        },
+                    })),
+                },
             ]
         };
     }
