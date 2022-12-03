@@ -327,14 +327,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         if (signatureIndex === -1) {
             if (this.signature?.["SNV"]) {
                 this.sample.qualityControl.variant.signatures.push({
-                    id: this.save.id,
+                    id: `${this.save.id}-snv`,
                     type: "SNV",
                     ...this.signature["SNV"],
                 });
             }
             if (this.signature?.["SV"]) {
                 this.sample.qualityControl.variant.signatures.push({
-                    id: this.save.id,
+                    id: `${this.save.id}-sv`,
                     type: "SV",
                     ...this.signature["SV"],
                 });
