@@ -66,13 +66,7 @@ class MutationalSignatureView extends LitElement {
 
     onChangeSignature(signatureId) {
         this.selectedSignatureId = signatureId;
-        this.selectedSignature = null;
-        const [type, id] = (signatureId || "").split(":");
-        if (type && id) {
-            this.selectedSignature = this.signatures.find(signature => {
-                return signature.id === id && signature.type === type;
-            });
-        }
+        this.selectedSignature = this.signatures.find(signature => signature.id === signatureId) || null;
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -81,32 +75,9 @@ class MutationalSignatureView extends LitElement {
     }
 
     generateSignaturesDropdown() {
-        if (this.signatures?.length > 0) {
-            const signaturesbyType = {};
-            this.signatures.forEach(signature => {
-                const type = signature.type?.toUpperCase();
-                if (type && signature.id) {
-                    if (!signaturesbyType[type]) {
-                        signaturesbyType[type] = [];
-                    }
-                    signaturesbyType[type].push({
-                        id: `${signature.type}:${signature.id}`,
-                        name: signature.id,
-                    });
-                }
-            });
-
-            return Object.keys(signaturesbyType)
-                .map(type => {
-                    return {
-                        id: type,
-                        fields: signaturesbyType[type],
-                    };
-                });
-
-        } else {
-            return [];
-        }
+        return (this.signatures || [])
+            .map(signature => signature.id)
+            .sort((a, b) => a < b ? -1 : +1);
     }
 
     render() {
