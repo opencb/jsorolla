@@ -169,7 +169,7 @@ class MutationalSignatureView extends LitElement {
                     elements: [
                         {
                             type: "notification",
-                            text: "No fittings ddata to display.",
+                            text: "No fittings data to display.",
                             display: {
                                 visible: (this.selectedSignature?.fittings || []).length === 0,
                             },
