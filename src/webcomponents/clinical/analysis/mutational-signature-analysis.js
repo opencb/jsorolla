@@ -137,11 +137,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Check if we have provided an existing signature list
         if (this.toolParams.signature) {
             toolParams.skip = "catalogue";
-            toolParams.id = this.toolParams.signature.split(":")[1];
+            toolParams.id = this.toolParams.signature; // .split(":")[1];
         } else {
             toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
             toolParams.description = this.toolParams.description || "";
-            toolParams.query = JSON.stringify({...this.toolParams.query});
+            toolParams.query = JSON.stringify(this.toolParams.query);
         }
 
         const params = {
@@ -192,34 +192,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     generateSignaturesDropdown() {
-        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
-
-        if (signatures.length > 0) {
-            const signaturesbyType = {};
-            signatures.forEach(signature => {
-                const type = signature.type?.toUpperCase();
-                if (type && signature.id) {
-                    if (!signaturesbyType[type]) {
-                        signaturesbyType[type] = [];
-                    }
-                    signaturesbyType[type].push({
-                        id: `${signature.type}:${signature.id}`,
-                        name: signature.id,
-                    });
-                }
-            });
-
-            return Object.keys(signaturesbyType)
-                .map(type => {
-                    return {
-                        id: type,
-                        fields: signaturesbyType[type],
-                    };
-                });
-
-        } else {
-            return [];
-        }
+        return (this.selectedSample?.qualityControl?.variant?.signatures || [])
+            .map(signature => signature.id)
+            .sort((a, b) => a < b ? -1 : +1);
     }
 
     render() {
@@ -285,8 +260,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         display: {
                             visible: signatures.length > 0 && !!this.toolParams?.signature,
                             render: signatureId => {
-                                const [type, id] = (signatureId || "").split(":");
-                                const signature = signatures.find(item => item.id === id && item.type === type);
+                                // const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === signatureId);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
                                         <span class="badge">
@@ -305,8 +280,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         display: {
                             visible: signatures.length > 0 && !!this.toolParams?.signature,
                             render: signatureId => {
-                                const [type, id] = (signatureId || "").split(":");
-                                const signature = signatures.find(item => item.id === id && item.type === type);
+                                // const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === signatureId);
                                 return html`
                                     <signature-view
                                         .signature="${signature}"
