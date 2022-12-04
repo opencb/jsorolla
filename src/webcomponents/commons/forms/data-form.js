@@ -111,10 +111,10 @@ export default class DataForm extends LitElement {
                     const [itemIndex, itemFieldId] = right.split(".");
                     // support object nested
                     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldId];
-                    // value = _object[parentItemArray][itemIndex]?.[itemFieldId];
-
                 } else {
-                    value = this.objectListItems[parentItemArray]?.[right];
+                    // FIXME this should never be reached
+                    console.error("this should never be reached")
+                    // value = this.objectListItems[parentItemArray]?.[right];
                 }
             } else {
                 // optional chaining is needed when "res" is undefined
@@ -145,10 +145,12 @@ export default class DataForm extends LitElement {
 
     applyTemplate(template, object, matches, defaultValue) {
         if (!matches) {
+            // eslint-disable-next-line no-param-reassign
             matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         }
         for (const match of matches) {
             const v = this.getValue(match, object, defaultValue);
+            // eslint-disable-next-line no-param-reassign
             template = template.replace("${" + match + "}", v);
         }
 
@@ -161,7 +163,7 @@ export default class DataForm extends LitElement {
     }
 
     // Get buttons layout
-    // To be removed when deprecating old config.buttons.top property
+    // FIXME To be removed when deprecating old config.buttons.top property
     _getButtonsLayout() {
         const layout = this.config.display?.buttonsLayout || "";
         if (!layout || (layout !== "bottom" && layout !== "top")) {
@@ -283,7 +285,6 @@ export default class DataForm extends LitElement {
             } else {
                 // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
                 if (element.field.includes("[]")) {
-                    // const re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
                     const match = element.field.match(DataForm.re);
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
@@ -299,6 +300,7 @@ export default class DataForm extends LitElement {
 
     _isRequiredEmpty(element, value) {
         if (!value) {
+            // eslint-disable-next-line no-param-reassign
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
 
@@ -318,6 +320,7 @@ export default class DataForm extends LitElement {
 
     _isValid(element, value) {
         if (!value) {
+            // eslint-disable-next-line no-param-reassign
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
 
@@ -353,42 +356,47 @@ export default class DataForm extends LitElement {
                     `)}
                 </div>
             `;
-        } else if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
-            // Render with a specific layout
-            return html`
-                <div class="${className}" style="${style}">
-                    ${this.config?.display.layout.map(section => {
-                        const sectionClassName = section.className ?? section.classes ?? "";
-                        const sectionStyle = section.style ?? "";
-
-                        return section.id ? html`
-                            <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                            </div>
-                        ` : html`
-                            <div class="${sectionClassName}" style="${sectionStyle}">
-                                ${(section.sections || []).map(subsection => {
-                                    const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                                    const subsectionStyle = subsection.style ?? "";
-
-                                    return subsection.id && html`
-                                        <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                        </div>
-                                    `;
-                                })}
-                            </div>
-                        `;
-                    })}
-                </div>
-            `;
         } else {
-            // Render without layout
-            return html`
-                <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this.config.sections.map(section => this._createSection(section))}
-                </div>
-            `;
+            if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
+                // Render with a specific layout
+                return html`
+                    <div class="${className}" style="${style}">
+                        ${this.config?.display.layout.map(section => {
+                            const sectionClassName = section.className ?? section.classes ?? "";
+                            const sectionStyle = section.style ?? "";
+
+                            if (section.id) {
+                                return html`
+                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                    </div>
+                                `;
+                            } else {
+                                return html`
+                                    <div class="${sectionClassName}" style="${sectionStyle}">
+                                        ${(section.sections || []).map(subsection => {
+                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                                            const subsectionStyle = subsection.style ?? "";
+                                            return subsection.id && html`
+                                                <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+                                                    ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                </div>
+                                            `;
+                                        })}
+                                    </div>
+                                `;
+                            }
+                        })}
+                    </div>
+                `;
+            } else {
+                // Render without layout
+                return html`
+                    <div class="${layoutClassName} ${className}" style="${style}">
+                        ${this.config.sections.map(section => this._createSection(section))}
+                    </div>
+                `;
+            }
         }
     }
 
@@ -803,7 +811,7 @@ export default class DataForm extends LitElement {
         let allowedValues = [];
         let defaultValue = null;
 
-        // First. Check if 'allowedValues' field is provided
+        // 1. Check if 'allowedValues' field is provided
         if (element.allowedValues) {
             if (Array.isArray(element.allowedValues)) {
                 if (element.display?.apply) {
@@ -870,8 +878,6 @@ export default class DataForm extends LitElement {
 
         // Default values
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
-        // const width = this._getWidth(element);
-
         const content = html`
             <div class="">
                 <select-field-filter
@@ -912,10 +918,6 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(array)) {
             return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
         }
-        // if (!array.length) {
-        //     // return this.getDefaultValue(element);
-        //     return html`<span>${this.getDefaultValue(element)}'</span>`;
-        // }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
             return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
@@ -1169,10 +1171,8 @@ export default class DataForm extends LitElement {
             }
 
             // 2. Check if the element is disabled
-            // const isChildDisabled = this._getBooleanValue(childElement.display?.disabled, false);
             childElement.display = {
                 ...childElement.display,
-                // disabled: isChildDisabled || isDisabled, // We set the disabled attribute from the parent element.
                 nested: true
             };
             // If parent is disabled then we must overwrite disabled field
@@ -1248,10 +1248,8 @@ export default class DataForm extends LitElement {
                             // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                             // items have a virtual element associated, this will allow to get the proper value later.
                             for (let i = 0; i< _element.elements.length; i++) {
-                                // const [left, right] = _element.elements[i].field.split(".");
                                 // This support object nested
                                 const [left, right] = _element.elements[i].field.split("[].");
-                                // _element.elements[i].field = left "." + index + "." + right;
                                 _element.elements[i].field = left + "[]." + index + "." + right;
                                 if (_element.elements[i].type === "custom") {
                                     _element.elements[i].display.render = element.elements[i].display.render;
@@ -1265,7 +1263,7 @@ export default class DataForm extends LitElement {
                                 }
                             }
                             return html`
-                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                     <div>
                                         ${element.display.view(item)}
                                     </div>
@@ -1275,13 +1273,15 @@ export default class DataForm extends LitElement {
                                                     @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
                                                 <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                                                 Edit
-                                            </button>` : null}
+                                            </button>` : null
+                                        }
                                         ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
                                             <button type="button" class="btn btn-sm btn-danger" ?disabled="${isDisabled}"
                                                     @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                 <i aria-hidden="true" class="fas fa-trash-alt"></i>
                                                 Remove
-                                            </button>` : null}
+                                            </button>` : null
+                                        }
                                     </div>
                                 </div>
                                 <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
@@ -1290,17 +1290,17 @@ export default class DataForm extends LitElement {
                                         <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
                                     </div>
                                 </div>`;
-                        })}
+                        })
+                    }
                 </div>
 
-                ${element.display.collapsed && items?.length > 0? html`
+                ${element.display.collapsed && items?.length > 0 ? html`
                     <div style="padding: 0 0 10px 0">
                         <button type="button" class="btn btn-link" style="padding: 0"
                                 @click="${e => this.#toggleObjectListCollapse(element, false)}">
                             Show more ... (${items?.length} items)
                         </button>
-                    </div>
-                ` : null
+                    </div>` : null
                 }
 
                 ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
@@ -1309,15 +1309,13 @@ export default class DataForm extends LitElement {
                                 @click="${e => this.#toggleObjectListCollapse(element, true)}">
                             Show less ...
                         </button>
-                    </div>
-                ` : null
+                    </div>` : null
                 }
             `;
             contents.push(view);
         }
 
         // Add the form to create the next item
-        //  || UtilsNew.isEmpty(this.objectListItems[element.field])
         // ${this._createObjectElement(element)}
         if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
             const createHtml = html`
@@ -1349,30 +1347,6 @@ export default class DataForm extends LitElement {
     }
 
     #addToObjectList(e, element) {
-        // Check if object array exists
-        // if (!this.data[element.field]) {
-        //     this.data[element.field] = [];
-        // }
-
-        // Add the new item to the array and delete the temp item
-        // if (this.objectListItems[element.field]) {
-        //     // const currentList = UtilsNew.getObjectValue(this.data, element.field, []);
-        //     // UtilsNew.setObjectValue(this.data, element.field, [...currentList, this.objectListItems[element.field]]);
-        //     // delete this.objectListItems[element.field];
-        //
-        //
-        //     // Notify change to provoke the update
-        //     // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        //     // const newItemIndex = dataElementList.length;
-        //     // const newElement = {field: element.field + "[]." + newItemIndex};
-        //
-        //     // this.onFilterChange(element, dataElementList);
-        //     const event = {
-        //         action: "ADD",
-        //     };
-        //     this.onFilterChange(element, this.objectListItems[element.field], event);
-        // }
-
         const event = {
             action: "ADD",
         };
@@ -1383,12 +1357,10 @@ export default class DataForm extends LitElement {
     }
 
     #saveItemInObjectList(e, item, index, element) {
-        // const htmlElement = document.getElementById(this._prefix + "_" + index);
         const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
 
         // Notify change to provoke the update
-        // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
         const event = {
             action: "SAVE",
             index: index,
@@ -1397,10 +1369,6 @@ export default class DataForm extends LitElement {
     }
 
     #removeFromObjectList(e, item, index, element) {
-        // Delete the removed item
-        // const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        // dataElementList.splice(index, 1);
-
         // Notify change to provoke the update
         const event = {
             action: "REMOVE",
