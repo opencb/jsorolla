@@ -101,6 +101,8 @@ export default class SampleCreate extends LitElement {
         this.opencgaSession.opencgaClient.samples()
             .create(this.sample, params)
             .then(() => {
+                this.sample = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Create",
                     message: "Sample created correctly"
@@ -111,8 +113,6 @@ export default class SampleCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.sample = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
                 this.#setLoading(false);
             });

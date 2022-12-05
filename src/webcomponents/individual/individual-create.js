@@ -100,6 +100,8 @@ export default class IndividualCreate extends LitElement {
         this.opencgaSession.opencgaClient.individuals()
             .create(this.individual, params)
             .then(() => {
+                this.individual = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Create",
                     message: "New Individual created correctly"
@@ -110,8 +112,6 @@ export default class IndividualCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.individual = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
                 this.#setLoading(false);
             });
