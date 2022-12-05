@@ -171,7 +171,7 @@ export default class SampleCreate extends LitElement {
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}"></catalog-search-autocomplete>
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`
                             },
                         },

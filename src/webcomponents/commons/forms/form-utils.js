@@ -194,29 +194,6 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    // ! Rodiel 2022-09-27 DEPRECATED is only used by ontology-term-annotation-update is also deprecated
-    static updateScalarParams(_original, original, updateParams, param, value) {
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        // Rodiel 22-05-17: avoid override original data and updateParams. (ontology-term-annotation-update)
-        const _data = {
-            original: {...original},
-            updateParams: {...updateParams}
-        };
-
-        if (_original?.[param] !== value && value !== null) {
-            _data.original[param] = value; // This the problem
-            _data.updateParams[param] = value;
-        } else {
-            // We need to restore the original value in our copy
-            _data.original[param] = _original[param];
-            delete _data.updateParams[param];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _data;
-    }
-
     /**
      * !DEPRECATED
      * TODO Before removing updateObject change to updateObjectParams to these components
@@ -308,42 +285,6 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    // Rodiel 2022-05-16 DEPRECATED use updateObjectParams
-    // update object with props has primitive type
-    // ! Rodiel 2022-09-27 DEPRECATED is only used by annotation-update is also deprecated
-    static updateObjectWithProps(_original, original, updateParams, param, value) {
-        const [field, prop] = param.split(".");
-
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-
-        if (_original?.[field]?.[prop] !== value && value !== null && (_original?.[field]?.[prop] !== undefined || value !== "")) {
-            original[field] = {
-                ...original[field],
-                [prop]: value
-            };
-
-            _updateParams[field] = {
-                ..._updateParams[field],
-                [prop]: value
-            };
-        } else {
-            // original[param][prop] = _original[param][prop];
-            delete _updateParams[field][prop];
-
-            // if the object is entire emtpy well delete it
-            if (UtilsNew.isEmpty(_updateParams[field])) {
-                delete _updateParams[field];
-            }
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
     static updateObjectParams(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 

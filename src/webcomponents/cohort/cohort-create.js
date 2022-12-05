@@ -193,12 +193,12 @@ export default class CohortCreate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: samples => html `
+                                render: (samples, dataFormFilterChange) => html `
                                 <catalog-search-autocomplete
                                     .value="${samples?.map(sample => sample.id).join(",")}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                                 `
                             },
