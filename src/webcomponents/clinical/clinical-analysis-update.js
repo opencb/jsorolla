@@ -30,7 +30,7 @@ import LitUtils from "../commons/utils/lit-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types";
 
-class ClinicalAnalysisUpdate extends LitElement {
+export default class ClinicalAnalysisUpdate extends LitElement {
 
     constructor() {
         super();
@@ -62,6 +62,7 @@ class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
+
         this.displayConfig = {
             titleWidth: 3,
             width: 8,
