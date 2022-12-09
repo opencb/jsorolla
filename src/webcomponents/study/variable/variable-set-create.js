@@ -19,8 +19,6 @@ import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
-import "../variable/variable-create.js";
-import "../variable/variable-update.js";
 import "../../commons/forms/select-token-filter-static.js";
 
 export default class VariableSetCreate extends LitElement {
@@ -63,37 +61,38 @@ export default class VariableSetCreate extends LitElement {
 
     onFieldChange(e, field) {
         console.log("Test change field ");
-        e.stopPropagation();
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-            case "entities":
-                const entities = e.detail.value ? e.detail.value.split(",") : [];
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        entities
-                    )
-                };
-                break;
-            // case "variables":
-            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
-            //     break;
-        }
+        this.variableSet = {...this.variableSet};
         this.requestUpdate();
+        // e.stopPropagation();
+        // const param = field || e.detail.param;
+        // switch (param) {
+        //     case "id":
+        //     case "name":
+        //     case "unique":
+        //     case "confidential":
+        //     case "description":
+        //         this.variableSet = {
+        //             ...FormUtils.createObject(
+        //                 this.variableSet,
+        //                 param,
+        //                 e.detail.value
+        //             )
+        //         };
+        //         break;
+        //     case "entities":
+        //         const entities = e.detail.value ? e.detail.value.split(",") : [];
+        //         this.variableSet = {
+        //             ...FormUtils.createObject(
+        //                 this.variableSet,
+        //                 param,
+        //                 entities
+        //             )
+        //         };
+        //         break;
+        // case "variables":
+        //     this.variableSet = {...this.variableSet, variables: e.detail.value};
+        //     break;
+        // }
     }
 
     // Option2 : Event for valiations ... this dispatch when user out the input field.
@@ -196,13 +195,13 @@ export default class VariableSetCreate extends LitElement {
 
     #onAddValues(e) {
         console.log("Execute this function ", this.variable);
-        e.stopPropagation();
-        if (this.variable.type === "CATEGORICAL") {
-            this.variable.allowedValues = e.detail.value ?? [];
-        } else {
-            this.variable.allowedKeys = e.detail.value ?? [];
-        }
-        this.refreshForm();
+        // e.stopPropagation();
+        // if (this.variable.type === "CATEGORICAL") {
+        //     this.variable.allowedValues = e.detail.value ?? [];
+        // } else {
+        //     this.variable.allowedKeys = e.detail.value ?? [];
+        // }
+        // this.refreshForm();
     }
 
     render() {
@@ -364,10 +363,10 @@ export default class VariableSetCreate extends LitElement {
                                     type: "custom",
                                     display: {
                                         // disabled: variable => variable?.type !== "CATEGORICAL",
-                                        render: allowedValues => html`
+                                        render: (variableSet, variable) => html`
                                             <select-token-filter-static
-                                                .values="${allowedValues}"
-                                                .disabled="${this.variable?.type !== "CATEGORICAL"}"
+                                                .values="${variable?.allowedValues}"
+                                                .disabled="${variable?.type !== "CATEGORICAL"}"
                                                 @addToken=${e => this.#onAddValues(e)}>
                                             </select-token-filter-static>`
                                     }
@@ -377,8 +376,7 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "checkbox",
                                     display: {
-                                        // visible: variable => variable?.type === "BOOLEAN",
-                                        visible: false,
+                                        visible: (variableSet, variable) => variable?.type === "BOOLEAN",
                                     }
                                 },
                                 {
@@ -386,9 +384,8 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-text",
                                     display: {
-                                        visible: true,
-                                        // visible: variable => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
-                                        disabled: variable => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
+                                        visible: (variableSet, variable) => variable?.type !== "BOOLEAN" && variable?.type !== "DOUBLE" && variable?.type !== "INTEGER",
+                                        disabled: (variableSet, variable) => !variable?.type && !(variable?.type === "STRING" || variable?.type === "CATEGORICAL")
                                     }
                                 },
                                 {
@@ -396,15 +393,15 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-num",
                                     display: {
-                                        visible: false,
-                                        // visible: variable => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                                        visible: (variableSet, variable) => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
                                     }
                                 },
                                 {
                                     title: "Depends On",
                                     field: "variables[].dependsOn",
                                     type: "select",
-                                    allowedValues: this.dependsOn?.map(variable => variable.name),
+                                    allowedValues: (variableSet, variable) => variable?.map(variable => variable.name),
+                                    // allowedValues: this.dependsOn?.map(variable => variable.name),
                                     display: {
                                         visible: false,
                                         placeholder: "select an allow key or values..."
@@ -439,61 +436,6 @@ export default class VariableSetCreate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Variables",
-                //     elements: [
-                //         {
-                //             title: "Variables",
-                //             field: "variables",
-                //             type: "custom-list",
-                //             display: {
-                //                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                //                 collapsedUpdate: true,
-                //                 renderUpdate: (variable, callback) => html `
-                //                     <variable-update
-                //                         .variable="${variable}"
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Save",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @updateItem="${callback}">
-                //                     </variable-update>
-                //                 `,
-                //                 renderCreate: (variable, callback) => html`
-                //                     <label>Create new item</label>
-                //                     <variable-create
-                //                         .displayConfig="${{
-                //                             defaultLayout: "vertical",
-                //                             buttonOkText: "Add",
-                //                             buttonClearText: "",
-                //                         }}"
-                //                         @addItem="${callback}">
-                //                     </variable-create>`
-                //             }
-                //         },
-                //     ]
-                // },
-                // {
-                //     title: "Variables",
-                //     elements: [
-                //         {
-                //             field: "variables",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <variable-list-update
-                //                         .variables="${this.variableSet?.variables}"
-                //                         @changeVariables="${e => this.onFieldChange(e, "variables")}">
-                //                     </variable-list-update>`
-                //             }
-                //         },
-                //     ]
-                // }
             ]
         });
     }

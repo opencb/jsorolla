@@ -21,6 +21,7 @@ import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
+// DEPRECATED
 export default class VariableTypeValue extends LitElement {
 
     constructor() {

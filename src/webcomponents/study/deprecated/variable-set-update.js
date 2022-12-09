@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "./variable-list-update.js";
-import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class VariableSetUpdate extends LitElement {

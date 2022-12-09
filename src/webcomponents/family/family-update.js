@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../study/status/status-update.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FamilyUpdate extends LitElement {
@@ -184,25 +183,6 @@ export default class FamilyUpdate extends LitElement {
                                 },
                             ]
                         },
-                        // {
-                        //     title: "Status",
-                        //     field: "status",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: status => html`
-                        //             <status-update
-                        //                 .status="${status}"
-                        //                 .displayConfig="${{
-                        //                     defaultLayout: "vertical",
-                        //                     buttonsVisible: false,
-                        //                     width: 12,
-                        //                     style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                        //                 }}"
-                        //                 @fieldChange="${e => this.onFieldChange(e, "status")}">
-                        //             </status-update>
-                        //         `,
-                        //     }
-                        // },
                     ]
                 },
                 // {

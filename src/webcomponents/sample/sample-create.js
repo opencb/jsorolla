@@ -20,9 +20,6 @@ import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../study/annotationset/annotation-set-update.js";
-import "../study/status/status-create.js";
-import "./external-source/external-source-create.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class SampleCreate extends LitElement {
@@ -78,39 +75,7 @@ export default class SampleCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-            case "status": // it's object
-            case "source": // it's object
-            case "processing.product": // it's object
-            case "processing.preparationMethod":
-            case "processing.extractionMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.type":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-            case "collection.from":
-            case "phenotypes": // this is object
-                this.sample = {
-                    ...FormUtils.createObject(
-                        this.sample,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-            case "annotationSets":
-                // Rodiel (03/03/2022): At the moment IVA DOES NOT SUPPORT
-                // creating annotation sets
-                this.sample = {...this.sample, annotationSets: e.detail.value};
-                break;
-        }
+        this.sample = {...this.sample}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -136,6 +101,8 @@ export default class SampleCreate extends LitElement {
         this.opencgaSession.opencgaClient.samples()
             .create(this.sample, params)
             .then(() => {
+                this.sample = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Sample Create",
                     message: "Sample created correctly"
@@ -146,8 +113,6 @@ export default class SampleCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.sample = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
                 this.#setLoading(false);
             });
@@ -200,19 +165,13 @@ export default class SampleCreate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: individualId => html`
+                                render: (individualId, dataFormFilterChange) => html`
                                     <catalog-search-autocomplete
                                         .value="${individualId}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e =>
-                                    this.onFieldChange({
-                                        detail: {
-                                            param: "individualId",
-                                            value: e.detail.value,
-                                        }
-                                    })}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`
                             },
                         },
