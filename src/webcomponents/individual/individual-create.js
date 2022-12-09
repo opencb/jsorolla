@@ -74,14 +74,7 @@ export default class IndividualCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.individual = {
-                ...FormUtils.createObject(
-                    this.individual,
-                    param,
-                    e.detail.value,
-                )};
-        }
+        this.individual = {...this.individual}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -107,6 +100,8 @@ export default class IndividualCreate extends LitElement {
         this.opencgaSession.opencgaClient.individuals()
             .create(this.individual, params)
             .then(() => {
+                this.individual = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Create",
                     message: "New Individual created correctly"
@@ -117,35 +112,9 @@ export default class IndividualCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.individual = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
                 this.#setLoading(false);
             });
-    }
-
-    // DEPRECATED
-    onAddOrUpdateItem(e) {
-        console.log("Test onAddOrUpdateItem", e);
-        const param = e.detail.param;
-        const value = e.detail.value;
-        if (UtilsNew.isNotEmpty(value)) {
-            switch (param) {
-                case "disorders":
-                    this.individual = {...this.individual, disorders: value};
-                    break;
-                case "phenotypes":
-                    this.individual = {...this.individual, phenotypes: value};
-                    break;
-            }
-        } else {
-            this.individual = {
-                ...this.individual,
-                [param]: []
-            };
-            delete this.individual[param];
-        }
-        this.requestUpdate();
     }
 
     render() {
@@ -206,19 +175,13 @@ export default class IndividualCreate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: father => html`
+                                render: (father, dataFormFilterChange) => html`
                                     <catalog-search-autocomplete
                                         .value="${father?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e =>
-                                    this.onFieldChange({
-                                        detail: {
-                                            param: "father",
-                                            value: {id: e.detail.value},
-                                        }
-                                    })}">
+                                        @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </catalog-search-autocomplete>
                                 `,
                             },
@@ -229,19 +192,13 @@ export default class IndividualCreate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: mother => html`
+                                render: (mother, dataFormFilterChange) => html`
                                     <catalog-search-autocomplete
                                         .value="${mother?.id}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
-                                        @filterChange="${e =>
-                                    this.onFieldChange({
-                                        detail: {
-                                            param: "mother",
-                                            value: {id: e.detail.value},
-                                        }
-                                    })}">
+                                        @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </catalog-search-autocomplete>
                                 `,
                             },

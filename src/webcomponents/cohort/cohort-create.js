@@ -128,6 +128,8 @@ export default class CohortCreate extends LitElement {
         this.opencgaSession.opencgaClient.cohorts()
             .create(this.cohort, params)
             .then(() => {
+                this.cohort = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Cohort",
                     message: "cohort created correctly"
@@ -138,8 +140,6 @@ export default class CohortCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.cohort = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "cohortCreate", this.cohort, {}, error);
                 this.#setLoading(false);
             });
@@ -193,12 +193,12 @@ export default class CohortCreate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: samples => html `
+                                render: (samples, dataFormFilterChange) => html `
                                 <catalog-search-autocomplete
                                     .value="${samples?.map(sample => sample.id).join(",")}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                                 `
                             },

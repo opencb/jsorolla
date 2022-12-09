@@ -187,7 +187,7 @@ export default class OpencgaUpdate extends LitElement {
                     };
                     this.updateCustomisation = [
                         params => {
-                            // Note: we need to remove additional fields to the father and mother objects that are
+                            // Note: we need to remove additional fields to the status and priority objects that are
                             // added by OpenCGA but not accepted in the update endpoint
                             if (params.status?.id) {
                                 // eslint-disable-next-line no-param-reassign
@@ -197,8 +197,36 @@ export default class OpencgaUpdate extends LitElement {
                                 // eslint-disable-next-line no-param-reassign
                                 params.priority = {id: params.priority.id};
                             }
-
+                            if (params.comments) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.comments = params.comments.filter(comment => !comment.author);
+                            }
                         },
+                    ];
+                    break;
+                case "CLINICAL-INTERPRETATION":
+                    this.endpoint = this.opencgaSession.opencgaClient.clinical();
+                    this.methodUpdate = "updateInterpretation";
+                    this.methodInfo = "infoInterpretation";
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        panelsAction: "SET",
+                        commentsAction: "REPLACE",
+                    };
+                    this.updateCustomisation = [
+                        params => {
+                            // Note: we need to remove additional fields to the status and priority objects that are
+                            // added by OpenCGA but not accepted in the update endpoint
+                            if (params.status?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.status = {id: params.status.id};
+                            }
+                            if (params.comments) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.comments = params.comments.filter(comment => !comment.author);
+                            }
+                        },
+
                     ];
                     break;
             }
@@ -222,8 +250,8 @@ export default class OpencgaUpdate extends LitElement {
 
             let error;
             this.#setLoading(true);
-            this.endpoint
-                .info(this.componentId, params)
+            const endpointMethod = this.methodInfo || "info";
+            this.endpoint[endpointMethod](this.componentId, params)
                 .then(response => {
                     this.component = response.responses[0].results[0];
                 })
@@ -282,6 +310,12 @@ export default class OpencgaUpdate extends LitElement {
             this.updatedFields,
             param,
             e.detail.value);
+        // e.detail.component = this._component;
+        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
+            component: this._component,
+            onSuccess: () => this.requestUpdate(),
+            // param: param,
+        }, null);
         this.requestUpdate();
     }
 
@@ -331,8 +365,12 @@ export default class OpencgaUpdate extends LitElement {
 
         let error;
         this.#setLoading(true);
-        this.endpoint
-            .update(this.component.id, updateParams, params)
+        const endpointMethod = this.methodUpdate || "update";
+        // CAUTION: workaround for clinical-interpreation singular API
+        const update = (this.resource === "CLINICAL-INTERPRETATION") ?
+            this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params) :
+            this.endpoint[endpointMethod](this.component.id, updateParams, params);
+        update
             .then(response => {
                 this.component = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
@@ -369,7 +407,6 @@ export default class OpencgaUpdate extends LitElement {
                 </div>
             `;
         }
-
         return html`
             ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
             <data-form
@@ -386,7 +423,7 @@ export default class OpencgaUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
-            type: "form",
+            type: this._config?.type || "form",
             buttons: {
                 clearText: "Discard Changes",
                 okText: "Update",

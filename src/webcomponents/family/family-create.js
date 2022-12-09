@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
@@ -27,7 +26,6 @@ export default class FamilyCreate extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -48,7 +46,6 @@ export default class FamilyCreate extends LitElement {
 
     #init() {
         this.family = {};
-        this.members = "";
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -75,36 +72,12 @@ export default class FamilyCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "members":
-                this.members = e.detail.value;
-                // let members = [];
-                // if (e.detail.value) {
-                //     members = e.detail.value.split(",").map(member => {
-                //         return {id: member};
-                //     });
-                // }
-                // this.family = {...this.family, members: e.detail.value};
-                break;
-            case "annotationSets":
-                this.family = {...this.family, annotationSets: e.detail.value};
-                break;
-            default:
-                this.family = {
-                    ...FormUtils.createObject(
-                        this.family,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-        }
+        this.family = {...this.family};
         this.requestUpdate();
     }
 
     onClear(e) {
         this.family = {};
-        this.members = "";
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -113,14 +86,17 @@ export default class FamilyCreate extends LitElement {
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            members: this.members,
+            members: "" + this.family?.members,
             includeResult: true
         };
         let error;
+        delete this.family.members;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.families()
             .create(this.family, params)
             .then(() => {
+                this.family = {};
+                this._config = this.getDefaultConfig();
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Family Create",
@@ -132,8 +108,6 @@ export default class FamilyCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.family = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "familyCreate", this.family, {}, error);
                 this.#setLoading(false);
             });
@@ -193,14 +167,14 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
-                                render: members => {
+                                render: (members, dataFormFilterChange) => {
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${members}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config="${{multiple: true}}"
-                                            @filterChange="${e => this.onFieldChange(e, "members")}">
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
                                 }
@@ -220,7 +194,7 @@ export default class FamilyCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add a Family description...",
+                                placeholder: "Add a description..."
                             }
                         },
                         {

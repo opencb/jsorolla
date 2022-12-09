@@ -74,43 +74,17 @@ export default class DiseasePanelUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    // FIXME VERO: HOW CAN I CONSIDER THIS?
-    onFieldChange(e, field) {
-        /*
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "description":
-            case "source.id":
-            case "source.name":
-            case "source.version":
-                this.updateParams = FormUtils.updateObjectParams(
-                    this._diseasePanel,
-                    this.diseasePanel,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "disorders": // arrays
-            case "variants":
-            case "regions":
-            case "genes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._diseasePanel,
-                    this.diseasePanel,
-                    this.updateParams,
-                    param,
-                    e.detail.value
-                );
-                break;
-        }
-        */
+    onComponentFieldChange(e) {
+
+        // CAUTION Vero 2022/12/05: we should retrieve the assembly as well
         // Get gene name and coordinates
-        if (this.diseasePanel?.genes?.length > 0) {
-            for (const gene of this.diseasePanel?.genes) {
+        if (e.detail?.component?.genes?.length > 0) {
+            for (const gene of e.detail.component.genes) {
                 if (!gene.id) {
-                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+                    const params = {
+                        exclude: "transcripts,annotation",
+                    };
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
                             gene.id = g.id;
@@ -119,16 +93,16 @@ export default class DiseasePanelUpdate extends LitElement {
                                     location: `${g.chromosome}:${g.start}-${g.end}`
                                 }
                             ];
-                            this.diseasePanel = {...this.diseasePanel};
-                            this.requestUpdate();
+                            // this.diseasePanel = {...this.diseasePanel};
+                            e.detail?.onSuccess();
                         })
                         .catch(err => {
+                            // FIXME Vero 2022/12/05: handle error
                             console.error(err);
                         });
                 }
             }
         }
-        this.requestUpdate();
     }
 
     render() {
@@ -138,7 +112,8 @@ export default class DiseasePanelUpdate extends LitElement {
                 .component="${this.diseasePanel}"
                 .componentId="${this.diseasePanelId}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @componentFieldChange = ${this.onComponentFieldChange}>
             </opencga-update>
         `;
     }
