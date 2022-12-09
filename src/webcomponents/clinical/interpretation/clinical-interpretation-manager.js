@@ -142,16 +142,16 @@ export default class ClinicalInterpretationManager extends LitElement {
                 <div class="${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
                         <clinical-interpretation-update
-                            .interpretation="${interpretation}"
+                            .clinicalInterpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
                             .mode="${"modal"}"
                             .displayConfig="${{
-                                buttonClearText: "Cancel",
-                                buttonOkText: "Update",
-                                modalButtonClassName: "btn-default btn-sm",
-                                modalDisabled: this.clinicalAnalysis.locked
-                            }}">
+            buttonClearText: "Cancel",
+            buttonOkText: "Update",
+            modalButtonClassName: "btn-default btn-sm",
+            modalDisabled: this.clinicalAnalysis.locked
+        }}">
                         </clinical-interpretation-update>
 
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
@@ -320,10 +320,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .opencgaSession="${this.opencgaSession}"
                                 .mode="${"modal"}"
                                 .displayConfig="${{
-                                    modalButtonClassName: "btn-primary",
-                                    buttonClearText: "Cancel",
-                                    modalDisabled: this.clinicalAnalysis.locked
-                                }}">
+            modalButtonClassName: "btn-primary",
+            buttonClearText: "Cancel",
+            modalDisabled: this.clinicalAnalysis.locked
+        }}">
                             </clinical-interpretation-create>
                         </div>
                     </div>
