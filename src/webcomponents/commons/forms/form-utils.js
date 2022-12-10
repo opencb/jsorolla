@@ -89,33 +89,51 @@ export default class FormUtils {
                     // 1.2.2 Item REMOVED
                     let [arrayFieldName, removedIndex] = param.split("[].");
                     removedIndex = Number.parseInt(removedIndex);
-                    const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
-                    _updatedFields[param] = {
-                        before: originalArray[removedIndex],
-                        after: undefined
-                    };
-
-                    // const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
-                    // for (const key of keys) {
-                    //     const split = key.split("[].")[1];
-                    //     let keyIndex, newKey;
-                    //     if (split.includes(".")) {
-                    //         const [index, field] = split.split(".");
-                    //         keyIndex = Number.parseInt(index);
-                    //         newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
-                    //     } else {
-                    //         keyIndex = Number.parseInt(key.split("[].")[1]);
-                    //         newKey = arrayFieldName + "[]." + (keyIndex - 1);
-                    //     }
-                    //
-                    //     if (keyIndex > removedIndex) {
-                    //         _updatedFields[newKey] = _updatedFields[key];
-                    //         delete _updatedFields[key];
-                    //
-                    //         // If we rename a bigger version we need to delete the original item deleted
-                    //         delete _updatedFields[param];
-                    //     }
+                    // // Check if we are deleting a new added item
+                    // const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
+                    // if (originalArray[removedIndex]) {
+                    //     _updatedFields[param] = {
+                    //         before: originalArray[removedIndex],
+                    //         after: undefined
+                    //     };
+                    // } else {
+                    //     // If we remove a new added item we must delete it
+                    //     _updatedFields[param] = {
+                    //         before: undefined,
+                    //         after: undefined
+                    //     };
                     // }
+                    debugger
+
+                    const deletedKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
+                    for (const deletedKey of deletedKeys) {
+                        delete _updatedFields[deletedKey];
+                    }
+
+                    const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
+                    for (const key of keys) {
+                        const right = key.split("[].")[1];
+                        let keyIndex, newKey;
+                        if (right.includes(".")) {
+                            // We have edited an existing field
+                            const [index, field] = right.split(".");
+                            keyIndex = Number.parseInt(index);
+                            newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
+                        } else {
+                            // This is a new added item
+                            keyIndex = Number.parseInt(right);
+                            newKey = arrayFieldName + "[]." + (keyIndex - 1);
+                        }
+
+                        // We only rename keys bigger than the removedVersion
+                        if (keyIndex > removedIndex) {
+                            _updatedFields[newKey] = _updatedFields[key];
+                            delete _updatedFields[key];
+
+                            // If we rename a bigger version we need to delete the original item deleted
+                            // delete _updatedFields[param];
+                        }
+                    }
                 }
             }
         } else {

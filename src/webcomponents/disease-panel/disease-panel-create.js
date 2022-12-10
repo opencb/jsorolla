@@ -336,12 +336,12 @@ export default class DiseasePanelCreate extends LitElement {
                                     }
                                 },
                                 {
-                                    title: "Imprinted",
-                                    field: "genes[].imprinted",
+                                    title: "Role In Cancer",
+                                    field: "genes[].roleInCancer",
                                     type: "select",
-                                    allowedValues: DISEASE_PANEL_IMPRINTED,
+                                    allowedValues: ROLE_IN_CANCER,
                                     display: {
-                                        placeholder: "Select imprinted..."
+                                        placeholder: "Select role in cancer..."
                                     }
                                 },
                             ]

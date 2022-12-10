@@ -398,8 +398,11 @@ export default class SampleUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: pheno => html`<div>${pheno.id} - ${pheno?.name}</div>`,
-                                // unique: "phenotypes[].id"
+                                view: phenotype => html`
+                                    <div>${phenotype.id} - ${phenotype?.name}</div>
+                                    <div class="help-block">${phenotype?.description}</div>`,
+                                showAddItemListButton: true,
+                                showAddBatchListButton: true
                             },
                             elements: [
                                 {

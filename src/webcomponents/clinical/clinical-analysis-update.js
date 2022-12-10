@@ -421,7 +421,6 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 }
                             }
                         },
-
                         {
                             title: "Description",
                             field: "description",
@@ -432,7 +431,6 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             }
                         },
-
                         {
                             title: "Comments",
                             field: "comments",
@@ -486,7 +484,6 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 },
                             ]
                         },
-
                     ]
                 }
             ]

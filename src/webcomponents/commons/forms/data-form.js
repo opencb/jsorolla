@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 import "../simple-chart.js";
@@ -74,6 +74,7 @@ export default class DataForm extends LitElement {
         this.activeSection = 0; // Initial active section (only for tabs and pills type)
 
         this.objectListItems = {};
+        this.batchItems = {};
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -1239,94 +1240,134 @@ export default class DataForm extends LitElement {
         }
 
         // Render all existing items
-        if (maxNumItems > 0) {
+        if (!items || items?.length === 0) {
             const view = html`
-                <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
-                    ${items?.slice(0, maxNumItems)
-                        .map((item, index) => {
-                            const _element = JSON.parse(JSON.stringify(element));
-                            // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                            // items have a virtual element associated, this will allow to get the proper value later.
-                            for (let i = 0; i< _element.elements.length; i++) {
-                                // This support object nested
-                                const [left, right] = _element.elements[i].field.split("[].");
-                                _element.elements[i].field = left + "[]." + index + "." + right;
-                                if (_element.elements[i].type === "custom") {
-                                    _element.elements[i].display.render = element.elements[i].display.render;
-                                }
-                                // Copy JSON stringify and parse ignores functions, we need to copy them
-                                if (typeof element.elements[i]?.display?.disabled === "function") {
-                                    _element.elements[i].display.disabled = element.elements[i].display.disabled;
-                                }
-                                if (typeof element.elements[i]?.display?.visible === "function") {
-                                    _element.elements[i].display.visible = element.elements[i].display.visible;
-                                }
-                            }
-                            return html`
-                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                    <div>
-                                        ${element.display.view(item)}
-                                    </div>
-                                    <div>
-                                        ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                            <button type="button" class="btn btn-sm btn-primary" ?disabled="${isDisabled}"
-                                                    @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
-                                                <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
-                                                Edit
-                                            </button>` : null
-                                        }
-                                        ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                            <button type="button" class="btn btn-sm btn-danger" ?disabled="${isDisabled}"
-                                                    @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                                <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                                Remove
-                                            </button>` : null
-                                        }
-                                    </div>
-                                </div>
-                                <div id="${element?.field}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
-                                    ${this._createObjectElement(_element)}
-                                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
-                                    </div>
-                                </div>`;
-                        })
-                    }
+                <div>
+                    <span>No items exist. You can add a single item or copy a batch of items.</span>
                 </div>
-
-                ${element.display.collapsed && items?.length > 0 ? html`
-                    <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" style="padding: 0"
-                                @click="${e => this.#toggleObjectListCollapse(element, false)}">
-                            Show more ... (${items?.length} items)
-                        </button>
-                    </div>` : null
-                }
-
-                ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
-                    <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" style="padding: 0"
-                                @click="${e => this.#toggleObjectListCollapse(element, true)}">
-                            Show less ...
-                        </button>
-                    </div>` : null
-                }
             `;
             contents.push(view);
+        } else {
+            if (maxNumItems > 0) {
+                const view = html`
+                    <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                        ${items?.slice(0, maxNumItems)
+                            .map((item, index) => {
+                                const _element = JSON.parse(JSON.stringify(element));
+                                // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                                // items have a virtual element associated, this will allow to get the proper value later.
+                                for (let i = 0; i< _element.elements.length; i++) {
+                                    // This support object nested
+                                    const [left, right] = _element.elements[i].field.split("[].");
+                                    _element.elements[i].field = left + "[]." + index + "." + right;
+                                    if (_element.elements[i].type === "custom") {
+                                        _element.elements[i].display.render = element.elements[i].display.render;
+                                    }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
+                                    if (typeof element.elements[i]?.display?.disabled === "function") {
+                                        _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                                    }
+                                    if (typeof element.elements[i]?.display?.visible === "function") {
+                                        _element.elements[i].display.visible = element.elements[i].display.visible;
+                                    }
+                                }
+                                return html`
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <div>
+                                            ${element.display.view(item)}
+                                        </div>
+                                        <div>
+                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                                <button type="button" title="Edit item" class="btn btn-sm btn-primary"
+                                                        ?disabled="${isDisabled}"
+                                                        @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                    <i aria-hidden="true" class="fas fa-edit"></i>
+                                                </button>` : null
+                                            }
+                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                                <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
+                                                        ?disabled="${isDisabled}"
+                                                        @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                    <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                                </button>` : null
+                                            }
+                                        </div>
+                                    </div>
+                                    <div id="${element?.field}_${index}"
+                                         style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
+                                        ${this._createObjectElement(_element)}
+                                        <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                            <button type="button" class="btn btn-xs btn-primary"
+                                                    @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>`;
+                            })
+                        }
+                    </div>
+
+                    ${element.display.collapsed && items?.length > 0 ? html`
+                        <div style="padding: 0 0 10px 0">
+                            <button type="button" class="btn btn-link" style="padding: 0"
+                                    @click="${e => this.#toggleObjectListCollapse(element, false)}">
+                                Show more ... (${items?.length} items)
+                            </button>
+                        </div>` : null
+                    }
+
+                    ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
+                        <div style="padding: 0 0 10px 0">
+                            <button type="button" class="btn btn-link" style="padding: 0"
+                                    @click="${e => this.#toggleObjectListCollapse(element, true)}">
+                                Show less ...
+                            </button>
+                        </div>` : null
+                    }
+                `;
+                contents.push(view);
+            }
         }
 
         // Add the form to create the next item
-        // ${this._createObjectElement(element)}
-        if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
+        if (this._getBooleanValue(element.display.showAddItemListButton, true) || this._getBooleanValue(element.display.showAddBatchListButton, true)) {
             const createHtml = html`
-                <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
-                    <label>Create new item</label>
-                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                        <button type="button" class="btn btn-sm btn-primary"
-                                @click="${e => this.#addToObjectList(e, element)}" ?disabled="${isDisabled}">
-                            Add
-                        </button>
+                <div>
+                    <div class="text-right" style="margin-bottom: 6px">
+                        ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
+                            <button type="button" class="btn btn-sm btn-primary"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#addToObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-plus icon-padding"></i>
+                                Add Item
+                            </button>`: nothing
+                        }
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                            <button type="button" class="btn btn-sm btn-primary"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-file-import icon-padding"></i>
+                                Add Batch
+                            </button>`: nothing
+                        }
                     </div>
+                    ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                        <div id="${element?.field}"
+                             style="margin-left: 10px; padding-left: 12px; display: none">
+                            <text-field-filter
+                                value="${this.batchItems[element?.field] || ""}"
+                                placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
+                                .rows="${3}"
+                                @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}"></text-field-filter>
+                            <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                <button type="button" class="btn btn-xs btn-primary"
+                                        ?disabled="${!this.batchItems[element.field]}"
+                                        @click="${e => this.#addBatchToObjectList(e, element)}">
+                                    OK
+                                </button>
+                            </div>
+                        </div>`: nothing
+                    }
                 </div>`;
             contents.push(createHtml);
         }
@@ -1334,16 +1375,37 @@ export default class DataForm extends LitElement {
         return contents;
     }
 
+    // #openEditItemOfObjectList(e, item, index, element) {
+    //     // const htmlElement = document.getElementById(this._prefix + "_" + index);
+    //     const htmlElement = document.getElementById(element?.field + "_" + index);
+    //     htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+    // }
+
+    #toggleEditItemOfObjectList(e, item, index, element) {
+        const htmlElement = document.getElementById(element?.field + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+
+        // Notify change to provoke the update
+        // const event = {
+        //     action: "CLOSE",
+        //     index: index,
+        // };
+        // this.onFilterChange(element, null, event);
+    }
+
+    #removeFromObjectList(e, item, index, element) {
+        // Notify change to provoke the update
+        const event = {
+            action: "REMOVE",
+            index: index,
+        };
+        this.onFilterChange(element, null, event);
+    }
+
     #toggleObjectListCollapse(element, collapsed) {
         // eslint-disable-next-line no-param-reassign
         element.display.collapsed = collapsed;
         this.requestUpdate();
-    }
-
-    #editItemOfObjectList(e, item, index, element) {
-        // const htmlElement = document.getElementById(this._prefix + "_" + index);
-        const htmlElement = document.getElementById(element?.field + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
     #addToObjectList(e, element) {
@@ -1356,25 +1418,36 @@ export default class DataForm extends LitElement {
         this.editOpen = dataElementList.length - 1;
     }
 
-    #saveItemInObjectList(e, item, index, element) {
-        const htmlElement = document.getElementById(element?.field + "_" + index);
+    #toggleAddBatchToObjectList(e, element) {
+        const htmlElement = document.getElementById(element?.field);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
-
-        // Notify change to provoke the update
-        const event = {
-            action: "SAVE",
-            index: index,
-        };
-        this.onFilterChange(element, null, event);
     }
 
-    #removeFromObjectList(e, item, index, element) {
-        // Notify change to provoke the update
-        const event = {
-            action: "REMOVE",
-            index: index,
-        };
-        this.onFilterChange(element, null, event);
+    #addBatchTextChange(element, text) {
+        if (element?.field) {
+            this.batchItems[element.field] = text;
+            this.requestUpdate();
+        }
+    }
+
+    #addBatchToObjectList(e, element) {
+        if (this.batchItems[element.field]) {
+            const lines = this.batchItems[element.field].split("\n");
+            for (const line of lines) {
+                const value = {};
+                const fields = line.split(",");
+                for (let i = 0; i < fields.length; i++) {
+                    const fieldName = element.elements[i].field.split(".").at(-1);
+                    value[fieldName] = fields[i];
+                }
+                const event = {
+                    action: "ADD",
+                };
+                this.onFilterChange(element, value, event);
+            }
+            delete this.batchItems[element.field];
+            this.#toggleAddBatchToObjectList(e, element);
+        }
     }
 
     onFilterChange(element, value, objectListEvent) {
@@ -1398,10 +1471,12 @@ export default class DataForm extends LitElement {
                         value: value
                     };
                     break;
-                case "SAVE":
+                case "CLOSE":
                     // nothing to do
                     break;
                 case "REMOVE":
+                    this.updateParams
+                    debugger
                     dataElementList.splice(objectListEvent.index, 1);
                     eventDetail = {
                         param: element.field + "[]." + objectListEvent.index,

@@ -362,7 +362,7 @@ export default class OpencgaUpdate extends LitElement {
         const updateParams = FormUtils.getUpdateParams(this._component, this.updatedFields, this.updateCustomisation);
         const resourceName = this.#getResourceName("label");
         const updateEventId = this.#getResourceName("event").concat("Update");
-
+debugger
         let error;
         this.#setLoading(true);
         const endpointMethod = this.methodUpdate || "update";
@@ -390,7 +390,6 @@ export default class OpencgaUpdate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, updateEventId, this.component, {}, error);
                 this.#setLoading(false);
             });
-
     }
 
     render() {
