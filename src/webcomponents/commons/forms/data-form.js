@@ -290,11 +290,20 @@ export default class DataForm extends LitElement {
                     return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
                 } else {
                     // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
-                    return Object.keys(this.updateParams).some(key => key.startsWith(element.field + "[]."));
+                    // 3.1 Check if any original item has been deleted
+                    if (this.updateParams[element.field + "[].deleted"]?.length > 0) {
+                        return true;
+                    } else {
+                        // 3.2 Check if any original item has been edited
+                        return Object.keys(this.updateParams)
+                            .filter(key => key !== element.field + "[].deleted")
+                            .some(key => key.startsWith(element.field + "[]."));
+                    }
                 }
             }
         } else {
             // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
+            console.error("This code should never be reached!");
             return element.display?.updated;
         }
     }
@@ -1176,19 +1185,18 @@ export default class DataForm extends LitElement {
                 ...childElement.display,
                 nested: true
             };
-            // If parent is disabled then we must overwrite disabled field
+
+            // 2.1 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
                 childElement.display.disabled = isDisabled;
             }
 
-            // Call to createElement to get HTML content
+            // 3. Call to createElement to get HTML content
             const elemContent = this._createElement(childElement);
 
-            // Read Help message
+            // 4. Read Help message and Render assuming vertical layout for nested forms
             const helpMessage = this._getHelpMessage(element);
             const helpMode = this._getHelpMode(element);
-
-            // Assume vertical layout for nested forms
             contents.push(
                 html`
                     <div class="row form-group" style="margin-left: 0;margin-right: 0">
@@ -1217,6 +1225,7 @@ export default class DataForm extends LitElement {
 
     _createObjectListElement(element) {
         const items = this.getValue(element.field);
+        const isUpdated = this._isUpdated(element);
         const isDisabled = this._getBooleanValue(element.display?.disabled, false);
         const contents = [];
 
@@ -1242,15 +1251,15 @@ export default class DataForm extends LitElement {
         // Render all existing items
         if (!items || items?.length === 0) {
             const view = html`
-                <div>
-                    <span>No items exist. You can add a single item or copy a batch of items.</span>
+                <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    <span>No items found.</span>
                 </div>
             `;
             contents.push(view);
         } else {
             if (maxNumItems > 0) {
                 const view = html`
-                    <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
                         ${items?.slice(0, maxNumItems)
                             .map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
@@ -1333,7 +1342,10 @@ export default class DataForm extends LitElement {
         if (this._getBooleanValue(element.display.showAddItemListButton, true) || this._getBooleanValue(element.display.showAddBatchListButton, true)) {
             const createHtml = html`
                 <div>
-                    <div class="text-right" style="margin-bottom: 6px">
+                    <div class="help-block" style="float: left; margin-bottom: 6px">
+                        ${items?.length > 0 ? html`Items: ${items.length}` : nothing}
+                    </div>
+                    <div class="text-right" style="float: right; margin-bottom: 6px">
                         ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
@@ -1375,22 +1387,9 @@ export default class DataForm extends LitElement {
         return contents;
     }
 
-    // #openEditItemOfObjectList(e, item, index, element) {
-    //     // const htmlElement = document.getElementById(this._prefix + "_" + index);
-    //     const htmlElement = document.getElementById(element?.field + "_" + index);
-    //     htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
-    // }
-
     #toggleEditItemOfObjectList(e, item, index, element) {
         const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
-
-        // Notify change to provoke the update
-        // const event = {
-        //     action: "CLOSE",
-        //     index: index,
-        // };
-        // this.onFilterChange(element, null, event);
     }
 
     #removeFromObjectList(e, item, index, element) {
@@ -1458,29 +1457,24 @@ export default class DataForm extends LitElement {
             const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
             switch (objectListEvent.action) {
                 case "ADD":
-                    // UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, this.objectListItems[element.field]]);
-                    // eventDetail = {
-                    //     param: element.field + "[]." + dataElementList.length,
-                    //     value: {...this.objectListItems[element.field]}
-                    // };
-                    // delete this.objectListItems[element.field];
-
-                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, value]);
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, {}]);
                     eventDetail = {
                         param: element.field + "[]." + dataElementList.length,
-                        value: value
+                        value: value,
+                        action: objectListEvent.action
                     };
                     break;
                 case "CLOSE":
                     // nothing to do
                     break;
                 case "REMOVE":
-                    this.updateParams
-                    debugger
+                    value = dataElementList[objectListEvent.index];
                     dataElementList.splice(objectListEvent.index, 1);
                     eventDetail = {
                         param: element.field + "[]." + objectListEvent.index,
-                        value: undefined
+                        value: value,
+                        index: objectListEvent.index,
+                        action: objectListEvent.action
                     };
                     break;
             }
@@ -1500,8 +1494,9 @@ export default class DataForm extends LitElement {
                         value: value
                     };
                 } else {
-                    // 2.2 Updating a field in a "Create New Item" form
+                    // FIXME To be deleted: 2.2 Updating a field in a "Create New Item" form
                     debugger
+                    console.error("This code should never be reached!");
                     if (value) {
                         this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
                     } else {

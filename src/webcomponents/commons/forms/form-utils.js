@@ -47,7 +47,7 @@ export default class FormUtils {
         return params;
     }
 
-    static getUpdatedFields(_original, updatedFields, param, value) {
+    static getUpdatedFields(_original, updatedFields, param, value, action) {
         const _updatedFields = {
             ...updatedFields
         };
@@ -79,60 +79,60 @@ export default class FormUtils {
                 }
             } else {
                 // 1.2 Check 'value' to decide if we are adding or removing a new item
-                if (value) {
+                if (action === "ADD") {
                     // 1.2.1 New item ADDED
                     _updatedFields[param] = {
                         before: undefined,
-                        after: value
+                        after: {}
                     };
                 } else {
-                    // 1.2.2 Item REMOVED
-                    let [arrayFieldName, removedIndex] = param.split("[].");
-                    removedIndex = Number.parseInt(removedIndex);
-                    // // Check if we are deleting a new added item
-                    // const originalArray = UtilsNew.getObjectValue(_original, arrayFieldName, undefined);
-                    // if (originalArray[removedIndex]) {
-                    //     _updatedFields[param] = {
-                    //         before: originalArray[removedIndex],
-                    //         after: undefined
-                    //     };
-                    // } else {
-                    //     // If we remove a new added item we must delete it
-                    //     _updatedFields[param] = {
-                    //         before: undefined,
-                    //         after: undefined
-                    //     };
-                    // }
-                    debugger
+                    if (action === "REMOVE") {
+                        // 1.2.2 Item REMOVED
+                        let [arrayFieldName, removedIndex] = param.split("[].");
+                        removedIndex = Number.parseInt(removedIndex);
 
-                    const deletedKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
-                    for (const deletedKey of deletedKeys) {
-                        delete _updatedFields[deletedKey];
-                    }
-
-                    const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
-                    for (const key of keys) {
-                        const right = key.split("[].")[1];
-                        let keyIndex, newKey;
-                        if (right.includes(".")) {
-                            // We have edited an existing field
-                            const [index, field] = right.split(".");
-                            keyIndex = Number.parseInt(index);
-                            newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
-                        } else {
-                            // This is a new added item
-                            keyIndex = Number.parseInt(right);
-                            newKey = arrayFieldName + "[]." + (keyIndex - 1);
+                        // 1. Create 'delete' arrays if does not exist
+                        if (!_updatedFields[arrayFieldName + "[].deleted"]) {
+                            _updatedFields[arrayFieldName + "[].deleted"] = [];
                         }
 
-                        // We only rename keys bigger than the removedVersion
-                        if (keyIndex > removedIndex) {
-                            _updatedFields[newKey] = _updatedFields[key];
-                            delete _updatedFields[key];
-
-                            // If we rename a bigger version we need to delete the original item deleted
-                            // delete _updatedFields[param];
+                        // 2. Check if we are deleting a new added item, if yes, we DO NOT save it as deleted
+                        if (!_updatedFields[param]) {
+                            _updatedFields[arrayFieldName + "[].deleted"].push(value);
                         }
+
+                        // 3. Remove from updatedFields any key starting with the param
+                        const deletedKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
+                        if (deletedKeys.length > 0) {
+                            for (const deletedKey of deletedKeys) {
+                                delete _updatedFields[deletedKey];
+                            }
+                        }
+
+                        // 4. Rename (decrease) the index key of all elements
+                        const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
+                        for (const key of keys) {
+                            const right = key.split("[].")[1];
+                            let keyIndex, newKey;
+                            if (right.includes(".")) {
+                                // We have edited an existing field
+                                const [index, field] = right.split(".");
+                                keyIndex = Number.parseInt(index);
+                                newKey = arrayFieldName + "[]." + (keyIndex - 1) + "." + field;
+                            } else {
+                                // This is a new added item
+                                keyIndex = Number.parseInt(right);
+                                newKey = arrayFieldName + "[]." + (keyIndex - 1);
+                            }
+
+                            // We only rename keys bigger than the removedVersion
+                            if (keyIndex > removedIndex) {
+                                _updatedFields[newKey] = _updatedFields[key];
+                                delete _updatedFields[key];
+                            }
+                        }
+                    } else {
+                        console.error("Unknown action found!");
                     }
                 }
             }
