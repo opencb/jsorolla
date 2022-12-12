@@ -301,10 +301,6 @@ export default class DataForm extends LitElement {
                     }
                 }
             }
-        } else {
-            // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
-            console.error("This code should never be reached!");
-            return element.display?.updated;
         }
     }
 
@@ -459,7 +455,7 @@ export default class DataForm extends LitElement {
 
     _createElement(element, section) {
         // Check if the element is visible
-        if (element.display && !this._getBooleanValue(element.display.visible)) {
+        if (element.display && !this._getBooleanValue(element.display.visible, true, element)) {
             return;
         }
 
@@ -689,7 +685,7 @@ export default class DataForm extends LitElement {
 
     _createInputNumberElement(element) {
         const value = this.getValue(element.field) ?? this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element?.display?.disabled, false);
+        const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
 
@@ -713,7 +709,7 @@ export default class DataForm extends LitElement {
 
     _createInputDateElement(element) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const parseInputDate = e => {
             // Date returned by <input> is in YYYY-MM-DD format, but we need YYYYMMDDHHmmss format
             return e.target.value ? moment(e.target.value, "YYYY-MM-DD").format("YYYYMMDDHHmmss") : "";
@@ -733,7 +729,7 @@ export default class DataForm extends LitElement {
 
     _createCheckboxElement(element) {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
 
         // TODO to be fixed.
         if (element.field === "FILTER") {
@@ -763,7 +759,7 @@ export default class DataForm extends LitElement {
      */
     _createToggleSwitchElement(element) {
         const value = this.getValue(element.field); // || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
@@ -887,7 +883,7 @@ export default class DataForm extends LitElement {
         }
 
         // Default values
-        const disabled = this._getBooleanValue(element?.display?.disabled, false);
+        const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const content = html`
             <div class="">
                 <select-field-filter
@@ -1171,7 +1167,7 @@ export default class DataForm extends LitElement {
     }
 
     _createObjectElement(element) {
-        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
         for (const childElement of element.elements) {
             // 1. Check if this filed is visible
@@ -1226,7 +1222,7 @@ export default class DataForm extends LitElement {
     _createObjectListElement(element) {
         const items = this.getValue(element.field);
         const isUpdated = this._isUpdated(element);
-        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
 
         // Get initial collapsed status, only executed the first time
@@ -1457,7 +1453,7 @@ export default class DataForm extends LitElement {
             const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
             switch (objectListEvent.action) {
                 case "ADD":
-                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, {}]);
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, value]);
                     eventDetail = {
                         param: element.field + "[]." + dataElementList.length,
                         value: value,

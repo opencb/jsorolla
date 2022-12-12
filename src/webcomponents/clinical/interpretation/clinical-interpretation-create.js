@@ -22,6 +22,7 @@ import "../../commons/filters/disease-panel-filter.js";
 
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class ClinicalInterpretationCreate extends LitElement {
 
@@ -105,43 +106,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "analyst.id":
-                this.interpretation.analyst = {
-                    id: e.detail.value
-                };
-                break;
-            case "status.id":
-                this.interpretation.status = {
-                    id: e.detail.value,
-                };
-                break;
-            case "panels.id":
-                const [field, prop] = param.split(".");
-                if (e.detail.value) {
-                    this.interpretation[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
-                } else {
-                    delete this.interpretation[field];
-                }
-                break;
-            // case "_comments":
-            //     this.interpretation.comments = [
-            //         {
-            //             message: e.detail.value
-            //         }
-            //     ];
-            //     break;
-            default:
-                this.interpretation[param] = e.detail.value;
-                break;
-        }
-
         this.interpretation = {...this.interpretation};
         this.requestUpdate();
-    }
-
-    onCommentChange(e) {
-        this.interpretation.comments = e.detail.value;
     }
 
     notifyClinicalAnalysisWrite() {
@@ -233,15 +199,12 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "status",
                             type: "custom",
                             display: {
-                                render: status => html`
+                                render: (status, dataFormFilterChange) => html`
                                     <clinical-status-filter
                                         .status="${status?.id}"
                                         .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis.type.toUpperCase()]}"
                                         .multiple=${false}
-                                        @filterChange="${e => {
-                                            e.detail.param = "status.id";
-                                            this.onFieldChange(e);
-                                        }}">
+                                        @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </clinical-status-filter>
                                 `,
                             }
@@ -251,9 +214,16 @@ export default class ClinicalInterpretationCreate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => {
+                                render: (panels, dataFormFilterChange) => {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis.panels : this.opencgaSession.study?.panels;
+                                    const handlePanelsFilterChange = e => {
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(panelId => panelId)
+                                            .map(panelId => ({id: panelId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
                                     return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
@@ -262,7 +232,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                                             .showExtendedFilters="${false}"
                                             .showSelectedPanels="${false}"
                                             .disabled="${panelLock}"
-                                            @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                            @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
                                 }
@@ -281,28 +251,56 @@ export default class ClinicalInterpretationCreate extends LitElement {
                         {
                             title: "Comments",
                             field: "comments",
-                            type: "custom",
+                            type: "object-list",
                             display: {
-                                render: comments => html`
-                                    <clinical-analysis-comment-editor
-                                        .comments="${comments}"
-                                        @commentChange="${e => this.onCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
-                                `,
-                            }
-                        }
-                        // {
-                        //     title: "Comment",
-                        //     field: "_comments",
-                        //     type: "input-text",
-                        //     defaultValue: "",
-                        //     display: {
-                        //         rows: 2,
-                        //         placeholder: "Initial comment..."
-                        //         // render: comments => html`
-                        //         //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
-                        //     }
-                        // },
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                // collapsable: false,
+                                // maxNumItems: 5,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => {
+                                    // eslint-disable-next-line no-param-reassign
+                                    comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(/,\s*/);
+                                    return html `
+                                        <div style="margin-bottom:1rem;">
+                                            <div style="display:flex;margin-bottom:0.5rem;">
+                                                <div style="padding-right:1rem;">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </div>
+                                                <div style="font-weight:bold">
+                                                    ${comment.author || this.opencgaSession?.user?.id || "-"} -
+                                                    ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
+                                                </div>
+                                            </div>
+                                            <div style="width:100%;">
+                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                                <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                            </div>
+                                        </div>
+                                `;
+                                }
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+
+                            ],
+                        },
                     ]
                 },
             ]
