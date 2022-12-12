@@ -314,8 +314,6 @@ export default class OpencgaUpdate extends LitElement {
         // e.detail.component = this._component;
         LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
             component: this._component,
-            onSuccess: () => this.requestUpdate(),
-            // param: param,
         }, null);
         this.requestUpdate();
     }

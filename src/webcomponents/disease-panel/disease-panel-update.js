@@ -51,7 +51,7 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     #init() {
-        this.diseasePanel = {};
+        // this.diseasePanel = {};
         this.diseasePanelId = "";
         this.displayConfig = {
             titleWidth: 3,
@@ -93,8 +93,8 @@ export default class DiseasePanelUpdate extends LitElement {
                                     location: `${g.chromosome}:${g.start}-${g.end}`
                                 }
                             ];
-                            // this.diseasePanel = {...this.diseasePanel};
-                            e.detail?.onSuccess();
+                            this._config = {...this._config};
+                            this.requestUpdate();
                         })
                         .catch(err => {
                             // FIXME Vero 2022/12/05: handle error
@@ -134,7 +134,7 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.diseasePanel.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
+                                helpMessage: this.diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Add a disease panel ID"
                                 }
