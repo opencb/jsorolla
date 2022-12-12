@@ -60,6 +60,7 @@ export default class VariableSetCreate extends LitElement {
 
     onFieldChange(e, field) {
         this.variableSet = {...this.variableSet};
+        debugger
         this.requestUpdate();
         // e.stopPropagation();
         // const param = field || e.detail.param;
@@ -373,7 +374,7 @@ export default class VariableSetCreate extends LitElement {
                                     type: "checkbox",
                                     display: {
                                         // visible: (variableSet, variable) => variable?.type === "BOOLEAN", // it's not working
-                                        disabled: (variableSet, variable) => !variable?.type === "BOOLEAN", // it's not working
+                                        disabled: (variableSet, variable) => variable?.type !== "BOOLEAN", // it's not working
                                     }
                                 },
                                 {
