@@ -70,15 +70,6 @@ export default class DiseasePanelCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.diseasePanel = {
-                ...FormUtils.createObject(
-                    this.diseasePanel,
-                    param,
-                    e.detail.value,
-                )};
-        }
-
         // Get gene name and coordinates
         if (this.diseasePanel?.genes?.length > 0) {
             for (const gene of this.diseasePanel?.genes) {
@@ -101,6 +92,7 @@ export default class DiseasePanelCreate extends LitElement {
                 }
             }
         }
+        this.diseasePanel = {...this.diseasePanel};
         this.requestUpdate();
     }
 
