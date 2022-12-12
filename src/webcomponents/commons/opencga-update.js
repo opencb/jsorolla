@@ -199,7 +199,12 @@ export default class OpencgaUpdate extends LitElement {
                             }
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
-                                params.comments = params.comments.filter(comment => !comment.author);
+                                params.comments = params.comments
+                                    .filter(comment => !comment.author)
+                                    .map(comment => ({
+                                        ...comment,
+                                        tags: UtilsNew.commaSeparatedArray(comment.tags)
+                                    }));
                             }
                         },
                     ];
@@ -211,7 +216,7 @@ export default class OpencgaUpdate extends LitElement {
                     this.resourceInfoParams = {};
                     this.resourceUpdateParams = {
                         panelsAction: "SET",
-                        commentsAction: "REPLACE",
+                        // commentsAction: "REPLACE",
                     };
                     this.updateCustomisation = [
                         params => {
@@ -223,7 +228,12 @@ export default class OpencgaUpdate extends LitElement {
                             }
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
-                                params.comments = params.comments.filter(comment => !comment.author);
+                                params.comments = params.comments
+                                    .filter(comment => !comment.author)
+                                    .map(comment => ({
+                                        ...comment,
+                                        tags: UtilsNew.commaSeparatedArray(comment.tags)
+                                    }));
                             }
                         },
 

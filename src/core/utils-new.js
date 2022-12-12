@@ -978,4 +978,13 @@ export default class UtilsNew {
         });
     }
 
+    static commaSeparatedArray(strOrArray) {
+        return Array.isArray(strOrArray) ?
+            strOrArray :
+            (strOrArray || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(item => !!item);
+    }
+
 }
