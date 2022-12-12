@@ -301,10 +301,6 @@ export default class DataForm extends LitElement {
                     }
                 }
             }
-        } else {
-            // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
-            console.error("This code should never be reached!");
-            return element.display?.updated;
         }
     }
 
