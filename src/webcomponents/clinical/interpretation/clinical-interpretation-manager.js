@@ -88,10 +88,10 @@ export default class ClinicalInterpretationManager extends LitElement {
         //  is updated in the interpretation-update
         const clinicalAnalysisId = this.clinicalAnalysisId || this.clinicalAnalysis?.id;
         if (this.opencgaSession && clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    console.log(this.clinicalAnalysis);
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
