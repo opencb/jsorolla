@@ -94,54 +94,53 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "type":
-                this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
-                break;
-            case "proband.id":
-                this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
-                if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-                    this.clinicalAnalysis.disorder = {
-                        id: this.clinicalAnalysis.proband.disorders[0].id
-                    };
-                }
-                break;
-            case "disorder.id":
-                if (e.detail.value) {
-                    if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-                        const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
-                        this.clinicalAnalysis.disorder = {
-                            id: disorder.id
-                        };
-                    }
-                } else {
-                    delete this.clinicalAnalysis.disorder;
-                }
-                break;
-            case "analyst.id":
-                this.clinicalAnalysis.analyst = {
-                    id: e.detail.value
-                };
-                break;
-            case "panels.id":
-            case "flags.id":
-                const [field, prop] = param.split(".");
-                if (e.detail.value) {
-                    this.clinicalAnalysis[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
-                } else {
-                    delete this.clinicalAnalysis[field];
-                }
-                break;
-            case "panelLock":
-                this.clinicalAnalysis.panelLock = e.detail.value;
-                break;
-            default:
-                this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
-                break;
-        }
-
         this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
+        // switch (param) {
+        //     case "type":
+        //         this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
+        //         break;
+        //     case "proband.id":
+        //         this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
+        //         if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+        //             this.clinicalAnalysis.disorder = {
+        //                 id: this.clinicalAnalysis.proband.disorders[0].id
+        //             };
+        //         }
+        //         break;
+        //     case "disorder.id":
+        //         if (e.detail.value) {
+        //             if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
+        //                 const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
+        //                 this.clinicalAnalysis.disorder = {
+        //                     id: disorder.id
+        //                 };
+        //             }
+        //         } else {
+        //             delete this.clinicalAnalysis.disorder;
+        //         }
+        //         break;
+        //     case "analyst.id":
+        //         this.clinicalAnalysis.analyst = {
+        //             id: e.detail.value
+        //         };
+        //         break;
+        //     case "panels.id":
+        //     case "flags.id":
+        //         const [field, prop] = param.split(".");
+        //         if (e.detail.value) {
+        //             this.clinicalAnalysis[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
+        //         } else {
+        //             delete this.clinicalAnalysis[field];
+        //         }
+        //         break;
+        //     case "panelLock":
+        //         this.clinicalAnalysis.panelLock = e.detail.value;
+        //         break;
+        //     default:
+        //         this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
+        //         break;
+        // }
     }
 
     onCustomFieldChange(field, e) {
@@ -254,10 +253,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
-    }
-
-    onCommentChange(e) {
-        this.commentsUpdate = e.detail;
     }
 
     notifyClinicalAnalysisWrite() {
@@ -405,16 +400,25 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => html`
-                                    <disease-panel-filter
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .diseasePanels="${this.opencgaSession.study?.panels}"
-                                        .panel="${panels?.map(p => p.id).join(",")}"
-                                        .showExtendedFilters="${false}"
-                                        .showSelectedPanels="${false}"
-                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
-                                    </disease-panel-filter>
-                                `,
+                                render: (panels, dataFormFilterChange) => {
+                                    const handlePanelsFilterChange = e => {
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(panelId => panelId)
+                                            .map(panelId => ({id: panelId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+                                    return html`
+                                        <disease-panel-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .panel="${panels?.map(p => p.id).join(",")}"
+                                            .showExtendedFilters="${false}"
+                                            .showSelectedPanels="${false}"
+                                            @filterChange="${e => handlePanelsFilterChange(e, "panels.id")}">
+                                        </disease-panel-filter>
+                                    `;
+                                }
                             },
                         },
                         {
@@ -433,14 +437,23 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: flags => html`
+                                render: (flags, dataFormFilterChange) => {
+                                    const handleFlagsFilterChange = e => {
+                                        e.detail.value = e.detail.value
+                                            ?.split(",")
+                                            .filter(flagId => flagId)
+                                            .map(flagId => ({id: flagId}));
+                                        dataFormFilterChange(e.detail.value);
+                                    };
+                                    return html`
                                     <clinical-flag-filter
                                         .flag="${flags?.map(f => f.id).join(",")}"
                                         .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
                                         .multiple=${true}
-                                        @filterChange="${e => this.onFieldChange(e, "flags.id")}">
+                                        @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
                                     </clinical-flag-filter>
-                                `,
+                                `;
+                                },
                             },
                         },
                         {
@@ -723,12 +736,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
-                                render: priority => html`
+                                render: (priority, dataFormFilterChange) => html`
                                     <clinical-priority-filter
                                         .priority="${priority}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
                                         .multiple="${false}"
-                                        @filterChange="${e => this.onCustomFieldChange("priority", e)}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </clinical-priority-filter>
                                 `,
                             }
