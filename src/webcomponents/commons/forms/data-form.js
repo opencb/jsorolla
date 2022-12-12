@@ -1457,7 +1457,7 @@ export default class DataForm extends LitElement {
             const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
             switch (objectListEvent.action) {
                 case "ADD":
-                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, {}]);
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, value]);
                     eventDetail = {
                         param: element.field + "[]." + dataElementList.length,
                         value: value,
