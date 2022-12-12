@@ -84,8 +84,8 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        // CAUTION Vero 20221212: workaround for udpating the interpretation renderings when something, like comments,
-        //  is updated in the interpreation-update
+        // CAUTION Vero 20221212: workaround for updating the interpretation renderings when something, like comments,
+        //  is updated in the interpretation-update
         const clinicalAnalysisId = this.clinicalAnalysisId || this.clinicalAnalysis?.id;
         if (this.opencgaSession && clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
