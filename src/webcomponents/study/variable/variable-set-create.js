@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
 import "../../commons/forms/select-token-filter-static.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+
 
 export default class VariableSetCreate extends LitElement {
 
@@ -47,17 +49,16 @@ export default class VariableSetCreate extends LitElement {
             variables: [],
             unique: true
         };
-        this.variable = {};
         this._config = this.getDefaultConfig();
     }
 
-    refreshForm() {
-        // When using data-form we need to update config object and render again
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
         this.requestUpdate();
     }
 
     onFieldChange() {
+        console.log("variableSet Change", this.variableSet);
         this.variableSet = {...this.variableSet};
         this.requestUpdate();
     }
@@ -68,8 +69,8 @@ export default class VariableSetCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this.variableSet = {};
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
-
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "The fields has been cleaned.",
                 });
@@ -77,62 +78,73 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    async saveData() {
-        // TODO: review requestUpdate();
-        try {
-            this.requestUpdate();
-            await this.updateComplete;
-            const res = await this.opencgaSession.opencgaClient.studies()
-                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
-            this.variableSet = {
-                variables: [],
-                unique: true
-            };
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: "New VariableSet",
-                message: "VariableSet created correctly"
+    saveData() {
+        const params = {
+            action: "ADD"
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, params)
+            .then(() => {
+                this.variableSet = {
+                    variables: [],
+                    unique: true
+                };
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New VariableSet",
+                    message: "VariableSet created correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(()=> {
+                LitUtils.dispatchCustomEvent(this, "variableSetCreate", this.variableSet, {}, error);
+                this.#setLoading(false);
             });
-            // FormUtils.showAlert(
-            //     "New VariableSet",
-            //     "VariableSet save correctly",
-            //     "success"
-            // );
-        } catch (err) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-            // FormUtils.showAlert(
-            //     "New VariableSet",
-            //     `Could not save variableSet ${err}`,
-            //     "error"
-            // );
-        } finally {
-            this.requestUpdate();
-            await this.updateComplete;
-        }
     }
+
 
     onSubmit() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Create new variable set",
-            message: "Are you sure to create?",
-            dispatch: {
-                okButtonText: "Yes, save it!",
-            },
-            ok: () => {
-                this.saveData();
-            },
-        });
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+        //     title: "Create new variable set",
+        //     message: "Are you sure to create?",
+        //     dispatch: {
+        //         okButtonText: "Yes, save it!",
+        //     },
+        //     ok: () => {
+        //         this.saveData();
+        //     },
+        // });
+        const params = {
+            action: "ADD"
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, params)
+            .then(() => {
+                this.variableSet = {
+                    variables: [],
+                    unique: true
+                };
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New VariableSet",
+                    message: "VariableSet created correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(()=> {
+                LitUtils.dispatchCustomEvent(this, "variableSetCreate", this.variableSet, {}, error);
+                this.#setLoading(false);
+            });
     }
 
-    #onAddValues(e) {
-        console.log("Execute this function ", this.variable);
-        // e.stopPropagation();
-        // if (this.variable.type === "CATEGORICAL") {
-        //     this.variable.allowedValues = e.detail.value ?? [];
-        // } else {
-        //     this.variable.allowedKeys = e.detail.value ?? [];
-        // }
-        // this.refreshForm();
-    }
 
     render() {
         return html `
@@ -289,8 +301,22 @@ export default class VariableSetCreate extends LitElement {
                                     title: "Allowed Values",
                                     field: "variables[].allowedValues",
                                     type: "input-text",
+                                    validation: {
+                                        validate: (variableSet, variable) => {
+                                            const validateIntegerFormat = values => true;
+                                            const validateDoubleFormat = values => true;
+                                            if (variable?.type === "INTEGER") {
+                                                return validateIntegerFormat(variable?.allowedValues);
+                                            } else {
+                                                return validateDoubleFormat(variable?.allowedValues);
+                                            }
+                                        },
+                                        messages: (variableSet, variable) => variable?.type === "INTEGER" ? "it should contains the format []": ""
+                                    },
                                     display: {
-                                        visible: (variableSet, variable) => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                        helpMessage: "Follow one of this format valid for the number range: [0-1], [0-100]",
+                                        placeholder: "[0-1]"
                                     }
                                 },
                                 {
@@ -300,10 +326,13 @@ export default class VariableSetCreate extends LitElement {
                                     display: {
                                         visible: (variableSet, variable) => variable?.type === "CATEGORICAL",
                                         render: (variableSet, variable) => {
+                                            const handleVariableFilterChange = e => {
+                                                variable(e.detail.value ? e.detail.value?.split(",") :[]);
+                                            };
                                             return html`
                                                 <select-token-filter-static
                                                     .values="${variable?.allowedValues}"
-                                                    @addToken=${e => this.#onAddValues(e)}>
+                                                    @filterChange=${e => handleVariableFilterChange(e)}>
                                                 </select-token-filter-static>
                                             `;
                                         }
@@ -314,7 +343,7 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "checkbox",
                                     display: {
-                                        visible: (variableSet, variable) => variable?.type === "BOOLEAN", // it's not working
+                                        visible: (variableSet, variable) => variable?.type === "BOOLEAN",
                                     }
                                 },
                                 {
@@ -322,14 +351,14 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].defaultValue",
                                     type: "input-text",
                                     display: {
-                                        visible: (variableSet, variable) => variable?.type === "DOUBLE" || variable?.type === "INTEGER",
+                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
                                     }
                                 },
                                 {
                                     title: "Default Value",
                                     field: "variables[].defaultValue",
                                     type: "select",
-                                    allowedValues: variableSet => variableSet.allowedValues,
+                                    allowedValues: (variableSet, variable) => variable?.allowedValues,
                                     display: {
                                         visible: (variableSet, variable) => variable?.type === "CATEGORICAL",
                                     }
@@ -338,7 +367,7 @@ export default class VariableSetCreate extends LitElement {
                                     title: "Depends On",
                                     field: "variables[].dependsOn",
                                     type: "select",
-                                    allowedValues: variableSet => variableSet?.variables?.filter(variable => !!variable.id).map(variable => variable.id),
+                                    allowedValues: (variableSet, currentVariable) => variableSet?.variables?.filter(variable => !!variable.id).filter(variable => variable.id !== currentVariable?.id),
                                     multiple: false,
                                     display: {
                                         disabled: variableSet => !variableSet?.variables?.length > 0,

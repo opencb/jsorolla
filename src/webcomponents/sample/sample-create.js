@@ -92,7 +92,6 @@ export default class SampleCreate extends LitElement {
             study: this.opencgaSession.study.fqn,
             includeResult: true
         };
-        debugger
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.samples()
