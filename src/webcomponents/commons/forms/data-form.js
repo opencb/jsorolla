@@ -1238,7 +1238,7 @@ export default class DataForm extends LitElement {
         let maxNumItems;
         if (element.display.collapsed) {
             maxNumItems = element.display.maxNumItems ?? 5;
-            if (maxNumItems >= items?.length) {
+            if (maxNumItems >= items?.length || this.editOpen >= 0) {
                 // eslint-disable-next-line no-param-reassign
                 element.display.collapsed = false;
                 maxNumItems = items?.length;
@@ -1397,6 +1397,9 @@ export default class DataForm extends LitElement {
     }
 
     #toggleEditItemOfObjectList(e, item, index, element) {
+        // We must reset this variable after editing the new item.
+        this.editOpen = -1;
+
         const htmlElement = document.getElementById(element?.field + "_" + index);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
@@ -1816,6 +1819,7 @@ export default class DataForm extends LitElement {
             <!-- Render buttons -->
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
 
+            <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
                  aria-hidden="true">
                 <div class="modal-dialog">
