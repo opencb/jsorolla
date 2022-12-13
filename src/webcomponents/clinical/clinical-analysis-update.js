@@ -444,8 +444,9 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    // eslint-disable-next-line no-param-reassign
-                                    comment.tags = Array.isArray(comment.tags) ? comment.tags : (comment.tags || "").split(/,\s*/);
+                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                        .join(", ") || "-";
+
                                     return html `
                                     <div style="margin-bottom:1rem;">
                                         <div style="display:flex;margin-bottom:0.5rem;">
@@ -459,7 +460,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                         </div>
                                         <div style="width:100%;">
                                             <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                            <div class="text-muted">Tags: ${(comment.tags || []).join(", ") || "-"}</div>
+                                            <div class="text-muted">Tags: ${tags}</div>
                                         </div>
                                     </div>
                                 `;

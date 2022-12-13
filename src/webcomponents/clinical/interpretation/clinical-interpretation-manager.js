@@ -84,8 +84,12 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+        // CAUTION Vero 20221212: workaround for updating the interpretation renderings when something, like comments,
+        //  is updated in the interpretation-update
+        const clinicalAnalysisId = this.clinicalAnalysisId || this.clinicalAnalysis?.id;
+        if (this.opencgaSession && clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical()
+                .info(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
@@ -95,7 +99,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
+    clinicalAnalysisObserver(e) {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
@@ -146,12 +150,15 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
                             .mode="${"modal"}"
-                            .displayConfig="${{
-            buttonClearText: "Cancel",
-            buttonOkText: "Update",
-            modalButtonClassName: "btn-default btn-sm",
-            modalDisabled: this.clinicalAnalysis.locked
-        }}">
+                            .displayConfig="${
+                                {
+                                    buttonClearText: "Cancel",
+                                    buttonOkText: "Update",
+                                    modalButtonClassName: "btn-default btn-sm",
+                                    modalDisabled: this.clinicalAnalysis.locked
+                                }
+                            }"
+                            @clinicalInterpretationUpdate="${this.clinicalAnalysisIdObserver}">
                         </clinical-interpretation-update>
 
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
