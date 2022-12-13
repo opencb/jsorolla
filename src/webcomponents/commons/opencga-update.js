@@ -284,8 +284,8 @@ export default class OpencgaUpdate extends LitElement {
 
     configObserver() {
         this._config = {
-            ...this.config,
             ...this.getDefaultConfig(),
+            ...this.config,
         };
 
         // TODO: Add the notification element
