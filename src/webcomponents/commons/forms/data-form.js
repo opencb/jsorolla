@@ -1551,6 +1551,10 @@ export default class DataForm extends LitElement {
         }
     }
 
+    onPreview(e) {
+        $("#" + this._prefix + "PreviewDataModal").modal("show");
+    }
+
     onClear(e) {
         this.formSubmitted = false;
         this.showGlobalValidationError = false;
@@ -1614,8 +1618,10 @@ export default class DataForm extends LitElement {
         const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
+        const buttonPreviewText = this.config.buttons?.previewText ?? "Preview";
         const buttonClearText = this.config.display?.buttonClearText ?? this.config.buttons?.clearText ?? this.config.buttons?.cancelText ?? "Clear";
         const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
+        const buttonPreviewVisible = !!this.config.buttons?.previewText;
         const buttonClearVisible = this.config.display?.buttonClearText !== "";
         const buttonOkVisible = this.config.display?.buttonOkText !== "";
 
@@ -1623,14 +1629,21 @@ export default class DataForm extends LitElement {
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
-                    ${buttonClearVisible? html`
+                    ${buttonPreviewVisible ? html`
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onPreview}">
+                            ${buttonPreviewText}
+                        </button>
+                    `: null
+                    }
+                    ${buttonClearVisible ? html`
                         <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
                     `: null
                     }
-                    ${buttonOkVisible? html`
+                    ${buttonOkVisible ? html`
                         <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
@@ -1802,6 +1815,28 @@ export default class DataForm extends LitElement {
 
             <!-- Render buttons -->
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+
+            <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">JSON Preview</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div style="display:flex; flex-direction:row-reverse">
+                                <button type="button" class="btn btn-link"
+                                        @click="${navigator.clipboard.writeText(JSON.stringify(this.data, null, 4))}">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i>Copy JSON
+                                </button>
+                            </div>
+                            <div>
+                                <pre>${JSON.stringify(this.data, null, 4)}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 

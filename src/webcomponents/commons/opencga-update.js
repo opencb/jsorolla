@@ -427,6 +427,7 @@ export default class OpencgaUpdate extends LitElement {
             icon: "fas fa-edit",
             type: this._config?.type || "form",
             buttons: {
+                // previewText: "Preview",
                 clearText: "Discard Changes",
                 okText: "Update",
             },
