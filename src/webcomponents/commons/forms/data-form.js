@@ -1356,7 +1356,7 @@ export default class DataForm extends LitElement {
                                 Add Item
                             </button>`: nothing
                         }
-                        ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">

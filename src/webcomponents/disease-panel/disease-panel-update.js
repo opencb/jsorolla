@@ -251,6 +251,8 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
+                                showAddItemListButton: true,
+                                showAddBatchListButton: true,
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
