@@ -1268,6 +1268,9 @@ export default class DataForm extends LitElement {
                                     if (_element.elements[i].type === "custom") {
                                         _element.elements[i].display.render = element.elements[i].display.render;
                                     }
+                                    if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
+                                        _element.elements[i].allowedValues = element.elements[i].allowedValues;
+                                    }
                                     // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (typeof element.elements[i]?.display?.disabled === "function") {
                                         _element.elements[i].display.disabled = element.elements[i].display.disabled;
