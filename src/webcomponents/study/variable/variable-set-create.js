@@ -57,8 +57,11 @@ export default class VariableSetCreate extends LitElement {
         this.requestUpdate();
     }
 
-    onFieldChange() {
-        console.log("variableSet Change", this.variableSet);
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        if (param === "entities") {
+            this.variableSet.entities = this.variableSet?.entities.split(",");
+        }
         this.variableSet = {...this.variableSet};
         this.requestUpdate();
     }
@@ -78,46 +81,8 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    saveData() {
-        const params = {
-            action: "ADD"
-        };
-        let error;
-        this.#setLoading(true);
-        this.opencgaSession.opencgaClient.studies()
-            .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, params)
-            .then(() => {
-                this.variableSet = {
-                    variables: [],
-                    unique: true
-                };
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New VariableSet",
-                    message: "VariableSet created correctly"
-                });
-            })
-            .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(()=> {
-                LitUtils.dispatchCustomEvent(this, "variableSetCreate", this.variableSet, {}, error);
-                this.#setLoading(false);
-            });
-    }
-
 
     onSubmit() {
-        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-        //     title: "Create new variable set",
-        //     message: "Are you sure to create?",
-        //     dispatch: {
-        //         okButtonText: "Yes, save it!",
-        //     },
-        //     ok: () => {
-        //         this.saveData();
-        //     },
-        // });
         const params = {
             action: "ADD"
         };
@@ -300,7 +265,7 @@ export default class VariableSetCreate extends LitElement {
                                 {
                                     title: "Allowed Values",
                                     field: "variables[].allowedValues",
-                                    type: "input-text",
+                                    type: "custom",
                                     validation: {
                                         validate: (variableSet, variable) => {
                                             const validateIntegerFormat = values => true;
@@ -311,12 +276,26 @@ export default class VariableSetCreate extends LitElement {
                                                 return validateDoubleFormat(variable?.allowedValues);
                                             }
                                         },
-                                        messages: (variableSet, variable) => variable?.type === "INTEGER" ? "it should contains the format []": ""
+                                        messages: (variableSet, variable) => variable?.type === "INTEGER" ? "it should contains the format []": "it should..."
                                     },
                                     display: {
                                         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
-                                        helpMessage: "Follow one of this format valid for the number range: [0-1], [0-100]",
-                                        placeholder: "[0-1]"
+                                        helpMessage: "Follow one of this format valid for the number range: 0:1, -10:100",
+                                        render: (variableSet, variable) => {
+                                            const selectConfig = {
+                                                placeholder: "0:100"
+                                            };
+                                            const handleVariableFilterChange = e => {
+                                                variable(e.detail.value ? e.detail.value?.split(",") :[]);
+                                            };
+                                            return html`
+                                                <select-token-filter-static
+                                                    .values="${variable?.allowedValues}"
+                                                    .config="${selectConfig}"
+                                                    @filterChange=${e => handleVariableFilterChange(e)}>
+                                                </select-token-filter-static>
+                                            `;
+                                        }
                                     }
                                 },
                                 {
