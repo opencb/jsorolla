@@ -53,6 +53,9 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
+            originalData: {
+                type: Object
+            },
             updateParams: {
                 type: Object
             },
@@ -1353,7 +1356,7 @@ export default class DataForm extends LitElement {
                                 Add Item
                             </button>`: nothing
                         }
-                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
@@ -1361,16 +1364,23 @@ export default class DataForm extends LitElement {
                                 Add Batch
                             </button>`: nothing
                         }
+                        ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
+                            <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#resetObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
+                                Reset
+                            </button>`: nothing
+                        }
                     </div>
                     ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
-                        <div id="${element?.field}"
-                             style="margin-left: 10px; padding-left: 12px; display: none">
+                        <div id="${element?.field}" style="margin-left: 10px; padding-left: 12px; display: none">
                             <text-field-filter
                                 value="${this.batchItems[element?.field] || ""}"
                                 placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
                                 .rows="${3}"
                                 @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}"></text-field-filter>
-                            <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                            <div style="display:flex; flex-direction:row-reverse; margin: 5px">
                                 <button type="button" class="btn btn-xs btn-primary"
                                         ?disabled="${!this.batchItems[element.field]}"
                                         @click="${e => this.#addBatchToObjectList(e, element)}">
@@ -1404,6 +1414,13 @@ export default class DataForm extends LitElement {
         // eslint-disable-next-line no-param-reassign
         element.display.collapsed = collapsed;
         this.requestUpdate();
+    }
+
+    #resetObjectList(e, element) {
+        const event = {
+            action: "RESET",
+        };
+        this.onFilterChange(element, null, event);
     }
 
     #addToObjectList(e, element) {
@@ -1473,6 +1490,15 @@ export default class DataForm extends LitElement {
                         param: element.field + "[]." + objectListEvent.index,
                         value: value,
                         index: objectListEvent.index,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "RESET":
+                    const originalDataElementList = UtilsNew.getObjectValue(this.originalData, element.field, []);
+                    UtilsNew.setObjectValue(this.data, element.field, originalDataElementList);
+                    eventDetail = {
+                        param: element.field + "[]",
+                        value: value,
                         action: objectListEvent.action
                     };
                     break;

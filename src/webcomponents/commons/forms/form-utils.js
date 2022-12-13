@@ -53,7 +53,7 @@ export default class FormUtils {
         };
 
         // 1. Check if are updating an object-list
-        if (param.includes("[].")) {
+        if (param.includes("[]")) {
             // Parse 'param' in 3 parts, in this example 'collection.from[].1.name':
             //  - arrayFieldName: collection.from
             //  - index: 1
@@ -79,19 +79,19 @@ export default class FormUtils {
                 }
             } else {
                 // 1.2 Check 'value' to decide if we are adding or removing a new item
-                if (action === "ADD") {
-                    // 1.2.1 New item ADDED
-                    _updatedFields[param] = {
-                        before: undefined,
-                        after: {}
-                    };
-                } else {
-                    if (action === "REMOVE") {
+                switch (action) {
+                    case "ADD":
+                        _updatedFields[param] = {
+                            before: undefined,
+                            after: {}
+                        };
+                        break;
+                    case "REMOVE":
                         // 1.2.2 Item REMOVED
                         let [arrayFieldName, removedIndex] = param.split("[].");
                         removedIndex = Number.parseInt(removedIndex);
 
-                        // 1. Create 'delete' arrays if does not exist
+                        // 1. Create 'delete' arrays if it does not exist
                         if (!_updatedFields[arrayFieldName + "[].deleted"]) {
                             _updatedFields[arrayFieldName + "[].deleted"] = [];
                         }
@@ -131,9 +131,18 @@ export default class FormUtils {
                                 delete _updatedFields[key];
                             }
                         }
-                    } else {
-                        console.error("Unknown action found!");
-                    }
+                        break;
+                    case "RESET":
+                        const resetKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
+                        if (resetKeys.length > 0) {
+                            for (const deletedKey of resetKeys) {
+                                delete _updatedFields[deletedKey];
+                            }
+                        }
+                        break;
+                    default:
+                        console.error("Unknown action: " + action);
+                        break;
                 }
             }
         } else {
