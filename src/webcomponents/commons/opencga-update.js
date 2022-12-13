@@ -60,7 +60,6 @@ export default class OpencgaUpdate extends LitElement {
         this.params = {};
         this.updateCustomisation = [];
 
-
         this.updatedFields = {};
         this.isLoading = false;
         this.endpoint = {};
@@ -97,7 +96,6 @@ export default class OpencgaUpdate extends LitElement {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -110,7 +108,7 @@ export default class OpencgaUpdate extends LitElement {
     #getResourceName(type) {
         this.resourceLabel = this.resource
             .toLowerCase()
-            .split("-");
+            .split("_");
 
         switch (type) {
             case "event":
@@ -172,13 +170,13 @@ export default class OpencgaUpdate extends LitElement {
                     };
                     this.updateCustomisation = ["status.date"];
                     break;
-                case "DISEASE-PANEL":
+                case "DISEASE_PANEL":
                     this.endpoint = this.opencgaSession.opencgaClient.panels();
                     this.resourceInfoParams = {};
                     this.resourceUpdateParams = {};
                     this.updateCustomisation = [];
                     break;
-                case "CLINICAL-ANALYSIS":
+                case "CLINICAL_ANALYSIS":
                     this.endpoint = this.opencgaSession.opencgaClient.clinical();
                     this.resourceInfoParams = {};
                     this.resourceUpdateParams = {
@@ -209,7 +207,7 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
-                case "CLINICAL-INTERPRETATION":
+                case "CLINICAL_INTERPRETATION":
                     this.endpoint = this.opencgaSession.opencgaClient.clinical();
                     this.methodUpdate = "updateInterpretation";
                     this.methodInfo = "infoInterpretation";
@@ -236,7 +234,6 @@ export default class OpencgaUpdate extends LitElement {
                                     }));
                             }
                         },
-
                     ];
                     break;
             }
@@ -250,8 +247,6 @@ export default class OpencgaUpdate extends LitElement {
     componentIdObserver() {
         if (this.componentId && this.opencgaSession) {
             this.#initComponent();
-            // QUESTION: eventId is *Update or *Search?
-            // const eventId = this.#getResourceName("event");
 
             const params = {
                 study: this.opencgaSession.study.fqn,
@@ -309,7 +304,6 @@ export default class OpencgaUpdate extends LitElement {
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
-            // ...this.getDefaultConfig(),
         };
     }
 
@@ -321,10 +315,9 @@ export default class OpencgaUpdate extends LitElement {
             param,
             e.detail.value,
             e.detail.action);
-        // e.detail.component = this._component;
-        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
-            component: this._component,
-        }, null);
+
+        // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
+        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component}, null);
         this.requestUpdate();
     }
 
@@ -376,7 +369,7 @@ export default class OpencgaUpdate extends LitElement {
         this.#setLoading(true);
         const endpointMethod = this.methodUpdate || "update";
         // CAUTION: workaround for clinical-interpreation singular API
-        const update = (this.resource === "CLINICAL-INTERPRETATION") ?
+        const update = (this.resource === "CLINICAL_INTERPRETATION") ?
             this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params) :
             this.endpoint[endpointMethod](this.component.id, updateParams, params);
         update

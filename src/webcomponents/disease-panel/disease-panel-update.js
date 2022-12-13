@@ -75,7 +75,6 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     onComponentFieldChange(e) {
-
         // CAUTION Vero 2022/12/05: we should retrieve the assembly as well
         // Get gene name and coordinates
         if (e.detail?.component?.genes?.length > 0) {
@@ -108,7 +107,7 @@ export default class DiseasePanelUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                .resource="${"DISEASE-PANEL"}"
+                .resource="${"DISEASE_PANEL"}"
                 .component="${this.diseasePanel}"
                 .componentId="${this.diseasePanelId}"
                 .opencgaSession="${this.opencgaSession}"

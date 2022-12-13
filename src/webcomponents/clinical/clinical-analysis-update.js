@@ -109,7 +109,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                    .resource="${"CLINICAL-ANALYSIS"}"
+                    .resource="${"CLINICAL_ANALYSIS"}"
                     .component="${this.clinicalAnalysis}"
                     .componentId="${this.clinicalAnalysisId}"
                     .opencgaSession="${this.opencgaSession}"
