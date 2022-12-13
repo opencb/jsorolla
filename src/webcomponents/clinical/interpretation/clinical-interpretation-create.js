@@ -112,8 +112,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
     notifyClinicalAnalysisWrite() {
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            id: this.interpretation.id,
-            clinicalAnalysis: this.interpretation,
+            clinicalAnalysis: this.clinicalAnalysis,
         });
     }
 

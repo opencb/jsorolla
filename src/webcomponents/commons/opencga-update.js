@@ -222,7 +222,9 @@ export default class OpencgaUpdate extends LitElement {
                             // added by OpenCGA but not accepted in the update endpoint
                             if (params.status?.id) {
                                 // eslint-disable-next-line no-param-reassign
-                                params.status = {id: params.status.id};
+                                params.status = {
+                                    id: params.status.id,
+                                };
                             }
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
@@ -230,7 +232,7 @@ export default class OpencgaUpdate extends LitElement {
                                     .filter(comment => !comment.author)
                                     .map(comment => ({
                                         ...comment,
-                                        tags: UtilsNew.commaSeparatedArray(comment.tags)
+                                        tags: UtilsNew.commaSeparatedArray(comment.tags),
                                     }));
                             }
                         },
@@ -282,8 +284,8 @@ export default class OpencgaUpdate extends LitElement {
 
     configObserver() {
         this._config = {
-            ...this.config,
             ...this.getDefaultConfig(),
+            ...this.config,
         };
 
         // TODO: Add the notification element
