@@ -1356,7 +1356,7 @@ export default class DataForm extends LitElement {
                                 Add Item
                             </button>`: nothing
                         }
-                        ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
@@ -1498,7 +1498,7 @@ export default class DataForm extends LitElement {
                     break;
                 case "RESET":
                     const originalDataElementList = UtilsNew.getObjectValue(this.originalData, element.field, []);
-                    UtilsNew.setObjectValue(this.data, element.field, originalDataElementList);
+                    UtilsNew.setObjectValue(this.data, element.field, UtilsNew.objectClone(originalDataElementList));
                     eventDetail = {
                         param: element.field + "[]",
                         value: value,
