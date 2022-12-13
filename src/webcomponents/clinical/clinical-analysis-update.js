@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import FormUtils from "../commons/forms/form-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "./clinical-analysis-comment-editor.js";
@@ -25,9 +24,6 @@ import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
-
-import LitUtils from "../commons/utils/lit-utils";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types";
 
 export default class ClinicalAnalysisUpdate extends LitElement {
@@ -109,12 +105,12 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                    .resource="${"CLINICAL_ANALYSIS"}"
-                    .component="${this.clinicalAnalysis}"
-                    .componentId="${this.clinicalAnalysisId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    @componentIdObserver="${this.clinicalAnalysisIdObserver}">
+                .resource="${"CLINICAL_ANALYSIS"}"
+                .component="${this.clinicalAnalysis}"
+                .componentId="${this.clinicalAnalysisId}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                @componentIdObserver="${this.clinicalAnalysisIdObserver}">
             </opencga-update>
         `;
     }
@@ -214,7 +210,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                                     </a>
                                                 </div>
                                             ` : html `
-                                                    <div>${panel.id}</div>
+                                                <div>${panel.id}</div>
                                             `
                                         );
                                     }
@@ -260,15 +256,15 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (statusId, dataFormFilterChange, updateParams) => {
                                     // .disabled="${!!this._clinicalAnalysis?.locked}"
                                     return html `
-                                    <clinical-status-filter
-                                        .status="${statusId}"
-                                        .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
-                                        .multiple=${false}
-                                        .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
-                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </clinical-status-filter>
-                                `;
+                                        <clinical-status-filter
+                                            .status="${statusId}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .multiple=${false}
+                                            .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
+                                            .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </clinical-status-filter>
+                                    `;
                                 }
                             }
                         },
@@ -409,15 +405,15 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     // Note 2022/11/30: currently the form does not allow to change the case type.
                                     //  If allowed, to consider a possible change in updateParams for property .flags.
                                     return html `
-                                    <clinical-flag-filter
-                                        .flag="${flags?.map(f => f.id).join(",")}"
-                                        .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type?.toUpperCase()]}"
-                                        .multiple=${true}
-                                        .classes="${updateParams?.flags ? "selection-updated" : ""}"
-                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
-                                        @filterChange="${e => handleFlagsFilterChange(e)}">
-                                    </clinical-flag-filter>
-                                `;
+                                        <clinical-flag-filter
+                                            .flag="${flags?.map(f => f.id).join(",")}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .multiple=${true}
+                                            .classes="${updateParams?.flags ? "selection-updated" : ""}"
+                                            .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                            @filterChange="${e => handleFlagsFilterChange(e)}">
+                                        </clinical-flag-filter>
+                                    `;
                                 }
                             }
                         },
@@ -448,22 +444,22 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                         .join(", ") || "-";
 
                                     return html `
-                                    <div style="margin-bottom:1rem;">
-                                        <div style="display:flex;margin-bottom:0.5rem;">
-                                            <div style="padding-right:1rem;">
-                                                <i class="fas fa-comment-dots"></i>
+                                        <div style="margin-bottom:1rem;">
+                                            <div style="display:flex;margin-bottom:0.5rem;">
+                                                <div style="padding-right:1rem;">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </div>
+                                                <div style="font-weight:bold">
+                                                    ${comment.author || this.opencgaSession?.user?.id || "-"} -
+                                                    ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
+                                                </div>
                                             </div>
-                                            <div style="font-weight:bold">
-                                                ${comment.author || this.opencgaSession?.user?.id || "-"} -
-                                                ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
+                                            <div style="width:100%;">
+                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                                <div class="text-muted">Tags: ${tags}</div>
                                             </div>
                                         </div>
-                                        <div style="width:100%;">
-                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                            <div class="text-muted">Tags: ${tags}</div>
-                                        </div>
-                                    </div>
-                                `;
+                                    `;
                                 }
                             },
                             elements: [

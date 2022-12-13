@@ -200,23 +200,23 @@ export default class VariableSetCreate extends LitElement {
                             title: "Entities",
                             field: "entities",
                             type: "select",
-                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
+                            allowedValues: ["SAMPLE", "INDIVIDUAL", "FAMILY", "FILE", "COHORT"],
                             multiple: true,
                             display: {
                                 placeholder: "select a entity..."
                             }
                         },
-                        {
-                            title: "Unique",
-                            field: "unique",
-                            type: "checkbox",
-                        },
-                        {
-                            title: "Confidential",
-                            field: "confidential",
-                            type: "checkbox",
-                            checked: false
-                        },
+                        // {
+                        //     title: "Unique",
+                        //     field: "unique",
+                        //     type: "checkbox",
+                        // },
+                        // {
+                        //     title: "Confidential",
+                        //     field: "confidential",
+                        //     type: "checkbox",
+                        //     checked: false
+                        // },
                         {
                             title: "Description",
                             field: "description",
@@ -339,8 +339,8 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].dependsOn",
                                     type: "select",
                                     allowedValues: variableSet => variableSet?.variables?.filter(variable => !!variable.id).map(variable => variable.id),
+                                    multiple: false,
                                     display: {
-                                        // visible: variableSet => variableSet?.variables?.length > 0,
                                         disabled: variableSet => !variableSet?.variables?.length > 0,
                                         placeholder: "select an allow key or values..."
                                     }

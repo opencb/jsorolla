@@ -327,10 +327,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .opencgaSession="${this.opencgaSession}"
                                 .mode="${"modal"}"
                                 .displayConfig="${{
-            modalButtonClassName: "btn-primary",
-            buttonClearText: "Cancel",
-            modalDisabled: this.clinicalAnalysis.locked
-        }}">
+                                    modalButtonClassName: "btn-primary",
+                                    buttonClearText: "Cancel",
+                                    modalDisabled: this.clinicalAnalysis.locked
+                                }}">
                             </clinical-interpretation-create>
                         </div>
                     </div>

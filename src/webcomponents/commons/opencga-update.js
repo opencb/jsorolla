@@ -412,6 +412,7 @@ export default class OpencgaUpdate extends LitElement {
             ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
             <data-form
                 .data="${this._component}"
+                .originalData="${this.component}"
                 .config="${this._config}"
                 .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
