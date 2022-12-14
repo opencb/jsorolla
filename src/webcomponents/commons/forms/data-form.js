@@ -1624,6 +1624,10 @@ export default class DataForm extends LitElement {
         this.requestUpdate();
     }
 
+    onCopyPreviewClick() {
+        UtilsNew.copyToClipboard(JSON.stringify(this.data, null, 4));
+    }
+
     renderGlobalValidationError() {
         if (this.showGlobalValidationError) {
             return html`
@@ -1857,8 +1861,7 @@ export default class DataForm extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div style="display:flex; flex-direction:row-reverse">
-                                <button type="button" class="btn btn-link"
-                                        @click="${navigator.clipboard.writeText(JSON.stringify(this.data, null, 4))}">
+                                <button type="button" class="btn btn-link" @click="${this.onCopyPreviewClick}">
                                     <i class="fas fa-copy icon-padding" aria-hidden="true"></i>Copy JSON
                                 </button>
                             </div>
