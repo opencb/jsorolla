@@ -1526,7 +1526,7 @@ export default class DataForm extends LitElement {
                     break;
                 case "RESET":
                     const originalDataElementList = UtilsNew.getObjectValue(this.originalData, element.field, []);
-                    UtilsNew.setObjectValue(this.data, element.field, originalDataElementList);
+                    UtilsNew.setObjectValue(this.data, element.field, UtilsNew.objectClone(originalDataElementList));
                     eventDetail = {
                         param: element.field + "[]",
                         value: value,
