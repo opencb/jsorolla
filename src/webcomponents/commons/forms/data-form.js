@@ -919,6 +919,7 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     ?multiple="${element.multiple}"
+                    .maxOptions="${element.maxOptions || false}"
                     ?disabled="${disabled}"
                     ?required="${element.required}"
                     .value="${defaultValue}"
@@ -1300,13 +1301,19 @@ export default class DataForm extends LitElement {
     }
 
     _createObjectElement(element) {
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
         const contents = [];
-        for (const elem of element.elements) {
+        for (const childElement of element.elements) {
             // make sure this elem is nested
-            elem.display = {...elem.display, nested: true};
+            childElement.display = {
+                ...childElement.display,
+                disabled: isDisabled, // We set the disabled attribute from the parent element.
+                nested: true
+            };
 
+            // childElement.display.disabled = isDisabled;
             // Call to createElement to get HTML content
-            const elemContent = this._createElement(elem);
+            const elemContent = this._createElement(childElement);
 
             // Read Help message
             const helpMessage = this._getHelpMessage(element);
@@ -1316,10 +1323,10 @@ export default class DataForm extends LitElement {
             contents.push(
                 html`
                     <div class="row form-group" style="margin-left: 0;margin-right: 0">
-                        ${elem.title ? html`
+                        ${childElement.title ? html`
                             <div>
                                 <label class="control-label" style="padding-top: 0;">
-                                    ${elem.title}
+                                    ${childElement.title}
                                 </label>
                             </div>
                         ` : null
@@ -1341,10 +1348,11 @@ export default class DataForm extends LitElement {
 
     _createObjectListElement(element) {
         const items = this.getValue(element.field);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
         const contents = [];
 
         // Get initial collapsed status, only executed the first time
-        const collapsable = this._getBooleanValue(element.display.collapsable, true);
+        const collapsable = this._getBooleanValue(element.display?.collapsable, true);
         if (typeof element.display.collapsed === "undefined") {
             // eslint-disable-next-line no-param-reassign
             element.display.collapsed = collapsable;
@@ -1368,6 +1376,7 @@ export default class DataForm extends LitElement {
                 <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
                     ${items?.slice(0, maxNumItems).map((item, index) => {
                         const _element = JSON.parse(JSON.stringify(element));
+
                         // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                         // items have a virtual element associated, this will allow to get the proper value later.
                         for (let i = 0; i< _element.elements.length; i++) {
@@ -1384,12 +1393,14 @@ export default class DataForm extends LitElement {
                                 </div>
                                 <div>
                                     ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
+                                        <button type="button" class="btn btn-sm btn-primary" ?disabled="${isDisabled}"
+                                                @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
                                             <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
                                             Edit
                                         </button>` : null}
                                     ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-danger" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                        <button type="button" class="btn btn-sm btn-danger" ?disabled="${isDisabled}"
+                                                @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                             <i aria-hidden="true" class="fas fa-trash-alt"></i>
                                             Remove
                                         </button>` : null}
@@ -1434,7 +1445,10 @@ export default class DataForm extends LitElement {
                     <label>Create new item</label>
                     ${this._createObjectElement(element)}
                     <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                        <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#addToObjectList(e, element)}">Add</button>
+                        <button type="button" class="btn btn-sm btn-primary"
+                                @click="${e => this.#addToObjectList(e, element)}" ?disabled="${isDisabled}">
+                            Add
+                        </button>
                     </div>
                 </div>`;
             contents.push(createHtml);

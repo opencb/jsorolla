@@ -228,82 +228,81 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
-
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-        }
-
-        if (action === "copy") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: `Copy Disease Panel '${row.id}'`,
-                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
-                display: {
-                    okButtonText: "Yes, copy it",
-                },
-                ok: () => {
-                    const copy = JSON.parse(JSON.stringify(row));
-                    copy.id = row.id + "-Copy";
-                    copy.name = "Copy of " + row.name;
-                    // Delete managed fields
-                    delete copy.uuid;
-                    delete copy.creationDate; // FIXME remove this line
-                    delete copy.modificationDate; // FIXME remove this line
-                    delete copy.internal;
-                    delete copy.release;
-                    delete copy.version;
-                    delete copy.status;
-                    this.opencgaSession.opencgaClient.panels().create(copy, {
-                        study: this.opencgaSession.study.fqn,
-                    }).then(response => {
-                        if (response.getResultEvents("ERROR").length) {
-                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                        // Display confirmation message and update the table
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${copy.id}' has been copied.`,
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "copy":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Copy Disease Panel '${row.id}'`,
+                    message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                    display: {
+                        okButtonText: "Yes, copy it",
+                    },
+                    ok: () => {
+                        const copy = JSON.parse(JSON.stringify(row));
+                        copy.id = row.id + "-Copy";
+                        copy.name = "Copy of " + row.name;
+                        // Delete managed fields
+                        delete copy.uuid;
+                        delete copy.creationDate; // FIXME remove this line
+                        delete copy.modificationDate; // FIXME remove this line
+                        delete copy.internal;
+                        delete copy.release;
+                        delete copy.version;
+                        delete copy.status;
+                        this.opencgaSession.opencgaClient.panels().create(copy, {
+                            study: this.opencgaSession.study.fqn,
+                        }).then(response => {
+                            if (response.getResultEvents("ERROR").length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            }
+                            // Display confirmation message and update the table
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Case '${copy.id}' has been copied.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderTable();
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
-                    }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
-                },
-            });
-        }
-
-        if (action === "edit") {
-            console.error("Not implemented yet");
-        }
-
-        if (action === "delete") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: `Delete Disease Panel '${row.id}'`,
-                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
-                display: {
-                    okButtonText: "Yes, delete it",
-                },
-                ok: () => {
-                    const diseasePanelId = row.id;
-                    this.opencgaSession.opencgaClient.panels().delete(diseasePanelId, {
-                        study: this.opencgaSession.study.fqn,
-                    }).then(response => {
-                        if (response.getResultEvents("ERROR").length) {
-                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                        // Display confirmation message and update the table
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${diseasePanelId}' has been deleted.`,
+                    },
+                });
+                break;
+            case "edit":
+                break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete Disease Panel '${row.id}'`,
+                    message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                    display: {
+                        okButtonText: "Yes, delete it",
+                    },
+                    ok: () => {
+                        const diseasePanelId = row.id;
+                        this.opencgaSession.opencgaClient.panels().delete(diseasePanelId, {
+                            study: this.opencgaSession.study.fqn,
+                        }).then(response => {
+                            if (response.getResultEvents("ERROR").length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            }
+                            // Display confirmation message and update the table
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Case '${diseasePanelId}' has been deleted.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderTable();
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
-                    }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
-                },
-            });
+                    },
+                });
+                break;
         }
-
     }
 
     _getDefaultColumns() {
@@ -440,21 +439,26 @@ export default class DiseasePanelGrid extends LitElement {
                             </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a data-action="download" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Copy
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Make a Copy
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>

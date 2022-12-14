@@ -918,4 +918,27 @@ export default class UtilsNew {
         return results;
     }
 
+    // Wrapper around Clipboard API for supporting non secure contexts (HTTP)
+    static copyToClipboard(text) {
+        return Promise.resolve().then(() => {
+            if (window?.navigator?.clipboard?.writeText) {
+                return window.navigator.clipboard.writeText(text);
+            } else {
+                const el = document.createElement("textarea");
+                el.value = text;
+                el.setAttribute("readonly", "");
+                el.style.contain = "strict";
+                el.style.position = "absolute";
+                el.style.left = "-9999px";
+
+                document.body.appendChild(el);
+                el.select();
+                const copied = document.execCommand("copy");
+                document.body.removeChild(el);
+
+                return copied;
+            }
+        });
+    }
+
 }
