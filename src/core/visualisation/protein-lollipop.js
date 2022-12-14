@@ -30,20 +30,6 @@ export default {
         "other": "#adb5bd",
     },
 
-    getDefaultConfig() {
-        return {
-            padding: 10,
-            showProteinScale: true,
-            showProteinStructure: true,
-            showProteinLollipops: true,
-            showLegend: true,
-            proteinFeatures: [
-                "domain",
-                "region of interest",
-            ],
-        };
-    },
-
     // This is a terrible hack to find the correct protein ID and the transcript ID
     getProteinInfoFromGene(cellbaseClient, geneName) {
         let protein = null;
@@ -320,4 +306,19 @@ export default {
 
         return svg;
     },
+
+    getDefaultConfig() {
+        return {
+            padding: 10,
+            showProteinScale: true,
+            showProteinStructure: true,
+            showProteinLollipops: true,
+            showLegend: true,
+            proteinFeatures: [
+                "domain",
+                "region of interest",
+            ],
+        };
+    },
+
 };
