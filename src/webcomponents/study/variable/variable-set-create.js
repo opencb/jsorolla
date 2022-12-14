@@ -302,8 +302,8 @@ export default class VariableSetCreate extends LitElement {
                                     field: "variables[].allowedValues",
                                     type: "input-text",
                                     validation: {
-                                        validate: (variableSet, variable) => {
-                                            const validateIntegerFormat = values => true;
+                                        validate: (value, variableSet, variable) => {
+                                            const validateIntegerFormat = values => false;
                                             const validateDoubleFormat = values => true;
                                             if (variable?.type === "INTEGER") {
                                                 return validateIntegerFormat(variable?.allowedValues);
@@ -311,12 +311,12 @@ export default class VariableSetCreate extends LitElement {
                                                 return validateDoubleFormat(variable?.allowedValues);
                                             }
                                         },
-                                        messages: (variableSet, variable) => variable?.type === "INTEGER" ? "it should contains the format []": ""
+                                        // message: "It should contains the format [0-1]",
                                     },
                                     display: {
                                         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
                                         helpMessage: "Follow one of this format valid for the number range: [0-1], [0-100]",
-                                        placeholder: "[0-1]"
+                                        placeholder: "[0-100]"
                                     }
                                 },
                                 {
@@ -325,9 +325,9 @@ export default class VariableSetCreate extends LitElement {
                                     type: "custom",
                                     display: {
                                         visible: (variableSet, variable) => variable?.type === "CATEGORICAL",
-                                        render: (variableSet, variable) => {
+                                        render: (fieldValue, dataFormFilterChange, updateFields, variableSet, variable) => {
                                             const handleVariableFilterChange = e => {
-                                                variable(e.detail.value ? e.detail.value?.split(",") :[]);
+                                                dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                             };
                                             return html`
                                                 <select-token-filter-static

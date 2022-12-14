@@ -107,8 +107,7 @@ export default class DataForm extends LitElement {
             const _object = object ? object : this.data;
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
-            //  1. phenotypes[].1.id: field id from second item of phenotypes
-            //  2. phenotypes[].id: when no position is found is part of the Create New Item section
+            //  phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
@@ -117,11 +116,11 @@ export default class DataForm extends LitElement {
                     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldId];
                 } else {
                     // FIXME this should never be reached
-                    console.error("this should never be reached")
+                    console.error("this should never be reached");
                     // value = this.objectListItems[parentItemArray]?.[right];
                 }
             } else {
-                // optional chaining is needed when "res" is undefined
+                // Optional chaining is needed when "res" is undefined
                 value = field.split(".").reduce((res, prop) => res?.[prop], _object);
             }
 
@@ -334,7 +333,15 @@ export default class DataForm extends LitElement {
         }
 
         if (typeof element?.validation?.validate === "function") {
-            if (element.validation.validate(value)) {
+            // When an object-list, get the item being validated.
+            let item;
+            if (element.field.includes("[]")) {
+                const match = element.field.match(DataForm.re);
+                if (match) {
+                    item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                }
+            }
+            if (element.validation.validate(value, this.data, item)) {
                 this.invalidFields.delete(element.field);
                 return true;
             } else {
@@ -619,7 +626,6 @@ export default class DataForm extends LitElement {
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
 
-
         // Help message
         const helpMessage = this._getHelpMessage(element);
         const helpMode = this._getHelpMode(element);
@@ -842,7 +848,14 @@ export default class DataForm extends LitElement {
                     }
                 } else {
                     if (typeof element.allowedValues === "function") {
-                        const values = element.allowedValues(this.data);
+                        let item;
+                        if (element.field.includes("[]")) {
+                            const match = element.field.match(DataForm.re);
+                            if (match) {
+                                item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                            }
+                        }
+                        const values = element.allowedValues(this.data, item);
                         if (values) {
                             allowedValues = values;
                             if (values.defaultValue) {
@@ -1150,9 +1163,18 @@ export default class DataForm extends LitElement {
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         const data = element.field ? this.getValue(element.field) : this.data;
 
+        // When an object-list, get the item being validated.
+        let item;
+        if (element.field?.includes("[]")) {
+            const match = element.field.match(DataForm.re);
+            if (match) {
+                item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+            }
+        }
+
         // Call to render function, it must be defined!
         // We also allow to call to 'onFilterChange' function.
-        const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams);
+        const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item);
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
@@ -1274,6 +1296,12 @@ export default class DataForm extends LitElement {
                                     if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
                                         _element.elements[i].allowedValues = element.elements[i].allowedValues;
                                     }
+                                    if (typeof element.elements[i]?.validation?.validate === "function") {
+                                        _element.elements[i].validation.validate = element.elements[i].validation.validate;
+                                    }
+                                    // if (typeof element.elements[i]?.validation?.message === "function") {
+                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
+                                    // }
                                     // Copy JSON stringify and parse ignores functions, we need to copy them
                                     if (typeof element.elements[i]?.display?.disabled === "function") {
                                         _element.elements[i].display.disabled = element.elements[i].display.disabled;

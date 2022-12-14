@@ -160,15 +160,15 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             field: "status.id",
                             type: "custom",
                             display: {
-                                render: (statusId, dataFormFilterChange, updateParams) => {
+                                render: (statusId, dataFormFilterChange, updatedFields) => {
                                     // .disabled="${!!this._clinicalAnalysis?.locked}"
                                     return html`
                                         <clinical-status-filter
                                             .status="${statusId}"
                                             .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
                                             .multiple=${false}
-                                            .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
-                                            .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                            .classes="${updatedFields?.["status.id"] ? "selection-updated" : ""}"
+                                            .disabled="${updatedFields?.locked?.after ?? !! this.clinicalAnalysis?.locked}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </clinical-status-filter>
                                     `;
