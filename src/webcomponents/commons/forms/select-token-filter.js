@@ -105,17 +105,6 @@ export default class SelectTokenFilter extends LitElement {
         })
             .on("select2:select", e => {
                 this.filterChange(e);
-                /* dynamic width. DONE in css */
-                /* if (this._config.dynamicWidth) {
-                    let width = 200;
-                    $(".select2-selection__choice", this).each(function () {
-                        const token = $(this);
-                        const tokenWidth = token.outerWidth();
-                        width += tokenWidth;
-                    });
-                    console.log("$(this).find(\"span.select2-selection\")", $(this).find("span.select2-selection"))
-                    $(this).find("span.select2-selection").css("max-width", width);
-                }*/
             })
             .on("select2:unselect", e => {
                 this.filterChange(e);
@@ -123,14 +112,13 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     update(changedProperties) {
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
         if (changedProperties.has("value")) {
             if (this._config?.showSelectAll && !this.value) {
-                this.clearCheckbox();
+                this.clearAllCheckbox();
             }
+        }
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
@@ -152,7 +140,7 @@ export default class SelectTokenFilter extends LitElement {
         }
     }
 
-    clearCheckbox() {
+    clearAllCheckbox() {
         const selectElm = document.querySelector("#" + this._prefix);
         const allChekbox = document.querySelector(`#${this._prefix}-all-checkbox`);
         this.select.empty();
@@ -170,7 +158,6 @@ export default class SelectTokenFilter extends LitElement {
         }
         selectElm.disabled = !selectElm.disabled;
         // Notify to the form
-        // const selection = this.select.select2("data").map(el => el.id).join(",");
         LitUtils.dispatchCustomEvent(this, "filterChange", ids);
     }
 
@@ -202,7 +189,6 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const selection = this.select.select2("data").map(el => el.id).join(",");
-        // console.log("filterChange", selection);
         LitUtils.dispatchCustomEvent(this, "filterChange", selection);
     }
 
