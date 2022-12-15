@@ -889,17 +889,21 @@ export default class VariantGridFormatter {
             let altFreqText = "";
             let homAltFreqText = "";
 
+            // ALT freq tell us if the VARIANT has been OBSERVED.
             if (altFreq > 0) {
                 altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
             } else {
                 altFreqText = "<span style='font-style: italic'>Not Observed</span>";
-            }
-
-            if (homAltFreq > 0 || homAltCount > 0) {
-                homAltFreqText = `${homAltFreq || "-"} / ${homAltCount} (${homAltFreq > 0 ? (homAltFreq * 100).toPrecision(4) + "%" : "-"})`;
-            } else {
                 homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
             }
+
+            // TODO to be deleted
+            // if (homAltFreq > 0 || homAltCount > 0) {
+            //     homAltFreqText = `${homAltFreq || "-"} / ${homAltCount} (${homAltFreq > 0 ? (homAltFreq * 100).toPrecision(4) + "%" : "-"})`;
+            // } else {
+            //     homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
+            // }
 
             return `
                 <tr style='border-top:1px solid #ededed;'>
@@ -917,8 +921,8 @@ export default class VariantGridFormatter {
                 <thead>
                     <tr>
                         <th style='padding-bottom:8px;'>Population</th>
-                        <th style='min-width:100px;padding-bottom:8px;'>ALT Allele (freq/count)</th>
-                        <th style='min-width:100px;padding-bottom:8px;'>HOM_ALT Genotype (freq/count)</th>
+                        <th style='min-width:100px;padding-bottom:8px;'>Allele ALT (freq/count)</th>
+                        <th style='min-width:100px;padding-bottom:8px;'>Genotype HOM_ALT (freq/count)</th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
