@@ -123,8 +123,14 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     update(changedProperties) {
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+        if (changedProperties.has("value")) {
+            if (this._config.showSelectAll && !this.value) {
+                this.clearCheckbox();
+            }
         }
         super.update(changedProperties);
     }
@@ -144,6 +150,14 @@ export default class SelectTokenFilter extends LitElement {
             const regExpSeparators = new RegExp("[" + this._config.separator.join("") + "]");
             this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(regExpSeparators) : "");
         }
+    }
+
+    clearCheckbox() {
+        const selectElm = document.querySelector("#" + this._prefix);
+        const allChekbox = document.querySelector(`#${this._prefix}-all-checkbox`);
+        this.select.empty();
+        selectElm.disabled = false;
+        allChekbox.checked = false;
     }
 
     toggleDisabled() {
@@ -199,7 +213,7 @@ export default class SelectTokenFilter extends LitElement {
     renderShowSelectAll() {
         return html`
             <span class="input-group-addon">
-                <input type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
+                <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
                 <span style="font-weight: bold">All</span>
             </span>`;
     }
