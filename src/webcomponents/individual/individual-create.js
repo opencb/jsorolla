@@ -73,8 +73,7 @@ export default class IndividualCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        this.individual = {...this.individual}; // force to refresh the object-list
+        this.individual = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -443,6 +442,7 @@ export default class IndividualCreate extends LitElement {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
                                     type: "input-num",
+                                    allowedValues: [0],
                                     display: {
                                         placeholder: "Add an age of onset...",
                                     },
