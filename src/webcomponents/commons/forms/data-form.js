@@ -1402,7 +1402,7 @@ export default class DataForm extends LitElement {
                         }
                     </div>
                     ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
-                        <div id="${element?.field}" style="margin-left: 10px; padding-left: 12px; display: none">
+                        <div id="${this._prefix}-${element?.field}" style="margin-left: 10px; padding-left: 12px; display: none">
                             <text-field-filter
                                 value="${this.batchItems[element?.field] || ""}"
                                 placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
@@ -1465,7 +1465,7 @@ export default class DataForm extends LitElement {
     }
 
     #toggleAddBatchToObjectList(e, element) {
-        const htmlElement = document.getElementById(element?.field);
+        const htmlElement = document.getElementById(`${this._prefix}-${element?.field}`);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
