@@ -128,7 +128,7 @@ export default class SelectTokenFilter extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("value")) {
-            if (this._config.showSelectAll && !this.value) {
+            if (this._config?.showSelectAll && !this.value) {
                 this.clearCheckbox();
             }
         }
