@@ -92,7 +92,7 @@ export default class OpencgaExport extends LitElement {
         this.format = "tab";
         this.query = {};
 
-        this.tabs = ["download", "export", "link", "script"]; // default tabs to show
+        this.tabs = ["download", "export", "link", "code"]; // default tabs to show
         this._config = this.getDefaultConfig();
     }
 
@@ -109,8 +109,14 @@ export default class OpencgaExport extends LitElement {
             if (this.config.gridColumns) {
                 this.buildExportFieldList();
             }
-            if (this.config.exportTabs) {
+            if (this.config.exportTabs?.length > 0) {
                 this.tabs = this.config.exportTabs;
+            } else {
+                if (this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") {
+                    this.tabs = ["download", "export", "link", "code"];
+                } else {
+                    this.tabs = ["download", "link", "code"];
+                }
             }
             this.requestUpdate();
         }

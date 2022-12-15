@@ -754,7 +754,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}">
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : null}
 

@@ -340,6 +340,7 @@ export default class VariantGridFormatter {
             switch (row.type) {
                 case "SNP": // Deprecated
                     type = "SNV";
+                    color = "black";
                     break;
                 case "INDEL":
                 case "CNV": // Deprecated
@@ -877,54 +878,7 @@ export default class VariantGridFormatter {
     }
 
     // Creates the colored table with one row and as many columns as populations.
-    static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const cohort of cohorts) {
-            const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
-            popFreqsArray.push(cohort.id + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
-
-        // TODO block copied in createPopulationFrequenciesTable
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
-            } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
-            }
-            tooltip += `
-                <div>
-                    <span>
-                        <i class='fa fa-xs fa-square' style='color: ${color};' aria-hidden='true'></i>
-                        <label style='padding-left: 5px;width: 140px;'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight:bold;'>${freq}</span>
-                </div>
-            `;
-        }
-
-        // Create the table (with the tooltip info)
-        const tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Cohort Variant Stats" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
-        for (const cohort of cohorts) {
-            let color = "black";
-            if (typeof cohortStats.get(cohort.id) !== "undefined") {
-                const freq = cohortStats.get(cohort.id);
-                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-            }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
-        }
-        htmlPopFreqTable += "</tr></table></a>";
-        return htmlPopFreqTable;
-    }
-
-    // Creates the colored table with one row and as many columns as populations.
-    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
         // This is used by the tooltip function below to display all population frequencies
         const popFreqsArray = [];
         for (const population of populations) {
@@ -958,9 +912,11 @@ export default class VariantGridFormatter {
         let htmlPopFreqTable;
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
-            htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
-                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
-                                    <tr>`;
+            htmlPopFreqTable = `
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
+                    <tr>
+            `;
             for (const population of populations) {
                 // This array contains "study:population"
                 let color = "black";
