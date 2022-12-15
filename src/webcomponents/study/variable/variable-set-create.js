@@ -268,15 +268,29 @@ export default class VariableSetCreate extends LitElement {
                                     type: "custom",
                                     validation: {
                                         validate: (value, variableSet, variable) => {
-                                            const validateIntegerFormat = values => false;
-                                            const validateDoubleFormat = values => true;
+                                            const allowedValues = variable?.allowedValues;
+                                            const validateIntegerFormat = values => values.match(/\[\d+:\d+\]/g);
+                                            const validateDoubleFormat = values => values.match(/\[\d+\.?\d*:\d+\.?\d*\]/g);
                                             if (variable?.type === "INTEGER") {
-                                                return validateIntegerFormat(variable?.allowedValues);
+                                                if (allowedValues?.every(validateIntegerFormat)) {
+                                                    const values = allowedValues.replace(/[\[\]]/g, "")
+                                                        .split(":")
+                                                        .map(value => Number.parseInt(value));
+                                                    // min:max
+                                                    // the first element must be smaller than the second.
+                                                    return values[0] < values[1];
+                                                }
                                             } else {
-                                                return validateDoubleFormat(variable?.allowedValues);
+                                                if (allowedValues?.every(validateDoubleFormat)) {
+                                                    const values = allowedValues.replace(/[\[\]]/g, "")
+                                                        .split(":")
+                                                        .map(value => Number.parseFloat(value));
+                                                    // min:max
+                                                    return values[0] < values[1];
+                                                }
                                             }
                                         },
-                                        // message: "It should contains the format [0:1]",
+                                        message: "It should contains the format [0:1]",
                                     },
                                     display: {
                                         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
@@ -346,7 +360,7 @@ export default class VariableSetCreate extends LitElement {
                                     title: "Depends On",
                                     field: "variables[].dependsOn",
                                     type: "select",
-                                    allowedValues: (variableSet, currentVariable) => variableSet?.variables?.filter(variable => !!variable.id).filter(variable => variable.id !== currentVariable?.id),
+                                    allowedValues: (variableSet, currentVariable) => variableSet?.variables?.filter(variable => !!variable.id && variable.id !== currentVariable?.id).map(variable => variable.id),
                                     multiple: false,
                                     display: {
                                         disabled: variableSet => !variableSet?.variables?.length > 0,
