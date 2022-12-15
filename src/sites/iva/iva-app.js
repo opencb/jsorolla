@@ -48,8 +48,11 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
+// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
+import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
+import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
@@ -146,6 +149,7 @@ class IvaApp extends LitElement {
             "beacon",
             "project",
             "file",
+            "fileUpdate",
             // Sample
             "sample",
             "sample-view",
@@ -704,6 +708,9 @@ class IvaApp extends LitElement {
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
+                case "#fileUpdate":
+                    this.fileId = feature;
+                    break;
                 case "#sampleUpdate":
                     this.sampleId = feature;
                     break;
@@ -1338,6 +1345,30 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config.sampleView}">
                         </opencga-sample-view>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["fileUpdate"] ? html`
+                    <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="fileUpdate">
+                        <file-update
+                            .fileId="${this.fileId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </file-update>
                     </div>
                 ` : null}
 

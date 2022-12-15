@@ -140,6 +140,8 @@ export default class FamilyGrid extends LitElement {
                         ...sort,
                         ...this.query
                     };
+                    // Store the current filters
+                    this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.families()
                         .search(this.filters)
                         .then(familyResponse => {
