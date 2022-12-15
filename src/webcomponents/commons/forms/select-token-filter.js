@@ -245,6 +245,8 @@ export default class SelectTokenFilter extends LitElement {
     getDefaultConfig() {
         return {
             separator: [","],
+            // separatorRegex: /[^,]+/g, comma
+            separatorRegex: /(?:(?!,\S).)+/g, // comma without space
             showSelectAll: false,
             limit: 10,
             disablePagination: false,
