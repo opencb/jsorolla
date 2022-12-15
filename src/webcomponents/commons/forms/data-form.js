@@ -1299,6 +1299,9 @@ export default class DataForm extends LitElement {
                                     if (typeof element.elements[i]?.validation?.validate === "function") {
                                         _element.elements[i].validation.validate = element.elements[i].validation.validate;
                                     }
+                                    if (typeof element.elements[i]?.save === "function") {
+                                        _element.elements[i].save = element.elements[i].save;
+                                    }
                                     // if (typeof element.elements[i]?.validation?.message === "function") {
                                     //     _element.elements[i].validation.message = element.elements[i].validation.message;
                                     // }
@@ -1496,8 +1499,29 @@ export default class DataForm extends LitElement {
         }
     }
 
+    save(element, value) {
+        if (typeof element.save === "function") {
+            let currentValue;
+            if (element.field.includes("[]")) {
+                const match = element.field.match(DataForm.re);
+                if (match) {
+                    currentValue = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                }
+            } else {
+                currentValue = UtilsNew.getObjectValue(this.data, element.field);
+            }
+
+            return element.save(value, this.data, currentValue);
+        } else {
+            return value;
+        }
+    }
+
     onFilterChange(element, value, objectListEvent) {
         let eventDetail;
+
+        // Process the value to save it correctly.
+        value = this.save(element, value);
 
         // 1. Check if ADD, SAVE, REMOVE has been clicked, this happens in 'object-list'
         if (objectListEvent) {

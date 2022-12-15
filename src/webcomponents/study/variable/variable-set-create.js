@@ -263,6 +263,18 @@ export default class VariableSetCreate extends LitElement {
                                     },
                                 },
                                 {
+                                    title: "Allowed Values 2",
+                                    field: "variables[].allowedValues",
+                                    type: "input-text",
+                                    save: (value, variableSet, variable) => {
+                                        return [value];
+                                    },
+                                    display: {
+                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
                                     title: "Allowed Values",
                                     field: "variables[].allowedValues",
                                     type: "custom",
