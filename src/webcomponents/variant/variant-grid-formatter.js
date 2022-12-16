@@ -898,13 +898,6 @@ export default class VariantGridFormatter {
                 homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
             }
 
-            // TODO to be deleted
-            // if (homAltFreq > 0 || homAltCount > 0) {
-            //     homAltFreqText = `${homAltFreq || "-"} / ${homAltCount} (${homAltFreq > 0 ? (homAltFreq * 100).toPrecision(4) + "%" : "-"})`;
-            // } else {
-            //     homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
-            // }
-
             return `
                 <tr style='border-top:1px solid #ededed;'>
                     <td style='width:140px;padding-bottom:8px;padding-top:8px;'>
