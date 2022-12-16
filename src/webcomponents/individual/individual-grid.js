@@ -99,7 +99,7 @@ export default class IndividualGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -140,6 +140,7 @@ export default class IndividualGrid extends LitElement {
                         ...sort,
                         ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.individuals()
@@ -377,7 +378,7 @@ export default class IndividualGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -522,7 +523,7 @@ export default class IndividualGrid extends LitElement {
                                     `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
                                         <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
                                     </a>`
-                                }
+                }
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
@@ -604,7 +605,7 @@ export default class IndividualGrid extends LitElement {
             }
 
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}IndividualBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }

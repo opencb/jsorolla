@@ -70,11 +70,8 @@ export default class SampleGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-                changedProperties.has("query") ||
-                changedProperties.has("config") ||
-                changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -103,7 +100,7 @@ export default class SampleGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -136,9 +133,10 @@ export default class SampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "qualityControl",
+                        // exclude: "qualityControl",
                         ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
@@ -258,7 +256,7 @@ export default class SampleGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -457,7 +455,7 @@ export default class SampleGrid extends LitElement {
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}SampleBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }

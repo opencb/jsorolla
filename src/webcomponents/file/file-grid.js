@@ -102,7 +102,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -143,6 +143,7 @@ export default class OpencgaFileGrid extends LitElement {
                     if (this.filters.directory) {
                         this.filters.type = "FILE,DIRECTORY";
                     }
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.files()
@@ -237,7 +238,7 @@ export default class OpencgaFileGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -351,7 +352,7 @@ export default class OpencgaFileGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#fileUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
@@ -426,7 +427,7 @@ export default class OpencgaFileGrid extends LitElement {
             }
 
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}FileBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
