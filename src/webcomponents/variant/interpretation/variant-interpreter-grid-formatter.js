@@ -65,14 +65,19 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row?.annotation) {
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             const popFreqMap = new Map();
-            if (row.annotation.populationFrequencies?.length > 0) {
-                for (const popFreq of row.annotation.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
+            row.annotation.populationFrequencies.forEach(popFreq => {
+                if (this.meta.study === popFreq?.study) { // && this.meta.populationMap[popFreq.population] === true
+                    popFreqMap.set(popFreq?.population || {}, popFreq);
                 }
-            }
-            return VariantGridFormatter.renderPopulationFrequencies(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style, this._config.populationFrequenciesConfig);
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                this._config.populationFrequencies,
+                popFreqMap,
+                POPULATION_FREQUENCIES.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
