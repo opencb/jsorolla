@@ -392,7 +392,7 @@ export default class OpencgaBrowser extends LitElement {
                             .facetQuery="${this.preparedFacetQueryFormatted}"
                             .executedFacetQuery="${this.executedFacetQueryFormatted}"
                             .alias="${this.activeFilterAlias}"
-                            .config="${this._config.activeFilters}"
+                            .config="${this._config.filter.activeFilters}"
                             .filters="${this._config.filter.examples}"
                             @activeFilterChange="${this.onActiveFilterChange}"
                             @activeFilterClear="${this.onActiveFilterClear}"
