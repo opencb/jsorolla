@@ -935,7 +935,7 @@ export default class VariantGridFormatter {
                 // This array contains "study:population"
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
                 }
                 htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
