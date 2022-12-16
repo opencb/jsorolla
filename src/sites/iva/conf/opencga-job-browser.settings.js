@@ -25,7 +25,7 @@ const OPENCGA_JOB_BROWSER_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "toolId", "status", "priority", "dependsOn", "output", "execution", "creationDate"]
+        columns: ["id", "toolId", "status", "priority", "dependsOn", "output", "execution", "creationDate", "actions"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["job-view", "job-log", "json-view"]
