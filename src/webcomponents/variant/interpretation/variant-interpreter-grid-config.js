@@ -70,7 +70,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.proteinCodingTranscript":
             case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
-            case "populationFrequencies.displayMode":
+            case "populationFrequenciesConfig.displayMode":
                 const fields = e.detail.param.split(".");
                 if (!this.config[fields[0]]) {
                     this.config[fields[0]] = {};
@@ -309,12 +309,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
-                        visible: false
+                        visible: true
                     },
                     elements: [
                         {
                             title: "Select the display mode of the population frequencies",
-                            field: "populationFrequencies.displayMode",
+                            field: "populationFrequenciesConfig.displayMode",
                             type: "select",
                             multiple: false,
                             allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],

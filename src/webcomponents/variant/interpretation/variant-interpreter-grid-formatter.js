@@ -58,7 +58,7 @@ export default class VariantInterpreterGridFormatter {
                 cohorts.push(s);
                 cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, POPULATION_FREQUENCIES?.style);
+            return VariantGridFormatter.renderPopulationFrequencies(cohorts, cohortMap, POPULATION_FREQUENCIES?.style, this._config.populationFrequenciesConfig);
         } else {
             return "-";
         }
@@ -72,7 +72,7 @@ export default class VariantInterpreterGridFormatter {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style);
+            return VariantGridFormatter.renderPopulationFrequencies(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style, this._config.populationFrequenciesConfig);
         } else {
             return "-";
         }
@@ -280,23 +280,23 @@ export default class VariantInterpreterGridFormatter {
                         const confidenceColor = gene.confidence === "HIGH" ? "green" : gene.confidence === "MEDIUM" ? "darkorange" : "red";
                         panelHtml = `
                             <div style="margin: 5px 0">
-                                ${panel.source?.project?.toUpperCase() === "PANELAPP" ?
-                            `<div>
+                                ${panel.source?.project?.toUpperCase() === "PANELAPP" ? `
+                                    <div>
                                         <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" title="Panel ID: ${panel.id}" target="_blank">
                                             ${panel.name} (${panel.source.project} v${panel.source.version})
                                         </a>
-                                    </div>` :
-                            `<div style="margin: 5px 0">${panel.id}</div>`
-                        }
+                                    </div>` : `
+                                        <div style="margin: 5px 0">${panel.id}</div>`
+                                }
                             </div>
                             ${gene.modeOfInheritance ? `
                                 <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
-                            ` : ""
-                        }
+                                ` : ""
+                            }
                             ${gene.confidence ? `
                                 <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
-                            ` : ""
-                        }
+                                ` : ""
+                            }
                         `;
                     } else {
                         panelHtml = re.panelId;

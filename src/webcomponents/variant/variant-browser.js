@@ -339,6 +339,7 @@ export default class VariantBrowser extends LitElement {
         try {
             await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
             this.settingsObserver();
+            this.requestUpdate();
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",

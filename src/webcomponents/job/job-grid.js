@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 export default class JobGrid extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,49 +40,44 @@ export default class JobGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            jobs: {
-                type: Array
-            },
-            filters: {
-                type: Object,
-            },
             query: {
                 type: Object
+            },
+            jobs: {
+                type: Array
             },
             // TODO check do we really need it..
             eventNotifyName: {
                 type: String
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             },
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.autoRefresh = false;
-        this.eventNotifyName = "messageevent";
         this.gridId = this._prefix + "JobBrowserGrid";
         this.active = true;
+        this.autoRefresh = false;
+        this.eventNotifyName = "messageevent";
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-                changedProperties.has("query") ||
-                changedProperties.has("config") ||
-                changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -93,31 +88,32 @@ export default class JobGrid extends LitElement {
         this.toolbarConfig = {
             ...this.config.toolbar,
             resource: "JOB",
-            columns: this._initTableColumns().filter(col => col.field)
+            columns: this._getDefaultColumns().filter(col => col.field)
         };
-        this.renderTable();
+        this.renderRemoteTable();
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
+    renderRemoteTable() {
+        // this.jobs = [];
 
-    renderTable() {
-        this.jobs = [];
-
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
-            if (UtilsNew.isNotUndefined(this.jobs)) {
-                this._jobs = this.jobs;
-            } else {
-                this._jobs = [];
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
+                // Abort destroying and creating again the grid. The filters have not changed
+                return;
             }
+
+            // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
+            // if (UtilsNew.isNotUndefined(this.jobs)) {
+            //     this._jobs = this.jobs;
+            // } else {
+            //     this._jobs = [];
+            // }
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
-
             this.table.bootstrapTable({
-                columns: this._initTableColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
@@ -143,10 +139,11 @@ export default class JobGrid extends LitElement {
                 detailFormatter: this._config.detailFormatter.bind(this),
                 sortName: "Creation",
                 sortOrder: "asc",
+                gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
@@ -157,7 +154,11 @@ export default class JobGrid extends LitElement {
                         include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.jobs().search(filters)
+
+                    // Store the current filters
+                    this.lastFilters = {...this.filters};
+                    this.opencgaSession.opencgaClient.jobs()
+                        .search(this.filters)
                         .then(res => params.success(res))
                         .catch(e => {
                             console.error(e);
@@ -226,7 +227,79 @@ export default class JobGrid extends LitElement {
         }
     }
 
-    _initTableColumns() {
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    detailFormatter(value, row) {
+        let result = "<div class='row' style='padding-bottom: 20px'>";
+        let detailHtml = "";
+
+        if (row) {
+            // Job Dependencies section
+            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Job Dependencies</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            if (row.dependsOn && row.dependsOn.length > 0) {
+                detailHtml += `
+                    <div class='row' style="padding: 5px 10px 20px 10px">
+                        <div class='col-md-12'>
+                            <div>
+                                <table class="table table-hover table-no-bordered">
+                                    <thead>
+                                        <tr class="table-header">
+                                            <th>ID</th>
+                                            <th>Tool</th>
+                                            <th>Status</th>
+                                            <th>Priority</th>
+                                            <th>Creation Date</th>
+                                            <th>Visited</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${row.dependsOn.map(job => `
+                                            <tr class="detail-view-row">
+                                                <td>${job.id}</td>
+                                                <td>${job.tool.id}</td>
+                                                <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
+                                                <td>${job.priority}</td>
+                                                <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
+                                                <td>${job.visited}</td>
+                                           </tr>
+                                        `).join("")}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                detailHtml += "No dependencies";
+            }
+            detailHtml += "</div>";
+
+            // Input Files section
+            detailHtml += "<div style='padding: 10px 0px 10px 25px'><h4>Input Files</h4></div>";
+            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "To be implemented";
+            detailHtml += "</div>";
+        }
+
+        result += detailHtml + "</div>";
+        return result;
+    }
+
+    onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+        }
+    }
+
+    _getDefaultColumns() {
         let _columns = [
             {
                 id: "id",
@@ -284,7 +357,6 @@ export default class JobGrid extends LitElement {
                         return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
                 }
-
             },
             {
                 id: "execution",
@@ -299,80 +371,79 @@ export default class JobGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
+            },
+            {
+                id: "state",
+                field: "state",
+                checkbox: true,
+                class: "cursor-pointer",
+                eligible: false,
+                visible: this._config.showSelectCheckbox
             }
         ];
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
-    }
-
-    detailFormatter(value, row) {
-        let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-
-        if (row) {
-            // Job Dependencies section
-            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Job Dependencies</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            if (row.dependsOn && row.dependsOn.length > 0) {
-                detailHtml += ` <div class='row' style="padding: 5px 10px 20px 10px">
-                                    <div class='col-md-12'>
-                                        <div>
-                                            <table class="table table-hover table-no-bordered">
-                                                <thead>
-                                                    <tr class="table-header">
-                                                        <th>ID</th>
-                                                        <th>Tool</th>
-                                                        <th>Status</th>
-                                                        <th>Priority</th>
-                                                        <th>Creation Date</th>
-                                                        <th>Visited</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    ${row.dependsOn.map(job => `
-                                                        <tr class="detail-view-row">
-                                                            <td>${job.id}</td>
-                                                            <td>${job.tool.id}</td>
-                                                            <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
-                                                            <td>${job.priority}</td>
-                                                            <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
-                                                            <td>${job.visited}</td>
-                                                       </tr>
-                                                    `).join("")}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>`;
-            } else {
-                detailHtml += "No dependencies";
-            }
-            detailHtml += "</div>";
-
-            // Input Files section
-            detailHtml += "<div style='padding: 10px 0px 10px 25px'><h4>Input Files</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += "To be implemented";
-            detailHtml += "</div>";
+        if (this.opencgaSession && this._config.showActions) {
+            _columns.push({
+                id: "actions",
+                title: "Actions",
+                field: "actions",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
+            });
         }
 
-        result += detailHtml + "</div>";
-        return result;
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return _columns;
     }
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
+
         const filters = {
-            limit: e.detail?.exportLimit ?? 1000,
+            ...this.filters,
             skip: 0,
-            count: false,
-            study: this.opencgaSession.study.fqn,
-            ...this.query
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.jobs().search(filters)
+        this.opencgaSession.opencgaClient.jobs()
+            .search(filters)
             .then(response => {
                 const results = response.getResults();
                 if (results) {
@@ -421,8 +492,9 @@ export default class JobGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
+                </opencb-grid-toolbar>` : nothing
+            }
+
             <div>
                 <table id="${this.gridId}"></table>
             </div>
@@ -442,6 +514,7 @@ export default class JobGrid extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
             showToolbar: true,
+            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

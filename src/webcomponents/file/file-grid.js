@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -28,7 +29,7 @@ export default class OpencgaFileGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,33 +47,32 @@ export default class OpencgaFileGrid extends LitElement {
             files: {
                 type: Array
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
 
-    _init() {
-        this._prefix = "fg" + UtilsNew.randomString(6);
+    #init() {
+        this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "FileBrowserGrid";
         this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -93,7 +93,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     renderTable() {
         // If this.files is provided as property we render the array directly
-        if (this.files && this.files.length > 0) {
+        if (this.files?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -102,7 +102,13 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
+                // Abort destroying and creating again the grid. The filters have not changed
+                return;
+            }
+
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -121,9 +127,10 @@ export default class OpencgaFileGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
+                gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
-                    const filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         type: "FILE",
                         limit: params.data.limit,
@@ -133,10 +140,14 @@ export default class OpencgaFileGrid extends LitElement {
                         ...this.query
                     };
                     // When searching by directory we must also show directories
-                    if (filters.directory) {
-                        filters.type = "FILE,DIRECTORY";
+                    if (this.filters.directory) {
+                        this.filters.type = "FILE,DIRECTORY";
                     }
-                    this.opencgaSession.opencgaClient.files().search(filters)
+
+                    // Store the current filters
+                    this.lastFilters = {...this.filters};
+                    this.opencgaSession.opencgaClient.files()
+                        .search(this.filters)
                         .then(res => params.success(res))
                         .catch(e => {
                             console.error(e);
@@ -204,8 +215,8 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
+            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -221,6 +232,21 @@ export default class OpencgaFileGrid extends LitElement {
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
+    }
+
+    onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "qualityControl":
+                alert("Not implemented yet");
+                break;
+        }
     }
 
     _getDefaultColumns() {
@@ -268,46 +294,85 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter
             },
             {
-                id: "actions",
-                title: "Actions",
-                field: "id",
-                visible: this._config.downloadFile ?? true, // it comes from opencga-sample-browser.config.js
-                formatter: value => {
-                    const url = [
-                        this.opencgaSession.server.host,
-                        "/webservices/rest/",
-                        this.opencgaSession.server.version,
-                        "/files/",
-                        value,
-                        "/download?study=",
-                        this.opencgaSession.study.fqn,
-                        "&sid=",
-                        this.opencgaSession.token,
-                    ];
-                    return `
-                        <a class="btn btn-small btn-default" target="_blank" href="${url.join("")}">
-                            <i class="fas fa-download icon-padding"></i>Download
-                        </a>
-                    `;
-                },
-                align: "center",
-                valign: "middle",
-            },
-        ];
-
-        if (this._config.showSelectCheckbox) {
-            _columns.push({
                 id: "state",
                 field: "state",
                 checkbox: true,
-                // formatter: this.stateFormatter,
                 class: "cursor-pointer",
-                eligible: false
+                eligible: false,
+                visible: this._config.showSelectCheckbox
+            },
+        ];
+
+        if (this.opencgaSession && this._config.showActions) {
+            const downloadUrl = [
+                this.opencgaSession.server.host,
+                "/webservices/rest/",
+                this.opencgaSession.server.version,
+                "/files/",
+                "FILE_ID",
+                "/download?study=",
+                this.opencgaSession.study.fqn,
+                "&sid=",
+                this.opencgaSession.token,
+            ];
+            _columns.push({
+                id: "actions",
+                title: "Actions",
+                field: "actions",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding"></i>Download
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                    href='#fileUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-
         return _columns;
     }
 
@@ -315,16 +380,15 @@ export default class OpencgaFileGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            ...this.query,
-            limit: e.detail?.exportLimit ?? 1000,
+
+        const filters = {
+            ...this.filters,
             skip: 0,
-            count: false,
-            study: this.opencgaSession.study.fqn,
-            include: "id,name,path,format,bioformat,size,creationDate,modificationDate,internal,sampleIds",
-            type: "FILE"
+            limit: 1000,
+            count: false
         };
-        this.opencgaSession.opencgaClient.files().search(params)
+        this.opencgaSession.opencgaClient.files()
+            .search(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
@@ -359,10 +423,11 @@ export default class OpencgaFileGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
+                </opencb-grid-toolbar>` : nothing
+            }
+
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}FileBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
@@ -378,6 +443,7 @@ export default class OpencgaFileGrid extends LitElement {
             multiSelection: false,
             showSelectCheckbox: false,
             showToolbar: true,
+            showActions: true,
         };
     }
 
