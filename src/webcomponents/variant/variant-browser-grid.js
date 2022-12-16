@@ -461,26 +461,29 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     cohortFormatter(value, row) {
-        return "-";
-        // if (row && row.studies?.length > 0 && row.studies[0].stats) {
-        //     const cohortStats = new Map();
-        //     for (const study of row.studies) {
-        //         // Now we support both study.is and study.fqn
-        //         const metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
-        //         if (study.studyId === metaStudy) {
-        //             for (const cohortStat of study.stats) {
-        //                 const freq = Number(cohortStat.altAlleleFreq);
-        //                 cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(4) : 0);
-        //             }
-        //             break;
-        //         }
-        //     }
-        //     // We need to convert cohort objects to a string array
-        //     const cohortIds = this.meta.cohorts.map(cohort => cohort.id);
-        //     return VariantGridFormatter.renderPopulationFrequencies(cohortIds, cohortStats, this.meta.context.populationFrequencies.style, this.meta.populationFrequenciesConfig);
-        // } else {
-        //     return "-";
-        // }
+        if (row && row.studies?.length > 0 && row.studies[0].stats) {
+            const cohortStats = new Map();
+            for (const study of row.studies) {
+                // Now we support both study.is and study.fqn
+                const metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                if (study.studyId === metaStudy) {
+                    (study?.stats || []).forEach(cohortStat => {
+                        cohortStats.set(cohortStat.cohortId, cohortStat);
+                    });
+                    break;
+                }
+            }
+            // We need to convert cohort objects to a string array
+            const cohortIds = this.meta.cohorts.map(cohort => cohort.id);
+            return VariantGridFormatter.renderPopulationFrequencies(
+                cohortIds,
+                cohortStats,
+                this.meta.context.populationFrequencies.style,
+                this.meta.populationFrequenciesConfig,
+            );
+        } else {
+            return "-";
+        }
     }
 
     populationFrequenciesFormatter(value, row) {
