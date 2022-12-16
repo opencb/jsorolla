@@ -947,7 +947,7 @@ export default class VariantGridFormatter {
             for (const population of populations) {
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     const percentage = (Number(freq) * 100).toPrecision(4);
                     // Only color the significant ones
                     if (freq <= 0.005) {
