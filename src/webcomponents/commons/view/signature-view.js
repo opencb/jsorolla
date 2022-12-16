@@ -41,6 +41,9 @@ export default class SignatureView extends LitElement {
             plots: {
                 type: Array,
             },
+            fittingId: {
+                type: String,
+            },
             config: {
                 type: Object
             }
@@ -50,6 +53,7 @@ export default class SignatureView extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.plots = ["counts"];
+        this.fittingId = "";
         this.mode = "SBS";
     }
 
@@ -75,7 +79,7 @@ export default class SignatureView extends LitElement {
         }
 
         const mode = this.mode.toUpperCase();
-        const counts = this.signature.counts;
+        const counts = this.signature?.counts || [];
         const categories = counts.map(point => point?.context);
         const data = counts.map(point => point?.total);
 
@@ -331,12 +335,13 @@ export default class SignatureView extends LitElement {
     }
 
     signatureFittingObserver() {
-        if (!this.signature?.fitting) {
+        const self = this;
+        const fitting = (this.signature?.fittings || []).find(fitting => fitting.id === this.fittingId);
+        const scores = fitting?.scores;
+
+        if (!scores || scores.length === 0) {
             return;
         }
-
-        const self = this;
-        const scores = this.signature.fitting.scores;
 
         $(`#${this._prefix}SignatureFittingPlot`).highcharts({
             chart: {

@@ -74,6 +74,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
         this.queries = {};
         this.circosPlot = null;
+        this.signature = {};
         this.deletionAggregationStatsPlot = null;
     }
 
@@ -292,7 +293,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     // Save signature for onSave function.
     onChangeSignature(e) {
-        this.signature = e.detail.signature;
+        this.signature = {
+            ...this.signature,
+            ...e.detail.signature,
+        };
     }
 
     onChangeCircosPlot(e) {
@@ -313,47 +317,71 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             };
         }
 
-        // Prepare SNV Signature to be saved
-        if (this.sample.qualityControl.variant.signatures) {
-            // Check ID is unique before saving
-            const index = this.sample.qualityControl.variant.signatures.findIndex(signature => signature.id === this.save.id);
-            if (index === -1) {
-                this.sample.qualityControl.variant.signatures.push({id: this.save.id, ...this.signature});
-            } else {
-                console.warn("Signature ID already exists", this.sample.qualityControl.variant.signatures);
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                    title: "Warning",
-                    message: "Signature ID already exists"
+        // Prepare signatures list to be saved
+        if (!this.sample.qualityControl.variant.signatures) {
+            this.sample.qualityControl.variant.signatures = [];
+        }
+
+        // Check ID is unique before saving
+        const signatureIndex = this.sample.qualityControl.variant.signatures.findIndex(signature => signature.id === this.save.id);
+        if (signatureIndex === -1) {
+            if (this.signature?.["SNV"]) {
+                this.sample.qualityControl.variant.signatures.push({
+                    id: `${this.save.id}-snv`,
+                    type: "SNV",
+                    ...this.signature["SNV"],
+                });
+            }
+            if (this.signature?.["SV"]) {
+                this.sample.qualityControl.variant.signatures.push({
+                    id: `${this.save.id}-sv`,
+                    type: "SV",
+                    ...this.signature["SV"],
                 });
             }
         } else {
-            this.sample.qualityControl.variant.signatures = [{id: this.save.id, ...this.signature}];
+            console.warn("Signature ID already exists", this.sample.qualityControl.variant.signatures);
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                title: "Warning",
+                message: "Signature ID already exists"
+            });
         }
 
-        // Prepare file params
-        const circosPlotParams = {
-            content: this.circosPlot.split(", ")[1],
-            path: "/circos/" + this.save.id + ".png",
-            type: "FILE",
-            format: "IMAGE",
-        };
-        const deletionAggregationStatsPlotParams = {
-            content: this.deletionAggregationStatsPlot.split("base64,")[1].trim(),
-            path: `/deletionAggregationStats/${this.sample.id}-${this.save.id}.png`,
-            type: "FILE",
-            format: "IMAGE",
-        };
+        const plotsPromises = [];
 
-        Promise.all([
-            this.opencgaSession.opencgaClient.files().create(circosPlotParams, {
-                study: this.opencgaSession.study.fqn,
-                parents: true,
-            }),
-            this.opencgaSession.opencgaClient.files().create(deletionAggregationStatsPlotParams, {
-                study: this.opencgaSession.study.fqn,
-                parents: true,
-            }),
-        ])
+        // Prepare circos plot image
+        if (this.circosPlot) {
+            const circosPlotParams = {
+                content: this.circosPlot.split(", ")?.[1],
+                path: "/circos/" + this.save.id + ".png",
+                type: "FILE",
+                format: "IMAGE",
+            };
+            plotsPromises.push(
+                this.opencgaSession.opencgaClient.files().create(circosPlotParams, {
+                    study: this.opencgaSession.study.fqn,
+                    parents: true,
+                })
+            );
+        }
+
+        // Prepare deletion aggregation plot image
+        if (this.deletionAggregationStatsPlot) {
+            const deletionAggregationStatsPlotParams = {
+                content: this.deletionAggregationStatsPlot.split("base64,")[1].trim(),
+                path: `/deletionAggregationStats/${this.sample.id}-${this.save.id}.png`,
+                type: "FILE",
+                format: "IMAGE",
+            };
+            plotsPromises.push(
+                this.opencgaSession.opencgaClient.files().create(deletionAggregationStatsPlotParams, {
+                    study: this.opencgaSession.study.fqn,
+                    parents: true,
+                }),
+            );
+        }
+
+        Promise.all(plotsPromises)
             .then(results => {
                 // results[0] --> circos plot response
                 // results[1] --> deletion aggregation plot response
@@ -362,10 +390,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 if (!this.sample.qualityControl.variant.genomePlot) {
                     this.sample.qualityControl.variant["genomePlot"] = {};
                 }
-                this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+
+                // Append circos plot
+                if (this.circosPlot) {
+                    this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                }
 
                 // Append the deletion aggregation plot
-                this.sample.qualityControl.variant.files.push(results[1].responses[0].results[0].id);
+                if (this.deletionAggregationStatsPlot) {
+                    this.sample.qualityControl.variant.files.push(results[results.length - 1].responses[0].results[0].id);
+                }
 
                 // Update sample
                 const sampleParams = {
@@ -374,7 +408,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 this.opencgaSession.opencgaClient.samples().update(this.sample.id, sampleParams, {
                     study: this.opencgaSession.study.fqn,
                 })
-                    .then(restResponse => {
+                    .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             title: "Success",
                             message: "Variant Stats saved successfully"
@@ -581,11 +615,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 {
                     elements: [
                         {
-                            name: "Filter ID",
+                            name: "ID",
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter ID",
+                                placeholder: "Add an identifier.",
                             }
                         },
                         {
@@ -593,7 +627,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter description",
+                                placeholder: "Add a description",
                                 rows: 2
                             }
                         }
