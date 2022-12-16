@@ -74,9 +74,7 @@ export default class VariantInterpreterGridFormatter {
         if (row?.annotation?.populationFrequencies?.length > 0) {
             const popFreqMap = new Map();
             row.annotation.populationFrequencies.forEach(popFreq => {
-                if (this.meta.study === popFreq?.study) { // && this.meta.populationMap[popFreq.population] === true
-                    popFreqMap.set(popFreq?.population || {}, popFreq);
-                }
+                popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
             });
             return VariantGridFormatter.renderPopulationFrequencies(
                 this._config.populationFrequencies,
