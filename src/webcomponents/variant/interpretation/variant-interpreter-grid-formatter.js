@@ -52,13 +52,19 @@ export default class VariantInterpreterGridFormatter {
         if (row?.studies) {
             const cohorts = [];
             const cohortMap = new Map();
-            for (const study of row.studies) {
+            row.studies.forEach(study => {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-            }
-            return VariantGridFormatter.renderPopulationFrequencies(cohorts, cohortMap, POPULATION_FREQUENCIES?.style, this._config.populationFrequenciesConfig);
+                // cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
+                cohortMap.set(s, study.stats);
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                cohorts,
+                cohortMap,
+                POPULATION_FREQUENCIES?.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
