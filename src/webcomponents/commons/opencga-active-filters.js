@@ -962,7 +962,7 @@ export default class OpencgaActiveFilters extends LitElement {
             hiddenFields: [],
             lockedFields: [],
             save: {
-                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
+                ignoreParams: ["study", "sample", "file", "fileData"]
             }
         };
     }

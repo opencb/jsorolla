@@ -245,7 +245,20 @@ export default class JobBrowser extends LitElement {
                     },
                 ],
                 result: {
-                    grid: {},
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        multiSelection: false,
+                        showSelectCheckbox: false,
+                        toolbar: {
+                            showNew: true,
+                            showColumns: true,
+                            showDownload: false,
+                            showExport: true,
+                            exportTabs: ["download", "link", "code"]
+                            // columns list for the dropdown will be added in grid components based on settings.table.columns
+                        },
+                    }
                 },
                 detail: {
                     title: "Job",
