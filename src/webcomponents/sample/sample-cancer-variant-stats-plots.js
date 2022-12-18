@@ -28,7 +28,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -58,12 +58,26 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
         this.deletionTypeStats = {};
         this.typeStats = {};
+
+        this.deletionsInsertionsPlotColors = {
+            "Complex": "#bebebe",
+            "Insertion": "#006400",
+            "Deletion-other": "#cd2626",
+            "Deletion-repeat": "#ff3030",
+            "Deletion-microhomology": "#8b1a1a",
+        };
+        this.rearrangementsPlotColors = {
+            "DUPLICATION": "#006400",
+            "DELETION": "#ee6a50",
+            "INVERSION": "#1c86ee",
+            "TRANSLOCATION": "#595959",
+        };
     }
 
     connectedCallback() {
@@ -89,12 +103,13 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     }
 
     signatureQuery() {
+        this.signature = {};
         const params = {
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query,
-            ...this.queries?.["SNV"]
+            // ...this.queries?.["SNV"]
         };
 
         // Add default region filter including only canonical chromosomes
@@ -102,22 +117,43 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
         }
 
-        this.opencgaSession.opencgaClient.variants().queryMutationalSignature(params)
-            .then(restResult => {
-                this.signature = restResult.responses[0].results[0];
-                this.dispatchEvent(new CustomEvent("changeSignature", {
-                    detail: {
-                        signature: this.signature
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            }).catch(response => {
-                this.signature = {
-                    errorState: "Error from Server " + response.getEvents("ERROR").map(error => error.message).join(" \n ")
-                };
+        // Query SNV
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+            ...params,
+            ...this.queries?.["SNV"],
+            type: "SNV",
+        })
+            .then(response => {
+                this.signature["SNV"] = response.responses?.[0]?.results?.[0] || null;
+                LitUtils.dispatchCustomEvent(this, "changeSignature", null, {
+                    signature: this.signature,
+                });
+            })
+            .catch(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            }).finally(() => {
+            })
+            .finally(() => {
+                this.requestUpdate();
+            });
+
+        // Query for SV
+        this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
+            ...params,
+            // ...params,
+            // ...this.queries?.["SV"],
+            fileData: "", // We need to remove the fileData param of the query
+            type: "SV",
+        })
+            .then(response => {
+                this.signature["SV"] = response.responses?.[0]?.results?.[0] || null;
+                LitUtils.dispatchCustomEvent(this, "changeSignature", null, {
+                    signature: this.signature,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
                 this.requestUpdate();
             });
     }
@@ -236,8 +272,16 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                             <div class="col-md-5">
                                 <div style="margin-bottom: 20px">
                                     <h2>Mutational Catalogue</h2>
+                                    <h4>SNV Catalogue</h4>
                                     <signature-view
-                                        .signature="${this.signature}"
+                                        .signature="${this.signature?.["SNV"] || null}"
+                                        .mode="${"SBS"}"
+                                        ?active="${this.active}">
+                                    </signature-view>
+                                    <h4>SV Catalogue</h4>
+                                    <signature-view
+                                        .signature="${this.signature?.["SV"] || null}"
+                                        .mode="${"SV"}"
                                         ?active="${this.active}">
                                     </signature-view>
                                 </div>
@@ -248,13 +292,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             .title="${`${this.deletionAggregationStatsResults?.[0].count} deletions and insertions`}"
                                             .type="${"bar"}"
                                             .data="${this.deletionTypeStats}"
-                                            .colors="${{
-                                                "Complex": "#bebebe",
-                                                "Insertion": "#006400",
-                                                "Deletion-other": "#cd2626",
-                                                "Deletion-repeat": "#ff3030",
-                                                "Deletion-microhomology": "#8b1a1a",
-                                            }}"
+                                            .colors="${this.deletionsInsertionsPlotColors}"
                                             ?active="${true}"
                                             @changeChart="${this.onChangeDeletionAggregationStatsChart}">
                                         </simple-chart>
@@ -267,12 +305,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             .title="${`${this.aggregationStatsResults?.[0].count} rearrangements`}"
                                             .type="${"bar"}"
                                             .data="${this.typeStats}"
-                                            .colors="${{
-                                                "DUPLICATION": "#006400",
-                                                "DELETION": "#ee6a50",
-                                                "INVERSION": "#1c86ee",
-                                                "TRANSLOCATION": "#595959",
-                                            }}"
+                                            .colors="${this.rearrangementsPlotColors}"
                                             ?active="${true}">
                                         </simple-chart>
                                     </div>
