@@ -316,7 +316,8 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Mutational Signature - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <mutational-signature-analysis
                                     .toolParams="${{query: {sample: this.somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
                                 </mutational-signature-analysis>
                             </div>
                         `;
