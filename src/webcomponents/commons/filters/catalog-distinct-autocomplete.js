@@ -85,7 +85,8 @@ export default class CatalogDistinctAutocomplete extends LitElement {
                     "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
                     "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
                     "JOB": this.opencgaSession.opencgaClient.jobs(),
-                    "FILE": this.opencgaSession.opencgaClient.files()
+                    "FILE": this.opencgaSession.opencgaClient.files(),
+                    "COHORT": this.opencgaSession.opencgaClient.cohorts(),
                 };
 
                 const page = params?.data?.page || 1;
