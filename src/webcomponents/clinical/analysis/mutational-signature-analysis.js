@@ -105,16 +105,40 @@ export default class MutationalSignatureAnalysis extends LitElement {
         super.update(changedProperties);
     }
 
-    checkFittingIdExists(fittingId) {
-        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
-        return signatures.some(signature => {
-            return (signature?.fittings || []).some(fitting => fitting.id === fittingId);
-        });
+    checkValidCatalogueId() {
+        // Check if the current sample has signatures saved and we have selected one
+        if ((this.selectedSample?.qualityControl?.variant?.signatures || []).length > 0) {
+            return !!this.toolParams.signature;
+        }
+
+        // Other case, catalogueId is valid
+        return true;
+    }
+
+    checkValidFittingId() {
+        // Check if we have provided a custom fitting ID and does not already exists
+        if (this.toolParams.fitId) {
+            const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+            return !signatures.some(signature => {
+                return (signature?.fittings || []).some(fitting => fitting.id === this.toolParams.fitId);
+            });
+        }
+
+        // Other case, fitId is valid
+        return true;
     }
 
     check() {
+        // Prevent running fitting without selecting a catalogue id
+        if (!this.checkValidCatalogueId()) {
+            return {
+                status: false,
+                message: "Please select a catalogue ID for running fitting analysis.",
+            };
+        }
+
         // Check if this fitting id is not unique
-        if (this.toolParams?.fitId && this.checkFittingIdExists(this.toolParams.fitId)) {
+        if (!this.checkValidFittingId()) {
             return {
                 status: false,
                 message: `Fitting ID '${this.toolParams.fitId}' already exists.`,
@@ -135,46 +159,44 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     onSubmit() {
-        const toolParams = {
-            sample: this.toolParams.query.sample,
-            fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
-            fitMethod: this.toolParams.fitMethod,
-            fitSigVersion: this.toolParams.fitSigVersion,
-            fitOrgan: this.toolParams.fitOrgan,
-            fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
-            fitNBoot: this.toolParams.fitNBoot,
-            fitThresholdPerc: this.toolParams.fitThresholdPerc,
-            fitThresholdPval: this.toolParams.fitThresholdPval,
-            fitSignaturesFile: this.toolParams.fitSignaturesFile,
-            fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
-        };
+        // Prevent submitting the form if the new fittingID already exists or the catalogue ID is empty
+        if (this.checkValidCatalogueId() && this.checkValidFittingId()) {
+            const toolParams = {
+                sample: this.toolParams.query.sample,
+                fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
+                fitMethod: this.toolParams.fitMethod,
+                fitSigVersion: this.toolParams.fitSigVersion,
+                fitOrgan: this.toolParams.fitOrgan,
+                fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
+                fitNBoot: this.toolParams.fitNBoot,
+                fitThresholdPerc: this.toolParams.fitThresholdPerc,
+                fitThresholdPval: this.toolParams.fitThresholdPval,
+                fitSignaturesFile: this.toolParams.fitSignaturesFile,
+                fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
+            };
 
-        // Check if we have provided an existing signature list
-        if (this.toolParams.signature) {
-            toolParams.skip = "catalogue";
-            toolParams.id = this.toolParams.signature; // .split(":")[1];
-        } else {
-            toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
-            toolParams.description = this.toolParams.description || "";
-            toolParams.query = JSON.stringify(this.toolParams.query);
+            // Check if we have provided an existing signature list
+            if (this.toolParams.signature) {
+                toolParams.skip = "catalogue";
+                toolParams.id = this.toolParams.signature; // .split(":")[1];
+            } else {
+                toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
+                toolParams.description = this.toolParams.description || "";
+                toolParams.query = JSON.stringify(this.toolParams.query);
+            }
+
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            };
+
+            AnalysisUtils.submit(
+                this.ANALYSIS_TITLE,
+                this.opencgaSession.opencgaClient.variants()
+                    .runMutationalSignature(toolParams, params),
+                this,
+            );
         }
-
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
-
-        // Prevent submitting the form if the new fittingID already exists
-        if (this.checkFittingIdExists(toolParams.fitId)) {
-            return null;
-        }
-
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants()
-                .runMutationalSignature(toolParams, params),
-            this,
-        );
     }
 
     onClear() {
