@@ -64,11 +64,11 @@ export default class SignatureView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("signature") && this.plots.includes("counts")) {
+        if ((changedProperties.has("signature") || changedProperties.has("fittingId")) && this.plots.includes("counts")) {
             this.signatureCountsObserver();
         }
 
-        if (changedProperties.has("signature") && this.plots.includes("fitting")) {
+        if ((changedProperties.has("signature") || changedProperties.has("fittingId")) && this.plots.includes("fitting")) {
             this.signatureFittingObserver();
         }
     }
