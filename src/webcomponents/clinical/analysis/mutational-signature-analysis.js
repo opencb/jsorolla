@@ -114,9 +114,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     check() {
         // Check if this fitting id is not unique
-        if (this.toolParams?.fitId) {
+        if (this.toolParams?.fitId && this.checkFittingIdExists(this.toolParams.fitId)) {
             return {
-                status: !this.checkFittingIdExists(this.toolParams.fitId),
+                status: false,
                 message: `Fitting ID '${this.toolParams.fitId}' already exists.`,
             };
         }
