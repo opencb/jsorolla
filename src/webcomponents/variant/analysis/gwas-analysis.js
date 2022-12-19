@@ -80,9 +80,9 @@ export default class GwasAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
 
         // Check if changed param was controlCohort --> reset controlCohortSamples field
         if (param === "controlCohort") {
@@ -149,31 +149,33 @@ export default class GwasAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Case Cohort",
+                        field: "caseCohort",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
+                            render: (caseCohort, dataFormFilterChange, updateParams, toolParams) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.caseCohort}"
+                                    .value="${caseCohort}"
                                     .resource="${"COHORT"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "caseCohort")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
                         title: "Case Cohort Samples",
+                        field: "caseCohortSamples",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
+                            render: (caseCohortSamples, dataFormFilterChange, updateParams, toolParams) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.caseCohortSamples}"
+                                    .value="${caseCohortSamples}"
                                     .resource="${"SAMPLE"}"
-                                    .query="${{include: "id,individualId", cohortIds: this.toolParams.caseCohort}}"
+                                    .query="${{include: "id,individualId", cohortIds: toolParams?.caseCohort}}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !this.toolParams.caseCohort}}"
-                                    @filterChange="${e => this.onFieldChange(e, "caseCohortSamples")}">
+                                    .config="${{multiple: true, disabled: !toolParams.caseCohort}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -191,31 +193,35 @@ export default class GwasAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Control Cohort",
+                        field: "controlCohort",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.controlCohort}"
-                                    .resource="${"COHORT"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "controlCohort")}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (controlCohort, dataFormFilterChange) => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${controlCohort}"
+                                        .resource="${"COHORT"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            }
                         },
                     },
                     {
                         title: "Control Cohort Samples",
+                        field: "controlCohortSamples",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
+                            render: (controlCohortSamples, dataFormFilterChange, updateParams, toolParams) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.controlCohortSamples}"
+                                    .value="${controlCohortSamples}"
                                     .resource="${"SAMPLE"}"
-                                    .query="${{include: "id,individualId", cohortIds: this.toolParams.controlCohort}}"
+                                    .query="${{include: "id,individualId", cohortIds: toolParams?.controlCohort}}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: true, disabled: !this.toolParams.controlCohort}}"
-                                    @filterChange="${e => this.onFieldChange(e, "controlCohortSamples")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
