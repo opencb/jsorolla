@@ -105,7 +105,22 @@ export default class MutationalSignatureAnalysis extends LitElement {
         super.update(changedProperties);
     }
 
+    checkFittingIdExists(fittingId) {
+        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+        return signatures.some(signature => {
+            return (signature?.fittings || []).some(fitting => fitting.id === fittingId);
+        });
+    }
+
     check() {
+        // Check if this fitting id is not unique
+        if (this.toolParams?.fitId) {
+            return {
+                status: !this.checkFittingIdExists(this.toolParams.fitId),
+                message: `Fitting ID '${this.toolParams.fitId}' already exists.`,
+            };
+        }
+
         return null;
     }
 
@@ -148,6 +163,11 @@ export default class MutationalSignatureAnalysis extends LitElement {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
+
+        // Prevent submitting the form if the new fittingID already exists
+        if (this.checkFittingIdExists(toolParams.fitId)) {
+            return null;
+        }
 
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
