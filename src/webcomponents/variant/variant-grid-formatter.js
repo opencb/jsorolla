@@ -914,8 +914,8 @@ export default class VariantGridFormatter {
                 <thead>
                     <tr>
                         <th style='padding:0 8px 8px 0;'>Population</th>
-                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT (freq/count)</th>
-                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT (freq/count)</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
