@@ -983,7 +983,6 @@ class CaseSteinerReport extends LitElement {
                                 visible: !!this.selectedSignatures?.["SNV"],
                                 render: signatures => {
                                     const [signatureId, fittingId] = this.selectedSignatures["SNV"].split("::");
-                                    console.log(signatureId, fittingId);
                                     const signature = signatures.find(s => signatureId === s.id);
                                     return html`
                                         <div class="row" style="padding: 20px">
@@ -1063,7 +1062,6 @@ class CaseSteinerReport extends LitElement {
                                 visible: !!this.selectedSignatures?.["SV"],
                                 render: signatures => {
                                     const [signatureId, fittingId] = this.selectedSignatures["SV"].split("::");
-                                    console.log(signatureId, fittingId);
                                     const signature = signatures.find(s => signatureId === s.id);
                                     return html`
                                         <div class="row" style="padding: 20px">
