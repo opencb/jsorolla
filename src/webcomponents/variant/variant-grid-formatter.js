@@ -900,22 +900,22 @@ export default class VariantGridFormatter {
 
             return `
                 <tr style='border-top:1px solid #ededed;'>
-                    <td style='width:140px;padding-bottom:8px;padding-top:8px;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
                         <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                         <label style='padding-left: 5px;'>${population}</label>
                     </td>
-                    <td style='font-weight:bold;padding-bottom:8px;padding-top:8px;'>${altFreqText}</td>
-                    <td style='font-weight:bold;padding-bottom:8px;padding-top:8px;'>${homAltFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
                 </td>
             `;
         });
         const tooltip = `
-            <table style=''>
+            <table class='population-freq-tooltip'>
                 <thead>
                     <tr>
-                        <th style='padding-bottom:8px;'>Population</th>
-                        <th style='min-width:100px;padding-bottom:8px;'>Allele ALT (freq/count)</th>
-                        <th style='min-width:100px;padding-bottom:8px;'>Genotype HOM_ALT (freq/count)</th>
+                        <th style='padding:0 8px 8px 0;'>Population</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT (freq/count)</th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT (freq/count)</th>
                     </tr>
                 </thead>
                 <tbody>${tooltipRows.join("")}</tbody>
