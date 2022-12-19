@@ -87,11 +87,11 @@ export default class SampleQcAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -142,14 +142,14 @@ export default class SampleQcAnalysis extends LitElement {
                         field: "sample",
                         type: "custom",
                         display: {
-                            render: sample => {
+                            render: (sample, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
                                         .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: true, disabled: !!this.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
