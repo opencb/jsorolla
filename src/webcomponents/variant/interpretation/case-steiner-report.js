@@ -68,11 +68,16 @@ class CaseSteinerReport extends LitElement {
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
-        this._config = this.getDefaultConfig();
         this._data = null;
         // Data-form is not capturing the update of the data property
         // For that reason, we need this flag to check when the data is ready (TODO)
         this._ready = false;
+        // We need to save the selected SNV and SV Ids for displaying the plots
+        this.selectedSignatures = {
+            SV: null,
+            SNV: null,
+        };
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -286,6 +291,28 @@ class CaseSteinerReport extends LitElement {
 
     onFieldChange() {
         // TODO
+    }
+
+    onSignatureChange(event, type) {
+        this.selectedSignatures[type] = event.detail.value;
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        this.requestUpdate();
+    }
+
+    generateSignaturesDropdown(type) {
+        return (this._data?.qcPlots?.signatures || [])
+            .filter(signature => (signature?.type || "").toUpperCase() === type)
+            .map(signature => ({
+                id: signature.id,
+                fields: (signature.fittings || []).map(fitting => ({
+                    id: `${signature.id}::${fitting.id}`,
+                    name: `${signature.id}  |  ${fitting.id}`,
+                })),
+            }));
     }
 
     render() {
@@ -935,25 +962,48 @@ class CaseSteinerReport extends LitElement {
                         {
                             title: "",
                             type: "custom",
+                            field: "qcPlots.signatures",
                             display: {
-                                defaultLayout: "vertical",
-                                render: clinicalAnalysis => html`
-                                    <div class="row" style="padding: 20px">
-                                        <div class="col-md-6">
-                                            <h4>SBS Profile</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}">
-                                            </signature-view>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h4>SBS signature contributions</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"
-                                                .plots="${["fitting"]}">
-                                            </signature-view>
-                                        </div>
-                                    </div>
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${this.generateSignaturesDropdown("SNV")}"
+                                        .value=${this.selectedSignatures["SNV"]}
+                                        ?multiple="${false}"
+                                        ?liveSearch=${false}
+                                        @filterChange="${e => this.onSignatureChange(e, "SNV")}">
+                                    </select-field-filter>
                                 `,
+                            },
+                        },
+                        {
+                            title: "",
+                            type: "custom",
+                            field: "qcPlots.signatures",
+                            display: {
+                                visible: !!this.selectedSignatures?.["SNV"],
+                                render: signatures => {
+                                    const [signatureId, fittingId] = this.selectedSignatures["SNV"].split("::");
+                                    console.log(signatureId, fittingId);
+                                    const signature = signatures.find(s => signatureId === s.id);
+                                    return html`
+                                        <div class="row" style="padding: 20px">
+                                            <div class="col-md-6">
+                                                <h4>SBS Profile</h4>
+                                                <signature-view
+                                                    .signature="${signature}">
+                                                </signature-view>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h4>SBS signature contributions</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .fittingId="${fittingId}"
+                                                    .plots="${["fitting"]}">
+                                                </signature-view>
+                                            </div>
+                                        </div>
+                                    `;
+                                },
                             },
                         },
                         {
@@ -992,26 +1042,50 @@ class CaseSteinerReport extends LitElement {
                         {
                             title: "",
                             type: "custom",
+                            field: "qcPlots.signatures",
                             display: {
-                                render: clinicalAnalysis => html`
-                                    <div class="row" style="padding: 20px">
-                                        <div class="col-md-6">
-                                            <h4>Rearrangement Profile</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
-                                                .mode="${"SV"}">
-                                            </signature-view>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h4>Rearrangement signature contributions</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
-                                                .plots="${["fitting"]}"
-                                                .mode="${"SV"}">
-                                            </signature-view>
-                                        </div>
-                                    </div>
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${this.generateSignaturesDropdown("SV")}"
+                                        .value=${this.selectedSignatures["SV"]}
+                                        ?multiple="${false}"
+                                        ?liveSearch=${false}
+                                        @filterChange="${e => this.onSignatureChange(e, "SV")}">
+                                    </select-field-filter>
                                 `,
+                            },
+                        },
+                        {
+                            title: "",
+                            field: "qcPlots.signatures",
+                            type: "custom",
+                            display: {
+                                visible: !!this.selectedSignatures?.["SV"],
+                                render: signatures => {
+                                    const [signatureId, fittingId] = this.selectedSignatures["SV"].split("::");
+                                    console.log(signatureId, fittingId);
+                                    const signature = signatures.find(s => signatureId === s.id);
+                                    return html`
+                                        <div class="row" style="padding: 20px">
+                                            <div class="col-md-6">
+                                                <h4>Rearrangement Profile</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .mode="${"SV"}">
+                                                </signature-view>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h4>Rearrangement signature contributions</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .fittingId="${fittingId}"
+                                                    .plots="${["fitting"]}"
+                                                    .mode="${"SV"}">
+                                                </signature-view>
+                                            </div>
+                                        </div>
+                                    `;
+                                },
                             },
                         },
                         {
