@@ -77,11 +77,12 @@ export default class CohortVariantStatsAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // this.toolParams = {...this.toolParams};
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -129,16 +130,17 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Cohort ID",
+                        field: "cohort",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (cohort, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.cohort}"
+                                        .value="${cohort}"
                                         .resource="${"COHORT"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.samples}}"
-                                        @filterChange="${e => this.onFieldChange(e, "cohort")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.samples}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
@@ -148,16 +150,17 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                     },
                     {
                         title: "Sample ID",
+                        field: "samples",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (sample, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.sample}"
+                                        .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.cohort}}"
-                                        @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.cohort}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail?.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
