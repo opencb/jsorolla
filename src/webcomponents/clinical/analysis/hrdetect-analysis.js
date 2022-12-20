@@ -258,13 +258,23 @@ export default class HRDetectAnalysis extends LitElement {
             {
                 title: "CNV Query Parameters",
                 elements: [
-                    ...AnalysisUtils.getVariantQueryConfiguration("cnvQuery.", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
+                    ...AnalysisUtils.getVariantQueryConfiguration(
+                        "cnvQuery.",
+                        ["type"],
+                        this.opencgaSession,
+                        this.onFieldChange.bind(this),
+                    ),
                 ],
             },
             {
                 title: "Indel Query Parameters",
                 elements: [
-                    ...AnalysisUtils.getVariantQueryConfiguration("indelQuery.", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
+                    ...AnalysisUtils.getVariantQueryConfiguration(
+                        "indelQuery.",
+                        ["type"],
+                        this.opencgaSession,
+                        this.onFieldChange.bind(this),
+                    ),
                 ],
             },
         ];
