@@ -99,7 +99,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
     }
 
     clinicalInterpretationIdObserver(e) {
-        this.interpretation = e.detail.value;
+        this.clinicalInterpretation = e.detail.value;
     }
 
     opencgaSessionObserver() {
@@ -143,7 +143,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                             title: "Interpretation ID",
                             field: "id",
                             type: "input-text",
-                            defaultValue: this.interpretation?.id,
+                            defaultValue: this.clinicalInterpretation?.id,
                             display: {
                                 disabled: true,
                             },
@@ -185,6 +185,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
                                     const panelLock = !!this.clinicalAnalysis?.panelLock;
                                     const panelList = panelLock ? this.clinicalAnalysis?.panels : this.opencgaSession.study?.panels;
                                     const handlePanelsFilterChange = e => {
+                                        // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
