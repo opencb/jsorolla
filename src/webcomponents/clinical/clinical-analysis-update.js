@@ -126,29 +126,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // return {
             id: "clinical-analysis", // Fixme: clinical-analysis-update.js?
             title: "Case Editor", // Fixme: Clinical Analysis update?
             icon: "fas fa-user-md", // Fixme: to overwrite?
-            // buttons: {
-            //     clearText: "Cancel",
-            //     okText: "Update Case",
-            // },
-            // display: this.displayConfig || this.displayConfigDefault,
             display: this.displayConfig,
             sections: [
-                // {
-                //     elements: [
-                //         {
-                //             type: "notification",
-                //             text: "Some changes have been done in the form. Not saved, changes will be lost",
-                //             display: {
-                //                 visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                //                 notificationType: "warning",
-                //             }
-                //         }
-                //     ]
-                // },
                 {
                     id: "summary",
                     title: "Summary",
@@ -311,7 +293,6 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                             },
                         }
-
                     ]
                 },
                 {
