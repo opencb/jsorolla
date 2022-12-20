@@ -79,30 +79,7 @@ export default class CohortCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "samples":
-                let samples = [];
-                if (e.detail.value) {
-                    samples = e.detail.value.split(",").map(sample => {
-                        return {id: sample};
-                    });
-                }
-                this.cohort = {...this.cohort, samples: samples};
-                break;
-            case "annotationSets":
-                this.cohort = {...this.cohort, annotationSets: e.detail.value};
-                break;
-            default:
-                this.cohort = {
-                    ...FormUtils.createObject(
-                        this.cohort,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-        }
-        // We need this for validation
+        this.cohort = {...this.cohort};
         this.requestUpdate();
     }
 
@@ -193,14 +170,26 @@ export default class CohortCreate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: (samples, dataFormFilterChange) => html `
-                                <catalog-search-autocomplete
-                                    .value="${samples?.map(sample => sample.id).join(",")}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                                `
+                                render: (samples, dataFormFilterChange) => {
+                                    const sampleFormatter = value => {
+                                        return value?.split(",").map(sample => {
+                                            return {id: sample};
+                                        });
+                                    };
+
+                                    const handleSampleFilterChange = e => {
+                                        dataFormFilterChange(e.detail.value ? sampleFormatter(e.detail.value) :[]);
+                                    };
+
+                                    return html `
+                                        <catalog-search-autocomplete
+                                            .value="${samples?.map(sample => sample.id).join(",")}"
+                                            .resource="${"SAMPLE"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => handleSampleFilterChange(e)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                }
                             },
                         },
                         {

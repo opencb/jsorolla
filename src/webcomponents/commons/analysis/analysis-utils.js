@@ -71,12 +71,12 @@ export default class AnalysisUtils {
                 type: "custom",
                 display: {
                     visible: !ignoreList?.includes("ct"),
-                    render: ct => {
+                    render: (ct, dataFormFilterChange) => {
                         return html`
                             <consequence-type-select-filter
                                 .ct="${ct}"
                                 .config="${CONSEQUENCE_TYPES}"
-                                @filterChange="${e => callback(e, prefix + "ct")}">
+                                @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                             </consequence-type-select-filter>
                         `;
                     }

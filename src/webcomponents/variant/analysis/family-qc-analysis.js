@@ -91,11 +91,11 @@ export default class FamilyQcAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -146,13 +146,13 @@ export default class FamilyQcAnalysis extends LitElement {
                         field: "family",
                         type: "custom",
                         display: {
-                            render: family => html `
+                            render: (family, dataFormFilterChange)=> html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "family")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                             help: {

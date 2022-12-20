@@ -91,10 +91,10 @@ export default class RdTieringAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        this.config = this.getDefaultConfig();
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -144,16 +144,16 @@ export default class RdTieringAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        field: "clinicalAnalysisId",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
+                            render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => html`
                                 <catalog-search-autocomplete
                                     .value="${clinicalAnalysisId}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysisId")}">
+                                    .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -163,10 +163,10 @@ export default class RdTieringAnalysis extends LitElement {
                         //   - Once the clinical analysis id is selected, query its panels?
                         //   - All the studies have panels?
                         title: "Disease Panels",
-                        field: "panels",
+                        field: "panels.id",
                         type: "custom",
                         display: {
-                            render: panels => {
+                            render: (panels, dataFormFilterChange) => {
                                 // Todo: check if its working
                                 // Get whether disease panels can be modified or are fixed
                                 const casePanelLock = !!this.clinicalAnalysisId;
@@ -191,7 +191,7 @@ export default class RdTieringAnalysis extends LitElement {
                                         .showSelectedPanels="${false}"
                                         .classes=""
                                         .disabled="${casePanelLock}"
-                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </disease-panel-filter>
                                 `;
                             },

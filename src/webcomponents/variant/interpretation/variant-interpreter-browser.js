@@ -170,7 +170,7 @@ class VariantInterpreterBrowser extends LitElement {
             const type = this.clinicalAnalysis.type.toUpperCase();
 
             // Genome browser configuration
-            const genomeBrowserRegion = this._genomeBrowserRegion || this.clinicalAnalysis.interpretation.primaryFindings[0];
+            const genomeBrowserRegion = this._genomeBrowserRegion || this.clinicalAnalysis?.interpretation?.primaryFindings?.[0] || "";
             const genomeBrowserTracks = [
                 {
                     type: "gene-overview",
@@ -463,7 +463,7 @@ class VariantInterpreterBrowser extends LitElement {
                         <div style="margin-top:16px;">
                             <genome-browser
                                 .opencgaSession="${opencgaSession}"
-                                .region="${clinicalAnalysis.interpretation?.primaryFindings?.[0] || ""}"
+                                .region="${genomeBrowserRegion}"
                                 .active="${active}"
                                 .config="${genomeBrowserConfig}"
                                 .tracks="${genomeBrowserTracks}">

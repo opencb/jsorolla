@@ -59,9 +59,6 @@ export default class VariableSetCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param === "entities") {
-            this.variableSet.entities = this.variableSet?.entities.split(",");
-        }
         this.variableSet = {...this.variableSet};
         this.requestUpdate();
     }
@@ -177,6 +174,9 @@ export default class VariableSetCreate extends LitElement {
                             title: "Entities",
                             field: "entities",
                             type: "select",
+                            save: (value, variableSet, variable) => {
+                                return value?.split(",");
+                            },
                             allowedValues: ["SAMPLE", "INDIVIDUAL", "FAMILY", "FILE", "COHORT"],
                             multiple: true,
                             display: {
@@ -262,18 +262,18 @@ export default class VariableSetCreate extends LitElement {
                                         placeholder: "select a variable type..."
                                     },
                                 },
-                                {
-                                    title: "Allowed Values 2",
-                                    field: "variables[].allowedValues",
-                                    type: "input-text",
-                                    save: (value, variableSet, variable) => {
-                                        return [value];
-                                    },
-                                    display: {
-                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
-                                        placeholder: "Add a name...",
-                                    },
-                                },
+                                // {
+                                //     title: "Allowed Values 2",
+                                //     field: "variables[].allowedValues",
+                                //     type: "input-text",
+                                //     save: (value, variableSet, variable) => {
+                                //         return [value];
+                                //     },
+                                //     display: {
+                                //         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                //         placeholder: "Add a name...",
+                                //     },
+                                // },
                                 {
                                     title: "Allowed Values",
                                     field: "variables[].allowedValues",
@@ -281,24 +281,23 @@ export default class VariableSetCreate extends LitElement {
                                     validation: {
                                         validate: (value, variableSet, variable) => {
                                             const allowedValues = variable?.allowedValues;
-                                            const validateIntegerFormat = values => values.match(/\[\d+:\d+\]/g);
-                                            const validateDoubleFormat = values => values.match(/\[\d+\.?\d*:\d+\.?\d*\]/g);
-                                            if (variable?.type === "INTEGER") {
-                                                if (allowedValues?.every(validateIntegerFormat)) {
-                                                    const values = allowedValues.replace(/[\[\]]/g, "")
-                                                        .split(":")
-                                                        .map(value => Number.parseInt(value));
-                                                    // min:max
-                                                    // the first element must be smaller than the second.
-                                                    return values[0] < values[1];
-                                                }
-                                            } else {
-                                                if (allowedValues?.every(validateDoubleFormat)) {
-                                                    const values = allowedValues.replace(/[\[\]]/g, "")
-                                                        .split(":")
-                                                        .map(value => Number.parseFloat(value));
-                                                    // min:max
-                                                    return values[0] < values[1];
+                                            if (allowedValues) {
+                                                const validateIntegerFormat = values => values.match(/\[\d+:\d+\]/g);
+                                                const validateDoubleFormat = values => values.match(/\[\d+\.?\d*:\d+\.?\d*\]/g);
+                                                const reSquareBrackets = /[\[\]]/g;
+                                                const validateRangeNumber = variableType => allowedValues
+                                                    .map(rangeNumber => rangeNumber.replace(reSquareBrackets, "")) // Remove square brackets
+                                                    .every(rangeValue => {
+                                                        const [minValue, maxValue] = rangeValue
+                                                            .split(":") // divide by [min,max]
+                                                            .map(numberValue => variableType === "INTEGER" ? Number.parseInt(numberValue) : Number.parseFloat(numberValue));
+                                                        return minValue < maxValue; // verify it's correct min:max
+                                                    });
+
+                                                // Validate that the format of the ranges are correct.
+                                                if (allowedValues?.every(variable?.type === "INTEGER" ? validateIntegerFormat : validateDoubleFormat)) {
+                                                    // Validate that the number is min & max
+                                                    return validateRangeNumber(variable?.type);
                                                 }
                                             }
                                         },
@@ -308,7 +307,7 @@ export default class VariableSetCreate extends LitElement {
                                         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
                                         render: (variableSet, variable) => {
                                             const selectConfig = {
-                                                placeholder: "0:100"
+                                                placeholder: "[50:100]"
                                             };
                                             const handleVariableFilterChange = e => {
                                                 variable(e.detail.value ? e.detail.value?.split(",") :[]);
@@ -355,6 +354,31 @@ export default class VariableSetCreate extends LitElement {
                                     title: "Default Value",
                                     field: "variables[].defaultValue",
                                     type: "input-text",
+                                    save: (value, variableSet, variable) => {
+                                        return variable?.type === "INTEGER" ? Number.parseInt(value) : Number.parseFloat(value);
+                                    },
+                                    validation: {
+                                        validate: (value, variableSet, variable) => {
+                                            const allowedValues = variable?.allowedValues;
+                                            if (allowedValues && value) {
+                                                const currentValue = variable?.type === "INTEGER" ? Number.parseInt(value) : Number.parseFloat(value);
+                                                const reSquareBrackets = /[\[\]]/g;
+
+                                                // Just check if the value is within one of the defined ranges.
+                                                const isRange = (variableType, currentValue) => allowedValues
+                                                    .map(rangeNumber => rangeNumber.replace(reSquareBrackets, "")) // Remove square brackets
+                                                    .some(rangeValue => {
+                                                        const [minValue, maxValue] = rangeValue
+                                                            .split(":") // divide
+                                                            .map(numberValue => variableType === "INTEGER" ? Number.parseInt(numberValue) : Number.parseFloat(numberValue));
+                                                        return currentValue >= minValue && currentValue <= maxValue; // validate if the number is in range
+                                                    });
+                                                return isRange(variable?.type, currentValue);
+                                            }
+                                            return true;
+                                        },
+                                        message: "It must be one of those allowed values",
+                                    },
                                     display: {
                                         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
                                     }
