@@ -89,7 +89,7 @@ export default class HRDetectAnalysis extends LitElement {
         if (!this.toolParams.snvFittingId || !this.toolParams.svFittingId) {
             return {
                 status: false,
-                message: "Plase select a valid SNV and SV Fitting ID",
+                message: "Please select a valid SNV and SV Fitting ID",
             };
         }
 
