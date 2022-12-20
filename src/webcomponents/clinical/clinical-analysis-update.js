@@ -242,6 +242,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                         {
                             title: "Status",
                             field: "status.id",
+                            required: true,
                             type: "custom",
                             display: {
                                 render: (statusId, dataFormFilterChange, updateParams, clinicalAnalysis) => {
@@ -250,6 +251,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                             .status="${statusId}"
                                             .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[clinicalAnalysis?.type?.toUpperCase()]}"
                                             .multiple=${false}
+                                            .forceSelection=${true}
                                             .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
@@ -262,12 +264,14 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             title: "Priority",
                             field: "priority.id",
                             type: "custom",
+                            required: true,
                             display: {
                                 render: (priorityId, dataFormFilterChange, updateParams, clinicalAnalysis) => html`
                                     <clinical-priority-filter
                                         .priority="${priorityId}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
                                         .multiple=${false}
+                                        .forceSelection=${true}
                                         .classes="${updateParams?.["priority.id"] ? "selection-updated" : ""}"
                                         .disabled="${!!clinicalAnalysis?.locked}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">

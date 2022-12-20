@@ -44,6 +44,9 @@ export default class ClinicalPriorityFilter extends LitElement {
             multiple: {
                 type: Boolean
             },
+            forceSelection: {
+                type: Boolean,
+            },
             classes: {
                 type: String
             },
