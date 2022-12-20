@@ -51,7 +51,6 @@ class MutationalSignatureView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("signatures")) {
-            console.log(this.signatures);
             this.data = {};
             this.config = this.getDefaultConfig();
         }
