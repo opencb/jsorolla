@@ -116,7 +116,7 @@ export default class HRDetectAnalysis extends LitElement {
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
-                .runMutationalSignature(toolParams, params),
+                .runHrDetect(toolParams, params),
             this
         );
     }
