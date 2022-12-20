@@ -117,6 +117,7 @@ export default class FamilyUpdate extends LitElement {
                                         // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
+                                            .filter(memberId => memberId)
                                             .map(memberId => ({id: memberId}));
                                         dataFormFilterChange(e.detail.value);
                                     };

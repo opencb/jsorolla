@@ -860,11 +860,6 @@ export default class DataForm extends LitElement {
                             allowedValues = values;
                             if (values.defaultValue) {
                                 defaultValue = values.defaultValue;
-                            } else {
-                                // Select defaultValue when only one value exist
-                                if (allowedValues && allowedValues.length === 1) {
-                                    defaultValue = allowedValues[0];
-                                }
                             }
                         }
                     } else {
@@ -889,11 +884,6 @@ export default class DataForm extends LitElement {
                 // Check if a defaultValue is set in element config
                 if (element.defaultValue) {
                     defaultValue = element.defaultValue;
-                } else {
-                    // Select defaultValue when only one value exist
-                    if (allowedValues && allowedValues.length === 1) {
-                        defaultValue = allowedValues[0];
-                    }
                 }
             }
         }
