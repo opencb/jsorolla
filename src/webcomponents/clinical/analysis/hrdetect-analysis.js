@@ -105,6 +105,14 @@ export default class HRDetectAnalysis extends LitElement {
             sample: this.toolParams.query?.sample,
             snvFittingId: this.toolParams.snvFittingId,
             svFittingId: this.toolParams.svFittingId,
+            cnvQuery: JSON.stringify({
+                sample: this.toolParams.query?.sample,
+                ...this.toolParams.cnvQuery,
+            }),
+            indelQuery: JSON.stringify({
+                sample: this.toolParams.query?.sample,
+                ...this.toolParams.indelQuery,
+            }),
         };
 
         const params = {
@@ -245,6 +253,18 @@ export default class HRDetectAnalysis extends LitElement {
                             `,
                         },
                     },
+                ],
+            },
+            {
+                title: "CNV Query Parameters",
+                elements: [
+                    ...AnalysisUtils.getVariantQueryConfiguration("cnvQuery.", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
+                ],
+            },
+            {
+                title: "Indel Query Parameters",
+                elements: [
+                    ...AnalysisUtils.getVariantQueryConfiguration("indelQuery.", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
                 ],
             },
         ];
