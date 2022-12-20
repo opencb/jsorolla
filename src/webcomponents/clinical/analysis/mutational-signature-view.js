@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/signature-view.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter.js";
 import "../../commons/simple-chart.js";
 
 class MutationalSignatureView extends LitElement {
@@ -40,44 +39,41 @@ class MutationalSignatureView extends LitElement {
             signatures: {
                 type: Object,
             },
-            config: {
-                type: Object,
-            },
         };
     }
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.selectedSignature = null;
-        this.selectedSignatureId = null;
-        this._config = this.getDefaultConfig();
+
+        this.data = {};
+        this.config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("signatures") || changedProperties.has("config")) {
-            this.selectedSignature = null;
-            this.selectedSignatureId = null;
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+    update(changedProperties) {
+        if (changedProperties.has("signatures")) {
+            console.log(this.signatures);
+            this.data = {};
+            this.config = this.getDefaultConfig();
         }
+
+        super.update(changedProperties);
     }
 
-    onChangeSignature(signatureId) {
-        this.selectedSignatureId = signatureId;
-        this.selectedSignature = this.signatures.find(signature => signature.id === signatureId) || null;
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
+    onFieldChange(e) {
+        this.data = {
+            id: e.detail.value,
+            signature: this.signatures.find(signature => signature.id === e.detail.value) || null,
         };
+        this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
-    generateSignaturesDropdown() {
-        return (this.signatures || [])
-            .map(signature => signature.id)
-            .sort((a, b) => a < b ? -1 : +1);
+    renderQuery(query) {
+        return Object.keys(query || {}).map(key => html`
+            <span class="badge">
+                ${key}: ${query[key]}
+            </span>
+        `);
     }
 
     render() {
@@ -91,8 +87,9 @@ class MutationalSignatureView extends LitElement {
 
         return html`
             <data-form
-                .data=${{}}
-                .config="${this._config}">
+                .data=${this.data}
+                .config="${this.config}"
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
@@ -108,52 +105,36 @@ class MutationalSignatureView extends LitElement {
                     elements: [
                         {
                             name: "Select Signature",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <select-field-filter
-                                        .data="${this.generateSignaturesDropdown()}"
-                                        .value=${this.selectedSignatureId || ""}
-                                        ?multiple="${false}"
-                                        ?liveSearch=${false}
-                                        @filterChange="${e => this.onChangeSignature(e.detail.value)}">
-                                    </select-field-filter>
-                                `,
-                            },
-                        }
+                            field: "id",
+                            type: "select",
+                            allowedValues: UtilsNew.sort((this.signatures || []).map(s => s.id)),
+                        },
                     ],
                 },
                 {
                     title: "Catalogue",
                     display: {
-                        visible: !!this.selectedSignature,
+                        visible: data => !!data.signature,
                     },
                     elements: [
                         {
                             name: "Catalogue Query",
+                            field: "signature.query",
                             type: "custom",
                             display: {
-                                render: () => {
-                                    if (this.selectedSignature?.query) {
-                                        return Object.keys(this.selectedSignature.query).map(key => html`
-                                            <span class="badge">
-                                                ${key}: ${this.selectedSignature.query[key]}
-                                            </span>
-                                        `);
-                                    }
-                                    return "-";
-                                },
+                                render: query => this.renderQuery(query),
                             },
                         },
                         {
                             title: "Catalogue Plot",
+                            field: "signature",
                             type: "custom",
                             display: {
-                                render: () => html`
+                                render: signature => html`
                                     <signature-view
-                                        .signature="${this.selectedSignature}"
+                                        .signature="${signature}"
                                         .plots="${["counts"]}"
-                                        .mode="${this.selectedSignature.type.toUpperCase() === "SV" ? "SV" : "SBS"}"
+                                        .mode="${(signature.type || "").toUpperCase() === "SV" ? "SV" : "SBS"}"
                                         ?active="${true}">
                                     </signature-view>
                                 `,
@@ -164,32 +145,70 @@ class MutationalSignatureView extends LitElement {
                 {
                     title: "Fittings",
                     display: {
-                        visible: !!this.selectedSignature,
+                        visible: data => !!data.signature,
                     },
                     elements: [
                         {
                             type: "notification",
                             text: "No fittings data to display.",
+                            field: "signature.fittings",
                             display: {
-                                visible: (this.selectedSignature?.fittings || []).length === 0,
+                                visible: fittings => (fittings || []).length === 0,
                             },
                         },
-                        ...(this.selectedSignature?.fittings || []).map(fitting => ({
-                            title: fitting.id,
+                    ],
+                },
+                ...(this.data.signature?.fittings || []).map(fitting => ({
+                    display: {
+                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                    },
+                    elements: [
+                        {
+                            name: "ID",
                             type: "custom",
                             display: {
-                                render: () => html`
+                                render: () => html`<b>${fitting.id}</b>`,
+                            },
+                        },
+                        {
+                            name: "Signature Source",
+                            type: "text",
+                            text: fitting.signatureSource,
+                        },
+                        {
+                            name: "Signature Version",
+                            type: "text",
+                            text: fitting.signatureVersion,
+                        },
+                        {
+                            name: "Method",
+                            type: "text",
+                            text: fitting.method,
+                        },
+                        {
+                            name: "Params",
+                            type: "custom",
+                            display: {
+                                render: () => this.renderQuery(fitting.params),
+                            },
+                        },
+                        {
+                            name: "Plot",
+                            type: "custom",
+                            field: "signature",
+                            display: {
+                                render: signature => html`
                                     <signature-view
-                                        .signature="${this.selectedSignature}"
+                                        .signature="${signature}"
                                         .plots="${["fitting"]}"
                                         .fittingId="${fitting.id}"
                                         ?active="${true}">
                                     </signature-view>
                                 `,
                             },
-                        })),
+                        },
                     ],
-                },
+                })),
             ]
         };
     }
