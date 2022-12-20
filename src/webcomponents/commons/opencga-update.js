@@ -195,6 +195,11 @@ export default class OpencgaUpdate extends LitElement {
                                 // eslint-disable-next-line no-param-reassign
                                 params.priority = {id: params.priority.id};
                             }
+                            if (params.disorder?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.disorder= {id: params.disorder.id};
+                            }
+
                             if (params.comments) {
                                 // eslint-disable-next-line no-param-reassign
                                 params.comments = params.comments
