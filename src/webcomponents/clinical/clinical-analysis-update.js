@@ -79,7 +79,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
         super.update(changedProperties);
+    }
+
+    clinicalAnalysisObserver() {
+        this.disordersAllowedValues = (this.clinicalAnalysis?.proband?.disorders?.length > 0) ?
+            this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id) :
+            [];
     }
 
     clinicalAnalysisIdObserver(e) {
@@ -253,15 +262,14 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             field: "status.id",
                             type: "custom",
                             display: {
-                                render: (statusId, dataFormFilterChange, updateParams) => {
-                                    // .disabled="${!!this._clinicalAnalysis?.locked}"
+                                render: (statusId, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     return html `
                                         <clinical-status-filter
                                             .status="${statusId}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[clinicalAnalysis?.type?.toUpperCase()]}"
                                             .multiple=${false}
                                             .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
-                                            .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                            .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </clinical-status-filter>
                                     `;
@@ -273,13 +281,13 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             field: "priority.id",
                             type: "custom",
                             display: {
-                                render: (priorityId, dataFormFilterChange, updateParams) => html`
+                                render: (priorityId, dataFormFilterChange, updateParams, clinicalAnalysis) => html`
                                     <clinical-priority-filter
                                         .priority="${priorityId}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
                                         .multiple=${false}
                                         .classes="${updateParams?.["priority.id"] ? "selection-updated" : ""}"
-                                        .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                        .disabled="${!!clinicalAnalysis?.locked}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </clinical-priority-filter>
                                 `,
@@ -289,7 +297,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             title: "Analyst",
                             field: "analyst.id",
                             type: "select",
-                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
+                            // defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
                             allowedValues: () => this.users,
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
@@ -314,14 +322,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             title: "Disorder",
                             field: "disorder.id",
                             type: "select",
-                            defaultValue: this.clinicalAnalysis?.disorder?.id,
-                            allowedValues: () => {
-                                if (this.clinicalAnalysis?.proband?.disorders?.length > 0) {
-                                    return this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id);
-                                } else {
-                                    return [];
-                                }
-                            },
+                            allowedValues: () => this.disordersAllowedValues,
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
                                 helpMessage: "Case disorder must be one of the proband's disorder",
@@ -332,8 +333,9 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: (panels, dataFormFilterChange, updateParams) => {
+                                render: (panels, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handlePanelsFilterChange = e => {
+                                        // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
@@ -347,7 +349,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
                                             .classes="${updateParams?.panels ? "selection-updated" : ""}"
-                                            .disabled="${(updateParams?.locked?.after || updateParams?.panelLock?.after) ?? (!!this.clinicalAnalysis?.locked || !!this.clinicalAnalysis?.panelLock)}"
+                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLock)}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
@@ -391,7 +393,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: (flags, dataFormFilterChange, updateParams) => {
+                                render: (flags, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
                                         // eslint-disable-next-line no-param-reassign
@@ -402,15 +404,13 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                         dataFormFilterChange(e.detail.value);
                                     };
 
-                                    // Note 2022/11/30: currently the form does not allow to change the case type.
-                                    //  If allowed, to consider a possible change in updateParams for property .flags.
                                     return html `
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[clinicalAnalysis?.type?.toUpperCase()]}"
                                             .multiple=${true}
                                             .classes="${updateParams?.flags ? "selection-updated" : ""}"
-                                            .disabled="${updateParams?.locked?.after ?? !!this.clinicalAnalysis?.locked}"
+                                            .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => handleFlagsFilterChange(e)}">
                                         </clinical-flag-filter>
                                     `;
