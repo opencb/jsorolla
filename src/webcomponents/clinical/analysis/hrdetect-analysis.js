@@ -86,6 +86,13 @@ export default class HRDetectAnalysis extends LitElement {
     }
 
     check() {
+        if (!this.toolParams.snvFittingId || !this.toolParams.svFittingId) {
+            return {
+                status: false,
+                message: "Plase select a valid SNV and SV Fitting ID",
+            };
+        }
+
         return !!this.toolParams.organ;
     }
 
@@ -100,39 +107,41 @@ export default class HRDetectAnalysis extends LitElement {
     }
 
     onSubmit() {
-        const toolParams = {
-            id: this.toolParams.id || `${this.ANALYSIS_TOOL}-${UtilsNew.getDatetime()}`,
-            description: this.toolParams.description || "",
-            sample: this.toolParams.query?.sample,
-            snvFittingId: this.toolParams.snvFittingId,
-            svFittingId: this.toolParams.svFittingId,
-            cnvQuery: JSON.stringify({
+        if (this.toolParams.snvFittingId && this.toolParams.svFittingId) {
+            const toolParams = {
+                id: this.toolParams.id || `${this.ANALYSIS_TOOL}-${UtilsNew.getDatetime()}`,
+                description: this.toolParams.description || "",
                 sample: this.toolParams.query?.sample,
-                ...this.toolParams.cnvQuery,
-            }),
-            indelQuery: JSON.stringify({
-                sample: this.toolParams.query?.sample,
-                ...this.toolParams.indelQuery,
-            }),
-            snv3CustomName: this.toolParams.snv3CustomName || "",
-            snv8CustomName: this.toolParams.snv8CustomName || "",
-            sv3CustomName: this.toolParams.sv3CustomName || "",
-            sv8CustomName: this.toolParams.sv8CustomName || "",
-            bootstrap: !!this.toolParams.bootstrap,
-        };
+                snvFittingId: this.toolParams.snvFittingId,
+                svFittingId: this.toolParams.svFittingId,
+                cnvQuery: JSON.stringify({
+                    sample: this.toolParams.query?.sample,
+                    ...this.toolParams.cnvQuery,
+                }),
+                indelQuery: JSON.stringify({
+                    sample: this.toolParams.query?.sample,
+                    ...this.toolParams.indelQuery,
+                }),
+                snv3CustomName: this.toolParams.snv3CustomName || "",
+                snv8CustomName: this.toolParams.snv8CustomName || "",
+                sv3CustomName: this.toolParams.sv3CustomName || "",
+                sv8CustomName: this.toolParams.sv8CustomName || "",
+                bootstrap: !!this.toolParams.bootstrap,
+            };
 
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
-        };
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            };
 
-        // TODO: we have to change the endpoint called for running the hrdetect analysis
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants()
-                .runHrDetect(toolParams, params),
-            this
-        );
+            // TODO: we have to change the endpoint called for running the hrdetect analysis
+            AnalysisUtils.submit(
+                this.ANALYSIS_TITLE,
+                this.opencgaSession.opencgaClient.variants()
+                    .runHrDetect(toolParams, params),
+                this
+            );
+        }
     }
 
     onClear() {
