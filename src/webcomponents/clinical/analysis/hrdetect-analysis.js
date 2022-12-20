@@ -102,6 +102,7 @@ export default class HRDetectAnalysis extends LitElement {
     onSubmit() {
         const toolParams = {
             id: this.toolParams.id || `${this.ANALYSIS_TOOL}-${UtilsNew.getDatetime()}`,
+            description: this.toolParams.description || "",
             sample: this.toolParams.query?.sample,
             snvFittingId: this.toolParams.snvFittingId,
             svFittingId: this.toolParams.svFittingId,
@@ -113,6 +114,11 @@ export default class HRDetectAnalysis extends LitElement {
                 sample: this.toolParams.query?.sample,
                 ...this.toolParams.indelQuery,
             }),
+            snv3CustomName: this.toolParams.snv3CustomName || "",
+            snv8CustomName: this.toolParams.snv8CustomName || "",
+            sv3CustomName: this.toolParams.sv3CustomName || "",
+            sv8CustomName: this.toolParams.sv8CustomName || "",
+            bootstrap: !!this.toolParams.bootstrap,
         };
 
         const params = {
@@ -203,6 +209,20 @@ export default class HRDetectAnalysis extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: `${this.ANALYSIS_TOOL}-${UtilsNew.getDatetime()}`,
+                            help: {
+                                text: "ID to identify the HRDetect results.",
+                            },
+                        },
+                    },
+                    {
+                        title: "Description",
+                        field: "description",
+                        type: "input-text",
+                        display: {
+                            placeholder: "HRDetect analysis description",
+                            help: {
+                                text: "Decription for these particular HRDetect results.",
+                            },
                         },
                     },
                     {
@@ -252,6 +272,51 @@ export default class HRDetectAnalysis extends LitElement {
                                 </select-field-filter>
                             `,
                         },
+                    },
+                    {
+                        title: "SNV3 Custom Name",
+                        field: "snv3CustomName",
+                        type: "input-text",
+                        display: {
+                            help: {
+                                text: "Custom signature name that will be considered as SNV3 input for HRDetect.",
+                            },
+                        },
+                    },
+                    {
+                        title: "SNV8 Custom Name",
+                        field: "snv8CustomName",
+                        type: "input-text",
+                        display: {
+                            help: {
+                                text: "Custom signature name that will be considered as SNV8 input for HRDetect.",
+                            },
+                        },
+                    },
+                    {
+                        title: "SV3 Custom Name",
+                        field: "sv3CustomName",
+                        type: "input-text",
+                        display: {
+                            help: {
+                                text: "Custom signature name that will be considered as SV3 input for HRDetect.",
+                            },
+                        },
+                    },
+                    {
+                        title: "SV8 Custom Name",
+                        field: "sv8CustomName",
+                        type: "input-text",
+                        display: {
+                            help: {
+                                text: "Custom signature name that will be considered as SV8 input for HRDetect.",
+                            },
+                        },
+                    },
+                    {
+                        title: "Bootstrap",
+                        field: "bootstrap",
+                        type: "checkbox",
                     },
                 ],
             },
