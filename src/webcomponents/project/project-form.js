@@ -15,9 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import FormUtils from "../commons/forms/form-utils";
+import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 
+
+// Rodiel 2022-09-30 DEPRECATED use project-create & project-update
 export default class ProjectForm extends LitElement {
 
     constructor() {
@@ -76,24 +79,23 @@ export default class ProjectForm extends LitElement {
     // }
 
 
-    onFieldChange(e) {
-        const [field, prop] = e.detail.param.split(".");
-        switch (e.detail.param) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
             case "id":
             case "name":
             case "description":
-                this.project = {
-                    ...this.project,
-                    [field]: e.detail.value
-                };
-                break;
             case "organism.scientificName":
             case "organism.assembly":
-                this.project[field] = {
-                    ...this.project[field],
-                    [prop]: e.detail.value
+            case "cellbase.url":
+            case "cellbase.version":
+                this.project = {
+                    ...FormUtils.createObject(
+                        this.project,
+                        param,
+                        e.detail.value
+                    )
                 };
-                break;
         }
         console.log("New Project: ", this.project);
     }
@@ -216,6 +218,29 @@ export default class ProjectForm extends LitElement {
                             display: {
                                 placeholder: "e.g. GRCh38",
                             }
+                        },
+                        {
+                            title: "Cellbase",
+                            field: "cellbase",
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "Url",
+                                    field: "cellbase.url",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an URL",
+                                    }
+                                },
+                                {
+                                    title: "Version",
+                                    field: "cellbase.version",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add version"
+                                    }
+                                },
+                            ]
                         },
                         {
                             name: "Description",
