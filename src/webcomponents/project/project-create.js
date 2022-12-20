@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 
 export default class ProjectCreate extends LitElement {
@@ -66,6 +67,7 @@ export default class ProjectCreate extends LitElement {
                 version: "v5.1"
             }
         };
+        this._project = UtilsNew.objectClone(this.project);
     }
 
     #setLoading(value) {
@@ -180,7 +182,7 @@ export default class ProjectCreate extends LitElement {
                             type: "notification",
                             text: "Some changes have been done in the form. Not saved, changes will be lost",
                             display: {
-                                visible: () => Object.keys(this.project).length > 0,
+                                visible: () => !UtilsNew.objectCompare(this.project, this._project),
                                 notificationType: "warning",
                             },
                         },

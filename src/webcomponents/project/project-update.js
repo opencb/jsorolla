@@ -17,7 +17,7 @@
 import {html, LitElement} from "lit";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import UtilsNew from "../../core/utilsNew.js";
+import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
@@ -124,8 +124,8 @@ export default class ProjectUpdate extends LitElement {
             case "description":
             case "organism.scientificName":
             case "organism.assembly":
-            case "cellbase.url":
-            case "cellbase.version":
+            // case "cellbase.url":
+            // case "cellbase.version":
                 this.updateParams = {
                     ...FormUtils.updateObjectParams(
                         this._project,
@@ -172,6 +172,7 @@ export default class ProjectUpdate extends LitElement {
             .then(res => {
                 this._config = this.getDefaultConfig();
                 this._project = UtilsNew.objectClone(res.responses[0].results[0]);
+                this.updateParams = {};
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Project Update",
                     message: "Project updated correctly"
@@ -261,6 +262,9 @@ export default class ProjectUpdate extends LitElement {
                             title: "Cellbase",
                             field: "cellbase",
                             type: "object",
+                            display: {
+                                disabled: true,
+                            },
                             elements: [
                                 {
                                     title: "URL",
@@ -268,6 +272,7 @@ export default class ProjectUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         placeholder: "Add an URL",
+
                                     }
                                 },
                                 {
@@ -275,7 +280,7 @@ export default class ProjectUpdate extends LitElement {
                                     field: "cellbase.version",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add version"
+                                        placeholder: "Add version",
                                     }
                                 },
                             ]
