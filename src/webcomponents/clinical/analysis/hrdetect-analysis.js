@@ -172,18 +172,13 @@ export default class HRDetectAnalysis extends LitElement {
     generateSignaturesDropdonw(type) {
         return (this.selectedSample?.qualityControl?.variant?.signatures || [])
             .filter(item => item.type?.toUpperCase() === type)
-            .map(item => {
-                const fields = (item.fittings || [])
-                    .map(fittingItem => ({
-                        id: fittingItem.id,
-                    }));
-
-                return {
-                    id: item.id,
-                    name: item.description || item.id || "",
-                    fields: fields,
-                };
-            });
+            .map(item => ({
+                id: item.id,
+                name: item.description || item.id || "",
+                fields: (item.fittings || []).map(fitting => ({
+                    id: fitting.id,
+                })),
+            }));
     }
 
     render() {
