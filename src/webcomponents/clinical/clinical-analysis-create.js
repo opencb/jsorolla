@@ -19,7 +19,6 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import FormUtils from "../commons/forms/form-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -81,11 +80,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     initClinicalAnalysis() {
         this.clinicalAnalysis = {
+            // Note 2022 Vero: defaultValue can't be used because part of the form visibility has a dependency with this.
             type: "SINGLE",
+            // Note 2022 Vero: priority element does not admit defaultValue. Thus, the key is initialised here.
+            //   Question: should defaultValue be implemented in clinical-priority-filter.js for consistency?
             priority: "MEDIUM",
-            analyst: {
-                id: this.opencgaSession?.user?.id
-            },
+            // Note 2022 Vero: decided to allow empty analyst
+            // analyst: {
+            //     id: this.opencgaSession?.user?.id
+            // },
             _users: this._users,
             comments: [],
             panelLock: false,
@@ -93,7 +96,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
+        // const param = field || e.detail.param;
         this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
         // switch (param) {
@@ -265,6 +268,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     onClear() {
         this.initClinicalAnalysis();
         // This reset all date elements such as dueDate, check TASK-340
+        // eslint-disable-next-line no-param-reassign
         Array.from(this.querySelectorAll("input[type='date']")).forEach(el => el.value = "");
         this.requestUpdate();
     }
@@ -378,13 +382,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             required: true,
-                            // validation: () => {},
                             defaultValue: "",
                             display: {
                                 placeholder: "eg. AN-3",
                             },
                             validation: {
                                 validate: id => id && !id.includes(" "),
+                                // FIXME: regexp for not allowed special chars
                                 message: "ID must not contain spaces and other special chars",
                             },
                         },
@@ -392,8 +396,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Analysis Type",
                             field: "type",
                             type: "select",
+                            required: true,
                             allowedValues: ["SINGLE", "FAMILY", "CANCER"],
-                            defaultValue: "FAMILY",
                         },
                         {
                             title: "Disease Panels",
@@ -402,6 +406,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
+                                        // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
                                             .filter(panelId => panelId)
@@ -439,6 +444,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
+                                        // eslint-disable-next-line no-param-reassign
                                         e.detail.value = e.detail.value
                                             ?.split(",")
                                             .filter(flagId => flagId)
@@ -735,12 +741,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Priority",
                             field: "priority",
                             type: "custom",
+                            required: true,
                             display: {
-                                render: (priority, dataFormFilterChange) => html`
+                                render: (priority, dataFormFilterChange) => html `
                                     <clinical-priority-filter
                                         .priority="${priority}"
                                         .priorities="${this.opencgaSession.study.internal?.configuration?.clinical?.priorities}"
                                         .multiple="${false}"
+                                        .forceSelection=${true}
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </clinical-priority-filter>
                                 `,
@@ -750,7 +758,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Assigned To",
                             field: "analyst.id",
                             type: "select",
-                            defaultValue: this.opencgaSession?.user?.id,
+                            // defaultValue: this.opencgaSession?.user?.id,
                             allowedValues: "_users",
                         },
                         {
