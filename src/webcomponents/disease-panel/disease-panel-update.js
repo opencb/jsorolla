@@ -268,7 +268,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     type: "custom",
                                     display: {
                                         placeholder: "Add gene...",
-                                        render: (data, dataFormFilterChange, updateParams) => {
+                                        render: (data, dataFormFilterChange) => {
                                             return html`
                                                 <feature-filter
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
@@ -296,15 +296,15 @@ export default class DiseasePanelUpdate extends LitElement {
                                         placeholder: "Select a confidence..."
                                     }
                                 },
-                                {
-                                    title: "Role In Cancer",
-                                    field: "genes[].roleInCancer",
-                                    type: "select",
-                                    allowedValues: ROLE_IN_CANCER,
-                                    display: {
-                                        placeholder: "Select role in cancer..."
-                                    }
-                                },
+                                // {
+                                //     title: "Role In Cancer",
+                                //     field: "genes[].roleInCancer",
+                                //     type: "select",
+                                //     allowedValues: ROLE_IN_CANCER,
+                                //     display: {
+                                //         placeholder: "Select role in cancer..."
+                                //     }
+                                // },
                             ]
                         },
                     ]

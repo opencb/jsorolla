@@ -75,7 +75,7 @@ export default class DiseasePanelCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
+    onFieldChange(e) {
         // const param = field || e.detail.param;
         // Get gene name and coordinates
         // if (this.diseasePanel?.genes?.length > 0) {
@@ -341,15 +341,15 @@ export default class DiseasePanelCreate extends LitElement {
                                         placeholder: "Select a confidence..."
                                     }
                                 },
-                                {
-                                    title: "Role In Cancer",
-                                    field: "genes[].roleInCancer",
-                                    type: "select",
-                                    allowedValues: ROLE_IN_CANCER,
-                                    display: {
-                                        placeholder: "Select role in cancer..."
-                                    }
-                                },
+                                // {
+                                //     title: "Role In Cancer",
+                                //     field: "genes[].roleInCancer",
+                                //     type: "select",
+                                //     allowedValues: ROLE_IN_CANCER,
+                                //     display: {
+                                //         placeholder: "Select role in cancer..."
+                                //     }
+                                // },
                             ]
                         },
                     ]
