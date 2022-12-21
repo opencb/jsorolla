@@ -82,7 +82,7 @@ export default class DiseasePanelCreate extends LitElement {
         if (e.detail?.data?.genes?.length > 0) {
             // for (const gene of this.diseasePanel?.genes) {
             for (const gene of e.detail.data.genes) {
-                if (!gene.id) {
+                if (gene?.name) {
                     const params = {
                         exclude: "transcripts,annotation",
                     };

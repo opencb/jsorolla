@@ -79,7 +79,7 @@ export default class DiseasePanelUpdate extends LitElement {
         // Get gene name and coordinates
         if (e.detail?.component?.genes?.length > 0) {
             for (const gene of e.detail.component.genes) {
-                if (!gene.id) {
+                if (gene?.name) {
                     const params = {
                         exclude: "transcripts,annotation",
                     };
