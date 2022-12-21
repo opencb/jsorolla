@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
@@ -68,13 +67,27 @@ export default class DiseasePanelCreate extends LitElement {
         };
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("diseasePanel")) {
+            this.diseasePanel = {...this.diseasePanel};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
+
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
+        // const param = field || e.detail.param;
         // Get gene name and coordinates
-        if (this.diseasePanel?.genes?.length > 0) {
-            for (const gene of this.diseasePanel?.genes) {
+        // if (this.diseasePanel?.genes?.length > 0) {
+        if (e.detail?.data?.genes?.length > 0) {
+            // for (const gene of this.diseasePanel?.genes) {
+            for (const gene of e.detail.data.genes) {
                 if (!gene.id) {
-                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+                    const params = {
+                        exclude: "transcripts,annotation",
+                    };
+
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
                             gene.id = g.id;
@@ -92,7 +105,8 @@ export default class DiseasePanelCreate extends LitElement {
                 }
             }
         }
-        this.diseasePanel = {...this.diseasePanel};
+        // this.diseasePanel = {...this.diseasePanel};
+        this.diseasePanel = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
