@@ -23,7 +23,7 @@ const DISEASE_PANEL_BROWSER_SETTINGS = {
         },
         // Merge criteria: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "name", "stats", "source"]
+        columns: ["id", "name", "stats", "source", "actions"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]

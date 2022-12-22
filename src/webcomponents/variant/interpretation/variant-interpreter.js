@@ -326,204 +326,204 @@ class VariantInterpreter extends LitElement {
                     `;
                 }
             });
-            return html`
-                <div class="variant-interpreter-tool">
-                    ${this.clinicalAnalysis?.id ? html`
-                        <tool-header
-                            icon="${this._config.icon}"
-                            .title="${`
-                            ${this._config.title}
-                            <span class="inverse">
-                                Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
-                            </span>
-                        `}"
-                            .rhs="${html`
-                                <div style="align-items:center;display:flex;">
-                                    ${this.clinicalAnalysis?.interpretation ? html`
-                                        <div align="center" style="margin-right:3rem;">
-                                            <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
-                                                ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
-                                                <strong>${this.clinicalAnalysis.interpretation.id}</strong>
-                                            </div>
-                                            <div class="text-muted">
-                                                <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
-                                            </div>
+        }
+
+        return html`
+            <div class="variant-interpreter-tool">
+                ${this.clinicalAnalysis?.id ? html`
+                    <tool-header
+                        icon="${this._config.icon}"
+                        .title="${`
+                        ${this._config.title}
+                        <span class="inverse">
+                            Case ${this.clinicalAnalysis?.id}
+                            ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                        </span>
+                    `}"
+                        .rhs="${html`
+                            <div style="align-items:center;display:flex;">
+                                ${this.clinicalAnalysis?.interpretation ? html`
+                                    <div align="center" style="margin-right:3rem;">
+                                        <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
+                                            ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
+                                            <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
-                                    ` : null}
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-lg" data-toggle="dropdown">
-                                            <i class="fa fa-toolbox" aria-hidden="true"></i>
-                                            <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
-                                            <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
-                                                <li>
-                                                    <a style="background-color:white!important;">
-                                                        <strong>Change interpretation</strong>
-                                                    </a>
-                                                </li>
-                                                ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
-                                                    <li>
-                                                        <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
-                                                            ${item.id}
-                                                            <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
-                                                        </a>
-                                                    </li>
-                                                `)}
-                                                <li role="separator" class="divider"></li>
-                                            ` : null}
+                                        <div class="text-muted">
+                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
+                                        </div>
+                                    </div>
+                                ` : null}
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                                        <i class="fa fa-toolbox" aria-hidden="true"></i>
+                                        <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
                                                 <a style="background-color:white!important;">
-                                                    <strong>Case Actions</strong>
+                                                    <strong>Change interpretation</strong>
                                                 </a>
                                             </li>
-                                            <li>
-                                                <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
-                                                    <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
-                                                    ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
-                                                    <i class="fa fa-sync icon-padding"></i> Refresh
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
-                                                    <i class="fa fa-download icon-padding"></i> Download
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
-                                                    <i class="fa fa-times icon-padding"></i> Close
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            `}">
-                        </tool-header>
-                    ` : html`
-                        <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-                    `}
-
-                    <div class="col-md-10 col-md-offset-1">
-                        <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
-                            <div class="container-fluid">
-                                <!-- Brand and toggle get grouped for better mobile display -->
-                                <div class="navbar-header">
-                                    <!--
-                                    <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
-                                        <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
-                                    </a>
-                                -->
-                                </div>
-                                <div>
-                                    <!-- Controls aligned to the LEFT -->
-                                    <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                        ${this._config?.tools?.map(item => html`
-                                            ${!item.hidden ? html`
-                                                <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                                   href="javascript: void 0" data-view="${item.id}"
-                                                   @click="${this.onClickSection}">
-                                                    <div class="hi-icon ${item.icon}"></div>
-                                                    <p>${item.title}</p>
-                                                    <span class="smaller"></span>
-                                                </a>
-                                            ` : ""}
-                                        `)}
-                                    </div>
+                                            ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
+                                                <li>
+                                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                        ${item.id}
+                                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
+                                                    </a>
+                                                </li>
+                                            `)}
+                                            <li role="separator" class="divider"></li>
+                                        ` : null}
+                                        <li>
+                                            <a style="background-color:white!important;">
+                                                <strong>Case Actions</strong>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
+                                                <i class="fa fa-sync icon-padding"></i> Refresh
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
+                                                <i class="fa fa-download icon-padding"></i> Download
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                                <i class="fa fa-times icon-padding"></i> Close
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        </nav>
-                    </div>
+                        `}">
+                    </tool-header>
+                ` : html`
+                    <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+                `}
 
-                    <div id="${this._prefix}MainWindow" class="col-md-12">
-                        <div>
-                            ${this._config.tools ? html`
-                                ${this.activeTab["select"] ? html`
-                                    <div id="${this._prefix}select" class="clinical-portal-content">
-                                        <variant-interpreter-landing
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .config="${this._config.tools.find(tool => tool.id === "select")}"
-                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                            @selectClinicalAnalysis="${this.onClinicalAnalysis}">
-                                        </variant-interpreter-landing>
-                                    </div>` : null}
-
-                                ${this.activeTab["qc"] ? html`
-                                    <div id="${this._prefix}qc" class="clinical-portal-content">
-                                        <variant-interpreter-qc
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .settings="${this._config.tools.find(tool => tool.id === "qc")}"
-                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                        </variant-interpreter-qc>
-                                    </div>
-                                ` : null}
-
-                                ${this.activeTab["methods"] ? html`
-                                    <div id="${this._prefix}methods" class="clinical-portal-content">
-                                        <variant-interpreter-methods
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .config="${this._config}">
-                                        </variant-interpreter-methods>
-                                    </div>
-                                ` : null}
-
-                                ${this.activeTab["variant-browser"] ? html`
-                                    <div id="${this._prefix}variant-browser" class="clinical-portal-content">
-                                        <variant-interpreter-browser
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
-                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                        </variant-interpreter-browser>
-                                    </div>
-                                ` : null}
-
-                                ${this.activeTab["review"] ? html`
-                                    <div id="${this._prefix}review" class="clinical-portal-content">
-                                        <variant-interpreter-review
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .populationFrequencies="${this._config.populationFrequencies}"
-                                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                            .consequenceTypes="${this._config.consequenceTypes}"
-                                            .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
-                                            @gene="${this.geneSelected}"
-                                            @samplechange="${this.onSampleChange}"
-                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                                        </variant-interpreter-review>
-                                    </div>
-                                ` : null}
-
-                                ${this.activeTab["report"] ? html`
-                                    <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
-                                    <div id="${this._prefix}report" >
-                                        <detail-tabs
-                                            .data="${this.clinicalAnalysis}"
-                                            .config="${configReportTabs}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </detail-tabs>
-                                    </div>
-                                ` : null}
-                            ` : null}
+                <div class="col-md-10 col-md-offset-1">
+                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
+                        <div class="container-fluid">
+                            <!-- Brand and toggle get grouped for better mobile display -->
+                            <div class="navbar-header">
+                                <!--
+                                <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
+                                    <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
+                                </a>
+                            -->
+                            </div>
+                            <div>
+                                <!-- Controls aligned to the LEFT -->
+                                <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
+                                    ${this._config?.tools?.map(item => html`
+                                        ${!item.hidden ? html`
+                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                               href="javascript: void 0" data-view="${item.id}"
+                                               @click="${this.onClickSection}">
+                                                <div class="hi-icon ${item.icon}"></div>
+                                                <p>${item.title}</p>
+                                                <span class="smaller"></span>
+                                            </a>
+                                        ` : ""}
+                                    `)}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </nav>
                 </div>
 
-                <div class="v-space"></div>
-            `;
+                <div id="${this._prefix}MainWindow" class="col-md-12">
+                    <div>
+                        ${this._config.tools ? html`
+                            ${this.activeTab["select"] ? html`
+                                <div id="${this._prefix}select" class="clinical-portal-content">
+                                    <variant-interpreter-landing
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config.tools.find(tool => tool.id === "select")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                        @selectClinicalAnalysis="${this.onClinicalAnalysis}">
+                                    </variant-interpreter-landing>
+                                </div>` : null}
 
-        }
+                            ${this.activeTab["qc"] ? html`
+                                <div id="${this._prefix}qc" class="clinical-portal-content">
+                                    <variant-interpreter-qc
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "qc")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </variant-interpreter-qc>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["methods"] ? html`
+                                <div id="${this._prefix}methods" class="clinical-portal-content">
+                                    <variant-interpreter-methods
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .config="${this._config}">
+                                    </variant-interpreter-methods>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["variant-browser"] ? html`
+                                <div id="${this._prefix}variant-browser" class="clinical-portal-content">
+                                    <variant-interpreter-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </variant-interpreter-browser>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["review"] ? html`
+                                <div id="${this._prefix}review" class="clinical-portal-content">
+                                    <variant-interpreter-review
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .populationFrequencies="${this._config.populationFrequencies}"
+                                        .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
+                                        .consequenceTypes="${this._config.consequenceTypes}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
+                                        @gene="${this.geneSelected}"
+                                        @samplechange="${this.onSampleChange}"
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    </variant-interpreter-review>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["report"] ? html`
+                                <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
+                                <div id="${this._prefix}report" >
+                                    <detail-tabs
+                                        .data="${this.clinicalAnalysis}"
+                                        .config="${configReportTabs}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </detail-tabs>
+                                </div>
+                            ` : null}
+                        ` : null}
+                    </div>
+                </div>
+            </div>
+
+            <div class="v-space"></div>
+        `;
     }
 
 }
