@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
@@ -28,7 +28,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -37,43 +37,38 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     static get properties() {
         return {
-            query: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
-            config: {
+            query: {
                 type: Object
             },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
+        this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-                changedProperties.has("query") ||
-                changedProperties.has("config") ||
-                changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -91,12 +86,18 @@ export default class ClinicalAnalysisGrid extends LitElement {
             showCreate: false,
             columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
-        this.renderTable();
+        this.renderRemoteTable();
         this.requestUpdate();
     }
 
-    renderTable() {
+    renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
+                // Abort destroying and creating again the grid. The filters have not changed
+                return;
+            }
+
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -118,7 +119,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     let response = null;
-                    const query = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -128,7 +129,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         ...this.query
                     };
 
-                    this.fetchData(query)
+                    // Store the current filters
+                    this.lastFilters = {...this.filters};
+                    this.fetchData(this.filters)
                         .then(res => {
                             response = res;
                             params.success(res);
@@ -183,7 +186,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
     caseFormatter(value, row) {
         if (row?.id) {
             const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
-
             return `
                 <div style="margin: 5px 0">
                     <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
@@ -196,7 +198,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 </div>
             `;
         }
-
         return "-";
     }
 
@@ -419,7 +420,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
                     });
                     LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                    this.renderTable();
+                    this.renderRemoteTable();
                 })
                 .catch(response => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -441,7 +442,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                             message: `Status of case '${row.id}' has been changed to '${status}'.`,
                         });
                         LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
+                        this.renderRemoteTable();
                     } else {
                         // console.error(response);
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -461,7 +462,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                             message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
                         });
                         LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
+                        this.renderRemoteTable();
                     } else {
                         // console.error(response);
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -483,23 +484,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
             },
-            // {
-            //     id: "probandId",
-            //     title: "Proband and Samples",
-            //     field: "proband",
-            //     halign: this._config.header.horizontalAlign,
-            //     valign: "middle",
-            //     formatter: proband => `
-            //         <div>
-            //             <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
-            //         </div>
-            //         <div>
-            //             <span class="help-block" style="margin: 5px 0">
-            //                 ${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}
-            //             </span>
-            //         </div>
-            //     `,
-            // },
             {
                 id: "probandId",
                 title: "Proband (Sample) and Family",
@@ -508,28 +492,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
             },
-            // {
-            //     id: "familyId",
-            //     title: "Family (#members)",
-            //     field: "family.id",
-            //     halign: this._config.header.horizontalAlign,
-            //     valign: "middle",
-            //     formatter: (value, row) => {
-            //         if (row.family?.id && row.family?.members?.length) {
-            //             return `
-            //                 <div>
-            //                     <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
-            //                 </div>
-            //                 <div>
-            //                     <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
-            //                 </div>
-            //             `;
-            //         }
-            //
-            //         // No family found
-            //         return "-";
-            //     }
-            // },
             {
                 id: "disorderId",
                 title: "Clinical Condition / Panel",
@@ -551,10 +513,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.interpretationFormatter(value, row),
-                // TODO should this work?
-                // events: {
-                //     "click a": (e, _, row) => window.location.hash = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`
-                // },
             },
             {
                 id: "status",
@@ -695,16 +653,15 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
             this.requestUpdate();
             await this.updateComplete;
-            const params = {
-                ...this.query,
+
+            const filters = {
+                ...this.filters,
                 exclude: "files",
-                limit: e.detail?.exportLimit ?? 1000,
-                order: "asc",
                 skip: 0,
-                count: true,
-                study: this.opencgaSession.study.fqn
+                limit: 1000,
+                count: false
             };
-            const restResponse = await this.fetchData(params);
+            const restResponse = await this.fetchData(filters);
             this.download(restResponse, e?.detail?.option);
         } catch (e) {
             // in case it is a restResponse
@@ -712,7 +669,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();
-
     }
 
     download(restResponse, format = "JSON") {
@@ -756,11 +712,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : null}
+                </opencb-grid-toolbar>` : nothing
+            }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}ClinicalAnalysisGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }

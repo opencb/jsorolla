@@ -3001,3 +3001,10 @@ go-accessions-filter .select2-selection {
     max-height: 737px;
     overflow-y: scroll;
 }
+
+/* Terrible hack to remove the fixed max-width of 280px of the qtip tooltip */
+@supports selector(:has(*)) {
+    .qtip:has(.population-freq-tooltip) {
+        max-width: 500px !important;
+    }
+}

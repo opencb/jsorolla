@@ -484,8 +484,32 @@ const POPULATION_FREQUENCIES = {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 }
             ]
-        }
-    ]
+        },
+        {
+            id: "GNOMAD_EXOMES",
+            title: "gnomAD Exomes",
+            populations: [
+                {
+                    id: "ALL", title: "gnomAD [ALL]"
+                },
+                {
+                    id: "AFR", title: "African/African American [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "FIN", title: "Finnish[FIN]"
+                },
+                {
+                    id: "NFE", title: "Non-Finnish European [NFE]"
+                },
+            ],
+        },
+    ],
 };
 
 

@@ -1650,7 +1650,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 dp: 20
             },
 
-            populationFrequencies: ["1000G:ALL", "GNOMAD_GENOMES:ALL", "UK10K:ALL"],
+            populationFrequencies: [
+                "1000G:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "GNOMAD_EXOMES:ALL",
+            ],
             populationFrequenciesConfig: {
                 displayMode: "FREQUENCY_BOX"
             },
