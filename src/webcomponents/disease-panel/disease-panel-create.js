@@ -79,6 +79,7 @@ export default class DiseasePanelCreate extends LitElement {
         // const param = field || e.detail.param;
         // Get gene name and coordinates
         // if (this.diseasePanel?.genes?.length > 0) {
+        // FIXME: in batch, this query will be repeatedly executed for each line
         if (e.detail?.data?.genes?.length > 0) {
             // for (const gene of this.diseasePanel?.genes) {
             for (const gene of e.detail.data.genes) {
