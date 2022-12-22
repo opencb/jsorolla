@@ -109,6 +109,7 @@ class HRDetectView extends LitElement {
                             name: "Select HRDetect",
                             field: "id",
                             type: "select",
+                            defaultValue: ".",
                             allowedValues: UtilsNew.sort((this.hrdetect || []).map(h => h.id)),
                         }
                     ],
@@ -121,8 +122,11 @@ class HRDetectView extends LitElement {
                     elements: [
                         {
                             name: "ID",
-                            type: "text",
+                            type: "custom",
                             field: "hrdetect.id",
+                            display: {
+                                render: id => id || "-",
+                            },
                         },
                         {
                             name: "Description",
@@ -134,13 +138,19 @@ class HRDetectView extends LitElement {
                         },
                         {
                             name: "SNV Fitting ID",
-                            type: "text",
+                            type: "custom",
                             field: "hrdetect.snvFittingId",
+                            display: {
+                                render: snvFittingId => snvFittingId || "-",
+                            },
                         },
                         {
                             name: "SV Fitting ID",
-                            type: "text",
+                            type: "custom",
                             field: "hrdetect.svFittingId",
+                            display: {
+                                render: svFittingId => svFittingId || "-",
+                            },
                         },
                         {
                             name: "CNV Query",
