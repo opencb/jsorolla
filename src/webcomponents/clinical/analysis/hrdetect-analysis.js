@@ -111,7 +111,7 @@ export default class HRDetectAnalysis extends LitElement {
             const toolParams = {
                 id: this.toolParams.id || `${this.ANALYSIS_TOOL}-${UtilsNew.getDatetime()}`,
                 description: this.toolParams.description || "",
-                sample: this.toolParams.query?.sample,
+                sampleId: this.toolParams.query?.sample,
                 snvFittingId: this.toolParams.snvFittingId,
                 svFittingId: this.toolParams.svFittingId,
                 cnvQuery: JSON.stringify({
