@@ -297,20 +297,22 @@ export default class OpencgaUpdate extends LitElement {
             ...this.config,
         };
 
-        // We add one new section on the top to notify a pending update.
+        // We add, only once, one new section on the top to notify a pending update.
         if (this._config.sections) {
-            this._config.sections.unshift({
-                elements: [
-                    {
-                        type: "notification",
-                        text: "Some changes have been done in the form. Not saved, changes will be lost",
-                        display: {
-                            visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                            notificationType: "warning",
+            if (!(this._config.sections[0]?.elements[0]?.type === "notification")) {
+                this._config.sections.unshift({
+                    elements: [
+                        {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
+                                notificationType: "warning",
+                            }
                         }
-                    }
-                ]
-            });
+                    ]
+                });
+            }
         }
     }
 
@@ -424,8 +426,9 @@ export default class OpencgaUpdate extends LitElement {
                 </div>
             `;
         }
-        return html`
-            ${this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing}
+        // FIXME 20221222 Vero: To enable a generic window.location.hash for component
+        return html `
+            <!-- $this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing} -->
             <data-form
                 .data="${this._component}"
                 .originalData="${this.component}"
@@ -437,6 +440,7 @@ export default class OpencgaUpdate extends LitElement {
             </data-form>
         `;
     }
+
 
     getDefaultConfig() {
         return Types.dataFormConfig({
