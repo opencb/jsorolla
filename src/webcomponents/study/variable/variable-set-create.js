@@ -354,7 +354,7 @@ export default class VariableSetCreate extends LitElement {
                                     title: "Default Value",
                                     field: "variables[].defaultValue",
                                     type: "input-text",
-                                    save: (value, variableSet, variable) => {
+                                    parseValue: (value, variableSet, variable) => {
                                         return variable?.type === "INTEGER" ? Number.parseInt(value) : Number.parseFloat(value);
                                     },
                                     validation: {

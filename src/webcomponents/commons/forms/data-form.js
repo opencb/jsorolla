@@ -1512,7 +1512,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    save(element, value) {
+    parseValue(element, value) {
         if (typeof element.save === "function") {
             let currentValue;
             if (element.field.includes("[]")) {
@@ -1534,7 +1534,7 @@ export default class DataForm extends LitElement {
         let eventDetail;
 
         // Process the value to save it correctly.
-        value = this.save(element, value);
+        value = this.parseValue(element, value);
 
         // 1. Check if ADD, SAVE, REMOVE has been clicked, this happens in 'object-list'
         if (objectListEvent) {
