@@ -93,13 +93,13 @@ class VariantInterpreterQcHrDetect extends LitElement {
             this.opencgaSession.opencgaClient.samples()
                 .search({
                     id: somaticSample.id,
-                    include: "id,qualityControl.variant.hrdetect",
+                    include: "id,qualityControl.variant",
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
                     const sample = response?.responses?.[0]?.results?.[0];
                     if (sample) {
-                        this.hrdetect = sample.qualityControl?.variant?.hrdetect || [];
+                        this.hrdetect = sample.qualityControl?.variant?.hrDetects || [];
                     }
                     this.requestUpdate();
                 });
@@ -126,7 +126,7 @@ class VariantInterpreterQcHrDetect extends LitElement {
         return html`
             <div style="margin: 20px 10px">
                 <hrdetect-view
-                    .hrdetect="${this.signatures}"
+                    .hrdetect="${this.hrdetect}"
                     .opencgaSession="${this.opencgaSession}">
                 </hrdetect-view>
             </div>
