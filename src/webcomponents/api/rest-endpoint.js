@@ -54,8 +54,10 @@ export default class RestEndpoint extends LitElement {
         this.data = {};
         this._data = {};
         this.dataJson = {};
+        // Data Structure for Json
         this.dataModel = {};
-        this.form = {};
+        // Config for data-form endpoint
+        this.configFormEndpoint = {};
         this.methodColor = {
             "GET": "blue",
             "POST": "darkorange",
@@ -105,24 +107,24 @@ export default class RestEndpoint extends LitElement {
         const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
         const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-
+        this.configFormEndpoint = {};
         if (this.endpoint?.parameters?.length > 0) {
+            // this will clean up when the endpoint is changed.
             const queryElements = [];
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
 
+            this.data = {};
             // 1. Split params in body and query/path params
             for (const parameter of this.endpoint.parameters) {
-                // this will clean up when the endpoint is changed.
-                this.data = {};
 
                 if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
 
                     for (const dataParameter of parameter.data) {
                         const paramType = dataParameter.type?.toLowerCase();
 
-                        // Prepare data, Use for sync between form and json
+                        // Prepare data for json
                         this.dataModel = this.#setDataBody(this.dataModel, dataParameter);
 
                         // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
@@ -152,8 +154,6 @@ export default class RestEndpoint extends LitElement {
                     }
                 } else { // Parameter IS NOT body,
                     //  Path and Query Params
-                    // this.data[parameter.name] = this.getDefaultValue(parameter) || "";
-                    this.data = {...this.data, [parameter.name]: this.getDefaultValue(parameter) || ""};
                     const element = {
                         name: parameter.name,
                         field: "param." + parameter.name,
@@ -189,7 +189,7 @@ export default class RestEndpoint extends LitElement {
             const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator() ? elements : this.disabledElements(elements);
 
             // 3. Init Form
-            this.form = {
+            this.configFormEndpoint = {
                 type: "form",
                 display: {
                     width: "12",
@@ -206,7 +206,7 @@ export default class RestEndpoint extends LitElement {
             if (fieldElements.length > 0) {
                 // Check if there are 'notes' to display
                 if (this.endpoint?.notes) {
-                    this.form.sections.push({
+                    this.configFormEndpoint.sections.push({
                         elements: [
                             {
                                 type: "notification",
@@ -219,7 +219,7 @@ export default class RestEndpoint extends LitElement {
                     });
                 }
 
-                this.form.sections.push(
+                this.configFormEndpoint.sections.push(
                     {
                         title: "Path and Query Params",
                         display: {
@@ -235,7 +235,7 @@ export default class RestEndpoint extends LitElement {
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
                 const bodyElementsForm = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
-                this.form.sections.push({
+                this.configFormEndpoint.sections.push({
                     title: "Body",
                     display: {
                         titleHeader: "h4",
@@ -270,7 +270,7 @@ export default class RestEndpoint extends LitElement {
             this._data = UtilsNew.objectClone(this.data);
         } else {
             // If parameters no found
-            this.form = Types.dataFormConfig({
+            this.configFormEndpoint = Types.dataFormConfig({
                 type: "form",
                 display: {
                     buttonClearText: "",
@@ -317,7 +317,7 @@ export default class RestEndpoint extends LitElement {
         const fieldName = dataParameter.parentName ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
         const childElm = {
             title: dataParameter.name,
-            field: fieldName,
+            field: "body." + fieldName,
             type: dataParameter.type === "List" ? "object-list": "object",
             display: dataParameter.type === "List" ? {
                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
@@ -340,7 +340,7 @@ export default class RestEndpoint extends LitElement {
 
                 childElm.elements = [...childElm?.elements, {
                     title: param.name,
-                    field: parentElm,
+                    field: "body." + parentElm,
                     type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
                     allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
                     defaultValue: this.getDefaultValue(param),
@@ -457,10 +457,10 @@ export default class RestEndpoint extends LitElement {
         }
     }
 
-    onFormFieldChange(e, field) {
+    onChangeFormField(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
-        console.log("DATA", e.detail.data);
+        this.data = {...e.detail.data};
         // If it contains more than a dot or If the form has nested object
         // ex. body.field.prop -> sample: body.source.name
         // if ((param.match(/\./g) || []).length > 1) {
@@ -653,7 +653,6 @@ export default class RestEndpoint extends LitElement {
     onViewModel() {
         this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         this.requestUpdate();
-        console.log("data", this.dataJson);
     }
 
     render() {
@@ -691,8 +690,8 @@ export default class RestEndpoint extends LitElement {
                         <div style="padding: 20px">
                             <data-form
                                     .data="${this.data}"
-                                    .config="${this.form}"
-                                    @fieldChange="${e => this.onFormFieldChange(e)}"
+                                    .config="${this.configFormEndpoint}"
+                                    @fieldChange="${e => this.onChangeFormField(e)}"
                                     @clear="${this.onClear}"
                                     @submit="${this.onSubmit}">
                             </data-form>
@@ -749,7 +748,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     getTabsConfig(elements) {
-        const configForm = {
+        const configFormTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
                 buttonClearText: "Clear",
@@ -763,7 +762,7 @@ export default class RestEndpoint extends LitElement {
             }]
         };
 
-        const configJson = {
+        const configJsonTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
                 buttonClearText: "Clear",
@@ -785,20 +784,6 @@ export default class RestEndpoint extends LitElement {
                             }
                         }
                     },
-                    // {
-                    //     title: "Body",
-                    //     field: "body",
-                    //     type: "input-text",
-                    //     required: true,
-                    //     display: {
-                    //         placeholder: "Data Json...",
-                    //         disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
-                    //         rows: 10,
-                    //         help: {
-                    //             text: "Must be a valid json, please remove empty fields if you don't need them."
-                    //         }
-                    //     }
-                    // }
                 ]
             }]
         };
@@ -816,8 +801,8 @@ export default class RestEndpoint extends LitElement {
                         <!-- Body Forms -->
                         <data-form
                                 .data="${this.data}"
-                                .config="${configForm}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
+                                .config="${configFormTab}"
+                                @fieldChange="${e => this.onChangeFormField(e)}"
                                 @clear="${e => this.onClear(e)}"
                                 @submit="${this.onSubmitForm}">
                         </data-form>
@@ -835,11 +820,11 @@ export default class RestEndpoint extends LitElement {
                     return html`
                         <!-- Body Json text area -->
                         <data-form
-                                .data="${this.dataJson}"
-                                .config="${configJson}"
-                                @fieldChange="${e => this.onChangeJsonField(e, "body")}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${this.onSubmitJson}">
+                            .data="${this.dataJson}"
+                            .config="${configJsonTab}"
+                            @fieldChange="${e => this.onChangeJsonField(e, "body")}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${this.onSubmitJson}">
                         </data-form>
                     `;
                 }
