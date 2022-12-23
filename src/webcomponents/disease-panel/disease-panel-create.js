@@ -65,6 +65,8 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+
+        this.annotatingGenes = {};
     }
 
     update(changedProperties) {
@@ -83,11 +85,11 @@ export default class DiseasePanelCreate extends LitElement {
         if (e.detail?.data?.genes?.length > 0) {
             // for (const gene of this.diseasePanel?.genes) {
             for (const gene of e.detail.data.genes) {
-                if (gene?.name) {
+                if (!gene?.id && gene?.name && !this.annotatingGenes[gene.name]) {
+                    this.annotatingGenes[gene.name] = true;
                     const params = {
                         exclude: "transcripts,annotation",
                     };
-
                     this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
@@ -97,11 +99,14 @@ export default class DiseasePanelCreate extends LitElement {
                                     location: `${g.chromosome}:${g.start}-${g.end}`
                                 }
                             ];
-                            this.diseasePanel = {...this.diseasePanel};
-                            this.requestUpdate();
                         })
                         .catch(err => {
                             console.error(err);
+                        })
+                        .finally(()=> {
+                            delete this.annotatingGenes[gene.name];
+                            this.diseasePanel = {...this.diseasePanel};
+                            this.requestUpdate();
                         });
                 }
             }
