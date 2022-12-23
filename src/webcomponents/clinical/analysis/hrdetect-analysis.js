@@ -116,10 +116,12 @@ export default class HRDetectAnalysis extends LitElement {
                 svFittingId: this.toolParams.svFittingId,
                 cnvQuery: JSON.stringify({
                     sample: this.toolParams.query?.sample,
+                    type: "CNV",
                     ...this.toolParams.cnvQuery,
                 }),
                 indelQuery: JSON.stringify({
                     sample: this.toolParams.query?.sample,
+                    type: "INDEL",
                     ...this.toolParams.indelQuery,
                 }),
                 snv3CustomName: this.toolParams.snv3CustomName || "",
