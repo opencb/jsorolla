@@ -320,9 +320,10 @@ export default class DiseasePanelCreate extends LitElement {
                                     display: {
                                         placeholder: "Add gene...",
                                         render: (data, dataFormFilterChange) => {
-                                            return html`
+                                            return html `
                                                 <feature-filter
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                                 </feature-filter>
                                             `;
