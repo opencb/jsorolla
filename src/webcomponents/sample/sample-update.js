@@ -65,6 +65,17 @@ export default class SampleUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    // This observer fetches the object fetched from the server.
+    // Uncomment when using 'onComponentFieldChange' to post-process data-from manipulation.
+    // onComponentIdObserver(e) {
+    //     this.sample = e.detail.value;
+    // }
+
+    // Uncomment to post-process data-from manipulation
+    // onComponentFieldChange(e) {
+    //     // e.detail?.component
+    // }
+
     render() {
         return html `
             <opencga-update
@@ -84,14 +95,6 @@ export default class SampleUpdate extends LitElement {
                 {
                     title: "General Information",
                     elements: [
-                        // {
-                        //     type: "notification",
-                        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
-                        //     display: {
-                        //         visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                        //         notificationType: "warning",
-                        //     },
-                        // },
                         {
                             title: "Sample ID",
                             field: "id",
