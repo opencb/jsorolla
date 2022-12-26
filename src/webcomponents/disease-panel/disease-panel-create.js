@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class DiseasePanelCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,8 +45,7 @@ export default class DiseasePanelCreate extends LitElement {
         };
     }
 
-    _init() {
-        this._config = this.getDefaultConfig();
+    #init() {
         this.diseasePanel = {
             // disorders: [
             //     {
@@ -65,28 +65,21 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+        this.annotatedGenes = {};
 
-        this.annotatingGenes = {};
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("diseasePanel")) {
-            this.diseasePanel = {...this.diseasePanel};
-            this._config = this.getDefaultConfig();
-        }
-        super.update(changedProperties);
+        this._config = this.getDefaultConfig();
     }
 
     onFieldChange(e) {
-        // const param = field || e.detail.param;
-        // Get gene name and coordinates
-        // if (this.diseasePanel?.genes?.length > 0) {
-        // FIXME: in batch, this query will be repeatedly executed for each line
+        // Get gene.name and coordinates
         if (e.detail?.data?.genes?.length > 0) {
-            // for (const gene of this.diseasePanel?.genes) {
             for (const gene of e.detail.data.genes) {
-                if (!gene?.id && gene?.name && !this.annotatingGenes[gene.name]) {
-                    this.annotatingGenes[gene.name] = true;
+                // Checks:
+                // 1. gene.name MUST exist to query CellBase
+                // 2. the gene MUST NOT being annotated
+                // 3. either gene.id DOES NOT exist (first time, not annotated) or have a different gene.id meaning the gene.name has been changed
+                if (gene?.name && this.annotatedGenes[gene.name] !== "ANNOTATING" && (!gene?.id || this.annotatedGenes[gene.name] !== gene.id)) {
+                    this.annotatedGenes[gene.name] = "ANNOTATING";
                     const params = {
                         exclude: "transcripts,annotation",
                     };
@@ -96,7 +89,9 @@ export default class DiseasePanelCreate extends LitElement {
                             gene.id = g.id;
                             gene.coordinates = [
                                 {
-                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                    location: `${g.chromosome}:${g.start}-${g.end}`,
+                                    assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                    source: g.source || ""
                                 }
                             ];
                         })
@@ -104,14 +99,13 @@ export default class DiseasePanelCreate extends LitElement {
                             console.error(err);
                         })
                         .finally(()=> {
-                            delete this.annotatingGenes[gene.name];
+                            this.annotatedGenes[gene.name] = gene.id;
                             this.diseasePanel = {...this.diseasePanel};
                             this.requestUpdate();
                         });
                 }
             }
         }
-        // this.diseasePanel = {...this.diseasePanel};
         this.diseasePanel = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
@@ -164,10 +158,6 @@ export default class DiseasePanelCreate extends LitElement {
                 defaultValue: "",
                 defaultLayout: "horizontal",
             },
-            // validation: {
-            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-            //     message: "The father and mother must be different individuals",
-            // },
             sections: [
                 {
                     title: "General Information",
@@ -322,6 +312,7 @@ export default class DiseasePanelCreate extends LitElement {
                                         render: (data, dataFormFilterChange) => {
                                             return html `
                                                 <feature-filter
+                                                    .query="${{gene: data}}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                                     .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">

@@ -1584,7 +1584,8 @@ export default class DataForm extends LitElement {
 
                     eventDetail = {
                         param: element.field,
-                        value: value
+                        value: value,
+                        action: "EDIT"
                     };
                 } else {
                     // FIXME To be deleted: 2.2 Updating a field in a "Create New Item" form

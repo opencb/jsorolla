@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -51,8 +51,9 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     #init() {
-        // this.diseasePanel = {};
+        this.diseasePanel = {};
         this.diseasePanelId = "";
+        this.annotatedGenes = {};
         this.displayConfig = {
             titleWidth: 3,
             width: 8,
@@ -74,12 +75,21 @@ export default class DiseasePanelUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onComponentIdObserver(e) {
+        this.diseasePanel = e.detail.value;
+        this._config = this.getDefaultConfig();
+    }
+
     onComponentFieldChange(e) {
-        // CAUTION Vero 2022/12/05: we should retrieve the assembly as well
         // Get gene name and coordinates
         if (e.detail?.component?.genes?.length > 0) {
             for (const gene of e.detail.component.genes) {
-                if (gene?.name) {
+                // Checks:
+                // 1. gene.name MUST exist to query CellBase
+                // 2. the gene MUST NOT being annotated
+                // 3. either gene.id DOES NOT exist (first time, not annotated) or have a different gene.id meaning the gene.name has been changed
+                if (gene?.name && this.annotatedGenes[gene.name] !== "ANNOTATING" && (!gene?.id || this.annotatedGenes[gene.name] !== gene.id)) {
+                    this.annotatedGenes[gene.name] = "ANNOTATING";
                     const params = {
                         exclude: "transcripts,annotation",
                     };
@@ -89,15 +99,20 @@ export default class DiseasePanelUpdate extends LitElement {
                             gene.id = g.id;
                             gene.coordinates = [
                                 {
-                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                    location: `${g.chromosome}:${g.start}-${g.end}`,
+                                    assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                    source: g.source || ""
                                 }
                             ];
-                            this._config = {...this._config};
-                            this.requestUpdate();
                         })
                         .catch(err => {
                             // FIXME Vero 2022/12/05: handle error
                             console.error(err);
+                        })
+                        .finally(()=> {
+                            this.annotatedGenes[gene.name] = gene.id;
+                            this._config = {...this._config};
+                            this.requestUpdate();
                         });
                 }
             }
@@ -112,6 +127,7 @@ export default class DiseasePanelUpdate extends LitElement {
                 .componentId="${this.diseasePanelId}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
+                @componentIdObserver = ${this.onComponentIdObserver}
                 @componentFieldChange = ${this.onComponentFieldChange}>
             </opencga-update>
         `;
@@ -271,6 +287,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                         render: (data, dataFormFilterChange) => {
                                             return html `
                                                 <feature-filter
+                                                    .query="${{gene: data}}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                                     .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">

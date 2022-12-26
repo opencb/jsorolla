@@ -69,6 +69,7 @@ export default class SampleUpdate extends LitElement {
     // Uncomment when using 'onComponentFieldChange' to post-process data-from manipulation.
     // onComponentIdObserver(e) {
     //     this.sample = e.detail.value;
+    //     this._config = this.getDefaultConfig();
     // }
 
     // Uncomment to post-process data-from manipulation

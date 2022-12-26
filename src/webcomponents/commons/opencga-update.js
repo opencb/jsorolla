@@ -57,6 +57,7 @@ export default class OpencgaUpdate extends LitElement {
     #init() {
         this.resource = "";
         this.component = {};
+        this.componentId = "";
         this.params = {};
         this.updateCustomisation = [];
 
@@ -81,11 +82,11 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("componentId")) {
-            this.componentIdObserver();
-        }
         if (changedProperties.has("component")) {
             this.componentObserver();
+        }
+        if (changedProperties.has("componentId")) {
+            this.componentIdObserver();
         }
         if (changedProperties.has("resource")) {
             this.resourceObserver();
@@ -105,20 +106,79 @@ export default class OpencgaUpdate extends LitElement {
         }
     }
 
-    #getResourceName(type) {
-        this.resourceLabel = this.resource
-            .toLowerCase()
-            .split("_");
+    componentIdObserver() {
+        if (this.componentId && this.opencgaSession) {
+            this.#initComponent();
 
-        switch (type) {
-            case "event":
-                return this.resourceLabel
-                    .reduce((result, word) => result + UtilsNew.capitalize(word));
-            case "label":
-                return this.resourceLabel
-                    .map(word => UtilsNew.capitalize(word))
-                    .join(" ");
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                ...this.resourceInfoParams
+            };
+
+            let error;
+            this.#setLoading(true);
+            const endpointMethod = this.methodInfo || "info";
+            this.endpoint[endpointMethod](this.componentId, params)
+                .then(response => {
+                    this.component = response.responses[0].results[0];
+                })
+                .catch(reason => {
+                    error = reason;
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "componentIdObserver", this.component, {
+                        query: {...params},
+                        // [eventId]: this.component,
+                    }, error);
+                    this.#setLoading(false);
+                });
         }
+    }
+
+    resourceObserver() {
+        this.#initComponent();
+    }
+
+    opencgaSessionObserver() {
+        if (this.opencgaSession?.study?.fqn) {
+            this.#initComponent();
+        }
+    }
+
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        // We add, only once, one new section on the top to notify a pending update.
+        if (this._config.sections) {
+            if (this._config.sections[0]?.elements[0]?.type !== "notification") {
+                this._config.sections.unshift({
+                    elements: [
+                        {
+                            type: "notification",
+                            text: "Some changes have been done in the form. Not saved, changes will be lost",
+                            display: {
+                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
+                                notificationType: "warning",
+                            }
+                        }
+                    ]
+                });
+            }
+        }
+    }
+
+    initOriginalObjects() {
+        this._component = UtilsNew.objectClone(this.component);
+        this.updatedFields = {};
+        // this.componentId = "";
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
 
     #initComponent() {
@@ -251,79 +311,20 @@ export default class OpencgaUpdate extends LitElement {
         }
     }
 
-    resourceObserver() {
-        this.#initComponent();
-    }
+    #getResourceName(type) {
+        this.resourceLabel = this.resource
+            .toLowerCase()
+            .split("_");
 
-    componentIdObserver() {
-        if (this.componentId && this.opencgaSession) {
-            this.#initComponent();
-
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                ...this.resourceInfoParams
-            };
-
-            let error;
-            this.#setLoading(true);
-            const endpointMethod = this.methodInfo || "info";
-            this.endpoint[endpointMethod](this.componentId, params)
-                .then(response => {
-                    this.component = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "componentIdObserver", this.component, {
-                        query: {...params},
-                        // [eventId]: this.component,
-                    }, error);
-                    this.#setLoading(false);
-                });
+        switch (type) {
+            case "event":
+                return this.resourceLabel
+                    .reduce((result, word) => result + UtilsNew.capitalize(word));
+            case "label":
+                return this.resourceLabel
+                    .map(word => UtilsNew.capitalize(word))
+                    .join(" ");
         }
-    }
-
-    opencgaSessionObserver() {
-        if (this.opencgaSession?.study?.fqn) {
-            this.#initComponent();
-        }
-    }
-
-    configObserver() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-
-        // We add, only once, one new section on the top to notify a pending update.
-        if (this._config.sections) {
-            if (!(this._config.sections[0]?.elements[0]?.type === "notification")) {
-                this._config.sections.unshift({
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                                notificationType: "warning",
-                            }
-                        }
-                    ]
-                });
-            }
-        }
-    }
-
-    initOriginalObjects() {
-        this._component = UtilsNew.objectClone(this.component);
-        this.updatedFields = {};
-        // this.componentId = "";
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
     }
 
     onFieldChange(e, field) {
@@ -336,7 +337,7 @@ export default class OpencgaUpdate extends LitElement {
             e.detail.action);
 
         // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
-        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component}, null);
+        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component, action: e.detail.action}, null);
         this.requestUpdate();
     }
 
@@ -387,10 +388,10 @@ export default class OpencgaUpdate extends LitElement {
         this.#setLoading(true);
         const endpointMethod = this.methodUpdate || "update";
         // CAUTION: workaround for clinical-interpreation singular API
-        const update = (this.resource === "CLINICAL_INTERPRETATION") ?
+        const updateFunction = (this.resource === "CLINICAL_INTERPRETATION") ?
             this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params) :
             this.endpoint[endpointMethod](this.component.id, updateParams, params);
-        update
+        updateFunction
             .then(response => {
                 this.component = UtilsNew.objectClone(response.responses[0].results[0]);
                 this.updatedFields = {};
@@ -440,7 +441,6 @@ export default class OpencgaUpdate extends LitElement {
             </data-form>
         `;
     }
-
 
     getDefaultConfig() {
         return Types.dataFormConfig({
