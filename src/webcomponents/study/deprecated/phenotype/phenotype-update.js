@@ -15,9 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
+import FormUtils from "../../../commons/forms/form-utils.js";
 
-export default class PhenotypeCreate extends LitElement {
+export default class PhenotypeUpdate extends LitElement {
 
     constructor() {
         super();
@@ -32,6 +33,9 @@ export default class PhenotypeCreate extends LitElement {
         return {
             phenotype: {
                 type: Object
+            },
+            phenotypeId: {
+                type: String
             }
         };
     }
@@ -46,31 +50,45 @@ export default class PhenotypeCreate extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    onFieldChange(e) {
-        e.stopPropagation();
-        const field = e.detail.param;
-        if (e.detail.value) {
-            // No need to switch(field) since all of them are processed in the same way
-            this.phenotype = {
-                ...this.phenotype,
-                [field]: e.detail.value
-            };
-        } else {
-            delete this.phenotype[field];
+    update(changedProperties) {
+        if (changedProperties.has("phenotype")) {
+            this.phenotypeObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    phenotypeObserver() {
+        if (this.phenotype) {
+            this._phenotype = JSON.parse(JSON.stringify(this.phenotype));
         }
     }
 
-    // Submit to upper component.
+    onFieldChange(e) {
+        e.stopPropagation();
+        // No need to switch(field) since all of them are processed in the same way
+        this.updateParams = FormUtils.updateScalar(
+            this._phenotype,
+            this.phenotype,
+            this.updateParams,
+            e.detail.param,
+            e.detail.value);
+
+        this.phenotype = {...this.phenotype, ...this.updateParams};
+
+        this.requestUpdate();
+    }
+
     onSendPhenotype(e) {
         // Send the phenotype to the upper component
         e.stopPropagation();
+        this.updateParams = {};
         LitUtils.dispatchCustomEvent(this, "addItem", this.phenotype);
-        this.phenotype = {};
     }
 
-    onClearForm(e) {
+    onClear(e) {
         e.stopPropagation();
-        this.phenotype = {};
+        this.phenotype = JSON.parse(JSON.stringify(this._phenotype));
+        this.updateParams = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
@@ -79,8 +97,9 @@ export default class PhenotypeCreate extends LitElement {
             <data-form
                 .data=${this.phenotype}
                 .config="${this._config}"
+                .updateParams=${this.updateParams}
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClearForm}"
+                @clear="${this.onClear}"
                 @submit="${e => this.onSendPhenotype(e)}">
             </data-form>
     `;
@@ -91,7 +110,7 @@ export default class PhenotypeCreate extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                // classes: "pull-right"
+                classes: "pull-right"
             },
             display: {
                 labelWidth: 3,
@@ -107,7 +126,8 @@ export default class PhenotypeCreate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add short id...",
+                                placeholder: "add short id",
+                                disabled: true,
                             }
                         },
                         {
@@ -115,7 +135,7 @@ export default class PhenotypeCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a name..."
+                                placeholder: "add a name"
                             }
                         },
                         {
@@ -123,7 +143,7 @@ export default class PhenotypeCreate extends LitElement {
                             field: "source",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a source..."
+                                placeholder: "add a source"
                             }
                         },
                         {
@@ -131,7 +151,7 @@ export default class PhenotypeCreate extends LitElement {
                             field: "ageOfOnset",
                             type: "input-text",
                             display: {
-                                placeholder: "Add an age of on set..."
+                                placeholder: "add an age of on set"
                             }
                         },
                         {
@@ -140,7 +160,7 @@ export default class PhenotypeCreate extends LitElement {
                             type: "select",
                             allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                             display: {
-                                placeholder: "Select a status..."
+                                placeholder: "select a status..."
                             }
                         }
                     ]
@@ -151,4 +171,4 @@ export default class PhenotypeCreate extends LitElement {
 
 }
 
-customElements.define("phenotype-create", PhenotypeCreate);
+customElements.define("phenotype-update", PhenotypeUpdate);

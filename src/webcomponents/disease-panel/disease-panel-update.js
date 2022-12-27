@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import FormUtils from "../commons/forms/form-utils.js";
+import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils";
 
 
 export default class DiseasePanelUpdate extends LitElement {
@@ -55,189 +52,84 @@ export default class DiseasePanelUpdate extends LitElement {
 
     #init() {
         this.diseasePanel = {};
-        this.updateParams = {};
-
-        this.displayConfigDefault = {
-            buttonOkText: "Update",
+        this.diseasePanelId = "";
+        this.annotatedGenes = {};
+        this.displayConfig = {
             titleWidth: 3,
             width: 8,
-            defaultValue: "",
+            titleVisible: false,
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
             buttonsAlign: "right",
         };
+
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("diseasePanel")) {
-            this.initOriginalObject();
-        }
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("diseasePanelId")) {
-            this.diseasePanelIdObserver();
-        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    initOriginalObject() {
-        if (this.diseasePanel) {
-            this._diseasePanel = UtilsNew.objectClone(this.diseasePanel);
-        }
+    onComponentIdObserver(e) {
+        this.diseasePanel = e.detail.value;
+        this._config = this.getDefaultConfig();
     }
 
-    diseasePanelIdObserver() {
-        if (this.diseasePanelId && this.opencgaSession) {
-            const query = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.panels()
-                .info(this.diseasePanelId, query)
-                .then(response => {
-                    this.diseasePanel = response.responses[0].results[0];
-                    this.initOriginalObject();
-                })
-                .catch(reason => {
-                    this.diseasePanel = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.individual, {query: {...query}}, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.diseasePanel = {};
-        }
-    }
-
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "description":
-            case "source.id":
-            case "source.name":
-            case "source.version":
-                this.updateParams = FormUtils.updateObjectParams(
-                    this._diseasePanel,
-                    this.diseasePanel,
-                    this.updateParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "disorders": // arrays
-            case "variants":
-            case "regions":
-            case "genes":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._diseasePanel,
-                    this.diseasePanel,
-                    this.updateParams,
-                    param,
-                    e.detail.value
-                );
-                break;
-        }
-
+    onComponentFieldChange(e) {
         // Get gene name and coordinates
-        if (this.diseasePanel?.genes?.length > 0) {
-            for (const gene of this.diseasePanel?.genes) {
-                if (!gene.id) {
-                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+        if (e.detail?.component?.genes?.length > 0) {
+            for (const gene of e.detail.component.genes) {
+                // Checks:
+                // 1. gene.name MUST exist to query CellBase
+                // 2. the gene MUST NOT being annotated
+                // 3. either gene.id DOES NOT exist (first time, not annotated) or have a different gene.id meaning the gene.name has been changed
+                if (gene?.name && this.annotatedGenes[gene.name] !== "ANNOTATING" && (!gene?.id || this.annotatedGenes[gene.name] !== gene.id)) {
+                    this.annotatedGenes[gene.name] = "ANNOTATING";
+                    const params = {
+                        exclude: "transcripts,annotation",
+                    };
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
                             gene.id = g.id;
                             gene.coordinates = [
                                 {
-                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                    location: `${g.chromosome}:${g.start}-${g.end}`,
+                                    assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                    source: g.source || ""
                                 }
                             ];
-                            this.diseasePanel = {...this.diseasePanel};
-                            this.requestUpdate();
                         })
                         .catch(err => {
+                            // FIXME Vero 2022/12/05: handle error
                             console.error(err);
+                        })
+                        .finally(()=> {
+                            this.annotatedGenes[gene.name] = gene.id;
+                            this._config = {...this._config};
+                            this.requestUpdate();
                         });
                 }
             }
         }
-        this.requestUpdate();
-    }
-
-    onClear() {
-        this.updateParams = {};
-        this.diseasePanelId = "";
-        this.diseasePanel = UtilsNew.objectClone(this._diseasePanel);
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true
-        };
-        let error;
-        this.#setLoading(true);
-        // CAUTION: workaround for avoiding the overwrite of non updated keys in an object.
-        //  Remove when form-utils.js revisited
-        Object.keys(this.updateParams).forEach(key => this.updateParams[key] = this.diseasePanel[key]);
-        this.opencgaSession.opencgaClient.panels()
-            .update(this._diseasePanel.id, this.updateParams, params)
-            .then(response => {
-                this._diseasePanel = UtilsNew.objectClone(response.responses[0].results[0]);
-                this.updateParams = {};
-                this._config = this.getDefaultConfig();
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Disease Panel Updated",
-                    message: "Disease Panel updated correctly"
-                });
-            })
-            .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                // this._config = {...this.getDefaultConfig(), ...this.config};
-                LitUtils.dispatchCustomEvent(this, "diseasePanelUpdate", this.family, {}, error);
-                this.#setLoading(false);
-            });
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.diseasePanel?.id) {
-            return html`<div>No valid object found</div>`;
-        }
-
         return html`
-            <data-form
-                .data="${this.diseasePanel}"
+            <opencga-update
+                .resource="${"DISEASE_PANEL"}"
+                .component="${this.diseasePanel}"
+                .componentId="${this.diseasePanelId}"
+                .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .updateParams="${this.updateParams}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${this.onSubmit}">
-            </data-form>
+                @componentIdObserver = ${this.onComponentIdObserver}
+                @componentFieldChange = ${this.onComponentFieldChange}>
+            </opencga-update>
         `;
     }
 
@@ -245,43 +137,30 @@ export default class DiseasePanelUpdate extends LitElement {
         return Types.dataFormConfig({
             id: "disease-panel-update",
             title: "Disease Panel Update",
-            icon: "fas fa-edit",
-            type: "form",
-            buttons: {
-                clearText: "Cancel",
-                okText: "Update Panel",
-            },
-            display: this.displayConfig || this.displayConfigDefault,
+            display: this.displayConfig,
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updateParams),
-                                notificationType: "warning",
-                            }
-                        },
-                        {
                             title: "Disease Panel ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
-                                placeholder: "Add an ID...",
+                                disabled: true,
+                                placeholder: "Add a short ID...",
+                                helpMessage: this.diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Add a disease panel ID"
                                 }
                             }
                         },
                         {
-                            title: "Disease Panel Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the diseae panel name..."
+                                placeholder: "Add the disease panel name..."
                             }
                         },
                         {
@@ -330,7 +209,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "source.id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disease panel name...",
+                                        placeholder: "Add panel source id...",
                                     }
                                 },
                                 {
@@ -338,7 +217,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "source.name",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disease panel name..."
+                                        placeholder: "Add panel source name..."
                                     }
                                 },
                                 {
@@ -346,7 +225,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "source.version",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disease panel version...",
+                                        placeholder: "Add panel source version...",
                                     }
                                 },
                                 {
@@ -354,7 +233,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "source.author",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disease panel author name...",
+                                        placeholder: "Add panel source author name...",
                                     }
                                 },
                                 {
@@ -362,7 +241,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "source.project",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add disease panel project name...",
+                                        placeholder: "Add panel project source name...",
                                     }
                                 }
                             ]
@@ -388,6 +267,8 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
+                                showAddItemListButton: true,
+                                showAddBatchListButton: true,
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
@@ -404,9 +285,11 @@ export default class DiseasePanelUpdate extends LitElement {
                                     display: {
                                         placeholder: "Add gene...",
                                         render: (data, dataFormFilterChange) => {
-                                            return html`
+                                            return html `
                                                 <feature-filter
+                                                    .query="${{gene: data}}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                                 </feature-filter>
                                             `;
@@ -431,15 +314,15 @@ export default class DiseasePanelUpdate extends LitElement {
                                         placeholder: "Select a confidence..."
                                     }
                                 },
-                                {
-                                    title: "Imprinted",
-                                    field: "genes[].imprinted",
-                                    type: "select",
-                                    allowedValues: DISEASE_PANEL_IMPRINTED,
-                                    display: {
-                                        placeholder: "Select imprinted..."
-                                    }
-                                },
+                                // {
+                                //     title: "Role In Cancer",
+                                //     field: "genes[].roleInCancer",
+                                //     type: "select",
+                                //     allowedValues: ROLE_IN_CANCER,
+                                //     display: {
+                                //         placeholder: "Select role in cancer..."
+                                //     }
+                                // },
                             ]
                         },
                     ]

@@ -111,11 +111,13 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        this.toolParams = {...this.toolParams};
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -225,13 +227,13 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "query.sample",
                         type: "custom",
                         display: {
-                            render: sampleId => html`
+                            render: (sampleId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${sampleId}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query.sample")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -242,13 +244,13 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             visible: signatures.length > 0,
-                            render: signature => html`
+                            render: (signature, dataFormFilterChange) => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
                                     ?multiple="${false}"
                                     ?liveSearch=${false}
-                                    @filterChange="${e => this.onFieldChange(e, "signature")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
                         },
@@ -379,7 +381,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "fitSignaturesFile",
                         type: "custom",
                         display: {
-                            render: fitSignaturesFile => html`
+                            render: (fitSignaturesFile, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${fitSignaturesFile}"
                                     .resource="${"FILE"}"
@@ -387,7 +389,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .config="${{multiple: false}}"
                                     .searchField="${"id"}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e, "fitSignaturesFile")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -397,7 +399,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "fitRareSignaturesFile",
                         type: "custom",
                         display: {
-                            render: fitRareSignaturesFile => html`
+                            render: (fitRareSignaturesFile, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${fitRareSignaturesFile}"
                                     .resource="${"FILE"}"
@@ -405,7 +407,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .config="${{multiple: false}}"
                                     .searchField="${"id"}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e, "fitRareSignaturesFile")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },

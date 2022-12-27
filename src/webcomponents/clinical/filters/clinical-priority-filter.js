@@ -44,6 +44,9 @@ export default class ClinicalPriorityFilter extends LitElement {
             multiple: {
                 type: Boolean
             },
+            forceSelection: {
+                type: Boolean,
+            },
             classes: {
                 type: String
             },
@@ -57,6 +60,7 @@ export default class ClinicalPriorityFilter extends LitElement {
         this.priorities = [];
         this.multiple = true;
         this.disabled = false;
+        this.forceSelection = false;
     }
 
     update(changedProperties) {
@@ -85,6 +89,7 @@ export default class ClinicalPriorityFilter extends LitElement {
                 .value=${this.priority}
                 .placeholder="${this.placeholder}"
                 .multiple="${this.multiple}"
+                .forceSelection="${this.forceSelection}"
                 .classes="${this.classes}"
                 .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
@@ -92,7 +97,7 @@ export default class ClinicalPriorityFilter extends LitElement {
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.priorityObject?.description ? html`
-                <span class="help-block" style="padding: 0px 5px">${this.priorityObject.description}</span>` : null
+                <span class="help-block" style="padding: 0 5px">${this.priorityObject.description}</span>` : null
             }
         `;
     }

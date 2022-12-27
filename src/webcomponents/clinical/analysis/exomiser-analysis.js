@@ -114,10 +114,10 @@ export default class ExomiserAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+        this.toolParams = {...e.detail.data};
         // We need to fetch clinicalAnalysis object, so we can check if form is valid
         if (param === "clinicalAnalysis") {
             this.clinicalAnalysisObserver();
@@ -174,15 +174,17 @@ export default class ExomiserAnalysis extends LitElement {
                         field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: clinicalAnalysisId => html`
+                            render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => {
+                                return html`
                                 <catalog-search-autocomplete
                                     .value="${clinicalAnalysisId}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.clinicalAnalysis}}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalAnalysis")}">
+                                    .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
-                            `,
+                            `;
+                            }
                         },
                     },
                 ],

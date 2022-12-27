@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
-import NotificationUtils from "../utils/notification-utils.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../json-editor.js";
@@ -30,6 +29,8 @@ import "./toggle-switch.js";
 import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
+
+    static re = /(?<arrayFieldName>[a-zA-Z.]+)\[\].(?<index>[0-9]+).(?<field>[a-zA-Z.]+)/;
 
     static NOTIFICATION_TYPES = {
         error: "alert alert-danger",
@@ -53,6 +54,9 @@ export default class DataForm extends LitElement {
             data: {
                 type: Object
             },
+            originalData: {
+                type: Object
+            },
             updateParams: {
                 type: Object
             },
@@ -74,6 +78,7 @@ export default class DataForm extends LitElement {
         this.activeSection = 0; // Initial active section (only for tabs and pills type)
 
         this.objectListItems = {};
+        this.batchItems = {};
 
         // We need to initialise 'data' in case undefined value is passed
         this.data = {};
@@ -103,18 +108,20 @@ export default class DataForm extends LitElement {
             const _object = object ? object : this.data;
             // If field contains [] means the element type is object-list,
             // we need to get the value from the array, information is encoded as:
-            //  1. phenotypes[].1.id: field id from second item of phenotypes
-            //  2. phenotypes[].id: when no position is found is part of the Create New Item section
+            //  phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
-                if (right.includes(".")) {
+                if (right?.includes(".")) {
                     const [itemIndex, itemFieldId] = right.split(".");
-                    value = _object[parentItemArray][itemIndex]?.[itemFieldId];
+                    // support object nested
+                    value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldId];
                 } else {
-                    value = this.objectListItems[parentItemArray]?.[right];
+                    // FIXME this should never be reached
+                    console.error("this should never be reached");
+                    // value = this.objectListItems[parentItemArray]?.[right];
                 }
             } else {
-                // optional chaining is needed when "res" is undefined
+                // Optional chaining is needed when "res" is undefined
                 value = field.split(".").reduce((res, prop) => res?.[prop], _object);
             }
 
@@ -142,10 +149,12 @@ export default class DataForm extends LitElement {
 
     applyTemplate(template, object, matches, defaultValue) {
         if (!matches) {
+            // eslint-disable-next-line no-param-reassign
             matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         }
         for (const match of matches) {
             const v = this.getValue(match, object, defaultValue);
+            // eslint-disable-next-line no-param-reassign
             template = template.replace("${" + match + "}", v);
         }
 
@@ -158,7 +167,7 @@ export default class DataForm extends LitElement {
     }
 
     // Get buttons layout
-    // To be removed when deprecating old config.buttons.top property
+    // FIXME To be removed when deprecating old config.buttons.top property
     _getButtonsLayout() {
         const layout = this.config.display?.buttonsLayout || "";
         if (!layout || (layout !== "bottom" && layout !== "top")) {
@@ -186,14 +195,25 @@ export default class DataForm extends LitElement {
      * @returns {boolean} Default value is 'true' so it is visible.
      * @private
      */
-    _getBooleanValue(value, defaultValue) {
+    _getBooleanValue(value, defaultValue, element) {
         let _value = typeof defaultValue !== "undefined" ? defaultValue : true;
         if (typeof value !== "undefined" && value !== null) {
             if (typeof value === "boolean") {
                 _value = value;
             } else {
                 if (typeof value === "function") {
-                    _value = value(this.data);
+                    // example: phenotypes[].1.description
+                    if (element?.field?.includes("[].")) {
+                        const match = element.field.match(DataForm.re);
+                        if (match) {
+                            const itemArray = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                            _value = value(this.data, itemArray);
+                        } else {
+                            _value = value(this.data);
+                        }
+                    } else {
+                        _value = value(this.data);
+                    }
                 } else {
                     console.error(`Expected boolean or function value, but got '${typeof value}'`);
                 }
@@ -261,21 +281,35 @@ export default class DataForm extends LitElement {
     }
 
     _isUpdated(element) {
-        if (!UtilsNew.isEmpty(this.updateParams)) {
-            const [field, prop] = element.field.split(".");
-            if (prop) {
-                return typeof this.updateParams[field]?.[prop] !== "undefined";
+        if (UtilsNew.isNotEmpty(this.updateParams)) {
+            // 1. Check if element.field exists
+            const fieldExists = this.updateParams[element.field];
+            if (fieldExists) {
+                return true;
             } else {
-                return typeof this.updateParams[field] !== "undefined";
+                // 2. Check if field is part of a new ADDED object-list, example:  'phenotypes[].1'  (no fields)
+                if (element.field.includes("[]")) {
+                    const match = element.field.match(DataForm.re);
+                    return !!this.updateParams[match?.groups?.arrayFieldName + "[]." + match?.groups?.index]?.after?.[match?.groups?.field];
+                } else {
+                    // 3. To display object-list root elements check if the prefix exists, example: 'phenotypes'
+                    // 3.1 Check if any original item has been deleted
+                    if (this.updateParams[element.field + "[].deleted"]?.length > 0) {
+                        return true;
+                    } else {
+                        // 3.2 Check if any original item has been edited
+                        return Object.keys(this.updateParams)
+                            .filter(key => key !== element.field + "[].deleted")
+                            .some(key => key.startsWith(element.field + "[]."));
+                    }
+                }
             }
-        } else {
-            // TODO Keep this for backward compatability, remove as soon as all update components pass 'updateParams'.
-            return element.display?.updated;
         }
     }
 
     _isRequiredEmpty(element, value) {
         if (!value) {
+            // eslint-disable-next-line no-param-reassign
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
 
@@ -295,11 +329,20 @@ export default class DataForm extends LitElement {
 
     _isValid(element, value) {
         if (!value) {
+            // eslint-disable-next-line no-param-reassign
             value = this.getValue(element.field) || this._getDefaultValue(element);
         }
 
         if (typeof element?.validation?.validate === "function") {
-            if (element.validation.validate(value)) {
+            // When an object-list, get the item being validated.
+            let item;
+            if (element.field.includes("[]")) {
+                const match = element.field.match(DataForm.re);
+                if (match) {
+                    item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                }
+            }
+            if (element.validation.validate(value, this.data, item)) {
                 this.invalidFields.delete(element.field);
                 return true;
             } else {
@@ -330,42 +373,47 @@ export default class DataForm extends LitElement {
                     `)}
                 </div>
             `;
-        } else if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
-            // Render with a specific layout
-            return html`
-                <div class="${className}" style="${style}">
-                    ${this.config?.display.layout.map(section => {
-                        const sectionClassName = section.className ?? section.classes ?? "";
-                        const sectionStyle = section.style ?? "";
-
-                        return section.id ? html`
-                            <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                            </div>
-                        ` : html`
-                            <div class="${sectionClassName}" style="${sectionStyle}">
-                                ${(section.sections || []).map(subsection => {
-                                    const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                                    const subsectionStyle = subsection.style ?? "";
-
-                                    return subsection.id && html`
-                                        <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
-                                        </div>
-                                    `;
-                                })}
-                            </div>
-                        `;
-                    })}
-                </div>
-            `;
         } else {
-            // Render without layout
-            return html`
-                <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this.config.sections.map(section => this._createSection(section))}
-                </div>
-            `;
+            if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
+                // Render with a specific layout
+                return html`
+                    <div class="${className}" style="${style}">
+                        ${this.config?.display.layout.map(section => {
+                            const sectionClassName = section.className ?? section.classes ?? "";
+                            const sectionStyle = section.style ?? "";
+
+                            if (section.id) {
+                                return html`
+                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                        ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                    </div>
+                                `;
+                            } else {
+                                return html`
+                                    <div class="${sectionClassName}" style="${sectionStyle}">
+                                        ${(section.sections || []).map(subsection => {
+                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                                            const subsectionStyle = subsection.style ?? "";
+                                            return subsection.id && html`
+                                                <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+                                                    ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                </div>
+                                            `;
+                                        })}
+                                    </div>
+                                `;
+                            }
+                        })}
+                    </div>
+                `;
+            } else {
+                // Render without layout
+                return html`
+                    <div class="${layoutClassName} ${className}" style="${style}">
+                        ${this.config.sections.map(section => this._createSection(section))}
+                    </div>
+                `;
+            }
         }
     }
 
@@ -418,7 +466,7 @@ export default class DataForm extends LitElement {
 
     _createElement(element, section) {
         // Check if the element is visible
-        if (element.display && !this._getBooleanValue(element.display.visible)) {
+        if (element.display && !this._getBooleanValue(element.display.visible, true, element)) {
             return;
         }
 
@@ -493,9 +541,6 @@ export default class DataForm extends LitElement {
                     break;
                 case "custom":
                     content = this._createCustomElement(element);
-                    break;
-                case "custom-list":
-                    content = this._createCustomListElement(element);
                     break;
                 case "download":
                     content = this._createDownloadElement(element);
@@ -585,7 +630,6 @@ export default class DataForm extends LitElement {
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
 
-
         // Help message
         const helpMessage = this._getHelpMessage(element);
         const helpMode = this._getHelpMode(element);
@@ -610,65 +654,6 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    _createCustomElementTemplate(element, value, collapsedUpdate, content, callback) {
-        const isValid = this._isValid(element, value);
-        const isRequiredEmpty = this._isRequiredEmpty(element, value);
-        const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
-        // const collapsed = this._getBooleanValue(element?.collapsed, false);
-        // field + id + prefix + collapsed
-        // ${UtilsNew.randomString(8)}
-        const regex = /[()+,-.\/:; ?@[\]_{|}]/g;
-        const collapseTarget = `${element?.field}${value?.id}Collapse`;
-        const collapseForm = collapseTarget.replace(regex, "");
-
-        // Help message
-        const helpMessage = this._getHelpMessage(element);
-        const helpMode = this._getHelpMode(element);
-
-        const results = html`
-            <div class="${hasErrorMessages ? "has-error" : ""}" style="${element?.display?.style}">
-                ${content}
-                ${helpMessage && helpMode !== "block" ? html`
-                    <div class="help-block" style="margin:8px">${helpMessage}</div>
-                ` : null}
-                ${hasErrorMessages ? html`
-                    <div class="help-block" style="display:flex;margin-top:8px;">
-                        <div style="margin-right:8px">
-                            <i class="${this._getErrorIcon(element)}"></i>
-                        </div>
-                        <div style="font-weight:bold;">
-                            ${isRequiredEmpty ? "This field is required." : element.validation?.message || ""}
-                        </div>
-                    </div>
-                ` : null}
-            </div>
-        `;
-        if (collapsedUpdate) {
-            return html`
-                <div class="row" style="padding-top:6px;padding-left:16px">
-                    ${value?.id}
-                    <div class="pull-right">
-                        <button class="btn btn-primary" role="button" data-toggle="collapse" data-target="#${collapseForm}" aria-expanded="false"
-                                aria-controls="${collapseForm}">
-                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
-                            Edit
-                        </button>
-                        <button class="btn btn-danger" type="button" @click="${callback}">
-                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                            Remove
-                        </button>
-                    </div>
-                </div>
-                <div class="collapse" id="${collapseForm}">
-                    <div>${results}</div>
-                </div>
-            `;
-        } else {
-            return results;
-        }
-
-    }
-
     _createTextElement(element) {
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
@@ -687,7 +672,7 @@ export default class DataForm extends LitElement {
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
     _createInputElement(element, type) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
@@ -713,7 +698,7 @@ export default class DataForm extends LitElement {
 
     _createInputNumberElement(element) {
         const value = this.getValue(element.field) ?? this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element?.display?.disabled, false);
+        const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
 
@@ -737,7 +722,7 @@ export default class DataForm extends LitElement {
 
     _createInputDateElement(element) {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const parseInputDate = e => {
             // Date returned by <input> is in YYYY-MM-DD format, but we need YYYYMMDDHHmmss format
             return e.target.value ? moment(e.target.value, "YYYY-MM-DD").format("YYYYMMDDHHmmss") : "";
@@ -757,7 +742,7 @@ export default class DataForm extends LitElement {
 
     _createCheckboxElement(element) {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
 
         // TODO to be fixed.
         if (element.field === "FILTER") {
@@ -787,7 +772,7 @@ export default class DataForm extends LitElement {
      */
     _createToggleSwitchElement(element) {
         const value = this.getValue(element.field); // || this._getDefaultValue(element);
-        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
@@ -845,7 +830,7 @@ export default class DataForm extends LitElement {
         let allowedValues = [];
         let defaultValue = null;
 
-        // First. Check if 'allowedValues' field is provided
+        // 1. Check if 'allowedValues' field is provided
         if (element.allowedValues) {
             if (Array.isArray(element.allowedValues)) {
                 if (element.display?.apply) {
@@ -867,16 +852,18 @@ export default class DataForm extends LitElement {
                     }
                 } else {
                     if (typeof element.allowedValues === "function") {
-                        const values = element.allowedValues(this.data);
+                        let item;
+                        if (element.field.includes("[]")) {
+                            const match = element.field.match(DataForm.re);
+                            if (match) {
+                                item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                            }
+                        }
+                        const values = element.allowedValues(this.data, item);
                         if (values) {
                             allowedValues = values;
                             if (values.defaultValue) {
                                 defaultValue = values.defaultValue;
-                            } else {
-                                // Select defaultValue when only one value exist
-                                if (allowedValues && allowedValues.length === 1) {
-                                    defaultValue = allowedValues[0];
-                                }
                             }
                         }
                     } else {
@@ -901,19 +888,12 @@ export default class DataForm extends LitElement {
                 // Check if a defaultValue is set in element config
                 if (element.defaultValue) {
                     defaultValue = element.defaultValue;
-                } else {
-                    // Select defaultValue when only one value exist
-                    if (allowedValues && allowedValues.length === 1) {
-                        defaultValue = allowedValues[0];
-                    }
                 }
             }
         }
 
         // Default values
-        const disabled = this._getBooleanValue(element?.display?.disabled, false);
-        // const width = this._getWidth(element);
-
+        const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const content = html`
             <div class="">
                 <select-field-filter
@@ -955,10 +935,6 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(array)) {
             return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
         }
-        // if (!array.length) {
-        //     // return this.getDefaultValue(element);
-        //     return html`<span>${this.getDefaultValue(element)}'</span>`;
-        // }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
             return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
         }
@@ -1063,36 +1039,37 @@ export default class DataForm extends LitElement {
                             <th scope="col">${elem.title || elem.name}</th>
                         `)}
                     </tr>
-                    </thead>
-                ` : null}
+                    </thead>` : null}
                 <tbody>
-                ${array.map(row => html`
-                    <tr scope="row">
-                        ${element.display.columns.map(elem => {
-                            const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                            const elemStyle = elem.display?.style ?? "";
-                            let content = null;
+                ${array
+                    .map(row => html`
+                        <tr scope="row">
+                            ${element.display.columns
+                                .map(elem => {
+                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                                    const elemStyle = elem.display?.style ?? "";
+                                    let content = null;
 
-                            // Check the element type
-                            switch (elem.type) {
-                                case "complex":
-                                    content = this._createComplexElement(elem, row);
-                                    break;
-                                case "custom":
-                                    content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                    break;
-                                default:
-                                    content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                            }
+                                    // Check the element type
+                                    switch (elem.type) {
+                                        case "complex":
+                                            content = this._createComplexElement(elem, row);
+                                            break;
+                                        case "custom":
+                                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
+                                            break;
+                                        default:
+                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
+                                    }
 
-                            return html`
-                                <td class="${elemClassName}" style="${elemStyle}">
-                                    ${content}
-                                </td>
-                            `;
-                        })}
-                    </tr>
-                `)}
+                                    return html`
+                                        <td class="${elemClassName}" style="${elemStyle}">
+                                            ${content}
+                                        </td>
+                                    `;
+                                })}
+                        </tr>
+                    `)}
                 </tbody>
             </table>
         `;
@@ -1199,96 +1176,23 @@ export default class DataForm extends LitElement {
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         const data = element.field ? this.getValue(element.field) : this.data;
 
+        // When an object-list, get the item being validated.
+        let item;
+        if (element.field?.includes("[]")) {
+            const match = element.field.match(DataForm.re);
+            if (match) {
+                item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+            }
+        }
+
         // Call to render function, it must be defined!
         // We also allow to call to 'onFilterChange' function.
-        const content = element.display.render(data, value => this.onFilterChange(element, value));
+        const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item);
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
             return this._getErrorMessage(element);
         }
-    }
-
-    _createCustomListElement(element) {
-        if (typeof element.display?.renderCreate !== "function" && typeof element.display?.renderUpdate !== "function") {
-            return "All 'custom-list' elements must implement a 'display.renderCreate' && 'display.renderUpdate' function.";
-        }
-
-        // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
-        let data = this.data;
-        if (element.field) {
-            data = this.getValue(element.field);
-        }
-
-        // Call to render function if defined
-        // It covers the case the result of this.getValue is actually undefined
-        // Approach #1
-        let contents;
-
-        // Collapse only for renderUpdate
-        const collapsedUpdate = this._getBooleanValue(element?.display?.collapsedUpdate, false);
-
-        // Functions for different actions in the custom list
-        const onChange = {
-            create: e => this._onChangeArray(e, element.field, "CREATE", data),
-            update: e => this._onChangeArray(e, element.field, "UPDATE", data),
-            remove: item => this._onChangeArray(item, element.field, "REMOVE", data)
-        };
-
-        const renderCreate = element.display.renderCreate({}, onChange.create);
-        const renderUpdate = item => element.display.renderUpdate(item, onChange.update);
-
-        if (data && Array.isArray(data)) {
-
-            // For the update, it will pass the remove function to the remove button as a callback with the specific item to be deleted.
-            contents = data.map(item => this._createCustomElementTemplate(element, item, collapsedUpdate, renderUpdate(item), e => onChange.remove(item)));
-            contents = [...contents, this._createCustomElementTemplate(element, {}, false, renderCreate)];
-            return contents.map(content => html`${content}`);
-        } else {
-            if (renderCreate) {
-                return this._createCustomElementTemplate(element, data, false, renderCreate);
-            } else {
-                this._getErrorMessage(element);
-            }
-        }
-    }
-
-    _onChangeArray(e, field, action, data) {
-        let results = {};
-        let _data = data ? [...data]:[];
-        const item = {...e?.detail?.value};
-        let isRepeat = false;
-        switch (action) {
-            case "CREATE":
-                _data.some(d => d?.id === item?.id) ?
-                    isRepeat = true :
-                    results = {param: field, value: [..._data, item]};
-                break;
-            case "UPDATE":
-                // change id for index array.. because the user can change the ID.
-                const indexItem = _data.findIndex(obj => obj.id === item.id);
-                _data[indexItem] = item;
-                results = {param: field, value: _data};
-                const regexPunctuation = /[()+,-.\/:; ?@[\]_{|}]/g;
-                const collapseTarget =`${field}${item?.id}Collapse`;
-                $(`#${collapseTarget.replace(regexPunctuation, "")}`).collapse("hide");
-                break;
-            case "REMOVE":
-                // This 'e' is the item to remove from array
-                const removedItem = {...e};
-                _data = UtilsNew.removeArrayByIndex(_data, _data.findIndex(obj => obj.id === removedItem.id));
-                results = {param: field, value: _data};
-                break;
-        }
-        if (isRepeat) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                title: "Duplicated data",
-                message: "You have already added a data with the same id."
-            });
-        } else {
-            LitUtils.dispatchCustomEvent(this, "addOrUpdateItem", null, results);
-        }
-
     }
 
     _createDownloadElement(element) {
@@ -1301,25 +1205,32 @@ export default class DataForm extends LitElement {
     }
 
     _createObjectElement(element) {
-        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
         for (const childElement of element.elements) {
-            // make sure this elem is nested
+            // 1. Check if this filed is visible
+            const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
+            if (!isVisible) {
+                continue;
+            }
+
+            // 2. Check if the element is disabled
             childElement.display = {
                 ...childElement.display,
-                disabled: isDisabled, // We set the disabled attribute from the parent element.
                 nested: true
             };
 
-            // childElement.display.disabled = isDisabled;
-            // Call to createElement to get HTML content
+            // 2.1 If parent is disabled then we must overwrite disabled field
+            if (isDisabled) {
+                childElement.display.disabled = isDisabled;
+            }
+
+            // 3. Call to createElement to get HTML content
             const elemContent = this._createElement(childElement);
 
-            // Read Help message
+            // 4. Read Help message and Render assuming vertical layout for nested forms
             const helpMessage = this._getHelpMessage(element);
             const helpMode = this._getHelpMode(element);
-
-            // Assume vertical layout for nested forms
             contents.push(
                 html`
                     <div class="row form-group" style="margin-left: 0;margin-right: 0">
@@ -1348,7 +1259,8 @@ export default class DataForm extends LitElement {
 
     _createObjectListElement(element) {
         const items = this.getValue(element.field);
-        const isDisabled = this._getBooleanValue(element.display?.disabled, false);
+        const isUpdated = this._isUpdated(element);
+        const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
 
         // Get initial collapsed status, only executed the first time
@@ -1361,7 +1273,7 @@ export default class DataForm extends LitElement {
         let maxNumItems;
         if (element.display.collapsed) {
             maxNumItems = element.display.maxNumItems ?? 5;
-            if (maxNumItems >= items?.length) {
+            if (maxNumItems >= items?.length || this.editOpen >= 0) {
                 // eslint-disable-next-line no-param-reassign
                 element.display.collapsed = false;
                 maxNumItems = items?.length;
@@ -1371,90 +1283,178 @@ export default class DataForm extends LitElement {
         }
 
         // Render all existing items
-        if (maxNumItems > 0) {
+        if (!items || items?.length === 0) {
             const view = html`
-                <div style="padding-bottom: 5px; ${this._isUpdated(element) ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
-                    ${items?.slice(0, maxNumItems).map((item, index) => {
-                        const _element = JSON.parse(JSON.stringify(element));
-
-                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                        // items have a virtual element associated, this will allow to get the proper value later.
-                        for (let i = 0; i< _element.elements.length; i++) {
-                            const [left, right] = _element.elements[i].field.split(".");
-                            _element.elements[i].field = left + "." + index + "." + right;
-                            if (_element.elements[i].type === "custom") {
-                                _element.elements[i].display.render = element.elements[i].display.render;
-                            }
-                        }
-                        return html`
-                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;" >
-                                <div>
-                                    ${element.display.view(item)}
-                                </div>
-                                <div>
-                                    ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-primary" ?disabled="${isDisabled}"
-                                                @click="${e => this.#editItemOfObjectList(e, item, index, element)}">
-                                            <i aria-hidden="true" class="fas fa-edit icon-padding"></i>
-                                            Edit
-                                        </button>` : null}
-                                    ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                        <button type="button" class="btn btn-sm btn-danger" ?disabled="${isDisabled}"
-                                                @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                            <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                            Remove
-                                        </button>` : null}
-                                </div>
-                            </div>
-                            <div id="${this._prefix}_${index}" style="border-left: 2px solid #0c2f4c; padding-left: 12px; display: none">
-                                ${this._createObjectElement(_element)}
-                                <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                                    <button type="button" class="btn btn-sm btn-primary" @click="${e => this.#saveItemInObjectList(e, item, index, element)}">Save</button>
-                                </div>
-                            </div>`;
-                    })}
+                <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    <span>No items found.</span>
                 </div>
-
-                ${element.display.collapsed && items?.length > 0? html`
-                    <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" style="padding: 0"
-                                @click="${e => this.#toggleObjectListCollapse(element, false)}">
-                            Show more ... (${items?.length} items)
-                        </button>
-                    </div>
-                ` : null
-                }
-
-                ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
-                    <div style="padding: 0 0 10px 0">
-                        <button type="button" class="btn btn-link" style="padding: 0"
-                                @click="${e => this.#toggleObjectListCollapse(element, true)}">
-                            Show less ...
-                        </button>
-                    </div>
-                ` : null
-                }
             `;
             contents.push(view);
+        } else {
+            if (maxNumItems > 0) {
+                const view = html`
+                    <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                        ${items?.slice(0, maxNumItems)
+                            .map((item, index) => {
+                                const _element = JSON.parse(JSON.stringify(element));
+                                // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                                // items have a virtual element associated, this will allow to get the proper value later.
+                                for (let i = 0; i< _element.elements.length; i++) {
+                                    // This support object nested
+                                    const [left, right] = _element.elements[i].field.split("[].");
+                                    _element.elements[i].field = left + "[]." + index + "." + right;
+                                    if (_element.elements[i].type === "custom") {
+                                        _element.elements[i].display.render = element.elements[i].display.render;
+                                    }
+                                    if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
+                                        _element.elements[i].allowedValues = element.elements[i].allowedValues;
+                                    }
+                                    if (typeof element.elements[i]?.validation?.validate === "function") {
+                                        _element.elements[i].validation.validate = element.elements[i].validation.validate;
+                                    }
+                                    if (typeof element.elements[i]?.save === "function") {
+                                        _element.elements[i].save = element.elements[i].save;
+                                    }
+                                    // if (typeof element.elements[i]?.validation?.message === "function") {
+                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
+                                    // }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
+                                    if (typeof element.elements[i]?.display?.disabled === "function") {
+                                        _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                                    }
+                                    if (typeof element.elements[i]?.display?.visible === "function") {
+                                        _element.elements[i].display.visible = element.elements[i].display.visible;
+                                    }
+                                }
+                                return html`
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <div>
+                                            ${element.display.view(item)}
+                                        </div>
+                                        <div>
+                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                                <button type="button" title="Edit item" class="btn btn-sm btn-primary"
+                                                        ?disabled="${isDisabled}"
+                                                        @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                    <i aria-hidden="true" class="fas fa-edit"></i>
+                                                </button>` : null
+                                            }
+                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                                <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
+                                                        ?disabled="${isDisabled}"
+                                                        @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                    <i aria-hidden="true" class="fas fa-trash-alt"></i>
+                                                </button>` : null
+                                            }
+                                        </div>
+                                    </div>
+                                    <div id="${element?.field}_${index}"
+                                         style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
+                                        ${this._createObjectElement(_element)}
+                                        <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
+                                            <button type="button" class="btn btn-xs btn-primary"
+                                                    @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>`;
+                            })
+                        }
+                    </div>
+
+                    ${element.display.collapsed && items?.length > 0 ? html`
+                        <div style="padding: 0 0 10px 0">
+                            <button type="button" class="btn btn-link" style="padding: 0"
+                                    @click="${e => this.#toggleObjectListCollapse(element, false)}">
+                                Show more ... (${items?.length} items)
+                            </button>
+                        </div>` : null
+                    }
+
+                    ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
+                        <div style="padding: 0 0 10px 0">
+                            <button type="button" class="btn btn-link" style="padding: 0"
+                                    @click="${e => this.#toggleObjectListCollapse(element, true)}">
+                                Show less ...
+                            </button>
+                        </div>` : null
+                    }
+                `;
+                contents.push(view);
+            }
         }
 
         // Add the form to create the next item
-        if (this._getBooleanValue(element.display.showAddItemListButton, true)) {
+        if (this._getBooleanValue(element.display.showAddItemListButton, true) || this._getBooleanValue(element.display.showAddBatchListButton, true)) {
             const createHtml = html`
-                <div style="border-left:2px solid #0c2f4c; padding-left:12px; padding-top:5px; margin-bottom:15px">
-                    <label>Create new item</label>
-                    ${this._createObjectElement(element)}
-                    <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                        <button type="button" class="btn btn-sm btn-primary"
-                                @click="${e => this.#addToObjectList(e, element)}" ?disabled="${isDisabled}">
-                            Add
-                        </button>
+                <div>
+                    <div class="help-block" style="float: left; margin-bottom: 6px">
+                        ${items?.length > 0 ? html`Items: ${items.length}` : nothing}
                     </div>
+                    <div class="text-right" style="float: right; margin-bottom: 6px">
+                        ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
+                            <button type="button" class="btn btn-sm btn-primary"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#addToObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-plus icon-padding"></i>
+                                Add Item
+                            </button>`: nothing
+                        }
+                        ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                            <button type="button" class="btn btn-sm btn-primary"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-file-import icon-padding"></i>
+                                Add Batch
+                            </button>`: nothing
+                        }
+                        ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
+                            <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
+                                    ?disabled="${isDisabled}"
+                                    @click="${e => this.#resetObjectList(e, element)}">
+                                <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
+                                Reset
+                            </button>`: nothing
+                        }
+                    </div>
+                    ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
+                        <div id="${this._prefix}-${element?.field}" style="margin-left: 10px; padding-left: 12px; display: none">
+                            <text-field-filter
+                                value="${this.batchItems[element?.field] || ""}"
+                                placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
+                                .rows="${3}"
+                                @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}"></text-field-filter>
+                            <div style="display:flex; flex-direction:row-reverse; margin: 5px">
+                                <button type="button" class="btn btn-xs btn-primary"
+                                        ?disabled="${!this.batchItems[element.field]}"
+                                        @click="${e => this.#addBatchToObjectList(e, element)}">
+                                    OK
+                                </button>
+                            </div>
+                        </div>`: nothing
+                    }
                 </div>`;
             contents.push(createHtml);
         }
 
         return contents;
+    }
+
+    #toggleEditItemOfObjectList(e, item, index, element) {
+        // We must reset this variable after editing the new item.
+        this.editOpen = -1;
+
+        const htmlElement = document.getElementById(element?.field + "_" + index);
+        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+    }
+
+    #removeFromObjectList(e, item, index, element) {
+        // Notify change to provoke the update
+        const event = {
+            action: "REMOVE",
+            index: index,
+        };
+        this.onFilterChange(element, null, event);
     }
 
     #toggleObjectListCollapse(element, collapsed) {
@@ -1463,89 +1463,166 @@ export default class DataForm extends LitElement {
         this.requestUpdate();
     }
 
+    #resetObjectList(e, element) {
+        const event = {
+            action: "RESET",
+        };
+        this.onFilterChange(element, null, event);
+    }
+
     #addToObjectList(e, element) {
-        // Check if object array exists
-        if (!this.data[element.field]) {
-            this.data[element.field] = [];
-        }
+        const event = {
+            action: "ADD",
+        };
+        this.onFilterChange(element, {}, event);
 
-        // Add the new item to the array and delete the temp item
-        if (this.objectListItems[element.field]) {
-            this.data[element.field].push(this.objectListItems[element.field]);
-            delete this.objectListItems[element.field];
-        }
-
-        // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "added", this.data[element.field].length - 1);
-
-        // TODO clear the nested form
-        // ...
+        const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+        this.editOpen = dataElementList.length - 1;
     }
 
-    #editItemOfObjectList(e, item, index, element) {
-        const htmlElement = document.getElementById(this._prefix + "_" + index);
+    #toggleAddBatchToObjectList(e, element) {
+        const htmlElement = document.getElementById(`${this._prefix}-${element?.field}`);
         htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
     }
 
-    #saveItemInObjectList(e, item, index, element) {
-        const htmlElement = document.getElementById(this._prefix + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
-
-        // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "updated", index);
+    #addBatchTextChange(element, text) {
+        if (element?.field) {
+            this.batchItems[element.field] = text;
+            this.requestUpdate();
+        }
     }
 
-    #removeFromObjectList(e, item, index, element) {
-        // Delete the removed item
-        this.data[element.field].splice(index, 1);
-
-        // Notify change to provoke the update
-        this.onFilterChange(element, this.data[element.field], "removed", index);
-    }
-
-    onFilterChange(element, value, objectListAction, objectListIndex) {
-        if (element.field.includes("[]")) {
-            // Example: [variants, id]
-            const [parentArrayField, itemField] = element.field.split("[].");
-            if (itemField.includes(".")) {
-                // Items in the array
-                const [index, field] = itemField.split(".");
-                this.data[parentArrayField][index][field] = value;
-            } else {
-                // Check if value is empty
-                if (value) {
-                    this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
-                } else {
-                    delete this.objectListItems[parentArrayField][itemField];
+    #addBatchToObjectList(e, element) {
+        if (this.batchItems[element.field]) {
+            const lines = this.batchItems[element.field].split("\n");
+            for (const line of lines) {
+                const value = {};
+                const fields = line.split(",");
+                for (let i = 0; i < fields.length; i++) {
+                    const fieldName = element.elements[i].field.split(".").at(-1);
+                    value[fieldName] = fields[i];
                 }
+                const event = {
+                    action: "ADD",
+                };
+                this.onFilterChange(element, value, event);
+            }
+            delete this.batchItems[element.field];
+            this.#toggleAddBatchToObjectList(e, element);
+        }
+    }
+
+    parseValue(element, value) {
+        if (typeof element.save === "function") {
+            let currentValue;
+            if (element.field.includes("[]")) {
+                const match = element.field.match(DataForm.re);
+                if (match) {
+                    currentValue = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
+                }
+            } else {
+                currentValue = UtilsNew.getObjectValue(this.data, element.field);
+            }
+
+            return element.save(value, this.data, currentValue);
+        } else {
+            return value;
+        }
+    }
+
+    onFilterChange(element, value, objectListEvent) {
+        let eventDetail;
+
+        // Process the value to save it correctly.
+        value = this.parseValue(element, value);
+
+        // 1. Check if ADD, SAVE, REMOVE has been clicked, this happens in 'object-list'
+        if (objectListEvent) {
+            const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
+            switch (objectListEvent.action) {
+                case "ADD":
+                    UtilsNew.setObjectValue(this.data, element.field, [...dataElementList, value]);
+                    eventDetail = {
+                        param: element.field + "[]." + dataElementList.length,
+                        value: value,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "CLOSE":
+                    // nothing to do
+                    break;
+                case "REMOVE":
+                    value = dataElementList[objectListEvent.index];
+                    dataElementList.splice(objectListEvent.index, 1);
+                    eventDetail = {
+                        param: element.field + "[]." + objectListEvent.index,
+                        value: value,
+                        index: objectListEvent.index,
+                        action: objectListEvent.action
+                    };
+                    break;
+                case "RESET":
+                    const originalDataElementList = UtilsNew.getObjectValue(this.originalData, element.field, []);
+                    UtilsNew.setObjectValue(this.data, element.field, UtilsNew.objectClone(originalDataElementList));
+                    eventDetail = {
+                        param: element.field + "[]",
+                        value: value,
+                        action: objectListEvent.action
+                    };
+                    break;
             }
         } else {
-            const detail = {
-                param: element.field,
-                value: value
-            };
-            if (objectListAction) {
-                detail[objectListAction] = objectListIndex;
+            // 2. Check if the element field is part of an object-list
+            if (element.field.includes("[]")) {
+                const [parentArrayField, itemField] = element.field.split("[].");
+                if (itemField.includes(".")) {
+                    // 2.1 Updating a field in an existing item in the array
+                    const [index, field] = itemField.split(".");
+                    const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
+                    currentElementList[index][field] = value;
+                    UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
+
+                    eventDetail = {
+                        param: element.field,
+                        value: value,
+                        action: "EDIT"
+                    };
+                } else {
+                    // FIXME To be deleted: 2.2 Updating a field in a "Create New Item" form
+                    debugger
+                    console.error("This code should never be reached!");
+                    if (value) {
+                        this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
+                    } else {
+                        delete this.objectListItems[parentArrayField][itemField];
+                    }
+                }
+            } else {
+                // 3. Normal field: primitive or object
+                UtilsNew.setObjectValue(this.data, element.field, value);
+                eventDetail = {
+                    param: element.field,
+                    value: value
+                };
             }
+        }
+
+        // 4. Send the custom event if eventDetail has been created, this is not created when a new item is being updated
+        if (eventDetail) {
             this.dispatchEvent(new CustomEvent("fieldChange", {
-                detail: detail,
+                detail: {
+                    ...eventDetail,
+                    data: this.data
+                },
                 bubbles: true,
                 composed: true
             }));
         }
     }
 
-    // onBlurChange(field, value) {
-    //     this.dispatchEvent(new CustomEvent("blurChange", {
-    //         detail: {
-    //             param: field,
-    //             value: value
-    //         },
-    //         bubbles: false,
-    //         composed: true
-    //     }));
-    // }
-
+    onPreview(e) {
+        $("#" + this._prefix + "PreviewDataModal").modal("show");
+    }
 
     onClear(e) {
         this.formSubmitted = false;
@@ -1585,6 +1662,10 @@ export default class DataForm extends LitElement {
         this.requestUpdate();
     }
 
+    onCopyPreviewClick() {
+        UtilsNew.copyToClipboard(JSON.stringify(this.data, null, 4));
+    }
+
     renderGlobalValidationError() {
         if (this.showGlobalValidationError) {
             return html`
@@ -1610,8 +1691,10 @@ export default class DataForm extends LitElement {
         const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
+        const buttonPreviewText = this.config.buttons?.previewText ?? "Preview";
         const buttonClearText = this.config.display?.buttonClearText ?? this.config.buttons?.clearText ?? this.config.buttons?.cancelText ?? "Clear";
         const buttonOkText = this.config.display?.buttonOkText ?? this.config.buttons?.okText ?? "OK";
+        const buttonPreviewVisible = !!this.config.buttons?.previewText;
         const buttonClearVisible = this.config.display?.buttonClearText !== "";
         const buttonOkVisible = this.config.display?.buttonOkText !== "";
 
@@ -1619,14 +1702,21 @@ export default class DataForm extends LitElement {
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
-                    ${buttonClearVisible? html`
+                    ${buttonPreviewVisible ? html`
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                                @click="${this.onPreview}">
+                            ${buttonPreviewText}
+                        </button>
+                    `: null
+                    }
+                    ${buttonClearVisible ? html`
                         <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
                     `: null
                     }
-                    ${buttonOkVisible? html`
+                    ${buttonOkVisible ? html`
                         <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
@@ -1798,6 +1888,28 @@ export default class DataForm extends LitElement {
 
             <!-- Render buttons -->
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+
+            <!-- PREVIEW modal -->
+            <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">JSON Preview</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div style="display:flex; flex-direction:row-reverse">
+                                <button type="button" class="btn btn-link" @click="${this.onCopyPreviewClick}">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i>Copy JSON
+                                </button>
+                            </div>
+                            <div>
+                                <pre>${JSON.stringify(this.data, null, 4)}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 

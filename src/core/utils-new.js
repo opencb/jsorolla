@@ -168,6 +168,39 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
+    // example: getObjectValue(sample,"processing.product.id","")
+    static getObjectValue(obj, props, defaultValue) {
+        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
+    }
+
+    // example: setObjectValue(sample,'processing.product.id',value)
+    static setObjectValue(obj, props, value) {
+        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
+    }
+
+    // 1st approach remove value (recursive way)
+    static deleteObjectValue(obj, props) {
+        const [head, ...params] = props.split(".");
+        if (!params.length) {
+            delete obj[head];
+        } else {
+            UtilsNew.deleteObjectValue(obj[head], params.join("."));
+        }
+    }
+
+    // 2nd approach remove value (loop way)
+    static deleteObjectValue2(obj, props) {
+        const parts = props.split(".");
+        const last = parts.pop();
+        for (const part of parts) {
+            obj = obj[part];
+            if (!obj) {
+                return;
+            }
+        }
+        delete obj[last];
+    }
+
     static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
@@ -255,6 +288,12 @@ export default class UtilsNew {
         }
         return "-";
     }
+
+
+    /*
+     * This function capitalizes the first letter of a string and lowercase the rest.
+     */
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
 
 
     /*
@@ -378,26 +417,23 @@ export default class UtilsNew {
      * Compares the objects by key and value (nested object are not supported yet)
      * @param {Object} a First object
      * @param {Object} b Second object
-     * @returns {boolean} true if the oject are equals
+     * @returns {boolean} true if the objects are equals
      */
     static objectCompare(a, b) {
         if (a && b) {
-            const _a = UtilsNew.objectSort(a);
-            const _b = UtilsNew.objectSort(b);
-            return JSON.stringify(_a) === JSON.stringify(_b);
+            const _a = JSON.stringify(UtilsNew.objectSort(a));
+            const _b = JSON.stringify(UtilsNew.objectSort(b));
+            return _a === _b;
         } else {
             return false;
         }
     }
 
     static isObjectValuesEmpty(obj) {
-
         return Object.values(obj).every(val => {
-
             if (val !== null && (typeof val === "object" || Array.isArray(val))) {
                 return UtilsNew.isObjectValuesEmpty(val);
             }
-
             return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
         });
     }
@@ -915,7 +951,8 @@ export default class UtilsNew {
         return versionNumber2 - versionNumber1;
     }
 
-    static getObjectValue(obj, props, defaultValue, results) {
+    // It always returns an array
+    static getObjectValues(obj, props, defaultValue, results) {
         if (!results) {
             // eslint-disable-next-line no-param-reassign
             results = [];
@@ -958,6 +995,15 @@ export default class UtilsNew {
                 return copied;
             }
         });
+    }
+
+    static commaSeparatedArray(strOrArray) {
+        return Array.isArray(strOrArray) ?
+            strOrArray :
+            (strOrArray || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(item => !!item);
     }
 
 }
