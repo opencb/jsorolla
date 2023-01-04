@@ -100,7 +100,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                     <div class="row" style="padding-left: 5px">
                                         <div class="col-md-6">
                                             <span style="font-size: 1.2em">${interpretation.id}</span>
-
                                             <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
                                         </div>
                                         <div class="col-md-6">
@@ -196,6 +195,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 // collapsable: false,
                                 // maxNumItems: 5,
                                 showAddItemListButton: false,
+                                showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => html`

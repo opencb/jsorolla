@@ -340,6 +340,7 @@ export default class VariantGridFormatter {
             switch (row.type) {
                 case "SNP": // Deprecated
                     type = "SNV";
+                    color = "black";
                     break;
                 case "INDEL":
                 case "CNV": // Deprecated
@@ -646,13 +647,14 @@ export default class VariantGridFormatter {
                                       <th rowspan="2">Transcript</th>
                                       <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
+                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
                                       <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
                                   <tr style="margin: 5px">
                                       <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
                                       <th rowspan="1">Codon</th>
-                                      <th rowspan="1" style="padding-right: 20px">Exon (%)</th>
+                                      <th rowspan="1" style="">Exon (%)</th>
+                                      <th rowspan="1" style="padding-right: 20px">SpliceAI</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
@@ -733,6 +735,23 @@ export default class VariantGridFormatter {
                     `);
                 }
 
+                let spliceAIScore = "-";
+                if (ct.spliceScores?.length > 0) {
+                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                    if (spliceAi) {
+                        const keys = ["DS_AG", "DS_AL", "DS_DG", "DS_DL"];
+                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                        const index = [spliceAi.scores[keys[0]], spliceAi.scores[keys[1]], spliceAi.scores[keys[2]], spliceAi.scores[keys[3]]].findIndex(e => e === max);
+
+                        const color = (max >= 0.8) ? "red" : (max >= 0.5) ? "darkorange" : "black";
+                        spliceAIScore = `
+                            <div>
+                                <span style="color: ${color}">${max} (${keys[index]})</span>
+                            </div>
+                        `;
+                    }
+                }
+
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
                 let uniprotAccession = "-";
                 if (pva.uniprotAccession) {
@@ -781,6 +800,7 @@ export default class VariantGridFormatter {
                                 <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
                                 <td>${ct.codon || "-"}</td>
                                 <td>${exons.join("<br>")}</td>
+                                <td>${spliceAIScore}</td>
 
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
@@ -792,6 +812,54 @@ export default class VariantGridFormatter {
             return ctHtml;
         }
         return "-";
+    }
+
+    static caddScaledFormatter(value, row, index) {
+        if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
+            for (const functionalScore of row.annotation.functionalScore) {
+                if (functionalScore.source === "cadd_scaled") {
+                    const value = Number(functionalScore.score).toFixed(2);
+                    if (value < 15) {
+                        return value;
+                    } else {
+                        return "<span style=\"color: red\">" + value + "</span>";
+                    }
+                }
+            }
+        } else {
+            return "-";
+        }
+    }
+
+    static spliceAIFormatter(value, row) {
+        if (row.annotation.consequenceTypes?.length > 0) {
+            // We need to find the max Delta Score:
+            //      Delta score of a variant, defined as the maximum of (DS_AG, DS_AL, DS_DG, DS_DL),
+            //      ranges from 0 to 1 and can be interpreted as the probability of the variant being splice-altering.
+            let dscore = 0;
+            let transcriptId;
+            for (const ct of row.annotation.consequenceTypes) {
+                if (ct.spliceScores?.length > 0) {
+                    const spliceAi = ct.spliceScores.find(ss => ss.source.toUpperCase() === "SPLICEAI");
+                    if (spliceAi) {
+                        const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
+                        if (max > dscore) {
+                            dscore = max;
+                            transcriptId = ct.transcriptId;
+                        }
+                    }
+                }
+            }
+
+            const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
+            return `
+                <div>
+                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore}</span>
+                </div>
+            `;
+        } else {
+            return "-";
+        }
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
@@ -810,95 +878,64 @@ export default class VariantGridFormatter {
     }
 
     // Creates the colored table with one row and as many columns as populations.
-    static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const cohort of cohorts) {
-            const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
-            popFreqsArray.push(cohort.id + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
+        const tooltipRows = (populations || []).map(population => {
+            const popFreq = populationFrequenciesMap.get(population) || null;
+            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+            const altCount = popFreq?.altAlleleCount || 0;
+            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
+            const homAltCount = popFreq?.altHomGenotypeCount || 0;
+            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            let altFreqText = "";
+            let homAltFreqText = "";
 
-        // TODO block copied in createPopulationFrequenciesTable
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            // ALT freq tell us if the VARIANT has been OBSERVED.
+            if (altFreq > 0) {
+                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
             } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
+                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `
-                <div>
-                    <span>
-                        <i class='fa fa-xs fa-square' style='color: ${color};' aria-hidden='true'></i>
-                        <label style='padding-left: 5px;width: 140px;'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight:bold;'>${freq}</span>
-                </div>
-            `;
-        }
 
-        // Create the table (with the tooltip info)
-        const tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Cohort Variant Stats" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
-        for (const cohort of cohorts) {
-            let color = "black";
-            if (typeof cohortStats.get(cohort.id) !== "undefined") {
-                const freq = cohortStats.get(cohort.id);
-                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-            }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
-        }
-        htmlPopFreqTable += "</tr></table></a>";
-        return htmlPopFreqTable;
-    }
-
-    // Creates the colored table with one row and as many columns as populations.
-    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const population of populations) {
-            const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
-            popFreqsArray.push(population + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
-
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
-            } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
-            }
-            tooltip += `
-                <div>
-                    <span>
+            return `
+                <tr style='border-top:1px solid #ededed;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
                         <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                        <label style='padding-left: 5px; width: 140px'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight: bold'>${freq}</span>
-                </div>
+                        <label style='padding-left: 5px;'>${population}</label>
+                    </td>
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+                </td>
             `;
-        }
+        });
+        const tooltip = `
+            <table class='population-freq-tooltip'>
+                <thead>
+                    <tr>
+                        <th style='padding:0 8px 8px 0;'>Population</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                    </tr>
+                </thead>
+                <tbody>${tooltipRows.join("")}</tbody>
+            </table>
+        `;
 
         // Create the table (with the tooltip info)
         let htmlPopFreqTable;
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
-            htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
-                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
-                                    <tr>`;
+            htmlPopFreqTable = `
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                <table style="width:${tableSize}px" class="populationFrequenciesTable">
+                    <tr>
+            `;
             for (const population of populations) {
                 // This array contains "study:population"
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
                 }
                 htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
@@ -910,7 +947,7 @@ export default class VariantGridFormatter {
             for (const population of populations) {
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     const percentage = (Number(freq) * 100).toPrecision(4);
                     // Only color the significant ones
                     if (freq <= 0.005) {
@@ -965,8 +1002,9 @@ export default class VariantGridFormatter {
         return color;
     }
 
-    static clinicalPhenotypeFormatter(value, row, index) {
+    static clinicalTraitAssociationFormatter(value, row, index) {
         const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+        // Check for ClinVar and Cosmic annotations
         if (row?.annotation?.traitAssociation) {
             // Filter the traits for this column and check the number of existing traits
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
@@ -974,74 +1012,75 @@ export default class VariantGridFormatter {
                 return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
             }
 
-            if (this.field === "clinvar") {
-                const results = [];
-                let tooltipText = "";
-                const clinicalSignificanceVisited = new Set();
-                for (const trait of traits) {
-                    let clinicalSignificance,
-                        drugResponseClassification;
-                    if (trait?.variantClassification?.clinicalSignificance) {
-                        clinicalSignificance = trait.variantClassification.clinicalSignificance;
-                    } else {
-                        if (trait?.variantClassification?.drugResponseClassification) {
-                            clinicalSignificance = "drug_response";
-                            drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+            let tooltipText = "";
+            switch (this.field) {
+                case "clinvar":
+                    const results = [];
+                    const clinicalSignificanceVisited = new Set();
+                    for (const trait of traits) {
+                        let clinicalSignificance,
+                            drugResponseClassification;
+                        if (trait?.variantClassification?.clinicalSignificance) {
+                            clinicalSignificance = trait.variantClassification.clinicalSignificance;
                         } else {
-                            clinicalSignificance = "unknown";
+                            if (trait?.variantClassification?.drugResponseClassification) {
+                                clinicalSignificance = "drug_response";
+                                drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+                            } else {
+                                clinicalSignificance = "unknown";
+                            }
                         }
-                    }
-                    let code = "";
-                    let color = "";
-                    let tooltip = "";
-                    switch (clinicalSignificance.toUpperCase()) {
-                        case "BENIGN":
-                            code = "B";
-                            color = "green";
-                            tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "LIKELY_BENIGN":
-                            code = "LB";
-                            color = "darkgreen";
-                            tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "VUS":
-                        case "UNCERTAIN_SIGNIFICANCE":
-                            code = "US";
-                            color = "darkorange";
-                            tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "LIKELY_PATHOGENIC":
-                            code = "LP";
-                            color = "darkred";
-                            tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "PATHOGENIC":
-                            code = "P";
-                            color = "red";
-                            tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "DRUG_RESPONSE":
-                            code = "DR";
-                            color = "darkred";
-                            tooltip = "Classified as drug response following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
-                            break;
-                        case "UNKNOWN":
-                            code = "NP";
-                            color = "grey";
-                            tooltip = "ClinVar submissions without an interpretation of clinical significance";
-                            break;
-                    }
+                        let code = "";
+                        let color = "";
+                        let tooltip = "";
+                        switch (clinicalSignificance.toUpperCase()) {
+                            case "BENIGN":
+                                code = "B";
+                                color = "green";
+                                tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "LIKELY_BENIGN":
+                                code = "LB";
+                                color = "darkgreen";
+                                tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "VUS":
+                            case "UNCERTAIN_SIGNIFICANCE":
+                                code = "US";
+                                color = "darkorange";
+                                tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "LIKELY_PATHOGENIC":
+                                code = "LP";
+                                color = "darkred";
+                                tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "PATHOGENIC":
+                                code = "P";
+                                color = "red";
+                                tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "DRUG_RESPONSE":
+                                code = "DR";
+                                color = "darkred";
+                                tooltip = "Classified as drug response following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                                break;
+                            case "UNKNOWN":
+                                code = "NP";
+                                color = "grey";
+                                tooltip = "ClinVar submissions without an interpretation of clinical significance";
+                                break;
+                        }
 
-                    if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
-                        results.push(`<span style="color: ${color}">${code}</span>`);
-                        clinicalSignificanceVisited.add(code);
-                    }
+                        if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
+                            results.push(`<span style="color: ${color}">${code}</span>`);
+                            clinicalSignificanceVisited.add(code);
+                        }
 
-                    // Prepare the tooltip links
-                    if (!trait.id?.startsWith("SCV")) {
-                        // We display the link plus the clinical significance and all the heritable trait descriptions
-                        tooltipText += `
+                        // Prepare the tooltip links
+                        if (!trait.id?.startsWith("SCV")) {
+                            // We display the link plus the clinical significance and all the heritable trait descriptions
+                            tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${trait.url}" target="_blank">${trait.id}</a>
@@ -1051,25 +1090,23 @@ export default class VariantGridFormatter {
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                            .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                            .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
-                            .join("")
-                        }
+                                .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                                .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                .join("")
+                            }
                                 </div>
                             </div>`;
+                        }
                     }
-                }
 
-                // This can only be shown if nothing else exists
-                if (results.length === 0) {
-                    return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
-                }
+                    // This can only be shown if nothing else exists
+                    if (results.length === 0) {
+                        return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
+                    }
 
-                return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
-            } else {
-                if (this.field === "cosmic") {
+                    return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
+                case "cosmic":
                     // Prepare the tooltip links
-                    let tooltipText = "";
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
                         if (trait?.somaticInformation?.primaryHistology) {
@@ -1096,22 +1133,61 @@ export default class VariantGridFormatter {
                             </div>`;
                     }
 
-                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                                <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
-                            </a>`;
-                } else {
+                    return `
+                        <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
+                        </a>`;
+                default:
                     console.error("Wrong clinical source : " + this.field);
-                }
+                    break;
             }
         }
         return phenotypeHtml;
     }
 
+    static clinicalCancerHotspotsFormatter(value, row) {
+        if (row?.annotation?.cancerHotspots?.length > 0) {
+            const cancerHotspotsHtml = new Map();
+            for (const ct of row.annotation.consequenceTypes) {
+                for (const hotspot of row.annotation.cancerHotspots) {
+                    if (ct.geneName === hotspot.geneName && ct.proteinVariantAnnotation?.position === hotspot.aminoacidPosition) {
+                        cancerHotspotsHtml.set(`${hotspot.geneName}_${hotspot.aminoacidPosition}`, hotspot);
+                    }
+                }
+            }
+            let tooltipText = "";
+            for (const [key, hotspot] of cancerHotspotsHtml.entries()) {
+                tooltipText += `
+                    <div style="margin: 10px 5px">
+                        <div>
+                            <label style="">Gene: ${hotspot.geneName} - Aminoacid: ${hotspot.aminoacidPosition} (${AMINOACID_CODE[hotspot.aminoacidReference]})</label>
+                            <div style="">Cancer Type: ${hotspot.cancerType} - ${hotspot.variants.length} ${hotspot.variants.length === 1 ? "mutation" : "mutations"}</div>
+                        </div>
+                        <div>
+                            ${hotspot.variants
+                    .map(variant => `<span class="help-block" style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)</span>`)
+                    .join("")
+                }
+                        </div>
+                    </div>`;
+            }
+
+            if (cancerHotspotsHtml.size > 0) {
+                return `
+                     <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <span style="color: green">${cancerHotspotsHtml.size} ${cancerHotspotsHtml.size === 1 ? "variant" : "variants"}</span>
+                    </a>`;
+            }
+        }
+        return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+    }
+
     static clinicalTableDetail(value, row, index) {
         const clinvar = [];
-        const cosmicIntermdiate = new Map();
         const cosmic = [];
-        if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
+        const hotspots = [];
+        if (row.annotation?.traitAssociation?.length > 0) {
+            const cosmicIntermediate = new Map();
             for (const trait of row.annotation.traitAssociation) {
                 const values = [];
                 const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
@@ -1133,8 +1209,8 @@ export default class VariantGridFormatter {
                     const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
                     const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
                     const zygosity = trait.additionalProperties.find(p => p.id === "MUTATION_ZYGOSITY");
-                    if (!cosmicIntermdiate.has(key)) {
-                        cosmicIntermdiate.set(key, {
+                    if (!cosmicIntermediate.has(key)) {
+                        cosmicIntermediate.set(key, {
                             id: trait.id,
                             url: trait.url,
                             primarySite: trait.somaticInformation.primarySite,
@@ -1148,32 +1224,32 @@ export default class VariantGridFormatter {
                     }
                     // Only add the new terms for this key
                     if (trait.somaticInformation.histologySubtype) {
-                        if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
-                            cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
+                        if (!cosmicIntermediate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
+                            cosmicIntermediate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
                         }
                         // Increment the counter always
-                        cosmicIntermdiate.get(key).histologySubtypesCounter
-                            .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
+                        cosmicIntermediate.get(key).histologySubtypesCounter
+                            .set(trait.somaticInformation.histologySubtype, cosmicIntermediate.get(key).histologySubtypesCounter.size + 1);
                     }
                     if (trait?.bibliography?.length > 0) {
-                        cosmicIntermdiate.get(key).pubmed.add(...trait.bibliography);
+                        cosmicIntermediate.get(key).pubmed.add(...trait.bibliography);
                     }
                     if (zygosity) {
-                        cosmicIntermdiate.get(key).zygosity.add(zygosity.value);
+                        cosmicIntermediate.get(key).zygosity.add(zygosity.value);
                     }
                 }
             }
 
-            // Sort bu key and prepare column data
-            for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
+            // Sort by key and prepare column data
+            for (const [key, c] of new Map([...cosmicIntermediate.entries()].sort())) {
                 const values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
                 values.push(c.primarySite);
                 values.push(c.primaryHistology);
                 values.push(c.histologySubtypes
                     .map(value => {
-                        if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
-                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")";
+                        if (cosmicIntermediate.get(key).histologySubtypesCounter.get(value) > 1) {
+                            return value + " (x" + cosmicIntermediate.get(key).histologySubtypesCounter.get(value) + ")";
                         } else {
                             return "-";
                         }
@@ -1188,6 +1264,29 @@ export default class VariantGridFormatter {
             }
         }
 
+        if (row?.annotation?.cancerHotspots?.length > 0) {
+            const visited = {};
+            for (const ct of row.annotation.consequenceTypes) {
+                for (const hotspot of row.annotation.cancerHotspots) {
+                    if (ct.geneName === hotspot.geneName && ct.proteinVariantAnnotation?.position === hotspot.aminoacidPosition && !visited[hotspot.geneName + "_" + hotspot.aminoacidPosition]) {
+                        const reference = AMINOACID_CODE[hotspot.aminoacidReference];
+                        const position = hotspot.aminoacidPosition;
+                        const values = [];
+                        values.push(hotspot.geneName);
+                        values.push(reference);
+                        values.push(hotspot.aminoacidPosition);
+                        values.push(hotspot.cancerType);
+                        values.push(hotspot.variants.length);
+                        values.push(hotspot.variants.map(m => `${reference}${position}${AMINOACID_CODE[m.aminoacidAlternate]}: ${m.count} sample(s)`).join("; "));
+                        hotspots.push({
+                            values: values
+                        });
+                        visited[hotspot.geneName + "_" + hotspot.aminoacidPosition] = true;
+                    }
+                }
+            }
+        }
+
         // Clinvar
         const clinvarColumns = [
             {title: "ID"},
@@ -1199,10 +1298,11 @@ export default class VariantGridFormatter {
             {title: "Traits"}
         ];
         const clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
-        const clinvarTraits = `<div>
-                                <label>ClinVar</label>
-                                <div>${clinvarTable}</div>
-                             </div>`;
+        const clinvarTraits = `
+            <div>
+                <label>ClinVar</label>
+                <div style="padding: 0 10px">${clinvarTable}</div>
+            </div>`;
 
         // Cosmic
         const cosmicColumns = [
@@ -1215,12 +1315,29 @@ export default class VariantGridFormatter {
             {title: "Pubmed"}
         ];
         const cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
-        const cosmicTraits = `<div style="margin-top: 15px">
-                                <label>Cosmic</label>
-                                <div>${cosmicTable}</div>
-                            </div>`;
+        const cosmicTraits = `
+            <div style="margin-top: 15px">
+                <label>Cosmic</label>
+                <div style="padding: 0 10px">${cosmicTable}</div>
+            </div>`;
 
-        return clinvarTraits + cosmicTraits;
+        // Cancer Hotspots
+        const cancerHotspotsColumns = [
+            {title: "Gene Name"},
+            {title: "Aminoacid Reference"},
+            {title: "Aminoacid Position"},
+            {title: "Cancer Type"},
+            {title: "Number of Mutations"},
+            {title: "Mutations"},
+        ];
+        const cancerHotspotsTable = VariantGridFormatter.renderTable("", cancerHotspotsColumns, hotspots, {defaultMessage: "No Cancer Hotspots data found"});
+        const cancerHotspotsHtml = `
+            <div style="margin-top: 15px">
+                <label>Cancer Hotspots</label>
+                <div style="padding: 0 10px">${cancerHotspotsTable}</div>
+            </div>`;
+
+        return clinvarTraits + cosmicTraits + cancerHotspotsHtml;
     }
 
     /*

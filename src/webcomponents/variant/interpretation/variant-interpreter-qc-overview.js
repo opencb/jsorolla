@@ -52,6 +52,9 @@ class VariantInterpreterQcOverview extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            active: {
+                type: Boolean,
+            },
             settings: {
                 type: Object
             }
@@ -197,6 +200,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Summary"
                             },
                             {
+                                id: "MutationalSignature",
+                                title: "Mutational Signature",
+                            },
+                            {
                                 id: "VariantStats",
                                 title: "Variant Stats"
                             },
@@ -215,10 +222,6 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                            },
-                            {
-                                id: "GenomicContext",
-                                title: "Genomic Context (Signature)"
                             },
                             // {
                             //     id: "GeneCoverageStats",
@@ -259,15 +262,15 @@ class VariantInterpreterQcOverview extends LitElement {
         return html`
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
-                    ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => {
-                        return html`
-                            <button type="button"
-                                    class="list-group-item ${i === 0 ? "active" : ""}"
-                                    data-id="${field.id}"
-                                    @click="${this.onSideNavClick}">${field.title}
-                            </button>
-                        `;
-                    })}
+                    ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => html`
+                        <button
+                            type="button"
+                            class="list-group-item ${i === 0 ? "active" : ""}"
+                            data-id="${field.id}"
+                            @click="${this.onSideNavClick}">
+                            ${field.title}
+                        </button>
+                    `)}
                 </div>
 
                 <div class="col-md-10">
@@ -355,20 +358,22 @@ class VariantInterpreterQcOverview extends LitElement {
                             </file-qc-ascat-metrics>
                         </div>
 
-                        <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Genomic Context (Signature)</h3>
-                            <variant-interpreter-qc-signature     .opencgaSession=${this.opencgaSession}
-                                                                  .clinicalAnalysis="${this.clinicalAnalysis}">
+                        <div id="${this._prefix}MutationalSignature" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Mutational Signature</h3>
+                            <variant-interpreter-qc-signature
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                ?active="${this.active}">
                             </variant-interpreter-qc-signature>
                         </div>
-
-                            <!--
-                            <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
-                                <h3>Gene Coverage Stats</h3>
-                                <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession}
-                                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </variant-interpreter-qc-gene-coverage-stats>
-                            </div>
+                        <!--
+                        <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Gene Coverage Stats</h3>
+                            <variant-interpreter-qc-gene-coverage-stats
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-gene-coverage-stats>
+                        </div>
                         -->
                     </div>
                 </div>

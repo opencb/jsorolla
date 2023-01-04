@@ -77,10 +77,10 @@ export default class SampleEligibilityAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        this.config = this.getDefaultConfig();
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 

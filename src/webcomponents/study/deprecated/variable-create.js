@@ -19,6 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import Types from "../../commons/types.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 
+// DEPRECATED
 export default class VariableCreate extends LitElement {
 
     constructor() {

@@ -81,10 +81,11 @@ export default class KnockoutAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        this.config = this.getDefaultConfig();
+        this.toolParams = {...this.toolParams};
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -136,15 +137,16 @@ export default class KnockoutAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Sample",
+                        field: "sample",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
+                            render: (sample, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.sample}"
+                                    .value="${sample}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: true}}"
-                                    @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },

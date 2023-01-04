@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import FormUtils from "../commons/forms/form-utils.js";
+import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class DiseasePanelCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,8 +45,7 @@ export default class DiseasePanelCreate extends LitElement {
         };
     }
 
-    _init() {
-        this._config = this.getDefaultConfig();
+    #init() {
         this.diseasePanel = {
             // disorders: [
             //     {
@@ -66,41 +65,48 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+        this.annotatedGenes = {};
+
+        this._config = this.getDefaultConfig();
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.diseasePanel = {
-                ...FormUtils.createObject(
-                    this.diseasePanel,
-                    param,
-                    e.detail.value,
-                )};
-        }
-
-        // Get gene name and coordinates
-        if (this.diseasePanel?.genes?.length > 0) {
-            for (const gene of this.diseasePanel?.genes) {
-                if (!gene.id) {
-                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", {exclude: "transcripts,annotation"})
+    onFieldChange(e) {
+        // Get gene.name and coordinates
+        if (e.detail?.data?.genes?.length > 0) {
+            for (const gene of e.detail.data.genes) {
+                // Checks:
+                // 1. gene.name MUST exist to query CellBase
+                // 2. the gene MUST NOT being annotated
+                // 3. either gene.id DOES NOT exist (first time, not annotated) or have a different gene.id meaning the gene.name has been changed
+                if (gene?.name && this.annotatedGenes[gene.name] !== "ANNOTATING" && (!gene?.id || this.annotatedGenes[gene.name] !== gene.id)) {
+                    this.annotatedGenes[gene.name] = "ANNOTATING";
+                    const params = {
+                        exclude: "transcripts,annotation",
+                    };
+                    this.opencgaSession.cellbaseClient.getGeneClient(gene.name, "info", params)
                         .then(res => {
                             const g = res.responses[0].results[0];
                             gene.id = g.id;
                             gene.coordinates = [
                                 {
-                                    location: `${g.chromosome}:${g.start}-${g.end}`
+                                    location: `${g.chromosome}:${g.start}-${g.end}`,
+                                    assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                    source: g.source || ""
                                 }
                             ];
-                            this.diseasePanel = {...this.diseasePanel};
-                            this.requestUpdate();
                         })
                         .catch(err => {
                             console.error(err);
+                        })
+                        .finally(()=> {
+                            this.annotatedGenes[gene.name] = gene.id;
+                            this.diseasePanel = {...this.diseasePanel};
+                            this.requestUpdate();
                         });
                 }
             }
         }
+        this.diseasePanel = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -152,10 +158,6 @@ export default class DiseasePanelCreate extends LitElement {
                 defaultValue: "",
                 defaultLayout: "horizontal",
             },
-            // validation: {
-            //     validate: individual => (UtilsNew.isEmpty(individual.father) || UtilsNew.isEmpty(individual.mother)) || individual.father !== individual.mother,
-            //     message: "The father and mother must be different individuals",
-            // },
             sections: [
                 {
                     title: "General Information",
@@ -308,9 +310,11 @@ export default class DiseasePanelCreate extends LitElement {
                                     display: {
                                         placeholder: "Add gene...",
                                         render: (data, dataFormFilterChange) => {
-                                            return html`
+                                            return html `
                                                 <feature-filter
+                                                    .query="${{gene: data}}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                                 </feature-filter>
                                             `;
@@ -335,15 +339,15 @@ export default class DiseasePanelCreate extends LitElement {
                                         placeholder: "Select a confidence..."
                                     }
                                 },
-                                {
-                                    title: "Imprinted",
-                                    field: "genes[].imprinted",
-                                    type: "select",
-                                    allowedValues: DISEASE_PANEL_IMPRINTED,
-                                    display: {
-                                        placeholder: "Select imprinted..."
-                                    }
-                                },
+                                // {
+                                //     title: "Role In Cancer",
+                                //     field: "genes[].roleInCancer",
+                                //     type: "select",
+                                //     allowedValues: ROLE_IN_CANCER,
+                                //     display: {
+                                //         placeholder: "Select role in cancer..."
+                                //     }
+                                // },
                             ]
                         },
                     ]

@@ -24,7 +24,7 @@ const OPENCGA_FAMILY_BROWSER_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "members", "disorders", "phenotypes", "caseId", "customAnnotation", "creationDate"]
+        columns: ["id", "members", "disorders", "phenotypes", "caseId", "customAnnotation", "creationDate", "actions"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["family-view", "family-relatedness", "json-view"]

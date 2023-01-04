@@ -194,7 +194,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         // Check if the field has been defined as complex
                         const complexField = this._config.complexFields.find(item => item.id === key);
                         if (complexField) {
-                            filterFields = value.split(complexField.separator);
+                            filterFields = complexField?.separator ? value.split(complexField.separator) : UtilsNew.splitByRegex(value, complexField.separatorRegex);
                         } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
                             // If we find a field with both ; and , we will separate by ;
                             filterFields = value.split(";");
@@ -630,7 +630,8 @@ export default class OpencgaActiveFilters extends LitElement {
                 // Check if the field has been defined as complex
                 const complexField = this._config.complexFields.find(item => item.id === name);
                 if (complexField) {
-                    filterFields = _queryList[name].split(complexField.separator);
+                    // filterFields = _queryList[name].split(complexField.separator);
+                    filterFields = complexField?.separator ? _queryList[name].split(complexField.separator) : UtilsNew.splitByRegex(_queryList[name], complexField.separatorRegex);
                 } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
                     // If we find a field with both ; and , we will separate by ;
                     filterFields = _queryList[name].split(";");
@@ -642,7 +643,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 filterFields.splice(indexOfValue, 1);
 
                 if (complexField) {
-                    _queryList[name] = filterFields.join(complexField.separator);
+                    _queryList[name] = complexField?.separator ? filterFields.join(complexField.separator) : filterFields.join(); // join() By default add comma
                 } else if (value.indexOf(";") !== -1 && value.indexOf(",") !== -1) {
                     _queryList[name] = filterFields.join(";");
                 } else if (_queryList[name].indexOf(",") !== -1) {
@@ -961,7 +962,7 @@ export default class OpencgaActiveFilters extends LitElement {
             hiddenFields: [],
             lockedFields: [],
             save: {
-                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
+                ignoreParams: ["study", "sample", "file", "fileData"]
             }
         };
     }
