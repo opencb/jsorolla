@@ -112,9 +112,13 @@ export default class DataForm extends LitElement {
             if (field.includes("[]")) {
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
-                    const [itemIndex, itemFieldId] = right.split(".");
+                    const [itemIndex, ...itemFieldIds] = right.split(".");
                     // support object nested
-                    value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldId];
+                    if (itemFieldIds.length === 1) {
+                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
+                    } else {
+                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                    }
                 } else {
                     // FIXME this should never be reached
                     console.error("this should never be reached");
@@ -1577,11 +1581,16 @@ export default class DataForm extends LitElement {
                 const [parentArrayField, itemField] = element.field.split("[].");
                 if (itemField.includes(".")) {
                     // 2.1 Updating a field in an existing item in the array
-                    const [index, field] = itemField.split(".");
+                    const [index, ...fields] = itemField.split(".");
                     const currentElementList = UtilsNew.getObjectValue(this.data, parentArrayField, []);
-                    currentElementList[index][field] = value;
+                    if (fields.length === 1) {
+                        currentElementList[index][fields[0]] = value;
+                    } else {
+                        currentElementList[index][fields[0]] = {
+                            [fields[1]]: value
+                        };
+                    }
                     UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
-
                     eventDetail = {
                         param: element.field,
                         value: value,

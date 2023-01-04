@@ -314,15 +314,15 @@ export default class DiseasePanelUpdate extends LitElement {
                                         placeholder: "Select a confidence..."
                                     }
                                 },
-                                // {
-                                //     title: "Role In Cancer",
-                                //     field: "genes[].roleInCancer",
-                                //     type: "select",
-                                //     allowedValues: ROLE_IN_CANCER,
-                                //     display: {
-                                //         placeholder: "Select role in cancer..."
-                                //     }
-                                // },
+                                {
+                                    title: "Role In Cancer",
+                                    field: "genes[].cancer.role",
+                                    type: "select",
+                                    allowedValues: ROLE_IN_CANCER,
+                                    display: {
+                                        placeholder: "Select role in cancer..."
+                                    }
+                                },
                             ]
                         },
                     ]
