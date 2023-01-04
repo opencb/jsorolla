@@ -638,7 +638,7 @@ export default class VariantBrowser extends LitElement {
                                 // id: "consequence-type",
                                 id: "consequenceType",
                                 name: "Consequence Type",
-                                type: "component",
+                                type: "consequence-type",
                                 // type: "string"
                                 // render: facetId => html `
                                 //     <consequence-type-select-filter

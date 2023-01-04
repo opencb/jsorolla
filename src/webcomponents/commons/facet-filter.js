@@ -352,25 +352,19 @@ export default class FacetFilter extends LitElement {
         `;
 
         switch (facet.type) {
-            case "component":
-                switch (facet.id) {
-                    case "consequenceType":
-                        return html `
-                            <div class="row facet-row">
-                                <div class="col-md-12">
-                                    <consequence-type-select-filter
-                                        .ct="${this.preparedQuery.ct}"
-                                        .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                        @filterChange="${e => this.onFacetChange(e, facet.id)}">
-                                    </consequence-type-select-filter>
-                                </div>
-                            </div>
-                            ${renderNestedFieldWrapper(facet)}
-                        `;
-                    default: return html`
-                        <div class="alert alert-danger">Facet component not recognized: ${JSON.stringify(facet)}</div>
-                    `;
-                }
+            case "consequence-type":
+                return html `
+                    <div class="row facet-row">
+                        <div class="col-md-12">
+                            <consequence-type-select-filter
+                                    .ct="${this.preparedQuery.ct}"
+                                    .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                    @filterChange="${e => this.onFacetChange(e, facet.id)}">
+                            </consequence-type-select-filter>
+                        </div>
+                    </div>
+                    ${renderNestedFieldWrapper(facet)}
+                `;
             case "category":
                 const [, value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`
@@ -473,9 +467,9 @@ export default class FacetFilter extends LitElement {
     renderNestedField(facet, parent) {
         if (!facet || !facet.type) return null;
         switch (facet.type) {
-            case "component":
+            case "consequence-type":
                 // return facet.render(facet.id);
-                console.log("renderNestedField");
+                // console.log("renderNestedField");
                 return html `
                     <consequence-type-select-filter
                         .ct="${this.preparedQuery.ct}"
