@@ -86,11 +86,11 @@ export default class VariantExportAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -143,14 +143,14 @@ export default class VariantExportAnalysis extends LitElement {
                         title: "Sample ID",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (sample, dataFormFilterChange) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.sample}"
+                                        .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: true, disabled: !!this.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {

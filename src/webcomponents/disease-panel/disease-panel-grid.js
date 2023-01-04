@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -27,7 +27,8 @@ export default class DiseasePanelGrid extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,33 +46,32 @@ export default class DiseasePanelGrid extends LitElement {
             diseasePanels: {
                 type: Array
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "DiseasePanelBrowserGrid";
         this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-                changedProperties.has("query") ||
-                changedProperties.has("config") ||
-                changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -99,10 +99,8 @@ export default class DiseasePanelGrid extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            const filters = {...this.query};
-            // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
@@ -129,23 +127,23 @@ export default class DiseasePanelGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => String.raw`<div><loading-spinner></loading-spinner></div>`,
                 ajax: async params => {
-                    const _filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...filters
+                        ...this.query
                     };
+
                     // Store the current filters
-                    this.lastFilters = {..._filters};
+                    this.lastFilters = {...this.filters};
                     try {
-                        const data = await this.fetchDiseasePanels(_filters);
+                        const data = await this.fetchDiseasePanels(this.filters);
                         params.success(data);
                     } catch (e) {
                         console.log(e);
                         params.error(e);
                     }
-
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -209,13 +207,14 @@ export default class DiseasePanelGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
+            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPageChange: (page, size) => {
-                const result = this.gridCommons.onPageChange(page, size);
-                this.from = result.from || this.from;
-                this.to = result.to || this.to;
-            },
+            // onPageChange: (page, size) => {
+            //     const result = this.gridCommons.onPageChange(page, size);
+            //     this.from = result.from || this.from;
+            //     this.to = result.to || this.to;
+            // },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -228,82 +227,79 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
-
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-        }
-
-        if (action === "copy") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: `Copy Disease Panel '${row.id}'`,
-                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
-                display: {
-                    okButtonText: "Yes, copy it",
-                },
-                ok: () => {
-                    const copy = JSON.parse(JSON.stringify(row));
-                    copy.id = row.id + "-Copy";
-                    copy.name = "Copy of " + row.name;
-                    // Delete managed fields
-                    delete copy.uuid;
-                    delete copy.creationDate; // FIXME remove this line
-                    delete copy.modificationDate; // FIXME remove this line
-                    delete copy.internal;
-                    delete copy.release;
-                    delete copy.version;
-                    delete copy.status;
-                    this.opencgaSession.opencgaClient.panels().create(copy, {
-                        study: this.opencgaSession.study.fqn,
-                    }).then(response => {
-                        if (response.getResultEvents("ERROR").length) {
-                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                        // Display confirmation message and update the table
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${copy.id}' has been copied.`,
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "copy":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Copy Disease Panel '${row.id}'`,
+                    message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                    display: {
+                        okButtonText: "Yes, copy it",
+                    },
+                    ok: () => {
+                        const copy = JSON.parse(JSON.stringify(row));
+                        copy.id = row.id + "-Copy";
+                        copy.name = "Copy of " + row.name;
+                        // Delete managed fields
+                        delete copy.uuid;
+                        delete copy.creationDate; // FIXME remove this line
+                        delete copy.modificationDate; // FIXME remove this line
+                        delete copy.internal;
+                        delete copy.release;
+                        delete copy.version;
+                        delete copy.status;
+                        this.opencgaSession.opencgaClient.panels().create(copy, {
+                            study: this.opencgaSession.study.fqn,
+                        }).then(response => {
+                            if (response.getResultEvents("ERROR").length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            }
+                            // Display confirmation message and update the table
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Case '${copy.id}' has been copied.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderTable();
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
-                    }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
-                },
-            });
-        }
-
-        if (action === "edit") {
-            console.error("Not implemented yet");
-        }
-
-        if (action === "delete") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: `Delete Disease Panel '${row.id}'`,
-                message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
-                display: {
-                    okButtonText: "Yes, delete it",
-                },
-                ok: () => {
-                    const diseasePanelId = row.id;
-                    this.opencgaSession.opencgaClient.panels().delete(diseasePanelId, {
-                        study: this.opencgaSession.study.fqn,
-                    }).then(response => {
-                        if (response.getResultEvents("ERROR").length) {
-                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                        // Display confirmation message and update the table
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${diseasePanelId}' has been deleted.`,
+                    },
+                });
+                break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete Disease Panel '${row.id}'`,
+                    message: `Are you sure you want to delete the disease panel <b>'${row.id}'</b>?`,
+                    display: {
+                        okButtonText: "Yes, delete it",
+                    },
+                    ok: () => {
+                        const diseasePanelId = row.id;
+                        this.opencgaSession.opencgaClient.panels().delete(diseasePanelId, {
+                            study: this.opencgaSession.study.fqn,
+                        }).then(response => {
+                            if (response.getResultEvents("ERROR").length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            }
+                            // Display confirmation message and update the table
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Case '${diseasePanelId}' has been deleted.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderTable();
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderTable();
-                    }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
-                },
-            });
+                    },
+                });
+                break;
         }
-
     }
 
     _getDefaultColumns() {
@@ -440,21 +436,26 @@ export default class DiseasePanelGrid extends LitElement {
                             </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a data-action="download" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Copy
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Make a Copy
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
                             <li>
@@ -479,15 +480,15 @@ export default class DiseasePanelGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...this.query,
-            limit: e.detail?.exportLimit ?? 1000,
-            skip: 0,
-            count: false,
-        };
 
-        this.opencgaSession.opencgaClient.panels().search(params)
+        const filters = {
+            ...this.filters,
+            skip: 0,
+            limit: 1000,
+            count: false
+        };
+        this.opencgaSession.opencgaClient.panels()
+            .search(filters)
             .then(response => {
                 const results = response.getResults();
                 if (results) {
@@ -522,30 +523,29 @@ export default class DiseasePanelGrid extends LitElement {
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showToolbar: true,
+            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            showActions: true
         };
     }
 
     render() {
         return html`
-            ${this._config.showToolbar ?
-                html`
-                    <opencb-grid-toolbar
-                        .config="${this.toolbarConfig}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}">
-                    </opencb-grid-toolbar>` : nothing
+            ${this._config.showToolbar ? html`
+                <opencb-grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @columnChange="${this.onColumnChange}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>` : nothing
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}DiseasePanelBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }

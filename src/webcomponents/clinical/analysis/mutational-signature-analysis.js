@@ -19,7 +19,9 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-
+import "../../commons/forms/select-field-filter.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
+import "../../commons/view/signature-view.js";
 
 export default class MutationalSignatureAnalysis extends LitElement {
 
@@ -44,6 +46,9 @@ export default class MutationalSignatureAnalysis extends LitElement {
             title: {
                 type: String
             },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
@@ -53,28 +58,31 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a mutational signature analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
-            fitmethod: "FitMS",
-            sigversion: "RefSigv2",
-            b: false,
-            thresholdperc: "5",
-            thresholdpval: "0.05",
-            maxraresigs: "1",
-            nboot: "200"
+            fitMethod: "FitMS",
+            fitSigVersion: "RefSigv2",
+            fitThresholdPerc: "5",
+            fitThresholdPval: "0.05",
+            fitMaxRareSigs: "1",
+            fitNBoot: "200",
         };
         this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
         this.REFSIGV1_ORGANS = [
             "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "Cervix", "CNS",
             "Colorectal", "Esophagus", "Head_neck", "Kidney", "Liver", "Lung",
-            "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
+            "Lymphoid", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus",
+        ];
         this.REFSIGV2_ORGANS = [
             "Biliary", "Bladder", "Bone_SoftTissue", "Breast", "CNS", "Colorectal",
             "Esophagus", "Head_neck", "Kidney", "Liver", "Lung", "Lymphoid", "NET",
-            "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus"];
+            "Oral_Oropharyngeal", "Ovary", "Pancreas", "Prostate", "Skin", "Stomach", "Uterus",
+        ];
 
         this.query = {};
+        this.active = true;
+        this.selectedSample = null;
         this.config = this.getDefaultConfig();
     }
 
@@ -92,37 +100,62 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 ...this.toolParams,
             };
             this.config = this.getDefaultConfig();
+            this.onChangeSample();
         }
         super.update(changedProperties);
     }
 
     check() {
-        return !!this.toolParams.organ;
+        return null;
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        this.toolParams = {...this.toolParams};
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            ...this.toolParams,
+            sample: this.toolParams.query.sample,
+            fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
+            fitMethod: this.toolParams.fitMethod,
+            fitSigVersion: this.toolParams.fitSigVersion,
+            fitOrgan: this.toolParams.fitOrgan,
+            fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
+            fitNBoot: this.toolParams.fitNBoot,
+            fitThresholdPerc: this.toolParams.fitThresholdPerc,
+            fitThresholdPval: this.toolParams.fitThresholdPval,
+            fitSignaturesFile: this.toolParams.fitSignaturesFile,
+            fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
         };
+
+        // Check if we have provided an existing signature list
+        if (this.toolParams.signature) {
+            toolParams.skip = "catalogue";
+            toolParams.id = this.toolParams.signature; // .split(":")[1];
+        } else {
+            toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
+            toolParams.description = this.toolParams.description || "";
+            toolParams.query = JSON.stringify(this.toolParams.query);
+        }
+
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
         };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.variants()
                 .runMutationalSignature(toolParams, params),
-            this
+            this,
         );
     }
 
@@ -130,10 +163,40 @@ export default class MutationalSignatureAnalysis extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             query: {
-                ...this.query
-            }
+                ...this.query,
+            },
         };
         this.config = this.getDefaultConfig();
+    }
+
+    onChangeSample() {
+        if (this.toolParams?.query?.sample && this.active) {
+            if (this.toolParams.query.sample !== this.selectedSample?.id) {
+                this.opencgaSession.opencgaClient.samples()
+                    .search({
+                        id: this.toolParams.query.sample,
+                        include: "id,qualityControl.variant.signatures",
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                        this.selectedSample = response?.responses?.[0]?.results?.[0] || null;
+                        this.toolParams.signature = null; // Force to remove selected signature
+                        this.config = this.getDefaultConfig();
+                        this.requestUpdate();
+                    });
+            }
+        } else {
+            this.selectedSample = null;
+            this.toolParams.signature = null; // Force to remove selected signature
+            this.config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
+    generateSignaturesDropdown() {
+        return (this.selectedSample?.qualityControl?.variant?.signatures || [])
+            .map(signature => signature.id)
+            .sort((a, b) => a < b ? -1 : +1);
     }
 
     render() {
@@ -149,93 +212,204 @@ export default class MutationalSignatureAnalysis extends LitElement {
     }
 
     getDefaultConfig() {
+        const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+        const fileQuery = {
+            type: "FILE",
+            format: "TAB_SEPARATED_VALUES",
+            include: "id,name,format,size,path",
+        };
         const params = [
             {
-                title: "Configuration Parameters",
+                title: "Input Parameters",
                 elements: [
                     {
                         title: "Sample ID",
                         field: "query.sample",
                         type: "custom",
                         display: {
-                            render: sampleId => html`
+                            render: (sampleId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${sampleId}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        title: "Fit Method",
-                        field: "fitmethod",
-                        type: "select",
-                        // defaultValue: "FitMS",
-                        allowedValues: ["Fit", "FitMS"],
+                        title: "Catalogue ID",
+                        field: "signature",
+                        type: "custom",
                         display: {
+                            visible: signatures.length > 0,
+                            render: (signature, dataFormFilterChange) => html`
+                                <select-field-filter
+                                    .data="${this.generateSignaturesDropdown()}"
+                                    .value=${signature}
+                                    ?multiple="${false}"
+                                    ?liveSearch=${false}
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </select-field-filter>
+                            `,
                         },
+                    },
+                    {
+                        title: "Catalogue Query",
+                        field: "signature",
+                        type: "custom",
+                        display: {
+                            visible: signatures.length > 0 && !!this.toolParams?.signature,
+                            render: signatureId => {
+                                // const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === signatureId);
+                                if (signature?.query) {
+                                    return Object.keys(signature.query).map(key => html`
+                                        <span class="badge">
+                                            ${key}: ${signature.query[key]}
+                                        </span>
+                                    `);
+                                }
+                                return "-";
+                            },
+                        },
+                    },
+                    {
+                        title: "Catalogue Plot",
+                        field: "signature",
+                        type: "custom",
+                        display: {
+                            visible: signatures.length > 0 && !!this.toolParams?.signature,
+                            render: signatureId => {
+                                // const [type, id] = (signatureId || "").split(":");
+                                const signature = signatures.find(item => item.id === signatureId);
+                                return html`
+                                    <signature-view
+                                        .signature="${signature}"
+                                        .mode="${signature.type.toUpperCase() === "SV" ? "SV" : "SBS"}"
+                                        ?active="${true}">
+                                    </signature-view>
+                                `;
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                title: "Catalogue Parameters",
+                display: {
+                    visible: signatures.length === 0,
+                },
+                elements: [
+                    {
+                        title: "Catalogue ID",
+                        field: "id",
+                        type: "input-text",
+                        display: {
+                            placeholder: `catalogue-${UtilsNew.getDatetime()}`,
+                            help: {
+                                text: "If empty then it is automatically filled using the current date.",
+                            },
+                        },
+                    },
+                    {
+                        title: "Catalogue Description",
+                        field: "description",
+                        type: "input-text",
+                    },
+                    ...AnalysisUtils.getVariantQueryConfiguration("query.", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                ],
+            },
+            {
+                title: "Fitting Parameters",
+                elements: [
+                    {
+                        title: "Fit ID",
+                        field: "fitId",
+                        type: "input-text",
+                        display: {
+                            placeholder: `fit-${UtilsNew.getDatetime()}`,
+                        },
+                    },
+                    {
+                        title: "Fit Method",
+                        field: "fitMethod",
+                        type: "select",
+                        allowedValues: ["Fit", "FitMS"],
                     },
                     {
                         title: "Sig Version",
-                        field: "sigversion",
+                        field: "fitSigVersion",
                         type: "select",
-                        // defaultValue: "RefSigv2",
                         allowedValues: ["COSMICv2", "COSMICv3.2", "RefSigv1", "RefSigv2"],
-                        display: {
-                        },
                     },
                     {
                         title: "Organ",
-                        field: "organ",
+                        field: "fitOrgan",
                         type: "select",
-                        allowedValues: this.toolParams.sigversion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
+                        allowedValues: this.toolParams.fitSigVersion === "RefSigv2" ? this.REFSIGV2_ORGANS : this.REFSIGV1_ORGANS,
                         display: {
-                            disabled: this.toolParams.sigversion !== "RefSigv1" && this.toolParams.sigversion !== "RefSigv2",
+                            disabled: this.toolParams.fitSigVersion !== "RefSigv1" && this.toolParams.fitSigVersion !== "RefSigv2",
                             help: {
-                                text: "Only available for RefSigv1 or RefSigv2"
-                            }
-                        },
-                    },
-                    {
-                        title: "b",
-                        field: "b",
-                        type: "checkbox",
-                        display: {
+                                text: "Only available for RefSigv1 or RefSigv2",
+                            },
                         },
                     },
                     {
                         title: "thresholdperc",
-                        field: "thresholdperc",
+                        field: "fitThresholdPerc",
                         type: "input-text",
-                        // defaultValue: "5",
-                        display: {
-                        },
                     },
                     {
                         title: "thresholdpval",
-                        field: "thresholdpval",
+                        field: "fitThresholdPval",
                         type: "input-text",
-                        // defaultValue: "0.05",
-                        display: {
-                        },
                     },
                     {
                         title: "maxraresigs",
-                        field: "maxraresigs",
+                        field: "fitMaxRareSigs",
                         type: "input-text",
-                        // defaultValue: "1",
-                        display: {
-                        },
                     },
                     {
                         title: "nboot",
-                        field: "nboot",
+                        field: "fitNBoot",
                         type: "input-text",
-                        // defaultValue: "200",
+                    },
+                    {
+                        title: "Fit Signatures File",
+                        field: "fitSignaturesFile",
+                        type: "custom",
                         display: {
+                            render: (fitSignaturesFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${fitSignaturesFile}"
+                                    .resource="${"FILE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false}}"
+                                    .searchField="${"id"}"
+                                    .query="${fileQuery}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Fit Rare Signatures File",
+                        field: "fitRareSignaturesFile",
+                        type: "custom",
+                        display: {
+                            render: (fitRareSignaturesFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${fitRareSignaturesFile}"
+                                    .resource="${"FILE"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false}}"
+                                    .searchField="${"id"}"
+                                    .query="${fileQuery}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
                         },
                     },
                 ]
@@ -247,7 +421,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
             this.title ?? this.ANALYSIS_TITLE,
             this.ANALYSIS_DESCRIPTION,
             params,
-            this.check()
+            this.check(),
         );
     }
 

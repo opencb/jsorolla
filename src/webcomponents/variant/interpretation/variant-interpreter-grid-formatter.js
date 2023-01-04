@@ -52,27 +52,36 @@ export default class VariantInterpreterGridFormatter {
         if (row?.studies) {
             const cohorts = [];
             const cohortMap = new Map();
-            for (const study of row.studies) {
+            row.studies.forEach(study => {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-            }
-            return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, POPULATION_FREQUENCIES?.style);
+                // cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
+                cohortMap.set(s, study.stats);
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                cohorts,
+                cohortMap,
+                POPULATION_FREQUENCIES?.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
     }
 
     static clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row?.annotation) {
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             const popFreqMap = new Map();
-            if (row.annotation.populationFrequencies?.length > 0) {
-                for (const popFreq of row.annotation.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
-                }
-            }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style);
+            row.annotation.populationFrequencies.forEach(popFreq => {
+                popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                this._config.populationFrequencies,
+                popFreqMap,
+                POPULATION_FREQUENCIES.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
@@ -280,23 +289,23 @@ export default class VariantInterpreterGridFormatter {
                         const confidenceColor = gene.confidence === "HIGH" ? "green" : gene.confidence === "MEDIUM" ? "darkorange" : "red";
                         panelHtml = `
                             <div style="margin: 5px 0">
-                                ${panel.source?.project?.toUpperCase() === "PANELAPP" ?
-                            `<div>
+                                ${panel.source?.project?.toUpperCase() === "PANELAPP" ? `
+                                    <div>
                                         <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" title="Panel ID: ${panel.id}" target="_blank">
                                             ${panel.name} (${panel.source.project} v${panel.source.version})
                                         </a>
-                                    </div>` :
-                            `<div style="margin: 5px 0">${panel.id}</div>`
-                        }
+                                    </div>` : `
+                                        <div style="margin: 5px 0">${panel.id}</div>`
+                                }
                             </div>
                             ${gene.modeOfInheritance ? `
                                 <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
-                            ` : ""
-                        }
+                                ` : ""
+                            }
                             ${gene.confidence ? `
                                 <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
-                            ` : ""
-                        }
+                                ` : ""
+                            }
                         `;
                     } else {
                         panelHtml = re.panelId;

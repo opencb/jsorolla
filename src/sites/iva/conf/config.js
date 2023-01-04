@@ -106,10 +106,7 @@ const CATALOG_NAVBAR_MENU = {
         //     name: "Projects",
         //     visibility: "public"
         // },
-        // {
-        //     separator: true,
-        //     visibility: "public"
-        // },
+
         {
             name: "Browsers",
             category: true,
@@ -151,8 +148,21 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
+            separator: true,
+            visibility: "public"
+        },
+        {
             id: "clinicalAnalysis",
             name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
+            id: "disease-panel",
+            name: "Disease Panel Browser",
+            visibility: "public"
+        },
+        {
+            separator: true,
             visibility: "public"
         },
         {
@@ -160,11 +170,6 @@ const CATALOG_NAVBAR_MENU = {
             name: "Job Browser",
             visibility: "public"
         },
-        {
-            id: "disease-panel",
-            name: "Disease Panel Browser",
-            visibility: "public"
-        }
     ]
 };
 

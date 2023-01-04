@@ -54,7 +54,7 @@ export default class FamilyQcAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
         this.DEFAULT_TOOLPARAMS = {
-            relatednessMaf: "1000G:ALL>0.3",
+            relatednessMaf: "1000G:ALL>=0.05",
         };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
@@ -84,23 +84,25 @@ export default class FamilyQcAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.family;
+        return {
+            status: !!this.toolParams.family
+        };
     }
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
             family: this.toolParams.family,
-            minorAlleleFreq: this.toolParams.minorAlleleFreq
+            relatednessMaf: this.toolParams.relatednessMaf
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -144,13 +146,13 @@ export default class FamilyQcAnalysis extends LitElement {
                         field: "family",
                         type: "custom",
                         display: {
-                            render: family => html `
+                            render: (family, dataFormFilterChange)=> html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.family}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                    .config="${{multiple: false}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                             help: {
@@ -167,7 +169,9 @@ export default class FamilyQcAnalysis extends LitElement {
                         title: "Select minor allele frequency",
                         field: "relatednessMaf",
                         type: "input-text",
-                        display: {}
+                        display: {
+                            disabled: true
+                        }
                     },
                 ],
             }

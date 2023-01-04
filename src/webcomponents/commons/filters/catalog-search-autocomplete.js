@@ -250,7 +250,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 this.RESOURCES[this.resource].client.search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
-
             },
             preprocessResults(results) {
                 // if results come with null, empty or undefined it'll be removed.

@@ -85,7 +85,8 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
@@ -142,16 +143,19 @@ export default class ClinicalInterpretationManager extends LitElement {
                 <div class="${classMap({primary: primary})}">
                     <div class="dropdown action-dropdown">
                         <clinical-interpretation-update
-                            .interpretation="${interpretation}"
+                            .clinicalInterpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .opencgaSession="${this.opencgaSession}"
                             .mode="${"modal"}"
-                            .displayConfig="${{
-                                buttonClearText: "Cancel",
-                                buttonOkText: "Update",
-                                modalButtonClassName: "btn-default btn-sm",
-                                modalDisabled: this.clinicalAnalysis.locked
-                            }}">
+                            .displayConfig="${
+                                {
+                                    buttonClearText: "Cancel",
+                                    buttonOkText: "Update",
+                                    modalButtonClassName: "btn-default btn-sm",
+                                    modalDisabled: this.clinicalAnalysis.locked
+                                }
+                            }"
+                            @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                         </clinical-interpretation-update>
 
                         <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
@@ -272,9 +276,7 @@ export default class ClinicalInterpretationManager extends LitElement {
     onActionClick(e) {
         const {action, interpretationId} = e.currentTarget.dataset;
         const interpretationCallback = () => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis
-            });
+            this.onClinicalInterpretationUpdate();
         };
 
         switch (action) {
@@ -296,8 +298,10 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {};
+    onClinicalInterpretationUpdate() {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            clinicalAnalysis: this.clinicalAnalysis,
+        });
     }
 
     render() {
@@ -353,6 +357,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }

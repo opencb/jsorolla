@@ -48,8 +48,11 @@ import "../../webcomponents/sample/sample-update.js";
 import "../../webcomponents/disease-panel/disease-panel-browser.js";
 import "../../webcomponents/disease-panel/disease-panel-update.js";
 import "../../webcomponents/file/file-browser.js";
+// import "../../webcomponents/file/file-update.js";
 import "../../webcomponents/family/family-browser.js";
+import "../../webcomponents/family/family-update.js";
 import "../../webcomponents/individual/individual-browser.js";
+import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/job/job-view.js";
@@ -148,6 +151,7 @@ class IvaApp extends LitElement {
             "beacon",
             "project",
             "file",
+            "fileUpdate",
             // Sample
             "sample",
             "sample-view",
@@ -156,6 +160,9 @@ class IvaApp extends LitElement {
             "sampleUpdate",
             "sample-variant-stats",
             "individual",
+            "individualUpdate",
+            "family",
+            "familyUpdate",
             "cohort",
             "clinicalAnalysis",
             "clinicalAnalysisPortal",
@@ -165,7 +172,6 @@ class IvaApp extends LitElement {
             "transcript",
             "protein",
             "browser",
-            "family",
             "job",
             "cat-browser",
             "cat-analysis",
@@ -417,7 +423,7 @@ class IvaApp extends LitElement {
             .finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();
-            // this.updateComplete;
+                // this.updateComplete;
             });
     }
 
@@ -709,8 +715,17 @@ class IvaApp extends LitElement {
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
+                case "#fileUpdate":
+                    this.fileId = feature;
+                    break;
                 case "#sampleUpdate":
                     this.sampleId = feature;
+                    break;
+                case "#individualUpdate":
+                    this.individualId = feature;
+                    break;
+                case "#familyUpdate":
+                    this.familyId = feature;
                     break;
                 case "#study-admin":
                     // this.studyAdminFqn = arr[1];
@@ -1295,7 +1310,21 @@ class IvaApp extends LitElement {
                         <disease-panel-update
                             .diseasePanelId="${this.diseasePanelId}"
                             .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}">
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
                         </disease-panel-update>
                     </div>
                 ` : null}
@@ -1326,9 +1355,33 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["fileUpdate"] ? html`
+                    <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="fileUpdate">
+                        <file-update
+                            .fileId="${this.fileId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </file-update>
+                    </div>
+                ` : null}
+
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
                     <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-                    <div class="container" id="sampleUpdate">
+                    <div class="content" id="sampleUpdate">
                         <sample-update
                             .sampleId="${this.sampleId}"
                             .opencgaSession="${this.opencgaSession}"
@@ -1350,6 +1403,53 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["individualUpdate"] ? html`
+                    <tool-header title="${`Individual <span class="inverse"> ${this.individualId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="individualUpdate">
+                        <individual-update
+                            .individualId="${this.individualId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </individual-update>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["familyUpdate"] ? html`
+                    <tool-header title="${`Family <span class="inverse"> ${this.familyId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="familyUpdate">
+                        <family-update
+                            .familyId="${this.familyId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </family-update>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.transcript ? html`
                     <div class="content feature-view" id="transcript">
@@ -1547,8 +1647,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["inferred-sex"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
                         <inferred-sex-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .title="">
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
                         </inferred-sex-analysis>
                     </div>
                 ` : null}
@@ -1556,8 +1656,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
                         <individual-relatedness-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .title="">
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
                         </individual-relatedness-analysis>
                     </div>
                 ` : null}
@@ -1571,8 +1671,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["sample-qc"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
                         <sample-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .title="">
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
                         </sample-qc-analysis>
                     </div>
                 ` : null}
@@ -1580,8 +1680,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["individual-qc"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
                         <individual-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .title="">
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
                         </individual-qc-analysis>
                     </div>
                 ` : null}
@@ -1589,8 +1689,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["family-qc"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
                         <family-qc-analysis
-                                .opencgaSession="${this.opencgaSession}"
-                                .title="">
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
                         </family-qc-analysis>
                     </div>
                 ` : null}
@@ -1636,7 +1736,7 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["rd-tiering"] ? html`
                     <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
                         <rd-tiering-analysis
-                                .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}">
                         </rd-tiering-analysis>
                     </div>
                 ` : null}

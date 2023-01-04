@@ -34,22 +34,25 @@ export default class ClinicalStatusFilter extends LitElement {
     static get properties() {
         return {
             status: {
-                type: String
+                type: String,
             },
             statuses: {
-                type: Array
+                type: Array,
             },
             placeholder: {
-                type: String
+                type: String,
             },
             multiple: {
-                type: Boolean
+                type: Boolean,
+            },
+            forceSelection: {
+                type: Boolean,
             },
             classes: {
-                type: String
+                type: String,
             },
             disabled: {
-                type: Boolean
+                type: Boolean,
             },
         };
     }
@@ -57,6 +60,7 @@ export default class ClinicalStatusFilter extends LitElement {
     _init() {
         this.multiple = true;
         this.disabled = false;
+        this.forceSelection = false;
     }
 
     update(changedProperties) {
@@ -84,6 +88,7 @@ export default class ClinicalStatusFilter extends LitElement {
                 .value=${this.status}
                 .placeholder="${this.placeholder}"
                 .multiple="${this.multiple}"
+                .forceSelection="${this.forceSelection}"
                 .classes="${this.classes}"
                 .disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
@@ -91,7 +96,7 @@ export default class ClinicalStatusFilter extends LitElement {
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.statusObject?.description ? html`
-                <span class="help-block" style="padding: 0px 5px">${this.statusObject.description}</span>` : null
+                <span class="help-block" style="padding: 0 5px">${this.statusObject.description}</span>` : null
             }
         `;
     }

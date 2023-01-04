@@ -68,9 +68,10 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        console.log("toolParams", this.toolParams);
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -124,13 +125,13 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Family ID",
-                            render: family => html `
+                            render: (family, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
-                                    @filterChange="${e => this.onFieldChange(e, "family")}">
+                                    .config="${{multiple: false, disabled: !!toolParams?.individual}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -141,13 +142,13 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Individual ID",
-                            render: individual => html `
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${individual}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.family}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                    .config="${{multiple: false, disabled: !!toolParams?.family}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },

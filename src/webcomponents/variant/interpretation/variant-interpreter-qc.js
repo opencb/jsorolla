@@ -21,6 +21,8 @@ import "../../commons/view/detail-tabs.js";
 import "../../sample/sample-variant-stats-browser.js";
 import "../../sample/sample-cancer-variant-stats-browser.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
+import "../../variant/analysis/family-qc-analysis.js";
+import "../../variant/analysis/individual-qc-analysis.js";
 
 
 class VariantInterpreterQc extends LitElement {
@@ -178,7 +180,7 @@ class VariantInterpreterQc extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-12">
+                            <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Quality Control Overview - ${probandId}" class="bg-white"></tool-header>
                                 <variant-interpreter-qc-overview
                                     .opencgaSession="${opencgaSession}"
@@ -193,6 +195,22 @@ class VariantInterpreterQc extends LitElement {
             }
 
             if (this._tabs.includes("sampleVariantStats") && type === "SINGLE") {
+                items.push({
+                    id: "individual-qc-analysis",
+                    name: "Individual QC Analysis",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-12">
+                                <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
+                                <individual-qc-analysis
+                                    .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .title="">
+                                </individual-qc-analysis>
+                            </div>
+                        `;
+                    },
+                });
                 items.push({
                     id: "sample-variant-stats",
                     name: "Sample Variant Stats",
@@ -215,11 +233,43 @@ class VariantInterpreterQc extends LitElement {
 
             if (this._tabs.includes("sampleVariantStats") && type === "FAMILY") {
                 items.push({
+                    id: "family-qc-analysis",
+                    name: "Family QC Analysis",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-8 col-md-offset-2">
+                                <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})" class="bg-white"></tool-header>
+                                <family-qc-analysis
+                                    .toolParams="${{family: clinicalAnalysis.family?.id}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .title="">
+                                </family-qc-analysis>
+                            </div>
+                        `;
+                    },
+                });
+                items.push({
+                    id: "individual-qc-analysis",
+                    name: "Individual QC Analysis",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-8 col-md-offset-2">
+                                <tool-header title="Individual QC Analysis - ${probandId}" class="bg-white"></tool-header>
+                                <individual-qc-analysis
+                                    .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .title="">
+                                </individual-qc-analysis>
+                            </div>
+                        `;
+                    },
+                });
+                items.push({
                     id: "sample-variant-stats-family",
                     name: "Sample Variant Stats",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-12">
+                            <div class="col-md-10 col-md-offset-1">
                                 <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser
                                     .opencgaSession="${opencgaSession}"
@@ -266,7 +316,8 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Mutational Signature - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <mutational-signature-analysis
                                     .toolParams="${{query: {sample: this.somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
                                 </mutational-signature-analysis>
                             </div>
                         `;
