@@ -799,11 +799,7 @@ button.active-filter-label:hover {
 }
 
 .saved-filter-wrapper .filtersLink .id-filter-button {
-<<<<<<< HEAD
     /*padding: 0 10px;*/
-=======
-    /*padding: 0px 10px;*/
->>>>>>> develop
     margin: 0 25px 0 10px;
 }
 
@@ -1605,13 +1601,7 @@ Toggle Changes
 .hi-icon-wrap {
     text-align: center;
     margin: 0 auto;
-<<<<<<< HEAD
     padding: 10px 0 20px;
-=======
-    padding: 2em 0 3em;
-    padding-top: 10px;
-    padding-bottom: 20px;
->>>>>>> develop
 }
 
 .hi-icon {
@@ -2175,13 +2165,8 @@ opencga-gene-view h3.section-title /* TODO refactor */{
         opacity: 1;
         -webkit-transform-origin: 50% 0;
         transform-origin: 50% 0;
-<<<<<<< HEAD
         -webkit-transform: scale(1) translate(0%, 0);
         transform: scale(1) translate(0%, 0);
-=======
-        -webkit-transform: scale(1) translate(0%, 0%);
-        transform: scale(1) translate(0%, 0%);
->>>>>>> develop
     }
     100% {
         opacity: 0;
