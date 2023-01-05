@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import RestClient from "../../core/clients/rest-client.js";
-import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
@@ -114,6 +113,7 @@ export default class RestEndpoint extends LitElement {
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
+            this.dataModel = {};
 
             this.data = {};
             // 1. Split params in body and query/path params
