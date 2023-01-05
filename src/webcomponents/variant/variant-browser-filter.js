@@ -205,6 +205,7 @@ export default class VariantBrowserFilter extends LitElement {
     }
 
     // DEPRECATED
+    // FIXME: is it deprecated?
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
@@ -517,15 +518,17 @@ export default class VariantBrowserFilter extends LitElement {
                             .showPanelTitle="${true}"
                             .disabled="${disabled}"
                             .showExtendedFilters="${true}"
-                            @filterChange="${e => this.onFilterChange({
-                                panel: "panel",
-                                panelFeatureType: "panelFeatureType",
-                                panelModeOfInheritance: "panelModeOfInheritance",
-                                panelConfidence: "panelConfidence",
-                                panelRoleInCancer: "panelRoleInCancer",
-                                panelIntersection: "panelIntersection",
-                            }, e.detail.query)}">
-                        </disease-panel-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    panel: "panel",
+                                    panelFeatureType: "panelFeatureType",
+                                    panelModeOfInheritance: "panelModeOfInheritance",
+                                    panelConfidence: "panelConfidence",
+                                    panelRoleInCancer: "panelRoleInCancer",
+                                    panelIntersection: "panelIntersection",
+                                }, e.detail.query)}">
+                        </disease-panel-filter>
+                    `;
                     break;
                 case "clinical-annotation":
                     content = html`
@@ -533,22 +536,25 @@ export default class VariantBrowserFilter extends LitElement {
                             .clinical="${this.preparedQuery.clinical}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
                             .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinical: "clinical",
-                                clinicalSignificance: "clinicalSignificance",
-                                clinicalConfirmedStatus: "clinicalConfirmedStatus"
-                            }, e.detail)}">
-                        </clinical-annotation-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinical: "clinical",
+                                    clinicalSignificance: "clinicalSignificance",
+                                    clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                }, e.detail)}">
+                        </clinical-annotation-filter>
+                    `;
                     break;
                 case "clinvar": // Deprecated: use clinical instead
                     content = html`
                         <clinvar-accessions-filter
                             .clinvar="${this.preparedQuery.clinvar}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinvar: "xref",
-                                clinicalSignificance: "clinicalSignificance"
-                            }, e.detail.value)}">
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinvar: "xref",
+                                    clinicalSignificance: "clinicalSignificance"
+                                }, e.detail.value)}">
                         </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
