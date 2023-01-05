@@ -460,28 +460,28 @@ export default class StudyAdmin extends LitElement {
                     featured: "", // true | false
                     visibility: "private",
                     submenu: [
-                        {
-                            id: "Dashboard",
-                            name: "Dashboard",
-                            visibility: "private",
-                            icon: "fas fa-tachometer-alt",
-                            // QUESTION: Which one: (a) or (b)
-                            // question: (a)
-                            // display: {
-                            //     contentClass: "",
-                            //     contentStyle: ""
-                            //     defaultLayout: "vertical",
-                            //     render: () => html`
-                            //         <under-construction>
-                            //             .title="Study dashboard"
-                            //         </under-construction>`,
-                            // },
-                            // question: (b)
-                            render: () => html`
-                                <under-construction>
-                                    .title="Study dashboard"
-                                </under-construction>`,
-                        },
+                        // {
+                        //     id: "Dashboard",
+                        //     name: "Dashboard",
+                        //     visibility: "private",
+                        //     icon: "fas fa-tachometer-alt",
+                        //     // QUESTION: Which one: (a) or (b)
+                        //     // question: (a)
+                        //     // display: {
+                        //     //     contentClass: "",
+                        //     //     contentStyle: ""
+                        //     //     defaultLayout: "vertical",
+                        //     //     render: () => html`
+                        //     //         <under-construction>
+                        //     //             .title="Study dashboard"
+                        //     //         </under-construction>`,
+                        //     // },
+                        //     // question: (b)
+                        //     render: () => html`
+                        //         <under-construction>
+                        //             .title="Study dashboard"
+                        //         </under-construction>`,
+                        // },
                         {
                             id: "UsersAndGroups",
                             // label: "Users and Groups",
@@ -548,7 +548,7 @@ export default class StudyAdmin extends LitElement {
                     id: "Operations",
                     name: "Operations",
                     category: true, // true | false
-                    visibility: "private",
+                    visibility: "none",
                     submenu: [
                         {
                             id: "Solr",

@@ -131,28 +131,28 @@ export default class CatalogAdmin extends LitElement {
                     featured: "", // true | false
                     visibility: "private",
                     submenu: [
-                        {
-                            id: "Dashboard",
-                            name: "Dashboard",
-                            visibility: "private",
-                            icon: "fas fa-tachometer-alt",
-                            // QUESTION: Which one: (a) or (b)
-                            // question: (a)
-                            // display: {
-                            //     contentClass: "",
-                            //     contentStyle: ""
-                            //     defaultLayout: "vertical",
-                            //     render: () => html`
-                            //         <under-construction>
-                            //             .title="Study dashboard"
-                            //         </under-construction>`,
-                            // },
-                            // question: (b)
-                            render: () => html`
-                                <under-construction>
-                                    .title="Study dashboard"
-                                </under-construction>`,
-                        },
+                        // {
+                        //     id: "Dashboard",
+                        //     name: "Dashboard",
+                        //     visibility: "none",
+                        //     icon: "fas fa-tachometer-alt",
+                        //     // QUESTION: Which one: (a) or (b)
+                        //     // question: (a)
+                        //     // display: {
+                        //     //     contentClass: "",
+                        //     //     contentStyle: ""
+                        //     //     defaultLayout: "vertical",
+                        //     //     render: () => html`
+                        //     //         <under-construction>
+                        //     //             .title="Study dashboard"
+                        //     //         </under-construction>`,
+                        //     // },
+                        //     // question: (b)
+                        //     render: () => html`
+                        //         <under-construction>
+                        //             .title="Study dashboard"
+                        //         </under-construction>`,
+                        // },
                         {
                             id: "Sample",
                             name: "Sample",

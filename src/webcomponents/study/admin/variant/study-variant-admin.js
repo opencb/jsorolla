@@ -425,30 +425,30 @@ export default class StudyVariantAdmin extends LitElement {
                     category: true, // true | false
                     // label: "Configure",
                     submenu: [
-                        {
-                            id: "dashboard",
-                            name: "Dashboard",
-                            description: "",
-                            icon: "fas fa-tachometer-alt",
-                            visibility: "private",
-                            // label: "Dashboard",
-                            // QUESTION: Which one: (a) or (b)
-                            // question: (a)
-                            // display: {
-                            //     contentClass: "",
-                            //     contentStyle: ""
-                            //     defaultLayout: "vertical",
-                            //     render: () => html`
-                            //         <under-construction>
-                            //             .title="Study dashboard"
-                            //         </under-construction>`,
-                            // },
-                            // question: (b)
-                            render: () => html`
-                                <under-construction>
-                                    .title="Study dashboard"
-                                </under-construction>`,
-                        },
+                        // {
+                        //     id: "dashboard",
+                        //     name: "Dashboard",
+                        //     description: "",
+                        //     icon: "fas fa-tachometer-alt",
+                        //     visibility: "none",
+                        //     // label: "Dashboard",
+                        //     // QUESTION: Which one: (a) or (b)
+                        //     // question: (a)
+                        //     // display: {
+                        //     //     contentClass: "",
+                        //     //     contentStyle: ""
+                        //     //     defaultLayout: "vertical",
+                        //     //     render: () => html`
+                        //     //         <under-construction>
+                        //     //             .title="Study dashboard"
+                        //     //         </under-construction>`,
+                        //     // },
+                        //     // question: (b)
+                        //     render: () => html`
+                        //         <under-construction>
+                        //             .title="Study dashboard"
+                        //         </under-construction>`,
+                        // },
                         {
                             id: "clinical-analysis-configuration-operation",
                             // label: "Variant Annotation Index",
