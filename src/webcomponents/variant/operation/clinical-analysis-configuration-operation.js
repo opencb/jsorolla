@@ -23,7 +23,7 @@ import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 
 
-export default class VariantSecondarySampleIndexConfigureOperation extends LitElement {
+export default class ClinicalAnalysisConfigurationOperation extends LitElement {
 
     constructor() {
         super();
@@ -50,8 +50,8 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     #init() {
-        this.TOOL = "VariantSecondarySampleConfigureIndex";
-        this.TITLE = "Variant Secondary Sample Index Configure Operation";
+        this.TOOL = "ClinicalAnalysisConfigurationOperation";
+        this.TITLE = "Clinical Analysis Configuration Operation";
         this.DESCRIPTION = "Executes a variant secondary sample index configure operation job";
 
         this.DEFAULT_TOOLPARAMS = {};
@@ -82,7 +82,7 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
-                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.variantEngine.sampleIndex, null, 8) || "-",
+                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.clinical, null, 8) || "-",
             };
             this.config = this.getDefaultConfig();
         }
@@ -113,8 +113,8 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
         };
         AnalysisUtils.submit(
             this.TITLE,
-            this.opencgaSession.opencgaClient.variantOperations()
-                .configureVariantSecondarySampleIndex(toolParams, params),
+            this.opencgaSession.opencgaClient.clinical()
+                .updateClinicalConfiguration(toolParams, params),
             this,
         );
     }
@@ -196,4 +196,4 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
 
 }
 
-customElements.define("variant-secondary-sample-index-configure-operation", VariantSecondarySampleIndexConfigureOperation);
+customElements.define("clinical-analysis-configuration-operation", ClinicalAnalysisConfigurationOperation);

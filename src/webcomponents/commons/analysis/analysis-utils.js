@@ -105,17 +105,19 @@ export default class AnalysisUtils {
             id: id,
             title: title,
             description: description,
-            // display: {},
+            display: {
+                // defaultLayout: "vertical"
+            },
             sections: [
                 {
                     display: {},
                     elements: [
                         {
                             type: "notification",
-                            text: check?.message || "",
+                            text: check?.message || "No message defined",
                             display: {
                                 visible: () => check ? !check.status : false,
-                                notificationType: "warning",
+                                notificationType: check?.notificationType || "warning",
                             },
                         },
                     ]

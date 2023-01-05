@@ -22,6 +22,7 @@ import "../study-admin-family.js";
 import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
 import "../../../variant/operation/variant-annotation-index-operation.js";
+import "../../../variant/operation/clinical-analysis-configuration-operation.js";
 import "../../../variant/operation/variant-index-operation.js";
 import "../../../variant/operation/variant-stats-index-operation.js";
 import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
@@ -444,34 +445,23 @@ export default class StudyVariantAdmin extends LitElement {
                             // },
                             // question: (b)
                             render: () => html`
-                        <under-construction>
-                            .title="Study dashboard"
-                        </under-construction>`,
+                                <under-construction>
+                                    .title="Study dashboard"
+                                </under-construction>`,
                         },
                         {
-                            id: "configuration",
-                            // label: "Configuration",
-                            name: "Configuration",
-                            description: "",
-                            icon: "fas fa-cog",
+                            id: "clinical-analysis-configuration-operation",
+                            // label: "Variant Annotation Index",
+                            name: "Clinical Analysis Configuration",
+                            icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                        <study-admin-configuration
-                                .opencgaSession="${opencgaSession}"
-                                .study="${study}">
-                        </study-admin-configuration>`,
+                                <clinical-analysis-configuration-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-configuration-operation>
+                            `,
                         },
-                    ],
-                },
-                {
-                    id: "variant-operations",
-                    name: "Variant Operations",
-                    description: "",
-                    icon: "",
-                    visibility: "private",
-                    featured: "", // true | false
-                    category: true, // true | false
-                    submenu: [
                         {
                             id: "variant-secondary-sample-configure-index",
                             // label: "Variant Annotation Index",
@@ -486,14 +476,39 @@ export default class StudyVariantAdmin extends LitElement {
                             `,
                         },
                         {
+                            id: "configuration",
+                            // label: "Configuration",
+                            name: "Configuration",
+                            description: "",
+                            icon: "fas fa-cog",
+                            visibility: "none",
+                            render: (opencgaSession, study) => html`
+                                <study-admin-configuration
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
+                                </study-admin-configuration>`,
+                        },
+                    ],
+                },
+                {
+                    id: "variant-operations",
+                    name: "Variant Operations",
+                    description: "",
+                    icon: "",
+                    visibility: "private",
+                    featured: "", // true | false
+                    category: true, // true | false
+                    submenu: [
+
+                        {
                             id: "variant-index",
                             name: "Variant Index",
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
                                 <variant-index-operation
-                                        .toolParams="${{study: this.opencgaSession.study.fqn}}"
-                                        .opencgaSession="${opencgaSession}">
+                                    .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
                                 </variant-index-operation>
                             `,
                         },
@@ -504,8 +519,8 @@ export default class StudyVariantAdmin extends LitElement {
                             visibility: "private",
                             render: (opencgaSession, study) => html`
                                 <variant-stats-index-operation
-                                        .toolParams="${{study: this.opencgaSession.study.fqn}}"
-                                        .opencgaSession="${opencgaSession}">
+                                    .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
                                 </variant-stats-index-operation>
                             `,
                         },

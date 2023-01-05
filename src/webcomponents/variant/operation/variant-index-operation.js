@@ -158,9 +158,23 @@ export default class VariantIndexOperation extends LitElement {
                     {
                         title: "File",
                         field: "file",
-                        type: "input-text",
+                        // type: "input-text",
+                        type: "custom",
                         display: {
-                            rows: 1,
+                            render: toolParams => html`
+                                <catalog-search-autocomplete
+                                    .value="${toolParams?.study}"
+                                    .resource="${"FILE"}"
+                                    .query="${{
+                                        type: "FILE",
+                                        format: "VCF",
+                                        include: "id,name,format,size,path",
+                                    }}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{multiple: false}}"
+                                    @filterChange="${e => this.onFieldChange(e, "file")}">
+                                </catalog-search-autocomplete>
+                            `,
                         },
                     },
                     {
