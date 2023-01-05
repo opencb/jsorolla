@@ -804,7 +804,7 @@ const SUITE = {
             menu: [
                 {
                     id: "study-admin",
-                    name: "Study configuration",
+                    name: "Study admin",
                     fa_icon: "fas fa-file-invoice",
                     icon: "img/tools/icons/variant_browser.svg",
                     description: "",

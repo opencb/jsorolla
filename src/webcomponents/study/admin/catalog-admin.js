@@ -116,7 +116,7 @@ export default class CatalogAdmin extends LitElement {
     getDefaultConfig() {
         return {
             id: "",
-            name: "Catalog Admin",
+            name: "Catalog Management",
             logo: "",
             icon: "",
             visibility: "private", // public | private | none
@@ -124,8 +124,8 @@ export default class CatalogAdmin extends LitElement {
             // sections: [
             menu: [
                 {
-                    id: "configuration",
-                    name: "Configuration",
+                    id: "manage",
+                    name: "Manage",
                     description: "",
                     icon: "",
                     featured: "", // true | false
