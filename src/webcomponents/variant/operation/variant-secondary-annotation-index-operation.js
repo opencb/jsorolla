@@ -82,7 +82,12 @@ export default class VariantSecondaryAnnotationIndexOperation extends LitElement
     }
 
     check() {
-        return !!this.toolParams.project;
+        if (!this.toolParams.project) {
+            return {
+                message: "Project ID is a mandatory parameter, please select one."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -137,6 +142,7 @@ export default class VariantSecondaryAnnotationIndexOperation extends LitElement
                     {
                         title: "Project",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -158,6 +164,11 @@ export default class VariantSecondaryAnnotationIndexOperation extends LitElement
                         title: "Overwrite Index",
                         field: "overwrite",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Index all variants, including the ones that are already indexed"
+                            }
+                        }
                     },
                 ],
             }
