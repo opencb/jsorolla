@@ -136,15 +136,17 @@ export default class VariantStatsIndexOperation extends LitElement {
                         title: "Study",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
+                            render: toolParams => {
+                                return html `
                                 <catalog-search-autocomplete
                                     .value="${toolParams?.study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}}"
+                                    .config="${{multiple: false, disabled: !!this.study}}"
                                     @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
-                            `,
+                            `;
+                            }
                         },
                     }
                 ],
