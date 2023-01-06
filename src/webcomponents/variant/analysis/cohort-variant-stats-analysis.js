@@ -181,7 +181,7 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Cohort variant stats will be indexed in Catalog"
+                                text: "Cohort variant stats will be indexed in Catalog. Only Study Admins can index scores"
                             }
                         },
                     },

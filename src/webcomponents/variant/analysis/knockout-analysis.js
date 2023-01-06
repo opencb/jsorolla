@@ -75,17 +75,18 @@ export default class KnockoutAnalysis extends LitElement {
     }
 
     check() {
-        // TODO: check if there are more required params for Knockout analysis
-        return !!this.toolParams.sample;
+        // FIXME decide if this must be displayed
+        // if (!this.toolParams.sample) {
+        //     return {
+        //         message: "You must select samples, this is a mandatory parameter",
+        //         notificationType: "warning"
+        //     };
+        // }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
+    onFieldChange(e) {
         this.toolParams = {...this.toolParams};
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -96,7 +97,7 @@ export default class KnockoutAnalysis extends LitElement {
             panel: this.toolParams.panel?.split(",") || [],
             biotype: this.toolParams.biotype || "",
             consequenceType: this.toolParams.ct || "",
-            filter: this.toolParams.filter || "",
+            // filter: this.toolParams.filter || "",
             index: this.toolParams.index || false,
         };
         const params = {
@@ -136,9 +137,10 @@ export default class KnockoutAnalysis extends LitElement {
                 title: "Sample Filters",
                 elements: [
                     {
-                        title: "Sample",
+                        title: "Samples",
                         field: "sample",
                         type: "custom",
+                        required: true,
                         display: {
                             render: (sample, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
@@ -157,23 +159,25 @@ export default class KnockoutAnalysis extends LitElement {
                 title: "Variant Query Parameters",
                 elements: [
                     ...AnalysisUtils.getVariantQueryConfiguration("", ["type"], this.opencgaSession, this.onFieldChange.bind(this)),
-                    {
-                        title: "Filter",
-                        field: "filter",
-                        type: "input-text",
-                    }
+                    // TODO decide what to do with this filter
+                    // {
+                    //     title: "Filter",
+                    //     field: "filter",
+                    //     type: "input-text",
+                    // }
                 ]
             },
-            {
-                title: "Configuration Parameters",
-                elements: [
-                    {
-                        title: "index",
-                        field: "index",
-                        type: "checkbox",
-                    },
-                ],
-            }
+            // FIXME this shold be done by RGA Index Operation
+            // {
+            //     title: "Configuration Parameters",
+            //     elements: [
+            //         {
+            //             title: "index",
+            //             field: "index",
+            //             type: "checkbox",
+            //         },
+            //     ],
+            // }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(

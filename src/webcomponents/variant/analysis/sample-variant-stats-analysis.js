@@ -191,17 +191,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Index",
+                        title: "Index Stats",
                         field: "index",
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Sample variant stats will be indexed in Catalog"
+                                text: "Sample variant stats will be indexed in Catalog. Only Study Admins can index scores"
                             }
                         }
                     },
                     {
-                        title: "Index ID",
+                        title: "Index Stats ID",
                         field: "indexId",
                         type: "input-text",
                         display: {
