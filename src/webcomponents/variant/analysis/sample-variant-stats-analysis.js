@@ -91,8 +91,6 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
     onFieldChange(e) {
         this.toolParams = {...this.toolParams};
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
