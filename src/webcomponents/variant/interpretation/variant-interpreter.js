@@ -254,7 +254,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "report",
-                    title: "Report",
+                    title: "Observations",
                     acronym: "VB",
                     description: "",
                     // disabled: true,
@@ -274,7 +274,6 @@ class VariantInterpreter extends LitElement {
                 </div>
             `;
         }
-
 
         // Note: this a temporal
         const configReportTabs = {
@@ -308,7 +307,7 @@ class VariantInterpreter extends LitElement {
         } else {
             configReportTabs.items.push({
                 id: "caseReport",
-                name: "Case Report Review",
+                name: "Case Observations Review",
                 active: true,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
