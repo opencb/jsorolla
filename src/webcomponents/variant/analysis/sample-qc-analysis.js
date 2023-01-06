@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import FormUtils from "../../commons/forms/form-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class SampleQcAnalysis extends LitElement {
@@ -82,16 +83,16 @@ export default class SampleQcAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.sample;
+        if (this.opencgaSession && !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user?.id)) {
+            return {
+                message: "Only Study admins can execute QC methods"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -141,6 +142,7 @@ export default class SampleQcAnalysis extends LitElement {
                         title: "Select Sample ID",
                         field: "sample",
                         type: "custom",
+                        required: true,
                         display: {
                             render: (sample, dataFormFilterChange) => {
                                 return html `
@@ -154,7 +156,7 @@ export default class SampleQcAnalysis extends LitElement {
                                 `;
                             },
                             help: {
-                                text: "Select a sample to run QC"
+                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
                             },
                         }
                     },
