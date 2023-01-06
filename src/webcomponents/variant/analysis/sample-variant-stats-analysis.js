@@ -80,33 +80,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     check() {
-        // return !!this.toolParams.sample || !!this.toolParams.individual;
         if (!this.toolParams.sample && !this.toolParams.individual) {
             return {
-                status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
-                message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`,
-                notificationType: "info"
+                message: "You must select a sample or an individual",
+                notificationType: "warning"
             };
-        } else {
-            if (!this.toolParams?.variantQuery?.sample) {
-                return {
-                    status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
-                    message: `No gene !! '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`,
-                    notificationType: "warning"
-                };
-            } else {
-                return null;
-            }
         }
-        // return !!this.toolParams.sample || !!this.toolParams.individual;
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
+    onFieldChange(e) {
         this.toolParams = {...this.toolParams};
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
         // Enable this only when a dynamic property in the config can change
         // this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -173,7 +157,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select on Sample to run the analysis",
+                                text: "Select to samples to run the analysis",
                             }
                         },
                     },
@@ -193,7 +177,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Variant stats will be calculated for all the samples of these individuals",
+                                text: "Variant stats will be calculated for all the samples belonging to these individuals",
                             }
                         },
                     },
@@ -210,6 +194,11 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                         title: "Index",
                         field: "index",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Sample variant stats will be indexed in Catalog"
+                            }
+                        }
                     },
                     {
                         title: "Index ID",
@@ -217,6 +206,9 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                         type: "input-text",
                         display: {
                             disabled: !this.toolParams.index,
+                            help: {
+                                text: "You must use this ID when querying sample variant stats in Catalog"
+                            }
                         },
                     }
                 ]
