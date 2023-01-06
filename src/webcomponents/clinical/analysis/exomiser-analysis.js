@@ -99,14 +99,12 @@ export default class ExomiserAnalysis extends LitElement {
     check() {
         // Proband MUST have at least one phenotype or disorder
         if (this.clinicalAnalysisObj) {
-            return {
-                status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
-                message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
-            };
-            // return AnalysisUtils.check(
-            //     this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
-            //     `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
-            // );
+            if (this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0) {
+                return {
+                    // status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
+                    message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
+                };
+            }
         } else {
             return null;
         }
@@ -176,14 +174,14 @@ export default class ExomiserAnalysis extends LitElement {
                         display: {
                             render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                 return html`
-                                <catalog-search-autocomplete
-                                    .value="${clinicalAnalysisId}"
-                                    .resource="${"CLINICAL_ANALYSIS"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `;
+                                    <catalog-search-autocomplete
+                                        .value="${clinicalAnalysisId}"
+                                        .resource="${"CLINICAL_ANALYSIS"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
                             }
                         },
                     },

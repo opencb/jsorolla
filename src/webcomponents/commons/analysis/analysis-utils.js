@@ -114,9 +114,10 @@ export default class AnalysisUtils {
                     elements: [
                         {
                             type: "notification",
-                            text: check?.message || "No message defined",
+                            text: check?.message || "No message defined.",
                             display: {
-                                visible: () => check ? !check.status : false,
+                                // visible: () => check ? !check.status : false,
+                                visible: () => !!check?.message,
                                 notificationType: check?.notificationType || "warning",
                             },
                         },
