@@ -79,7 +79,12 @@ export default class VariantStatsIndexOperation extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.study;
+        if (!this.toolParams.study) {
+            return {
+                message: "Study is a mandatory parameter, please select one."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -93,8 +98,8 @@ export default class VariantStatsIndexOperation extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            resume: this.toolParams.resume || false,
             overwriteStats: this.toolParams.overwriteStats || false,
+            resume: this.toolParams.resume || false,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
@@ -135,6 +140,7 @@ export default class VariantStatsIndexOperation extends LitElement {
                     {
                         title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -153,14 +159,24 @@ export default class VariantStatsIndexOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Resume",
-                        field: "resume",
-                        type: "checkbox",
-                    },
-                    {
                         title: "Overwrite Stats",
                         field: "overwriteStats",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Calculate variant stats for the study"
+                            }
+                        }
+                    },
+                    {
+                        title: "Resume",
+                        field: "resume",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Continue a variant stats index that has failed"
+                            }
+                        }
                     },
                 ],
             }

@@ -215,7 +215,7 @@ export default class VariantIndexOperation extends LitElement {
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Continue variant file index that has failed"
+                                text: "Continue a variant file index that has failed"
                             }
                         }
                     },
