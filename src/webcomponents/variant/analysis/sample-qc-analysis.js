@@ -16,10 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import "../../commons/analysis/opencga-analysis-tool.js";
 
 
 export default class SampleQcAnalysis extends LitElement {

@@ -15,12 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class FamilyQcAnalysis extends LitElement {
