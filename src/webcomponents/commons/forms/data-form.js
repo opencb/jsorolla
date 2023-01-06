@@ -754,7 +754,7 @@ export default class DataForm extends LitElement {
             element.text = "Include only PASS variants";
         }
 
-        return html`
+        const content = html`
             <label style="padding-top: 0; font-weight: normal;margin: 0">
                 <input
                     type="checkbox"
@@ -765,6 +765,8 @@ export default class DataForm extends LitElement {
                 <span style="margin: 0 5px">${element.text}</span>
             </label>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     /**
