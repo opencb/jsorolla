@@ -57,13 +57,12 @@ export default class VariantIndexOperation extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
-        this.study = "";
         this.config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if either an study is passed as an argument
+            // This parameter will indicate if either a study is passed as an argument
             this.study = this.toolParams.study || "";
         }
     }
@@ -80,7 +79,17 @@ export default class VariantIndexOperation extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.study;
+        if (!this.toolParams.study) {
+            return {
+                message: "Study is a mandatory parameter, please select one."
+            };
+        }
+        if (!this.toolParams.file) {
+            return {
+                message: "A VCF file is a mandatory parameter, please select one."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -95,9 +104,9 @@ export default class VariantIndexOperation extends LitElement {
     onSubmit() {
         const toolParams = {
             file: this.toolParams.file || "",
-            resume: this.toolParams.resume || false,
-            annotate: this.toolParams.annotate || false,
             calculateStats: this.toolParams.calculateStats || false,
+            annotate: this.toolParams.annotate || false,
+            resume: this.toolParams.resume || false,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
@@ -138,6 +147,7 @@ export default class VariantIndexOperation extends LitElement {
                     {
                         title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -160,10 +170,11 @@ export default class VariantIndexOperation extends LitElement {
                         field: "file",
                         // type: "input-text",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.study}"
+                                    .value="${toolParams?.file}"
                                     .resource="${"FILE"}"
                                     .query="${{
                                         type: "FILE",
@@ -177,20 +188,36 @@ export default class VariantIndexOperation extends LitElement {
                             `,
                         },
                     },
-                    {
-                        title: "Resume",
-                        field: "resume",
-                        type: "checkbox",
-                    },
+
                     {
                         title: "Calculate Stats",
                         field: "calculateStats",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Calculate variant stats for the index file"
+                            }
+                        }
                     },
                     {
                         title: "Annotate",
                         field: "annotate",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Execute an annotation for the new variants added in this file"
+                            }
+                        }
+                    },
+                    {
+                        title: "Resume",
+                        field: "resume",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Continue variant file index that has failed"
+                            }
+                        }
                     },
                 ],
             }
