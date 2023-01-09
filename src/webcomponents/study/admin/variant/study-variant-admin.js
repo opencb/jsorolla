@@ -451,29 +451,31 @@ export default class StudyVariantAdmin extends LitElement {
                         // },
                         {
                             id: "clinical-analysis-configuration-operation",
-                            // label: "Variant Annotation Index",
                             name: "Clinical Analysis Configuration",
                             icon: "fas fa-key",
                             visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <clinical-analysis-configuration-operation
-                                    .toolParams="${{study: this.opencgaSession.study.id}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-configuration-operation>
-                            `,
+                            render: (opencgaSession, study) => {
+                                return html `
+                                    <clinical-analysis-configuration-operation
+                                            .toolParams="${{study: this.opencgaSession.study.id}}"
+                                            .opencgaSession="${opencgaSession}">
+                                    </clinical-analysis-configuration-operation>
+                                `;
+                            }
                         },
                         {
                             id: "variant-secondary-sample-configure-index",
-                            // label: "Variant Annotation Index",
                             name: "Sample Index Configuration",
                             icon: "fas fa-key",
                             visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <variant-secondary-sample-index-configure-operation
-                                    .toolParams="${{study: this.opencgaSession.study.id}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </variant-secondary-sample-index-configure-operation>
-                            `,
+                            render: (opencgaSession, study) => {
+                                return html `
+                                    <variant-secondary-sample-index-configure-operation
+                                        .toolParams="${{study: this.opencgaSession.study.id}}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </variant-secondary-sample-index-configure-operation>
+                              `;
+                            }
                         },
                         {
                             id: "configuration",

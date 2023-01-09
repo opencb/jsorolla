@@ -71,21 +71,37 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     update(changedProperties) {
-        if (changedProperties.has("toolParams")) {
+        // CAUTION 20230110 Vero:
+        //  When study changes out of configuration operations menu option:
+        //    1. this.toolParams is updated with the keys studies and body in condition if (changedProperties.has("opencgaSession"))
+        //  When the user click on one of the configuartion operation options:
+        //    1. The property toolParams is overwritten (see study-variant-admin.js render method) removing the body key with the appropriate
+        //    2. Consequently, json-editor is gets renderd with an empty json
+        //  Besides, the contents get rendered twice.
+        //  The following fix displays the json correctly, but needs to be optimized.
+        if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession")) {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
+                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.variantEngine?.sampleIndex, null, 8) || "-",
             };
             this.config = this.getDefaultConfig();
         }
-        if (changedProperties.has("opencgaSession")) {
-            this.toolParams = {
-                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                ...this.toolParams,
-                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.variantEngine.sampleIndex, null, 8) || "-",
-            };
-            this.config = this.getDefaultConfig();
-        }
+        // if (changedProperties.has("toolParams")) {
+        //     this.toolParams = {
+        //         ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        //         ...this.toolParams,
+        //     };
+        //     this.config = this.getDefaultConfig();
+        // }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.toolParams = {
+        //         ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        //         ...this.toolParams,
+        //         body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.variantEngine.sampleIndex, null, 8) || "-",
+        //     };
+        //     this.config = this.getDefaultConfig();
+        // }
         super.update(changedProperties);
     }
 
