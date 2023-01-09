@@ -21,6 +21,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 class CaseSteinerReport extends LitElement {
 
@@ -77,6 +78,7 @@ class CaseSteinerReport extends LitElement {
             SV: null,
             SNV: null,
         };
+        this.selectedHrdetect = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -165,7 +167,7 @@ class CaseSteinerReport extends LitElement {
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
-                hrdetect: null,
+                hrdetects: [],
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
@@ -273,12 +275,9 @@ class CaseSteinerReport extends LitElement {
                         });
                     }
 
-                    // Add HRDetect value (if provided)
-                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
-                        return item.id === "hrdetectStats";
-                    });
-                    if (hrdetectStats) {
-                        this._data.hrdetect = hrdetectStats.annotations.probability;
+                    // Add HRDetect data
+                    if (somaticSample.qualityControl?.variant?.hrDetects) {
+                        this._data.hrdetects = somaticSample.qualityControl.variant.hrDetects;
                     }
 
                     // End filling report data
@@ -305,6 +304,16 @@ class CaseSteinerReport extends LitElement {
         this.requestUpdate();
     }
 
+    onHrdetectChange(event) {
+        this.selectedHrdetect = event.detail.value;
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        this.requestUpdate();
+    }
+
     generateSignaturesDropdown(type) {
         return (this._data?.qcPlots?.signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
@@ -315,6 +324,10 @@ class CaseSteinerReport extends LitElement {
                     name: `${signature.id}  |  ${fitting.id}`,
                 })),
             }));
+    }
+
+    generateHrdetectsDropdown() {
+        return UtilsNew.sort((this._data.hrdetects || []).map(h => h.id));
     }
 
     render() {
@@ -1097,8 +1110,32 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "HRDetect",
-                            field: "hrdetect",
-                            defaultValue: "Not provided",
+                            field: "hrdetects",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <select-field-filter
+                                        .data="${this.generateHrdetectsDropdown()}"
+                                        .value=${this.selectedHrdetect}
+                                        ?multiple="${false}"
+                                        ?liveSearch=${false}
+                                        @filterChange="${e => this.onHrdetectChange(e)}">
+                                    </select-field-filter>
+                                `,
+                            },
+                        },
+                        {
+                            title: "HRDetect Probability",
+                            field: "hrdetects",
+                            type: "custom",
+                            display: {
+                                visible: !!this.selectedHrdetect,
+                                defaultLayout: "horizontal",
+                                render: hrdetects => {
+                                    const hrdetect = hrdetects.find(hrdetect => hrdetect?.id === this.selectedHrdetect);
+                                    return hrdetect?.scores?.probability ?? "NA";
+                                },
+                            },
                         },
                     ]
                 },
