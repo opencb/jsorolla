@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import Types from "../commons/types.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-update.js";
 import "../commons/tool-header.js";
 
 
@@ -28,7 +26,6 @@ export default class FamilyCreate extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -49,7 +46,6 @@ export default class FamilyCreate extends LitElement {
 
     #init() {
         this.family = {};
-        this.members = "";
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -76,36 +72,12 @@ export default class FamilyCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "members":
-                this.members = e.detail.value;
-                // let members = [];
-                // if (e.detail.value) {
-                //     members = e.detail.value.split(",").map(member => {
-                //         return {id: member};
-                //     });
-                // }
-                // this.family = {...this.family, members: e.detail.value};
-                break;
-            case "annotationSets":
-                this.family = {...this.family, annotationSets: e.detail.value};
-                break;
-            default:
-                this.family = {
-                    ...FormUtils.createObject(
-                        this.family,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-        }
+        this.family = {...this.family};
         this.requestUpdate();
     }
 
     onClear(e) {
         this.family = {};
-        this.members = "";
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -114,28 +86,28 @@ export default class FamilyCreate extends LitElement {
     onSubmit() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            members: this.members,
+            members: "" + this.family?.members,
             includeResult: true
         };
         let error;
+        delete this.family.members;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.families()
             .create(this.family, params)
             .then(() => {
+                this.family = {};
+                this._config = this.getDefaultConfig();
                 // TODO: Add a condition to confirm if the information has been saved to the server.
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Family Create",
                     message: "New family created correctly"
                 });
-                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.family = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "familyCreate", this.family, {}, error);
                 this.#setLoading(false);
             });
@@ -195,41 +167,19 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
-                                render: members => {
+                                render: (members, dataFormFilterChange) => {
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${members}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config="${{multiple: true}}"
-                                            @filterChange="${e => this.onFieldChange(e, "members")}">
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
                                 }
                             }
                         },
-                        // {
-                        //     title: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
-                        // {
-                        //     title: "Modification Date",
-                        //     field: "modificationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
                         {
                             title: "Expected Size",
                             field: "expectedSize",
@@ -244,25 +194,40 @@ export default class FamilyCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add a Family description...",
+                                placeholder: "Add a description..."
                             }
                         },
                         {
                             title: "Status",
                             field: "status",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <status-create
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                    </status-create>`
-                            }
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "status.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "status.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
                     ]
                 },

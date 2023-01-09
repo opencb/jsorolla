@@ -85,11 +85,12 @@ export default class SampleVariantStatsAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        this.toolParams = {...this.toolParams};
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -140,16 +141,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Sample ID",
+                        field: "sample",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (sample, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.sample}"
+                                        .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.individual, showSelectAll: true} }"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.individual, showSelectAll: true} }"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
@@ -159,16 +161,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                     },
                     {
                         title: "Individual ID",
+                        field: "individual",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.individual}"
+                                        .value="${individual}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.sample}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {

@@ -91,9 +91,9 @@ export default class IndividualQcAnalysis extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
         // Enable this only when a dynamic property in the config can change
         this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -154,14 +154,14 @@ export default class IndividualQcAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Individual Id",
-                            render: individual => {
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => {
                                 return html `
                                     <catalog-search-autocomplete
                                         .value="${individual}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!this.toolParams?.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                        .config="${{multiple: false, disabled: !!toolParams?.sample}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             }
@@ -174,14 +174,14 @@ export default class IndividualQcAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             helpMessage: "Sample Id",
-                            render: sample => {
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${sample}"
+                                        .value="${individual}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        .config="${{multiple: false, disabled: !!toolParams?.individual}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
