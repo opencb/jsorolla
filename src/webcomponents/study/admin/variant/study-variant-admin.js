@@ -394,7 +394,7 @@ export default class StudyVariantAdmin extends LitElement {
     // }
 
     render() {
-        const activeMenuItem = "variant-annotation-index";
+        const activeMenuItem = "clinical-analysis-configuration-operation";
         return html`
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
