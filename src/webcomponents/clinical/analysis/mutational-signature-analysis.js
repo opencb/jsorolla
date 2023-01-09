@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -148,12 +147,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        this.toolParams = {...this.toolParams};
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
+    onFieldChange() {
+        this.toolParams = {
+            ...this.toolParams,
+        };
 
         // Enable this only when a dynamic property in the config can change
         // this.config = this.getDefaultConfig();
