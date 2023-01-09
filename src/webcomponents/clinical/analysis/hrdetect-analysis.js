@@ -135,7 +135,6 @@ export default class HRDetectAnalysis extends LitElement {
                 ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
             };
 
-            // TODO: we have to change the endpoint called for running the hrdetect analysis
             AnalysisUtils.submit(
                 this.ANALYSIS_TITLE,
                 this.opencgaSession.opencgaClient.variants()
@@ -235,13 +234,13 @@ export default class HRDetectAnalysis extends LitElement {
                         field: "query.sample",
                         type: "custom",
                         display: {
-                            render: sampleId => html`
+                            render: (sampleId, onFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${sampleId}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query.sample")}">
+                                    @filterChange="${e => onFieldChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -251,13 +250,13 @@ export default class HRDetectAnalysis extends LitElement {
                         field: "snvFittingId",
                         type: "custom",
                         display: {
-                            render: snvFittingId => html`
+                            render: (snvFittingId, onFieldChange) => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SNV")}"
                                     .value=${snvFittingId}
                                     ?multiple="${false}"
                                     ?liveSearch=${false}
-                                    @filterChange="${e => this.onFieldChange(e, "snvFittingId")}">
+                                    @filterChange="${e => onFieldChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
                         },
@@ -267,13 +266,13 @@ export default class HRDetectAnalysis extends LitElement {
                         field: "svFittingId",
                         type: "custom",
                         display: {
-                            render: svFittingId => html`
+                            render: (svFittingId, onFieldChange) => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SV")}"
                                     .value=${svFittingId}
                                     ?multiple="${false}"
                                     ?liveSearch=${false}
-                                    @filterChange="${e => this.onFieldChange(e, "svFittingId")}">
+                                    @filterChange="${e => onFieldChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
                         },
