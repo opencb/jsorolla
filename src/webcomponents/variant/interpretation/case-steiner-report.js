@@ -214,11 +214,13 @@ class CaseSteinerReport extends LitElement {
                     // Fill somatic and germline Calling info
                     files.filter(f => f.format === "VCF").forEach(file => {
                         const info = this.callersInfo[file.software.name] || {};
-                        this._data[`${info.group}CallingInfo`].push({
-                            type: info.type,
-                            rank: info.rank,
-                            ...file.software,
-                        });
+                        if (info?.group && info?.type && info?.rank) {
+                            this._data[`${info.group}CallingInfo`].push({
+                                type: info.type,
+                                rank: info.rank,
+                                ...file.software,
+                            });
+                        }
                     });
 
                     // Fill filters (customFilteringInfo)
