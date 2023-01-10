@@ -1351,7 +1351,13 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantCheck(e) {
         const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
+
+        // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
+        // If not, we will get the variant from the rows list
+        let variant = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).find(item => item.id === variantId);
+        if (!variant) {
+            variant = this._rows.find(e => e.id === variantId);
+        }
 
         if (e.currentTarget.checked) {
             // Add current filter executed when variant is checked
@@ -1643,12 +1649,14 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-
-            populationFrequencies: ["1000G:ALL", "GNOMAD_GENOMES:ALL", "UK10K:ALL"],
+            populationFrequencies: [
+                "1000G:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "GNOMAD_EXOMES:ALL",
+            ],
             populationFrequenciesConfig: {
                 displayMode: "FREQUENCY_BOX"
             },
-
             genotype: {
                 type: "VAF"
             },

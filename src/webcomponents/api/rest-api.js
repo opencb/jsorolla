@@ -65,11 +65,11 @@ export default class RestApi extends LitElement {
     }
 
     opencgaSessionObserver() {
-
         if (this.opencgaSession) {
             this.opencgaSession.opencgaClient.meta().api()
                 .then(responses => {
                     this.api = responses.responses[0].results[0];
+                    this.removeEndpoint("Files", "/{apiVersion}/files/upload");
                     if (this.api?.length > 0) {
                         if (!this.endpoint) {
                             this.endpoint = this.api[0].endpoints.find(endpoint => endpoint.method === "GET");
@@ -79,6 +79,12 @@ export default class RestApi extends LitElement {
                 })
                 .catch(error => {});
         }
+    }
+
+    removeEndpoint(categoryName, path) {
+        const categoryIndex = this.api.findIndex(category => category.name === categoryName);
+        const endpointsIndex = this.api[categoryIndex].endpoints.findIndex(endpoint => endpoint.path === path);
+        this.api[categoryIndex].endpoints.splice(endpointsIndex, 1);
     }
 
     async onClick(e, endpoint) {

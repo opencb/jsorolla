@@ -254,7 +254,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "report",
-                    title: "Report",
+                    title: "Observations",
                     acronym: "VB",
                     description: "",
                     // disabled: true,
@@ -274,7 +274,6 @@ class VariantInterpreter extends LitElement {
                 </div>
             `;
         }
-
 
         // Note: this a temporal
         const configReportTabs = {
@@ -308,7 +307,7 @@ class VariantInterpreter extends LitElement {
         } else {
             configReportTabs.items.push({
                 id: "caseReport",
-                name: "Case Report Review",
+                name: "Case Observations Review",
                 active: true,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
@@ -334,12 +333,12 @@ class VariantInterpreter extends LitElement {
                     <tool-header
                         icon="${this._config.icon}"
                         .title="${`
-                            ${this._config.title}
-                            <span class="inverse">
-                                Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
-                            </span>
-                        `}"
+                        ${this._config.title}
+                        <span class="inverse">
+                            Case ${this.clinicalAnalysis?.id}
+                            ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                        </span>
+                    `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -363,37 +362,42 @@ class VariantInterpreter extends LitElement {
                                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
                                                 <a style="background-color:white!important;">
-                                                    <i class="fa fa-user-md icon-padding"></i>
                                                     <strong>Change interpretation</strong>
                                                 </a>
                                             </li>
                                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                                 <li>
-                                                    <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                                         ${item.id}
+                                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
                                                     </a>
                                                 </li>
                                             `)}
                                             <li role="separator" class="divider"></li>
                                         ` : null}
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
-                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
-                                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"}
+                                            <a style="background-color:white!important;">
+                                                <strong>Case Actions</strong>
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
                                                 <i class="fa fa-download icon-padding"></i> Download
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                                 <i class="fa fa-times icon-padding"></i> Close
                                             </a>
                                         </li>

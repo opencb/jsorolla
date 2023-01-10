@@ -74,42 +74,44 @@ export default class GwasAnalysis extends LitElement {
     }
 
     check() {
-        // TODO: check if there are more required params for GWAS analysis
-        return !!this.toolParams.controlCohort || !!this.toolParams.caseCohort;
+        // FIXME decide if this must be displayed
+        // if (!this.toolParams.caseCohort) {
+        //     return {
+        //         message: "You must select a cohort or sample",
+        //         notificationType: "warning"
+        //     };
+        // }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
+        // Note: these parameters have been removed from the form
         // Check if changed param was controlCohort --> reset controlCohortSamples field
-        if (param === "controlCohort") {
-            this.toolParams.controlCohortSamples = "";
-        }
+        // if (param === "controlCohort") {
+        //     this.toolParams.controlCohortSamples = "";
+        // }
         // Check if changed param was caseCohort --> reset caseCohortSamples field
-        if (param === "caseCohort") {
-            this.toolParams.caseCohortSamples = "";
-        }
-
-        this.config = this.getDefaultConfig();
+        // if (param === "caseCohort") {
+        //     this.toolParams.caseCohortSamples = "";
+        // }
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
             controlCohort: this.toolParams.controlCohort || "",
-            controlCohortSamples: this.toolParams.controlCohortSamples?.split(",") || [],
-            controlCohortSamplesAnnotation: this.toolParams.controlCohortSamplesAnnotation,
+            // controlCohortSamples: this.toolParams.controlCohortSamples?.split(",") || [],
+            // controlCohortSamplesAnnotation: this.toolParams.controlCohortSamplesAnnotation,
             caseCohort: this.toolParams.caseCohort || "",
-            caseCohortSamples: this.toolParams.caseCohortSamples?.split(",") || [],
-            caseCohortSamplesAnnotation: this.toolParams.caseCohortSamplesAnnotation,
+            // caseCohortSamples: this.toolParams.caseCohortSamples?.split(",") || [],
+            // caseCohortSamplesAnnotation: this.toolParams.caseCohortSamplesAnnotation,
             mode: this.toolParams.mode,
             fisherMode: this.toolParams.fisherMode,
+            // phenotype: this.toolParams.phenotype,
             index: this.toolParams.index ?? false,
             indexScoreId: this.toolParams.indexScoreId,
-            phenotype: this.toolParams.phenotype,
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -145,122 +147,159 @@ export default class GwasAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Case Cohort Parameters",
+                title: "Input Cohorts",
                 elements: [
                     {
                         title: "Case Cohort",
+                        field: "caseCohort",
                         type: "custom",
+                        required: true,
                         display: {
-                            render: toolParams => html`
+                            render: (caseCohort, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.caseCohort}"
+                                    .value="${caseCohort}"
                                     .resource="${"COHORT"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "caseCohort")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-                    {
-                        title: "Case Cohort Samples",
-                        type: "custom",
-                        display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.caseCohortSamples}"
-                                    .resource="${"SAMPLE"}"
-                                    .query="${{include: "id,individualId", cohortIds: this.toolParams.caseCohort}}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !this.toolParams.caseCohort}}"
-                                    @filterChange="${e => this.onFieldChange(e, "caseCohortSamples")}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-
-                    },
-                    {
-                        title: "Case Cohort Sample Annotation",
-                        field: "caseCohortSamplesAnnotation",
-                        type: "input-text",
-                    }
-                ]
-            },
-            {
-                title: "Control Cohort Parameters",
-                elements: [
+                    // {
+                    //     title: "Case Cohort Samples",
+                    //     field: "caseCohortSamples",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: (caseCohortSamples, dataFormFilterChange, updateParams, toolParams) => html`
+                    //             <catalog-search-autocomplete
+                    //                 .value="${caseCohortSamples}"
+                    //                 .resource="${"SAMPLE"}"
+                    //                 .query="${{include: "id,individualId", cohortIds: toolParams?.caseCohort}}"
+                    //                 .opencgaSession="${this.opencgaSession}"
+                    //                 .config="${{multiple: true, disabled: !toolParams.caseCohort}}"
+                    //                 @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                    //             </catalog-search-autocomplete>
+                    //         `,
+                    //     },
+                    //
+                    // },
+                    // {
+                    //     title: "Case Cohort Sample Annotation",
+                    //     field: "caseCohortSamplesAnnotation",
+                    //     type: "input-text",
+                    // },
                     {
                         title: "Control Cohort",
+                        field: "controlCohort",
                         type: "custom",
                         display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.controlCohort}"
-                                    .resource="${"COHORT"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "controlCohort")}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (controlCohort, dataFormFilterChange) => {
+                                return html`
+                                    <catalog-search-autocomplete
+                                        .value="${controlCohort}"
+                                        .resource="${"COHORT"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            }
                         },
                     },
-                    {
-                        title: "Control Cohort Samples",
-                        type: "custom",
-                        display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.controlCohortSamples}"
-                                    .resource="${"SAMPLE"}"
-                                    .query="${{include: "id,individualId", cohortIds: this.toolParams.controlCohort}}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: true, disabled: !this.toolParams.controlCohort}}"
-                                    @filterChange="${e => this.onFieldChange(e, "controlCohortSamples")}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
-                    {
-                        title: "Control Cohort Sample Annotation",
-                        field: "controlCohortSamplesAnnotation",
-                        type: "input-text",
-                    }
                 ]
             },
+            // FIXME: removed to keep the form simpler
+            // {
+            //     title: "Control Cohort Parameters",
+            //     elements: [
+            //         {
+            //             title: "Control Cohort",
+            //             field: "controlCohort",
+            //             type: "custom",
+            //             display: {
+            //                 render: (controlCohort, dataFormFilterChange) => {
+            //                     return html`
+            //                         <catalog-search-autocomplete
+            //                             .value="${controlCohort}"
+            //                             .resource="${"COHORT"}"
+            //                             .opencgaSession="${this.opencgaSession}"
+            //                             .config="${{multiple: false}}"
+            //                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+            //                         </catalog-search-autocomplete>
+            //                     `;
+            //                 }
+            //             },
+            //         },
+            //         {
+            //             title: "Control Cohort Samples",
+            //             field: "controlCohortSamples",
+            //             type: "custom",
+            //             display: {
+            //                 render: (controlCohortSamples, dataFormFilterChange, updateParams, toolParams) => html`
+            //                     <catalog-search-autocomplete
+            //                         .value="${controlCohortSamples}"
+            //                         .resource="${"SAMPLE"}"
+            //                         .query="${{include: "id,individualId", cohortIds: toolParams?.controlCohort}}"
+            //                         .opencgaSession="${this.opencgaSession}"
+            //                         .config="${{multiple: true, disabled: !this.toolParams.controlCohort}}"
+            //                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+            //                     </catalog-search-autocomplete>
+            //                 `,
+            //             },
+            //         },
+            //         {
+            //             title: "Control Cohort Sample Annotation",
+            //             field: "controlCohortSamplesAnnotation",
+            //             type: "input-text",
+            //         }
+            //     ]
+            // },
             {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Association test",
+                        title: "Association Test",
                         field: "method",
                         type: "select",
                         // defaultValue: "FISHER_TEST",
                         allowedValues: ["FISHER_TEST", "CHI_SQUARE_TEST"],
                     },
                     {
-                        title: "Fisher mode",
+                        title: "Fisher Mode",
                         field: "fisherMode",
                         type: "select",
                         // defaultValue: "GREATER",
                         allowedValues: ["GREATER", "LESS", "TWO_SIDED"],
                         display: {
-                            disabled: this.toolParams?.method !== "FISHER_TEST",
+                            disabled: () => this.toolParams?.method !== "FISHER_TEST",
+                        },
+                    },
+                    // {
+                    //     title: "Phenotype",
+                    //     field: "phenotype",
+                    //     type: "input-text",
+                    // },
+                    {
+                        title: "Index Scores",
+                        field: "index",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "GWAS scores stats will be indexed in Variant Database. Only Study Admins can index scores"
+                            }
                         },
                     },
                     {
-                        title: "Phenotype",
-                        field: "phenotype",
-                        type: "input-text",
-                    },
-                    {
-                        title: "Index results",
-                        field: "index",
-                        type: "checkbox",
-                    },
-                    {
-                        title: "Index score id",
+                        title: "Index Scores ID",
                         field: "indexScoreId",
                         type: "input-text",
+                        display: {
+                            disabled: () => !this.toolParams.index,
+                            help: {
+                                text: "You must use this ID when filtering variants by GWAS scores"
+                            }
+                        },
                     }
                 ]
             }

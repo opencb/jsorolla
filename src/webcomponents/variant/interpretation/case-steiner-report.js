@@ -21,6 +21,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 class CaseSteinerReport extends LitElement {
 
@@ -68,11 +69,11 @@ class CaseSteinerReport extends LitElement {
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
-        this._config = this.getDefaultConfig();
         this._data = null;
         // Data-form is not capturing the update of the data property
         // For that reason, we need this flag to check when the data is ready (TODO)
         this._ready = false;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -115,6 +116,8 @@ class CaseSteinerReport extends LitElement {
 
             // Initialize report data
             this._data = {
+                somaticSample,
+                germlineSample,
                 info: {
                     project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
                     study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
@@ -158,7 +161,10 @@ class CaseSteinerReport extends LitElement {
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
-                hrdetect: null,
+                hrdetects: [],
+                selectedHrdetect: null,
+                selectedSnvSignature: null,
+                selectedSvSignature: null,
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
@@ -207,11 +213,13 @@ class CaseSteinerReport extends LitElement {
                     // Fill somatic and germline Calling info
                     files.filter(f => f.format === "VCF").forEach(file => {
                         const info = this.callersInfo[file.software.name] || {};
-                        this._data[`${info.group}CallingInfo`].push({
-                            type: info.type,
-                            rank: info.rank,
-                            ...file.software,
-                        });
+                        if (info?.group && info?.type && info?.rank) {
+                            this._data[`${info.group}CallingInfo`].push({
+                                type: info.type,
+                                rank: info.rank,
+                                ...file.software,
+                            });
+                        }
                     });
 
                     // Fill filters (customFilteringInfo)
@@ -264,12 +272,9 @@ class CaseSteinerReport extends LitElement {
                         });
                     }
 
-                    // Add HRDetect value (if provided)
-                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
-                        return item.id === "hrdetectStats";
-                    });
-                    if (hrdetectStats) {
-                        this._data.hrdetect = hrdetectStats.annotations.probability;
+                    // Add HRDetect data
+                    if (somaticSample.qualityControl?.variant?.hrDetects) {
+                        this._data.hrdetects = somaticSample.qualityControl.variant.hrDetects;
                     }
 
                     // End filling report data
@@ -283,7 +288,32 @@ class CaseSteinerReport extends LitElement {
     }
 
     onFieldChange() {
-        // TODO
+        this._data = {
+            ...this._data,
+        };
+        this.requestUpdate();
+    }
+
+    onSignatureChange(event, type) {
+        this.selectedSignatures[type] = event.detail.value;
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
+        this.requestUpdate();
+    }
+
+    generateSignaturesDropdown(signatures, type) {
+        return (signatures || [])
+            .filter(signature => (signature?.type || "").toUpperCase() === type)
+            .map(signature => ({
+                id: signature.id,
+                fields: (signature.fittings || []).map(fitting => ({
+                    id: `${signature.id}::${fitting.id}`,
+                    name: `${signature.id}  |  ${fitting.id}`,
+                })),
+            }));
     }
 
     render() {
@@ -311,9 +341,26 @@ class CaseSteinerReport extends LitElement {
                 style: "border-top: 1px solid lightgrey;",
             },
         };
-        const SUBSTITUTIONS_AND_INDELS_TYPES = ["SNV", "MNV", "INDEL"];
-        const REARRANGEMENTS_TYPES = ["BREAKEND", "SV", "DUPLICATION", "TANDEM_DUPLICATION", "TRANSLOCATION", "DELETION", "INSERTION", "INVERSION"];
-        const COPY_NUMBER_TYPES = ["COPY_NUMBER", "COPY_NUMBER_GAIN", "COPY_NUMBER_LOSS"];
+        const SUBSTITUTIONS_AND_INDELS_TYPES = [
+            "SNV",
+            "MNV",
+            "INDEL",
+        ];
+        const REARRANGEMENTS_TYPES = [
+            "BREAKEND",
+            "SV",
+            "DUPLICATION",
+            "TANDEM_DUPLICATION",
+            "TRANSLOCATION",
+            "DELETION",
+            "INSERTION",
+            "INVERSION",
+        ];
+        const COPY_NUMBER_TYPES = [
+            "COPY_NUMBER",
+            "COPY_NUMBER_GAIN",
+            "COPY_NUMBER_LOSS",
+        ];
 
         // Default grid config
         const defaultGridConfig = {
@@ -701,24 +748,24 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && !sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: false,
+                                        variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: false,
-                                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     `: null;
                                 },
@@ -733,22 +780,22 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && !sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...defaultGridConfig,
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
-                                                ...defaultGridConfig,
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-rearrangement-grid>
                                     `: null;
                                 },
@@ -778,24 +825,24 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["SNV", "INDEL"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: true,
-                                                variantTypes: ["SNV", "INDEL"],
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -810,22 +857,22 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...defaultGridConfig,
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-rearrangement-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
-                                                ...defaultGridConfig,
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-rearrangement-grid>
                                     ` : null;
                                 },
@@ -841,24 +888,24 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => {
-                                            const sampleId = v.studies[0]?.samples[0]?.sampleId;
-                                            const sample = this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId);
-                                            return sample && sample.somatic;
-                                        })
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
                                         .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1);
+
+                                    const gridConfig = {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["COPY_NUMBER", "CNV"],
+                                    };
+
                                     return filteredVariants.length > 0 ? html`
                                         <variant-interpreter-grid
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
+                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
                                             .review="${false}"
-                                            .config="${{
-                                                ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
-                                                ...defaultGridConfig,
-                                                somatic: true,
-                                                variantTypes: ["COPY_NUMBER", "CNV"],
-                                            }}">
+                                            .config="${gridConfig}">
                                         </variant-interpreter-grid>
                                     ` : null;
                                 },
@@ -915,26 +962,40 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "",
+                            type: "select",
+                            field: "selectedSnvSignature",
+                            allowedValues: data => {
+                                return this.generateSignaturesDropdown(data.qcPlots.signatures, "SNV");
+                            },
+                        },
+                        {
+                            title: "",
                             type: "custom",
+                            field: "selectedSnvSignature",
                             display: {
-                                defaultLayout: "vertical",
-                                render: clinicalAnalysis => html`
-                                    <div class="row" style="padding: 20px">
-                                        <div class="col-md-6">
-                                            <h4>SBS Profile</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}">
-                                            </signature-view>
+                                visible: data => !!data.selectedSnvSignature,
+                                render: (selectedSnvSignature, onChange, updateParams, data) => {
+                                    const [signatureId, fittingId] = selectedSnvSignature.split("::");
+                                    const signature = (data.qcPlots?.signatures || []).find(s => signatureId === s.id);
+                                    return html`
+                                        <div class="row" style="padding: 20px">
+                                            <div class="col-md-6">
+                                                <h4>SBS Profile</h4>
+                                                <signature-view
+                                                    .signature="${signature}">
+                                                </signature-view>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h4>SBS signature contributions</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .fittingId="${fittingId}"
+                                                    .plots="${["fitting"]}">
+                                                </signature-view>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <h4>SBS signature contributions</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[0]}"
-                                                .plots="${["fitting"]}">
-                                            </signature-view>
-                                        </div>
-                                    </div>
-                                `,
+                                    `;
+                                },
                             },
                         },
                         {
@@ -956,9 +1017,7 @@ class CaseSteinerReport extends LitElement {
                                                 .active="${true}"
                                                 .fileId="${qcPlots.deletionAggregationStatsPlotFile}"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .config="${{
-                                                    showFileTitle: false,
-                                                }}">
+                                                .config="${{showFileTitle: false}}">
                                             </file-preview>
                                         </div>
                                     </div>
@@ -974,27 +1033,42 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "",
+                            type: "select",
+                            field: "selectedSvSignature",
+                            allowedValues: data => {
+                                return this.generateSignaturesDropdown(data.qcPlots.signatures, "SV");
+                            },
+                        },
+                        {
+                            title: "",
+                            field: "selectedSvSignature",
                             type: "custom",
                             display: {
-                                render: clinicalAnalysis => html`
-                                    <div class="row" style="padding: 20px">
-                                        <div class="col-md-6">
-                                            <h4>Rearrangement Profile</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
-                                                .mode="${"SV"}">
-                                            </signature-view>
+                                visible: data => !!data.selectedSvSignature,
+                                render: (selectedSvSignature, onChange, updateParams, data) => {
+                                    const [signatureId, fittingId] = selectedSvSignature.split("::");
+                                    const signature = (data.qcPlots?.signatures || []).find(s => signatureId === s.id);
+                                    return html`
+                                        <div class="row" style="padding: 20px">
+                                            <div class="col-md-6">
+                                                <h4>Rearrangement Profile</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .mode="${"SV"}">
+                                                </signature-view>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h4>Rearrangement signature contributions</h4>
+                                                <signature-view
+                                                    .signature="${signature}"
+                                                    .fittingId="${fittingId}"
+                                                    .plots="${["fitting"]}"
+                                                    .mode="${"SV"}">
+                                                </signature-view>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <h4>Rearrangement signature contributions</h4>
-                                            <signature-view
-                                                .signature="${clinicalAnalysis.qcPlots.signatures?.[1]}"
-                                                .plots="${["fitting"]}"
-                                                .mode="${"SV"}">
-                                            </signature-view>
-                                        </div>
-                                    </div>
-                                `,
+                                    `;
+                                },
                             },
                         },
                         {
@@ -1006,8 +1080,24 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "HRDetect",
-                            field: "hrdetect",
-                            defaultValue: "Not provided",
+                            field: "selectedHrdetect",
+                            type: "select",
+                            allowedValues: data => {
+                                return UtilsNew.sort(data.hrdetects.map(item => item.id));
+                            },
+                        },
+                        {
+                            title: "HRDetect Probability",
+                            field: "selectedHrdetect",
+                            type: "custom",
+                            display: {
+                                visible: data => !!data.selectedHrdetect,
+                                defaultLayout: "horizontal",
+                                render: (selectedHrdetect, onChange, updateParams, data) => {
+                                    const hrdetect = data.hrdetects.find(hrdetect => hrdetect?.id === selectedHrdetect);
+                                    return hrdetect?.scores?.probability ?? "NA";
+                                },
+                            },
                         },
                     ]
                 },

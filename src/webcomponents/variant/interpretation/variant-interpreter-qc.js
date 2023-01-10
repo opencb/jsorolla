@@ -316,8 +316,25 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Mutational Signature - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <mutational-signature-analysis
                                     .toolParams="${{query: {sample: this.somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
                                 </mutational-signature-analysis>
+                            </div>
+                        `;
+                    },
+                });
+                items.push({
+                    id: "hrdetect",
+                    name: "HRDetect",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        return html`
+                            <div class="col-md-8 col-md-offset-2">
+                                <tool-header title="HRDetect - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
+                                <hrdetect-analysis
+                                    .toolParams="${{query: {sample: this.somaticSample?.id}}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
+                                </hrdetect-analysis>
                             </div>
                         `;
                     },

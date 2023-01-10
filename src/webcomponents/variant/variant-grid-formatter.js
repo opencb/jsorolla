@@ -340,6 +340,7 @@ export default class VariantGridFormatter {
             switch (row.type) {
                 case "SNP": // Deprecated
                     type = "SNV";
+                    color = "black";
                     break;
                 case "INDEL":
                 case "CNV": // Deprecated
@@ -877,95 +878,64 @@ export default class VariantGridFormatter {
     }
 
     // Creates the colored table with one row and as many columns as populations.
-    static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const cohort of cohorts) {
-            const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
-            popFreqsArray.push(cohort.id + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
+        const tooltipRows = (populations || []).map(population => {
+            const popFreq = populationFrequenciesMap.get(population) || null;
+            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+            const altCount = popFreq?.altAlleleCount || 0;
+            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
+            const homAltCount = popFreq?.altHomGenotypeCount || 0;
+            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            let altFreqText = "";
+            let homAltFreqText = "";
 
-        // TODO block copied in createPopulationFrequenciesTable
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            // ALT freq tell us if the VARIANT has been OBSERVED.
+            if (altFreq > 0) {
+                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
             } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
+                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `
-                <div>
-                    <span>
-                        <i class='fa fa-xs fa-square' style='color: ${color};' aria-hidden='true'></i>
-                        <label style='padding-left: 5px;width: 140px;'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight:bold;'>${freq}</span>
-                </div>
-            `;
-        }
 
-        // Create the table (with the tooltip info)
-        const tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Cohort Variant Stats" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
-        for (const cohort of cohorts) {
-            let color = "black";
-            if (typeof cohortStats.get(cohort.id) !== "undefined") {
-                const freq = cohortStats.get(cohort.id);
-                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-            }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
-        }
-        htmlPopFreqTable += "</tr></table></a>";
-        return htmlPopFreqTable;
-    }
-
-    // Creates the colored table with one row and as many columns as populations.
-    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const population of populations) {
-            const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
-            popFreqsArray.push(population + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
-
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
-            } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
-            }
-            tooltip += `
-                <div>
-                    <span>
+            return `
+                <tr style='border-top:1px solid #ededed;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
                         <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                        <label style='padding-left: 5px; width: 140px'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight: bold'>${freq}</span>
-                </div>
+                        <label style='padding-left: 5px;'>${population}</label>
+                    </td>
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+                </td>
             `;
-        }
+        });
+        const tooltip = `
+            <table class='population-freq-tooltip'>
+                <thead>
+                    <tr>
+                        <th style='padding:0 8px 8px 0;'>Population</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                    </tr>
+                </thead>
+                <tbody>${tooltipRows.join("")}</tbody>
+            </table>
+        `;
 
         // Create the table (with the tooltip info)
         let htmlPopFreqTable;
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
-            htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
-                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
-                                    <tr>`;
+            htmlPopFreqTable = `
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                <table style="width:${tableSize}px" class="populationFrequenciesTable">
+                    <tr>
+            `;
             for (const population of populations) {
                 // This array contains "study:population"
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
                 }
                 htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
@@ -977,7 +947,7 @@ export default class VariantGridFormatter {
             for (const population of populations) {
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     const percentage = (Number(freq) * 100).toPrecision(4);
                     // Only color the significant ones
                     if (freq <= 0.005) {

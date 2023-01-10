@@ -105,6 +105,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "tags": "tags",
             "sex": "sex.id",
             "karyotypicSex": "karyotypicSex",
+            "type": "type",
         };
     }
 
@@ -235,6 +236,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "source":
                 case "sex":
                 case "karyotypicSex":
+                case "type":
                     content = html`
                         <catalog-distinct-autocomplete
                             .value="${this.preparedQuery[subsection.id]}"
@@ -247,7 +249,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                         </catalog-distinct-autocomplete>
                     `;
                     break;
-                case "type": // cohort, clinical
                 case "affectationStatus":
                 case "lifeStatus":
                 case "format":

@@ -160,8 +160,8 @@ export default class CohortBrowser extends LitElement {
                             {
                                 id: "type",
                                 name: "Type",
+                                type: "string",
                                 multiple: true,
-                                allowedValues: ["All", "CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO"],
                                 description: ""
                             },
                             {

@@ -238,6 +238,11 @@ export default class IndividualBrowser extends LitElement {
                     }
                 ],
                 examples: [],
+                activeFilters: {
+                    complexFields: [
+                        {id: "disorders", separatorRegex: /(?:(?!,\S).)+/g},
+                    ],
+                },
                 result: {
                     grid: {
                         pageSize: 10,
