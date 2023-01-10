@@ -244,20 +244,12 @@ export default {
 
         // Show protein structure
         if (config.showProteinStructure) {
-            offset = offset + 50;
+            offset = offset + 10 + config.proteinHeight;
 
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(svg, "g", {
                 "transform": `translate(${config.padding}, ${offset})`,
-            });
-
-            // Append structure line
-            SVG.addChild(group, "path", {
-                "d": `M0.5,-20.5H${(width - 0.5)}`,
-                "fill": "none",
-                "stroke": "#212529",
-                "stroke-width": "2px",
             });
 
             // Append protein domains
@@ -269,12 +261,11 @@ export default {
 
                     SVG.addChild(group, "rect", {
                         "fill": this.PROTEIN_FEATURES_COLORS[feature.type] || defaultColor,
-                        "height": 40,
-                        // "stroke": "#212529",
-                        // "stroke-width": "1px",
+                        "stroke": "none",
+                        "height": config.proteinHeight,
                         "width": (featureEnd - featureStart),
                         "x": featureStart,
-                        "y": -41,
+                        "y": (-1) * config.proteinHeight,
                         "title": feature.description,
                     });
 
@@ -284,6 +275,14 @@ export default {
                     }
                     featuresCounts[feature.type]++;
                 });
+
+            // Generate protein rectangle
+            SVG.addChild(group, "path", {
+                "d": `M0.5,-${config.proteinHeight - 0.5}H${(width - 0.5)}V0.5H0.5Z`,
+                "fill": "none",
+                "stroke": "#212529",
+                "stroke-width": "1px",
+            });
 
             // Generate protein features legend
             const featuresLegend = Object.keys(featuresCounts).map(id => {
@@ -301,8 +300,8 @@ export default {
             this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
         }
 
-        // Update SVG size
-        svg.setAttribute("height", `${offset}px`);
+        // We need to update the SVG height with the total height of all tracks
+        svg.setAttribute("height", `${offset + 1}px`);
 
         return svg;
     },
@@ -314,6 +313,7 @@ export default {
             showProteinStructure: true,
             showProteinLollipops: true,
             showLegend: true,
+            proteinHeight: 40,
             proteinFeatures: [
                 "domain",
                 "region of interest",
