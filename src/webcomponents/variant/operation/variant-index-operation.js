@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import VariantAnnotationIndexOperation from "./variant-annotation-index-operation";
 
 export default class VariantIndexOperation extends LitElement {
 
@@ -154,7 +153,7 @@ export default class VariantIndexOperation extends LitElement {
                                     .value="${toolParams?.study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}}"
+                                    .config="${{multiple: false, disabled: !!this.study}}"
                                     @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -176,7 +175,8 @@ export default class VariantIndexOperation extends LitElement {
                                 <catalog-search-autocomplete
                                     .value="${toolParams?.file}"
                                     .resource="${"FILE"}"
-                                    .query="${{
+                                    .query="${
+                                    {
                                         type: "FILE",
                                         format: "VCF",
                                         include: "id,name,format,size,path",

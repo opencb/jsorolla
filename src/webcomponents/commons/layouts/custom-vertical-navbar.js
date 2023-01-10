@@ -371,7 +371,7 @@ export default class CustomVerticalNavBar extends LitElement {
                                 <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
                                 <a class="dropdown-toggle" data-toggle="dropdown open"
                                    role="button" aria-haspopup="true" aria-expanded="true">
-                                    ${item.name} <span class="caret"></span>
+                                    ${item.name} <!-- <span class="caret"></span> -->
                                 </a>
                                 <ul class="dropdown-menu" @click="${this._onItemNavClick}">
                                 ${
