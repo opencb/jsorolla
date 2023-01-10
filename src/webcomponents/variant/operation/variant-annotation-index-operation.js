@@ -15,14 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
+import "../../commons/filters/consequence-type-select-filter.js";
 
 
-export default class IndividualMendelianErrorAnalysis extends LitElement {
+export default class VariantAnnotationIndexOperation extends LitElement {
 
     constructor() {
         super();
@@ -36,22 +37,22 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
     static get properties() {
         return {
-            toolParams: {
+            opencgaSession: {
                 type: Object,
             },
-            opencgaSession: {
+            toolParams: {
                 type: Object,
             },
             title: {
                 type: String,
-            }
+            },
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "mendelian-error";
-        this.ANALYSIS_TITLE = "Mendelian Error";
-        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify Mendelian Error";
+        this.TOOL = "VariantAnnotationIndex";
+        this.TITLE = "Variant Annotation Index Operation";
+        this.DESCRIPTION = "Executes a variant annotation index job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -65,8 +66,7 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-            this.individual = this.toolParams.individual || "";
-            this.family = this.toolParams.family || "";
+            this.project = this.toolParams.project || "";
         }
     }
 
@@ -82,33 +82,35 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     }
 
     check() {
-        if (!this.toolParams.individual && !this.toolParams.family) {
+        if (!this.toolParams.project) {
             return {
-                message: "You must select a individual or a family",
-                notificationType: "warning"
+                message: "Project ID is a mandatory parameter, please select one."
             };
         }
         return null;
     }
 
-    onFieldChange(e) {
-        this.toolParams = {...this.toolParams};
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        if (param) {
+            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        }
+        this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            family: this.toolParams.family || "",
-            individual: this.toolParams.individual || "",
+            overwriteAnnotations: this.toolParams.overwriteAnnotations || false,
         };
         const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            project: this.toolParams.project || "",
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants()
-                .runMendelianError(toolParams, params),
+            this.TITLE,
+            this.opencgaSession.opencgaClient.variantOperations()
+                .indexVariantAnnotation(toolParams, params),
             this,
         );
     }
@@ -135,48 +137,47 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Parameters",
+                title: "Project Filter",
                 elements: [
                     {
-                        title: "Select family",
-                        field: "family",
+                        title: "Project",
                         type: "custom",
+                        required: true,
                         display: {
-                            render: (family, dataFormFilterChange, updateParams, toolParams) => html `
+                            render: toolParams => html`
                                 <catalog-search-autocomplete
-                                    .value="${family}"
-                                    .resource="${"FAMILY"}"
+                                    .value="${toolParams?.project}"
+                                    .resource="${"PROJECT"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!toolParams?.individual}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    .config="${{multiple: false, disabled: !!this.project}}"
+                                    @filterChange="${e => this.onFieldChange(e, "project")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
-                    },
-                    {
-                        title: "Select individual",
-                        field: "individual",
-                        type: "custom",
-                        display: {
-                            render: (individual, dataFormFilterChange, updateParams, toolParams) => html `
-                                <catalog-search-autocomplete
-                                    .value="${individual}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!toolParams?.family}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
+                    }
                 ],
             },
+            {
+                title: "Configuration Parameters",
+                elements: [
+                    {
+                        title: "Overwrite Annotations",
+                        field: "overwriteAnnotations",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Annotate all variants, not only new variants"
+                            }
+                        }
+                    },
+                ],
+            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );
@@ -184,4 +185,4 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
 }
 
-customElements.define("mendelian-error-analysis", IndividualMendelianErrorAnalysis);
+customElements.define("variant-annotation-index-operation", VariantAnnotationIndexOperation);

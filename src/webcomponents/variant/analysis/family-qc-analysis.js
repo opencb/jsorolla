@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -84,18 +84,16 @@ export default class FamilyQcAnalysis extends LitElement {
     }
 
     check() {
-        return {
-            status: !!this.toolParams.family
-        };
+        if (this.opencgaSession && !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user?.id)) {
+            return {
+                message: "Only Study admins can execute QC methods"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -145,6 +143,7 @@ export default class FamilyQcAnalysis extends LitElement {
                         title: "Select Family",
                         field: "family",
                         type: "custom",
+                        required: true,
                         display: {
                             render: (family, dataFormFilterChange)=> html `
                                 <catalog-search-autocomplete
@@ -155,9 +154,6 @@ export default class FamilyQcAnalysis extends LitElement {
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
-                            help: {
-                                text: "Select a family to run QC"
-                            },
                         },
                     },
                 ],
@@ -166,11 +162,13 @@ export default class FamilyQcAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Select minor allele frequency",
+                        title: "Select Relatedness Minor Allele Frequency",
                         field: "relatednessMaf",
                         type: "input-text",
                         display: {
-                            disabled: true
+                            help: {
+                                text: "Format allowed is STUDY:COHORT{<|<=|>|>=}FREQUENCY, eg. 1000G:ALL>0.3"
+                            }
                         }
                     },
                 ],

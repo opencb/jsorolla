@@ -1,5 +1,6 @@
 :root {
-    --main-bg-color: #0c2f4c;
+    /*--main-bg-color: #0c2f4c;*/
+    --main-bg-color: #17224D;
     --main-color-darker: #09243a;
     --main-color-link: #286090;
     --main-color-hover: #23527c;
@@ -419,11 +420,11 @@ h3.page-title {
 }
 
 /*.btn-group .btn:first-child {
-    clip-path: inset(-17px 0px -17px -17px);
+    clip-path: inset(-17px 0 -17px -17px);
 }
 
 .btn-group .btn:last-child {
-    clip-path: inset(-17px -17px -17px 0px);
+    clip-path: inset(-17px -17px -17px 0);
 }*/
 
 .shadow {
@@ -798,7 +799,7 @@ button.active-filter-label:hover {
 }
 
 .saved-filter-wrapper .filtersLink .id-filter-button {
-    /*padding: 0px 10px;*/
+    /*padding: 0 10px;*/
     margin: 0 25px 0 10px;
 }
 
@@ -1069,7 +1070,7 @@ a#waffle-icon-wrapper {
     -moz-box-shadow: 5px 5px 5px -2px rgba(0, 0, 0, 0.75);
     box-shadow: 5px 5px 5px -2px rgba(0, 0, 0, 0.75);
     */
-    background: linear-gradient(135deg, #c4d3e0 0%, #c4d3e0 50%, #c4d3e0 100%);
+    background: linear-gradient(135deg, #c4d3e0 0, #c4d3e0 50%, #c4d3e0 100%);
     background: #c6ddf3;
     text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgba(163, 191, 216, 1),
@@ -1098,7 +1099,7 @@ a#waffle-icon-wrapper {
 .text-icon.grey {
     border: 5px solid var(--main-bg-color);
     color: var(--main-bg-color);
-    background: linear-gradient(135deg, #c4d3e0 0%, #c4d3e0 50%, #c4d3e0 100%);
+    background: linear-gradient(135deg, #c4d3e0 0, #c4d3e0 50%, #c4d3e0 100%);
     background: #ffffff;
     text-shadow: 2px 2px 0 rgba(12, 47, 76, 0.3),
     4px 4px 3px rgb(236, 236, 236),
@@ -1600,9 +1601,7 @@ Toggle Changes
 .hi-icon-wrap {
     text-align: center;
     margin: 0 auto;
-    padding: 2em 0 3em;
-    padding-top: 10px;
-    padding-bottom: 20px;
+    padding: 10px 0 20px;
 }
 
 .hi-icon {
@@ -2166,8 +2165,8 @@ opencga-gene-view h3.section-title /* TODO refactor */{
         opacity: 1;
         -webkit-transform-origin: 50% 0;
         transform-origin: 50% 0;
-        -webkit-transform: scale(1) translate(0%, 0%);
-        transform: scale(1) translate(0%, 0%);
+        -webkit-transform: scale(1) translate(0%, 0);
+        transform: scale(1) translate(0%, 0);
     }
     100% {
         opacity: 0;

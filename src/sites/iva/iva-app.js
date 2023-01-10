@@ -84,6 +84,8 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/study/admin/catalog-admin.js";
+import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/user/user-login.js";
 import "../../webcomponents/user/user-profile.js";
 // import "../../webcomponents/user/user-password-reset.js";
@@ -210,9 +212,14 @@ class IvaApp extends LitElement {
             "disease-panel",
             "diseasePanelUpdate",
             "clinicalAnalysis",
-            "projects-admin",
-            "opencga-admin",
+            // Admin
             "study-admin",
+            "catalog-admin",
+            "study-variant-admin",
+            "opencga-admin",
+            "variants-admin",
+            "projects-admin",
+            // REST-API
             "rest-api"];
 
         for (const component of components) {
@@ -1820,6 +1827,16 @@ class IvaApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["catalog-admin"] ? html`
+                    <div id="catalog-admin">
+                        <catalog-admin
+                                .opencgaSession="${this.opencgaSession}"
+                                @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </catalog-admin>
+                    </div>
+                ` : null}
+
+
                 ${this.config.enabledComponents["opencga-admin"] ? html`
                     <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="opencga-admin" class="content col-md-10 col-md-offset-1">
@@ -1831,13 +1848,22 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-                    <tool-header title="Study Admin" icon="${"fas fa-rocket"}"></tool-header>
                     <div class="content">
                         <study-admin
                             .study="${this.opencgaSession.study}"
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["study-variant-admin"] ? html`
+                    <div class="content">
+                        <study-variant-admin
+                            .study="${this.opencgaSession.study}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-variant-admin>
                     </div>
                 ` : null}
 

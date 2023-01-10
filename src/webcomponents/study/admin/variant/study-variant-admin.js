@@ -15,18 +15,22 @@
  */
 
 import {LitElement, html} from "lit";
-import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
+import LitUtils from "../../../commons/utils/lit-utils";
+import "../study-admin-sample.js";
+import "../study-admin-individual.js";
+import "../study-admin-family.js";
+import "../study-admin-cohort.js";
+import "../study-admin-configuration.js";
+import "../../../variant/operation/variant-annotation-index-operation.js";
+import "../../../variant/operation/clinical-analysis-configuration-operation.js";
+import "../../../variant/operation/variant-index-operation.js";
+import "../../../variant/operation/variant-stats-index-operation.js";
+import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-operation.js";
+import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 
-import "./study-admin-users.js";
-import "./study-admin-permissions.js";
-import "./study-admin-variable.js";
-import "./study-admin-audit.js";
-import "./study-admin-configuration.js";
-import opencgaSession from "../../opencga/catalog/variableSets/test/opencgaSession";
-import LitUtils from "../../commons/utils/lit-utils";
 
-
-export default class StudyAdmin extends LitElement {
+export default class StudyVariantAdmin extends LitElement {
 
     constructor() {
         super();
@@ -57,7 +61,7 @@ export default class StudyAdmin extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         super.update(changedProperties);
@@ -69,16 +73,6 @@ export default class StudyAdmin extends LitElement {
     }
 
     studyIdObserver() {
-        /*
-        for (const project of this.opencgaSession?.projects) {
-            for (const study of project.studies) {
-                if (study.id === this.studyId || study.fqn === this.studyId) {
-                    this.study = study;
-                    break;
-                }
-            }
-        }
-        */
         if (this.studyId && this.opencgaSession) {
             let error;
             this.#setLoading(true);
@@ -101,6 +95,14 @@ export default class StudyAdmin extends LitElement {
             this.study = {};
         }
     }
+
+    // getDefaultConfig() {
+    //     return {
+    //         title: "Study Admin",
+    //         icon: "variant_browser.svg",
+    //         active: false
+    //     };
+    // }
 
     // onSideNavClick(e) {
     //     e.preventDefault();
@@ -311,31 +313,11 @@ export default class StudyAdmin extends LitElement {
     //                     <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
     //                         <ul class="nav navbar-nav left">
     //                             <li>
-    //                                 <p class="navbar-text">Study Administration</p>
+    //                                 <p class="navbar-text">Variant Configuration</p>
     //                             </li>
     //                             <li>
     //                                 <a data-id="Dashboard" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Dashboard
     //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-tachometer-alt"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li class="active">
-    //                                 <a data-id="UsersAndGroups" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Users and Groups
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-user-friends"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="Permissions" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Permissions
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-key"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="VaribleSets" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Variable Sets
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
-    //                                 </a>
-    //                             </li>
-    //                             <li>
-    //                                 <a data-id="Audit" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
-    //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
     //                                 </a>
     //                             </li>
     //                             <li>
@@ -344,10 +326,10 @@ export default class StudyAdmin extends LitElement {
     //                                 </a>
     //                             </li>
     //                             <li>
-    //                                 <p class="navbar-text">Data Management</p>
+    //                                 <p class="navbar-text">Variant Operations</p>
     //                             </li>
     //                             <li>
-    //                                 <a data-id="Sample" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Sample
+    //                                 <a data-id="variant-annotation-index" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Variant Annotation Index
     //                                     <span class="pull-right" style="font-size: 16px"><i class="fas fa-vial"></i></span>
     //                                 </a>
     //                             </li>
@@ -371,7 +353,7 @@ export default class StudyAdmin extends LitElement {
     //                 </nav>
     //             </div>
     //
-    //             <div class="col-md-10" style="top:150px;">
+    //             <div class="col-md-6" style="top:150px;">
     //                 <!-- Content Module  -->
     //                 <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
     //                     <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
@@ -382,34 +364,14 @@ export default class StudyAdmin extends LitElement {
     //                         </div>;
     //                     </div>
     //
-    //                     <div id="${this._prefix}UsersAndGroups" role="tabpanel" class="tab-pane content-tab active">
-    //                         <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>Users And Groups</h2>
-    //                         <study-admin-users .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-users>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Permissions</h2>
-    //                         <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}VaribleSets" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-code icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
-    //                         <study-admin-variable .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-variable>
-    //                     </div>
-    //
-    //                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-book icon-padding" style="padding-right: 10px"></i>Audit</h2>
-    //                         <study-admin-audit .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-audit>
-    //                     </div>
-    //
     //                     <div id="${this._prefix}Configuration" role="tabpanel" class="tab-pane content-tab">
     //                         <h2><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration (Coming Soon)</h2>
     //                         <study-admin-configuration .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-configuration>
     //                     </div>
     //
-    //                     <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
-    //                         <h2><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Sample</h2>
-    //                         <study-admin-sample .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-sample>
+    //                     <div id="${this._prefix}variant-annotation-index" role="tabpanel" class="tab-pane content-tab">
+    //                         <h2><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Variant Annotation</h2>
+    //                         <variant-annotation-operation .opencgaSession="${this.opencgaSession}"></variant-annotation-operation>
     //                     </div>
     //
     //                     <div id="${this._prefix}Individual" role="tabpanel" class="tab-pane content-tab">
@@ -432,39 +394,44 @@ export default class StudyAdmin extends LitElement {
     // }
 
     render() {
-        const activeMenuItem = "UsersAndGroups";
+        const activeMenuItem = "variant-annotation-index";
         return html`
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
                 .activeMenuItem="${activeMenuItem}">
-            </custom-vertical-navbar>`;
+            </custom-vertical-navbar>
+        `;
     }
 
     getDefaultConfig() {
         return {
             id: "",
-            name: "Study Admin",
+            name: "Study Variant Admin",
             logo: "",
             icon: "",
-            visibility: "private", // public | private | none
+            visibility: "", // public | private | none
             // title: "Study",
             // sections: [
             menu: [
                 {
-                    id: "configuration",
-                    name: "Configuration",
+                    id: "variant-configuration",
+                    name: "Variant Configuration",
                     description: "",
                     icon: "",
-                    featured: "", // true | false
                     visibility: "private",
+                    featured: "", // true | false
+                    category: true, // true | false
+                    // label: "Configure",
                     submenu: [
                         // {
-                        //     id: "Dashboard",
+                        //     id: "dashboard",
                         //     name: "Dashboard",
-                        //     visibility: "private",
+                        //     description: "",
                         //     icon: "fas fa-tachometer-alt",
+                        //     visibility: "none",
+                        //     // label: "Dashboard",
                         //     // QUESTION: Which one: (a) or (b)
                         //     // question: (a)
                         //     // display: {
@@ -483,86 +450,120 @@ export default class StudyAdmin extends LitElement {
                         //         </under-construction>`,
                         // },
                         {
-                            id: "UsersAndGroups",
-                            // label: "Users and Groups",
-                            name: "Users and Groups",
-                            icon: "fas fa-user-friends",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-admin-users
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-users>`,
-                        },
-                        {
-                            id: "Permissions",
-                            // label: "Permissions",
-                            name: "Permissions",
+                            id: "clinical-analysis-configuration-operation",
+                            // label: "Variant Annotation Index",
+                            name: "Clinical Analysis Configuration",
                             icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                                <study-admin-permissions
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-permissions>`,
+                                <clinical-analysis-configuration-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-configuration-operation>
+                            `,
                         },
                         {
-                            id: "VariableSets",
-                            // label: "Variable Sets",
-                            name: "Variable Sets",
-                            icon: "fas fa-book",
+                            id: "variant-secondary-sample-configure-index",
+                            // label: "Variant Annotation Index",
+                            name: "Sample Index Configuration",
+                            icon: "fas fa-key",
                             visibility: "private",
                             render: (opencgaSession, study) => html`
-                                <study-admin-variable
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-variable>`,
+                                <variant-secondary-sample-index-configure-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-sample-index-configure-operation>
+                            `,
                         },
                         {
-                            id: "Audit",
-                            // label: "Audit",
-                            name: "Audit",
-                            icon: "fas fa-book",
-                            visibility: "private",
+                            id: "configuration",
+                            // label: "Configuration",
+                            name: "Configuration",
+                            description: "",
+                            icon: "fas fa-cog",
+                            visibility: "none",
                             render: (opencgaSession, study) => html`
-                                <study-admin-audit
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-audit>`,
+                                <study-admin-configuration
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${study}">
+                                </study-admin-configuration>`,
                         },
-                        // {
-                        //     id: "Configuration",
-                        //     // label: "Configuration",
-                        //     name: "Configuration",
-                        //     icon: "fas fa-cog",
-                        //     visibility: "private",
-                        //     render: (opencgaSession, study) => html`
-                        //         <study-admin-configuration
-                        //                 .opencgaSession="${opencgaSession}"
-                        //                 .study="${study}">
-                        //         </study-admin-configuration>`,
-                        // },
                     ],
                 },
                 {
-                    id: "Operations",
-                    name: "Operations",
+                    id: "variant-operations",
+                    name: "Variant Operations",
+                    description: "",
+                    icon: "",
+                    visibility: "private",
+                    featured: "", // true | false
                     category: true, // true | false
-                    visibility: "none",
                     submenu: [
+
                         {
-                            id: "Solr",
-                            // label: "Solr",
-                            name: "Solr",
-                            // CAUTION: icon vs. img in config.js?
-                            img: "/sites/iva/img/logos/Solr.png",
+                            id: "variant-index",
+                            name: "Variant Index",
+                            icon: "fas fa-key",
                             visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <variant-index-operation
+                                    .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-index-operation>
+                            `,
                         },
                         {
-                            id: "Rysnc",
-                            label: "Rysnc",
-                            icon: "",
+                            id: "variant-stats-index",
+                            name: "Variant Stats Index",
+                            icon: "fas fa-key",
                             visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <variant-stats-index-operation
+                                    .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-stats-index-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-annotation-index",
+                            // label: "Variant Annotation Index",
+                            name: "Variant Annotation Index",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <variant-annotation-index-operation
+                                    .toolParams="${{project: this.opencgaSession.project.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-annotation-index-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-secondary-annotation-index",
+                            // label: "Variant Annotation Index",
+                            name: "Variant Secondary Annotation Index",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            render: (opencgaSession, study) => html`
+                                <variant-secondary-annotation-index-operation
+                                    .toolParams="${{project: this.opencgaSession.project.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-annotation-index-operation>
+                            `,
+                        },
+                        {
+                            id: "variant-secondary-sample-index",
+                            // label: "Variant Annotation Index",
+                            name: "Variant Secondary Sample Index",
+                            icon: "fas fa-key",
+                            visibility: "private",
+                            type: "navitem",
+                            // navitem: true,
+                            render: (opencgaSession, study) => html`
+                                <variant-secondary-sample-index-operation
+                                    .toolParams="${{study: this.opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-sample-index-operation>
+                            `,
                         },
                     ],
                 },
@@ -572,4 +573,4 @@ export default class StudyAdmin extends LitElement {
 
 }
 
-customElements.define("study-admin", StudyAdmin);
+customElements.define("study-variant-admin", StudyVariantAdmin);

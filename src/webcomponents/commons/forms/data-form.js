@@ -1144,7 +1144,7 @@ export default class DataForm extends LitElement {
         const config = {
             readOnly: this._getBooleanValue(element.display?.readOnly, false)
         };
-        const jsonParsed = UtilsNew.isObject(json) ? json: JSON.parse(json);
+        const jsonParsed = (UtilsNew.isObject(json) || UtilsNew.isEmpty(json)) ? json : JSON.parse(json);
         return html`
             <json-editor
                 .data="${jsonParsed}"

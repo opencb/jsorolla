@@ -84,17 +84,11 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     check() {
-        return {
-            status: !!this.toolParams.clinicalAnalysis
-        };
+        return null;
     }
 
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // this.config = this.getDefaultConfig();
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 

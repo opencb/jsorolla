@@ -19,6 +19,7 @@ import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
 import UtilsNew from "../../../core/utils-new";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class VariantExportAnalysis extends LitElement {
@@ -81,16 +82,11 @@ export default class VariantExportAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.sample || !!this.toolParams.family;
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -149,34 +145,15 @@ export default class VariantExportAnalysis extends LitElement {
                                         .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!this.sample}}"
+                                        .config="${{multiple: true}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select samples to export variants",
+                                text: "Select samples to export variants. This in optional parameter, if empty, will export all samples",
                             }
                         },
                     },
-                    // {
-                    //     title: "Family ID",
-                    //     type: "custom",
-                    //     display: {
-                    //         render: toolParams => {
-                    //             return html`
-                    //                 <catalog-search-autocomplete
-                    //                     .value="${toolParams?.individual}"
-                    //                     .resource="${"FAMILY"}"
-                    //                     .opencgaSession="${this.opencgaSession}"
-                    //                     .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                    //                     @filterChange="${e => this.onFieldChange(e, "family")}">
-                    //                 </catalog-search-autocomplete>`;
-                    //         },
-                    //         help: {
-                    //             text: "Select families to export variants",
-                    //         }
-                    //     },
-                    // },
                 ]
             },
             {

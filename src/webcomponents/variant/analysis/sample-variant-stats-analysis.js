@@ -80,17 +80,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.sample || !!this.toolParams.individual;
+        if (!this.toolParams.sample && !this.toolParams.individual) {
+            return {
+                message: "You must select a sample or an individual",
+                notificationType: "warning"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
+    onFieldChange(e) {
         this.toolParams = {...this.toolParams};
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -155,7 +155,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select on Sample to run the analysis",
+                                text: "Select to samples to run the analysis",
                             }
                         },
                     },
@@ -175,7 +175,7 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Variant stats will be calculated for all the samples of these individuals",
+                                text: "Variant stats will be calculated for all the samples belonging to these individuals",
                             }
                         },
                     },
@@ -189,16 +189,24 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Index",
+                        title: "Index Stats",
                         field: "index",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Sample variant stats will be indexed in Catalog. Only Study Admins can index scores"
+                            }
+                        }
                     },
                     {
-                        title: "Index ID",
+                        title: "Index Stats ID",
                         field: "indexId",
                         type: "input-text",
                         display: {
                             disabled: !this.toolParams.index,
+                            help: {
+                                text: "You must use this ID when querying sample variant stats in Catalog"
+                            }
                         },
                     }
                 ]

@@ -864,6 +864,14 @@ export default class UtilsNew {
         }
     }
 
+    static hasVisibleItems(aItems, session) {
+        return aItems.some(item => UtilsNew.isAppVisible(item, session));
+    }
+
+    static getVisibleItems(aItems, session) {
+        return aItems.filter(subItem => UtilsNew.isAppVisible(subItem, session));
+    }
+
     static sort(stringArray) {
         if (stringArray.length > 0) {
             return stringArray.sort((a, b) => {

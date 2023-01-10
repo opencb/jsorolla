@@ -15,14 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
-import AnalysisUtils from "../../commons/analysis/analysis-utils";
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
+import "../../commons/filters/consequence-type-select-filter.js";
 
 
-export default class IndividualMendelianErrorAnalysis extends LitElement {
+export default class ClinicalAnalysisConfigurationOperation extends LitElement {
 
     constructor() {
         super();
@@ -36,22 +37,22 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
     static get properties() {
         return {
-            toolParams: {
+            opencgaSession: {
                 type: Object,
             },
-            opencgaSession: {
+            toolParams: {
                 type: Object,
             },
             title: {
                 type: String,
-            }
+            },
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "mendelian-error";
-        this.ANALYSIS_TITLE = "Mendelian Error";
-        this.ANALYSIS_DESCRIPTION = "Compute a score to quantify Mendelian Error";
+        this.TOOL = "ClinicalAnalysisConfigurationOperation";
+        this.TITLE = "Clinical Analysis Configuration Operation";
+        this.DESCRIPTION = "Executes a variant secondary sample index configure operation job";
 
         this.DEFAULT_TOOLPARAMS = {};
         // Make a deep copy to avoid modifying default object.
@@ -65,8 +66,7 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     firstUpdated(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-            this.individual = this.toolParams.individual || "";
-            this.family = this.toolParams.family || "";
+            this.study = this.toolParams.study || "";
         }
     }
 
@@ -78,37 +78,47 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
             };
             this.config = this.getDefaultConfig();
         }
+        if (changedProperties.has("opencgaSession")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.clinical, null, 8) || "-",
+            };
+            this.config = this.getDefaultConfig();
+        }
         super.update(changedProperties);
     }
 
     check() {
-        if (!this.toolParams.individual && !this.toolParams.family) {
+        if (!this.toolParams.study) {
             return {
-                message: "You must select a individual or a family",
-                notificationType: "warning"
+                message: "Study is a mandatory parameter, please select one."
             };
         }
         return null;
     }
 
-    onFieldChange(e) {
-        this.toolParams = {...this.toolParams};
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        if (param) {
+            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        }
+        this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            family: this.toolParams.family || "",
-            individual: this.toolParams.individual || "",
+            ...JSON.parse(this.toolParams.body)
         };
         const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL)
+            study: this.toolParams.study || this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants()
-                .runMendelianError(toolParams, params),
+            this.TITLE,
+            this.opencgaSession.opencgaClient.clinical()
+                .updateClinicalConfiguration(toolParams, params),
             this,
         );
     }
@@ -135,48 +145,46 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Parameters",
+                title: "Study Filter",
                 elements: [
                     {
-                        title: "Select family",
-                        field: "family",
+                        title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
-                            render: (family, dataFormFilterChange, updateParams, toolParams) => html `
+                            render: toolParams => html`
                                 <catalog-search-autocomplete
-                                    .value="${family}"
-                                    .resource="${"FAMILY"}"
+                                    .value="${toolParams?.study}"
+                                    .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!toolParams?.individual}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    .config="${{multiple: false, disabled: !!this.study}}}"
+                                    @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
                             `,
                         },
-                    },
-                    {
-                        title: "Select individual",
-                        field: "individual",
-                        type: "custom",
-                        display: {
-                            render: (individual, dataFormFilterChange, updateParams, toolParams) => html `
-                                <catalog-search-autocomplete
-                                    .value="${individual}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!toolParams?.family}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
+                    }
                 ],
             },
+            {
+                title: "Configuration Parameters",
+                elements: [
+                    {
+                        title: "Sample Index Configuration",
+                        field: "body",
+                        type: "json-editor",
+                        display: {
+                            rows: 25,
+                            defaultLayout: "vertical"
+                        }
+                    },
+                ],
+            }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.ANALYSIS_TOOL,
-            this.title ?? this.ANALYSIS_TITLE,
-            this.ANALYSIS_DESCRIPTION,
+            this.TOOL,
+            this.title ?? this.TITLE,
+            this.DESCRIPTION,
             params,
             this.check()
         );
@@ -184,4 +192,4 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
 
 }
 
-customElements.define("mendelian-error-analysis", IndividualMendelianErrorAnalysis);
+customElements.define("clinical-analysis-configuration-operation", ClinicalAnalysisConfigurationOperation);

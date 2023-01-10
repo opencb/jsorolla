@@ -1649,7 +1649,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-
             populationFrequencies: [
                 "1000G:ALL",
                 "GNOMAD_GENOMES:ALL",
@@ -1658,7 +1657,6 @@ export default class VariantInterpreterGrid extends LitElement {
             populationFrequenciesConfig: {
                 displayMode: "FREQUENCY_BOX"
             },
-
             genotype: {
                 type: "VAF"
             },

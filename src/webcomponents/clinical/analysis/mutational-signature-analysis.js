@@ -104,7 +104,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
         super.update(changedProperties);
     }
 
-    checkValidCatalogueId() {
+    checkValidCatalogId() {
         // Check if the current sample has signatures saved and we have selected one
         if ((this.selectedSample?.qualityControl?.variant?.signatures || []).length > 0) {
             return !!this.toolParams.signature;
@@ -129,9 +129,8 @@ export default class MutationalSignatureAnalysis extends LitElement {
 
     check() {
         // Prevent running fitting without selecting a catalogue id
-        if (!this.checkValidCatalogueId()) {
+        if (!this.checkValidCatalogId()) {
             return {
-                status: false,
                 message: "Please select a catalogue ID for running fitting analysis.",
             };
         }
@@ -139,7 +138,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
         // Check if this fitting id is not unique
         if (!this.checkValidFittingId()) {
             return {
-                status: false,
                 message: `Fitting ID '${this.toolParams.fitId}' already exists.`,
             };
         }
@@ -147,19 +145,14 @@ export default class MutationalSignatureAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange() {
-        this.toolParams = {
-            ...this.toolParams,
-        };
-
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
         // Prevent submitting the form if the new fittingID already exists or the catalogue ID is empty
-        if (this.checkValidCatalogueId() && this.checkValidFittingId()) {
+        if (this.checkValidCatalogId() && this.checkValidFittingId()) {
             const toolParams = {
                 sample: this.toolParams.query.sample,
                 fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
@@ -265,6 +258,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Sample ID",
                         field: "query.sample",
                         type: "custom",
+                        required: true,
                         display: {
                             render: (sampleId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete

@@ -72,15 +72,17 @@ export default class CohortVariantStatsAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        if (!this.toolParams.cohort && !this.toolParams.samples) {
+            return {
+                message: "You must select a cohort or sample",
+                notificationType: "warning"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // this.toolParams = {...this.toolParams};
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         // Enable this only when a dynamic property in the config can change
         // this.config = this.getDefaultConfig();
         this.requestUpdate();
@@ -139,12 +141,12 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                                         .value="${cohort}"
                                         .resource="${"COHORT"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams?.samples}}"
+                                        .config="${{multiple: false, disabled: !!toolParams?.samples}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Cohort Variant stats will be calculated for the cohort selected",
+                                text: "Calculate cohort variant stats for the selected cohorts",
                             }
                         },
                     },
@@ -178,6 +180,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                         field: "index",
                         type: "checkbox",
                         display: {
+                            help: {
+                                text: "Cohort variant stats will be indexed in Catalog. Only Study Admins can index scores"
+                            }
                         },
                     },
                 ]

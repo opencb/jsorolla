@@ -105,7 +105,9 @@ export default class AnalysisUtils {
             id: id,
             title: title,
             description: description,
-            // display: {},
+            display: {
+                // defaultLayout: "vertical"
+            },
             sections: [
                 {
                     display: {},
