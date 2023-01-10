@@ -113,8 +113,8 @@ export default {
             });
 
             // Append scale ticks
-            for (let i = 0; i * 200 < proteinLength; i++) {
-                const tickValue = i * 200;
+            for (let i = 0; i * config.scaleStep < proteinLength; i++) {
+                const tickValue = i * config.scaleStep;
                 const tickPosition = getPixelPosition(tickValue) - 0.5;
                 SVG.addChild(group, "path", {
                     "d": `M${tickPosition}-6V0.5`,
@@ -318,6 +318,7 @@ export default {
                 "domain",
                 "region of interest",
             ],
+            scaleStep: 50,
         };
     },
 
