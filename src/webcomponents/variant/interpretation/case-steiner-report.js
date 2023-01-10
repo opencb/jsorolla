@@ -21,6 +21,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 class CaseSteinerReport extends LitElement {
 
@@ -72,11 +73,6 @@ class CaseSteinerReport extends LitElement {
         // Data-form is not capturing the update of the data property
         // For that reason, we need this flag to check when the data is ready (TODO)
         this._ready = false;
-        // We need to save the selected SNV and SV Ids for displaying the plots
-        this.selectedSignatures = {
-            SV: null,
-            SNV: null,
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -165,7 +161,10 @@ class CaseSteinerReport extends LitElement {
                 analyst: this.clinicalAnalysis.analyst.name,
                 signedBy: "",
                 discussion: "",
-                hrdetect: null,
+                hrdetects: [],
+                selectedHrdetect: null,
+                selectedSnvSignature: null,
+                selectedSvSignature: null,
                 deletionAggreationCount: 0,
                 deletionAggregationStats: null,
                 qcPlots: {},
@@ -214,11 +213,13 @@ class CaseSteinerReport extends LitElement {
                     // Fill somatic and germline Calling info
                     files.filter(f => f.format === "VCF").forEach(file => {
                         const info = this.callersInfo[file.software.name] || {};
-                        this._data[`${info.group}CallingInfo`].push({
-                            type: info.type,
-                            rank: info.rank,
-                            ...file.software,
-                        });
+                        if (info?.group && info?.type && info?.rank) {
+                            this._data[`${info.group}CallingInfo`].push({
+                                type: info.type,
+                                rank: info.rank,
+                                ...file.software,
+                            });
+                        }
                     });
 
                     // Fill filters (customFilteringInfo)
@@ -271,12 +272,9 @@ class CaseSteinerReport extends LitElement {
                         });
                     }
 
-                    // Add HRDetect value (if provided)
-                    const hrdetectStats = values[1].responses[0].results[0].annotationSets.find(item => {
-                        return item.id === "hrdetectStats";
-                    });
-                    if (hrdetectStats) {
-                        this._data.hrdetect = hrdetectStats.annotations.probability;
+                    // Add HRDetect data
+                    if (somaticSample.qualityControl?.variant?.hrDetects) {
+                        this._data.hrdetects = somaticSample.qualityControl.variant.hrDetects;
                     }
 
                     // End filling report data
@@ -290,7 +288,10 @@ class CaseSteinerReport extends LitElement {
     }
 
     onFieldChange() {
-        // TODO
+        this._data = {
+            ...this._data,
+        };
+        this.requestUpdate();
     }
 
     onSignatureChange(event, type) {
@@ -303,8 +304,8 @@ class CaseSteinerReport extends LitElement {
         this.requestUpdate();
     }
 
-    generateSignaturesDropdown(type) {
-        return (this._data?.qcPlots?.signatures || [])
+    generateSignaturesDropdown(signatures, type) {
+        return (signatures || [])
             .filter(signature => (signature?.type || "").toUpperCase() === type)
             .map(signature => ({
                 id: signature.id,
@@ -961,29 +962,21 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "",
-                            type: "custom",
-                            field: "qcPlots.signatures",
-                            display: {
-                                render: () => html`
-                                    <select-field-filter
-                                        .data="${this.generateSignaturesDropdown("SNV")}"
-                                        .value=${this.selectedSignatures["SNV"]}
-                                        ?multiple="${false}"
-                                        ?liveSearch=${false}
-                                        @filterChange="${e => this.onSignatureChange(e, "SNV")}">
-                                    </select-field-filter>
-                                `,
+                            type: "select",
+                            field: "selectedSnvSignature",
+                            allowedValues: data => {
+                                return this.generateSignaturesDropdown(data.qcPlots.signatures, "SNV");
                             },
                         },
                         {
                             title: "",
                             type: "custom",
-                            field: "qcPlots.signatures",
+                            field: "selectedSnvSignature",
                             display: {
-                                visible: !!this.selectedSignatures?.["SNV"],
-                                render: signatures => {
-                                    const [signatureId, fittingId] = this.selectedSignatures["SNV"].split("::");
-                                    const signature = signatures.find(s => signatureId === s.id);
+                                visible: data => !!data.selectedSnvSignature,
+                                render: (selectedSnvSignature, onChange, updateParams, data) => {
+                                    const [signatureId, fittingId] = selectedSnvSignature.split("::");
+                                    const signature = (data.qcPlots?.signatures || []).find(s => signatureId === s.id);
                                     return html`
                                         <div class="row" style="padding: 20px">
                                             <div class="col-md-6">
@@ -1040,29 +1033,21 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "",
-                            type: "custom",
-                            field: "qcPlots.signatures",
-                            display: {
-                                render: () => html`
-                                    <select-field-filter
-                                        .data="${this.generateSignaturesDropdown("SV")}"
-                                        .value=${this.selectedSignatures["SV"]}
-                                        ?multiple="${false}"
-                                        ?liveSearch=${false}
-                                        @filterChange="${e => this.onSignatureChange(e, "SV")}">
-                                    </select-field-filter>
-                                `,
+                            type: "select",
+                            field: "selectedSvSignature",
+                            allowedValues: data => {
+                                return this.generateSignaturesDropdown(data.qcPlots.signatures, "SV");
                             },
                         },
                         {
                             title: "",
-                            field: "qcPlots.signatures",
+                            field: "selectedSvSignature",
                             type: "custom",
                             display: {
-                                visible: !!this.selectedSignatures?.["SV"],
-                                render: signatures => {
-                                    const [signatureId, fittingId] = this.selectedSignatures["SV"].split("::");
-                                    const signature = signatures.find(s => signatureId === s.id);
+                                visible: data => !!data.selectedSvSignature,
+                                render: (selectedSvSignature, onChange, updateParams, data) => {
+                                    const [signatureId, fittingId] = selectedSvSignature.split("::");
+                                    const signature = (data.qcPlots?.signatures || []).find(s => signatureId === s.id);
                                     return html`
                                         <div class="row" style="padding: 20px">
                                             <div class="col-md-6">
@@ -1095,8 +1080,24 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "HRDetect",
-                            field: "hrdetect",
-                            defaultValue: "Not provided",
+                            field: "selectedHrdetect",
+                            type: "select",
+                            allowedValues: data => {
+                                return UtilsNew.sort(data.hrdetects.map(item => item.id));
+                            },
+                        },
+                        {
+                            title: "HRDetect Probability",
+                            field: "selectedHrdetect",
+                            type: "custom",
+                            display: {
+                                visible: data => !!data.selectedHrdetect,
+                                defaultLayout: "horizontal",
+                                render: (selectedHrdetect, onChange, updateParams, data) => {
+                                    const hrdetect = data.hrdetects.find(hrdetect => hrdetect?.id === selectedHrdetect);
+                                    return hrdetect?.scores?.probability ?? "NA";
+                                },
+                            },
                         },
                     ]
                 },

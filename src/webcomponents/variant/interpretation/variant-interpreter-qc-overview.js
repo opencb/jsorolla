@@ -22,6 +22,7 @@ import "./variant-interpreter-qc-inferred-sex.js";
 import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
+import "./variant-interpreter-qc-hrdetect.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "../../sample/sample-variant-stats-view.js";
 import "../../file/qc/file-qc-ascat-metrics.js";
@@ -204,6 +205,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Mutational Signature",
                             },
                             {
+                                id: "HRDetect",
+                                title: "HRDetect",
+                            },
+                            {
                                 id: "VariantStats",
                                 title: "Variant Stats"
                             },
@@ -365,6 +370,15 @@ class VariantInterpreterQcOverview extends LitElement {
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 ?active="${this.active}">
                             </variant-interpreter-qc-signature>
+                        </div>
+
+                        <div id="${this._prefix}HRDetect" role="tabpanel" class="tab-pane content-tab">
+                            <h3>HRDetect</h3>
+                            <variant-interpreter-qc-hrdetect
+                                .opencgaSession=${this.opencgaSession}
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                ?active="${this.active}">
+                            </variant-interpreter-qc-hrdetect>
                         </div>
                         <!--
                         <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
