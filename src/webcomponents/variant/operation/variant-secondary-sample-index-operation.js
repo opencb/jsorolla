@@ -82,7 +82,17 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.study;
+        if (!this.toolParams.study) {
+            return {
+                message: "Study ID is a mandatory parameter, please select one."
+            };
+        }
+        if (!this.toolParams.sample) {
+            return {
+                message: "Sample IDs is a mandatory parameter, please select some samples."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -139,6 +149,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                     {
                         title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -159,6 +170,7 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                     {
                         title: "Sample",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -175,11 +187,21 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                         title: "Family Index",
                         field: "familyIndex",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Index family genotypes, this index allows to query by segregation mode"
+                            }
+                        }
                     },
                     {
                         title: "Overwrite Index",
                         field: "overwrite",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Index all variants, including the ones that are already annotated"
+                            }
+                        }
                     },
                 ],
             }

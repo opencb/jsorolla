@@ -106,7 +106,12 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
     }
 
     check() {
-        return !!this.toolParams.study;
+        if (!this.toolParams.study) {
+            return {
+                message: "Study is a mandatory parameter, please select one."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -162,6 +167,7 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
                     {
                         title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -183,18 +189,19 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
                         title: "Skip Rebuild",
                         field: "skipRebuild",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Skip rebuilding the secondary sample variant index"
+                            }
+                        }
                     },
                     {
                         title: "Sample Index Configuration",
                         field: "body",
                         type: "json-editor",
                         display: {
-                            rows: 20,
+                            rows: 25,
                             defaultLayout: "vertical"
-                            // help: {
-                            //     mode: "ERROR",
-                            //     text: "asdssad as a"
-                            // }
                         }
                     },
                 ],

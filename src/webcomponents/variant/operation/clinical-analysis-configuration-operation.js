@@ -106,7 +106,12 @@ export default class ClinicalAnalysisConfigurationOperation extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.study;
+        if (!this.toolParams.study) {
+            return {
+                message: "Study is a mandatory parameter, please select one."
+            };
+        }
+        return null;
     }
 
     onFieldChange(e, field) {
@@ -124,7 +129,6 @@ export default class ClinicalAnalysisConfigurationOperation extends LitElement {
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
-            skipRebuild: this.toolParams.skipRebuild || false,
             ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
         };
         AnalysisUtils.submit(
@@ -162,6 +166,7 @@ export default class ClinicalAnalysisConfigurationOperation extends LitElement {
                     {
                         title: "Study",
                         type: "custom",
+                        required: true,
                         display: {
                             render: toolParams => html`
                                 <catalog-search-autocomplete
@@ -180,21 +185,12 @@ export default class ClinicalAnalysisConfigurationOperation extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Skip Rebuild",
-                        field: "skipRebuild",
-                        type: "checkbox",
-                    },
-                    {
                         title: "Sample Index Configuration",
                         field: "body",
                         type: "json-editor",
                         display: {
-                            rows: 20,
+                            rows: 25,
                             defaultLayout: "vertical"
-                            // help: {
-                            //     mode: "",
-                            //     text: ""
-                            // }
                         }
                     },
                 ],

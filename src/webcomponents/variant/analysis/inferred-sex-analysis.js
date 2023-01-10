@@ -84,16 +84,17 @@ export default class InferredSexAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.individual || !!this.toolParams.sample;
+        if (!this.toolParams.individual && !this.toolParams.sample) {
+            return {
+                message: "You must select a sample or an individual",
+                notificationType: "warning"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        // Enable this only when a dynamic property in the config can change
-        // this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -145,7 +146,6 @@ export default class InferredSexAnalysis extends LitElement {
                         field: "individual",
                         type: "custom",
                         display: {
-                            helpMessage: "Individual Id",
                             render: (individual, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${individual}"
@@ -155,6 +155,9 @@ export default class InferredSexAnalysis extends LitElement {
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
+                            // help: {
+                            //     text: "Individual ID to execute the analysis"
+                            // }
                         }
                     },
                     {
@@ -162,7 +165,6 @@ export default class InferredSexAnalysis extends LitElement {
                         field: "sample",
                         type: "custom",
                         display: {
-                            helpMessage: "Sample Id",
                             render: (sample, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${sample}"
