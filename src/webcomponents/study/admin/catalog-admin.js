@@ -15,16 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
-import "/src/webcomponents/commons/layouts/custom-vertical-navbar.js";
 
 import "./study-admin-sample.js";
 import "./study-admin-individual.js";
 import "./study-admin-family.js";
 import "./study-admin-cohort.js";
 import "./study-admin-configuration.js";
-import opencgaSession from "../../opencga/catalog/variableSets/test/opencgaSession";
 import LitUtils from "../../commons/utils/lit-utils";
-
+import "../../commons/layouts/custom-vertical-navbar.js";
 
 export default class CatalogAdmin extends LitElement {
 
