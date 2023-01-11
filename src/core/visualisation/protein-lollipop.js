@@ -64,6 +64,42 @@ export default {
         parent.appendChild(field);
     },
 
+    generateTrackInfoSection(parent, config) {
+        const group = SVG.addChild(parent, "g", {});
+        let offset = 0;
+
+        // Add track title
+        if (config?.title) {
+            SVG.addChildText(group, config.title.toUpperCase(), {
+                "x": 0,
+                "y": 0,
+                "fill": "#000",
+                "text-anchor": "end",
+                "dominant-baseline": "hanging",
+                "style": "font-size:0.875em;font-weight:bold;",
+            });
+            offset = offset + 16;
+        }
+
+        // Add track additional lines
+        (config?.additionalLines || []).forEach(line => {
+            SVG.addChildText(group, line, {
+                "x": 0,
+                "y": offset,
+                "fill": "#000",
+                "text-anchor": "end",
+                "dominant-baseline": "hanging",
+                "style": "font-size:0.625em;",
+            });
+            offset = offset + 16;
+        });
+
+        // Move info group
+        group.setAttribute("transform", `translate(${config.translateX} ${config.translateY})`);
+
+        return group;
+    },
+
     // Draw protein visualization
     draw(target, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
@@ -142,13 +178,11 @@ export default {
             });
 
             // Append scale title
-            SVG.addChildText(group, "Scale", {
-                "x": `-${config.trackInfoPadding}`,
-                "y": "-15",
-                "fill": "#000",
-                "text-anchor": "end",
-                "dominant-baseline": "hanging",
-                "style": "font-size:0.875em;",
+            this.generateTrackInfoSection(group, {
+                title: "Scale",
+                additionalLines: [],
+                translateX: -config.trackInfoPadding,
+                translateY: -15,
             });
         }
 
@@ -294,6 +328,16 @@ export default {
                 "stroke-width": "1px",
             });
 
+            // Section title
+            this.generateTrackInfoSection(group, {
+                title: "PROTEIN",
+                additionalLines: [
+                    protein.proteinId,
+                ],
+                translateX: -config.trackInfoPadding,
+                translateY: -config.proteinHeight,
+            });
+
             // Generate protein features legend
             const featuresLegend = Object.keys(featuresCounts).map(id => {
                 const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
@@ -362,21 +406,13 @@ export default {
             });
 
             // Display track info
-            SVG.addChildText(group, track.title.toUpperCase(), {
-                "x": `-${config.trackInfoPadding}`,
-                "y": `-${maxHeight}`,
-                "fill": "#000",
-                "text-anchor": "end",
-                "dominant-baseline": "hanging",
-                "style": "font-size:0.875em;font-weight:bold;",
-            });
-            SVG.addChildText(group, `${lollipopsVariants.length} Variants`, {
-                "x": `-${config.trackInfoPadding}`,
-                "y": `-${maxHeight - 16}`,
-                "fill": "#000",
-                "text-anchor": "end",
-                "dominant-baseline": "hanging",
-                "style": "font-size:0.625em;",
+            this.generateTrackInfoSection(group, {
+                title: track.title,
+                additionalLines: [
+                    `${lollipopsVariants.length} Variants`,
+                ],
+                translateX: -config.trackInfoPadding,
+                translateY: -maxHeight,
             });
 
             // Track separation
