@@ -93,7 +93,7 @@ export default {
 
         // Initialize SVG for reindering protein tracks
         const svg = SVG.init(parent, {width: "100%"}, 0);
-        const width = svg.clientWidth - 2 * config.padding;
+        const width = svg.clientWidth - 2 * config.padding - config.trackInfoWidth;
         let offset = 0;
 
         // Get protein length
@@ -109,7 +109,7 @@ export default {
         if (config.showProteinScale) {
             offset = offset + 25;
             const group = SVG.addChild(svg, "g", {
-                "transform": `translate(${config.padding},${offset})`,
+                "transform": `translate(${config.padding + config.trackInfoWidth},${offset})`,
             });
 
             // Append scale ticks
@@ -139,6 +139,16 @@ export default {
                 "fill": "none",
                 "stroke": "black",
                 "stroke-width": "1px",
+            });
+
+            // Append scale title
+            SVG.addChildText(group, "Scale", {
+                "x": `-${config.trackInfoPadding}`,
+                "y": "-15",
+                "fill": "#000",
+                "text-anchor": "end",
+                "dominant-baseline": "hanging",
+                "style": "font-size:0.875em;",
             });
         }
 
@@ -239,7 +249,7 @@ export default {
 
             // Update the lollipop track position
             offset = offset + maxHeight;
-            group.setAttribute("transform", `translate(${config.padding}, ${offset})`);
+            group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
         }
 
         // Show protein structure
@@ -249,7 +259,7 @@ export default {
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(svg, "g", {
-                "transform": `translate(${config.padding}, ${offset})`,
+                "transform": `translate(${config.padding + config.trackInfoWidth}, ${offset})`,
             });
 
             // Append protein domains
@@ -300,6 +310,91 @@ export default {
             this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
         }
 
+        // Render additional tracks
+        (config.tracks || []).forEach(track => {
+            const group = SVG.addChild(svg, "g", {});
+            const maxHeight = 50; // Track maximum height
+
+            const lollipopsVariants = (track.variants || [])
+                .map(variant => {
+                    let info = null;
+                    const ct = variant?.annotation?.consequenceTypes?.find(item => {
+                        return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
+                    });
+
+                    if (ct && ct.proteinVariantAnnotation?.position) {
+                        info = {
+                            // variantId: variant.id,
+                            position: ct.proteinVariantAnnotation.position,
+                            reference: ct.proteinVariantAnnotation.reference,
+                            alternate: ct.proteinVariantAnnotation.alternate,
+                            sequenceOntologyTerms: ct.sequenceOntologyTerms,
+                        };
+                    }
+                    return info;
+                })
+                .filter(item => !!item)
+                .sort((a, b) => a.position < b.position ? -1 : +1);
+
+            // Render lollipops
+            lollipopsVariants.forEach(info => {
+                const x = getPixelPosition(info.position);
+                const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
+                const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
+
+                // Lollipop line
+                SVG.addChild(group, "path", {
+                    "d": `M${x - 0.5},0V-20`,
+                    "fill": "none",
+                    "stroke": color,
+                    "stroke-width": "1px",
+                });
+
+                // Lollipop circle
+                SVG.addChild(group, "circle", {
+                    "cx": x - 0.5,
+                    "cy": -20,
+                    "r": 6,
+                    "fill": color,
+                    "stroke": "#fff",
+                    "stroke-width": "1px",
+                });
+            });
+
+            // Display track info
+            SVG.addChildText(group, track.title.toUpperCase(), {
+                "x": `-${config.trackInfoPadding}`,
+                "y": `-${maxHeight}`,
+                "fill": "#000",
+                "text-anchor": "end",
+                "dominant-baseline": "hanging",
+                "style": "font-size:0.875em;font-weight:bold;",
+            });
+            SVG.addChildText(group, `${lollipopsVariants.length} Variants`, {
+                "x": `-${config.trackInfoPadding}`,
+                "y": `-${maxHeight - 16}`,
+                "fill": "#000",
+                "text-anchor": "end",
+                "dominant-baseline": "hanging",
+                "style": "font-size:0.625em;",
+            });
+
+            // Track separation
+            if (config.trackSeparationVisible) {
+                SVG.addChild(group, "path", {
+                    "d": `M-${config.trackInfoWidth},-${maxHeight - 0.5 + config.trackSeparationHeight / 2}H${width + config.trackInfoWidth}`,
+                    "fill": "none",
+                    "stroke": "#000",
+                    "stroke-width": "1px",
+                    "stroke-dasharray": "5,5",
+                    "style": "opacity:0.4;",
+                });
+            }
+
+            offset = offset + maxHeight + config.trackSeparationHeight;
+            group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+        });
+
         // We need to update the SVG height with the total height of all tracks
         svg.setAttribute("height", `${offset + 1}px`);
 
@@ -319,6 +414,11 @@ export default {
                 "region of interest",
             ],
             scaleStep: 50,
+            tracks: [],
+            trackInfoWidth: 120,
+            trackInfoPadding: 12,
+            trackSeparationVisible: true,
+            trackSeparationHeight: 10,
         };
     },
 
