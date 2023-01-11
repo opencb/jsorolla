@@ -64,7 +64,7 @@ export default {
         parent.appendChild(field);
     },
 
-    generateTrackInfoSection(parent, config) {
+    generateTrackInfo(parent, config) {
         const group = SVG.addChild(parent, "g", {});
         let offset = 0;
 
@@ -200,7 +200,7 @@ export default {
             });
 
             // Append scale title
-            this.generateTrackInfoSection(group, {
+            this.generateTrackInfo(group, {
                 title: "Scale",
                 additionalLines: [],
                 translateX: -config.trackInfoPadding,
@@ -367,7 +367,7 @@ export default {
             });
 
             // Section title
-            this.generateTrackInfoSection(group, {
+            this.generateTrackInfo(group, {
                 title: "PROTEIN",
                 additionalLines: [
                     protein.proteinId,
@@ -462,7 +462,7 @@ export default {
             });
 
             // Display track info
-            this.generateTrackInfoSection(group, {
+            this.generateTrackInfo(group, {
                 title: track.title,
                 additionalLines: [
                     `${lollipopsVariants.length} Variants`,
