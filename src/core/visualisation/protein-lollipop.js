@@ -100,6 +100,28 @@ export default {
         return group;
     },
 
+    generateTrackLegend(parent, config) {
+        const legendParent = SVG.addChild(parent, "foreignObject", {
+            x: config.x || 0,
+            y: config.y || 0,
+            width: config.width,
+            height: config.height,
+        });
+
+        legendParent.innerHTML = `
+            <div style="display:flex;flex-direction:row-reverse;padding-top:0.4em;">
+                ${(config.items || []).map(item => `
+                    <div style="display:flex;align-items:center;font-size:8px;margin-left:1em;">
+                        <div style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
+                        <div style="margin-left:0.5em;line-height:1.5;">
+                            <strong style="color:${item.color};">${item.title.toUpperCase()}</strong>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    },
+
     // Draw protein visualization
     draw(target, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
@@ -120,7 +142,7 @@ export default {
             </div>
         `;
         const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
-        const legendsParent = parent.querySelector(`div#${prefix}Legends`);
+        // const legendsParent = parent.querySelector(`div#${prefix}Legends`);
 
         // Append HTML content into target element (if provided)
         if (target) {
@@ -243,7 +265,7 @@ export default {
                     });
 
                     // Lollipop ID text
-                    const id = `${info.reference}${info.position}${info.alternate}`;
+                    const id = `${(info.reference || "-")}${info.position}${(info.alternate || "-")}`;
                     const text = SVG.addChildText(group, id, {
                         "fill": color,
                         "text-anchor": "start",
@@ -262,28 +284,44 @@ export default {
                 });
 
             // Generate variants legend
-            const variantsLegend = Object.keys(variantsCounts)
-                .sort((a, b) => variantsCounts[a] < variantsCounts[b] ? +1 : -1)
-                .map(id => {
-                    const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
-                    const count = variantsCounts[id];
-                    return `
-                        <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-                            <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
-                            <div style="margin-left:0.5em;">
-                                <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
-                            </div>
-                        </div>
-                    `;
-                });
+            // const variantsLegend = Object.keys(variantsCounts)
+            //     .sort((a, b) => variantsCounts[a] < variantsCounts[b] ? +1 : -1)
+            //     .map(id => {
+            //         const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
+            //         const count = variantsCounts[id];
+            //         return `
+            //             <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
+            //                 <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
+            //                 <div style="margin-left:0.5em;">
+            //                     <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
+            //                 </div>
+            //             </div>
+            //         `;
+            //     });
 
-            if (variantsLegend.length > 0) {
-                this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
-            }
+            // if (variantsLegend.length > 0) {
+            //     this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
+            // }
 
             // Update the lollipop track position
             offset = offset + maxHeight;
             group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+
+            // Display lollipops legend
+            if (config.showLegend && Object.keys(variantsCounts).length > 0) {
+                this.generateTrackLegend(group, {
+                    items: Object.keys(variantsCounts).map(id => ({
+                        title: id.toUpperCase(),
+                        color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
+                        // color: this.PROTEIN_FEATURES_COLORS[id] || defaultColor,
+                    })),
+                    width: width,
+                    height: config.legendHeight,
+                });
+
+                // We need to update the offset to take into accound the legend height
+                offset = offset + config.legendHeight;
+            }
         }
 
         // Show protein structure
@@ -338,27 +376,40 @@ export default {
                 translateY: -config.proteinHeight,
             });
 
-            // Generate protein features legend
-            const featuresLegend = Object.keys(featuresCounts).map(id => {
-                const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
-                return `
-                    <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-                        <div style="background-color:${color};border-radius:0.25em;padding:0.6em 1em;"></div>
-                        <div style="margin-left:0.5em;">
-                            <strong style="color:${color};">${id.toUpperCase()}</strong>
-                        </div>
-                    </div>
-                `;
-            });
+            // // Generate protein features legend
+            // const featuresLegend = Object.keys(featuresCounts).map(id => {
+            //     const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
+            //     return `
+            //         <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
+            //             <div style="background-color:${color};border-radius:0.25em;padding:0.6em 1em;"></div>
+            //             <div style="margin-left:0.5em;">
+            //                 <strong style="color:${color};">${id.toUpperCase()}</strong>
+            //             </div>
+            //         </div>
+            //     `;
+            // });
 
-            this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
+            // this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
+            if (config.showLegend) {
+                this.generateTrackLegend(group, {
+                    items: Object.keys(featuresCounts).map(id => ({
+                        title: id.toUpperCase(),
+                        color: this.PROTEIN_FEATURES_COLORS[id] || defaultColor,
+                    })),
+                    width: width,
+                    height: config.legendHeight,
+                });
+
+                // We need to update the offset to take into accound the legend height
+                offset = offset + config.legendHeight;
+            }
         }
 
         // Render additional tracks
         (config.tracks || []).forEach(track => {
             const group = SVG.addChild(svg, "g", {});
             const maxHeight = 50; // Track maximum height
-
+            const countsByConsequenceType = {};
             const lollipopsVariants = (track.variants || [])
                 .map(variant => {
                     let info = null;
@@ -403,6 +454,11 @@ export default {
                     "stroke": "#fff",
                     "stroke-width": "1px",
                 });
+
+                if (typeof countsByConsequenceType[consequenceType] !== "number") {
+                    countsByConsequenceType[consequenceType] = 0;
+                }
+                countsByConsequenceType[consequenceType]++;
             });
 
             // Display track info
@@ -429,6 +485,21 @@ export default {
 
             offset = offset + maxHeight + config.trackSeparationHeight;
             group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+
+            // Display track legend
+            if (config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
+                this.generateTrackLegend(group, {
+                    items: Object.keys(countsByConsequenceType).map(id => ({
+                        title: id.toUpperCase(),
+                        color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
+                    })),
+                    width: width,
+                    height: config.legendHeight,
+                });
+
+                // We need to update the offset to take into accound the legend height
+                offset = offset + config.legendHeight;
+            }
         });
 
         // We need to update the SVG height with the total height of all tracks
@@ -455,6 +526,7 @@ export default {
             trackInfoPadding: 12,
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
+            legendHeight: 20,
         };
     },
 
