@@ -297,14 +297,13 @@ export default class ClinicalAnalysisCreate extends LitElement {
             };
         }
 
-        // Fix comments field --> convert to array of messages
-        // if (data.comments) {
-        //     data.comments = [
-        //         {message: data.comments},
-        //     ];
-        // }
-        if (this.commentsUpdate) {
-            data.comments = this.commentsUpdate.value;
+        if (data.comments) {
+            data.comments = data.comments
+                .filter(comment => !comment.author)
+                .map(comment => ({
+                    ...comment,
+                    tags: UtilsNew.commaSeparatedArray(comment.tags),
+                }));
         }
 
         // Clear dueDate field if not provided a valid value
