@@ -87,6 +87,18 @@
                         ct: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
                     });
                 }),
+                // Clinvar variants
+                cellBaseClient.get("clinical", "variant", null, "search", {
+                    feature: geneName,
+                    source: "clinvar",
+                    limit: 5000,
+                }),
+                // Cosmic variants 
+                cellBaseClient.get("clinical", "variant", null, "search", {
+                    feature: geneName,
+                    source: "cosmic",
+                    limit: 5000,
+                }),
             ];
 
             Promise.all(promisesList)
@@ -94,7 +106,18 @@
                     const protein = values[0]; // values[0].responses[0].results[0];
                     const variants = values[1].responses[0].results;
 
-                    ProteinLollipop.draw(target, protein, variants, {});
+                    ProteinLollipop.draw(target, protein, variants, {
+                        tracks: [
+                            {
+                                title: "Clinvar",
+                                variants: values[2]?.responses?.[0]?.results || [],
+                            },
+                            {
+                                title: "Cosmic",
+                                variants: values[3]?.responses?.[0]?.results || [],
+                            },
+                        ],
+                    });
                 })
                 .catch(error => {
                     console.error(error);
