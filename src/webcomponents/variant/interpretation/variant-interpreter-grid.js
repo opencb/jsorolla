@@ -1234,8 +1234,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Generate a clone of the variant review to prevent changing original values
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
                     this.requestUpdate();
-
-                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    const modalElm = document.querySelector("#"+this._prefix + "ReviewSampleModal");
+                    UtilsNew.draggableContainer(document, modalElm);
+                    $("#"+this._prefix + "ReviewSampleModal").modal({
+                        backdrop: false,
+                        show: true,
+                    });
+                    // this.showDraggableModal(this._prefix + "ReviewSampleModal");
                 }
                 break;
             case "genome-browser":
@@ -1409,9 +1414,25 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the variant review to prevent changing original values
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
-
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            // this.showDraggableModal(this._prefix + "ReviewSampleModal");
+            const modalElm = document.querySelector("#"+this._prefix + "ReviewSampleModal");
+            UtilsNew.draggableContainer(document, modalElm);
+            $("#"+this._prefix + "ReviewSampleModal").modal({
+                backdrop: false,
+                show: true,
+            });
         }
+    }
+
+    showDraggableModal(elementId) {
+        $("#" + elementId).modal({
+            backdrop: false,
+            show: true,
+        });
+
+        $(`div[id='${elementId}']>div[class*='modal-dialog']`).draggable({
+            handle: ".modal-header"
+        });
     }
 
     onVariantReviewChange(e) {

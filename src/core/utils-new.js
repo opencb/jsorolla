@@ -188,6 +188,36 @@ export default class UtilsNew {
         }
     }
 
+    static draggableContainer(self, modalElm) {
+        let mousePosition;
+        let offset = [0, 0];
+        let isDown = false;
+
+        modalElm.addEventListener("mousedown", e => {
+            isDown = true;
+            offset = [
+                modalElm.offsetLeft - e.clientX,
+                modalElm.offsetTop - e.clientY
+            ];
+        }, true);
+
+        self.addEventListener("mouseup", () => {
+            isDown = false;
+        }, true);
+
+        self.addEventListener("mousemove", e => {
+            e.preventDefault();
+            if (isDown) {
+                mousePosition = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                modalElm.style.left = (mousePosition.x + offset[0]) + "px";
+                modalElm.style.top = (mousePosition.y + offset[1]) + "px";
+            }
+        }, true);
+    }
+
     // 2nd approach remove value (loop way)
     static deleteObjectValue2(obj, props) {
         const parts = props.split(".");
