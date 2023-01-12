@@ -34,6 +34,7 @@
 
         const target = document.getElementById("root");
         const study = "demo@family:platinum";
+        const studyTitle = "Platinum";
         let opencgaClient = null;
         let isRunning = false;
 
@@ -107,6 +108,7 @@
                     const variants = values[1].responses[0].results;
 
                     ProteinLollipop.draw(target, protein, variants, {
+                        title: studyTitle,
                         tracks: [
                             {
                                 title: "Clinvar",
