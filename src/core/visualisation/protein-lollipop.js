@@ -52,18 +52,6 @@ export default {
             });
     },
 
-    generateLegendField(parent, title, content) {
-        const field = UtilsNew.renderHTML(`
-            <div style="font-size:0.8em;color:#6c757d;">
-                <strong>${title.toUpperCase()}</strong>
-            </div>
-            <div style="display:flex;">
-                ${content}
-            </div>
-        `);
-        parent.appendChild(field);
-    },
-
     generateTrackInfo(parent, config) {
         const group = SVG.addChild(parent, "g", {});
         let offset = 0;
@@ -133,16 +121,9 @@ export default {
         // Initialize template
         const template = `
             <div id="${prefix}" class="" style="user-select:none;font-size:16px;">
-                <div style="display:${config.showLegend ? "block" : "none"};margin-top:1em;">
-                    <div style="font-size:0.8em;border-bottom:1px solid #adb5bd;margin-bottom:1em;">
-                        <strong style="color:#6c757d;">Legend</strong>
-                    </div>
-                    <div id="${prefix}Legends" style="display:grid;grid-template-columns:120px 1fr;row-gap:1em;"></div>
-                </div>
             </div>
         `;
         const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
-        // const legendsParent = parent.querySelector(`div#${prefix}Legends`);
 
         // Append HTML content into target element (if provided)
         if (target) {
@@ -286,7 +267,7 @@ export default {
                     variantsCounts[consequenceType]++;
                 });
 
-            // Section title
+            // Info section
             this.generateTrackInfo(group, {
                 title: config.title,
                 additionalLines: [
@@ -295,26 +276,6 @@ export default {
                 translateX: -config.trackInfoPadding,
                 translateY: -maxHeight,
             });
-
-            // Generate variants legend
-            // const variantsLegend = Object.keys(variantsCounts)
-            //     .sort((a, b) => variantsCounts[a] < variantsCounts[b] ? +1 : -1)
-            //     .map(id => {
-            //         const color = this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other;
-            //         const count = variantsCounts[id];
-            //         return `
-            //             <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-            //                 <div style="background-color:${color};border-radius:1em;padding:0.5em;"></div>
-            //                 <div style="margin-left:0.5em;">
-            //                     <strong style="color:${color};">${id.toUpperCase()}</strong> (${count})
-            //                 </div>
-            //             </div>
-            //         `;
-            //     });
-
-            // if (variantsLegend.length > 0) {
-            //     this.generateLegendField(legendsParent, "Variant", variantsLegend.join(""));
-            // }
 
             // Update the lollipop track position
             offset = offset + maxHeight;
@@ -389,20 +350,6 @@ export default {
                 translateY: -config.proteinHeight,
             });
 
-            // // Generate protein features legend
-            // const featuresLegend = Object.keys(featuresCounts).map(id => {
-            //     const color = this.PROTEIN_FEATURES_COLORS[id] || defaultColor;
-            //     return `
-            //         <div style="display:flex;align-items:center;font-size:0.8em;margin-right:1em;">
-            //             <div style="background-color:${color};border-radius:0.25em;padding:0.6em 1em;"></div>
-            //             <div style="margin-left:0.5em;">
-            //                 <strong style="color:${color};">${id.toUpperCase()}</strong>
-            //             </div>
-            //         </div>
-            //     `;
-            // });
-
-            // this.generateLegendField(legendsParent, "Protein", featuresLegend.join(""));
             if (config.showLegend) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(featuresCounts).map(id => ({
