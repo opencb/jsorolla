@@ -81,11 +81,6 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
         }
     }
 
-    getDefaultConfig() {
-        return {
-        }
-    }
-
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -113,6 +108,10 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
                 </individual-qc-mendelian-errors>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
