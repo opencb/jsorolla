@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
 
 export default class IndividualQcMendelianErrors extends LitElement {
@@ -64,8 +65,8 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                 })
-                .catch(error => {
-                    console.error(error);
+                .catch(response => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
         }
     }
