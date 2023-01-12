@@ -206,6 +206,9 @@ export default {
                 translateX: -config.trackInfoPadding,
                 translateY: -15,
             });
+
+            // Add a little margin between the scale and the other tracks
+            offset = offset + 10;
         }
 
         // Show protein lollipops track
@@ -282,6 +285,16 @@ export default {
                     }
                     variantsCounts[consequenceType]++;
                 });
+
+            // Section title
+            this.generateTrackInfo(group, {
+                title: config.title,
+                additionalLines: [
+                    `${lollipopsVariants.length} Variants`,
+                ],
+                translateX: -config.trackInfoPadding,
+                translateY: -maxHeight,
+            });
 
             // Generate variants legend
             // const variantsLegend = Object.keys(variantsCounts)
@@ -510,6 +523,7 @@ export default {
 
     getDefaultConfig() {
         return {
+            title: "",
             padding: 10,
             showProteinScale: true,
             showProteinStructure: true,
