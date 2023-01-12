@@ -24,7 +24,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
             {
                 title: "Clinical",
                 collapsed: true,
-                filters: ["diseasePanels", "clinical-annotation", "fullTextSearch"]
+                filters: ["diseasePanels", "clinical-annotation", "role-in-cancer", "fullTextSearch"]
             },
             {
                 title: "Phenotype",
