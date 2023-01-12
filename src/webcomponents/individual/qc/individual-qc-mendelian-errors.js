@@ -31,18 +31,15 @@ export default class IndividualQcMendelianErrors extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             individualId: {
                 type: String
             },
             individual: {
                 type: Object
             },
-            opencgaSession: {
-                type: Object
-            },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
@@ -54,32 +51,50 @@ export default class IndividualQcMendelianErrors extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+
         super.update(changedProperties);
     }
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
             this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId, {study: this.opencgaSession.study.fqn})
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this.individual = response.responses[0].results[0];
                 })
-                .catch(function (reason) {
-                    console.error(reason);
+                .catch(error => {
+                    console.error(error);
                 });
         }
+    }
+
+    renderChromosomeAggregationRow(sampleAggregation, chromAggregation) {
+        return Object.keys(chromAggregation?.errorCodeAggregation).map(key => {
+            return html`
+                <tr>
+                    <td>
+                        <label>${sampleAggregation.sample}</label>
+                    </td>
+                    <td>${chromAggregation.chromosome}</td>
+                    <td>${key}</td>
+                    <td>${chromAggregation.errorCodeAggregation[key]}</td>
+                </tr>
+            `;
+        });
     }
 
     renderTable() {
         if (this.individual?.qualityControl?.mendelianErrorReports) {
             const mendelianErrorReport = this.individual.qualityControl.mendelianErrorReports[0];
-            const sampleAggregation = mendelianErrorReport.sampleAggregation
-                .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0]?.id);
+            const sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => {
+                return sampleAggregation.sample === this.individual.samples[0]?.id;
+            });
 
-            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter(ch => !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome));
+            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter(ch => {
+                return !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome);
+            });
             sampleAggregation.chromAggregation.sort((a, b) => {
                 const chA = a.chromosome;
                 const chB = b.chromosome;
@@ -93,8 +108,9 @@ export default class IndividualQcMendelianErrors extends LitElement {
 
             const roles = {
                 [this.individual.father?.id]: "FATHER",
-                [this.individual.mother?.id]: "MOTHER"
+                [this.individual.mother?.id]: "MOTHER",
             };
+
             return html`
                 <h4 style="padding-top: 15px">Summary</h4>
                 <table class="table table-hover table-no-bordered">
@@ -141,19 +157,7 @@ export default class IndividualQcMendelianErrors extends LitElement {
                     </tr>
                     </thead>
                     <tbody>
-                    ${sampleAggregation?.chromAggregation.map(chromAggregation => {
-                        return Object.keys(chromAggregation.errorCodeAggregation)
-                            .map(key => html`
-                                <tr>
-                                    <td>
-                                        <label>${sampleAggregation.sample}</label>
-                                    </td>
-                                    <td>${chromAggregation.chromosome}</td>
-                                    <td>${key}</td>
-                                    <td>${chromAggregation.errorCodeAggregation[key]}</td>
-                                </tr>`);
-                    })
-                    }
+                    ${sampleAggregation?.chromAggregation.map(item => this.renderChromosomeAggregationRow(sampleAggregation, item))}
                     </tbody>
                 </table>
             `;
@@ -162,25 +166,28 @@ export default class IndividualQcMendelianErrors extends LitElement {
 
     render() {
         if (!this.individual?.qualityControl?.mendelianErrorReports?.length) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.
+                </div>
+            `;
         }
 
         return html`
             <div>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download pad5" aria-hidden="true" style="padding-right: 10px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length ?
-                            this._config.download.map(item => html`
-                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) :
-                            null
-                        }
+                        ${this._config.download?.length && this._config.download.map(item => html`
+                            <li>
+                                <a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
+                            </li>
+                        `)}
                     </ul>
                 </div>
-
                 <div>
                     ${this.renderTable()}
                 </div>
