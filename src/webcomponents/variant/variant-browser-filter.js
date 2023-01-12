@@ -24,6 +24,7 @@ import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
+import "../commons/filters/role-in-cancer-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
@@ -464,6 +465,15 @@ export default class VariantBrowserFilter extends LitElement {
                             .config="${subsection.params?.consequenceTypes || CONSEQUENCE_TYPES}"
                             @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
                         </consequence-type-select-filter>`;
+                    break;
+                case "role-in-cancer":
+                    content = html`
+                        <role-in-cancer-filter
+                            .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
+                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .disabled="${disabled}"
+                            @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
+                        </role-in-cancer-filter>`;
                     break;
                 case "proteinSubstitutionScore":
                     content = html`

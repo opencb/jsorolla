@@ -462,6 +462,19 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.clinical
                             },
                             {
+                                id: "role-in-cancer",
+                                title: "Gene Role In Cancer",
+                                tooltip: tooltips.roleInCancer,
+                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                message: {
+                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                    text: "Gene Role in Cancer filter is only available from OpenCGA 2.6.0"
+                                },
+                                params: {
+                                    rolesInCancer: ROLE_IN_CANCER
+                                },
+                            },
+                            {
                                 id: "fullTextSearch",
                                 title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
                                 tooltip: tooltips.fullTextSearch

@@ -951,11 +951,11 @@ export default class UtilsNew {
     // This function returns a positive number when version 2 is bigger
     static compareVersions(version1, version2) {
         // Get the three numbers and remove any version tag
-        const [major1, minor1, patch1] = version1.split("-")[0].split(".");
-        const [major2, minor2, patch2] = version2.split("-")[0].split(".");
+        const [major1, minor1, patch1] = version1.split("-")[0].replace("v", "").split(".");
+        const [major2, minor2, patch2] = version2.split("-")[0].replace("v", "").split(".");
 
-        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + Number.parseInt(patch1);
-        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + Number.parseInt(patch2);
+        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + (Number.parseInt(patch1) || 0);
+        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + (Number.parseInt(patch2) || 0);
         return versionNumber2 - versionNumber1;
     }
 

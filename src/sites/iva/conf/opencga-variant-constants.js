@@ -861,6 +861,7 @@ const tooltips = {
     feature: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     diseasePanels: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",
     biotype: "Filtering out variants without the selected gene biotypes terms",
+    roleInCancer: "Filtering out variants by the different role in cancer of the genes",
     type: "Only considers variants of the selected type",
     consequenceTypeSelect: "Filtering out variants without the selected Consequence type SO terms",
     go: "The Gene Ontology (GO) knowledgebase is the world's largest source of information on the functions of genes." +
