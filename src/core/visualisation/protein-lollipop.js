@@ -89,6 +89,7 @@ export default {
     },
 
     generateTrackLegend(parent, config) {
+        // const legendId = UtilsNew.randomString(8);
         const legendParent = SVG.addChild(parent, "foreignObject", {
             x: config.x || 0,
             y: config.y || 0,
@@ -96,10 +97,10 @@ export default {
             height: config.height,
         });
 
-        legendParent.innerHTML = `
+        const template = UtilsNew.renderHTML(`
             <div style="display:flex;flex-direction:row-reverse;padding-top:0.4em;">
-                ${(config.items || []).map(item => `
-                    <div style="display:flex;align-items:center;font-size:8px;margin-left:1em;">
+                ${(config.items || []).map((item, index) => `
+                    <div data-index="${index}" style="display:flex;align-items:center;font-size:8px;margin-left:1em;cursor:pointer;">
                         <div style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
                         <div style="margin-left:0.5em;line-height:1.5;">
                             <strong style="color:${item.color};">${item.title.toUpperCase()}</strong>
@@ -107,7 +108,10 @@ export default {
                     </div>
                 `).join("")}
             </div>
-        `;
+        `);
+
+        // Append template to legend parent element
+        legendParent.appendChild(template);
     },
 
     // Draw protein visualization
@@ -403,6 +407,7 @@ export default {
                     "fill": "none",
                     "stroke": color,
                     "stroke-width": "1px",
+                    "data-ct": consequenceType,
                 });
 
                 // Lollipop circle
@@ -413,6 +418,7 @@ export default {
                     "fill": color,
                     "stroke": "#fff",
                     "stroke-width": "1px",
+                    "data-ct": consequenceType,
                 });
 
                 if (typeof countsByConsequenceType[consequenceType] !== "number") {
@@ -450,6 +456,7 @@ export default {
             if (config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(countsByConsequenceType).map(id => ({
+                        id: id,
                         title: id.toUpperCase(),
                         color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
                     })),
