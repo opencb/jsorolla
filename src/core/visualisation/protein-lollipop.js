@@ -114,6 +114,29 @@ export default {
         legendParent.appendChild(template);
     },
 
+    parseVariantsList(variants, protein) {
+        return (variants || [])
+            .map(variant => {
+                let info = null;
+                const ct = variant?.annotation?.consequenceTypes?.find(item => {
+                    return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
+                });
+
+                if (ct && ct.proteinVariantAnnotation?.position) {
+                    info = {
+                        variantId: variant.id,
+                        position: ct.proteinVariantAnnotation.position,
+                        reference: ct.proteinVariantAnnotation.reference,
+                        alternate: ct.proteinVariantAnnotation.alternate,
+                        sequenceOntologyTerms: ct.sequenceOntologyTerms,
+                    };
+                }
+                return info;
+            })
+            .filter(item => !!item)
+            .sort((a, b) => a.position < b.position ? -1 : +1);
+    },
+
     // Draw protein visualization
     draw(target, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
@@ -201,27 +224,7 @@ export default {
             const group = SVG.addChild(svg, "g", {});
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
-
-            const lollipopsVariants = (variants || [])
-                .map(variant => {
-                    let info = null;
-                    const ct = variant?.annotation?.consequenceTypes?.find(item => {
-                        return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
-                    });
-
-                    if (ct && ct.proteinVariantAnnotation?.position) {
-                        info = {
-                            // variantId: variant.id,
-                            position: ct.proteinVariantAnnotation.position,
-                            reference: ct.proteinVariantAnnotation.reference,
-                            alternate: ct.proteinVariantAnnotation.alternate,
-                            sequenceOntologyTerms: ct.sequenceOntologyTerms,
-                        };
-                    }
-                    return info;
-                })
-                .filter(item => !!item)
-                .sort((a, b) => a.position < b.position ? -1 : +1);
+            const lollipopsVariants = this.parseVariantsList(variants, protein);
 
             // Render lollipops
             LollipopLayout
@@ -374,26 +377,7 @@ export default {
             const group = SVG.addChild(svg, "g", {});
             const maxHeight = 50; // Track maximum height
             const countsByConsequenceType = {};
-            const lollipopsVariants = (track.variants || [])
-                .map(variant => {
-                    let info = null;
-                    const ct = variant?.annotation?.consequenceTypes?.find(item => {
-                        return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
-                    });
-
-                    if (ct && ct.proteinVariantAnnotation?.position) {
-                        info = {
-                            // variantId: variant.id,
-                            position: ct.proteinVariantAnnotation.position,
-                            reference: ct.proteinVariantAnnotation.reference,
-                            alternate: ct.proteinVariantAnnotation.alternate,
-                            sequenceOntologyTerms: ct.sequenceOntologyTerms,
-                        };
-                    }
-                    return info;
-                })
-                .filter(item => !!item)
-                .sort((a, b) => a.position < b.position ? -1 : +1);
+            const lollipopsVariants = this.parseVariantsList(track.variants, protein);
 
             // Render lollipops
             lollipopsVariants.forEach(info => {
