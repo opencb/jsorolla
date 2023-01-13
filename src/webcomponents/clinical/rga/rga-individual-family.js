@@ -92,6 +92,7 @@ export default class RgaIndividualFamily extends LitElement {
                     trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
                     trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
                     trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+                    trio.child = clinicalAnalysis.family.members.find(m => m.father?.id === trio.proband.id || m.mother?.id === trio.proband.id);
                 } else {
                     // in case a Family array is not present, we use the proband (e.g. Cancer studies)
                     trio.proband = clinicalAnalysis.proband;
@@ -116,9 +117,10 @@ export default class RgaIndividualFamily extends LitElement {
         this.sampleIds = [
             this.trio?.proband?.samples?.[0]?.id,
             this.trio?.father?.samples?.[0]?.id,
-            this.trio?.mother?.samples?.[0]?.id
+            this.trio?.mother?.samples?.[0]?.id,
+            this.trio?.child?.samples?.[0]?.id,
         ];
-
+debugger
         if (!this.sampleIds[0]) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: "Sample of the Proband not available"
@@ -308,6 +310,8 @@ export default class RgaIndividualFamily extends LitElement {
         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
         try {
             if (sampleIds.length && variantIds.length) {
+                console.log(sampleIds.filter(Boolean).join(","))
+                debugger
                 const params = {
                     study: this.opencgaSession.study.fqn,
                     id: variantIds.join(","),
@@ -451,6 +455,13 @@ export default class RgaIndividualFamily extends LitElement {
                     colspan: 2,
                     halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[2]
+                },
+                {
+                    title: `Child (${this.trio?.child?.id})<br>${this.sampleIds[3]}`,
+                    field: "",
+                    colspan: 2,
+                    halign: this._config.header.horizontalAlign,
+                    visible: !!this.sampleIds[3]
                 }
             ],
             [
@@ -491,6 +502,20 @@ export default class RgaIndividualFamily extends LitElement {
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[2],
                     formatter: value => this.filterFormatter(value, this.motherSampleIndx)
+
+                },
+                // mother
+                {
+                    title: "GT",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[3],
+                    formatter: value => this.gtFormatter(value, 0)
+                },
+                {
+                    title: "Filter",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[3],
+                    formatter: value => this.filterFormatter(value, 0)
 
                 }
             ]
