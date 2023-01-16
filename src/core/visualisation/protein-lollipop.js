@@ -193,7 +193,6 @@ export default {
 
             // Append scale ticks
             this.getScaleTicks(1, proteinLength, Math.floor(width / 100)).forEach(tickValue => {
-                // const tickValue = i * config.scaleStep;
                 const tickPosition = getPixelPosition(tickValue) - 0.5;
                 SVG.addChild(group, "path", {
                     "d": `M${tickPosition}-6V0.5`,
@@ -485,7 +484,6 @@ export default {
                 "domain",
                 "region of interest",
             ],
-            scaleStep: 50,
             tracks: [],
             trackInfoWidth: 120,
             trackInfoPadding: 12,
