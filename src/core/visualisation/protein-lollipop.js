@@ -416,7 +416,7 @@ export default {
         // Render additional tracks
         (config.tracks || []).forEach(track => {
             const group = SVG.addChild(svg, "g", {});
-            let maxHeight = 50; // Track maximum height
+            let trackHeight = 40; // Track maximum height
             const countsByConsequenceType = {};
             const lollipopsVariants = this.parseVariantsList(track.variants, protein);
 
@@ -429,7 +429,7 @@ export default {
 
                     // Lollipop line
                     SVG.addChild(group, "path", {
-                        "d": `M${x - 0.5},0V-20`,
+                        "d": `M${x - 0.5},-${trackHeight}V-${trackHeight - 20}`,
                         "fill": "none",
                         "stroke": color,
                         "stroke-width": "1px",
@@ -439,7 +439,7 @@ export default {
                     // Lollipop circle
                     SVG.addChild(group, "circle", {
                         "cx": x - 0.5,
-                        "cy": -20,
+                        "cy": (-1) * (trackHeight - 20),
                         "r": 6,
                         "fill": color,
                         "stroke": "#fff",
@@ -458,7 +458,7 @@ export default {
                     width: width,
                     height: config.emptyHeight,
                 });
-                maxHeight = config.emptyHeight;
+                trackHeight = config.emptyHeight;
             }
 
             // Display track info
@@ -467,14 +467,14 @@ export default {
                 additionalLines: [
                     `${lollipopsVariants.length} Variants`,
                 ],
-                translateX: -config.trackInfoPadding,
-                translateY: -maxHeight,
+                translateX: (-1) * config.trackInfoPadding,
+                translateY: (-1) * trackHeight,
             });
 
             // Track separation
             if (config.trackSeparationVisible) {
                 SVG.addChild(group, "path", {
-                    "d": `M-${config.trackInfoWidth},-${maxHeight - 0.5 + config.trackSeparationHeight / 2}H${width + config.trackInfoWidth}`,
+                    "d": `M-${config.trackInfoWidth},-${trackHeight - 0.5 + config.trackSeparationHeight / 2}H${width + config.trackInfoWidth}`,
                     "fill": "none",
                     "stroke": "#000",
                     "stroke-width": "1px",
@@ -483,7 +483,7 @@ export default {
                 });
             }
 
-            offset = offset + maxHeight + config.trackSeparationHeight;
+            offset = offset + trackHeight + config.trackSeparationHeight;
             group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
 
             // Display track legend
