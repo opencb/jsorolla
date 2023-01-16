@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<html lang="en">
+<head>
+
+    <!--
+        [build-signature]
+    -->
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- This is configured below in the onLoad() function -->
+    <title></title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico">
+
+    <!-- Chrome for Android theme color -->
+    <meta name="theme-color" content="#000000">
+
+    <!-- Chrome for Android Theme color -->
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="IVA">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="IVA">
+
+    <!-- Force Microsoft use latest web tech -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- END meta -->
+
+    <!-- Load IVA configuration file, this must be located in the same folder -->
+    <script src="{{ IVA_CONFIG_PATH }}/config.js"></script>
+    <script src="{{ IVA_CONFIG_PATH }}/opencga-variant-constants.js"></script>
+    <script src="{{ IVA_CONFIG_PATH }}/pages.js"></script>
+    <script src="{{ TEST_CONFIG_PATH }}/data-form.js"></script>
+    <script src="{{ TEST_CONFIG_PATH }}/genome-browser.js"></script>
+
+    <!-- build:js[webcomponents/webcomponents-loader.js] -->
+    <script type="text/javascript" src="../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <!-- /build -->
+
+    <!-- build:js[assets/js/vendor.js] -->
+    <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/lodash/lodash.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/moment/min/moment.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/urijs/src/URI.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/cookies-js/dist/cookies.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/core.js"></script>
+    <script type="text/javascript" src="../../../node_modules/crypto-js/sha256.js"></script>
+    <script type="text/javascript" src="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-validator/dist/validator.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<!--    <script type="text/javascript" src="../../../node_modules/bootstrap-notify/bootstrap-notify.min.js" ></script>-->
+    <script type="text/javascript" src="../../../node_modules/jwt-decode/build/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/bootstrap-3-typeahead/bootstrap3-typeahead.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/tokenize2/dist/tokenize2.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/sweetalert2/dist/sweetalert2.min.js"></script>
+<!-- <script type="text/javascript" src="../node_modules/@highlightjs/cdn-assets/highlight.min.js"></script> -->
+    <script type="text/javascript" src="../../../node_modules/clipboard/dist/clipboard.min.js"></script>
+    <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.min.js"></script>
+
+    <!-- /build -->
+
+    <!-- build:css[assets/css/vendor.css] -->
+    <link rel="stylesheet" href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../node_modules/animate.css/animate.min.css">
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-select/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-treeview/dist/bootstrap-treeview.min.css">
+    <link rel="stylesheet" href="../../../node_modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="../../../node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
+    <link rel="stylesheet" href="../../../node_modules/jquery.json-viewer/json-viewer/jquery.json-viewer.css">
+    <link rel="stylesheet" href="../../../node_modules/tokenize2/dist/tokenize2.min.css">
+    <link rel="stylesheet" href="../../../node_modules/sweetalert2/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="../../../node_modules/@highlightjs/cdn-assets/styles/default.min.css">
+    <link rel="stylesheet" href="../../../node_modules/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="../../../node_modules/select2-bootstrap-theme/dist/select2-bootstrap.min.css">
+    <!-- /build -->
+
+    <!-- Load JSorolla dependencies -->
+    <!-- build:delete -->
+    <!--
+    <script type="text/javascript" src="https://reactome.org/DiagramJs/diagram/diagram.nocache.js"></script>
+    TODO replace this with import in rest-client in jsorolla
+    <script src="../lib/jsorolla/node_modules/axios/dist/axios.min.js"></script>
+    TODO convert in ES module
+    <script type="text/javascript" src="../lib/jsorolla/src/core/visualisation/lollipop.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/feature-binary-search-tree.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/indexeddb-cache.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/file-feature-cache.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/feature-chunk-cache.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/memory-store.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/indexedDB-store.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/bam-cache.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/feature-template-adapter.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/feature-adapter.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/cellbase-adapter.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/opencga-adapter.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/gene-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/protein-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/snp-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/transcript-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/vcf-variant-info-widget.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/ux-window.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/navigation-bar.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/status-bar.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/tracklist-panel.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/feature-track.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/gene-track.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/alignment-track.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/variant-track.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/config.js"></script>
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/genome-browser.js"></script>
+
+    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/config.js"></script>
+    -->
+    <!-- /build -->
+
+    <!-- Load IVA CSS styles -->
+    <!-- build:css[assets/css/styles.css] -->
+    <link rel="stylesheet" href="../../../styles/css/global.css">
+    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
+    <link rel="stylesheet" href="../../../styles/css/magic-check.css">
+    <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
+    <!-- <link rel="stylesheet" href="styles/global.css"> -->
+    <!-- /build -->
+    <!-- LitElement assets -->
+    <!-- build:void[] -->
+    <script type="module" src="test-app.js"></script>
+    <!-- /build -->
+
+</head>
+
+<body>
+    <script type="module">
+        $(function(){
+            document.title = SUITE.name;
+            // Back to top button
+            $(window).scroll(function () {
+                if ($(this).scrollTop() > 100) {
+                    $('#back-to-top').fadeIn();
+                } else {
+                    $('#back-to-top').fadeOut();
+                }
+            });
+            // scroll body to 0px on click
+            $('#back-to-top').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 500);
+                return false;
+            });
+        });
+        $.fn.select2.defaults.set( "theme", "bootstrap" );
+
+    </script>
+
+<test-app></test-app>
+
+<a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button" data-placement="left"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+
+</body>
+</html>
