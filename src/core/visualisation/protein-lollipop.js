@@ -127,6 +127,26 @@ export default {
         legendParent.appendChild(template);
     },
 
+    generateTrackEmptyMessage(parent, config) {
+        const group = SVG.addChild(parent, "g", {});
+        SVG.addChild(group, "rect", {
+            "x": 0,
+            "y": (-1) * config.height,
+            "width": config.width,
+            "height": config.height,
+            "fill": "#e9ecef",
+            "stroke": "none",
+        });
+        SVG.addChildText(group, "No variants to display", {
+            "x": config.width / 2,
+            "y": (-1) * config.height / 2,
+            "fill": "#212529",
+            "text-anchor": "middle",
+            "dominant-baseline": "middle",
+            "style": "font-size:0.8em;font-weight:bold;",
+        });
+    },
+
     parseVariantsList(variants, protein) {
         return (variants || [])
             .map(variant => {
@@ -239,52 +259,61 @@ export default {
             const lollipopsVariants = this.parseVariantsList(variants, protein);
 
             // Render lollipops
-            LollipopLayout
-                .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), {
-                    minSeparation: 20,
-                })
-                .forEach((x1, index) => {
-                    const info = lollipopsVariants[index];
-                    const x0 = getPixelPosition(info.position);
-                    const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
-                    const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
+            if (lollipopsVariants.length > 0) {
+                LollipopLayout
+                    .layout(lollipopsVariants.map(item => getPixelPosition(item.position)), {
+                        minSeparation: 20,
+                    })
+                    .forEach((x1, index) => {
+                        const info = lollipopsVariants[index];
+                        const x0 = getPixelPosition(info.position);
+                        const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
+                        const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
 
-                    // Lollipop line
-                    SVG.addChild(group, "path", {
-                        "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
-                        "fill": "none",
-                        "stroke": color,
-                        "stroke-width": "1px",
+                        // Lollipop line
+                        SVG.addChild(group, "path", {
+                            "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
+                            "fill": "none",
+                            "stroke": color,
+                            "stroke-width": "1px",
+                        });
+
+                        // Lollipop circle
+                        SVG.addChild(group, "circle", {
+                            "cx": x1 - 0.5,
+                            "cy": -70,
+                            "r": 8,
+                            "fill": color,
+                            "stroke": "#fff",
+                            "stroke-width": "2px",
+                        });
+
+                        // Lollipop ID text
+                        const id = `${(info.reference || "-")}${info.position}${(info.alternate || "-")}`;
+                        const text = SVG.addChildText(group, id, {
+                            "fill": color,
+                            "text-anchor": "start",
+                            "dominant-baseline": "middle",
+                            "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
+                        });
+
+                        // Update track max height, using the size of the variant ID
+                        maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
+
+                        // Add the consequence type of this variant to the legend
+                        if (typeof variantsCounts[consequenceType] !== "number") {
+                            variantsCounts[consequenceType] = 0;
+                        }
+                        variantsCounts[consequenceType]++;
                     });
-
-                    // Lollipop circle
-                    SVG.addChild(group, "circle", {
-                        "cx": x1 - 0.5,
-                        "cy": -70,
-                        "r": 8,
-                        "fill": color,
-                        "stroke": "#fff",
-                        "stroke-width": "2px",
-                    });
-
-                    // Lollipop ID text
-                    const id = `${(info.reference || "-")}${info.position}${(info.alternate || "-")}`;
-                    const text = SVG.addChildText(group, id, {
-                        "fill": color,
-                        "text-anchor": "start",
-                        "dominant-baseline": "middle",
-                        "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
-                    });
-
-                    // Update track max height, using the size of the variant ID
-                    maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
-
-                    // Add the consequence type of this variant to the legend
-                    if (typeof variantsCounts[consequenceType] !== "number") {
-                        variantsCounts[consequenceType] = 0;
-                    }
-                    variantsCounts[consequenceType]++;
+            } else {
+                // No variants to display
+                this.generateTrackEmptyMessage(group, {
+                    width: width,
+                    height: config.emptyHeight,
                 });
+                maxHeight = config.emptyHeight;
+            }
 
             // Info section
             this.generateTrackInfo(group, {
@@ -387,41 +416,50 @@ export default {
         // Render additional tracks
         (config.tracks || []).forEach(track => {
             const group = SVG.addChild(svg, "g", {});
-            const maxHeight = 50; // Track maximum height
+            let maxHeight = 50; // Track maximum height
             const countsByConsequenceType = {};
             const lollipopsVariants = this.parseVariantsList(track.variants, protein);
 
             // Render lollipops
-            lollipopsVariants.forEach(info => {
-                const x = getPixelPosition(info.position);
-                const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
-                const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
+            if (lollipopsVariants.length > 0) {
+                lollipopsVariants.forEach(info => {
+                    const x = getPixelPosition(info.position);
+                    const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
+                    const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
 
-                // Lollipop line
-                SVG.addChild(group, "path", {
-                    "d": `M${x - 0.5},0V-20`,
-                    "fill": "none",
-                    "stroke": color,
-                    "stroke-width": "1px",
-                    "data-ct": consequenceType,
+                    // Lollipop line
+                    SVG.addChild(group, "path", {
+                        "d": `M${x - 0.5},0V-20`,
+                        "fill": "none",
+                        "stroke": color,
+                        "stroke-width": "1px",
+                        "data-ct": consequenceType,
+                    });
+
+                    // Lollipop circle
+                    SVG.addChild(group, "circle", {
+                        "cx": x - 0.5,
+                        "cy": -20,
+                        "r": 6,
+                        "fill": color,
+                        "stroke": "#fff",
+                        "stroke-width": "1px",
+                        "data-ct": consequenceType,
+                    });
+
+                    if (typeof countsByConsequenceType[consequenceType] !== "number") {
+                        countsByConsequenceType[consequenceType] = 0;
+                    }
+                    countsByConsequenceType[consequenceType]++;
                 });
-
-                // Lollipop circle
-                SVG.addChild(group, "circle", {
-                    "cx": x - 0.5,
-                    "cy": -20,
-                    "r": 6,
-                    "fill": color,
-                    "stroke": "#fff",
-                    "stroke-width": "1px",
-                    "data-ct": consequenceType,
+            } else {
+                // No variants to display
+                this.generateTrackEmptyMessage(group, {
+                    width: width,
+                    height: config.emptyHeight,
                 });
-
-                if (typeof countsByConsequenceType[consequenceType] !== "number") {
-                    countsByConsequenceType[consequenceType] = 0;
-                }
-                countsByConsequenceType[consequenceType]++;
-            });
+                maxHeight = config.emptyHeight;
+            }
 
             // Display track info
             this.generateTrackInfo(group, {
@@ -490,6 +528,7 @@ export default {
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
             legendHeight: 20,
+            emptyHeight: 40,
         };
     },
 
