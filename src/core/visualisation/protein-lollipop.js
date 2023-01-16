@@ -52,6 +52,19 @@ export default {
             });
     },
 
+    getScaleTicks(start, end, n, steps=[500, 250, 200, 100, 50, 25]) {
+        const ticksValues = [];
+        const range = Math.floor((end - start) / 10) * 10;
+        const step = steps.find(value => value * n < range) || steps[0];
+        const ticksStart = Math.floor(start / step) * step;
+        const ticksEnd = Math.ceil(end / step) * step;
+        for (let value = ticksStart; value <= ticksEnd; value = value + step) {
+            ticksValues.push(value);
+        }
+        // Remove ticks outside of the [start, end] interval
+        return ticksValues.filter(value => start <= value && value <= end);
+    },
+
     generateTrackInfo(parent, config) {
         const group = SVG.addChild(parent, "g", {});
         let offset = 0;
@@ -179,8 +192,8 @@ export default {
             });
 
             // Append scale ticks
-            for (let i = 0; i * config.scaleStep < proteinLength; i++) {
-                const tickValue = i * config.scaleStep;
+            this.getScaleTicks(1, proteinLength, Math.floor(width / 100)).forEach(tickValue => {
+                // const tickValue = i * config.scaleStep;
                 const tickPosition = getPixelPosition(tickValue) - 0.5;
                 SVG.addChild(group, "path", {
                     "d": `M${tickPosition}-6V0.5`,
@@ -197,7 +210,7 @@ export default {
                     "x": tickPosition,
                     "y": -8,
                 });
-            }
+            });
 
             // Append scale line
             SVG.addChild(group, "path", {
