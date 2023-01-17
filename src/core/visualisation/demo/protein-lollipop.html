@@ -52,8 +52,8 @@
                 return Promise.resolve();
             }
             opencgaClient = new OpenCGAClient({
-                // host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
-                host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-prod",
+                host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+                // host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-prod",
                 version: params.get("OPENCGA_VERSION") || "v2",
                 // serverVersion: "1.4"
             });
