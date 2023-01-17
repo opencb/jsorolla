@@ -52,7 +52,8 @@
                 return Promise.resolve();
             }
             opencgaClient = new OpenCGAClient({
-                host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+                // host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-test",
+                host: params.get("OPENCGA_HOST") || "https://ws.opencb.org/opencga-prod",
                 version: params.get("OPENCGA_VERSION") || "v2",
                 // serverVersion: "1.4"
             });
@@ -92,12 +93,14 @@
                 cellBaseClient.get("clinical", "variant", null, "search", {
                     feature: geneName,
                     source: "clinvar",
+                    consequenceType: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
                     limit: 5000,
                 }),
                 // Cosmic variants 
                 cellBaseClient.get("clinical", "variant", null, "search", {
                     feature: geneName,
                     source: "cosmic",
+                    consequenceType: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
                     limit: 5000,
                 }),
             ];
