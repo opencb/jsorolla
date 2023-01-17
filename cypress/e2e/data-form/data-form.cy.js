@@ -15,9 +15,17 @@ describe("Data Form Component", () => {
         cy.get(".has-error").should("be.visible");
     });
 
-    it("should type the first input field", () => {
+    // Approach #1 to access to type field
+    it.skip("should type the first input field", () => {
         cy.get("input[type='text']").first().type("testing input fill");
         cy.get("button[class='btn btn-primary ']").contains("OK").click();
+    });
+
+    // Approach #2 to access to type field (More specific field)
+    it("should type the first input field", () => {
+        cy.get("label").contains("Sample ID").parent().parent().within(()=> {
+            cy.get("input[type='text']").type("testing input fill");
+        });
     });
 
     it("the second field should be disabled", () => {
