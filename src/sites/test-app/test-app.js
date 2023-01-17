@@ -128,6 +128,7 @@ class TestApp extends LitElement {
      * @private
      */
     _init() {
+        const dataTest = {};
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
@@ -171,7 +172,7 @@ class TestApp extends LitElement {
         this.config = _config;
 
         this.updateCellBaseClient();
-        
+
         // Get version from env variable
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
@@ -772,7 +773,6 @@ class TestApp extends LitElement {
         // }
         // // This simplifies passing cellbaseCLient to all components
         // this.opencgaSession.cellbaseClient = this.cellbaseClient;
-debugger
         this.cellbaseClient = new CellBaseClient({
             host: this.config.cellbase.host,
             version: this.config.cellbase.version,
@@ -949,6 +949,12 @@ debugger
         }
     }
 
+    onSubmit(e) {
+        console.log("Data Test", this.dataTest);
+        console.log("Data form Data", e);
+        console.log("test input", e);
+    }
+
     renderCustomPage() {
         const pageName = this.tool.replace("#", "");
         const page = (this.config.pages || []).find(p => p.url === pageName);
@@ -1085,11 +1091,10 @@ debugger
                 ` : null}
 
                 ${this.config.enabledComponents["data-form"] ? html`
-                    <div class="content" id="data-form">
+                    <div class="content" id="data-form" style="padding:2%">
                         <data-form
-                            .data="${{}}"
+                            .data="${this.dataTest}"
                             .config="${DATA_FORM_EXAMPLE}"
-                            @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
                         </data-form>

@@ -10,10 +10,10 @@ const DATA_FORM_EXAMPLE = {
                     title: "Sample ID",
                     field: "id",
                     type: "input-text",
+                    required: true,
                     display: {
                         placeholder: "Add a short ID...",
                         helpMessage: "Created on ...",
-                        disabled: true,
                     },
                 },
                 {
@@ -28,6 +28,7 @@ const DATA_FORM_EXAMPLE = {
                     display: {
                         rows: 2,
                         placeholder: "Add a description...",
+                        disabled: true,
                     },
                 },
                 {
