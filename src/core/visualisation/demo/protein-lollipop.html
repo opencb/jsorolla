@@ -94,6 +94,7 @@
                     feature: geneName,
                     source: "clinvar",
                     consequenceType: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
+                    exclude: "annotation.populationFrequencies,annotation.conservation,annotation.constraints,annotation.functionalScore",
                     limit: 5000,
                 }),
                 // Cosmic variants 
@@ -101,6 +102,7 @@
                     feature: geneName,
                     source: "cosmic",
                     consequenceType: ProteinLollipop.CONSEQUENCE_TYPES.join(","),
+                    exclude: "annotation.populationFrequencies,annotation.conservation,annotation.constraints,annotation.functionalScore",
                     limit: 5000,
                 }),
             ];
