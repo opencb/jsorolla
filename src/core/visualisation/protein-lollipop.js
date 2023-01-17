@@ -124,30 +124,32 @@ export default {
         `);
 
         // Register events listeners
-        let activeItem = -1;
-        const allElements = Array.from(template.querySelectorAll("div[data-index]"));
-        allElements.forEach(element => {
-            const index = parseInt(element.dataset.index);
-            element.addEventListener("click", () => {
-                if (activeItem === index) {
-                    config.onDisable?.(config.items[index], index);
-                    activeItem = -1;
-                    // We need to reset the opacity of all labels
-                    allElements.forEach(el => {
-                        // eslint-disable-next-line no-param-reassign
-                        el.style.opacity = 1;
-                    });
-                } else {
-                    config.onEnable?.(config.items[index], index);
-                    activeItem = index;
-                    // Add a little transparency to all legend labels, excluding the clicked label
-                    allElements.forEach(el => {
-                        // eslint-disable-next-line no-param-reassign
-                        el.style.opacity = el.dataset.index === element.dataset.index ? 1 : 0.5;
-                    });
-                }
+        if (config.onEnable && config.onDisable) {
+            let activeItem = -1;
+            const allElements = Array.from(template.querySelectorAll("div[data-index]"));
+            allElements.forEach(element => {
+                const index = parseInt(element.dataset.index);
+                element.addEventListener("click", () => {
+                    if (activeItem === index) {
+                        config.onDisable?.(config.items[index], index);
+                        activeItem = -1;
+                        // We need to reset the opacity of all labels
+                        allElements.forEach(el => {
+                            // eslint-disable-next-line no-param-reassign
+                            el.style.opacity = 1;
+                        });
+                    } else {
+                        config.onEnable?.(config.items[index], index);
+                        activeItem = index;
+                        // Add a little transparency to all legend labels, excluding the clicked label
+                        allElements.forEach(el => {
+                            // eslint-disable-next-line no-param-reassign
+                            el.style.opacity = el.dataset.index === element.dataset.index ? 1 : 0.5;
+                        });
+                    }
+                });
             });
-        });
+        }
 
         // Append template to legend parent element
         legendParent.appendChild(template);
