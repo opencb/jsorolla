@@ -123,6 +123,21 @@ export default {
             </div>
         `);
 
+        // Register events listeners
+        let activeItem = -1;
+        Array.from(template.querySelectorAll("div[data-index]")).forEach(element => {
+            const index = parseInt(element.dataset.index);
+            element.addEventListener("click", () => {
+                if (activeItem === index) {
+                    config.onDisable?.(config.items[index], index);
+                    activeItem = -1;
+                } else {
+                    config.onEnable?.(config.items[index], index);
+                    activeItem = index;
+                }
+            });
+        });
+
         // Append template to legend parent element
         legendParent.appendChild(template);
     },
@@ -496,6 +511,18 @@ export default {
                     })),
                     width: width,
                     height: config.legendHeight,
+                    onEnable: item => {
+                        Array.from(group.querySelectorAll("[data-ct]")).forEach(element => {
+                            // eslint-disable-next-line no-param-reassign
+                            element.style.opacity = item.id === element.dataset.ct ? 1 : 0.1;
+                        });
+                    },
+                    onDisable: () => {
+                        Array.from(group.querySelectorAll("[data-ct]")).forEach(element => {
+                            // eslint-disable-next-line no-param-reassign
+                            element.style.opacity = 1;
+                        });
+                    },
                 });
 
                 // We need to update the offset to take into accound the legend height
