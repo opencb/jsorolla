@@ -1,7 +1,13 @@
 // import UtilsNew from "../../../core/utils-new";
+import {html} from "lit";
 
-const DATA_FORM_EXAMPLE = {
-    display: this.displayConfig,
+
+export const DATA_FORM_EXAMPLE = {
+    // display: this.displayConfig,
+    test: {
+        prefix: "test1-",
+        active: true,
+    },
     sections: [
         {
             title: "General Information",
@@ -20,6 +26,18 @@ const DATA_FORM_EXAMPLE = {
                     title: "Somatic",
                     field: "somatic",
                     type: "checkbox",
+                },
+                {
+                    title: "Name Complex",
+                    field: "",
+                    type: "complex",
+                    display: {
+                        template: "${id} - ${somatic}",
+                        placeholder: "Add an individual name...",
+                        help: {
+                            text: "ssdasdada"
+                        }
+                    },
                 },
                 {
                     title: "Description",
@@ -358,4 +376,15 @@ const DATA_FORM_EXAMPLE = {
             ],
         },
     ],
+};
+
+export const SAMPLE_DATA = {
+    id: "aaa",
+    somatic: true,
+    phenotypes: [
+        {
+            id: "a",
+            name: "b"
+        }
+    ]
 };

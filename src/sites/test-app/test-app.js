@@ -99,6 +99,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/visualization/genome-browser.js";
 
+import {DATA_FORM_EXAMPLE, SAMPLE_DATA} from "./conf/data-form.js";
 
 class TestApp extends LitElement {
 
@@ -171,7 +172,7 @@ class TestApp extends LitElement {
         this.config = _config;
 
         this.updateCellBaseClient();
-        
+
         // Get version from env variable
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
@@ -1087,7 +1088,7 @@ debugger
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form">
                         <data-form
-                            .data="${{}}"
+                            .data="${SAMPLE_DATA}"
                             .config="${DATA_FORM_EXAMPLE}"
                             @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
