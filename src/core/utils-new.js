@@ -192,6 +192,13 @@ export default class UtilsNew {
         let mousePosition;
         let offset = [0, 0];
         let isDown = false;
+        const modalDialog = modalElm.querySelector(".modal-dialog");
+        if (modalDialog) {
+            modalDialog.style.margin = "0";
+            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.top = (window.innerHeight * 0.05) + "px";
+        }
+
 
         modalElm.addEventListener("mousedown", e => {
             isDown = true;
@@ -323,7 +330,7 @@ export default class UtilsNew {
     /*
      * This function capitalizes the first letter of a string and lowercase the rest.
      */
-    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
 
 
     /*

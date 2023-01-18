@@ -1240,7 +1240,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         backdrop: false,
                         show: true,
                     });
-                    // this.showDraggableModal(this._prefix + "ReviewSampleModal");
                 }
                 break;
             case "genome-browser":
@@ -1414,7 +1413,6 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the variant review to prevent changing original values
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
-            // this.showDraggableModal(this._prefix + "ReviewSampleModal");
             const modalElm = document.querySelector("#"+this._prefix + "ReviewSampleModal");
             UtilsNew.draggableContainer(document, modalElm);
             $("#"+this._prefix + "ReviewSampleModal").modal({
