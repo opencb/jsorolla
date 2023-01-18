@@ -298,8 +298,15 @@ export default {
                         const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
                         const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
 
+                        // We will generate a new group to wrap all lollipop elements
+                        const lollipopGroup = SVG.addChild(group, "g", {
+                            "data-id": info.variantId,
+                            "data-index": index,
+                            "data-ct": consequenceType,
+                        });
+
                         // Lollipop line
-                        SVG.addChild(group, "path", {
+                        SVG.addChild(lollipopGroup, "path", {
                             "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
                             "fill": "none",
                             "stroke": color,
@@ -307,7 +314,7 @@ export default {
                         });
 
                         // Lollipop circle
-                        SVG.addChild(group, "circle", {
+                        SVG.addChild(lollipopGroup, "circle", {
                             "cx": x1 - 0.5,
                             "cy": -70,
                             "r": 8,
@@ -318,7 +325,7 @@ export default {
 
                         // Lollipop ID text
                         const id = `${(info.reference || "-")}${info.position}${(info.alternate || "-")}`;
-                        const text = SVG.addChildText(group, id, {
+                        const text = SVG.addChildText(lollipopGroup, id, {
                             "fill": color,
                             "text-anchor": "start",
                             "dominant-baseline": "middle",
@@ -450,29 +457,33 @@ export default {
 
             // Render lollipops
             if (lollipopsVariants.length > 0) {
-                lollipopsVariants.forEach(info => {
+                lollipopsVariants.forEach((info, index) => {
                     const x = getPixelPosition(info.position);
                     const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
                     const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
 
+                    const lollipopGroup = SVG.addChild(group, "g", {
+                        "data-ct": consequenceType,
+                        "data-index": index,
+                        "style": "opacity:1;",
+                    });
+
                     // Lollipop line
-                    SVG.addChild(group, "path", {
+                    SVG.addChild(lollipopGroup, "path", {
                         "d": `M${x - 0.5},-${trackHeight}V-${trackHeight - 20}`,
                         "fill": "none",
                         "stroke": color,
                         "stroke-width": "1px",
-                        "data-ct": consequenceType,
                     });
 
                     // Lollipop circle
-                    SVG.addChild(group, "circle", {
+                    SVG.addChild(lollipopGroup, "circle", {
                         "cx": x - 0.5,
                         "cy": (-1) * (trackHeight - 20),
                         "r": 6,
                         "fill": color,
                         "stroke": "#fff",
                         "stroke-width": "1px",
-                        "data-ct": consequenceType,
                     });
 
                     if (typeof countsByConsequenceType[consequenceType] !== "number") {
