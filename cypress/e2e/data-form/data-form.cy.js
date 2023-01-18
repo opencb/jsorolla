@@ -28,6 +28,20 @@ describe("Data Form Component", () => {
         });
     });
 
+    // Approach #2 to access to type field (More specific field)
+    it("should type the first input field", () => {
+        cy.get("label").contains("Sample ID").parent().parent().within(()=> {
+            cy.get("input[type='text']").type("testing input fill");
+        });
+    });
+
+    // Approach #3 to access to type field (More specific field)
+    it.only("should type the first input field", () => {
+        cy.get("label").contains("Sample ID").parents("div[class='row form-group ']").within(()=> {
+            cy.get("input[type='text']").type("testing input fill");
+        });
+    });
+
     it("the second field should be disabled", () => {
         cy.get("textarea").first().should("be.disabled");
     });
