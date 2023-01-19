@@ -10,20 +10,20 @@ module.exports = defineConfig({
         html: false,
         json: true,
     },
-    // e2e: {
-    // // We've imported your old cypress plugins here.
-    // // You may want to clean this up later by importing these.
-    //     setupNodeEvents(on, config) {
-    //         return require("./cypress/plugins/index.js")(on, config);
-    //     },
-    //     baseUrl: "http://localhost:3000/src/sites/iva/",
-    // },
-    component: {
-        supportFile: "cypress/support/component.js",
-        devServer: {
-            bundler: "vite",
+    e2e: {
+    // We've imported your old cypress plugins here.
+    // You may want to clean this up later by importing these.
+        setupNodeEvents(on, config) {
+            return require("../cypress/plugins/index.js")(on, config);
         },
-        indexHtmlFile: "cypress/support/component-index.html",
+        baseUrl: "http://localhost:3000/src/sites/test-app/",
     },
+    // component: {
+    //     supportFile: "cypress/support/component.js",
+    //     devServer: {
+    //         bundler: "vite",
+    //     },
+    //     indexHtmlFile: "cypress/support/component-index.html",
+    // },
     experimentalWebKitSupport: true,
 });
