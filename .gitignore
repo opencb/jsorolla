@@ -54,7 +54,6 @@ local.properties
 .buildpath
 
 # Cypress
-fixtures
 screenshots
 videos
 mochawesome-report
