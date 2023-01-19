@@ -537,15 +537,24 @@ export default {
                     height: config.legendHeight,
                     onEnable: item => {
                         Array.from(group.querySelectorAll("[data-ct]")).forEach(element => {
-                            // eslint-disable-next-line no-param-reassign
-                            element.style.opacity = item.id === element.dataset.ct ? 1 : 0.1;
+                            if (item.id === element.dataset.ct) {
+                                // eslint-disable-next-line no-param-reassign
+                                element.style.opacity = 1;
+                                group.appendChild(element); // Bring this element to front
+                            } else {
+                                // eslint-disable-next-line no-param-reassign
+                                element.style.opacity = 0.1;
+                            }
                         });
                     },
                     onDisable: () => {
-                        Array.from(group.querySelectorAll("[data-ct]")).forEach(element => {
-                            // eslint-disable-next-line no-param-reassign
-                            element.style.opacity = 1;
-                        });
+                        Array.from(group.querySelectorAll("[data-ct]"))
+                            .sort((a, b) => parseInt(a.dataset.index) < parseInt(b.dataset.index) ? -1 : +1)
+                            .forEach(element => {
+                                // eslint-disable-next-line no-param-reassign
+                                element.style.opacity = 1;
+                                group.appendChild(element); // Reorder element
+                            });
                     },
                 });
 
