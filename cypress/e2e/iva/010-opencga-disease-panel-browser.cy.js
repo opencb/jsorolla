@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, checkResultsOrNot, hasResults, changePage, dateFilterCheck, goTo, selectToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 context("10. Disease Browser", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("10.1 - query", () => {
         cy.get("a[data-id=disease-panel]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Disease Panel Browser");
 
-        checkResultsOrNot("disease-panel-grid");
+        UtilsTest.checkResultsOrNot("disease-panel-grid");
 
-        hasResults("disease-panel-grid").then($bool => {
+        UtilsTest.hasResults("disease-panel-grid").then($bool => {
             // run other tests in case there are results
             if ($bool) {
                 // Disease Panel Id
-                getResult("disease-panel-grid", 0).then($text => {
-                    selectToken("disease-panel-id-autocomplete", $text.trim());
+                UtilsTest.getResult("disease-panel-grid", 0).then($text => {
+                    UtilsTest.selectToken("disease-panel-id-autocomplete", $text.trim());
                     cy.get(".lhs button[data-filter-name]").should("have.length", 1);
                     cy.get("div.search-button-wrapper button").click();
                 });
-                checkResults("disease-panel-grid");
+                UtilsTest.checkResults("disease-panel-grid");
                 cy.get("opencga-active-filters button[data-filter-name='id']").click();
 
                 // TODO FIXME disorders filter shows IDs in the dropdown, but we don't show IDs in the table
@@ -52,13 +52,13 @@ context("10. Disease Browser", () => {
                         cy.get("opencga-active-filters button[data-filter-name='disorders']").click();
                     });
                 });*/
-                checkResults("disease-panel-grid");
-                changePage("disease-panel-grid", 2);
-                checkResults("disease-panel-grid");
-                changePage("disease-panel-grid", 1);
-                checkResults("disease-panel-grid");
+                UtilsTest.checkResults("disease-panel-grid");
+                UtilsTest.changePage("disease-panel-grid", 2);
+                UtilsTest.checkResults("disease-panel-grid");
+                UtilsTest.changePage("disease-panel-grid", 1);
+                UtilsTest.checkResults("disease-panel-grid");
 
-                dateFilterCheck("disease-panel-grid");
+                UtilsTest.dateFilterCheck("disease-panel-grid");
             }
         });
     });

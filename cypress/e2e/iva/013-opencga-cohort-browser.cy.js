@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 context("13. Cohort Browser", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("13.1 - query", () => {
         cy.get("a[data-id=cohort]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Cohort Browser");
-        checkResults("opencga-cohort-grid");
+        UtilsTest.checkResults("opencga-cohort-grid");
 
-        getResult("opencga-cohort-grid").then($text => {
-            selectToken("cohort-id-autocomplete", $text);
+        UtilsTest.getResult("opencga-cohort-grid").then($text => {
+            UtilsTest.selectToken("cohort-id-autocomplete", $text);
         });
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
         cy.get("div.search-button-wrapper button").click();
-        checkResults("opencga-cohort-grid");
+        UtilsTest.checkResults("opencga-cohort-grid");
         cy.get("opencga-active-filters button[data-filter-name='id']").click();
 
-        checkResults("opencga-cohort-grid");
-        changePage("opencga-cohort-grid", 2);
-        checkResults("opencga-cohort-grid");
-        changePage("opencga-cohort-grid", 1);
-        checkResults("opencga-cohort-grid");
+        UtilsTest.checkResults("opencga-cohort-grid");
+        UtilsTest.changePage("opencga-cohort-grid", 2);
+        UtilsTest.checkResults("opencga-cohort-grid");
+        UtilsTest.changePage("opencga-cohort-grid", 1);
+        UtilsTest.checkResults("opencga-cohort-grid");
 
-        dateFilterCheck("opencga-cohort-grid");
-        annotationFilterCheck("opencga-cohort-grid");
+        UtilsTest.dateFilterCheck("opencga-cohort-grid");
+        UtilsTest.annotationFilterCheck("opencga-cohort-grid");
 
     });
 
@@ -53,27 +53,27 @@ context("13. Cohort Browser", () => {
 
         cy.get("a[href='#facet_tab']").click({force: true});
 
-        Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "numSamples[0..10]:1"
+        UtilsTest.facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "numSamples[0..10]:1"
 
-        Facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
-        Facet.checkActiveFacet("status", "status");
-        Facet.checkActiveFacet("numSamples", "numSamples[0..10]:1");
+        UtilsTest.facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
+        UtilsTest.facet.checkActiveFacet("status", "status");
+        UtilsTest.facet.checkActiveFacet("numSamples", "numSamples[0..10]:1");
 
 
-        Facet.checkActiveFacetLength(3);
+        UtilsTest.facet.checkActiveFacetLength(3);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(3);
+        UtilsTest.facet.checkResultLength(3);
 
         // cy.get("div.facet-wrapper button[data-filter-name='creationYear']").contains("creationYear>>creationMonth");
 
         cy.get("[data-id='status'] ul.dropdown-menu a").contains("READY").click({force: true}); // status=READY
-        Facet.checkActiveFacet("status", "status[READY]");
+        UtilsTest.facet.checkActiveFacet("status", "status[READY]");
 
-        Facet.select("Status"); // removing status
+        UtilsTest.facet.select("Status"); // removing status
 
-        Facet.checkActiveFacetLength(2);
+        UtilsTest.facet.checkActiveFacetLength(2);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(2);
+        UtilsTest.facet.checkResultLength(2);
 
 
     });

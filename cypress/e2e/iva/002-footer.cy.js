@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TIMEOUT} from "../../plugins/constants.js";
-import {goTo, login} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 /**
@@ -33,15 +33,13 @@ context("2. Footer", () => {
     });
 
     it("2.1 - check OpenCGA host connectivity", () => {
-
         cy.get("custom-footer .footer-item:nth-child(3)").contains("OpenCGA");
         cy.get("custom-footer .footer-item:nth-child(3) sup")
             .should("be.visible")
             .should("not.contain", "NOT AVAILABLE");
     });
     it("2.2 - check CellBase host connectivity", () => {
-        login();
-
+        UtilsTest.login();
         cy.get("custom-footer .footer-item:nth-child(4)").contains("CellBase");
         cy.get("custom-footer .footer-item:nth-child(4) sup")
             .should("be.visible")

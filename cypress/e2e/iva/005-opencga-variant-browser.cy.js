@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken, removeToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 context("5. Variant Browser", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     beforeEach(() => {
@@ -30,7 +30,7 @@ context("5. Variant Browser", () => {
     it("5.1 Columns Visibility", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser");
 
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
 
         cy.get("variant-browser-grid .columns-toggle-wrapper button").should("be.visible").and("contain", "Columns").click();
         cy.get("variant-browser-grid .columns-toggle-wrapper ul li").and("have.length.gt", 1);
@@ -54,10 +54,10 @@ context("5. Variant Browser", () => {
         // cy.get("ul.saved-filter-wrapper a").contains("Save filter...").click(); // it also works
         cy.get("ul.saved-filter-wrapper a[data-action='active-filter-save']").contains("Save current filter").click();
 
-        const name = randomString(5);
+        const name = UtilsTest.randomString(5);
         // cy.get("input[data-cy='modal-filter-name']").type(name); // TODO Cypress doesn't type the entire string. https://github.com/cypress-io/cypress/issues/5480  invoke("val") is a workaround
         cy.get("input[data-cy='modal-filter-name']").invoke("val", name);
-        cy.get("input[data-cy='modal-filter-description']").type(randomString(3));
+        cy.get("input[data-cy='modal-filter-description']").type(UtilsTest.randomString(3));
         cy.get("button[data-cy='modal-filter-save-button']").click(); // confirm save
 
         cy.contains(".notification-manager .alert", "Filter has been saved", {timeout: TIMEOUT}).should("be.visible");
@@ -75,11 +75,11 @@ context("5. Variant Browser", () => {
     // Variant Browser: Individual filters
     it("5.3 Pagination", () => {
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser"); // should assertion comes from Chai and it follows its logic
-        checkResults("variant-browser-grid");
-        changePage("variant-browser-grid", 2);
-        checkResults("variant-browser-grid");
-        changePage("variant-browser-grid", 1);
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
+        UtilsTest.changePage("variant-browser-grid", 2);
+        UtilsTest.checkResults("variant-browser-grid");
+        UtilsTest.changePage("variant-browser-grid", 1);
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.4 Filters. Study and Cohorts: Cohort Alternate Stats", () => {
@@ -100,19 +100,19 @@ context("5. Variant Browser", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='Genomic']").click();
         cy.get("region-filter textarea").type("1:5000000-10000000");
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='region']").contains("Region").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.6 Filters. Genomic: Feature IDs", () => {
-        selectToken("feature-filter", "C5", true);
+        UtilsTest.selectToken("feature-filter", "C5", true);
         cy.get("opencga-active-filters").contains("XRef");
-        selectToken("feature-filter", "rs", true);
+        UtilsTest.selectToken("feature-filter", "rs", true);
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='xref']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.7 Filters. Genomic: Gene Biotype", () => {
@@ -122,18 +122,18 @@ context("5. Variant Browser", () => {
         cy.get("biotype-filter div.dropdown-menu").find("a").should("have.length", 1);
         cy.get("biotype-filter div.dropdown-menu a").click();
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='biotype']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.8 Filters. Genomic: Variant", () => {
         // Genomic: Variant type cy.get('.magic-checkbox-wrapper > :nth-child(1) > label')
         cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='type']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.9 Filters. Consequence type: LoF", () => {
@@ -141,7 +141,7 @@ context("5. Variant Browser", () => {
         cy.get("variant-browser-filter a[data-cy-section-title='ConsequenceType']").click();
         cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.10 Filters. Consequence type: Missense", () => {
@@ -151,9 +151,9 @@ context("5. Variant Browser", () => {
         cy.get("consequence-type-select-filter div.dropdown-menu").find("a").should("have.length", 1);
         cy.get("consequence-type-select-filter div.dropdown-menu a").click();
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='ct']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.11 Filters. Population Frequency: 1000 Genomes - AFR < 0.0001 AND EUR > 0.0001", () => {
@@ -168,9 +168,9 @@ context("5. Variant Browser", () => {
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter button").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter div.dropdown-menu").find("li").contains(">").click();
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.12 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
@@ -179,9 +179,9 @@ context("5. Variant Browser", () => {
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.13 Filters. Clinical: Disease Panels", () => {
@@ -192,7 +192,7 @@ context("5. Variant Browser", () => {
         cy.get("disease-panel-filter").find(" a").contains("Amelogenesis imperfecta").click({force: true});
         cy.get("div.search-button-wrapper button").click();
 
-        checkResultsOrNot("variant-browser-grid");
+        UtilsTest.checkResultsOrNot("variant-browser-grid");
 
         // Test ALL Panels
         // NOTE Covid19... is the first URI too long
@@ -216,9 +216,9 @@ context("5. Variant Browser", () => {
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
         cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.15 Filters. Clinical and Disease: Full text: Mortality", () => {
@@ -226,27 +226,27 @@ context("5. Variant Browser", () => {
         cy.get("fulltext-search-accessions-filter textarea").type("Mortality");
         // cy.get("fulltext-search-accessions-filter textarea").type("centroid");
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='traits']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.16 Filters. GO and HPO", () => {
         cy.get("[data-cy-section-title=Phenotype]").click();
 
         // GO
-        selectToken("go-accessions-filter", "dopamine", true); // "dopamine secretion" exchange factor activity
+        UtilsTest.selectToken("go-accessions-filter", "dopamine", true); // "dopamine secretion" exchange factor activity
         cy.get("opencga-active-filters button[data-filter-name='go']").contains("GO:0014046");
-        removeToken("go-accessions-filter", "GO:0014046");
+        UtilsTest.removeToken("go-accessions-filter", "GO:0014046");
 
         // HPO
         cy.get("[data-cy-section-id=Phenotype]")
             .then($div => {
                 // HPO filter is visible
                 if (Cypress.$(".subsection-content[data-cy='hpo']", $div).length) {
-                    selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant thecoma
+                    UtilsTest.selectToken("hpo-accessions-filter", "Ovarian", true); // Ovariant thecoma
                     cy.get("opencga-active-filters button[data-filter-name='annot-hpo']").contains("HP:0030983");
-                    removeToken("hpo-accessions-filter", "HP:0030983");
+                    UtilsTest.removeToken("hpo-accessions-filter", "HP:0030983");
                 }
             });
     });
@@ -263,9 +263,9 @@ context("5. Variant Browser", () => {
         cy.get("protein-substitution-score-filter .polyphen .score-value input[type='number']").type("0.1");
 
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.18 Filters. Deleteriousness: Sift / Polyphen - AND operation", () => {
@@ -277,9 +277,9 @@ context("5. Variant Browser", () => {
 
         cy.get("protein-substitution-score-filter .rating-label-and").click();
         cy.get("div.search-button-wrapper button").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='proteinSubstitution']").click();
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
     });
 
     it("5.19 Filters. Conservation: PhyloP", () => {
@@ -292,9 +292,9 @@ context("5. Variant Browser", () => {
                     cy.get("conservation-filter .cf-phylop input[type='text']").type("1");
                     cy.get("conservation-filter .cf-phastCons input[type='text']").type("1");
                     cy.get("div.search-button-wrapper button").click();
-                    checkResults("variant-browser-grid");
+                    UtilsTest.checkResults("variant-browser-grid");
                     cy.get("opencga-active-filters button[data-filter-name='conservation']").click();
-                    checkResults("variant-browser-grid");
+                    UtilsTest.checkResults("variant-browser-grid");
                 } else {
                     cy.get("div[data-cy-section-id='Conservation']").should("not.exist");
                 }
@@ -319,7 +319,7 @@ context("5. Variant Browser", () => {
         cy.get("cellbase-variant-annotation-summary h3").contains("Summary");
 
         cy.get("variant-browser-detail [data-id='annotationConsType']").click();
-        checkResults("variant-consequence-type-view");
+        UtilsTest.checkResults("variant-consequence-type-view");
 
         cy.get("variant-browser-detail [data-id='annotationPropFreq']").click();
 
@@ -328,7 +328,7 @@ context("5. Variant Browser", () => {
             .then($div => {
                 // check CB data are available
                 if (Cypress.$("div[data-cy='cellbase-population-frequency-table']", $div).length) {
-                    checkResultsOrNot("cellbase-population-frequency-grid");
+                    UtilsTest.checkResultsOrNot("cellbase-population-frequency-grid");
                 } else {
                     cy.get("cellbase-population-frequency-grid .alert-info").contains("No population frequencies found");
                 }
@@ -336,13 +336,13 @@ context("5. Variant Browser", () => {
 
 
         cy.get("variant-browser-detail [data-id='annotationClinical']").click();
-        checkResultsOrNot("variant-annotation-clinical-view");
+        UtilsTest.checkResultsOrNot("variant-annotation-clinical-view");
 
         cy.get("variant-browser-detail [data-id='cohortStats']").click();
-        checkResultsOrNot("variant-cohort-stats-grid");
+        UtilsTest.checkResultsOrNot("variant-cohort-stats-grid");
 
         cy.get("variant-browser-detail [data-id='samples']").click();
-        checkResults("variant-samples");
+        UtilsTest.checkResults("variant-samples");
 
         cy.get("variant-browser-detail [data-id='beacon']").click();
         cy.get("variant-beacon-network", {timeout: TIMEOUT}).find(".beacon-square").its("length").should("eq", 15);
@@ -355,30 +355,30 @@ context("5. Variant Browser", () => {
 
         cy.get("a[href='#facet_tab']").click({force: true});
 
-        Facet.selectDefaultFacet();
+        UtilsTest.vfacet.selectDefaultFacet();
         // cy.get("button.default-facets-button").click(); // default facets selection (chromosome, type)
 
-        Facet.select("Gene");
+        UtilsTest.facet.select("Gene");
         // cy.get("facet-filter .facet-selector li a").contains("Gene").click({force: true}); // gene facets selection
 
         cy.get("#type_Select a").contains("INSERTION").click({force: true}); // type=INSERTION
-        Facet.checkActiveFacet("type", "type[INSERTION]");
+        UtilsTest.Facet.checkActiveFacet("type", "type[INSERTION]");
         // cy.get("div.facet-wrapper button[data-filter-name='type']").contains("type[INSERTION]");
 
-        Facet.checkActiveFacetLength(3);
+        UtilsTest.Facet.checkActiveFacetLength(3);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(3);
+        UtilsTest.facet.checkResultLength(3);
         // cy.get("opencb-facet-results", {timeout: 120000}).find("opencga-facet-result-view", {timeout: TIMEOUT}).should("have.lengthOf", 3); // 2 default fields + genes
 
-        Facet.select("Chromosome"); // removing chromosome
-        Facet.checkActiveFacetLength(2);
+        UtilsTest.facet.select("Chromosome"); // removing chromosome
+        UtilsTest.facet.checkActiveFacetLength(2);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(2);
+        UtilsTest.facet.checkResultLength(2);
 
-        Facet.removeActive("type");
-        Facet.checkResultLength(1);
-        Facet.removeActive("genes");
-        Facet.checkResultLength(0);
+        UtilsTest.facet.removeActive("type");
+        UtilsTest.facet.checkResultLength(1);
+        UtilsTest.facet.removeActive("genes");
+        UtilsTest.facet.checkResultLength(0);
 
     });
 });

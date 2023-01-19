@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {login, checkResults, goTo} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 const getCaseType = grid => {
-    checkResults(grid);
+    UtilsTest.checkResults(grid);
     return cy.get("clinical-analysis-grid table tr[data-index=0] td:nth-child(1)  p[data-cy='case-type']", {timeout: 60000}).then(type => console.log("TYPE", type)).invoke("text");
 };
 
 
 context("7. Case Interpreter", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("7.1 - check query results", () => {
@@ -35,7 +35,7 @@ context("7. Case Interpreter", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
 
-        checkResults("clinical-analysis-grid");
+        UtilsTest.checkResults("clinical-analysis-grid");
 
         // reading from the first row the case Id, the proband Id, and the Family Id and use them as filters
         cy.get("clinical-analysis-grid table", {timeout: TIMEOUT})
@@ -123,7 +123,7 @@ context("7. Case Interpreter", () => {
                     cy.get("consequence-type-select-filter input[value='Loss-of-Function (LoF)'").click({force: true});
                     cy.get("opencga-active-filters button[data-filter-name='ct']").contains("Consequence Types");
                     cy.get("div.search-button-wrapper button").click();
-                    checkResults("variant-interpreter-grid");
+                    UtilsTest.checkResults("variant-interpreter-grid");
                 }
 
             });

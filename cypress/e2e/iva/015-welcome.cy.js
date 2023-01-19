@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {login, goTo} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+
+import UtilsTest from "../../support/UtilsTest.js";
+import {TIMEOUT} from "../../support/constants.js";
 
 const homePanel = [
     {id: "browser", title: "Variant Browser"},
@@ -34,8 +35,8 @@ const resolveButtons = page => {
 
 context("15. Welcome page", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("15.1 - check home page content", () => {

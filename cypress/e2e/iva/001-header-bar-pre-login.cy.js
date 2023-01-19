@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {TIMEOUT} from "../../plugins/constants.js";
-import {goTo} from "../../plugins/utils.js";
-
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 /**
  * Header bar (pre-login)
@@ -35,7 +34,7 @@ context("1. Header bar (pre-login): checks on Header Bar elements", () => {
     });
 
     it("1.2 - check header-bar icons resolve correctly", () => {
-        goTo("iva");
+        UtilsTest.goTo("iva");
         cy.get("#welcome-page-title", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
 
     });

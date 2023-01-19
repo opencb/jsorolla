@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-import {login, goTo} from "../../plugins/utils.js";
+
+import UtilsTest from "../../support/UtilsTest.js";
+import {TIMEOUT} from "../../support/constants.js";
+
 
 const endpoints = [
     "Users", "Projects", "Studies", "Files", "Jobs", "Samples", "Individuals", "Families", "Cohorts", "Disease Panels",
@@ -24,8 +27,8 @@ const endpoints = [
 
 context("17. Rest API", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("15.0 - Check existence and order of endpoints", () => {

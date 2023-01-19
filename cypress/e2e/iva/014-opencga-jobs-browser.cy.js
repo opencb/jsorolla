@@ -14,53 +14,52 @@
  * limitations under the License.
  */
 
-import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
-
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 context("14. Jobs Browser", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("14.1 - query", () => {
         cy.get("a[data-id=job]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Jobs Browser");
 
-        checkResults("opencga-job-grid");
+        UtilsTest.checkResults("opencga-job-grid");
 
-        getResult("opencga-job-grid", 1).then($text => {
-            selectToken("jobs-id-autocomplete", $text);
+        UtilsTest.getResult("opencga-job-grid", 1).then($text => {
+            UtilsTest.selectToken("jobs-id-autocomplete", $text);
         });
 
-        getResult("opencga-job-grid", 2).then($text => {
-            selectToken("analysis-tool-id-autocomplete", $text);
+        UtilsTest.getResult("opencga-job-grid", 2).then($text => {
+            UtilsTest.selectToken("analysis-tool-id-autocomplete", $text);
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 2);
 
         cy.get("div.search-button-wrapper button").click();
-        checkResults("opencga-job-grid");
+        UtilsTest.checkResults("opencga-job-grid");
 
         cy.get("opencga-active-filters button[data-filter-name='id']").click();
-        checkResults("opencga-job-grid");
+        UtilsTest.checkResults("opencga-job-grid");
 
         cy.get("opencga-active-filters button[data-filter-name='tool']").click();
-        checkResults("opencga-job-grid");
+        UtilsTest.checkResults("opencga-job-grid");
 
         cy.get("#priority + .subsection-content a").click({force: true, multiple: true});
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
         cy.get("div.search-button-wrapper button").click();
 
-        checkResults("opencga-job-grid");
-        changePage("opencga-job-grid", 2);
-        checkResults("opencga-job-grid");
-        changePage("opencga-job-grid", 1);
-        checkResults("opencga-job-grid");
+        UtilsTest.checkResults("opencga-job-grid");
+        UtilsTest.changePage("opencga-job-grid", 2);
+        UtilsTest.checkResults("opencga-job-grid");
+        UtilsTest.changePage("opencga-job-grid", 1);
+        UtilsTest.checkResults("opencga-job-grid");
 
-        dateFilterCheck("opencga-job-grid");
+        UtilsTest.dateFilterCheck("opencga-job-grid");
 
     });
 
@@ -69,20 +68,20 @@ context("14. Jobs Browser", () => {
         cy.get("a[href='#facet_tab']").click({force: true});
 
 
-        Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "toolId>>executorId"
+        UtilsTest.facet.selectDefaultFacet(); // "creationYear>>creationMonth", "toolId>>executorId"
 
-        Facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
-        Facet.checkActiveFacet("toolId", "toolId>>executorId");
+        UtilsTest.facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
+        UtilsTest.facet.checkActiveFacet("toolId", "toolId>>executorId");
 
-        Facet.checkActiveFacetLength(2);
+        UtilsTest.facet.checkActiveFacetLength(2);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(2);
+        UtilsTest.facet.checkResultLength(2);
 
-        Facet.select("Tool Id"); // removing toolId
+        UtilsTest.facet.select("Tool Id"); // removing toolId
 
-        Facet.checkActiveFacetLength(1);
+        UtilsTest.facet.checkActiveFacetLength(1);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(1);
+        UtilsTest.facet.checkResultLength(1);
 
     });
 });

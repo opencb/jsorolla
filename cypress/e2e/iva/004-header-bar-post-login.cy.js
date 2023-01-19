@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {login, goTo, checkResults, checkResultsOrNot} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 /**
@@ -23,40 +23,40 @@ import {TIMEOUT} from "../../plugins/constants.js";
  */
 context("4. Header bar (post-login): Checks each menu item in header-bar resolves correctly", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("4.1 - checks Variant Browser menu item", () => {
         cy.get("a[data-id=browser]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Variant Browser"); // should assertion comes from Chai and it follows its logic
-        checkResults("variant-browser-grid");
+        UtilsTest.checkResults("variant-browser-grid");
 
     });
 
     it("4.2 - checks Case Portal menu item", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
-        checkResults("clinical-analysis-grid");
+        UtilsTest.checkResults("clinical-analysis-grid");
     });
 
     it("4.3 - checks Sample Browser menu item", () => {
         cy.get("a[data-id=sample]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Sample Browser");
-        checkResults("sample-grid");
+        UtilsTest.checkResults("sample-grid");
     });
 
     it("4.4 - checks Individual Browser menu item", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser"); // should assertion comes from Chai and it follows its logic
-        checkResults("individual-grid");
+        UtilsTest.checkResults("individual-grid");
 
     });
 
     it("4.5 - checks Family Browser menu item", () => {
         cy.get("a[data-id=family]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Family Browser"); // should assertion comes from Chai and it follows its logic
-        checkResultsOrNot("family-grid");
+        UtilsTest.checkResultsOrNot("family-grid");
     });
 
     it("4.6 - checks study selector menu items", () => {

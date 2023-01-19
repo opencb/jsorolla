@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TIMEOUT} from "../../plugins/constants.js";
-import {goTo} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 context("3. Login", () => {
@@ -60,7 +60,7 @@ context("3. Login", () => {
             cy.get(`a[data-cy-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
         }
 
-        goTo("iva");
+        UtilsTest.goTo("iva");
         cy.get(".subtitle", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
     });
 

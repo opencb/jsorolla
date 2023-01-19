@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import {login, goTo, randomString, checkResults, selectToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 context("6. Case Portal", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("6.1 - check query results", () => {
         cy.get("a[data-id=clinicalAnalysisPortal]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Portal");
-        checkResults("clinical-analysis-grid");
+        UtilsTest.checkResults("clinical-analysis-grid");
     });
 
     it("6.2 - Filter: caseId", () => {
@@ -36,8 +37,8 @@ context("6. Case Portal", () => {
             .find("td:nth-child(1) a[data-cy='case-id']")
             .then($a => {
                 const caseId = $a.text().trim();
-                selectToken("div[data-cy='form-case']", caseId);
-                checkResults("clinical-analysis-grid");
+                UtilsTest.selectToken("div[data-cy='form-case']", caseId);
+                UtilsTest.checkResults("clinical-analysis-grid");
 
             });
     });
@@ -48,8 +49,8 @@ context("6. Case Portal", () => {
             .then($p => {
                 const probandSampleId = $p.text().trim();
                 console.log("probandSampleId", probandSampleId);
-                selectToken("div[data-cy='form-sample']", probandSampleId);
-                checkResults("clinical-analysis-grid");
+                UtilsTest.selectToken("div[data-cy='form-sample']", probandSampleId);
+                UtilsTest.checkResults("clinical-analysis-grid");
 
             });
     });
@@ -60,8 +61,8 @@ context("6. Case Portal", () => {
             .then($span => {
                 const probandId = $span.text().trim();
                 console.log("probandId", probandId);
-                selectToken("div[data-cy='form-proband']", probandId);
-                checkResults("clinical-analysis-grid");
+                UtilsTest.selectToken("div[data-cy='form-proband']", probandId);
+                UtilsTest.checkResults("clinical-analysis-grid");
 
             });
     });
@@ -75,8 +76,8 @@ context("6. Case Portal", () => {
                 const disorderName = span.text().trim();
                 console.log("disorderName", disorderName);
                 if (disorderName) {
-                    selectToken("div[data-cy='form-disorder']", disorderName);
-                    checkResults("clinical-analysis-grid");
+                    UtilsTest.selectToken("div[data-cy='form-disorder']", disorderName);
+                    UtilsTest.checkResults("clinical-analysis-grid");
                 }
             });
     });
@@ -90,8 +91,8 @@ context("6. Case Portal", () => {
                 if (spans.length) {
                     const familyId = spans.first().text().trim();
                     // console.log("familyId", familyId);
-                    selectToken("div[data-cy='form-family']", familyId);
-                    checkResults("clinical-analysis-grid");
+                    UtilsTest.selectToken("div[data-cy='form-family']", familyId);
+                    UtilsTest.checkResults("clinical-analysis-grid");
                 }
             });
     });
@@ -106,7 +107,7 @@ context("6. Case Portal", () => {
                         // console.error("priority", priority);
                         cy.get("div[data-cy='form-priority'] button").click();
                         cy.get("div[data-cy='form-priority'] ul.dropdown-menu li").contains(priority).click({force: true});
-                        checkResults("clinical-analysis-grid");
+                        UtilsTest.checkResults("clinical-analysis-grid");
                     });
             }
         });

@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-import {login, checkResults, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, checkExactResult, goTo, selectToken} from "../../plugins/utils.js";
-import {TIMEOUT} from "../../plugins/constants.js";
+import {TIMEOUT} from "../../support/constants.js";
+import UtilsTest from "../../support/UtilsTest.js";
 
 
 context("9. Individual Browser", () => {
     before(() => {
-        login();
-        goTo("iva");
+        UtilsTest.login();
+        UtilsTest.goTo("iva");
     });
 
     it("9.1 - query", () => {
         cy.get("a[data-id=individual]", {timeout: TIMEOUT}).click({force: true});
         cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Individual Browser");
 
-        checkResults("individual-grid");
-        changePage("individual-grid", 2);
-        checkResults("individual-grid");
-        changePage("individual-grid", 1);
-        checkResults("individual-grid");
+        UtilsTest.checkResults("individual-grid");
+        UtilsTest.changePage("individual-grid", 2);
+        UtilsTest.checkResults("individual-grid");
+        UtilsTest.changePage("individual-grid", 1);
+        UtilsTest.checkResults("individual-grid");
 
-        getResult("individual-grid", 1).then($text => {
-            selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
+        UtilsTest.getResult("individual-grid", 1).then($text => {
+            UtilsTest.selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
             cy.get("div.search-button-wrapper button").click();
-            checkExactResult("individual-grid", 1);
+            UtilsTest.checkExactResult("individual-grid", 1);
             cy.get("opencga-active-filters button[data-filter-name='id']").click();
-            checkResults("individual-grid");
+            UtilsTest.checkResults("individual-grid");
         });
 
         // sort id ASC
         cy.get("individual-grid table .th-inner.sortable").contains("Individual").click();
-        checkResults("individual-grid");
-        getResult("individual-grid", 1, 0).then($ind1 => {
-            getResult("individual-grid", 1, 1).then($ind2 => {
-                getResult("individual-grid", 1, 2).then($ind3 => {
+        UtilsTest.checkResults("individual-grid");
+        UtilsTest.getResult("individual-grid", 1, 0).then($ind1 => {
+            UtilsTest.getResult("individual-grid", 1, 1).then($ind2 => {
+                UtilsTest.getResult("individual-grid", 1, 2).then($ind3 => {
                     const sorted = [$ind1, $ind2, $ind3];
                     sorted.sort();
                     expect(JSON.stringify([$ind1, $ind2, $ind3]), "Individuals are sorted").to.be.equal(JSON.stringify(sorted));
@@ -57,8 +57,8 @@ context("9. Individual Browser", () => {
             });
         });
 
-        dateFilterCheck("individual-grid");
-        annotationFilterCheck("individual-grid");
+        UtilsTest.dateFilterCheck("individual-grid");
+        UtilsTest.annotationFilterCheck("individual-grid");
 
 
     });
@@ -67,35 +67,35 @@ context("9. Individual Browser", () => {
         cy.get("a[data-id=individual]").click({force: true});
         cy.get("a[href='#facet_tab']").click({force: true});
 
-        Facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"
+        UtilsTest.facet.selectDefaultFacet(); // "creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"
         // cy.get("button.default-facets-button").click(); // "creationYear>>creationMonth", "status", "phenotypes", "somatic"
 
-        Facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
-        Facet.checkActiveFacet("status", "status");
-        Facet.checkActiveFacet("ethnicity", "ethnicity");
-        Facet.checkActiveFacet("population", "population");
-        Facet.checkActiveFacet("lifeStatus", "lifeStatus");
-        Facet.checkActiveFacet("phenotypes", "phenotypes");
-        Facet.checkActiveFacet("sex", "sex");
-        Facet.checkActiveFacet("numSamples", "numSamples[0..10]:1");
+        UtilsTest.facet.checkActiveFacet("creationYear", "creationYear>>creationMonth");
+        UtilsTest.facet.checkActiveFacet("status", "status");
+        UtilsTest.facet.checkActiveFacet("ethnicity", "ethnicity");
+        UtilsTest.facet.checkActiveFacet("population", "population");
+        UtilsTest.facet.checkActiveFacet("lifeStatus", "lifeStatus");
+        UtilsTest.facet.checkActiveFacet("phenotypes", "phenotypes");
+        UtilsTest.facet.checkActiveFacet("sex", "sex");
+        UtilsTest.facet.checkActiveFacet("numSamples", "numSamples[0..10]:1");
 
 
-        Facet.checkActiveFacetLength(8);
+        UtilsTest.facet.checkActiveFacetLength(8);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(8);
+        UtilsTest.facet.checkResultLength(8);
 
         // cy.get("div.facet-wrapper button[data-filter-name='creationYear']").contains("creationYear>>creationMonth");
 
         cy.get("[data-id='status'] ul.dropdown-menu a").contains("READY").click({force: true}); // status=READY
-        Facet.checkActiveFacet("status", "status[READY]");
+        UtilsTest.facet.checkActiveFacet("status", "status[READY]");
         // cy.get("div.facet-wrapper button[data-filter-name='status']").contains("status[READY]");
 
 
-        Facet.select("Status"); // removing status
+        UtilsTest.facet.select("Status"); // removing status
 
-        Facet.checkActiveFacetLength(7);
+        UtilsTest.facet.checkActiveFacetLength(7);
         cy.get("div.search-button-wrapper button").click();
-        Facet.checkResultLength(7);
+        UtilsTest.facet.checkResultLength(7);
 
     });
 
