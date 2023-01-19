@@ -639,8 +639,10 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         return html`
-            <div class="${hasErrorMessages ? "has-error" : ""}">
-                ${content}
+            <div class="${hasErrorMessages ? "has-error" : nothing}">
+                <div data-test-id="${this.config.test?.active ? `${this.config.test.prefix || "test-"}-${element.field}` : nothing}">
+                    ${content}
+                </div>
                 ${helpMessage && helpMode !== "block" ? html`
                     <div class="help-block" style="margin:8px">${helpMessage}</div>
                 ` : null}
@@ -659,18 +661,21 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
+        const value= element.text;
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
-        return html`
+        const content = html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 ${element.display?.icon ? html`
                     <i class="fas fa-${element.display.icon} icon-padding"></i>
                 ` : null}
-                <span>${UtilsNew.renderHTML(element.text || "")}</span>
+                <span>${UtilsNew.renderHTML(value || "")}</span>
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
@@ -693,7 +698,8 @@ export default class DataForm extends LitElement {
                 .step="${step}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}"
+                data-test="pepe">
             </text-field-filter>
         `;
 
@@ -922,11 +928,13 @@ export default class DataForm extends LitElement {
         if (!element.display?.template) {
             return html`<span class="text-danger">No template provided</span>`;
         }
-        return html`
+        const content = html`
             <span>
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
             </span>
         `;
+
+        return this._createElementTemplate(element, null, content);
     }
 
     _createListElement(element) {

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import {login, goTo, getResult, checkResults, checkResultsOrNot, selectToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, goTo, getResult, checkResults, checkResultsOrNot, selectToken} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 let ENABLED = false;
 

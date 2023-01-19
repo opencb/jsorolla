@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {TIMEOUT} from "../plugins/constants.js";
-import {goTo, login} from "../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
+import {goTo, login} from "../../plugins/utils.js";
 
 
 /**

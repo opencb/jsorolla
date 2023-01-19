@@ -304,3 +304,10 @@ export const removeToken = (filterSelector, value) => {
     cy.get(filterSelector + " .select2-selection").first().focus().blur(); // TODO better check how reliable it is to blur the textarea
 
 };
+
+export const typeField = (name, value) => {
+    // Temporal solution
+    return cy.get("label").contains(name).parent().parent().within(()=> {
+        cy.get("input[type='text']").type(value);
+    });
+};

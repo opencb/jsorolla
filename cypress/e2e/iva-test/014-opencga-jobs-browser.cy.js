@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 
 context("14. Jobs Browser", () => {

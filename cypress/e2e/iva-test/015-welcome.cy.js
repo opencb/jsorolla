@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {login, goTo} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, goTo} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 const homePanel = [
     {id: "browser", title: "Variant Browser"},

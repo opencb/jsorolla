@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {login, goTo} from "../plugins/utils.js";
+import {login, goTo} from "../../plugins/utils.js";
 
 const endpoints = [
     "Users", "Projects", "Studies", "Files", "Jobs", "Samples", "Individuals", "Families", "Cohorts", "Disease Panels",

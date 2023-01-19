@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, checkResultsOrNot, hasResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {checkResults, login, getResult, checkResultsOrNot, hasResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 
 context("11. Family Browser", () => {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {login, goTo, randomString, checkResults, selectToken} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, goTo, randomString, checkResults, selectToken} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 
 context("6. Case Portal", () => {

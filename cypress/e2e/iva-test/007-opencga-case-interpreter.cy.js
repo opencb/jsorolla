@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {login, checkResults, goTo} from "../plugins/utils.js";
-import {TIMEOUT} from "../plugins/constants.js";
+import {login, checkResults, goTo} from "../../plugins/utils.js";
+import {TIMEOUT} from "../../plugins/constants.js";
 
 const getCaseType = grid => {
     checkResults(grid);

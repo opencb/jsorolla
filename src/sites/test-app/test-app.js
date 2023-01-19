@@ -99,6 +99,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/visualization/genome-browser.js";
 
+import {DATA_FORM_EXAMPLE, SAMPLE_DATA} from "./conf/data-form.js";
 
 class TestApp extends LitElement {
 
@@ -1093,7 +1094,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
                         <data-form
-                            .data="${this.dataTest}"
+                            .data="${SAMPLE_DATA}"
                             .config="${DATA_FORM_EXAMPLE}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
