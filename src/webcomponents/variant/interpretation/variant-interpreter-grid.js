@@ -1422,17 +1422,6 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    showDraggableModal(elementId) {
-        $("#" + elementId).modal({
-            backdrop: false,
-            show: true,
-        });
-
-        $(`div[id='${elementId}']>div[class*='modal-dialog']`).draggable({
-            handle: ".modal-header"
-        });
-    }
-
     onVariantReviewChange(e) {
         this.variantReview = e.detail.value;
     }
