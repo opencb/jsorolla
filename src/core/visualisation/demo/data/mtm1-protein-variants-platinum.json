@@ -1,0 +1,3355 @@
+[
+  {
+    "id": "X:150596530:-:T",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.96dupT",
+            "ENSP00000359423.3:p.Glu33Ter"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "3/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 5.466501,
+                "efficiency": -0.7710085328034552,
+                "alt_donorIntron": 0.108153105,
+                "ref_donor": 5.466501,
+                "alt_acceptor": 5.7035713,
+                "alt_exon": -2.2705598,
+                "ref_exon": -2.1014996,
+                "delta_logit_psi": -0.2609896272664213,
+                "pathogenicity": 0.05553856679674523,
+                "ref_acceptorIntron": -2.3786612,
+                "ref_donorIntron": 0.108153105,
+                "alt_acceptorIntron": -2.3786612,
+                "ref_acceptor": 5.7035713
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 38,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -31,
+                "DS_DL": 0,
+                "DP_AG": -21,
+                "DS_AL": 0,
+                "DP_DL": 41
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 147,
+          "cdsPosition": 95,
+          "codon": "acT/acT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 32,
+            "reference": "THR",
+            "alternate": "THR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150596563:-:A",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.130dupA",
+            "ENSP00000359423.3:p.Ile44AsnfsTer3"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "3/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 5.466501,
+                "efficiency": -0.2422442855144472,
+                "alt_donorIntron": 0.108153105,
+                "ref_donor": 5.466501,
+                "alt_acceptor": 5.7035713,
+                "alt_exon": -2.1327183,
+                "ref_exon": -2.1014996,
+                "delta_logit_psi": -0.04766614543032437,
+                "pathogenicity": 0.05791802335920068,
+                "ref_acceptorIntron": -2.3786612,
+                "ref_donorIntron": 0.108153105,
+                "alt_acceptorIntron": -2.3786612,
+                "ref_acceptor": 5.7035713
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 8,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -9,
+                "DS_DL": 0,
+                "DP_AG": -48,
+                "DS_AL": 0,
+                "DP_DL": 5
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 180,
+          "cdsPosition": 128,
+          "codon": "ctA/ctA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 43,
+            "reference": "LEU",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150598594:AAA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.139_141delAAA",
+            "ENSP00000359423.3:p.Lys47del"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "4/15",
+              "percentage": 3.1578948
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -23,
+                "DS_AG": 0.04,
+                "DS_DG": 0,
+                "DP_AL": -1,
+                "DS_DL": 0,
+                "DP_AG": 43,
+                "DS_AL": 0.22,
+                "DP_DL": -7
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 191,
+          "cdsPosition": 139,
+          "codon": "AAA/GAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 47,
+            "reference": "LYS",
+            "alternate": "GLU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001822",
+              "name": "inframe_deletion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150598594:AAAG:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.141_144delAGAA",
+            "ENSP00000359423.3:p.Glu48LeufsTer24"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "4/15",
+              "percentage": 4.2105265
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -46,
+                "DS_AG": 0.09,
+                "DS_DG": 0,
+                "DP_AL": -1,
+                "DS_DL": 0,
+                "DP_AG": 43,
+                "DS_AL": 0.65,
+                "DP_DL": -23
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 191,
+          "cdsPosition": 139,
+          "codon": "AAA/AAG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 47,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150598596:AG:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.142_143delGA",
+            "ENSP00000359423.3:p.Glu48SerfsTer12"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "4/15",
+              "percentage": 2.1052632
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.385282,
+                "efficiency": -1.358581270403664,
+                "alt_donorIntron": 0.52177596,
+                "ref_donor": 6.385282,
+                "alt_acceptor": 1.4389787,
+                "alt_exon": -4.803965,
+                "ref_exon": -4.481733,
+                "delta_logit_psi": -0.4980386767425952,
+                "pathogenicity": 0.0978278221575829,
+                "ref_acceptorIntron": -2.7607079,
+                "ref_donorIntron": 0.52177596,
+                "alt_acceptorIntron": -2.7607079,
+                "ref_acceptor": 1.4389787
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 41,
+                "DS_AG": 0.02,
+                "DS_DG": 0,
+                "DP_AL": -3,
+                "DS_DL": 0,
+                "DP_AG": 41,
+                "DS_AL": 0.71,
+                "DP_DL": -25
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 193,
+          "cdsPosition": 141,
+          "codon": "aaA/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 47,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150598606:TACA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.153_156delCATA",
+            "ENSP00000359423.3:p.Ile52ValfsTer20"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "4/15",
+              "percentage": 4.2105265
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -35,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -35,
+                "DS_DL": 0,
+                "DP_AG": -7,
+                "DS_AL": 0.08,
+                "DP_DL": 31
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 203,
+          "cdsPosition": 151,
+          "codon": "TAC/TAT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 51,
+            "reference": "TYR",
+            "alternate": "TYR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150598609:A:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.154delA",
+            "ENSP00000359423.3:p.Ile52TyrfsTer21"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "4/15",
+              "percentage": 1.0526316
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.385282,
+                "efficiency": 0.03700755772578097,
+                "alt_donorIntron": 0.52177596,
+                "ref_donor": 6.385282,
+                "alt_acceptor": 1.4389787,
+                "alt_exon": -4.4401546,
+                "ref_exon": -4.481733,
+                "delta_logit_psi": 0.06499460236905084,
+                "pathogenicity": 0.10868775606865835,
+                "ref_acceptorIntron": -2.7607079,
+                "ref_donorIntron": 0.52177596,
+                "alt_acceptorIntron": -2.7607079,
+                "ref_acceptor": 1.4389787
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 27,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -38,
+                "DS_DL": 0,
+                "DP_AG": 33,
+                "DS_AL": 0.05,
+                "DP_DL": -38
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 206,
+          "cdsPosition": 154,
+          "codon": "ATA/TAT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 52,
+            "reference": "ILE",
+            "alternate": "TYR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150614609:T:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.252delT",
+            "ENSP00000359423.3:p.Asp84GlufsTer6"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "5/15",
+              "percentage": 0.9009009
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 1.4285092,
+                "efficiency": -0.5342161250727447,
+                "alt_donorIntron": 0.42465588,
+                "ref_donor": 1.4285092,
+                "alt_acceptor": 5.6353846,
+                "alt_exon": -4.7402134,
+                "ref_exon": -4.6328816,
+                "delta_logit_psi": -0.16545862049270005,
+                "pathogenicity": 0.42894281096070885,
+                "ref_acceptorIntron": -2.696813,
+                "ref_donorIntron": 0.42465588,
+                "alt_acceptorIntron": -2.696813,
+                "ref_acceptor": 5.6353846
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -5,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -19,
+                "DS_DL": 0,
+                "DP_AG": 3,
+                "DS_AL": 0.02,
+                "DP_DL": 50
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 304,
+          "cdsPosition": 252,
+          "codon": "gaT/GAG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 84,
+            "reference": "ASP",
+            "alternate": "GLU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150614695:GTAAA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.342_342+4del5"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "5/15",
+              "percentage": 4.5045047
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 390,
+          "cdsPosition": 338,
+          "codon": "tGT/TGA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 113,
+            "reference": "CYS",
+            "alternate": "STOP"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001587",
+              "name": "stop_gained"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150619090:AT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.397_398delAT",
+            "ENSP00000359423.3:p.Met133ValfsTer2"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "6/15",
+              "percentage": 1.9607843
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 1.4992282,
+                "efficiency": 0.6263554975731406,
+                "alt_donorIntron": 0.4238553,
+                "ref_donor": 1.4992282,
+                "alt_acceptor": 4.768841,
+                "alt_exon": -2.8930354,
+                "ref_exon": -3.0882485,
+                "delta_logit_psi": 0.30275983552494035,
+                "pathogenicity": 0.4368387019330081,
+                "ref_acceptorIntron": -2.3568866,
+                "ref_donorIntron": 0.4238553,
+                "alt_acceptorIntron": -2.3568866,
+                "ref_acceptor": 4.768841
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 50,
+                "DS_AG": 0,
+                "DS_DG": 0.02,
+                "DP_AL": 50,
+                "DS_DL": 0,
+                "DP_AG": -18,
+                "DS_AL": 0,
+                "DP_DL": -35
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 447,
+          "cdsPosition": 395,
+          "codon": "gAT/GAT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 132,
+            "reference": "ASP",
+            "alternate": "ASP"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150619095:T:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.402delT",
+            "ENSP00000359423.3:p.Phe134LeufsTer21"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "6/15",
+              "percentage": 0.98039216
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 1.4992282,
+                "efficiency": 0.017615691035241257,
+                "alt_donorIntron": 0.4238553,
+                "ref_donor": 1.4992282,
+                "alt_acceptor": 4.768841,
+                "alt_exon": -3.0517254,
+                "ref_exon": -3.0882485,
+                "delta_logit_psi": 0.05717119043653733,
+                "pathogenicity": 0.4242862629161905,
+                "ref_acceptorIntron": -2.3568866,
+                "ref_donorIntron": 0.4238553,
+                "alt_acceptorIntron": -2.3568866,
+                "ref_acceptor": 4.768841
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 45,
+                "DS_AG": 0,
+                "DS_DG": 0.06,
+                "DP_AL": -19,
+                "DS_DL": 0,
+                "DP_AG": -23,
+                "DS_AL": 0,
+                "DP_DL": -40
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 452,
+          "cdsPosition": 400,
+          "codon": "TTT/TTG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 134,
+            "reference": "PHE",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150619114:-:A",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.419dupA",
+            "ENSP00000359423.3:p.Tyr140Ter"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "6/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 1.4992282,
+                "efficiency": -0.07727577416356342,
+                "alt_donorIntron": 0.4238553,
+                "ref_donor": 1.4992282,
+                "alt_acceptor": 4.768841,
+                "alt_exon": -3.0764623,
+                "ref_exon": -3.0882485,
+                "delta_logit_psi": 0.01888838698202577,
+                "pathogenicity": 0.4223379114616296,
+                "ref_acceptorIntron": -2.3568866,
+                "ref_donorIntron": 0.4238553,
+                "alt_acceptorIntron": -2.3568866,
+                "ref_acceptor": 4.768841
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -24,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -42,
+                "DS_DL": 0.08,
+                "DP_AG": 23,
+                "DS_AL": 0,
+                "DP_DL": 26
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 470,
+          "cdsPosition": 418,
+          "codon": "tAC/tAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 140,
+            "reference": "TYR",
+            "alternate": "STOP"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001587",
+              "name": "stop_gained"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150619126:T:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.431delT",
+            "ENSP00000359423.3:p.Leu144ArgfsTer11"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "6/15",
+              "percentage": 0.98039216
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 1.4992282,
+                "efficiency": 0.3479642753089912,
+                "alt_donorIntron": 0.4238553,
+                "ref_donor": 1.4992282,
+                "alt_acceptor": 4.768841,
+                "alt_exon": -2.9656081,
+                "ref_exon": -3.0882485,
+                "delta_logit_psi": 0.19044629475421648,
+                "pathogenicity": 0.4310871232309638,
+                "ref_acceptorIntron": -2.3568866,
+                "ref_donorIntron": 0.4238553,
+                "alt_acceptorIntron": -2.3568866,
+                "ref_acceptor": 4.768841
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 14,
+                "DS_AG": 0,
+                "DS_DG": 0.09,
+                "DP_AL": 14,
+                "DS_DL": 0,
+                "DP_AG": -50,
+                "DS_AL": 0,
+                "DP_DL": 46
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 483,
+          "cdsPosition": 431,
+          "codon": "cTG/CGG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 144,
+            "reference": "LEU",
+            "alternate": "ARG"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150638967:G:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.469delG",
+            "ENSP00000359423.3:p.Glu157LysfsTer29"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "7/15",
+              "percentage": 1.1904762
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 4.2449207,
+                "efficiency": -1.668468842480991,
+                "alt_donorIntron": 0.08062141,
+                "ref_donor": 4.2449207,
+                "alt_acceptor": 4.1152487,
+                "alt_exon": -3.7019439,
+                "ref_exon": -3.2989283,
+                "delta_logit_psi": -0.6230590354226668,
+                "pathogenicity": 0.14346893984445133,
+                "ref_acceptorIntron": -2.6689038,
+                "ref_donorIntron": 0.08062141,
+                "alt_acceptorIntron": -2.6689038,
+                "ref_acceptor": 4.1152487
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -23,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -23,
+                "DS_DL": 0,
+                "DP_AG": 7,
+                "DS_AL": 0.03,
+                "DP_DL": -13
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 521,
+          "cdsPosition": 469,
+          "codon": "GAA/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 157,
+            "reference": "GLU",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641276:CCAATCA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.539_545del7",
+            "ENSP00000359423.3:p.Asn180IlefsTer4"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": 4.6666665
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 588,
+          "cdsPosition": 536,
+          "codon": "cCC/CCC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 179,
+            "reference": "PRO",
+            "alternate": "PRO"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641288:-:G",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.549dupG",
+            "ENSP00000359423.3:p.Arg184GlufsTer6"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.7428513,
+                "efficiency": -0.5025021049170519,
+                "alt_donorIntron": 0.5613012,
+                "ref_donor": 3.7428513,
+                "alt_acceptor": 6.635832,
+                "alt_exon": -4.492512,
+                "ref_exon": -4.393448,
+                "delta_logit_psi": -0.152663986140399,
+                "pathogenicity": 0.15321814782432083,
+                "ref_acceptorIntron": -3.411258,
+                "ref_donorIntron": 0.5613012,
+                "alt_acceptorIntron": -3.411258,
+                "ref_acceptor": 6.635832
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -18,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -18,
+                "DS_DL": 0,
+                "DP_AG": -17,
+                "DS_AL": 0.01,
+                "DP_DL": -6
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 599,
+          "cdsPosition": 547,
+          "codon": "tGG/tGG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 183,
+            "reference": "TRP",
+            "alternate": "TRP"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641304:TAA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.567_569delTAA",
+            "ENSP00000359423.3:p.Asn189del"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": 2
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -25,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 17,
+                "DS_DL": 0,
+                "DP_AG": -34,
+                "DS_AL": 0,
+                "DP_DL": 2
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 616,
+          "cdsPosition": 564,
+          "codon": "atT/ATT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 188,
+            "reference": "ILE",
+            "alternate": "ILE"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001822",
+              "name": "inframe_deletion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641329:ACTT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.591_594delTTAC",
+            "ENSP00000359423.3:p.Tyr198LeufsTer51"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": 2.6666667
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -48,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 41,
+                "DS_DL": 0,
+                "DP_AG": -36,
+                "DS_AL": 0.01,
+                "DP_DL": 41
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 641,
+          "cdsPosition": 589,
+          "codon": "ACT/ACC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 197,
+            "reference": "THR",
+            "alternate": "THR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641334:CCCTG:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.595_599del5",
+            "ENSP00000359423.3:p.Pro199SerfsTer11"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": 3.3333333
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 646,
+          "cdsPosition": 594,
+          "codon": "taC/TAC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 198,
+            "reference": "TYR",
+            "alternate": "TYR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150641342:T:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.605delT",
+            "ENSP00000359423.3:p.Leu202TrpfsTer48"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "8/15",
+              "percentage": 0.6666667
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.7428513,
+                "efficiency": -0.0620726896945335,
+                "alt_donorIntron": 0.5613012,
+                "ref_donor": 3.7428513,
+                "alt_acceptor": 6.635832,
+                "alt_exon": -4.3776984,
+                "ref_exon": -4.393448,
+                "delta_logit_psi": 0.025021885852665415,
+                "pathogenicity": 0.15808627763234354,
+                "ref_acceptorIntron": -3.411258,
+                "ref_donorIntron": 0.5613012,
+                "alt_acceptorIntron": -3.411258,
+                "ref_acceptor": 6.635832
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -48,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 28,
+                "DS_DL": 0,
+                "DP_AG": -49,
+                "DS_AL": 0.01,
+                "DP_DL": 28
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 654,
+          "cdsPosition": 602,
+          "codon": "cTT/CTT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 201,
+            "reference": "LEU",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150645809:AAAC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.808_811delCAAA",
+            "ENSP00000359423.3:p.Gln270PhefsTer13"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "9/15",
+              "percentage": 2.1164021
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -9,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 42,
+                "DS_DL": 0,
+                "DP_AG": 36,
+                "DS_AL": 0,
+                "DP_DL": -5
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 857,
+          "cdsPosition": 805,
+          "codon": "AAA/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 269,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150645871:-:GG",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.867_867+1dupGG",
+            "ENSP00000359423.3:p.Ala290GlyfsTer21"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "9/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.876687,
+                "efficiency": -2.067953308967032,
+                "alt_donorIntron": 0.24855393,
+                "ref_donor": 5.676949,
+                "alt_acceptor": -0.14730656,
+                "alt_exon": -3.896432,
+                "ref_exon": -3.8551354,
+                "delta_logit_psi": -1.3849987648598332,
+                "pathogenicity": 0.9712611781472502,
+                "ref_acceptorIntron": -2.2405326,
+                "ref_donorIntron": 0.24855393,
+                "alt_acceptorIntron": -2.2405326,
+                "ref_acceptor": -0.14730656
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 918,
+          "cdsPosition": 866,
+          "codon": "aaG/aaG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 289,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649735:AA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.888_889delAA",
+            "ENSP00000359423.3:p.Ser297Ter"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": 1.0752689
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.47601948963189106,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.3165517,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": -0.141979898232185,
+                "pathogenicity": 0.049320097099703274,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 18,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -11,
+                "DS_DL": 0,
+                "DP_AG": 31,
+                "DS_AL": 0.03,
+                "DP_DL": 3
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 939,
+          "cdsPosition": 887,
+          "codon": "gAA/GAG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 296,
+            "reference": "GLU",
+            "alternate": "GLU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649759:C:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.912delC",
+            "ENSP00000359423.3:p.Glu305AsnfsTer5"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": 0.53763443
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.5450465964847795,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.334546,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": -0.1698280419946019,
+                "pathogenicity": 0.049048590073696705,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 19,
+                "DS_AG": 0.04,
+                "DS_DG": 0,
+                "DP_AL": -42,
+                "DS_DL": 0,
+                "DP_AG": 19,
+                "DS_AL": 0.04,
+                "DP_DL": -21
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 963,
+          "cdsPosition": 911,
+          "codon": "gCC/GCG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 304,
+            "reference": "ALA",
+            "alternate": "ALA"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649767:TTC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.924_926delCTT",
+            "ENSP00000359423.3:p.Phe308del"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": 1.6129032
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -37,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 11,
+                "DS_DL": 0,
+                "DP_AG": -50,
+                "DS_AL": 0.32,
+                "DP_DL": 11
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 971,
+          "cdsPosition": 919,
+          "codon": "TTC/TTC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 307,
+            "reference": "PHE",
+            "alternate": "PHE"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001822",
+              "name": "inframe_deletion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649797:-:A",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.949dupA",
+            "ENSP00000359423.3:p.Met317AsnfsTer15"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.22035378279133877,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.249903,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": -0.03883468928710354,
+                "pathogenicity": 0.05033817836977603,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -3,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -19,
+                "DS_DL": 0,
+                "DP_AG": 23,
+                "DS_AL": 0.04,
+                "DP_DL": 21
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1000,
+          "cdsPosition": 948,
+          "codon": "ATG/AAT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 316,
+            "reference": "MET",
+            "alternate": "ASN"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649808:TT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.961_962delTT",
+            "ENSP00000359423.3:p.Leu321LysfsTer10"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": 1.0752689
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": 0.19109072278836575,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.1426454,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": 0.1271575746804353,
+                "pathogenicity": 0.052018467964797505,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -25,
+                "DS_AG": 0.01,
+                "DS_DG": 0,
+                "DP_AL": 39,
+                "DS_DL": 0,
+                "DP_AG": -30,
+                "DS_AL": 0,
+                "DP_DL": 10
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1012,
+          "cdsPosition": 960,
+          "codon": "tcT/TCT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 320,
+            "reference": "SER",
+            "alternate": "SER"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649811:-:A",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.969dupA",
+            "ENSP00000359423.3:p.Val324SerfsTer8"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.1976063174172359,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.2439733,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": -0.029657502021835584,
+                "pathogenicity": 0.05042971868255213,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -17,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -33,
+                "DS_DL": 0,
+                "DP_AG": 9,
+                "DS_AL": 0.06,
+                "DP_DL": 7
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1014,
+          "cdsPosition": 962,
+          "codon": "ttA/ttA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 321,
+            "reference": "LEU",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649811:A:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.969delA",
+            "ENSP00000359423.3:p.Val324Ter"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": 0.53763443
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.08445066423512329,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.214475,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": 0.01599376515442738,
+                "pathogenicity": 0.05088742623377533,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -17,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -33,
+                "DS_DL": 0,
+                "DP_AG": 14,
+                "DS_AL": 0.07,
+                "DP_DL": 7
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1015,
+          "cdsPosition": 963,
+          "codon": "ttA/TTA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 321,
+            "reference": "LEU",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150649863:-:T",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1015dupT",
+            "ENSP00000359423.3:p.Ser339PhefsTer39"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "10/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 6.8293486,
+                "efficiency": -0.07122581905542211,
+                "alt_donorIntron": 0.79503554,
+                "ref_donor": 6.8293486,
+                "alt_acceptor": 4.237254,
+                "alt_exon": -4.2110276,
+                "ref_exon": -4.224391,
+                "delta_logit_psi": 0.021329167528815234,
+                "pathogenicity": 0.05094117580695019,
+                "ref_acceptorIntron": -2.4863307,
+                "ref_donorIntron": 0.79503554,
+                "alt_acceptorIntron": -2.4863307,
+                "ref_acceptor": 4.237254
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 23,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -16,
+                "DS_DL": 0,
+                "DP_AG": 6,
+                "DS_AL": 0,
+                "DP_DL": 43
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1066,
+          "cdsPosition": 1014,
+          "codon": "TCC/TTC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 338,
+            "reference": "SER",
+            "alternate": "PHE"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150657854:-:A",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1089dupA",
+            "ENSP00000359423.3:p.Val364SerfsTer14"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "11/15",
+              "percentage": -1
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.6620574,
+                "efficiency": -0.24442373268341178,
+                "alt_donorIntron": 0.76709414,
+                "ref_donor": 3.6620574,
+                "alt_acceptor": 4.2571845,
+                "alt_exon": -3.7000651,
+                "ref_exon": -3.6682782,
+                "delta_logit_psi": -0.04854541678981028,
+                "pathogenicity": 0.21170490822430943,
+                "ref_acceptorIntron": -2.1684456,
+                "ref_donorIntron": 0.76709414,
+                "alt_acceptorIntron": -2.1684456,
+                "ref_acceptor": 4.2571845
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 3,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -19,
+                "DS_DL": 0,
+                "DP_AG": 42,
+                "DS_AL": 0,
+                "DP_DL": 19
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1138,
+          "cdsPosition": 1086,
+          "codon": "AAA/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 362,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150657854:AA:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1088_1089delAA",
+            "ENSP00000359423.3:p.Lys363SerfsTer14"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "11/15",
+              "percentage": 0.9661836
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.6620574,
+                "efficiency": -0.22470170215401508,
+                "alt_donorIntron": 0.76709414,
+                "ref_donor": 3.6620574,
+                "alt_acceptor": 4.2571845,
+                "alt_exon": -3.6949239,
+                "ref_exon": -3.6682782,
+                "delta_logit_psi": -0.04058880428626259,
+                "pathogenicity": 0.21198186899625673,
+                "ref_acceptorIntron": -2.1684456,
+                "ref_donorIntron": 0.76709414,
+                "alt_acceptorIntron": -2.1684456,
+                "ref_acceptor": 4.2571845
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 14,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -19,
+                "DS_DL": 0,
+                "DP_AG": 42,
+                "DS_AL": 0.02,
+                "DP_DL": -19
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1139,
+          "cdsPosition": 1087,
+          "codon": "AAA/AGT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 363,
+            "reference": "LYS",
+            "alternate": "SER"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150657994:AG:T",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "11/15",
+              "percentage": 0.9661836
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1279,
+          "cdsPosition": 1227,
+          "codon": "aaA/aaT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 409,
+            "reference": "LYS",
+            "alternate": "ASN"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659682:A:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1283delA",
+            "ENSP00000359423.3:p.Asn428ThrfsTer36"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": 1.0752689
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 5.3037105,
+                "efficiency": -0.11394956855227971,
+                "alt_donorIntron": 0.9212663,
+                "ref_donor": 5.3037105,
+                "alt_acceptor": 1.13395,
+                "alt_exon": -4.205633,
+                "ref_exon": -4.207859,
+                "delta_logit_psi": 0.004092792251003747,
+                "pathogenicity": 0.1814111325715855,
+                "ref_acceptorIntron": -2.179682,
+                "ref_donorIntron": 0.9212663,
+                "alt_acceptorIntron": -2.179682,
+                "ref_acceptor": 1.13395
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 43,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -10,
+                "DS_DL": 0,
+                "DP_AG": -25,
+                "DS_AL": 0.07,
+                "DP_DL": 0
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1331,
+          "cdsPosition": 1279,
+          "codon": "AAA/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 427,
+            "reference": "LYS",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659685:AACC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1283_1286delACCA",
+            "ENSP00000359423.3:p.Asn428ThrfsTer35"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": 4.3010755
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 40,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -20,
+                "DS_DL": 0,
+                "DP_AG": -29,
+                "DS_AL": 0.16,
+                "DP_DL": 49
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1334,
+          "cdsPosition": 1282,
+          "codon": "AAC/ACA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 428,
+            "reference": "ASN",
+            "alternate": "THR"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659707:CTC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1306_1308delCCT",
+            "ENSP00000359423.3:p.Pro436del"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": 3.2258065
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -42,
+                "DS_AG": 0.04,
+                "DS_DG": 0,
+                "DP_AL": 18,
+                "DS_DL": 0.02,
+                "DP_AG": -42,
+                "DS_AL": 0.21,
+                "DP_DL": 50
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1356,
+          "cdsPosition": 1304,
+          "codon": "tCT/TCT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 435,
+            "reference": "SER",
+            "alternate": "SER"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001822",
+              "name": "inframe_deletion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659708:-:TCCTA",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1306_1310dup5",
+            "ENSP00000359423.3:p.Phe438LeufsTer28"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": -1
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1356,
+          "cdsPosition": 1304,
+          "codon": "tcT/tcT",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 435,
+            "reference": "SER",
+            "alternate": "SER"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659709:C:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1307delC",
+            "ENSP00000359423.3:p.Pro436LeufsTer28"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": 1.0752689
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 5.3037105,
+                "efficiency": -0.7385207768924354,
+                "alt_donorIntron": 0.9212663,
+                "ref_donor": 5.3037105,
+                "alt_acceptor": 1.13395,
+                "alt_exon": -4.36845,
+                "ref_exon": -4.207859,
+                "delta_logit_psi": -0.24788283866732,
+                "pathogenicity": 0.1737402636962155,
+                "ref_acceptorIntron": -2.179682,
+                "ref_donorIntron": 0.9212663,
+                "alt_acceptorIntron": -2.179682,
+                "ref_acceptor": 1.13395
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 16,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -37,
+                "DS_DL": 0.11,
+                "DP_AG": 48,
+                "DS_AL": 0.2,
+                "DP_DL": 48
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1358,
+          "cdsPosition": 1306,
+          "codon": "CCT/CTA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 436,
+            "reference": "PRO",
+            "alternate": "LEU"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150659750:AAAACAGGT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1349_1353+4del9"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "12/15",
+              "percentage": 7.5268817
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1399,
+          "cdsPosition": 1347,
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 449
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001580",
+              "name": "coding_sequence_variant"
+            },
+            {
+              "accession": "SO:0001575",
+              "name": "splice_donor_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150660373:CC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1357_1358delCC",
+            "ENSP00000359423.3:p.Pro453TyrfsTer4"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "13/15",
+              "percentage": 1.754386
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 4.8917913,
+                "efficiency": 0.3729259419403594,
+                "alt_donorIntron": 0.578741,
+                "ref_donor": 4.8917913,
+                "alt_acceptor": 2.5904117,
+                "alt_exon": -4.2520547,
+                "ref_exon": -4.381202,
+                "delta_logit_psi": 0.2005167744917108,
+                "pathogenicity": 0.18013966994067565,
+                "ref_acceptorIntron": -2.4960756,
+                "ref_donorIntron": 0.578741,
+                "alt_acceptorIntron": -2.4960756,
+                "ref_acceptor": 2.5904117
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 9,
+                "DS_AG": 0.02,
+                "DS_DG": 0,
+                "DP_AL": -1,
+                "DS_DL": 0,
+                "DP_AG": 9,
+                "DS_AL": 0,
+                "DP_DL": 19
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1408,
+          "cdsPosition": 1356,
+          "codon": "ttC/TTC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 452,
+            "reference": "PHE",
+            "alternate": "PHE"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150660432:GT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1415_1416delGT",
+            "ENSP00000359423.3:p.Ser472MetfsTer11"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "13/15",
+              "percentage": 1.754386
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 4.8917913,
+                "efficiency": 0.4457064903297273,
+                "alt_donorIntron": 0.578741,
+                "ref_donor": 4.8917913,
+                "alt_acceptor": 2.5904117,
+                "alt_exon": -4.233082,
+                "ref_exon": -4.381202,
+                "delta_logit_psi": 0.22987919843009505,
+                "pathogenicity": 0.18104551440238006,
+                "ref_acceptorIntron": -2.4960756,
+                "ref_donorIntron": 0.578741,
+                "alt_acceptorIntron": -2.4960756,
+                "ref_acceptor": 2.5904117
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 12,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": 2,
+                "DS_DL": 0,
+                "DP_AG": 50,
+                "DS_AL": 0.1,
+                "DP_DL": 2
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1467,
+          "cdsPosition": 1415,
+          "codon": "aGT/ATG",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 472,
+            "reference": "SER",
+            "alternate": "MET"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150660479:AGAC:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1464_1467delACAG",
+            "ENSP00000359423.3:p.Gln489ArgfsTer12"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "13/15",
+              "percentage": 3.508772
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": -35,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -45,
+                "DS_DL": 0,
+                "DP_AG": 7,
+                "DS_AL": 0.02,
+                "DP_DL": 6
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1514,
+          "cdsPosition": 1462,
+          "codon": "AGA/AGA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 488,
+            "reference": "ARG",
+            "alternate": "ARG"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001630",
+              "name": "splice_region_variant"
+            },
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150663474:C:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1509delC",
+            "ENSP00000359423.3:p.Asn503LysfsTer33"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "14/15",
+              "percentage": 0.56497175
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": 3.6255028,
+                "efficiency": -0.1786159519046968,
+                "alt_donorIntron": 0.37947655,
+                "ref_donor": 3.6255028,
+                "alt_acceptor": 4.3247795,
+                "alt_exon": -4.5350966,
+                "ref_exon": -4.520465,
+                "delta_logit_psi": -0.021996070839139226,
+                "pathogenicity": 0.22835606530887792,
+                "ref_acceptorIntron": -2.4361575,
+                "ref_donorIntron": 0.37947655,
+                "alt_acceptorIntron": -2.4361575,
+                "ref_acceptor": 4.3247795
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 2,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -37,
+                "DS_DL": 0,
+                "DP_AG": -40,
+                "DS_AL": 0.01,
+                "DP_DL": -38
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1561,
+          "cdsPosition": 1509,
+          "codon": "aaC/AAA",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 503,
+            "reference": "ASN",
+            "alternate": "LYS"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150663608:AAGT:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1644+3_1644+6delAAGT"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "14/15",
+              "percentage": 1.1299435
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 6,
+                "DS_AG": 0,
+                "DS_DG": 0.01,
+                "DP_AL": -22,
+                "DS_DL": 0.99,
+                "DP_AG": 6,
+                "DS_AL": 0,
+                "DP_DL": 2
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1695,
+          "cdsPosition": 1643,
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 548
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001580",
+              "name": "coding_sequence_variant"
+            },
+            {
+              "accession": "SO:0001575",
+              "name": "splice_donor_variant"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "X:150671572:C:-",
+    "annotation": {
+      "consequenceTypes": [
+        {
+          "geneId": "ENSG00000171100",
+          "geneName": "MTM1",
+          "ensemblGeneId": "ENSG00000171100",
+          "ensemblTranscriptId": "ENST00000370396.7",
+          "transcriptId": "ENST00000370396.7",
+          "hgvs": [
+            "ENST00000370396.7(ENSG00000171100):c.1792delC",
+            "ENSP00000359423.3:p.His598MetfsTer23"
+          ],
+          "strand": "+",
+          "biotype": "protein_coding",
+          "source": "ensembl",
+          "exonOverlap": [
+            {
+              "number": "15/15",
+              "percentage": 0.05827506
+            }
+          ],
+          "spliceScores": [
+            {
+              "source": "MMSplice",
+              "scores": {
+                "alt_donor": -3.1976202,
+                "efficiency": -0.1151421825297576,
+                "alt_donorIntron": 0.1050826,
+                "ref_donor": -3.1976202,
+                "alt_acceptor": 2.3899722,
+                "alt_exon": -5.093942,
+                "ref_exon": -5.095857,
+                "delta_logit_psi": 0.0036116466980160742,
+                "pathogenicity": 0.9491866881700406,
+                "ref_acceptorIntron": -2.951639,
+                "ref_donorIntron": 0.1050826,
+                "alt_acceptorIntron": -2.951639,
+                "ref_acceptor": 2.3899722
+              }
+            },
+            {
+              "source": "SpliceAI",
+              "scores": {
+                "DP_DG": 6,
+                "DS_AG": 0,
+                "DS_DG": 0,
+                "DP_AL": -15,
+                "DS_DL": 0,
+                "DP_AG": -44,
+                "DS_AL": 0,
+                "DP_DL": -3
+              }
+            }
+          ],
+          "transcriptFlags": [
+            "CCDS",
+            "LRG",
+            "TSL:1",
+            "MANE Select",
+            "canonical",
+            "basic"
+          ],
+          "cdnaPosition": 1841,
+          "cdsPosition": 1789,
+          "codon": "CCC/CCC",
+          "proteinVariantAnnotation": {
+            "proteinId": "ENSP00000359423.3",
+            "position": 597,
+            "reference": "PRO",
+            "alternate": "PRO"
+          },
+          "sequenceOntologyTerms": [
+            {
+              "accession": "SO:0001589",
+              "name": "frameshift_variant"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
