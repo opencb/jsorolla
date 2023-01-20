@@ -189,19 +189,17 @@ export default class UtilsNew {
     }
 
     static draggableModal(self, modalElm) {
-        let mousePosition;
         let offset = [0, 0];
         let isDown = false;
         const modalDialog = modalElm.querySelector(".modal-dialog");
         const modalHeader = modalElm.querySelector(".modal-header");
+        modalHeader.style.cursor = "move";
+
         if (modalDialog) {
             modalDialog.style.margin = "0";
             modalDialog.style.left = (window.innerWidth * 0.30) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
-
-        modalHeader.addEventListener("mouseover", e => e.currentTarget.style.cursor = "move");
-
         modalHeader.addEventListener("mousedown", e => {
             isDown = true;
             offset = [
@@ -217,12 +215,8 @@ export default class UtilsNew {
         self.addEventListener("mousemove", e => {
             e.preventDefault();
             if (isDown) {
-                mousePosition = {
-                    x: e.clientX,
-                    y: e.clientY
-                };
-                modalDialog.style.left = (mousePosition.x + offset[0]) + "px";
-                modalDialog.style.top = (mousePosition.y + offset[1]) + "px";
+                modalDialog.style.left = (e.clientX + offset[0]) + "px";
+                modalDialog.style.top = (e.clientY + offset[1]) + "px";
             }
         }, true);
     }
