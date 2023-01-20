@@ -4,6 +4,10 @@ import UtilsNew from "../utils-new.js";
 import VizUtils from "./viz-utils.js";
 
 export default {
+    TRACK_TYPES: {
+        VARIANTS: "variants",
+        CANCERHOTSPOTS: "cancerhotspots",
+    },
     CONSEQUENCE_TYPES: [
         "frameshift_variant",
         "incomplete_terminal_codon_variant",
@@ -163,27 +167,48 @@ export default {
         });
     },
 
-    parseVariantsList(variants, protein) {
-        return (variants || [])
-            .map(variant => {
-                let info = null;
-                const ct = variant?.annotation?.consequenceTypes?.find(item => {
-                    return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
-                });
+    parseVariantsList(data = [], protein, type) {
+        switch (type) {
+            case this.TRACK_TYPES.VARIANTS:
+                return data
+                    .map(variant => {
+                        let info = null;
+                        const ct = variant?.annotation?.consequenceTypes?.find(item => {
+                            return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
+                        });
 
-                if (ct && ct.proteinVariantAnnotation?.position) {
-                    info = {
-                        variantId: variant.id,
-                        position: ct.proteinVariantAnnotation.position,
-                        reference: ct.proteinVariantAnnotation.reference,
-                        alternate: ct.proteinVariantAnnotation.alternate,
-                        sequenceOntologyTerms: ct.sequenceOntologyTerms,
-                    };
-                }
-                return info;
-            })
-            .filter(item => !!item)
-            .sort((a, b) => a.position < b.position ? -1 : +1);
+                        if (ct && ct.proteinVariantAnnotation?.position) {
+                            info = {
+                                variantId: variant.id,
+                                position: ct.proteinVariantAnnotation.position,
+                                reference: ct.proteinVariantAnnotation.reference,
+                                alternate: ct.proteinVariantAnnotation.alternate,
+                                sequenceOntologyTerms: ct.sequenceOntologyTerms,
+                            };
+                        }
+                        return info;
+                    })
+                    .filter(item => !!item)
+                    .sort((a, b) => a.position < b.position ? -1 : +1);
+            case this.TRACK_TYPES.CANCERHOTSPOTS:
+                const parsedItems = data
+                    .filter(item => {
+                        return protein.sequence?.value?.[item.aminoacidPosition - 1] === item.aminoacidReference;
+                    })
+                    .map(item => {
+                        return {
+                            variantId: "",
+                            position: item.aminoacidPosition,
+                            reference: item.aminoacidReference,
+                            alternate: "",
+                        };
+                    });
+
+                return parsedItems;
+                // return (parsedItems.length >= data.length * 0.75) ? parsedItems : [];
+            default:
+                return [];
+        }
     },
 
     // Draw protein visualization
@@ -272,7 +297,7 @@ export default {
             const group = SVG.addChild(svg, "g", {});
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
-            const lollipopsVariants = this.parseVariantsList(variants, protein);
+            const lollipopsVariants = this.parseVariantsList(variants, protein, this.TRACK_TYPES.VARIANTS);
 
             // Render lollipops
             if (lollipopsVariants.length > 0) {
@@ -439,9 +464,10 @@ export default {
         // Render additional tracks
         (config.tracks || []).forEach(track => {
             const group = SVG.addChild(svg, "g", {});
+            const trackType = track.type || this.TRACK_TYPES.VARIANTS;
             let trackHeight = 40; // Track maximum height
             const countsByConsequenceType = {};
-            const lollipopsVariants = this.parseVariantsList(track.variants, protein);
+            const lollipopsVariants = this.parseVariantsList(track.data, protein, track.type || "variants");
 
             // Render lollipops
             if (lollipopsVariants.length > 0) {
@@ -474,10 +500,12 @@ export default {
                         "stroke-width": "1px",
                     });
 
-                    if (typeof countsByConsequenceType[consequenceType] !== "number") {
-                        countsByConsequenceType[consequenceType] = 0;
+                    if (track.type === this.TRACK_TYPES.VARIANTS) {
+                        if (typeof countsByConsequenceType[consequenceType] !== "number") {
+                            countsByConsequenceType[consequenceType] = 0;
+                        }
+                        countsByConsequenceType[consequenceType]++;
                     }
-                    countsByConsequenceType[consequenceType]++;
                 });
             } else {
                 // No variants to display
@@ -514,7 +542,7 @@ export default {
             group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
 
             // Display track legend
-            if (config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
+            if (track.type === this.TRACK_TYPES.VARIANTS && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(countsByConsequenceType).map(id => ({
                         id: id,
