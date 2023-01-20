@@ -15,7 +15,7 @@
  */
 
 
-import UtilsTest from "../../support/UtilsTest.js";
+import UtilsTest from "../../support/utils-test.js";
 import {TIMEOUT} from "../../support/constants.js";
 
 const homePanel = [

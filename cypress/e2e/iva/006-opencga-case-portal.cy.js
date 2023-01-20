@@ -16,7 +16,7 @@
 
 
 import {TIMEOUT} from "../../support/constants.js";
-import UtilsTest from "../../support/UtilsTest.js";
+import UtilsTest from "../../support/utils-test.js";
 
 
 context("6. Case Portal", () => {

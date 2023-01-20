@@ -379,13 +379,14 @@ export const DATA_FORM_EXAMPLE = {
     ],
 };
 
-export const SAMPLE_DATA = {
-    id: "aaa",
-    somatic: true,
-    phenotypes: [
-        {
-            id: "a",
-            name: "b"
-        }
-    ]
-};
+export const SAMPLE_DATA = {};
+// export const SAMPLE_DATA = {
+//     id: "aaa",
+//     somatic: true,
+//     phenotypes: [
+//         {
+//             id: "a",
+//             name: "b"
+//         }
+//     ]
+// };
