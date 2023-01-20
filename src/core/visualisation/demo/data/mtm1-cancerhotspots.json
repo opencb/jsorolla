@@ -1,0 +1,2700 @@
+[
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 130,
+    "aminoacidReference": "R",
+    "numMutations": 168,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 1.91658796865309e-210,
+      "muProtein": 0.0262309068636857,
+      "qvalueCancerType": 1.35644920841025e-113,
+      "log10Pvalue": -213.140830041323,
+      "qvaluePancan": 1.91658796865309e-210,
+      "mutability": 0.0796107267175334
+    },
+    "cancerTypeCount": {
+      "brca": 7,
+      "umec": 2,
+      "coadread": 7,
+      "gsarc": 1,
+      "luas": 1,
+      "hnscup": 1,
+      "sarc": 1,
+      "mcc": 1,
+      "ansc": 2,
+      "prad": 8,
+      "uec": 75,
+      "ccrcc": 1,
+      "aastr": 1,
+      "plemeso": 1,
+      "cesc": 3,
+      "bpscc": 1,
+      "luad": 3,
+      "snsc": 1,
+      "ocs": 1,
+      "thpd": 1,
+      "coad": 4,
+      "ilc": 2,
+      "uelms": 1,
+      "esca": 1,
+      "ucs": 5,
+      "hnsc": 2,
+      "idc": 5,
+      "chrcc": 1,
+      "ccov": 1,
+      "gbc": 1,
+      "lusc": 2,
+      "chol": 1,
+      "sclc": 2,
+      "stad": 2,
+      "gbm": 12,
+      "gist": 1,
+      "skcm": 3,
+      "ceas": 1,
+      "cscc": 1,
+      "cup": 1
+    },
+    "organCount": {
+      "cervix": 4,
+      "bowel": 13,
+      "skin": 5,
+      "softtissue": 2,
+      "lung": 8,
+      "kidney": 2,
+      "uterus": 83,
+      "unk": 1,
+      "thyroid": 1,
+      "biliarytract": 2,
+      "cnsbrain": 14,
+      "prostate": 8,
+      "headandneck": 4,
+      "penis": 1,
+      "pleura": 1,
+      "breast": 14,
+      "ovaryfallopiantube": 2,
+      "esophagusstomach": 3
+    },
+    "analysis": [
+      "pancan",
+      "uterus",
+      "breast",
+      "bowel",
+      "prostate",
+      "lung",
+      "cnsbrain",
+      "skin",
+      "headandneck",
+      "cervix"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "Q",
+        "count": 72,
+        "sampleCount": {
+          "cervix": 4,
+          "bowel": 11,
+          "skin": 2,
+          "softtissue": 2,
+          "lung": 5,
+          "kidney": 2,
+          "uterus": 24,
+          "unk": 1,
+          "biliarytract": 1,
+          "cnsbrain": 4,
+          "prostate": 4,
+          "headandneck": 2,
+          "penis": 1,
+          "breast": 7,
+          "esophagusstomach": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 44,
+        "sampleCount": {
+          "lung": 2,
+          "uterus": 38,
+          "cnsbrain": 1,
+          "breast": 2,
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 38,
+        "sampleCount": {
+          "bowel": 2,
+          "skin": 2,
+          "lung": 1,
+          "uterus": 10,
+          "thyroid": 1,
+          "biliarytract": 1,
+          "cnsbrain": 9,
+          "prostate": 4,
+          "headandneck": 2,
+          "pleura": 1,
+          "breast": 3,
+          "ovaryfallopiantube": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "P",
+        "count": 6,
+        "sampleCount": {
+          "uterus": 4,
+          "breast": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "L",
+        "count": 5,
+        "sampleCount": {
+          "uterus": 4,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 233,
+    "aminoacidReference": "R",
+    "numMutations": 46,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 1.42029736852695e-34,
+      "muProtein": 0.025924485622266,
+      "qvalueCancerType": 3.6592553469116e-12,
+      "log10Pvalue": -36.9699495207998,
+      "qvaluePancan": 1.42029736852695e-34,
+      "mutability": 0.0682243993980165
+    },
+    "cancerTypeCount": {
+      "coad": 4,
+      "coadread": 2,
+      "ilc": 1,
+      "read": 1,
+      "ucs": 1,
+      "blca": 1,
+      "eov": 1,
+      "brcanos": 1,
+      "dlbcl": 2,
+      "prad": 2,
+      "uec": 15,
+      "stad": 3,
+      "gbm": 8,
+      "prcc": 1,
+      "cesc": 1,
+      "luad": 1,
+      "thpd": 1
+    },
+    "organCount": {
+      "cervix": 1,
+      "bowel": 7,
+      "lung": 1,
+      "kidney": 1,
+      "lymph": 2,
+      "uterus": 16,
+      "thyroid": 1,
+      "cnsbrain": 8,
+      "bladder": 1,
+      "prostate": 2,
+      "breast": 2,
+      "ovaryfallopiantube": 1,
+      "esophagusstomach": 3
+    },
+    "analysis": [
+      "pancan",
+      "uterus",
+      "bowel"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 45,
+        "sampleCount": {
+          "lung": 1,
+          "cervix": 1,
+          "kidney": 1,
+          "lymph": 2,
+          "uterus": 16,
+          "thyroid": 1,
+          "cnsbrain": 8,
+          "bowel": 7,
+          "prostate": 2,
+          "breast": 2,
+          "ovaryfallopiantube": 1,
+          "esophagusstomach": 3
+        }
+      },
+      {
+        "aminoacidAlternate": "Q",
+        "count": 1,
+        "sampleCount": {
+          "bladder": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 173,
+    "aminoacidReference": "R",
+    "numMutations": 32,
+    "cancerType": "bowel",
+    "scores": {
+      "qvalue": 1.02111146115902e-14,
+      "muProtein": 0.0255422162149576,
+      "qvalueCancerType": 0.00124856963147957,
+      "log10Pvalue": -16.9371643933206,
+      "qvaluePancan": 1.02111146115902e-14,
+      "mutability": 0.0959681594206523
+    },
+    "cancerTypeCount": {
+      "coad": 5,
+      "coadread": 1,
+      "lggnos": 1,
+      "uelms": 1,
+      "ucs": 1,
+      "blca": 1,
+      "gsarc": 1,
+      "ehch": 1,
+      "ccov": 1,
+      "lxsc": 1,
+      "macr": 2,
+      "dlbcl": 1,
+      "prad": 2,
+      "uec": 4,
+      "gbm": 6,
+      "skcm": 1,
+      "luad": 1,
+      "mrls": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "lymph": 1,
+      "uterus": 6,
+      "biliarytract": 1,
+      "cnsbrain": 8,
+      "bladder": 1,
+      "bowel": 8,
+      "skin": 1,
+      "prostate": 2,
+      "headandneck": 1,
+      "softtissue": 1,
+      "ovaryfallopiantube": 1
+    },
+    "analysis": [
+      "pancan",
+      "bowel"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "H",
+        "count": 17,
+        "sampleCount": {
+          "lymph": 1,
+          "uterus": 4,
+          "cnsbrain": 4,
+          "bladder": 1,
+          "bowel": 3,
+          "skin": 1,
+          "prostate": 2,
+          "softtissue": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 14,
+        "sampleCount": {
+          "lung": 1,
+          "uterus": 2,
+          "biliarytract": 1,
+          "cnsbrain": 4,
+          "bowel": 5,
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "P",
+        "count": 1,
+        "sampleCount": {
+          "headandneck": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 136,
+    "aminoacidReference": "C",
+    "numMutations": 14,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 1.52906668939568e-11,
+      "muProtein": 0.0263780177759643,
+      "qvalueCancerType": 0.0165293147379595,
+      "log10Pvalue": -13.4607811211458,
+      "qvaluePancan": 1.52906668939568e-11,
+      "mutability": 0.0159148011842626
+    },
+    "cancerTypeCount": {
+      "coadread": 1,
+      "uec": 4,
+      "sclc": 1,
+      "gbm": 3,
+      "ccrcc": 1,
+      "hnsc": 1,
+      "skcm": 1,
+      "idc": 2
+    },
+    "organCount": {
+      "lung": 1,
+      "kidney": 1,
+      "uterus": 4,
+      "cnsbrain": 3,
+      "skin": 1,
+      "bowel": 1,
+      "headandneck": 1,
+      "breast": 2
+    },
+    "analysis": [
+      "pancan",
+      "uterus"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "R",
+        "count": 9,
+        "sampleCount": {
+          "lung": 1,
+          "kidney": 1,
+          "uterus": 2,
+          "cnsbrain": 1,
+          "skin": 1,
+          "headandneck": 1,
+          "breast": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 2,
+        "sampleCount": {
+          "cnsbrain": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 132,
+    "aminoacidReference": "G",
+    "numMutations": 17,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 1.52906668939568e-11,
+      "muProtein": 0.0250523136226883,
+      "qvalueCancerType": 0.0000329739670526468,
+      "log10Pvalue": -13.5002457562632,
+      "qvaluePancan": 1.52906668939568e-11,
+      "mutability": 0.0269775139681473
+    },
+    "cancerTypeCount": {
+      "sft": 1,
+      "prad": 2,
+      "coadread": 1,
+      "lggnos": 1,
+      "uec": 1,
+      "gbm": 7,
+      "ucs": 2,
+      "skcm": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 3,
+      "cnsbrain": 8,
+      "skin": 1,
+      "bowel": 1,
+      "prostate": 2,
+      "softtissue": 1
+    },
+    "analysis": [
+      "pancan",
+      "cnsbrain"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "D",
+        "count": 8,
+        "sampleCount": {
+          "lung": 1,
+          "uterus": 1,
+          "cnsbrain": 6
+        }
+      },
+      {
+        "aminoacidAlternate": "A",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "cnsbrain": 1,
+          "softtissue": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "cnsbrain": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 3,
+        "sampleCount": {
+          "bowel": 1,
+          "prostate": 2
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 92,
+    "aminoacidReference": "D",
+    "numMutations": 18,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 2.81113657455673e-9,
+      "muProtein": 0.0265380561626588,
+      "qvalueCancerType": 0.0417698796814483,
+      "log10Pvalue": -11.1293788132335,
+      "qvaluePancan": 2.81113657455673e-9,
+      "mutability": 0.0468180979960824
+    },
+    "cancerTypeCount": {
+      "brca": 1,
+      "coad": 2,
+      "uec": 2,
+      "gbm": 2,
+      "ucs": 2,
+      "hnsc": 1,
+      "idc": 3,
+      "sarc": 1,
+      "lusc": 1,
+      "aodg": 1,
+      "eov": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 2,
+      "uterus": 4,
+      "cnsbrain": 3,
+      "bowel": 2,
+      "headandneck": 1,
+      "softtissue": 1,
+      "breast": 4,
+      "ovaryfallopiantube": 1
+    },
+    "analysis": [
+      "pancan",
+      "uterus"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "E",
+        "count": 7,
+        "sampleCount": {
+          "uterus": 3,
+          "cnsbrain": 2,
+          "headandneck": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "bowel": 1,
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 2,
+        "sampleCount": {
+          "lung": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 2,
+        "sampleCount": {
+          "cnsbrain": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 2,
+        "sampleCount": {
+          "softtissue": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 2,
+        "sampleCount": {
+          "lung": 1,
+          "breast": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 68,
+    "aminoacidReference": "Y",
+    "numMutations": 11,
+    "cancerType": "bowel",
+    "scores": {
+      "qvalue": 5.27636707238447e-9,
+      "muProtein": 0.0252109460517318,
+      "qvalueCancerType": 0.000817166529741825,
+      "log10Pvalue": -10.7467812880042,
+      "qvaluePancan": 5.27636707238447e-9,
+      "mutability": 0.0119054726977358
+    },
+    "cancerTypeCount": {
+      "mpt": 1,
+      "coad": 2,
+      "prad": 1,
+      "coadread": 1,
+      "lggnos": 1,
+      "uec": 2,
+      "gbm": 2,
+      "read": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "cnsbrain": 3,
+      "bowel": 4,
+      "prostate": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan",
+      "bowel"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "H",
+        "count": 6,
+        "sampleCount": {
+          "cnsbrain": 2,
+          "bowel": 2,
+          "prostate": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 2,
+        "sampleCount": {
+          "cnsbrain": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 1,
+        "sampleCount": {
+          "bowel": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 93,
+    "aminoacidReference": "H",
+    "numMutations": 12,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 2.90249120822907e-8,
+      "muProtein": 0.0264593720611073,
+      "qvalueCancerType": 0.164360402936616,
+      "log10Pvalue": -9.91919520079371,
+      "qvaluePancan": 2.90249120822907e-8,
+      "mutability": 0.0194060159700004
+    },
+    "cancerTypeCount": {
+      "brca": 1,
+      "coadread": 1,
+      "uec": 2,
+      "gbm": 1,
+      "usc": 1,
+      "mbl": 1,
+      "hnsc": 1,
+      "blca": 1,
+      "skcm": 1,
+      "idc": 1,
+      "sarc": 1
+    },
+    "organCount": {
+      "uterus": 3,
+      "cnsbrain": 2,
+      "bladder": 1,
+      "bowel": 1,
+      "skin": 1,
+      "headandneck": 1,
+      "softtissue": 1,
+      "breast": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "R",
+        "count": 6,
+        "sampleCount": {
+          "uterus": 2,
+          "bladder": 1,
+          "cnsbrain": 1,
+          "headandneck": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 4,
+        "sampleCount": {
+          "uterus": 1,
+          "cnsbrain": 1,
+          "bowel": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "L",
+        "count": 1,
+        "sampleCount": {
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "P",
+        "count": 1,
+        "sampleCount": {
+          "softtissue": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 27,
+    "aminoacidReference": "Y",
+    "numMutations": 10,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.00000297185296362565,
+      "muProtein": 0.0259357301688233,
+      "qvalueCancerType": 0.70273229219433,
+      "log10Pvalue": -7.87115023449671,
+      "qvaluePancan": 0.00000297185296362565,
+      "mutability": 0.0179714294407229
+    },
+    "cancerTypeCount": {
+      "brca": 1,
+      "coad": 1,
+      "lggnos": 1,
+      "uec": 2,
+      "stad": 1,
+      "gbm": 2,
+      "eov": 1,
+      "thpd": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "thyroid": 1,
+      "cnsbrain": 3,
+      "bowel": 1,
+      "breast": 1,
+      "ovaryfallopiantube": 1,
+      "esophagusstomach": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "D",
+        "count": 4,
+        "sampleCount": {
+          "uterus": 1,
+          "cnsbrain": 1,
+          "breast": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 1,
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 2,
+        "sampleCount": {
+          "thyroid": 1,
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 1,
+        "sampleCount": {
+          "bowel": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 127,
+    "aminoacidReference": "G",
+    "numMutations": 14,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0000307055801003565,
+      "muProtein": 0.0262333304125207,
+      "qvalueCancerType": 0.0884009695397923,
+      "log10Pvalue": -6.82219813992492,
+      "qvaluePancan": 0.0000307055801003565,
+      "mutability": 0.0524315397769271
+    },
+    "cancerTypeCount": {
+      "tt": 1,
+      "uec": 3,
+      "sclc": 1,
+      "stad": 1,
+      "gbm": 2,
+      "skcm": 1,
+      "uccc": 1,
+      "hcc": 1,
+      "sarc": 1,
+      "luad": 2
+    },
+    "organCount": {
+      "lung": 3,
+      "uterus": 4,
+      "liver": 1,
+      "cnsbrain": 2,
+      "skin": 1,
+      "testis": 1,
+      "softtissue": 1,
+      "esophagusstomach": 1
+    },
+    "analysis": [
+      "pancan",
+      "uterus"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "E",
+        "count": 5,
+        "sampleCount": {
+          "lung": 2,
+          "liver": 1,
+          "cnsbrain": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 5,
+        "sampleCount": {
+          "uterus": 2,
+          "cnsbrain": 1,
+          "softtissue": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 2,
+          "testis": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "lung": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 129,
+    "aminoacidReference": "G",
+    "numMutations": 12,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0000595070750294617,
+      "muProtein": 0.0261333246923326,
+      "qvalueCancerType": 0.0165293147379595,
+      "log10Pvalue": -6.47269893604011,
+      "qvaluePancan": 0.0000595070750294617,
+      "mutability": 0.0397874717674354
+    },
+    "cancerTypeCount": {
+      "prad": 1,
+      "uec": 5,
+      "gbm": 2,
+      "gist": 1,
+      "idc": 1,
+      "lusc": 2
+    },
+    "organCount": {
+      "lung": 2,
+      "uterus": 5,
+      "cnsbrain": 2,
+      "prostate": 1,
+      "softtissue": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan",
+      "uterus"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "E",
+        "count": 4,
+        "sampleCount": {
+          "lung": 2,
+          "cnsbrain": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "prostate": 1,
+          "softtissue": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 126,
+    "aminoacidReference": "A",
+    "numMutations": 11,
+    "cancerType": "breast",
+    "scores": {
+      "qvalue": 0.000355422424396546,
+      "muProtein": 0.0266598656349982,
+      "qvalueCancerType": 0.0210814442323736,
+      "log10Pvalue": -5.66849399126696,
+      "qvaluePancan": 0.000355422424396546,
+      "mutability": 0.0402091085241299
+    },
+    "cancerTypeCount": {
+      "egc": 1,
+      "brca": 1,
+      "ilc": 2,
+      "uec": 1,
+      "stad": 1,
+      "gbm": 1,
+      "angs": 1,
+      "ucs": 1,
+      "cup": 1,
+      "brcanos": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "unk": 1,
+      "cnsbrain": 1,
+      "softtissue": 1,
+      "breast": 4,
+      "esophagusstomach": 2
+    },
+    "analysis": [
+      "pancan",
+      "breast"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "S",
+        "count": 4,
+        "sampleCount": {
+          "unk": 1,
+          "uterus": 1,
+          "softtissue": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "breast": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 3,
+        "sampleCount": {
+          "cnsbrain": 1,
+          "breast": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "breast": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 105,
+    "aminoacidReference": "C",
+    "numMutations": 7,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.000363990202363233,
+      "muProtein": 0.025095669346847,
+      "qvalueCancerType": 0.00565128852492496,
+      "log10Pvalue": -5.63182018372196,
+      "qvaluePancan": 0.000363990202363233,
+      "mutability": 0.0124526650079427
+    },
+    "cancerTypeCount": {
+      "lggnos": 1,
+      "gbm": 2,
+      "gist": 1,
+      "skcm": 3
+    },
+    "organCount": {
+      "cnsbrain": 3,
+      "skin": 3,
+      "softtissue": 1
+    },
+    "analysis": [
+      "pancan",
+      "skin"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "Y",
+        "count": 2,
+        "sampleCount": {
+          "cnsbrain": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 1,
+        "sampleCount": {
+          "softtissue": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "W",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 124,
+    "aminoacidReference": "C",
+    "numMutations": 8,
+    "cancerType": "breast",
+    "scores": {
+      "qvalue": 0.000369460106003662,
+      "muProtein": 0.0271464008032113,
+      "qvalueCancerType": 0.0108834223463364,
+      "log10Pvalue": -5.60051874326061,
+      "qvaluePancan": 0.000369460106003662,
+      "mutability": 0.0194701531213084
+    },
+    "cancerTypeCount": {
+      "brca": 2,
+      "ilc": 1,
+      "coad": 1,
+      "prad": 1,
+      "uec": 1,
+      "idc": 1,
+      "thpd": 1
+    },
+    "organCount": {
+      "uterus": 1,
+      "thyroid": 1,
+      "bowel": 1,
+      "prostate": 1,
+      "breast": 4
+    },
+    "analysis": [
+      "pancan",
+      "breast"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "S",
+        "count": 4,
+        "sampleCount": {
+          "prostate": 1,
+          "breast": 3
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 2,
+        "sampleCount": {
+          "thyroid": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 335,
+    "aminoacidReference": "R",
+    "numMutations": 14,
+    "cancerType": "bladder",
+    "scores": {
+      "qvalue": 0.000501373788906304,
+      "muProtein": 0.0259244326828854,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -5.44444357198428,
+      "qvaluePancan": 0.000501373788906304,
+      "mutability": 0.0681580790100039
+    },
+    "cancerTypeCount": {
+      "dlbcl": 1,
+      "coad": 2,
+      "lggnos": 1,
+      "uec": 3,
+      "gbm": 3,
+      "hnsc": 2,
+      "blca": 1,
+      "cup": 1
+    },
+    "organCount": {
+      "lymph": 1,
+      "uterus": 3,
+      "unk": 1,
+      "cnsbrain": 4,
+      "bladder": 1,
+      "bowel": 2,
+      "headandneck": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 12,
+        "sampleCount": {
+          "lymph": 1,
+          "uterus": 2,
+          "unk": 1,
+          "cnsbrain": 4,
+          "bowel": 2,
+          "headandneck": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "P",
+        "count": 1,
+        "sampleCount": {
+          "bladder": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 165,
+    "aminoacidReference": "G",
+    "numMutations": 12,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.000639515145732353,
+      "muProtein": 0.0261767184760661,
+      "qvalueCancerType": 0.3607853162853,
+      "log10Pvalue": -5.29528866973661,
+      "qvaluePancan": 0.000639515145732353,
+      "mutability": 0.0520189938499959
+    },
+    "cancerTypeCount": {
+      "mm": 1,
+      "coadread": 1,
+      "uec": 3,
+      "sclc": 2,
+      "gbm": 2,
+      "prcc": 1,
+      "mbl": 1,
+      "skcm": 1
+    },
+    "organCount": {
+      "lung": 2,
+      "kidney": 1,
+      "uterus": 3,
+      "cnsbrain": 3,
+      "bowel": 1,
+      "skin": 1,
+      "blood": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "E",
+        "count": 6,
+        "sampleCount": {
+          "lung": 2,
+          "kidney": 1,
+          "cnsbrain": 1,
+          "bowel": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 5,
+        "sampleCount": {
+          "uterus": 3,
+          "cnsbrain": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "blood": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 171,
+    "aminoacidReference": "Q",
+    "numMutations": 16,
+    "cancerType": "bladder",
+    "scores": {
+      "qvalue": 0.000888705070997375,
+      "muProtein": 0.027297655645373,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -5.13217845976338,
+      "qvaluePancan": 0.000888705070997375,
+      "mutability": 0.0984762137976365
+    },
+    "cancerTypeCount": {
+      "escc": 1,
+      "ilc": 1,
+      "esca": 1,
+      "blca": 1,
+      "hnsc": 1,
+      "ophsc": 1,
+      "idc": 2,
+      "hcc": 1,
+      "lusc": 2,
+      "prad": 1,
+      "uec": 1,
+      "gbm": 1,
+      "cesc": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 3,
+      "cervix": 1,
+      "uterus": 1,
+      "liver": 1,
+      "cnsbrain": 1,
+      "bladder": 1,
+      "headandneck": 2,
+      "prostate": 1,
+      "breast": 3,
+      "esophagusstomach": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 13,
+        "sampleCount": {
+          "lung": 2,
+          "cervix": 1,
+          "uterus": 1,
+          "liver": 1,
+          "bladder": 1,
+          "cnsbrain": 1,
+          "headandneck": 2,
+          "prostate": 1,
+          "breast": 2,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 2,
+        "sampleCount": {
+          "breast": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "K",
+        "count": 1,
+        "sampleCount": {
+          "lung": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 155,
+    "aminoacidReference": "Y",
+    "numMutations": 5,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.00100344772445177,
+      "muProtein": 0.026393024542607,
+      "qvalueCancerType": 0.00183132404023244,
+      "log10Pvalue": -5.06013621041487,
+      "qvaluePancan": 0.00100344772445177,
+      "mutability": 0.00609415882275968
+    },
+    "cancerTypeCount": {
+      "uec": 2,
+      "ucs": 1,
+      "uddc": 1,
+      "chol": 1
+    },
+    "organCount": {
+      "uterus": 4,
+      "biliarytract": 1
+    },
+    "analysis": [
+      "pancan",
+      "uterus"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "C",
+        "count": 4,
+        "sampleCount": {
+          "uterus": 3,
+          "biliarytract": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 35,
+    "aminoacidReference": "M",
+    "numMutations": 8,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.00168869830239239,
+      "muProtein": 0.025883637063172,
+      "qvalueCancerType": 0.716095072074761,
+      "log10Pvalue": -4.79786672340147,
+      "qvaluePancan": 0.00168869830239239,
+      "mutability": 0.0240182136113485
+    },
+    "cancerTypeCount": {
+      "coad": 2,
+      "gbm": 2,
+      "ccrcc": 1,
+      "hggnos": 1,
+      "chol": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "kidney": 1,
+      "biliarytract": 1,
+      "cnsbrain": 3,
+      "bowel": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "I",
+        "count": 4,
+        "sampleCount": {
+          "lung": 1,
+          "kidney": 1,
+          "cnsbrain": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 3,
+        "sampleCount": {
+          "biliarytract": 1,
+          "cnsbrain": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "L",
+        "count": 1,
+        "sampleCount": {
+          "bowel": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 170,
+    "aminoacidReference": "S",
+    "numMutations": 8,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.00205793039150722,
+      "muProtein": 0.0260574222288886,
+      "qvalueCancerType": 0.312085923410691,
+      "log10Pvalue": -4.69495477002142,
+      "qvaluePancan": 0.00205793039150722,
+      "mutability": 0.0250059188048541
+    },
+    "cancerTypeCount": {
+      "lggnos": 1,
+      "sclc": 1,
+      "uec": 1,
+      "gbm": 2,
+      "ccrcc": 1,
+      "aastr": 1,
+      "eov": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "kidney": 1,
+      "uterus": 1,
+      "cnsbrain": 4,
+      "ovaryfallopiantube": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "N",
+        "count": 6,
+        "sampleCount": {
+          "kidney": 1,
+          "uterus": 1,
+          "cnsbrain": 3,
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "I",
+        "count": 1,
+        "sampleCount": {
+          "lung": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 178,
+    "aminoacidReference": "Y",
+    "numMutations": 5,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.00335970330625585,
+      "muProtein": 0.0254538057332064,
+      "qvalueCancerType": 0.110182529828604,
+      "log10Pvalue": -4.46569410795745,
+      "qvaluePancan": 0.00335970330625585,
+      "mutability": 0.00784194219287018
+    },
+    "cancerTypeCount": {
+      "gbm": 2,
+      "skcm": 2,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "cnsbrain": 2,
+      "skin": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 3,
+        "sampleCount": {
+          "lung": 1,
+          "cnsbrain": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 24,
+    "aminoacidReference": "D",
+    "numMutations": 10,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.00530937503240004,
+      "muProtein": 0.0272675458029019,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -4.25115736432623,
+      "qvaluePancan": 0.00530937503240004,
+      "mutability": 0.0486576231832345
+    },
+    "cancerTypeCount": {
+      "brca": 1,
+      "stad": 2,
+      "uec": 1,
+      "ccrcc": 2,
+      "ucs": 1,
+      "idc": 1,
+      "ddls": 1,
+      "thpd": 1
+    },
+    "organCount": {
+      "kidney": 2,
+      "uterus": 2,
+      "thyroid": 1,
+      "softtissue": 1,
+      "breast": 2,
+      "esophagusstomach": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "G",
+        "count": 3,
+        "sampleCount": {
+          "kidney": 1,
+          "uterus": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "E",
+        "count": 2,
+        "sampleCount": {
+          "softtissue": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 1,
+          "thyroid": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 2,
+        "sampleCount": {
+          "kidney": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 1,
+        "sampleCount": {
+          "breast": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 336,
+    "aminoacidReference": "Y",
+    "numMutations": 7,
+    "cancerType": "breast",
+    "scores": {
+      "qvalue": 0.0055022798880087,
+      "muProtein": 0.0259208071996109,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -4.22041812281669,
+      "qvaluePancan": 0.0055022798880087,
+      "mutability": 0.0214447252565214
+    },
+    "cancerTypeCount": {
+      "prad": 1,
+      "uec": 2,
+      "gbm": 2,
+      "ophsc": 1,
+      "idc": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "cnsbrain": 2,
+      "headandneck": 1,
+      "prostate": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 7,
+        "sampleCount": {
+          "uterus": 2,
+          "cnsbrain": 2,
+          "headandneck": 1,
+          "prostate": 1,
+          "breast": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 38,
+    "aminoacidReference": "P",
+    "numMutations": 11,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.00565128852492496,
+      "muProtein": 0.0259940693233566,
+      "qvalueCancerType": 0.00565128852492496,
+      "log10Pvalue": -0.812485560672531,
+      "qvaluePancan": 1,
+      "mutability": 0.174155644720628
+    },
+    "cancerTypeCount": {
+      "ccrcc": 1,
+      "ucs": 1,
+      "skcm": 9
+    },
+    "organCount": {
+      "kidney": 1,
+      "uterus": 1,
+      "skin": 9
+    },
+    "analysis": [
+      "skin"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "S",
+        "count": 7,
+        "sampleCount": {
+          "skin": 7
+        }
+      },
+      {
+        "aminoacidAlternate": "L",
+        "count": 3,
+        "sampleCount": {
+          "kidney": 1,
+          "uterus": 1,
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 16,
+    "aminoacidReference": "Y",
+    "numMutations": 5,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.00677821009113384,
+      "muProtein": 0.0257802938198845,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -4.11512251844792,
+      "qvaluePancan": 0.00677821009113384,
+      "mutability": 0.00943711257855535
+    },
+    "cancerTypeCount": {
+      "uec": 2,
+      "gbm": 1,
+      "read": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 2,
+      "cnsbrain": 1,
+      "bowel": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 2,
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 1,
+        "sampleCount": {
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 1,
+        "sampleCount": {
+          "lung": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 346,
+    "aminoacidReference": "Y",
+    "numMutations": 6,
+    "cancerType": "lung",
+    "scores": {
+      "qvalue": 0.00758644893706279,
+      "muProtein": 0.0264928483354444,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -4.03817028153257,
+      "qvaluePancan": 0.00758644893706279,
+      "mutability": 0.0162226418709985
+    },
+    "cancerTypeCount": {
+      "lggnos": 1,
+      "coadread": 1,
+      "gbm": 1,
+      "chrcc": 1,
+      "idc": 1,
+      "lusc": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "kidney": 1,
+      "cnsbrain": 2,
+      "bowel": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 2,
+        "sampleCount": {
+          "lung": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 2,
+        "sampleCount": {
+          "cnsbrain": 1,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 1,
+        "sampleCount": {
+          "kidney": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 177,
+    "aminoacidReference": "Y",
+    "numMutations": 5,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.00758644893706279,
+      "muProtein": 0.02657430059254,
+      "qvalueCancerType": 0.110182529828604,
+      "log10Pvalue": -4.04624299742605,
+      "qvaluePancan": 0.00758644893706279,
+      "mutability": 0.0100654349295649
+    },
+    "cancerTypeCount": {
+      "gbm": 1,
+      "thap": 1,
+      "blca": 1,
+      "skcm": 2
+    },
+    "organCount": {
+      "thyroid": 1,
+      "cnsbrain": 1,
+      "bladder": 1,
+      "skin": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 2,
+        "sampleCount": {
+          "thyroid": 1,
+          "bladder": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "C",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 111,
+    "aminoacidReference": "W",
+    "numMutations": 9,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.0100439635759994,
+      "muProtein": 0.0261245682380538,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.88997475273204,
+      "qvaluePancan": 0.0100439635759994,
+      "mutability": 0.0419057116998994
+    },
+    "cancerTypeCount": {
+      "coadread": 1,
+      "prad": 1,
+      "uec": 1,
+      "sclc": 1,
+      "gbm": 1,
+      "skcm": 1,
+      "thhc": 1,
+      "bcl": 1,
+      "luad": 1
+    },
+    "organCount": {
+      "lung": 2,
+      "lymph": 1,
+      "uterus": 1,
+      "thyroid": 1,
+      "cnsbrain": 1,
+      "skin": 1,
+      "bowel": 1,
+      "prostate": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 6,
+        "sampleCount": {
+          "lung": 2,
+          "uterus": 1,
+          "thyroid": 1,
+          "bowel": 1,
+          "prostate": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "G",
+        "count": 1,
+        "sampleCount": {
+          "lymph": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "R",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 71,
+    "aminoacidReference": "C",
+    "numMutations": 7,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.0100439635759994,
+      "muProtein": 0.0252834915891168,
+      "qvalueCancerType": 0.0677873512467778,
+      "log10Pvalue": -3.8903219366285,
+      "qvaluePancan": 0.0100439635759994,
+      "mutability": 0.02367885988849
+    },
+    "cancerTypeCount": {
+      "uec": 1,
+      "gbm": 3,
+      "ccrcc": 1,
+      "aastr": 1,
+      "hggnos": 1
+    },
+    "organCount": {
+      "kidney": 1,
+      "uterus": 1,
+      "cnsbrain": 5
+    },
+    "analysis": [
+      "pancan",
+      "cnsbrain"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "Y",
+        "count": 5,
+        "sampleCount": {
+          "uterus": 1,
+          "cnsbrain": 4
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "kidney": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 140,
+    "aminoacidReference": "L",
+    "numMutations": 4,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0146528812265087,
+      "muProtein": 0.0267124386217515,
+      "qvalueCancerType": 0.822918582251076,
+      "log10Pvalue": -3.71336772520335,
+      "qvaluePancan": 0.0146528812265087,
+      "mutability": 0.00642343351705918
+    },
+    "cancerTypeCount": {
+      "brca": 1,
+      "uec": 2,
+      "angs": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "softtissue": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 2,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 1,
+        "sampleCount": {
+          "softtissue": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 146,
+    "aminoacidReference": "L",
+    "numMutations": 4,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0164604834364009,
+      "muProtein": 0.0262541870894763,
+      "qvalueCancerType": 0.822918582251076,
+      "log10Pvalue": -3.65061371201907,
+      "qvaluePancan": 0.0164604834364009,
+      "mutability": 0.00655942519810408
+    },
+    "cancerTypeCount": {
+      "uec": 2,
+      "esca": 1,
+      "lusc": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 2,
+      "esophagusstomach": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 4,
+        "sampleCount": {
+          "lung": 1,
+          "uterus": 2,
+          "esophagusstomach": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 61,
+    "aminoacidReference": "H",
+    "numMutations": 6,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0179437943852943,
+      "muProtein": 0.0258051578712653,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.60124279069961,
+      "qvaluePancan": 0.0179437943852943,
+      "mutability": 0.0190723875274454
+    },
+    "cancerTypeCount": {
+      "paad": 1,
+      "gbm": 2,
+      "ucs": 1,
+      "idc": 1,
+      "lusc": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 1,
+      "pancreas": 1,
+      "cnsbrain": 2,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "R",
+        "count": 4,
+        "sampleCount": {
+          "lung": 1,
+          "pancreas": 1,
+          "cnsbrain": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "Y",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 247,
+    "aminoacidReference": "L",
+    "numMutations": 4,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0240582123723414,
+      "muProtein": 0.0255361298870183,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.46231184797831,
+      "qvaluePancan": 0.0240582123723414,
+      "mutability": 0.00715991821291134
+    },
+    "cancerTypeCount": {
+      "gbm": 1,
+      "ucs": 1,
+      "paac": 1,
+      "lusc": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 1,
+      "pancreas": 1,
+      "cnsbrain": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 3,
+        "sampleCount": {
+          "uterus": 1,
+          "pancreas": 1,
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "F",
+        "count": 1,
+        "sampleCount": {
+          "lung": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 251,
+    "aminoacidReference": "G",
+    "numMutations": 6,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.043019639792546,
+      "muProtein": 0.0254697499037692,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.18763203786139,
+      "qvaluePancan": 0.043019639792546,
+      "mutability": 0.0225943065299796
+    },
+    "cancerTypeCount": {
+      "lggnos": 1,
+      "uec": 2,
+      "esca": 1,
+      "skcm": 2
+    },
+    "organCount": {
+      "uterus": 2,
+      "cnsbrain": 1,
+      "skin": 2,
+      "esophagusstomach": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "V",
+        "count": 4,
+        "sampleCount": {
+          "uterus": 2,
+          "skin": 1,
+          "esophagusstomach": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "A",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 277,
+    "aminoacidReference": "T",
+    "numMutations": 6,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.043019639792546,
+      "muProtein": 0.0252996192286979,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.18824395122628,
+      "qvaluePancan": 0.043019639792546,
+      "mutability": 0.0224372381047951
+    },
+    "cancerTypeCount": {
+      "coadread": 1,
+      "gbm": 2,
+      "ucs": 1,
+      "aastr": 1,
+      "ccov": 1
+    },
+    "organCount": {
+      "uterus": 1,
+      "cnsbrain": 3,
+      "bowel": 1,
+      "ovaryfallopiantube": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "I",
+        "count": 3,
+        "sampleCount": {
+          "cnsbrain": 2,
+          "bowel": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "*",
+        "count": 1,
+        "sampleCount": {
+          "ovaryfallopiantube": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "A",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "N",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 320,
+    "aminoacidReference": "L",
+    "numMutations": 4,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0469972383599729,
+      "muProtein": 0.0264729086621034,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -3.1385026033669,
+      "qvaluePancan": 0.0469972383599729,
+      "mutability": 0.00907049606272024
+    },
+    "cancerTypeCount": {
+      "prad": 1,
+      "ulms": 1,
+      "lusc": 1,
+      "chol": 1
+    },
+    "organCount": {
+      "lung": 1,
+      "uterus": 1,
+      "biliarytract": 1,
+      "prostate": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 2,
+        "sampleCount": {
+          "lung": 1,
+          "prostate": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 1,
+        "sampleCount": {
+          "uterus": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 1,
+        "sampleCount": {
+          "biliarytract": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 67,
+    "aminoacidReference": "I",
+    "numMutations": 4,
+    "cancerType": "uterus",
+    "scores": {
+      "qvalue": 0.0651819173076579,
+      "muProtein": 0.0272125198389875,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -2.97576321232191,
+      "qvaluePancan": 0.0651819173076579,
+      "mutability": 0.0103251225368012
+    },
+    "cancerTypeCount": {
+      "ilc": 1,
+      "hgsoc": 1,
+      "uec": 1,
+      "sarc": 1
+    },
+    "organCount": {
+      "uterus": 1,
+      "softtissue": 1,
+      "ovaryfallopiantube": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "T",
+        "count": 2,
+        "sampleCount": {
+          "uterus": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "K",
+        "count": 1,
+        "sampleCount": {
+          "softtissue": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "V",
+        "count": 1,
+        "sampleCount": {
+          "ovaryfallopiantube": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 174,
+    "aminoacidReference": "Y",
+    "numMutations": 4,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.07120415463729,
+      "muProtein": 0.0266749645371465,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -2.92740078768569,
+      "qvaluePancan": 0.07120415463729,
+      "mutability": 0.0104345361402424
+    },
+    "cancerTypeCount": {
+      "ilc": 1,
+      "gbm": 1,
+      "skcm": 1,
+      "idc": 1
+    },
+    "organCount": {
+      "cnsbrain": 1,
+      "skin": 1,
+      "breast": 2
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 2,
+        "sampleCount": {
+          "breast": 2
+        }
+      },
+      {
+        "aminoacidAlternate": "D",
+        "count": 1,
+        "sampleCount": {
+          "skin": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "H",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 101,
+    "aminoacidReference": "I",
+    "numMutations": 4,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.083264069890969,
+      "muProtein": 0.025297826700085,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -2.84968865000473,
+      "qvaluePancan": 0.083264069890969,
+      "mutability": 0.0103947371148107
+    },
+    "cancerTypeCount": {
+      "gbm": 2,
+      "unk": 1,
+      "sarc": 1
+    },
+    "organCount": {
+      "unk": 1,
+      "cnsbrain": 2,
+      "softtissue": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "T",
+        "count": 4,
+        "sampleCount": {
+          "unk": 1,
+          "cnsbrain": 2,
+          "softtissue": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 274,
+    "aminoacidReference": "W",
+    "numMutations": 7,
+    "cancerType": "skin",
+    "scores": {
+      "qvalue": 0.0955805982587405,
+      "muProtein": 0.0255723315764568,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -2.77089119639982,
+      "qvaluePancan": 0.0955805982587405,
+      "mutability": 0.0372258425749084
+    },
+    "cancerTypeCount": {
+      "uec": 1,
+      "gbm": 2,
+      "ucs": 1,
+      "gsarc": 1,
+      "skcm": 1,
+      "idc": 1
+    },
+    "organCount": {
+      "uterus": 2,
+      "cnsbrain": 3,
+      "skin": 1,
+      "breast": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 6,
+        "sampleCount": {
+          "uterus": 2,
+          "cnsbrain": 2,
+          "skin": 1,
+          "breast": 1
+        }
+      },
+      {
+        "aminoacidAlternate": "S",
+        "count": 1,
+        "sampleCount": {
+          "cnsbrain": 1
+        }
+      }
+    ]
+  },
+  {
+    "geneName": "PTEN",
+    "aminoacidPosition": 65,
+    "aminoacidReference": "Y",
+    "numMutations": 5,
+    "cancerType": "cnsbrain",
+    "scores": {
+      "qvalue": 0.0955805982587405,
+      "muProtein": 0.0270526157416297,
+      "qvalueCancerType": 1,
+      "log10Pvalue": -2.77583157833773,
+      "qvaluePancan": 0.0955805982587405,
+      "mutability": 0.0196337974358991
+    },
+    "cancerTypeCount": {
+      "uec": 2,
+      "gbm": 1,
+      "chrcc": 1,
+      "cesc": 1
+    },
+    "organCount": {
+      "kidney": 1,
+      "cervix": 1,
+      "uterus": 2,
+      "cnsbrain": 1
+    },
+    "analysis": [
+      "pancan"
+    ],
+    "variants": [
+      {
+        "aminoacidAlternate": "*",
+        "count": 5,
+        "sampleCount": {
+          "cervix": 1,
+          "kidney": 1,
+          "uterus": 2,
+          "cnsbrain": 1
+        }
+      }
+    ]
+  }
+]
