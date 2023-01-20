@@ -22,6 +22,7 @@
         import platinumVariantsData from "./data/mtm1-protein-variants-platinum.json";
         import cosmicVariantsData from "./data/mtm1-protein-variants-cosmic.json";
         import clinvarVariantsData from "./data/mtm1-protein-variants-clinvar.json";
+        import cancerHotspotsData from "./data/mtm1-cancerhotspots.json";
 
         const target = document.getElementById("root");
         const studyTitle = "Platinum";
@@ -31,12 +32,19 @@
             title: studyTitle,
             tracks: [
                 {
+                    type: ProteinLollipop.TRACK_TYPES.VARIANTS,
                     title: "Clinvar",
-                    variants: clinvarVariantsData,
+                    data: clinvarVariantsData,
                 },
                 {
+                    type: ProteinLollipop.TRACK_TYPES.VARIANTS,
                     title: "Cosmic",
-                    variants: cosmicVariantsData,
+                    data: cosmicVariantsData,
+                },
+                {
+                    type: ProteinLollipop.TRACK_TYPES.CANCERHOTSPOTS,
+                    title: "Hotspots",
+                    data: cancerHotspotsData,
                 },
             ],
         });
