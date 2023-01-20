@@ -1,6 +1,7 @@
 import LollipopLayout from "./lollipop-layout.js";
 import {SVG} from "../svg.js";
 import UtilsNew from "../utils-new.js";
+import VizUtils from "./viz-utils.js";
 
 export default {
     CONSEQUENCE_TYPES: [
@@ -50,19 +51,6 @@ export default {
                 }
                 return protein;
             });
-    },
-
-    getScaleTicks(start, end, n, steps=[500, 250, 200, 100, 50, 25]) {
-        const ticksValues = [];
-        const range = Math.floor((end - start) / 10) * 10;
-        const step = steps.find(value => value * n < range) || steps[0];
-        const ticksStart = Math.floor(start / step) * step;
-        const ticksEnd = Math.ceil(end / step) * step;
-        for (let value = ticksStart; value <= ticksEnd; value = value + step) {
-            ticksValues.push(value);
-        }
-        // Remove ticks outside of the [start, end] interval
-        return ticksValues.filter(value => start <= value && value <= end);
     },
 
     generateTrackInfo(parent, config) {
@@ -240,7 +228,7 @@ export default {
             });
 
             // Append scale ticks
-            this.getScaleTicks(1, proteinLength, Math.floor(width / 100)).forEach(tickValue => {
+            VizUtils.getScaleTicks(1, proteinLength, Math.floor(width / 100)).forEach(tickValue => {
                 const tickPosition = getPixelPosition(tickValue) - 0.5;
                 SVG.addChild(group, "path", {
                     "d": `M${tickPosition}-6V0.5`,
