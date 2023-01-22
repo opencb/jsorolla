@@ -3,7 +3,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         sections: [
             {
                 title: "Sample",
-                filters: ["sample-genotype", "family-genotype", "variant-file-sample-filter", "variant-file-info-filter", "cohort"]
+                filters: ["sample-genotype", "family-genotype", "individual-hpo", "variant-file-sample-filter", "variant-file-info-filter", "cohort"]
             },
             {
                 title: "Genomic",
