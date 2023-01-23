@@ -43,9 +43,23 @@ describe("Data Form Component", () => {
             .should("be.disabled");
     });
 
-    // it("when submit is pressed & all required field has populated should return object", () => {
-    // });
+    // Check each elements
+    // Type each elements
+    // Add element to the list
+    // Remove element to the list
+    // check require, validation, disable and others for input
 
+    it("should be fill all fields", () => {
+        // cy.get("textarea").first().should("be.disabled");¡
+    });
+
+    it("should add item to the object-list", () => {
+        // cy.get("textarea").first().should("be.disabled");
+    });
+
+    it("should remove item to the object-list", () => {
+        // cy.get("textarea").first().should("be.disabled");
+    });
 
 });
 

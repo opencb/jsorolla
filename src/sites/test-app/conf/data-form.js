@@ -1,20 +1,42 @@
 // import UtilsNew from "../../../core/utils-new";
 import {html} from "lit";
 
+const defaultHighchartConfig = {
+    chart: {
+        backgroundColor: {
+            // linearGradient: [0, 0, 500, 500],
+            stops: [
+                [0, "rgb(255, 255, 255)"],
+                [1, "rgb(240, 240, 255)"]
+            ]
+        },
+        borderWidth: 0,
+        // plotBackgroundColor: "rgba(255, 255, 255, .9)",
+        plotShadow: true,
+        plotBorderWidth: 1
+    },
+    tooltip: {
+        headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
+        pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
+            "<td style=\"padding:0\"><b>{point.y:.1f} </b></td></tr>",
+        footerFormat: "</table>",
+        shared: true,
+        useHTML: true
+    }
+};
 
 export const DATA_FORM_EXAMPLE = {
-    // display: this.displayConfig,
     test: {
         prefix: "test1-",
         active: true,
     },
     sections: [
         {
-            title: "General Information",
+            title: "Basic Input Field",
             elements: [
                 {
-                    title: "Sample ID",
-                    field: "id",
+                    title: "String Field",
+                    field: "inputText",
                     type: "input-text",
                     required: true,
                     display: {
@@ -23,220 +45,61 @@ export const DATA_FORM_EXAMPLE = {
                     },
                 },
                 {
-                    title: "Somatic",
-                    field: "somatic",
-                    type: "checkbox",
-                },
-                {
-                    title: "Name Complex",
-                    field: "",
-                    type: "complex",
-                    display: {
-                        template: "${id} - ${somatic}",
-                        placeholder: "Add an individual name...",
-                        help: {
-                            text: "ssdasdada"
-                        }
-                    },
-                },
-                {
-                    title: "Description",
-                    field: "description",
+                    title: "String Field Multiline",
+                    field: "inputDescription",
                     type: "input-text",
                     display: {
                         rows: 2,
-                        placeholder: "Add a description...",
-                        disabled: true,
+                        placeholder: "Add a large text...",
                     },
                 },
                 {
-                    title: "Source",
-                    field: "source",
-                    type: "object",
-                    elements: [
-                        {
-                            title: "ID",
-                            field: "source.id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an ID",
-                            }
-                        },
-                        {
-                            title: "Name",
-                            field: "source.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add source name"
-                            }
-                        },
-                        {
-                            title: "Source",
-                            field: "source.source",
-                            type: "input-text",
-                            display: {
-                                placeholder: "External source name"
-                            }
-                        },
-                        {
-                            title: "URL",
-                            field: "source.url",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a URL"
-                            }
-                        },
-                        {
-                            title: "Description",
-                            field: "source.description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a description..."
-                            }
-                        },
-                    ]
-                },
-                {
-                    title: "Status",
-                    field: "status",
-                    type: "object",
-                    elements: [
-                        {
-                            title: "ID",
-                            field: "status.id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an ID",
-                            }
-                        },
-                        {
-                            title: "Name",
-                            field: "status.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add source name"
-                            }
-                        },
-                        {
-                            title: "Description",
-                            field: "status.description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a description..."
-                            }
-                        },
-                    ]
-                },
-            ],
-        },
-        {
-            title: "Processing Info",
-            elements: [
-                {
-                    title: "Product Processing",
-                    field: "processing.product",
-                    type: "object",
-                    display: {},
-                    elements: [
-                        {
-                            title: "ID",
-                            field: "processing.product.id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a processing ID...",
-                            },
-                        },
-                        {
-                            title: "Name",
-                            field: "processing.product.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a processing name...",
-                            },
-                        },
-                        {
-                            title: "Source",
-                            field: "processing.product.source",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add an ontology source...",
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "processing.product.description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a processing description..."
-                            },
-                        },
-                    ]
-                },
-                {
-                    title: "Preparation Method",
-                    field: "processing.preparationMethod",
+                    title: "String Field",
+                    field: "inputTextDisabled",
                     type: "input-text",
+                    required: true,
                     display: {
-                        placeholder: "Add a preparation method...",
+                        placeholder: "Add a short ID...",
+                        disabled: true
                     },
                 },
                 {
-                    title: "Extraction Method",
-                    field: "processing.extractionMethod",
-                    type: "input-text",
-                    display: {
-                        placeholder: "Add an extraction method...",
-                    },
-                },
-                {
-                    title: "Lab Sample ID",
-                    field: "processing.labSampleId",
-                    type: "input-text",
-                    display: {
-                        placeholder: "Add the lab sample ID...",
-                    },
-                },
-                {
-                    title: "Quantity",
-                    field: "processing.quantity",
+                    title: "Number Field",
+                    field: "inputNum",
                     type: "input-num",
-                    allowedValues: [0, 10],
-                    step: 0.01,
                     display: {
-                        placeholder: "Add a quantity...",
-                    },
+                        helpMessage: "Add number"
+                    }
                 },
                 {
-                    title: "Date",
-                    field: "processing.date",
+                    title: "Select Field",
+                    field: "inputSelect",
+                    type: "select",
+                    allowedValues: ["Option 1", "Option 2", "Option 3"],
+                    display: {
+                        helpMessage: "select a option"
+                    }
+                },
+                {
+                    title: "Date Field",
+                    field: "inputDate",
                     type: "input-date",
-                    display: {
-                        render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                    },
                 },
-            ],
-        },
-        {
-            title: "Collection Info",
-            elements: [
                 {
-                    title: "Collection",
-                    field: "collection.from",
+                    title: "Object List",
+                    field: "inputObject.list",
                     type: "object-list",
                     display: {
                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                         collapsedUpdate: true,
-                        view: pheno => html`
-                                    <div>${pheno.id} - ${pheno?.name}</div>
+                        view: data => html`
+                                    <div>${data?.id} - ${dats?.name}</div>
                                 `,
                     },
                     elements: [
                         {
-                            title: "Collection ID",
-                            field: "collection.from[].id",
+                            title: "inputObject.list[].id",
+                            field: "inputObject.list[].id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add phenotype ID...",
@@ -244,7 +107,7 @@ export const DATA_FORM_EXAMPLE = {
                         },
                         {
                             title: "name",
-                            field: "collection.from[].name",
+                            field: "inputObject.list[].id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a name...",
@@ -252,7 +115,7 @@ export const DATA_FORM_EXAMPLE = {
                         },
                         {
                             title: "Source",
-                            field: "collection.from[].source",
+                            field: "inputObject.list[].id",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a source...",
@@ -260,7 +123,7 @@ export const DATA_FORM_EXAMPLE = {
                         },
                         {
                             title: "Description",
-                            field: "collection.from[].description",
+                            field: "inputObject.list[].id",
                             type: "input-text",
                             display: {
                                 rows: 3,
@@ -269,117 +132,225 @@ export const DATA_FORM_EXAMPLE = {
                         },
                     ],
                 },
+            ],
+        },
+        {
+            title: "Checkbox & Toggle",
+            elements: [
                 {
-                    title: "Type",
-                    field: "collection.type",
-                    type: "input-text",
-                    display: {
-                        placeholder: "Add the type of sample collection...",
-                    },
+                    title: "CheckBoxField",
+                    field: "inputCheckBox",
+                    type: "checkbox",
                 },
                 {
-                    title: "Quantity",
-                    field: "collection.quantity",
-                    type: "input-num",
-                    display: {
-                        placeholder: "Add a quantity...",
-                    },
+                    title: "toggle switch",
+                    field: "inputToggleSwitch",
+                    type: "toggle-switch",
                 },
                 {
-                    title: "Method",
-                    field: "collection.method",
-                    type: "input-text",
+                    title: "toggle buttons",
+                    field: "inputToggleButtons",
+                    type: "toggle-buttons",
+                    allowedValues: ["YES", "NO", "UNKNOWN"],
                     display: {
-                        placeholder: "Add a method...",
-                    },
-                },
-                {
-                    title: "Date",
-                    field: "collection.date",
-                    type: "input-date",
-                    display: {
-                        render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                        placeholder: "Add the lab sample ID...",
                     },
                 },
             ],
         },
         {
-            title: "Phenotypes",
+            title: "Complex Field",
             elements: [
                 {
-                    title: "Phenotypes",
-                    field: "phenotypes",
-                    type: "object-list",
+                    title: "Complex Field",
+                    // field: "inputComplex",
+                    type: "complex",
                     display: {
-                        style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        collapsedUpdate: true,
-                        showAddItemListButton: true,
-                        showAddBatchListButton: true,
-                        showResetListButton: true,
-                        view: phenotype => html`
-                                    <div>${phenotype.id} - ${phenotype?.name}</div>
-                                    <div class="help-block">${phenotype?.description}</div>`,
-                    },
+                        template: "${inputComplex}-${testComplex}"
+                    }
+                },
+                {
+                    title: "Object",
+                    field: "inputObject",
+                    type: "object",
                     elements: [
                         {
-                            title: "Phenotype ID",
-                            field: "phenotypes[].id",
+                            title: "String Field",
+                            field: "inputObject.text",
                             type: "input-text",
+                            required: true,
                             display: {
-                                placeholder: "Add phenotype ID...",
+                                placeholder: "Add a short ID...",
+                                helpMessage: "Created on ...",
                             },
                         },
                         {
-                            title: "Name",
-                            field: "phenotypes[].name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a name...",
-                            },
-                        },
-                        {
-                            title: "Source",
-                            field: "phenotypes[].source",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a source...",
-                            },
-                        },
-                        {
-                            title: "Age of onset",
-                            field: "phenotypes[].ageOfOnset",
-                            type: "input-num",
-                            allowedValues: [0],
-                            display: {
-                                placeholder: "Add an age of onset..."
-                            },
-                        },
-                        {
-                            title: "Status",
-                            field: "phenotypes[].status",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
-                            display: {
-                                placeholder: "Select a status..."
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "phenotypes[].description",
+                            title: "String Field Multiline",
+                            field: "inputObject.description",
                             type: "input-text",
                             display: {
                                 rows: 2,
-                                placeholder: "Add a description...",
+                                placeholder: "Add a large text...",
                             },
                         },
-                    ],
+                        {
+                            title: "String Field",
+                            field: "inputObject.textDisabled",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a short ID...",
+                                disabled: true
+                            },
+                        },
+                        {
+                            title: "Number Field",
+                            field: "inputObject.num",
+                            type: "input-num",
+                            display: {
+                                helpMessage: "Add number"
+                            }
+                        },
+                        {
+                            title: "Select Field",
+                            field: "inputObject.select",
+                            type: "select",
+                            allowedValues: ["Option 1", "Option 2", "Option 3"],
+                            display: {
+                                helpMessage: "select a option"
+                            }
+                        },
+                        {
+                            title: "Date Field",
+                            field: "inputObject.date",
+                            type: "input-date",
+                        },
+                    ]
+                },
+                // {
+                //     title: "Json Input Field",
+                //     field: "inputJson",
+                //     type: "json", // Is it possible deprecated
+                // },
+                {
+                    title: "JsonEditor Input Field",
+                    field: "inputJsonEditor",
+                    type: "json-editor",
+                    display: {
+                        rows: 25,
+                        help: {
+                            placeholder: "write json",
+                            text: "Must be a valid json, please remove empty fields if you don't need them."
+                        }
+                    }
+                },
+                // {
+                //     title: "Tree Field",
+                //     field: "inputTree",
+                //     type: "tree",
+                // },
+                {
+                    title: "Download",
+                    field: "inputDownload",
+                    type: "download",
+                },
+                {
+                    title: "Custom Element",
+                    field: "inputCustom",
+                    type: "custom",
+                    display: {
+                        render: () => {
+                            return html`<div>Test Custom Type</div>`;
+                        }
+                    }
                 },
             ],
+        },
+        {
+            title: "List & Table",
+            elements: [
+                {
+                    title: "Custom Element",
+                    field: "inputList",
+                    type: "list",
+                    display: {
+                        template: "${name} (${id})",
+                        contentLayout: "vertical",
+                        bullets: false,
+                    }
+                },
+                {
+                    title: "Table Example",
+                    field: "inputTable",
+                    type: "table",
+                    display: {
+                        headerVisible: false,
+                        columns: [
+                            {
+                                field: "inputColumn1",
+                            },
+                            {
+                                field: "inputColumn2",
+                                defaultValue: "false",
+                            },
+                            {
+                                field: "inputColumn3",
+                                defaultValue: "-",
+                            },
+                        ],
+                    },
+                },
+            ]
+        },
+        {
+            title: "Charts & Plot",
+            elements: [
+                {
+                    name: "chart",
+                    field: "inputChart",
+                    type: "chart",
+                    showLabel: false,
+                    display: {
+                        highcharts: {
+                            chart: {
+                                type: "column",
+                                ...defaultHighchartConfig.chart
+                            },
+                            title: {
+                                text: "Char Columns"
+                            },
+                            tooltip: {
+                                ...defaultHighchartConfig.tooltip
+                            }
+                        }
+                    }
+                },
+                {
+                    name: "plotExample from Object",
+                    // field: "inputPlot",
+                    data: {"INSERTION": 1, "SNV": 165398, "DELETION": 1, "INDEL": 7218},
+                    type: "plot",
+                    display: {
+                        chart: "column",
+                    }
+                },
+                {
+                    name: "plotExample from Array",
+                    field: "inputPlotArray",
+                    type: "plot",
+                    display: {
+                        data: {
+                            key: "id",
+                            value: "total"
+                        },
+                        chart: "column",
+                    }
+                },
+            ]
         },
     ],
 };
 
-export const SAMPLE_DATA = {};
+
 // export const SAMPLE_DATA = {
 //     id: "aaa",
 //     somatic: true,
