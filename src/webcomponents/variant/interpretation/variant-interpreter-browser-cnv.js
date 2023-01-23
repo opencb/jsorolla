@@ -149,6 +149,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 this.query.fileData = result.fileData;
             }
 
+            // 6. Read defaultFilter from study internal configuration
+            if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
+                };
+            }
+
             // Create _config again since getDefaultConfig() uses this.files
             this._config = this.getDefaultConfig();
 
