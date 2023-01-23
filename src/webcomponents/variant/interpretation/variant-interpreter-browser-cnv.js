@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
 
@@ -58,6 +59,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
         this.query = {};
         this.activeFilterFilters = [];
         this.savedVariants = [];
+        this.clinicalAnalysisManager = null;
 
         this._config = this.getDefaultConfig();
     }
@@ -87,6 +89,9 @@ class VariantInterpreterBrowserCNV extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // Initialize the clinical analysis manager
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
         let _activeFilterFilters;
         if (this.settings?.menu?.examples?.length > 0) {
@@ -137,44 +142,15 @@ class VariantInterpreterBrowserCNV extends LitElement {
                 this.query.panelIntersection = true;
             }
 
-            // 5. 'fileData' query param: fetch non SV files and set init query
-            if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                const nonSvSomaticVariantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                    .filter(vc => vc.somatic)
-                    .filter(vc => vc.types.includes("COPY_NUMBER") || vc.types.includes("CNV"));
-
-                this.files = this.clinicalAnalysis.files
-                    .filter(file => file.format.toUpperCase() === "VCF")
-                    .filter(file =>
-                        nonSvSomaticVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) >= 0);
-
-                const fileDataFilters = [];
-                nonSvSomaticVariantCallers
-                    .forEach(vc => {
-                        const filters = vc.dataFilters
-                            .filter(filter => !filter.source || filter.source === "FILE")
-                            .filter(filter => !!filter.defaultValue)
-                            .map(filter => {
-                                // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                            });
-
-                        // Only add this file to the filter if we have at least one default value
-                        if (filters.length > 0) {
-                            // We need to find the file for that caller
-                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
-                            if (fileId) {
-                                fileDataFilters.push(fileId + ":" + filters.join(";"));
-                            }
-                        }
-                    });
-
-                // Update query with default 'fileData' parameters
-                this.query.fileData = fileDataFilters.join(",");
-
-                // getDefaultConfig() uses this.files
-                this._config = this.getDefaultConfig();
+            // 5. Process files and fileData
+            const result = this.clinicalAnalysisManager.parseVariantCallers(true, ["COPY_NUMBER", "CNV"]);
+            this.files = result.files;
+            if (result.fileData) {
+                this.query.fileData = result.fileData;
             }
+
+            // Create _config again since getDefaultConfig() uses this.files
+            this._config = this.getDefaultConfig();
 
             // Add filter to Active Filters menu
             // 1. Add variant stats saved queries to the Active Filters menu
