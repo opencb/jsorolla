@@ -301,4 +301,60 @@ export default class ClinicalAnalysisManager {
             });
     }
 
+    parseVariantCallers(somatic, callerTypes) {
+        let files = [];
+        const fileDataFilters = [];
+
+        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+            // Somatic callers with the right Variant Type and with defined INFO filters
+            const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                .filter(vc => vc.somatic === somatic)
+                .filter(vc => vc.types.some(type => callerTypes.includes(type)))
+                .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
+
+            // Files matching the selected Variant Callers
+            files = this.clinicalAnalysis.files
+                .filter(file => file.format.toUpperCase() === "VCF")
+                .filter(file => {
+                    return variantCallers.some(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase());
+                });
+
+            if (files?.length > 0) {
+                variantCallers
+                    .forEach(vc => {
+                        const filtersWithDefaultValues = vc.dataFilters
+                            .filter(filter => !filter.source || filter.source === "FILE")
+                            .filter(filter => !!filter.defaultValue)
+                            .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                            });
+
+                        // Only add this file to the filter if we have at least one default value
+                        if (filtersWithDefaultValues.length > 0) {
+                            // We need to find the file for that caller
+                            const fileId = files.find(file => file.software.name === vc.id)?.name;
+                            if (fileId) {
+                                fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
+                            }
+                        }
+                    });
+
+                // Update query with default 'fileData' parameters
+                // this.query.fileData = fileDataFilters.join(",");
+            } else {
+                files = this.clinicalAnalysis.files
+                    .filter(file => file.format.toUpperCase() === "VCF");
+            }
+        } else {
+            files = this.clinicalAnalysis.files
+                .filter(file => file.format.toUpperCase() === "VCF");
+        }
+
+        return {
+            files: files,
+            fileData: fileDataFilters.join(","),
+        };
+    }
+
 }
