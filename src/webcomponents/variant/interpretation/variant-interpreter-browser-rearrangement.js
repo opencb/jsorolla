@@ -261,21 +261,21 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     getDefaultConfig() {
         // Prepare dynamic Variant Caller INFO filters
-        const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        const callerFilters = callers.map(caller => {
-            const callerId = caller.toLowerCase();
-            return {
-                id: callerId,
-                title: caller + " Filters",
-                description: () => html`
-                    File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>
-                `,
-                visible: () => this.callerToFile && this.callerToFile[callerId],
-                params: {
-                    fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
-                },
-            };
-        });
+        // const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
+        // const callerFilters = callers.map(caller => {
+        //     const callerId = caller.toLowerCase();
+        //     return {
+        //         id: callerId,
+        //         title: caller + " Filters",
+        //         description: () => html`
+        //             File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>
+        //         `,
+        //         visible: () => this.callerToFile && this.callerToFile[callerId],
+        //         params: {
+        //             fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
+        //         },
+        //     };
+        // });
 
         return {
             title: "Cancer Case Interpreter",
@@ -304,7 +304,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 callers: [],
                 sections: [ // sections and subsections, structure and order is respected
                     {
-                        title: "Genomic",
+                        title: "Sample And File",
                         collapsed: false,
                         filters: [
                             {
@@ -319,14 +319,19 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
-                                visible: () => this.files?.length > 0,
-                                // visible: () => !!this.query.fileData,
+                                // visible: () => this.files?.length > 0,
                                 params: {
                                     files: this.files,
                                     opencgaSession: this.opencgaSession
                                 },
                                 tooltip: tooltips.variantCallerFile,
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        title: "Genomic",
+                        collapsed: false,
+                        filters: [
                             {
                                 id: "region",
                                 title: "Genomic Location",

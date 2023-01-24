@@ -4,22 +4,14 @@ const VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS = {
         // filters: []
 
         sections: [ // sections and subsections, structure and order is respected
-            // {
-            //     title: "Sample And File",
-            //     filters: ["variant-file-info-filter"],
-            // },
+            {
+                title: "Sample And File",
+                filters: ["variant-file", "variant-file-info-filter"],
+            },
             {
                 title: "Genomic",
                 filters: ["region", "feature", "biotype", "diseasePanels"]
             },
-            // {
-            //     title: "Clinical",
-            //     filters: ["diseasePanels", "clinical-annotation"]
-            // },
-            // {
-            //     title: "Phenotype",
-            //     filters: ["go", "hpo"]
-            // },
         ]
     },
     table: {
