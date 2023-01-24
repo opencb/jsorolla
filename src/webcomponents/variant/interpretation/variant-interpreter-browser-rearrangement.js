@@ -253,6 +253,41 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         //     };
         // });
 
+        // Initialize genome browser tracks configuration
+        const genomeBrowserTracks = [
+            {
+                type: "gene",
+                config: {},
+            },
+            {
+                type: "opencga-variant",
+                config: {
+                    title: "Variants",
+                    query: {
+                        sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                    },
+                    height: 120,
+                },
+            },
+            ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
+                type: "opencga-alignment",
+                config: {
+                    title: `Alignments - ${sample.id}`,
+                    sample: sample.id,
+                },
+            })),
+        ];
+
+        // Initialize genoe browser config
+        const genomeBrowserConfig = {
+            cellBaseClient: this.cellbaseClient,
+            karyotypePanelVisible: false,
+            overviewPanelVisible: false,
+            navigationPanelHistoryControlsVisible: false,
+            navigationPanelGeneSearchVisible: false,
+            navigationPanelRegionSearchVisible: false,
+        };
+
         return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
@@ -400,37 +435,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .regions="${variants}"
                                     ?active="${this.active}"
-                                    .tracks="${[
-                                        {
-                                            type: "gene",
-                                            config: {},
-                                        },
-                                        {
-                                            type: "opencga-variant",
-                                            config: {
-                                                title: "Variants",
-                                                query: {
-                                                    sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                                                },
-                                                height: 120,
-                                            },
-                                        },
-                                        ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
-                                            type: "opencga-alignment",
-                                            config: {
-                                                title: `Alignments - ${sample.id}`,
-                                                sample: sample.id,
-                                            },
-                                        })),
-                                    ]}"
-                                    .config="${{
-                                        cellBaseClient: this.cellbaseClient,
-                                        karyotypePanelVisible: false,
-                                        overviewPanelVisible: false,
-                                        navigationPanelHistoryControlsVisible: false,
-                                        navigationPanelGeneSearchVisible: false,
-                                        navigationPanelRegionSearchVisible: false,
-                                    }}">
+                                    .tracks="${genomeBrowserTracks}"
+                                    .config="${genomeBrowserConfig}">
                                 </split-genome-browser>
                             `,
                         },
