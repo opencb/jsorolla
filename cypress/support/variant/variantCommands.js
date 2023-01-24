@@ -24,7 +24,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-import UtilsTest from "../UtilsTest";
+import UtilsTest from "../utils-test";
 
 Cypress.Commands.add("setGenomicLocation", value => {
     UtilsTest.checkLabel("div[data-cy='region']", "span", "Genomic Location");

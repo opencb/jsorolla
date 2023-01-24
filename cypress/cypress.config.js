@@ -13,6 +13,9 @@ module.exports = defineConfig({
     e2e: {
         baseUrl: "http://localhost:3000/src/sites/test-app/",
     },
+    env: {
+        hideXHR: true,
+    },
     // component: {
     //     supportFile: "cypress/support/component.js",
     //     devServer: {

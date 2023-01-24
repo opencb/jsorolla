@@ -98,7 +98,8 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/visualization/genome-browser.js";
 
-import {DATA_FORM_EXAMPLE, SAMPLE_DATA} from "./conf/data-form.js";
+import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
+import {SAMPLE_DATA} from "./data/dataExample.js";
 
 import {DATA_FORM_ELEMENTS} from "./conf/data-form-elements.js";
 import {FORM_INPUT_DATA} from "./data/data-form-elements.fixture.js";
