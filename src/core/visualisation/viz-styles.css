@@ -1,0 +1,33 @@
+/* Custom tooltip for visualization modules */
+.viz-tooltip {
+    background-color: #333;
+    border-radius: 4px;
+    color: white;
+    display: block;
+    font-size: 1rem;
+    padding: 8px;
+    position: fixed;
+    transform: translateX(-50%) translateY(6px);
+}
+.viz-tooltip:before {
+    content: "";
+    content: "";
+    background: transparent;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 0px 6px 6px 6px;
+    border-bottom-color: #333;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -6px;
+}
+.viz-tooltip-title {
+    font-weight: bold;
+}
+.viz-tooltip-title:not(:last-child) {
+    margin-bottom: 4px;
+}
+.viz-tooltip-content {
+    display: block;
+}
