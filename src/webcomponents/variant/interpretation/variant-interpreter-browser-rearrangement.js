@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "./variant-interpreter-browser-template.js";
 import "../../visualization/split-genome-browser.js";
 
@@ -65,6 +66,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this.somatic = true;
         this.activeFilterFilters = [];
         this.savedVariants = [];
+        this.clinicalAnalysisManager = null;
 
         this._config = this.getDefaultConfig();
     }
@@ -100,6 +102,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // Initialize the clinical analysis manager
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
         let _activeFilterFilters;
         if (this.settings?.menu?.examples?.length > 0) {
@@ -148,49 +153,20 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             }
 
             this.callerToFile = {};
-            if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
-                // Somatic callers with the right Variant Type and with defined INFO filters
-                const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
-                    .filter(vc => vc.somatic === this.somatic)
-                    .filter(vc => vc.types.includes("BREAKEND"))
-                    .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
-                // Files matching the selected Variant Callers
-                this.files = this.clinicalAnalysis.files
-                    .filter(file => file.format.toUpperCase() === "VCF")
-                    .filter(file =>
-                        variantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
+            // 4. Process files and fileData
+            const result = this.clinicalAnalysisManager.parseVariantCallers(this.somatic, ["BREAKEND"]);
+            this.files = result.files;
+            if (result.fileData) {
+                this.query.fileData = result.fileData;
+            }
 
-                if (this.files?.length > 0) {
-                    const fileDataFilters = [];
-                    variantCallers.forEach(vc => {
-                        const filtersWithDefaultValues = vc.dataFilters
-                            .filter(filter => !filter.source || filter.source === "FILE")
-                            .filter(filter => !!filter.defaultValue)
-                            .map(filter => {
-                                // Notice that defaultValue includes the comparator, eg. =, >, ...
-                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
-                            });
-
-                        // Only add this file to the filter if we have at least one default value
-                        if (filtersWithDefaultValues.length > 0) {
-                            // We need to find the file for that caller
-                            const fileId = this.files.find(file => file.software.name === vc.id)?.name;
-                            if (fileId) {
-                                fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
-                            }
-                        }
-                    });
-
-                    // Update query with default 'fileData' parameters
-                    this.query.fileData = fileDataFilters.join(",");
-                } else {
-                    this.files = this.clinicalAnalysis.files
-                        .filter(file => file.format.toUpperCase() === "VCF");
-                }
-            } else {
-                this.files = this.clinicalAnalysis.files
-                    .filter(file => file.format.toUpperCase() === "VCF");
+            // 6. Read defaultFilter from study internal configuration
+            if (this.opencgaSession.study.internal?.configuration?.clinical?.interpretation?.defaultFilter) {
+                this.query = {
+                    ...this.query,
+                    ...this.opencgaSession.study.internal.configuration.clinical.interpretation.defaultFilter,
+                };
             }
 
             // Create _config again since getDefaultConfig() uses this.files
