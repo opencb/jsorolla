@@ -388,12 +388,25 @@ export default {
             if (config.showLegend && Object.keys(variantsCounts).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(variantsCounts).map(id => ({
+                        id: id,
                         title: id.toUpperCase(),
                         color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
                         // color: this.PROTEIN_FEATURES_COLORS[id] || defaultColor,
                     })),
                     width: width,
                     height: config.legendHeight,
+                    onEnable: item => {
+                        Array.from(group.querySelectorAll("g[data-ct]")).forEach(element => {
+                            // eslint-disable-next-line no-param-reassign
+                            element.style.opacity = item.id === element.dataset.ct ? 1 : 0.2;
+                        });
+                    },
+                    onDisable: () => {
+                        Array.from(group.querySelectorAll("g[data-ct]")).forEach(element => {
+                            // eslint-disable-next-line no-param-reassign
+                            element.style.opacity = 1;
+                        });
+                    },
                 });
 
                 // We need to update the offset to take into accound the legend height
