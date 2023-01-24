@@ -20,22 +20,22 @@ describe("Data Form Component", () => {
     // check require, validation, disable and others for input
 
     it("should be render string field", () => {
-        UtilsTest.getByDataTest("test1--inputText", "input")
+        UtilsTest.getByDataTest("test1-inputText", "input")
             .should("be.visible");
     });
 
     it("should be render string multiline as textarea ", () => {
-        UtilsTest.getByDataTest("test1--inputDescription", "textarea")
+        UtilsTest.getByDataTest("test1-inputDescription", "textarea")
             .should("be.visible");
     });
 
     it("sould be render string field as disabled", () => {
-        UtilsTest.getByDataTest("test1--inputTextDisabled", "input")
+        UtilsTest.getByDataTest("test1-inputTextDisabled", "input")
             .should("be.disabled");
     });
 
     it("should be render number field", () => {
-        UtilsTest.getByDataTest("test1--inputNum", "input")
+        UtilsTest.getByDataTest("test1-inputNum", "input")
             .should("be.visible")
             .and("have.attr", "type", "number");
     });
@@ -43,16 +43,16 @@ describe("Data Form Component", () => {
     it("should be render select field", () => {
         // select2 is not visible because it has CSS property: opacity: 0
         cy.log("### check if select is exist ###");
-        UtilsTest.getByDataTest("test1--inputSelect", "select")
+        UtilsTest.getByDataTest("test1-inputSelect", "select")
             .should("exist");
 
         cy.log("### check if select have options ###");
-        UtilsTest.getByDataTest("test1--inputSelect", "select")
+        UtilsTest.getByDataTest("test1-inputSelect", "select")
             .find("option").should("have.length", 3);
     });
 
     it("should be render date field", () => {
-        UtilsTest.getByDataTest("test1--inputDate", "input")
+        UtilsTest.getByDataTest("test1-inputDate", "input")
             .should("be.visible")
             .and("have.attr", "type", "date");
     });
@@ -62,7 +62,7 @@ describe("Data Form Component", () => {
     });
 
     it("should be render checkbox field", () => {
-        UtilsTest.getByDataTest("test1--inputCheckBox", "input")
+        UtilsTest.getByDataTest("test1-inputCheckBox", "input")
             .should("be.visible")
             .and("have.attr", "type", "checkbox");
     });
@@ -81,27 +81,27 @@ describe("Data Form Component", () => {
 
     it("should be render object fields", () => {
         cy.log("Test Coming Soon");
-        UtilsTest.getByDataTest("test1--inputObject.text", "input")
+        UtilsTest.getByDataTest("test1-inputObject.text", "input")
             .should("be.visible");
-        UtilsTest.getByDataTest("test1--inputObject.description", "textarea")
+        UtilsTest.getByDataTest("test1-inputObject.description", "textarea")
             .should("be.visible");
-        UtilsTest.getByDataTest("test1--inputObject.textDisabled", "input")
+        UtilsTest.getByDataTest("test1-inputObject.textDisabled", "input")
             .should("be.disabled");
-        UtilsTest.getByDataTest("test1--inputObject.num", "input")
+        UtilsTest.getByDataTest("test1-inputObject.num", "input")
             .should("be.visible")
             .and("have.attr", "type", "number");
-        UtilsTest.getByDataTest("test1--inputObject.text", "input")
+        UtilsTest.getByDataTest("test1-inputObject.text", "input")
             .should("be.visible");
 
         cy.log("### check if select is exist ###");
-        UtilsTest.getByDataTest("test1--inputObject.select", "select")
+        UtilsTest.getByDataTest("test1-inputObject.select", "select")
             .should("exist");
 
         cy.log("### check if select have options ###");
-        UtilsTest.getByDataTest("test1--inputObject.select", "select")
+        UtilsTest.getByDataTest("test1-inputObject.select", "select")
             .find("option").should("have.length", 3);
 
-        UtilsTest.getByDataTest("test1--inputObject.date", "input")
+        UtilsTest.getByDataTest("test1-inputObject.date", "input")
             .should("be.visible")
             .and("have.attr", "type", "date");
     });
@@ -115,13 +115,13 @@ describe("Data Form Component", () => {
     });
 
     it("should be render a custom element", () => {
-        UtilsTest.getByDataTest("test1--inputCustom", "div")
+        UtilsTest.getByDataTest("test1-inputCustom", "div")
             .should("be.visible");
     });
 
     it("should be a list", () => {
         cy.log("Test Coming Soon");
-        // UtilsTest.getByDataTest("test1--inputCheckBox", "input")
+        // UtilsTest.getByDataTest("test1-inputCheckBox", "input")
         //     .should("be.visible")
         //     .and("have.attr", "type", "checkbox");
     });

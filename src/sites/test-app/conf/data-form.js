@@ -27,7 +27,7 @@ const defaultHighchartConfig = {
 
 export const DATA_FORM_EXAMPLE = {
     test: {
-        prefix: "test1-",
+        prefix: "test1",
         active: true,
     },
     sections: [
@@ -236,7 +236,7 @@ export const DATA_FORM_EXAMPLE = {
                     field: "inputJsonEditor",
                     type: "json-editor",
                     display: {
-                        rows: 25,
+                        rows: 10,
                         help: {
                             placeholder: "write json",
                             text: "Must be a valid json, please remove empty fields if you don't need them."

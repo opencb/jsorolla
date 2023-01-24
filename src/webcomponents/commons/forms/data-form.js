@@ -1201,7 +1201,7 @@ export default class DataForm extends LitElement {
             </json-editor>
         `;
 
-        this._createElementTemplate(element, null, content);
+        return this._createElementTemplate(element, null, content);
     }
 
     _createTreeElement(element) {
@@ -1680,7 +1680,6 @@ export default class DataForm extends LitElement {
                     };
                 } else {
                     // FIXME To be deleted: 2.2 Updating a field in a "Create New Item" form
-                    debugger
                     console.error("This code should never be reached!");
                     if (value) {
                         this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};

@@ -1096,17 +1096,11 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
-                        <!-- <data-form
-                            .data="$SAMPLE_DATA}"
-                            .config="$DATA_FORM_EXAMPLE}"
-                            @clear="$e => this.onClear(e)}"
-                            @submit="$e => this.onSubmit(e)}">
-                        </data-form> -->
                         <data-form
-                                .data="${FORM_INPUT_DATA}"
-                                .config="${DATA_FORM_ELEMENTS}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${e => this.onSubmit(e)}">
+                            .data="${SAMPLE_DATA}"
+                            .config="${DATA_FORM_EXAMPLE}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${e => this.onSubmit(e)}">
                         </data-form>
                     </div>
                 ` : null}
