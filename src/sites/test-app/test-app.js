@@ -31,7 +31,6 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";
@@ -100,6 +99,9 @@ import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/visualization/genome-browser.js";
 
 import {DATA_FORM_EXAMPLE, SAMPLE_DATA} from "./conf/data-form.js";
+
+import {DATA_FORM_ELEMENTS} from "./conf/data-form-elements.js";
+import {FORM_INPUT_DATA} from "./data/data-form-elements.fixture.js";
 
 class TestApp extends LitElement {
 
@@ -1093,11 +1095,17 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
+                        <!-- <data-form
+                            .data="$SAMPLE_DATA}"
+                            .config="$DATA_FORM_EXAMPLE}"
+                            @clear="$e => this.onClear(e)}"
+                            @submit="$e => this.onSubmit(e)}">
+                        </data-form> -->
                         <data-form
-                            .data="${SAMPLE_DATA}"
-                            .config="${DATA_FORM_EXAMPLE}"
-                            @clear="${e => this.onClear(e)}"
-                            @submit="${e => this.onSubmit(e)}">
+                                .data="${FORM_INPUT_DATA}"
+                                .config="${DATA_FORM_ELEMENTS}"
+                                @clear="${e => this.onClear(e)}"
+                                @submit="${e => this.onSubmit(e)}">
                         </data-form>
                     </div>
                 ` : null}
