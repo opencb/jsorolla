@@ -1,3 +1,5 @@
+import UtilsNew from "../utils-new";
+
 export default {
 
     // Generate ticks to be displayed in a scale
@@ -16,6 +18,36 @@ export default {
         }
         // Remove ticks outside of the [start, end] interval
         return ticksValues.filter(value => start <= value && value <= end);
+    },
+
+    // WIP: custom tooltip implementation
+    createTooltip(target, config) {
+        // const position = config.position || "bottom";
+        // const tooltipId = UtilsNew.randomString(8);
+        const tooltipTemplate = `
+            <div class="viz-tooltip" style="width:${config.width || "auto"}">
+                ${config.title ? `
+                    <div class="viz-tooltip-title">${config.title}</div>
+                ` : ""}
+                ${config.content ? `
+                    <div class="viz-tooltip-content">${config.content}</div>
+                ` : ""}
+            </div>
+        `;
+        const tooltipElement = UtilsNew.renderHTML(tooltipTemplate).querySelector("div.viz-tooltip");
+
+        // Mouse over the element --> append the tooltip to the document
+        target.addEventListener("mouseover", event => {
+            document.body.appendChild(tooltipElement);
+            const targetPosition = event.currentTarget.getBoundingClientRect();
+            tooltipElement.style.top = (targetPosition.top + targetPosition.height) + "px";
+            tooltipElement.style.left = (targetPosition.left + targetPosition.width / 2) + "px";
+        });
+
+        // Mouse out --> remove tooltip from document
+        target.addEventListener("mouseout", () => {
+            document.body.removeChild(tooltipElement);
+        });
     },
 
 };
