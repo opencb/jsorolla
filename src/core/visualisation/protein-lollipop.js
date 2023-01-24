@@ -327,7 +327,7 @@ export default {
                         });
 
                         // Lollipop circle
-                        SVG.addChild(lollipopGroup, "circle", {
+                        const circleElement = SVG.addChild(lollipopGroup, "circle", {
                             "cx": x1 - 0.5,
                             "cy": -70,
                             "r": 8,
@@ -343,6 +343,13 @@ export default {
                             "text-anchor": "start",
                             "dominant-baseline": "middle",
                             "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
+                        });
+
+                        // Add tooltip to the circle
+                        VizUtils.createTooltip(circleElement, {
+                            title: `Lollipop ${index}`,
+                            content: "Lollipop tooltip content",
+                            width: "120px",
                         });
 
                         // Update track max height, using the size of the variant ID
