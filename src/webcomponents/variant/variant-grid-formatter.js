@@ -1035,32 +1035,27 @@ export default class VariantGridFormatter {
                         let tooltip = "";
                         switch (clinicalSignificance.toUpperCase()) {
                             case "BENIGN":
-                                // code = "B";
                                 code = CLINICAL_SIGNIFICANCE_SETTINGS.BENIGN.id;
                                 color = "green";
                                 tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "LIKELY_BENIGN":
-                                // code = "LB";
                                 code = CLINICAL_SIGNIFICANCE_SETTINGS.LIKELY_BENIGN.id;
                                 color = "darkgreen";
                                 tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "VUS":
                             case "UNCERTAIN_SIGNIFICANCE":
-                                // code = "US";
                                 code = CLINICAL_SIGNIFICANCE_SETTINGS.UNCERTAIN_SIGNIFICANCE.id;
                                 color = "darkorange";
                                 tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "LIKELY_PATHOGENIC":
-                                // code = "LP";
                                 code = CLINICAL_SIGNIFICANCE_SETTINGS.LIKELY_PATHOGENIC.id;
                                 color = "darkred";
                                 tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "PATHOGENIC":
-                                // code = "P";
                                 code = CLINICAL_SIGNIFICANCE_SETTINGS.PATHOGENIC.id;
                                 color = "red";
                                 tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
