@@ -1234,8 +1234,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Generate a clone of the variant review to prevent changing original values
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
                     this.requestUpdate();
-
-                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+                    UtilsNew.draggableModal(document, modalElm);
+                    $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
             case "genome-browser":
@@ -1409,8 +1410,9 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the variant review to prevent changing original values
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
-
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}ReviewSampleModal`).modal("show");
         }
     }
 
@@ -1474,8 +1476,9 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the evidence review to prevent changing original values
             this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
-
-            $("#" + this._prefix + "EvidenceReviewModal").modal("show");
+            const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}EvidenceReviewModal`).modal("show");
         }
     }
 

@@ -188,6 +188,39 @@ export default class UtilsNew {
         }
     }
 
+    static draggableModal(self, modalElm) {
+        let offset = [0, 0];
+        let isDown = false;
+        const modalDialog = modalElm.querySelector(".modal-dialog");
+        const modalHeader = modalElm.querySelector(".modal-header");
+        modalHeader.style.cursor = "move";
+
+        if (modalDialog) {
+            modalDialog.style.margin = "0";
+            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.top = (window.innerHeight * 0.05) + "px";
+        }
+        modalHeader.addEventListener("mousedown", e => {
+            isDown = true;
+            offset = [
+                modalDialog.offsetLeft - e.clientX,
+                modalDialog.offsetTop - e.clientY
+            ];
+        }, true);
+
+        self.addEventListener("mouseup", () => {
+            isDown = false;
+        }, true);
+
+        self.addEventListener("mousemove", e => {
+            e.preventDefault();
+            if (isDown) {
+                modalDialog.style.left = (e.clientX + offset[0]) + "px";
+                modalDialog.style.top = (e.clientY + offset[1]) + "px";
+            }
+        }, true);
+    }
+
     // 2nd approach remove value (loop way)
     static deleteObjectValue2(obj, props) {
         const parts = props.split(".");
@@ -293,7 +326,7 @@ export default class UtilsNew {
     /*
      * This function capitalizes the first letter of a string and lowercase the rest.
      */
-    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
 
 
     /*
