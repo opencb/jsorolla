@@ -19,6 +19,7 @@
     <script type="module">
         import ProteinLollipop from "../protein-lollipop.js";
 
+        import transcriptData from "./data/mtm1-transcript.json";
         import proteinData from "./data/mtm1-protein.json";
         import platinumVariantsData from "./data/mtm1-protein-variants-platinum.json";
         import cosmicVariantsData from "./data/mtm1-protein-variants-cosmic.json";
@@ -29,7 +30,7 @@
         const studyTitle = "Platinum";
 
         // Draw protein lollipop
-        ProteinLollipop.draw(target, proteinData, platinumVariantsData, {
+        ProteinLollipop.draw(target, transcriptData, proteinData, platinumVariantsData, {
             title: studyTitle,
             tracks: [
                 {
