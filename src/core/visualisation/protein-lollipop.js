@@ -244,7 +244,7 @@ export default {
         const proteinLength = chainFeature.location.end.position;
 
         // Tiny utility to calculate the position in px from the given protein coordinate
-        const getPixelPosition = p => p * width / proteinLength;
+        const getPixelPosition = p => Math.min(p, proteinLength) * width / proteinLength;
 
         if (config.showProteinScale) {
             offset = offset + 25;
@@ -447,6 +447,20 @@ export default {
                     }
                     featuresCounts[feature.type]++;
                 });
+
+            // Add exons separators
+            (transcript.exons || []).forEach(exon => {
+                if (exon.cdsEnd > 0) {
+                    const endPosition = getPixelPosition(exon.cdsEnd / 3);
+                    SVG.addChild(group, "path", {
+                        "d": `M${endPosition - 0.5},-${config.proteinHeight - 0.5}V0.5`,
+                        "fill": "none",
+                        "stroke": "#212529",
+                        "stroke-width": "1px",
+                        "stroke-dasharray": "3",
+                    });
+                }
+            });
 
             // Generate protein rectangle
             SVG.addChild(group, "path", {
