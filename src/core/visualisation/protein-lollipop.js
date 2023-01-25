@@ -451,13 +451,32 @@ export default {
             // Add exons separators
             (transcript.exons || []).forEach(exon => {
                 if (exon.cdsEnd > 0) {
+                    const startPosition = getPixelPosition(exon.cdsStart / 3);
                     const endPosition = getPixelPosition(exon.cdsEnd / 3);
+
                     SVG.addChild(group, "path", {
                         "d": `M${endPosition - 0.5},-${config.proteinHeight - 0.5}V0.5`,
                         "fill": "none",
                         "stroke": "#212529",
                         "stroke-width": "1px",
                         "stroke-dasharray": "3",
+                    });
+
+                    // Add mask for displaying exon tooltip
+                    const exonMask = SVG.addChild(group, "path", {
+                        "d": `M${startPosition},-${config.proteinHeight}H${endPosition}V0H${startPosition}Z`,
+                        "fill": "transparent",
+                        "stroke": "none",
+                    });
+
+                    VizUtils.createTooltip(exonMask, {
+                        title: exon.id,
+                        content: `
+                            <div><strong>cdsStart</strong>: ${exon.cdsStart}</div>
+                            <div><strong>cdsEnd</strong>: ${exon.cdsEnd}</div>
+                            <div><strong>phase</strong>: ${exon.phase}</div>
+                        `,
+                        width: "150px",
                     });
                 }
             });
