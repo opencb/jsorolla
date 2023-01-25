@@ -13,12 +13,6 @@ describe("Data Form Component", () => {
             .find("h3", "General Information", {matchCase: false});
     });
 
-    // Check each elements
-    // Type each elements
-    // Add element to the list
-    // Remove element to the list
-    // check require, validation, disable and others for input
-
     it("should be render string field", () => {
         UtilsTest.getByDataTest("test1-inputText", "input")
             .should("be.visible");
@@ -80,7 +74,7 @@ describe("Data Form Component", () => {
     });
 
     it("should be render object fields", () => {
-        cy.log("Test Coming Soon");
+
         UtilsTest.getByDataTest("test1-inputObject.text", "input")
             .should("be.visible");
         UtilsTest.getByDataTest("test1-inputObject.description", "textarea")
@@ -119,11 +113,28 @@ describe("Data Form Component", () => {
             .should("be.visible");
     });
 
-    it("should be a list", () => {
-        cy.log("Test Coming Soon");
-        // UtilsTest.getByDataTest("test1-inputCheckBox", "input")
-        //     .should("be.visible")
-        //     .and("have.attr", "type", "checkbox");
+    it.("should be render object fields", () => {
+        cy.log("check if object list is visible");
+        UtilsTest.getByDataTest("test1-inputObject.list")
+            .should("be.visible");
+
+        cy.log("Object List should be open");
+        UtilsTest.getByDataTest("test1-inputObject.list", "button")
+            .contains("Add Item")
+            .click();
+
+        cy.log("Check all element inside object list");
+        UtilsTest.getByDataTest("test1-inputObject.list[].0.id", "input")
+            .should("be.visible");
+        UtilsTest.getByDataTest("test1-inputObject.list[].0.name", "input")
+            .should("be.visible");
+        UtilsTest.getByDataTest("test1-inputObject.list[].0.description", "textarea")
+            .should("be.visible");
+        // inputObject.list_0
+        UtilsTest.getByDataTest("test1-inputObject.list")
+            .eq(0)
+            .contains("button", "Close")
+            .click();
     });
 
     it("should be a table", () => {
@@ -150,6 +161,15 @@ describe("Data Form Component", () => {
     it("should be a plot from array", () => {
         cy.log("Test Coming Soon");
     });
+
+        // Check each elements
+    // Type each elements
+    // Add element to the list
+    // Remove element to the list
+    // check require, validation, disable and others for inputc
+
+    // test: check if generate correctly url
+    // test: check if generate correctly url
 
 
     // it("when submit is pressed, input display error for empty field", () => {

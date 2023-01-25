@@ -19,7 +19,7 @@ import {TIMEOUT} from "./constants.js";
 export default class UtilsTest {
 
 
-    static getByDataTest = (selector, tag, ...args) => cy.get(`div[data-testid='${selector}'] ${tag}`, ...args);
+    static getByDataTest = (selector, tag, ...args) => cy.get(`div[data-testid='${selector}'] ${tag ?? ""}`, ...args);
 
     static setInput = (selectors, val) => {
         cy.get(selectors).type(val);

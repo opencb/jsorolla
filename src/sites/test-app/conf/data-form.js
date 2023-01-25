@@ -93,12 +93,12 @@ export const DATA_FORM_EXAMPLE = {
                         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                         collapsedUpdate: true,
                         view: data => html`
-                                    <div>${data?.id} - ${dats?.name}</div>
+                                    <div>${data?.id} - ${data?.name}</div>
                                 `,
                     },
                     elements: [
                         {
-                            title: "inputObject.list[].id",
+                            title: "id",
                             field: "inputObject.list[].id",
                             type: "input-text",
                             display: {
@@ -107,27 +107,19 @@ export const DATA_FORM_EXAMPLE = {
                         },
                         {
                             title: "name",
-                            field: "inputObject.list[].id",
+                            field: "inputObject.list[].name",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a name...",
                             },
                         },
                         {
-                            title: "Source",
-                            field: "inputObject.list[].id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a source...",
-                            },
-                        },
-                        {
                             title: "Description",
-                            field: "inputObject.list[].id",
+                            field: "inputObject.list[].description",
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add a description..."
+                                placeholder: "Add a description...",
                             },
                         },
                     ],

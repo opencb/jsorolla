@@ -108,8 +108,7 @@ class TestApp extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -131,8 +130,8 @@ class TestApp extends LitElement {
      * This function creates all the initial configuration
      * @private
      */
-    _init() {
-        const dataTest = {};
+    #init() {
+        this.dataTest = {...SAMPLE_DATA};
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
@@ -460,6 +459,12 @@ class TestApp extends LitElement {
             lastStudy: newStudy.fqn
         });
         this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
+    }
+
+    onFieldChange(e) {
+        console.log("Execute onFieldChange");
+        this.dataTest = {...e.detail.data}; // force to refresh the object-list
+        this.requestUpdate();
     }
 
     onUrlChange(e) {
@@ -1097,8 +1102,9 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
                         <data-form
-                            .data="${SAMPLE_DATA}"
+                            .data="${this.dataTest}"
                             .config="${DATA_FORM_EXAMPLE}"
+                            @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
                         </data-form>
