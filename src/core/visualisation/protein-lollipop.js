@@ -167,14 +167,14 @@ export default {
         });
     },
 
-    parseVariantsList(data = [], protein, type) {
+    parseVariantsList(data = [], transcript, protein, type) {
         switch (type) {
             case this.TRACK_TYPES.VARIANTS:
                 return data
                     .map(variant => {
                         let info = null;
                         const ct = variant?.annotation?.consequenceTypes?.find(item => {
-                            return item.transcriptId === protein.transcriptId && item?.proteinVariantAnnotation?.proteinId === protein.proteinId;
+                            return item.transcriptId === transcript.id && item?.proteinVariantAnnotation?.proteinId === transcript.proteinId;
                         });
 
                         if (ct && ct.proteinVariantAnnotation?.position) {
@@ -212,7 +212,7 @@ export default {
     },
 
     // Draw protein visualization
-    draw(target, protein, variants, customConfig) {
+    draw(target, transcript, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
         const config = {
             ...this.getDefaultConfig(),
@@ -297,7 +297,7 @@ export default {
             const group = SVG.addChild(svg, "g", {});
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
-            const lollipopsVariants = this.parseVariantsList(variants, protein, this.TRACK_TYPES.VARIANTS);
+            const lollipopsVariants = this.parseVariantsList(variants, transcript, protein, this.TRACK_TYPES.VARIANTS);
 
             // Render lollipops
             if (lollipopsVariants.length > 0) {
@@ -487,7 +487,7 @@ export default {
             const trackType = track.type || this.TRACK_TYPES.VARIANTS;
             let trackHeight = 40; // Track maximum height
             const countsByConsequenceType = {};
-            const lollipopsVariants = this.parseVariantsList(track.data, protein, track.type || "variants");
+            const lollipopsVariants = this.parseVariantsList(track.data, transcript, protein, trackType);
 
             // Render lollipops
             if (lollipopsVariants.length > 0) {
