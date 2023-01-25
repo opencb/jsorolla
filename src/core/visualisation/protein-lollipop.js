@@ -167,6 +167,31 @@ export default {
         });
     },
 
+    variantsHighlighterByPosition(parent, target, position, config) {
+        target.addEventListener("mouseover", () => {
+            Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
+                const circleEl = el.querySelector("circle");
+                circleEl.style.stroke = "#fd984399";
+                circleEl.style.strokeWidth = "4px";
+
+                const pathEl = el.querySelector("path");
+                pathEl.style.stroke = "#fd984399";
+                pathEl.style.strokeWidth = "4px";
+            });
+        });
+        target.addEventListener("mouseout", () => {
+            Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
+                const circleEl = el.querySelector("circle");
+                circleEl.style.stroke = circleEl.dataset.defaultStrokeColor;
+                circleEl.style.strokeWidth = circleEl.dataset.defaultStrokeWidth;
+
+                const pathEl = el.querySelector("path");
+                pathEl.style.stroke = pathEl.dataset.defaultStrokeColor;
+                pathEl.style.strokeWidth = pathEl.dataset.defaultStrokeWidth;
+            });
+        });
+    },
+
     parseVariantsList(data = [], transcript, protein, type) {
         switch (type) {
             case this.TRACK_TYPES.VARIANTS:
@@ -316,6 +341,8 @@ export default {
                             "data-id": info.variantId,
                             "data-index": index,
                             "data-ct": consequenceType,
+                            "data-position": info.position,
+                            "style": "opacity:1;",
                         });
 
                         // Lollipop line
@@ -324,6 +351,8 @@ export default {
                             "fill": "none",
                             "stroke": color,
                             "stroke-width": "1px",
+                            "data-default-stroke-color": color,
+                            "data-default-stroke-width": "1px",
                         });
 
                         // Lollipop circle
@@ -334,6 +363,8 @@ export default {
                             "fill": color,
                             "stroke": "#fff",
                             "stroke-width": "2px",
+                            "data-default-stroke-color": "#fff",
+                            "data-default-stroke-width": "2px",
                         });
 
                         // Lollipop ID text
@@ -351,6 +382,9 @@ export default {
                             content: "Lollipop tooltip content",
                             width: "120px",
                         });
+
+                        // Register hover and out events for highlighting matches
+                        this.variantsHighlighterByPosition(parent, circleElement, info.position, {});
 
                         // Update track max height, using the size of the variant ID
                         maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
@@ -532,6 +566,7 @@ export default {
                     const lollipopGroup = SVG.addChild(group, "g", {
                         "data-ct": consequenceType,
                         "data-index": index,
+                        "data-position": info.position,
                         "style": "opacity:1;",
                     });
 
@@ -541,6 +576,8 @@ export default {
                         "fill": "none",
                         "stroke": color,
                         "stroke-width": "1px",
+                        "data-default-stroke-color": color,
+                        "data-default-stroke-width": "1px",
                     });
 
                     // Lollipop circle
@@ -551,6 +588,8 @@ export default {
                         "fill": color,
                         "stroke": "#fff",
                         "stroke-width": "1px",
+                        "data-default-stroke-color": "#fff",
+                        "data-default-stroke-width": "1px",
                     });
 
                     if (track.type === this.TRACK_TYPES.VARIANTS) {
