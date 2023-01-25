@@ -171,16 +171,18 @@ export default {
         target.addEventListener("mouseover", () => {
             Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
                 const circleEl = el.querySelector("circle");
-                circleEl.style.stroke = "#fd984399";
-                circleEl.style.strokeWidth = "4px";
+                circleEl.style.stroke = config.strokeColor;
+                circleEl.style.strokeWidth = config.strokeWidth;
 
                 const pathEl = el.querySelector("path");
-                pathEl.style.stroke = "#fd984399";
-                pathEl.style.strokeWidth = "4px";
+                pathEl.style.stroke = config.strokeColor;
+                pathEl.style.strokeWidth = config.strokeWidth;
             });
         });
         target.addEventListener("mouseout", () => {
             Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
+                // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
+                // attribute in the element
                 const circleEl = el.querySelector("circle");
                 circleEl.style.stroke = circleEl.dataset.defaultStrokeColor;
                 circleEl.style.strokeWidth = circleEl.dataset.defaultStrokeWidth;
@@ -384,7 +386,10 @@ export default {
                         });
 
                         // Register hover and out events for highlighting matches
-                        this.variantsHighlighterByPosition(parent, circleElement, info.position, {});
+                        this.variantsHighlighterByPosition(parent, circleElement, info.position, {
+                            strokeColor: config.highlightStrokeColor,
+                            strokeWidth: config.highlightStrokeWidth,
+                        });
 
                         // Update track max height, using the size of the variant ID
                         maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
@@ -697,6 +702,8 @@ export default {
             trackSeparationHeight: 10,
             legendHeight: 20,
             emptyHeight: 40,
+            highlightStrokeColor: "#fd984399",
+            highlightStrokeWidth: "4px",
         };
     },
 
