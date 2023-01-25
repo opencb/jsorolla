@@ -460,7 +460,7 @@ export default {
             this.generateTrackInfo(group, {
                 title: "PROTEIN",
                 additionalLines: [
-                    protein.proteinId,
+                    transcript.proteinId,
                 ],
                 translateX: -config.trackInfoPadding,
                 translateY: -config.proteinHeight,
