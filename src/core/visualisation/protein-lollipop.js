@@ -185,6 +185,7 @@ export default {
                                 title: `${(annotation.reference || "-")}${annotation.position}${(annotation.alternate || "-")}`,
                                 type: ct.sequenceOntologyTerms?.[0]?.name || "other",
                                 variant: variant,
+                                consequenceType: ct,
                             };
                         }
                         return info;
@@ -209,6 +210,12 @@ export default {
             default:
                 return [];
         }
+    },
+
+    lollipopTooltipFormatter(variant, consequenceType) {
+        return `
+            <div><strong>Position</strong>: ${consequenceType.proteinVariantAnnotation.position}</div>
+        `;
     },
 
     exonsTooltipFormatter(exon) {
@@ -369,11 +376,13 @@ export default {
                         });
 
                         // Add tooltip to the circle
-                        VizUtils.createTooltip(circleElement, {
-                            title: `Lollipop ${index}`,
-                            content: "Lollipop tooltip content",
-                            width: "120px",
-                        });
+                        if (config.lollipopTooltipVisible && typeof config.lollipopTooltipFormatter === "function") {
+                            VizUtils.createTooltip(circleElement, {
+                                title: info.variant.id,
+                                content: config.lollipopTooltipFormatter(info.variant, info.consequenceType),
+                                width: config.lollipopTooltipWidth,
+                            });
+                        }
 
                         // Register hover and out events for highlighting matches
                         circleElement.addEventListener("mouseover", () => {
@@ -728,6 +737,9 @@ export default {
             showProteinStructure: true,
             showProteinLollipops: true,
             showLegend: true,
+            lollipopTooltipVisible: true,
+            lollipopTooltipWidth: "120px",
+            lollipopTooltipFormatter: this.lollipopTooltipFormatter,
             proteinHeight: 40,
             proteinFeatures: [
                 "domain",
