@@ -238,6 +238,14 @@ export default {
         }
     },
 
+    exonsTooltipFormatter(exon) {
+        return `
+            <div><strong>cdsStart</strong>: ${exon.cdsStart}</div>
+            <div><strong>cdsEnd</strong>: ${exon.cdsEnd}</div>
+            <div><strong>phase</strong>: ${exon.phase}</div>
+        `;
+    },
+
     // Draw protein visualization
     draw(target, transcript, protein, variants, customConfig) {
         const prefix = UtilsNew.randomString(8);
@@ -502,21 +510,19 @@ export default {
                     });
 
                     // Add mask for displaying exon tooltip
-                    const exonMask = SVG.addChild(group, "path", {
-                        "d": `M${startPosition},-${config.proteinHeight}H${endPosition}V0H${startPosition}Z`,
-                        "fill": "transparent",
-                        "stroke": "none",
-                    });
+                    if (typeof config.proteinExonsTooltipFormatter === "function") {
+                        const exonMask = SVG.addChild(group, "path", {
+                            "d": `M${startPosition},-${config.proteinHeight}H${endPosition}V0H${startPosition}Z`,
+                            "fill": "transparent",
+                            "stroke": "none",
+                        });
 
-                    VizUtils.createTooltip(exonMask, {
-                        title: exon.id,
-                        content: `
-                            <div><strong>cdsStart</strong>: ${exon.cdsStart}</div>
-                            <div><strong>cdsEnd</strong>: ${exon.cdsEnd}</div>
-                            <div><strong>phase</strong>: ${exon.phase}</div>
-                        `,
-                        width: "150px",
-                    });
+                        VizUtils.createTooltip(exonMask, {
+                            title: exon.id,
+                            content: config.proteinExonsTooltipFormatter(exon),
+                            width: config.proteinExonsTooltipWidth,
+                        });
+                    }
                 }
             });
 
@@ -695,6 +701,9 @@ export default {
                 "domain",
                 "region of interest",
             ],
+            proteinExonsVisible: true,
+            proteinExonsTooltipFormatter: this.exonsTooltipFormatter,
+            proteinExonsTooltipWidth: "150px",
             tracks: [],
             trackInfoWidth: 120,
             trackInfoPadding: 12,
