@@ -255,20 +255,21 @@ export default {
         const getPixelPosition = p => Math.min(p, proteinLength) * width / proteinLength;
 
         // Container for all tracks
-        const tracks = SVG.addChild(svg, "g", {
+        const container = SVG.addChild(svg, "g", {
             "transform": `translate(${config.padding + config.trackInfoWidth}, 0)`,
         });
 
         // Vertical rule for displaying position
-        const rule = SVG.addChild(tracks, "g", {
+        const rule = SVG.addChild(container, "g", {
             "transform": "",
             "style": "display:none;",
         });
 
         if (config.showProteinScale) {
             offset = offset + 25;
-            const group = SVG.addChild(svg, "g", {
-                "transform": `translate(${config.padding + config.trackInfoWidth},${offset})`,
+            const group = SVG.addChild(container, "g", {
+                // "transform": `translate(${config.padding + config.trackInfoWidth},${offset})`,
+                "transform": `translate(0, ${offset})`,
             });
 
             // Append scale ticks
@@ -313,7 +314,7 @@ export default {
 
         // Show protein lollipops track
         if (config.showProteinLollipops) {
-            const group = SVG.addChild(svg, "g", {});
+            const group = SVG.addChild(container, "g", {});
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
             const lollipopsVariants = this.parseVariantsList(variants, transcript, protein, this.TRACK_TYPES.VARIANTS);
@@ -436,7 +437,8 @@ export default {
 
             // Update the lollipop track position
             offset = offset + maxHeight;
-            group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+            // group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+            group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display lollipops legend
             if (config.showLegend && Object.keys(variantsCounts).length > 0) {
@@ -474,8 +476,9 @@ export default {
 
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
-            const group = SVG.addChild(svg, "g", {
-                "transform": `translate(${config.padding + config.trackInfoWidth}, ${offset})`,
+            const group = SVG.addChild(container, "g", {
+                // "transform": `translate(${config.padding + config.trackInfoWidth}, ${offset})`,
+                "transform": `translate(0, ${offset})`,
             });
 
             // Append protein domains
@@ -570,7 +573,7 @@ export default {
 
         // Render additional tracks
         (config.tracks || []).forEach(track => {
-            const group = SVG.addChild(svg, "g", {});
+            const group = SVG.addChild(container, "g", {});
             const trackType = track.type || this.TRACK_TYPES.VARIANTS;
             let trackHeight = 40; // Track maximum height
             const countsByConsequenceType = {};
@@ -659,7 +662,8 @@ export default {
             }
 
             offset = offset + trackHeight + config.trackSeparationHeight;
-            group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+            // group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
+            group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
             if (track.type === this.TRACK_TYPES.VARIANTS && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
