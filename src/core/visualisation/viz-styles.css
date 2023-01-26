@@ -24,6 +24,8 @@
 }
 .viz-tooltip-title {
     font-weight: bold;
+    overflow: hidden;
+    width: 100%;
 }
 .viz-tooltip-title:not(:last-child) {
     margin-bottom: 4px;
