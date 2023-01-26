@@ -205,12 +205,13 @@ export default {
                         });
 
                         if (ct && ct.proteinVariantAnnotation?.position) {
+                            const annotation = ct.proteinVariantAnnotation;
                             info = {
-                                variantId: variant.id,
+                                id: variant.id,
                                 position: ct.proteinVariantAnnotation.position,
-                                reference: ct.proteinVariantAnnotation.reference,
-                                alternate: ct.proteinVariantAnnotation.alternate,
-                                sequenceOntologyTerms: ct.sequenceOntologyTerms,
+                                title: `${(annotation.reference || "-")}${annotation.position}${(annotation.alternate || "-")}`,
+                                type: ct.sequenceOntologyTerms?.[0]?.name || "other",
+                                variant: variant,
                             };
                         }
                         return info;
@@ -222,12 +223,11 @@ export default {
                     .filter(item => {
                         return protein.sequence?.value?.[item.aminoacidPosition - 1] === item.aminoacidReference;
                     })
-                    .map(item => {
+                    .map((item, index) => {
                         return {
-                            variantId: "",
+                            id: index,
                             position: item.aminoacidPosition,
-                            reference: item.aminoacidReference,
-                            alternate: "",
+                            cancerHotspot: item,
                         };
                     });
 
@@ -343,14 +343,14 @@ export default {
                     .forEach((x1, index) => {
                         const info = lollipopsVariants[index];
                         const x0 = getPixelPosition(info.position);
-                        const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
-                        const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
+                        const consequenceType = info.type; // sequenceOntologyTerms?.[0]?.name || "other";
+                        const color = this.CONSEQUENCE_TYPES_COLORS[info.type] || this.CONSEQUENCE_TYPES_COLORS.other;
 
                         // We will generate a new group to wrap all lollipop elements
                         const lollipopGroup = SVG.addChild(group, "g", {
-                            "data-id": info.variantId,
+                            "data-id": info.variant.id,
                             "data-index": index,
-                            "data-ct": consequenceType,
+                            "data-ct": info.type,
                             "data-position": info.position,
                             "style": "opacity:1;",
                         });
@@ -378,8 +378,7 @@ export default {
                         });
 
                         // Lollipop ID text
-                        const id = `${(info.reference || "-")}${info.position}${(info.alternate || "-")}`;
-                        const text = SVG.addChildText(lollipopGroup, id, {
+                        const text = SVG.addChildText(lollipopGroup, info.title, {
                             "fill": color,
                             "text-anchor": "start",
                             "dominant-baseline": "middle",
@@ -403,10 +402,10 @@ export default {
                         maxHeight = Math.max(maxHeight, 100 + text.getBBox().width);
 
                         // Add the consequence type of this variant to the legend
-                        if (typeof variantsCounts[consequenceType] !== "number") {
-                            variantsCounts[consequenceType] = 0;
+                        if (typeof variantsCounts[info.type] !== "number") {
+                            variantsCounts[info.type] = 0;
                         }
-                        variantsCounts[consequenceType]++;
+                        variantsCounts[info.type]++;
                     });
             } else {
                 // No variants to display
@@ -571,11 +570,19 @@ export default {
             if (lollipopsVariants.length > 0) {
                 lollipopsVariants.forEach((info, index) => {
                     const x = getPixelPosition(info.position);
-                    const consequenceType = info.sequenceOntologyTerms?.[0]?.name || "other";
-                    const color = this.CONSEQUENCE_TYPES_COLORS[consequenceType] || this.CONSEQUENCE_TYPES_COLORS.other;
+
+                    // Get item color using the trackType
+                    let color = null;
+                    switch (trackType) {
+                        case this.TRACK_TYPES.VARIANTS:
+                            color = this.CONSEQUENCE_TYPES_COLORS[info.type];
+                            break;
+                        default:
+                            color = this.CONSEQUENCE_TYPES_COLORS.other;
+                    }
 
                     const lollipopGroup = SVG.addChild(group, "g", {
-                        "data-ct": consequenceType,
+                        "data-ct": info.type || "",
                         "data-index": index,
                         "data-position": info.position,
                         "style": "opacity:1;",
@@ -604,10 +611,10 @@ export default {
                     });
 
                     if (track.type === this.TRACK_TYPES.VARIANTS) {
-                        if (typeof countsByConsequenceType[consequenceType] !== "number") {
-                            countsByConsequenceType[consequenceType] = 0;
+                        if (typeof countsByConsequenceType[info.type] !== "number") {
+                            countsByConsequenceType[info.type] = 0;
                         }
-                        countsByConsequenceType[consequenceType]++;
+                        countsByConsequenceType[info.type]++;
                     }
                 });
             } else {
