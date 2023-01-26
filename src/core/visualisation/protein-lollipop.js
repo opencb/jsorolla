@@ -343,7 +343,6 @@ export default {
                     .forEach((x1, index) => {
                         const info = lollipopsVariants[index];
                         const x0 = getPixelPosition(info.position);
-                        const consequenceType = info.type; // sequenceOntologyTerms?.[0]?.name || "other";
                         const color = this.CONSEQUENCE_TYPES_COLORS[info.type] || this.CONSEQUENCE_TYPES_COLORS.other;
 
                         // We will generate a new group to wrap all lollipop elements
@@ -495,35 +494,37 @@ export default {
                 });
 
             // Add exons separators
-            (transcript.exons || []).forEach(exon => {
-                if (exon.cdsEnd > 0) {
-                    const startPosition = getPixelPosition(exon.cdsStart / 3);
-                    const endPosition = getPixelPosition(exon.cdsEnd / 3);
+            if (config.proteinExonsVisible) {
+                (transcript.exons || []).forEach(exon => {
+                    if (exon.cdsEnd > 0) {
+                        const startPosition = getPixelPosition(exon.cdsStart / 3);
+                        const endPosition = getPixelPosition(exon.cdsEnd / 3);
 
-                    SVG.addChild(group, "path", {
-                        "d": `M${endPosition - 0.5},-${config.proteinHeight - 0.5}V0.5`,
-                        "fill": "none",
-                        "stroke": "#212529",
-                        "stroke-width": "1px",
-                        "stroke-dasharray": "3",
-                    });
-
-                    // Add mask for displaying exon tooltip
-                    if (typeof config.proteinExonsTooltipFormatter === "function") {
-                        const exonMask = SVG.addChild(group, "path", {
-                            "d": `M${startPosition},-${config.proteinHeight}H${endPosition}V0H${startPosition}Z`,
-                            "fill": "transparent",
-                            "stroke": "none",
+                        SVG.addChild(group, "path", {
+                            "d": `M${endPosition - 0.5},-${config.proteinHeight - 0.5}V0.5`,
+                            "fill": "none",
+                            "stroke": "#212529",
+                            "stroke-width": "1px",
+                            "stroke-dasharray": "3",
                         });
 
-                        VizUtils.createTooltip(exonMask, {
-                            title: exon.id,
-                            content: config.proteinExonsTooltipFormatter(exon),
-                            width: config.proteinExonsTooltipWidth,
-                        });
+                        // Add mask for displaying exon tooltip
+                        if (typeof config.proteinExonsTooltipFormatter === "function") {
+                            const exonMask = SVG.addChild(group, "path", {
+                                "d": `M${startPosition},-${config.proteinHeight}H${endPosition}V0H${startPosition}Z`,
+                                "fill": "transparent",
+                                "stroke": "none",
+                            });
+
+                            VizUtils.createTooltip(exonMask, {
+                                title: exon.id,
+                                content: config.proteinExonsTooltipFormatter(exon),
+                                width: config.proteinExonsTooltipWidth,
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // Generate protein rectangle
             SVG.addChild(group, "path", {
