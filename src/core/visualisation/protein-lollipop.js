@@ -167,33 +167,6 @@ export default {
         });
     },
 
-    variantsHighlighterByPosition(parent, target, position, config) {
-        target.addEventListener("mouseover", () => {
-            Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
-                const circleEl = el.querySelector("circle");
-                circleEl.style.stroke = config.strokeColor;
-                circleEl.style.strokeWidth = config.strokeWidth;
-
-                const pathEl = el.querySelector("path");
-                pathEl.style.stroke = config.strokeColor;
-                pathEl.style.strokeWidth = config.strokeWidth;
-            });
-        });
-        target.addEventListener("mouseout", () => {
-            Array.from(parent.querySelectorAll(`g[data-position="${position}"]`)).forEach(el => {
-                // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
-                // attribute in the element
-                const circleEl = el.querySelector("circle");
-                circleEl.style.stroke = circleEl.dataset.defaultStrokeColor;
-                circleEl.style.strokeWidth = circleEl.dataset.defaultStrokeWidth;
-
-                const pathEl = el.querySelector("path");
-                pathEl.style.stroke = pathEl.dataset.defaultStrokeColor;
-                pathEl.style.strokeWidth = pathEl.dataset.defaultStrokeWidth;
-            });
-        });
-    },
-
     parseVariantsList(data = [], transcript, protein, type) {
         switch (type) {
             case this.TRACK_TYPES.VARIANTS:
@@ -280,6 +253,17 @@ export default {
 
         // Tiny utility to calculate the position in px from the given protein coordinate
         const getPixelPosition = p => Math.min(p, proteinLength) * width / proteinLength;
+
+        // Container for all tracks
+        const tracks = SVG.addChild(svg, "g", {
+            "transform": `translate(${config.padding + config.trackInfoWidth}, 0)`,
+        });
+
+        // Vertical rule for displaying position
+        const rule = SVG.addChild(tracks, "g", {
+            "transform": "",
+            "style": "display:none;",
+        });
 
         if (config.showProteinScale) {
             offset = offset + 25;
@@ -392,9 +376,34 @@ export default {
                         });
 
                         // Register hover and out events for highlighting matches
-                        this.variantsHighlighterByPosition(parent, circleElement, info.position, {
-                            strokeColor: config.highlightStrokeColor,
-                            strokeWidth: config.highlightStrokeWidth,
+                        circleElement.addEventListener("mouseover", () => {
+                            Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
+                                [el.querySelector("circle"), el.querySelector("path")].forEach(childEl => {
+                                    // eslint-disable-next-line no-param-reassign
+                                    childEl.style.stroke = config.highlightStrokeColor;
+                                    // eslint-disable-next-line no-param-reassign
+                                    childEl.style.strokeWidth = config.highlightStrokeWidth;
+                                });
+
+                                // Show and translate rule element
+                                rule.style.display = "";
+                                rule.setAttribute("transform", `translate(${getPixelPosition(info.position)},0)`);
+                            });
+                        });
+                        circleElement.addEventListener("mouseout", () => {
+                            Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
+                                // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
+                                // attribute in the element
+                                [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
+                                    // eslint-disable-next-line no-param-reassign
+                                    child.style.stroke = child.dataset.defaultStrokeColor;
+                                    // eslint-disable-next-line no-param-reassign
+                                    child.style.strokeWidth = child.dataset.defaultStrokeWidth;
+                                });
+
+                                // Hide rule
+                                rule.style.display = "none";
+                            });
                         });
 
                         // Update track max height, using the size of the variant ID
@@ -693,6 +702,21 @@ export default {
         // We need to update the SVG height with the total height of all tracks
         svg.setAttribute("height", `${offset + 1}px`);
 
+        // Generate rule content
+        SVG.addChild(rule, "path", {
+            "d": `M-0.5,0V${offset}`,
+            "fill": "none",
+            "stroke": config.positionRuleColor,
+            "stroke-width": config.positionRuleWidth,
+            "stroke-opacity": "0.75",
+            "stroke-dasharray": "3",
+        });
+        SVG.addChild(rule, "path", {
+            "d": "M-0.5,8L-5.5,0L5,0Z",
+            "fill": config.positionRuleColor,
+            "stroke": "none",
+        });
+
         return svg;
     },
 
@@ -721,6 +745,9 @@ export default {
             emptyHeight: 40,
             highlightStrokeColor: "#fd984399",
             highlightStrokeWidth: "4px",
+            positionRuleVisible: true,
+            positionRuleColor: "#909294",
+            positionRuleWidth: "1px",
         };
     },
 
