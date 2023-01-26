@@ -268,7 +268,6 @@ export default {
         if (config.showProteinScale) {
             offset = offset + 25;
             const group = SVG.addChild(container, "g", {
-                // "transform": `translate(${config.padding + config.trackInfoWidth},${offset})`,
                 "transform": `translate(0, ${offset})`,
             });
 
@@ -437,7 +436,6 @@ export default {
 
             // Update the lollipop track position
             offset = offset + maxHeight;
-            // group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display lollipops legend
@@ -477,7 +475,6 @@ export default {
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(container, "g", {
-                // "transform": `translate(${config.padding + config.trackInfoWidth}, ${offset})`,
                 "transform": `translate(0, ${offset})`,
             });
 
@@ -662,7 +659,6 @@ export default {
             }
 
             offset = offset + trackHeight + config.trackSeparationHeight;
-            // group.setAttribute("transform", `translate(${config.padding + config.trackInfoWidth}, ${offset})`);
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
