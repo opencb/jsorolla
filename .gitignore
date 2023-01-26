@@ -57,4 +57,5 @@ local.properties
 screenshots
 videos
 mochawesome-report
+cypress/reports
 

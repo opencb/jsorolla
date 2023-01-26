@@ -10,7 +10,7 @@ describe("Data Form Component", () => {
 
     it("should has a title", () => {
         cy.get("#data-form")
-            .find("h3", "General Information", {matchCase: false});
+            .find("div", "General Information");
     });
 
     it("should be render string field", () => {
@@ -113,7 +113,7 @@ describe("Data Form Component", () => {
             .should("be.visible");
     });
 
-    it.("should be render object fields", () => {
+    it("should be render object fields", () => {
         cy.log("check if object list is visible");
         UtilsTest.getByDataTest("test1-inputObject.list")
             .should("be.visible");
