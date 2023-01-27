@@ -188,11 +188,11 @@ export default class OpencgaGeneView extends LitElement {
     render() {
         if (!this.geneId || !this.opencgaSession) {
             return html`
-                <div class="container-fluid">
+                <div class="container-fluid" style="margin-top:32px;">
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
                             <div class="alert alert-warning">
-                                No gene provided.
+                                <i class="fas fa-exclamation-triangle icon-padding"></i> No gene provided.
                             </div>
                         </div>
                     </div>
@@ -206,18 +206,17 @@ export default class OpencgaGeneView extends LitElement {
 
         return html`
             <tool-header
-                title="${`Gene <span class="inverse">${this.gene.name}</span>`}"
-                icon="${this.config?.icon}">
+                .title="${`Gene <span class="inverse">${this.gene.name}</span>`}"
+                .icon="${this.config?.icon}"
+                .rhs="${html`
+                    <button type="button" class="btn btn-default" @click="${() => this.showBrowser()}">
+                        <i class="fas fa-dna icon-padding"></i> Variant Browser
+                    </button>
+                `}">
             </tool-header>
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
-                        <div style="float: right;padding: 10px 5px 10px 5px">
-                            <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
-                                <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
-                            </button>
-                        </div>
-
                         <div class="row" style="padding: 5px 0px 25px 0px">
                             <div class="col-md-4">
                                 <h3 class="section-title">Summary</h3>
@@ -308,7 +307,7 @@ export default class OpencgaGeneView extends LitElement {
                             </ul>
                         ` : null}
 
-                        <div class="tab-content" style="height: 1024px">
+                        <div class="tab-content" style="margin-bottom:32px;">
                             <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
                                 <div class="btn-group" role="group" style="padding-top:16px;">
                                     <button type="button" class="btn btn-primary active" data-value="all" @click="${this.updateQuery}">
