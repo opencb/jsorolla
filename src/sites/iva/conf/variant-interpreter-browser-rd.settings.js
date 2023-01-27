@@ -50,6 +50,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
+/*
         highlights: [
             {
                 id: "Low depth variant",
@@ -70,6 +71,28 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                 },
             }
         ],
+*/
+        highlights: [
+            {
+                id: "highlightVariantDP",
+                //description: "Highlight variants with a DP<20",
+                active: true,
+                //name: "Low depth variant (DP<20)",
+                limit: 20,
+                param: "DP",
+                comparator: "lt",
+                paramDescription: "Low depth variant",
+                description: "Highlight variants with a ",
+                style: {
+                    // Row style
+                    // rowBackgroundColor: "#ededed",
+                    rowOpacity: 0.5,
+                },
+            }
+        ],
+        activeHighlights: ["highlightVariantDP"],
+
+
         copies: [
             {
                 id: "copyEpic",

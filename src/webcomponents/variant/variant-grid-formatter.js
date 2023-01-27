@@ -114,7 +114,9 @@ export default class VariantGridFormatter {
         if (config?.highlights && config.activeHighlights) {
             iconHighlights = config.activeHighlights.map(id => {
                 const highlight = config.highlights.find(item => item.id === id);
-                if (highlight.condition(row, index) && highlight.style?.icon) {
+                debugger
+                // if (highlight.condition(row, index) && highlight.style?.icon) {
+                if (CUSTOM_ACTIONS[highlight.id].condition(row, highlight) && highlight.style?.icon) {
                     const description = highlight.description || highlight.name || "";
                     const icon = highlight.style.icon;
                     const color = highlight.style.iconColor || "";

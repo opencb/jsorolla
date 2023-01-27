@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 2 */// --> ON
+
 const {defineConfig} = require("cypress");
 
 module.exports = defineConfig({
@@ -10,8 +12,8 @@ module.exports = defineConfig({
         charts:true,
         embeddedScreenshots:true,
         timestamp: "ddmmyyyyhhmmss",
-        reportFilename:"[status]_[datetime]-[name]-report",
-        reportPageTitle:"Jsorolla Report Test",
+        reportFilename: "[status]_[datetime]-[name]-report",
+        reportPageTitle: "Jsorolla Report Test",
         reportDir: "cypress/reports",
         overwrite: false,
         html: false,
@@ -19,7 +21,7 @@ module.exports = defineConfig({
     },
     e2e: {
         baseUrl: "http://localhost:3000/src/sites/test-app/",
-        setupNodeEvents(on,config) {
+        setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
         }
     },

@@ -1,4 +1,26 @@
+const comparators = {
+    "eq": (a, b) => a === b,
+    "gt": (a, b) => a > b,
+    "lt": (a, b) => a < b,
+};
+
 const CUSTOM_ACTIONS = {
+
+    highlightVariant: {
+        version: "2.4.0",
+        permission: "admin",
+        // name: "Low depth variant (DP<20)",
+        // description: "Highlight variants with a DP<20",
+        condition: (variant, highlight) => {
+            const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === highlight.param);
+            if (index > -1) {
+                const value = Number(variant.studies[0].samples[0]?.data[index]);
+                return comparators[highlight.comparator](value, highlight.limit);
+            } else {
+                return false;
+            }
+        },
+    },
 
     copyEpic: {
         version: "2.4.0",
@@ -10,7 +32,7 @@ const CUSTOM_ACTIONS = {
         // COSMIC ID: COSV55386424
         // dbSNP: rs121913507
         // Allele Frequency (VAF): 70.6%
-        execute: (variant, showConsequenceTypes) => {
+        execute: (variant, showConsequenceTypes, copy) => {
             const annotation = variant.annotation;
 
             const selectedEvidences = [];

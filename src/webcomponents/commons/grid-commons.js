@@ -249,7 +249,29 @@ export default class GridCommons {
     }
 
     rowHighlightStyle(row, index) {
+
+        if (!this.config.highlights) {
+            return {};
+        }
+
+        let rowStyle = {};
+        this.config.highlights.forEach(highlight => {
+            if (highlight.active) {
+                debugger
+                if (CUSTOM_ACTIONS[highlight.id].condition(row, highlight)) {
+                    rowStyle = {
+                        css: {
+                            "background-color": highlight.style?.rowBackgroundColor || "",
+                            "opacity": highlight.style?.rowOpacity,
+                        },
+                    };
+                }
+            }
+        });
+        return rowStyle;
+
         // If no active highlight
+        /*
         if (!this.config.highlights || !this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
             return {};
         }
@@ -270,6 +292,7 @@ export default class GridCommons {
 
         // Return background color for this row
         return rowStyle;
+        */
     }
 
 }

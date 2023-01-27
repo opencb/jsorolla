@@ -16,7 +16,7 @@
     "browser": true,
     "es6": true
   },
-  "eslintIgnore": ["cypress.config.js"],
+  // "eslintIgnore": ["cypress.config.js"],
   "rules": {
     "indent": ["error", 4, {
       "SwitchCase": 1,
