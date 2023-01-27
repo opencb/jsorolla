@@ -842,7 +842,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 // Check if the copy object has an execute function, this prevents two possible scenarios:
                                 // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
                                 // 2. an incorrect copy configuration
-                                if (copy.execute) {
+                                if (copy.execute || CUSTOM_ACTIONS[copy.id].execute) {
                                     copiesHtml = `
                                         <li>
                                             <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
@@ -1251,7 +1251,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
             default:
-                const copy = this._config.copies.find(copy => copy.id === action);
+                const copy = this._config.copies.find(copy => copy.id.toLowerCase() === action);
                 if (copy) {
                     // Sort and group CTs by Gene name
                     BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
@@ -1275,7 +1275,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     });
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
-                    UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
+                    // UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
+                    UtilsNew.copyToClipboard(CUSTOM_ACTIONS[copy.id].execute(row, showArrayIndexes));
                 }
                 break;
         }

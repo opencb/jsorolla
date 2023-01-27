@@ -69,6 +69,13 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                     rowOpacity: 0.5,
                 },
             }
+        ],
+        copies: [
+            {
+                id: "copyEpic",
+                name: "Copy EGLH Epic",
+                description: "Description of the Schema",
+            }
         ]
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
