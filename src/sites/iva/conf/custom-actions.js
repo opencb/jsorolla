@@ -2,6 +2,7 @@ const CUSTOM_ACTIONS = {
 
     copyEpic: {
         version: "2.4.0",
+        permission: "admin",
         // All the fields defined by the own user team schema. For instance:
         // KIT missense_variant in exon 17
         // HGVSc: c.2447A>T

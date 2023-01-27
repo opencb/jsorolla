@@ -842,6 +842,11 @@ export default class VariantInterpreterGrid extends LitElement {
                                 // Check if the copy object has an execute function, this prevents two possible scenarios:
                                 // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
                                 // 2. an incorrect copy configuration
+
+                                // Ideas:
+                                // CustomActions.check(copy)
+                                // CustomActions.checkVersion(copy)
+                                // CustomActions.get(copy).execute(variant, showConsequenceTypes)
                                 if (copy.execute || CUSTOM_ACTIONS[copy.id].execute) {
                                     copiesHtml = `
                                         <li>
