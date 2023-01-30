@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
 import "../variant/variant-browser-detail.js";
+import "../visualization/protein-lollipop.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils";
@@ -41,9 +42,6 @@ export default class OpencgaGeneView extends LitElement {
                 type: Object
             },
             cellbaseClient: {
-                type: Object
-            },
-            opencgaClient: {
                 type: Object
             },
             geneId: {
@@ -353,14 +351,11 @@ export default class OpencgaGeneView extends LitElement {
                                 ` : ""}
                             </div>
                             <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                                <variant-protein-view
+                                <protein-lollipop
                                     .opencgaSession="${this.opencgaSession}"
-                                    .opencgaClient="${this.opencgaClient}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .gene="${this.gene}"
-                                    .config="${OPENCGA_GENE_VIEW_SETTINGS.protein}"
-                                    .summary="${this.summary}">
-                                </variant-protein-view>
+                                    .geneId="${this.gene.id}"
+                                    .active="${true}">
+                                </protein-lollipop>
                             </div>
                         </div>
                     </div>
