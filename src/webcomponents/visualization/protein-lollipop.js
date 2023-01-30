@@ -107,6 +107,20 @@ export default class ProteinLollipop extends LitElement {
             });
     }
 
+    getVariants() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            xref: this.geneId,
+            ct: ProteinLollipopViz.CONSEQUENCE_TYPES.join(","),
+            ...this.query,
+        };
+
+        return this.opencgaSession.opencgaClient.clinical().queryVariant(params)
+            .then(response => {
+                return response.responses?.[0]?.results || [];
+            });
+    }
+
     async drawProteinLollipop() {
         if (this.active && this.opencgaSession && this.geneId && !this.rendered) {
             this.error = null;
@@ -127,7 +141,13 @@ export default class ProteinLollipop extends LitElement {
                 return this.requestUpdate();
             }
 
+            // Get variants data
+            const variants = await this.getVariants();
 
+            // Render protein lollipop
+            ProteinLollipopViz.draw(target, transcript, protein, variants, {
+                title: this._config.title,
+            });
             this.requestUpdate();
         }
     }
@@ -144,7 +164,9 @@ export default class ProteinLollipop extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            title: "Variants"
+        };
     }
 
 }
