@@ -50,48 +50,35 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
-/*
         highlights: [
             {
-                id: "Low depth variant",
+                id: "highlightVariantDefault",
                 name: "Low depth variant (DP<20)",
                 description: "Highlight variants with a DP<20",
-                condition: variant => {
-                    const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === "DP");
-                    if (index > -1) {
-                        return Number(variant.studies[0].samples[0]?.data[index]) < 20;
-                    } else {
-                        return false;
-                    }
-                },
+                filters: ["DP<20", "GQX<10"],
+                // filters: ["GQX<10", "GT==0/1"],
+                // filters: ["FILTER==LowGQX"],
+                active: true,
                 style: {
                     // Row style
                     rowBackgroundColor: "#ededed",
                     rowOpacity: 0.5,
                 },
-            }
-        ],
-*/
-        highlights: [
+            },
             {
-                id: "highlightVariantDP",
-                //description: "Highlight variants with a DP<20",
-                active: true,
-                //name: "Low depth variant (DP<20)",
-                limit: 20,
-                param: "DP",
-                comparator: "lt",
-                paramDescription: "Low depth variant",
-                description: "Highlight variants with a ",
+                id: "highlightVariantDefault",
+                name: "Low QUAL variant (QUAL<10)",
+                description: "Low QUAL variant with a QUAL<10",
+                filters: ["QUAL<10"],
+                active: false,
                 style: {
                     // Row style
-                    // rowBackgroundColor: "#ededed",
+                    rowBackgroundColor: "#d28888",
                     rowOpacity: 0.5,
                 },
-            }
+            },
         ],
-        activeHighlights: ["highlightVariantDP"],
-
+        activeHighlights: ["highlightVariantDefault"],
 
         copies: [
             {

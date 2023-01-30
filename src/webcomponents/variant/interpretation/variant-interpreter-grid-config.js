@@ -101,6 +101,21 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     getConfigForm() {
+        // const highlightElements = [];
+        // if (this.config.highlights?.length > 0) {
+        //     for (const highlight of this.config.highlights) {
+        //         highlightElements.push({
+        //             field: "highlights[].active",
+        //             type: "checkbox",
+        //             text: highlight.name,
+        //             display: {
+        //                 containerStyle: "margin: 10px 5px",
+        //                 // disabled: () => this.config?.consequenceType?.all
+        //             }
+        //         });
+        //     }
+        // }
+
         return {
             id: "interpreter-grid-config",
             title: "",
@@ -332,10 +347,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     elements: [
                         {
                             title: "Configure the highlight to apply to displayed variant rows",
-                            field: "activeHighlights",
+                            field: "highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.highlights?.map(highlight => highlight.id) || [],
+                            allowedValues: this.config?.highlights?.map(highlight => highlight.name) || [],
+                            defaultValue: "highlightVariantDefault",
                             display: {
                                 visible: () => (this.config?.highlights || []).length > 0,
                             },
@@ -348,6 +364,21 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 visible: () => (this.config?.highlights || []).length === 0,
                             },
                         },
+                        // {
+                        //     title: "Highlights",
+                        //     field: "highlights",
+                        //     type: "object-list",
+                        //     display: {
+                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                        //         collapsedUpdate: true,
+                        //         view: phenotype => html`
+                        //             <div>${phenotype.id} - ${phenotype?.name}</div>
+                        //             <div class="help-block">${phenotype?.description}</div>`,
+                        //     },
+                        //     elements: [
+                        //         ...highlightElements
+                        //     ]
+                        // }
                     ],
                 },
             ]

@@ -249,16 +249,16 @@ export default class GridCommons {
     }
 
     rowHighlightStyle(row, index) {
-
-        if (!this.config.highlights) {
+        // Check if highlights have been configured
+        if (!this.config.highlights?.length === 0) {
             return {};
         }
 
         let rowStyle = {};
-        this.config.highlights.forEach(highlight => {
-            if (highlight.active) {
-                debugger
-                if (CUSTOM_ACTIONS[highlight.id].condition(row, highlight)) {
+        this.config.highlights
+            .filter(highlight => highlight.active)
+            .forEach(highlight => {
+                if (CUSTOM_ACTIONS[highlight.id].execute(row, highlight)) {
                     rowStyle = {
                         css: {
                             "background-color": highlight.style?.rowBackgroundColor || "",
@@ -266,33 +266,8 @@ export default class GridCommons {
                         },
                     };
                 }
-            }
-        });
+            });
         return rowStyle;
-
-        // If no active highlight
-        /*
-        if (!this.config.highlights || !this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
-            return {};
-        }
-
-        let rowStyle = {};
-        this.config.highlights.forEach(highlight => {
-            if (this.config.activeHighlights.includes(highlight.id)) {
-                if (highlight.condition && highlight.condition(row, index)) {
-                    rowStyle = {
-                        css: {
-                            "background-color": highlight.style?.rowBackgroundColor || "",
-                            "opacity": highlight.style?.rowOpacity,
-                        },
-                    };
-                }
-            }
-        });
-
-        // Return background color for this row
-        return rowStyle;
-        */
     }
 
 }

@@ -1,27 +1,66 @@
 const comparators = {
-    "eq": (a, b) => a === b,
-    "gt": (a, b) => a > b,
-    "lt": (a, b) => a < b,
+    "=": (a, b) => a === b,
+    "==": (a, b) => a === b,
+    "!=": (a, b) => a !== b,
+    ">": (a, b) => a > b,
+    ">=": (a, b) => a >= b,
+    "<": (a, b) => a < b,
+    "<=": (a, b) => a <= b,
 };
 
 const CUSTOM_ACTIONS = {
-
-    highlightVariant: {
+    highlightVariantDefault: {
         version: "2.4.0",
         permission: "admin",
-        // name: "Low depth variant (DP<20)",
-        // description: "Highlight variants with a DP<20",
-        condition: (variant, highlight) => {
-            const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === highlight.param);
-            if (index > -1) {
-                const value = Number(variant.studies[0].samples[0]?.data[index]);
-                return comparators[highlight.comparator](value, highlight.limit);
+        execute: (variant, highlight) => {
+            if (highlight?.filters?.length > 0) {
+                const FILTER_REGEX = /(?<param>([a-zA-z0-9_]+))(?<op>[=<>]+)(?<value>([a-zA-z0-9_/]+))/;
+                let pass = true;
+                for (const filter of highlight.filters) {
+                    const match = filter.match(FILTER_REGEX);
+                    let value = null;
+                    switch (match.groups.param) {
+                        // INFO String filters
+                        case "FILTER":
+                            value = variant.studies[0].files[0]?.data[match.groups.param];
+                            break;
+                        // INFO Numeric filters
+                        case "QUAL":
+                        case "MQ":
+                            value = Number(variant.studies[0].files[0]?.data[match.groups.param]);
+                            break;
+                        // FORMAT String filters
+                        case "GT":
+                            const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === match.groups.param);
+                            if (index > -1) {
+                                value = variant.studies[0].samples[0]?.data[index];
+                            }
+                            break;
+                        // FORMAT Numeric filters
+                        case "GQ":
+                        case "GQX":
+                        case "DP":
+                            const dpIndex = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === match.groups.param);
+                            if (dpIndex > -1) {
+                                value = Number(variant.studies[0].samples[0]?.data[dpIndex]);
+                            }
+                            break;
+                    }
+
+                    // Process value and pass. Value==0 are allowed for numeric values.
+                    if (value === 0 || value) {
+                        pass &&= comparators[match.groups.op](value, match.groups.value);
+                    } else {
+                        pass &&= false;
+                        break;
+                    }
+                }
+                return pass;
             } else {
                 return false;
             }
         },
     },
-
     copyEpic: {
         version: "2.4.0",
         permission: "admin",
