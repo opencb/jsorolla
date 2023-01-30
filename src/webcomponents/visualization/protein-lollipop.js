@@ -111,6 +111,14 @@ export default class ProteinLollipop extends LitElement {
         if (this.active && this.opencgaSession && this.geneId && !this.rendered) {
             this.error = null;
             this.rendered = true;
+            const target = this.querySelector(`div#${this._prefix}ProteinLollipop`);
+
+            // Remove all DOM elements from previous renders
+            while (target.firstChild) {
+                target.removeChild(target.firstChild);
+            }
+
+            // Import protein and transcript data
             const protein = await this.getProtein();
             const transcript = await this.getTranscript(protein);
 
