@@ -16,7 +16,7 @@
 
 import {caseFilterVariant} from "../../fixtures/caseVariantData.js";
 import UtilsTest from "../../support/UtilsTest";
-import VariantAction from "../../support/variant/variantAction";
+import VariantAction from "../../support/variant/browser-test.js";
 
 const variantAction = new VariantAction();
 

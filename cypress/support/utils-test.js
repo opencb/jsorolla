@@ -89,7 +89,7 @@ export default class UtilsTest {
                 return cy.get(`${selector} ul li a`)
                     .click({multiple: true, timeout: TIMEOUT});
             case "get":
-                return cy.get(`${selector} button ul li`);
+                return cy.get(`${selector} ul li`);
             case "checkVisible":
                 return cy.get(`${selector} button`)
                     .should("be.visible")
@@ -382,5 +382,19 @@ static annotationFilterCheck = gridSelector => {
         cy.get(filterSelector + " .select2-selection").first().focus().blur(); // TODO better check how reliable it is to blur the textarea
     };
 
-
+    static loginByApiSession = (
+        user = Cypress.env("user"),
+        password = Cypress.env("pass")
+        ) => {
+            cy.request("POST", `${Cypress.env("apiUrl")}/users/login`, {
+                user,
+                password,
+            }).then(res => {
+                // cy.setCookie("sessionId", response.body.sessionId);
+                console.log("res", res);
+                cy.setCookie("iva-test_sid", res.body.responses[0].results[0].token);
+                cy.setCookie("iva-test_userId", user);
+                cy.visit("");
+            });
+        };
 }

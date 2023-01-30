@@ -1,5 +1,6 @@
 {
   "root":true,
+  "files":["src/**/*.js"],
   "extends": [
     "eslint:recommended",
     "google",
@@ -16,7 +17,6 @@
     "browser": true,
     "es6": true
   },
-  "eslintIgnore": ["cypress.config.js"],
   "rules": {
     "indent": ["error", 4, {
       "SwitchCase": 1,

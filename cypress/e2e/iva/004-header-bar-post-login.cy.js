@@ -23,7 +23,7 @@ import UtilsTest from "../../support/utils-test.js";
  */
 context("4. Header bar (post-login): Checks each menu item in header-bar resolves correctly", () => {
     before(() => {
-        UtilsTest.login();
+        UtilsTest.login()   ;
         UtilsTest.goTo("iva");
     });
 
