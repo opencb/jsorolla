@@ -2,6 +2,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import ProteinLollipopViz from "../../core/visualisation/protein-lollipop.js";
+import "../loading-spinner.js";
 
 export default class ProteinLollipop extends LitElement {
 
@@ -48,6 +49,7 @@ export default class ProteinLollipop extends LitElement {
 
         // We need to save if the protein lollipop has been rendered
         this.rendered = false;
+        this.loading = false;
     }
 
     update(changedProperties) {
@@ -133,12 +135,16 @@ export default class ProteinLollipop extends LitElement {
             while (target.firstChild) {
                 target.removeChild(target.firstChild);
             }
+            this.loading = true;
+            this.requestUpdate();
+            await this.updateComplete;
 
             // Import protein and transcript data
             const protein = await this.getProtein();
             const transcript = await this.getTranscript(protein);
 
             if (!protein || !transcript) {
+                this.loading = false;
                 this.error = `Unable to find protein for gene '${this.geneId}'.`;
                 return this.requestUpdate();
             }
@@ -150,6 +156,7 @@ export default class ProteinLollipop extends LitElement {
             ProteinLollipopViz.draw(target, transcript, protein, variants, {
                 title: this._config.title,
             });
+            this.loading = false;
             this.requestUpdate();
         }
     }
@@ -157,6 +164,11 @@ export default class ProteinLollipop extends LitElement {
     render() {
         return html`
             <div>
+                ${!this.error && this.loading ? html`
+                    <div style="margin-top:32px">
+                        <loading-spinner></loading-spinner>
+                    </div>
+                ` : null}
                 ${this.error ? html`
                     <div class="">${this.error}</div>
                 ` : null}
