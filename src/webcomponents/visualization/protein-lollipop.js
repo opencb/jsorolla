@@ -126,18 +126,20 @@ export default class ProteinLollipop extends LitElement {
                 this.error = `Unable to find protein for gene '${this.geneId}'.`;
                 return this.requestUpdate();
             }
+
+
+            this.requestUpdate();
         }
     }
 
     render() {
-        if (this.error) {
-            return html`
-                <div class="">${this.error}</div>
-            `;
-        }
-
         return html`
-            <div id="${this._prefix}ProteinLollipop" style="width:100%;"></div>
+            <div>
+                ${this.error ? html`
+                    <div class="">${this.error}</div>
+                ` : null}
+                <div id="${this._prefix}ProteinLollipop" style="width:100%;"></div>
+            </div>
         `;
     }
 
