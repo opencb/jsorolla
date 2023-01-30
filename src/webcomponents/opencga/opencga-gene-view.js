@@ -363,13 +363,15 @@ export default class OpencgaGeneView extends LitElement {
                     },
                     {
                         id: "proteinLollipop",
-                        name: "Protein",
+                        name: "Protein (Beta)",
                         render: (gene, active, opencgaSession) => html`
-                            <protein-lollipop
-                                .opencgaSession="${opencgaSession}"
-                                .geneId="${gene?.id}"
-                                .active="${active}">
-                            </protein-lollipop>
+                            <div style="margin-bottom:48px;">
+                                <protein-lollipop
+                                    .opencgaSession="${opencgaSession}"
+                                    .geneId="${gene?.id}"
+                                    .active="${active}">
+                                </protein-lollipop>
+                            </div>
                         `,
                     },
                 ],
