@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import "../commons/view/detail-tabs.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
 import "../variant/variant-browser-detail.js";
@@ -294,70 +295,11 @@ export default class OpencgaGeneView extends LitElement {
                             </div>
                         </div>
 
-                        ${this.config.externalLinks ? html`
-                            <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active">
-                                    <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>
-                                </li>
-                                <li role="presentation">
-                                    <a href="#${this._prefix}Protein" role="tab" data-toggle="tab" class="gene-variant-tab-title">Protein (Beta)</a>
-                                </li>
-                            </ul>
-                        ` : null}
-
-                        <div class="tab-content" style="margin-bottom:32px;">
-                            <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                                <div class="btn-group" role="group" style="padding-top:16px;">
-                                    <button type="button" class="btn btn-primary active" data-value="all" @click="${this.updateQuery}">
-                                        All
-                                    </button>
-                                    <button type="button" class="btn btn-primary" data-value="missense" @click="${this.updateQuery}">
-                                        Missense
-                                    </button>
-                                    <button type="button" class="btn btn-primary" data-value="lof" @click="${this.updateQuery}">
-                                        LoF
-                                    </button>
-                                </div>
-                                <br>
-                                <variant-browser-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .query="${this.query}"
-                                    .populationFrequencies="${this.populationFrequencies}"
-                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                    .consequenceTypes="${this.consequenceTypes}"
-                                    .summary="${this.summary}"
-                                    .config="${this.config}"
-                                    @selectrow="${this.onSelectVariant}">
-                                </variant-browser-grid>
-                                ${this.checkVariant(this.variantId) ? html`
-                                    <!-- Bottom tabs with specific variant information -->
-                                        <opencga-variant-detail-view
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .variantId="${this.variantId}"
-                                            .config="${this.config?.filter?.detail}">
-                                        </opencga-variant-detail-view>
-                                        <!--
-                                        <h3 class="break-word">Advanced Annotation for Variant: \${this.variantId}</h3>
-                                        <cellbase-variantannotation-view
-                                            .data="\${this.variantId}"
-                                            .cellbaseClient="$\{this.cellbaseClient}"
-                                            .assembly=\${this.opencgaSession.project.organism.assembly}
-                                            .hashFragmentCredentials="\${this.hashFragmentCredentials}"
-                                            .populationFrequencies="\${this.populationFrequencies}"
-                                            .proteinSubstitutionScores="\${this.proteinSubstitutionScores}"
-                                            .consequenceTypes="\${this.consequenceTypes}">
-                                        </cellbase-variantannotation-view> -->
-                                ` : ""}
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                                <protein-lollipop
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .geneId="${this.gene.id}"
-                                    .active="${true}">
-                                </protein-lollipop>
-                            </div>
-                        </div>
+                        <detail-tabs
+                            .opencgaSession="${this.opencgaSession}"
+                            .data="${this.gene}"
+                            .config="${this.config.tabs}">
+                        </detail-tabs>
                     </div>
                 </div>
             </div>
@@ -367,6 +309,71 @@ export default class OpencgaGeneView extends LitElement {
     getDefaultConfig() {
         return {
             externalLinks: false,
+            tabs: {
+                title: "",
+                items: [
+                    {
+                        id: "variants",
+                        name: "Variants",
+                        active: true,
+                        render: (gene, active, opencgaSession) => html`
+                            <div class="btn-group" role="group" style="padding-top:16px;">
+                                <button type="button" class="btn btn-primary active" data-value="all" @click="${this.updateQuery}">
+                                    All
+                                </button>
+                                <button type="button" class="btn btn-primary" data-value="missense" @click="${this.updateQuery}">
+                                    Missense
+                                </button>
+                                <button type="button" class="btn btn-primary" data-value="lof" @click="${this.updateQuery}">
+                                    LoF
+                                </button>
+                            </div>
+                            <br>
+                            <variant-browser-grid
+                                .opencgaSession="${opencgaSession}"
+                                .query="${this.query}"
+                                .populationFrequencies="${this.populationFrequencies}"
+                                .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                .consequenceTypes="${this.consequenceTypes}"
+                                .summary="${this.summary}"
+                                .config="${this.config}"
+                                @selectrow="${this.onSelectVariant}">
+                            </variant-browser-grid>
+                            ${this.checkVariant(this.variantId) ? html`
+                                <!-- Bottom tabs with specific variant information -->
+                                    <opencga-variant-detail-view
+                                        .opencgaSession="${opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .variantId="${this.variantId}"
+                                        .config="${this.config?.filter?.detail}">
+                                    </opencga-variant-detail-view>
+                                    <!--
+                                    <h3 class="break-word">Advanced Annotation for Variant: \${this.variantId}</h3>
+                                    <cellbase-variantannotation-view
+                                        .data="\${this.variantId}"
+                                        .cellbaseClient="$\{this.cellbaseClient}"
+                                        .assembly=\${this.opencgaSession.project.organism.assembly}
+                                        .hashFragmentCredentials="\${this.hashFragmentCredentials}"
+                                        .populationFrequencies="\${this.populationFrequencies}"
+                                        .proteinSubstitutionScores="\${this.proteinSubstitutionScores}"
+                                        .consequenceTypes="\${this.consequenceTypes}">
+                                    </cellbase-variantannotation-view> -->
+                            ` : ""}
+                        `,
+                    },
+                    {
+                        id: "proteinLollipop",
+                        name: "Protein",
+                        render: (gene, active, opencgaSession) => html`
+                            <protein-lollipop
+                                .opencgaSession="${opencgaSession}"
+                                .geneId="${gene?.id}"
+                                .active="${active}">
+                            </protein-lollipop>
+                        `,
+                    },
+                ],
+            },
         };
     }
 
