@@ -94,7 +94,8 @@ export default class ProteinLollipop extends LitElement {
         })
             .then(response => {
                 return response.responses[0].results[0] || null;
-            });
+            })
+            .catch(() => null);
     }
 
     getTranscript(protein) {
@@ -104,7 +105,8 @@ export default class ProteinLollipop extends LitElement {
                 return (response.responses[0]?.results || []).find(item => {
                     return item.proteinSequence === protein?.sequence?.value;
                 });
-            });
+            })
+            .catch(() => null);
     }
 
     getVariants() {
