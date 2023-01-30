@@ -190,7 +190,7 @@ export default class OpencgaGeneView extends LitElement {
                 <div class="container-fluid" style="margin-top:32px;">
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
-                            <div class="alert alert-warning">
+                            <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-triangle icon-padding"></i> No gene provided.
                             </div>
                         </div>
