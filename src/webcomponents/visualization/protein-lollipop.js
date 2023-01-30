@@ -59,6 +59,11 @@ export default class ProteinLollipop extends LitElement {
             };
         }
 
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+            this.rendered = false;
+        }
+
         if (changedProperties.has("geneId") || changedProperties.has("query")) {
             this.rendered = false;
         }
