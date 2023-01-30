@@ -170,7 +170,9 @@ export default class ProteinLollipop extends LitElement {
                     </div>
                 ` : null}
                 ${this.error ? html`
-                    <div class="">${this.error}</div>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle icon-padding"></i> ${this.error}
+                    </div>
                 ` : null}
                 <div id="${this._prefix}ProteinLollipop" style="width:100%;"></div>
             </div>
