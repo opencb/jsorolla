@@ -6,6 +6,8 @@ import VizUtils from "./viz-utils.js";
 export default {
     TRACK_TYPES: {
         VARIANTS: "variants",
+        OPENCGA_VARIANTS: "opencga-variants",
+        CELLBASE_VARIANTS: "cellbase-variants",
         CANCERHOTSPOTS: "cancerhotspots",
     },
     CONSEQUENCE_TYPES: [
@@ -33,6 +35,15 @@ export default {
         "domain": "#fd9843",
         "region of interest": "#3d8bfd",
         "other": "#adb5bd",
+    },
+
+    // Tiny utility to check if the track type is variants
+    isVariantsTrack(track) {
+        return (
+            track?.type === this.TRACK_TYPES.VARIANTS ||
+            track?.type === this.TRACK_TYPES.OPENCGA_VARIANTS ||
+            track?.type === this.TRACK_TYPES.CELLBASE_VARIANTS
+        );
     },
 
     generateTrackInfo(parent, config) {
@@ -148,6 +159,8 @@ export default {
     parseVariantsList(data = [], transcript, protein, type) {
         switch (type) {
             case this.TRACK_TYPES.VARIANTS:
+            case this.TRACK_TYPES.OPENCGA_VARIANTS:
+            case this.TRACK_TYPES.CELLBASE_VARIANTS:
                 return data
                     .map(variant => {
                         let info = null;
@@ -572,6 +585,8 @@ export default {
                     let color = null;
                     switch (trackType) {
                         case this.TRACK_TYPES.VARIANTS:
+                        case this.TRACK_TYPES.OPENCGA_VARIANTS:
+                        case this.TRACK_TYPES.CELLBASE_VARIANTS:
                             color = this.CONSEQUENCE_TYPES_COLORS[info.type];
                             break;
                         default:
@@ -607,7 +622,7 @@ export default {
                         "data-default-stroke-width": "1px",
                     });
 
-                    if (track.type === this.TRACK_TYPES.VARIANTS) {
+                    if (this.isVariantsTrack(track)) {
                         if (typeof countsByConsequenceType[info.type] !== "number") {
                             countsByConsequenceType[info.type] = 0;
                         }
@@ -649,7 +664,7 @@ export default {
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
-            if (track.type === this.TRACK_TYPES.VARIANTS && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
+            if (this.isVariantsTrack(track.type) && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(countsByConsequenceType).map(id => ({
                         id: id,
