@@ -821,6 +821,15 @@ const SUITE = {
                 //     featured: false,
                 // },
                 {
+                    id: "study-admin-iva",
+                    name: "IVA configuration",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: false,
+                },
+                {
                     id: "catalog-admin",
                     name: "Catalog Management",
                     fa_icon: "fas fa-file-invoice",

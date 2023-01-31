@@ -57,9 +57,9 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
         highlights: [
             {
                 id: "highlightVariant",
-                //description: "Highlight variants with a DP<5",
+                // description: "highlight variants with a dp<5",
                 active: true,
-                //name: "Low depth variant (DP<5)",
+                // name: "Low depth variant (DP<5)",
                 limit: 5,
                 param: "DP",
                 comparator: "lt",
