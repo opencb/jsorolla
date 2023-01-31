@@ -45,11 +45,12 @@ export default class ProteinLollipop extends LitElement {
         this.cellbaseClient = null;
         this.active = true;
         this.geneId = null;
-        this.error = null;
+        this.tracks = [];
 
         // We need to save if the protein lollipop has been rendered
         this.rendered = false;
         this.loading = false;
+        this.error = null;
     }
 
     update(changedProperties) {
@@ -66,7 +67,7 @@ export default class ProteinLollipop extends LitElement {
             this.rendered = false;
         }
 
-        if (changedProperties.has("geneId") || changedProperties.has("query")) {
+        if (changedProperties.has("geneId") || changedProperties.has("query") || changedProperties.has("tracks")) {
             this.rendered = false;
         }
 
@@ -125,6 +126,42 @@ export default class ProteinLollipop extends LitElement {
             });
     }
 
+    async getTracks() {
+        const tracks = [];
+        if (this.tracks?.length > 0) {
+            for (let i = 0; i < this.tracks.length; i++) {
+                const track = this.tracks[i];
+                let data = track.data || [];
+                switch (track.type) {
+                    case ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS:
+                        try {
+                            const response = await this.cellbaseClient.get("clinical", "variant", null, "search", {
+                                feature: this.geneId,
+                                // source: "clinvar",
+                                consequenceType: ProteinLollipopViz.CONSEQUENCE_TYPES.join(","),
+                                exclude: "annotation.populationFrequencies,annotation.conservation,annotation.constraints,annotation.functionalScore",
+                                limit: 5000,
+                                ...track.query,
+                            });
+                            data = response?.responses?.[0]?.results || [];
+                        } catch (error) {
+                            console.error(error);
+                        }
+                        break;
+                }
+
+                // Save this track data
+                tracks.push({
+                    title: track.title || "",
+                    type: track.type || ProteinLollipopViz.TRACK_TYPES.VARIANTS,
+                    data: data,
+                });
+            }
+        }
+
+        return tracks;
+    }
+
     async drawProteinLollipop() {
         if (this.active && this.opencgaSession && this.geneId && !this.rendered) {
             this.error = null;
@@ -151,10 +188,12 @@ export default class ProteinLollipop extends LitElement {
 
             // Get variants data
             const variants = await this.getVariants();
+            const tracks = await this.getTracks();
 
             // Render protein lollipop
             ProteinLollipopViz.draw(target, transcript, protein, variants, {
                 title: this._config.title,
+                tracks: tracks,
             });
             this.loading = false;
             this.requestUpdate();
