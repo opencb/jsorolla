@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
+import CustomActions from "./custom-actions.js";
 
 
 export default class GridCommons {
@@ -258,7 +259,7 @@ export default class GridCommons {
         this.config.highlights
             .filter(highlight => highlight.active)
             .forEach(highlight => {
-                if (CUSTOM_ACTIONS[highlight.actionId].execute(row, highlight)) {
+                if (CustomActions.get(highlight).execute(row, highlight)) {
                     rowStyle = {
                         css: {
                             "background-color": highlight.style?.rowBackgroundColor || "",

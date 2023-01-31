@@ -29,6 +29,7 @@ import "../../loading-spinner.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import CustomActions from "../../commons/custom-actions";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -847,7 +848,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 // CustomActions.check(copy)
                                 // CustomActions.checkVersion(copy)
                                 // CustomActions.get(copy).execute(variant, showConsequenceTypes)
-                                if (copy.execute || CUSTOM_ACTIONS[copy.id].execute) {
+                                if (copy.execute || CustomActions.exists(copy)) {
                                     copiesHtml = `
                                         <li>
                                             <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
@@ -1281,7 +1282,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
 
                     // UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
-                    UtilsNew.copyToClipboard(CUSTOM_ACTIONS[copy.id].execute(row, showArrayIndexes));
+                    UtilsNew.copyToClipboard(CustomActions.get(copy).execute(row, showArrayIndexes));
                 }
                 break;
         }

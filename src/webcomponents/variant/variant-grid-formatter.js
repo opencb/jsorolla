@@ -16,6 +16,7 @@
 
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
+import CustomActions from "../commons/custom-actions.js";
 
 
 export default class VariantGridFormatter {
@@ -115,7 +116,7 @@ export default class VariantGridFormatter {
             iconHighlights = config.activeHighlights.map(id => {
                 const highlight = config.highlights.find(item => item.id === id);
                 // if (highlight.condition(row, index) && highlight.style?.icon) {
-                if (CUSTOM_ACTIONS[highlight.actionId].execute(row, highlight) && highlight.style?.icon) {
+                if (CustomActions.get(highlight).execute(row, highlight) && highlight.style?.icon) {
                     const description = highlight.description || highlight.name || "";
                     const icon = highlight.style.icon;
                     const color = highlight.style.iconColor || "";
