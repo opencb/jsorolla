@@ -22,6 +22,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     constructor() {
         super();
+
+        this.configForm = this.getConfigForm();
     }
 
     createRenderRoot() {
@@ -45,7 +47,17 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.onConfigObserver();
+        }
         super.update(changedProperties);
+    }
+
+    onConfigObserver() {
+        this._highlights = this.config.highlights
+            .filter(h => h.active)
+            .map(h => h.id)
+            .join(",") || [];
     }
 
     onFieldChange(e) {
@@ -82,9 +94,19 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     this.requestUpdate();
                 }
                 break;
-            case "activeHighlights":
-                this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
+            case "_highlights":
+                if (e.detail.value) {
+                    const values = e.detail.value.split(",");
+                    this.config.highlights.forEach(h => h.active = values.includes(h.id));
+                } else {
+                    this.config.highlights.forEach(h => h.active = false);
+                }
+                this._highlights = e.detail.value || "";
+                this.requestUpdate();
                 break;
+            // case "activeHighlights":
+            //     this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
+            //     break;
         }
 
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
@@ -101,21 +123,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     getConfigForm() {
-        // const highlightElements = [];
-        // if (this.config.highlights?.length > 0) {
-        //     for (const highlight of this.config.highlights) {
-        //         highlightElements.push({
-        //             field: "highlights[].active",
-        //             type: "checkbox",
-        //             text: highlight.name,
-        //             display: {
-        //                 containerStyle: "margin: 10px 5px",
-        //                 // disabled: () => this.config?.consequenceType?.all
-        //             }
-        //         });
-        //     }
-        // }
-
         return {
             id: "interpreter-grid-config",
             title: "",
@@ -347,11 +354,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     elements: [
                         {
                             title: "Configure the highlight to apply to displayed variant rows",
-                            field: "highlights",
+                            field: "_highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.highlights?.map(highlight => highlight.name) || [],
-                            defaultValue: "highlightVariantDefault",
+                            allowedValues: this.config?.highlights?.map(highlight => {
+                                return {id: highlight.id, name: highlight.name};
+                            }) || [],
+                            defaultValue: this._highlights,
                             display: {
                                 visible: () => (this.config?.highlights || []).length > 0,
                             },
@@ -364,21 +373,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 visible: () => (this.config?.highlights || []).length === 0,
                             },
                         },
-                        // {
-                        //     title: "Highlights",
-                        //     field: "highlights",
-                        //     type: "object-list",
-                        //     display: {
-                        //         style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                        //         collapsedUpdate: true,
-                        //         view: phenotype => html`
-                        //             <div>${phenotype.id} - ${phenotype?.name}</div>
-                        //             <div class="help-block">${phenotype?.description}</div>`,
-                        //     },
-                        //     elements: [
-                        //         ...highlightElements
-                        //     ]
-                        // }
                     ],
                 },
             ]

@@ -80,7 +80,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                 },
             },
         ],
-        activeHighlights: ["highlightVariantDP"],
+        // activeHighlights: ["highlightVariantDP"],
 
         copies: [
             {

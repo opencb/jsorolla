@@ -112,18 +112,18 @@ export default class VariantGridFormatter {
 
         // Add highlight icons
         let iconHighlights = [];
-        if (config?.highlights && config.activeHighlights) {
-            iconHighlights = config.activeHighlights.map(id => {
-                const highlight = config.highlights.find(item => item.id === id);
-                // if (highlight.condition(row, index) && highlight.style?.icon) {
-                if (CustomActions.get(highlight).execute(row, highlight) && highlight.style?.icon) {
-                    const description = highlight.description || highlight.name || "";
-                    const icon = highlight.style.icon;
-                    const color = highlight.style.iconColor || "";
+        if (config?.highlights?.length > 0) {
+            iconHighlights = config.highlights
+                .filter(h => h.active)
+                .map(highlight => {
+                    if (CustomActions.get(highlight).execute(row, highlight) && highlight.style?.icon) {
+                        const description = highlight.description || highlight.name || "";
+                        const icon = highlight.style.icon;
+                        const color = highlight.style.iconColor || "";
 
-                    return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
-                }
-            });
+                        return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
+                    }
+                });
         }
 
         return `
@@ -1167,14 +1167,14 @@ export default class VariantGridFormatter {
                         </div>
                         <div>
                             ${
-                            hotspot.variants
-                                .map(variant => `
+                    hotspot.variants
+                        .map(variant => `
                                     <span
                                         class="help-block"
                                         style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
                                     </span>`)
-                                .join("")
-                            }
+                        .join("")
+                }
                         </div>
                     </div>`;
             }
