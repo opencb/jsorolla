@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import { html, LitElement } from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
 // @dev[jsorolla]
-import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
-import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
+import { OpenCGAClient } from "../../core/clients/opencga/opencga-client.js";
+import { CellBaseClient } from "../../core/clients/cellbase/cellbase-client.js";
+import { ReactomeClient } from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -98,11 +98,12 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import "../../webcomponents/visualization/genome-browser.js";
 
-import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
-import {SAMPLE_DATA} from "./data/dataExample.js";
+import { DATA_FORM_EXAMPLE } from "./conf/data-form.js";
+import { SAMPLE_DATA } from "./data/data-example.js";
+import { VARIANT_BROWSER_DATA } from "./data/variant-browser-data.js";
 
-import {DATA_FORM_ELEMENTS} from "./conf/data-form-elements.js";
-import {FORM_INPUT_DATA} from "./data/data-form-elements.fixture.js";
+import { DATA_FORM_ELEMENTS } from "./conf/data-form-elements.js";
+import { FORM_INPUT_DATA } from "./data/data-form-elements.fixture.js";
 
 class TestApp extends LitElement {
 
@@ -131,7 +132,7 @@ class TestApp extends LitElement {
      * @private
      */
     #init() {
-        this.dataTest = {...SAMPLE_DATA};
+        this.dataTest = { ...SAMPLE_DATA };
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
@@ -141,7 +142,6 @@ class TestApp extends LitElement {
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
 
-        console.log(DATA_FORM_EXAMPLE);
 
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
@@ -151,11 +151,11 @@ class TestApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
-
             "data-form",
             "utils-new",
             "catalog-filters",
             "opencga-update",
+            "variant-browser",
             "variant-filters",
             "genome-browser",
             "lollipop",
@@ -242,10 +242,25 @@ class TestApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
-            this.host = {...this.host, [e.detail.host]: e.detail.value};
+            this.host = { ...this.host, [e.detail.host]: e.detail.value };
             this.requestUpdate();
         }, false);
-
+        this.initOpencgaSessionTest()
+        this.configVariantGrid = {
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            multiSelection: false,
+            showSelectCheckbox: false,
+            toolbar: {
+                // showNew: true,
+                showColumns: true,
+                showDownload: false,
+                showExport: false,
+                showSettings: false,
+                exportTabs: ["download", "link", "code"]
+                // columns list for the dropdown will be added in grid components based on settings.table.columns
+            },
+        }
     }
 
     connectedCallback() {
@@ -301,6 +316,28 @@ class TestApp extends LitElement {
         this.requestUpdate();
     }
 
+    initOpencgaSessionTest() {
+        this.opencgaSession = {
+            project: {
+                id: "family",
+                name: "Family Studies GRCh38",
+                fqn: "demo@family",
+                description: "Project description",
+                organism: {
+                    scientificName: "hsapiens",
+                    commonName: "",
+                    assembly: "GRCh38"
+                },
+                cellbase: {
+                    url: "https://uk.ws.zettagenomics.com/cellbase/",
+                    version: "v5.1",
+                    dataRelease: "3"
+
+                }
+            }
+        }
+    }
+
     async _createOpenCGASession() {
         // This check prevents displaying the annoying message of 'No valid token:null' when the token has expired
         if (!this.opencgaClient._config.token) {
@@ -354,11 +391,11 @@ class TestApp extends LitElement {
                     }
                 }
                 // this forces the observer to be executed.
-                this.opencgaSession = {..._response};
+                this.opencgaSession = { ..._response };
                 this.opencgaSession.mode = this.config.mode;
                 this.updateCellBaseClient();
                 // this.config.menu = [...application.menu];
-                this.config = {...this.config};
+                this.config = { ...this.config };
             })
             .catch(e => {
                 console.error(e);
@@ -373,6 +410,7 @@ class TestApp extends LitElement {
 
     // TODO turn this into a Promise
     _createOpencgaSessionFromConfig() {
+
         // Create a private opencga-session to avoid calling to the Observer
         const opencgaSession = this.opencgaClient.createAnonymousSession();
 
@@ -463,7 +501,7 @@ class TestApp extends LitElement {
 
     onFieldChange(e) {
         console.log("Execute onFieldChange");
-        this.dataTest = {...e.detail.data}; // force to refresh the object-list
+        this.dataTest = { ...e.detail.data }; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -606,7 +644,7 @@ class TestApp extends LitElement {
     route(e) {
         this.tool = e.detail.hash;
         if (e.detail?.resource) {
-            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
+            this.queries = { ...this.queries, [e.detail.resource]: e.detail?.query };
         }
         this.renderHashFragments();
     }
@@ -718,7 +756,7 @@ class TestApp extends LitElement {
             this.config.enabledComponents["customPage"] = true;
         }
 
-        this.config = {...this.config};
+        this.config = { ...this.config };
 
         // TODO quickfix to avoid hash browser scroll
         $("body,html").animate({
@@ -751,10 +789,10 @@ class TestApp extends LitElement {
 
         if (studyFound) {
             // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+            this.opencgaClient.updateUserConfigs({ ...this.opencgaSession.user.configs, lastStudy: studyFqn });
 
             // Refresh the session and update cellbase
-            this.opencgaSession = {...this.opencgaSession};
+            this.opencgaSession = { ...this.opencgaSession };
             this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
@@ -763,29 +801,11 @@ class TestApp extends LitElement {
     }
 
     updateCellBaseClient() {
-        // this.cellbaseClient = null; // Reset cellbase client
-        //
-        // if (this.opencgaSession?.project && this.opencgaSession?.project?.cellbase?.url) {
-        //     this.cellbaseClient = new CellBaseClient({
-        //         host: this.opencgaSession.project.cellbase.url.replace(/\/$/, ""),
-        //         version: this.opencgaSession.project.cellbase.version,
-        //         species: this.opencgaSession.project.organism.scientificName,
-        //     });
-        // } else {
-        //     // Josemi 20220216 NOTE: we keep this old way to be backward compatible with OpenCGA 2.1
-        //     // But this should be removed in future releases
-        //     this.cellbaseClient = new CellBaseClient({
-        //         host: this.config.cellbase.host,
-        //         version: this.config.cellbase.version,
-        //         species: "hsapiens",
-        //     });
-        // }
-        // // This simplifies passing cellbaseCLient to all components
-        // this.opencgaSession.cellbaseClient = this.cellbaseClient;
         this.cellbaseClient = new CellBaseClient({
             host: this.config.cellbase.host,
             version: this.config.cellbase.version,
             species: "hsapiens",
+            project: "projectTest"
         });
     }
 
@@ -847,16 +867,16 @@ class TestApp extends LitElement {
     // TODO this should keep in sync the query object between variant-browser and variant-facet
     onQueryChange(e) {
         console.log("onQueryChange", e);
-        this.browserSearchQuery = {...e.detail.query};
+        this.browserSearchQuery = { ...e.detail.query };
     }
 
 
     onQueryFilterSearch(e, source) {
         // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
         // TODO fix active-filters
-        const q = e.detail.query ? {...e.detail.query} : {...e.detail};
-        this.queries[source] = {...q};
-        this.queries = {...this.queries};
+        const q = e.detail.query ? { ...e.detail.query } : { ...e.detail };
+        this.queries[source] = { ...q };
+        this.queries = { ...this.queries };
         // console.log("this.queries",this.queries);
         this.requestUpdate();
     }
@@ -948,7 +968,7 @@ class TestApp extends LitElement {
                         this.opencgaSession.study = updatedStudy;
                     }
 
-                    this.opencgaSession = {...this.opencgaSession};
+                    this.opencgaSession = { ...this.opencgaSession };
                     // this.requestUpdate();
                 })
                 .catch(e => {
@@ -1031,7 +1051,7 @@ class TestApp extends LitElement {
                 @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}"
                 @changeTool="${e => this.changeTool(e.detail.value)}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
-                @studySelect="${ e => this.onStudySelect(e.detail.event, e.detail.study)}"
+                @studySelect="${e => this.onStudySelect(e.detail.event, e.detail.study)}"
                 @jobSelected="${e => this.onJobSelected(e)}"
                 @route="${this.route}">
             </custom-navbar>
@@ -1140,6 +1160,18 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
+                ${this.config.enabledComponents["variant-browser"] ? html`
+                <div style="padding:2%" class="content" id="variant-browser">
+                    <variant-browser-grid
+                        .variants="${VARIANT_BROWSER_DATA}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .config="${this.configVariantGrid}"
+                        .populationFrequencies="${this.config.populationFrequencies}">
+                    </variant-browser-grid>
+                </div>
+            ` : null}
+
                 ${this.config.enabledComponents["variant-filters"] ? html`
                     <div class="content" id="variant-filters">
                         <variant-browser-filter
@@ -1162,12 +1194,11 @@ class TestApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .region="${"1:1000000"}"
                             .active="${true}"
-                            .config="${
-                                {
-                                    cellBaseClient: this.cellbaseClient,
-                                    featuresOfInterest: [],
-                                }
-                            }"
+                            .config="${{
+                    cellBaseClient: this.cellbaseClient,
+                    featuresOfInterest: [],
+                }
+                }"
                             .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
                         </genome-browser>
                     </div>

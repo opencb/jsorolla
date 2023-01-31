@@ -188,6 +188,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "variant-browser",
+                            name: "variant browser",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "variant-filters",
                             name: "Variant Filters",
                             description: "",
