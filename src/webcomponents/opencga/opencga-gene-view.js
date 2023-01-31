@@ -24,6 +24,7 @@ import "../visualization/protein-lollipop.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils";
+import ProteinLollipopViz from "../../core/visualisation/protein-lollipop.js";
 
 
 export default class OpencgaGeneView extends LitElement {
@@ -307,6 +308,23 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     getDefaultConfig() {
+        const proteinLollipopTracks = [
+            {
+                title: "Clinvar",
+                type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                query: {
+                    source: "clinvar",
+                },
+            },
+            {
+                title: "Cosmic",
+                type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                query: {
+                    source: "cosmic",
+                },
+            },
+        ];
+
         return {
             externalLinks: false,
             tabs: {
@@ -369,6 +387,7 @@ export default class OpencgaGeneView extends LitElement {
                                 <protein-lollipop
                                     .opencgaSession="${opencgaSession}"
                                     .geneId="${gene?.id}"
+                                    .tracks="${proteinLollipopTracks}"
                                     .active="${active}">
                                 </protein-lollipop>
                             </div>
