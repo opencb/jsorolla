@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 
 import "../../commons/layouts/custom-vertical-navbar.js";
-import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../study/admin/study-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
 
@@ -98,7 +97,7 @@ export default class StudyAdminIva extends LitElement {
     }
 
     render() {
-        const activeMenuItem = "Sample";
+        const activeMenuItem = "sample";
         return html`
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
@@ -111,7 +110,7 @@ export default class StudyAdminIva extends LitElement {
     getDefaultConfig() {
         return {
             id: "",
-            name: "IVA Configuration",
+            name: "IVA Settings",
             logo: "",
             icon: "",
             visibility: "private", // public | private | none
@@ -123,19 +122,20 @@ export default class StudyAdminIva extends LitElement {
                     icon: "",
                     featured: "", // true | false
                     visibility: "private",
+                    category: true,
                     submenu: [
                         {
-                            id: "Sample",
-                            name: "Sample",
-                            title: "Sample Browser Configuration",
+                            id: "sample",
+                            name: "Sample browser settings",
+                            title: "Sample Browser settings",
                             icon: "fas fa-vial",
                             visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-config-update
+                            render: (opencgaSession, study) => html `
+                                <study-settings-update
                                     .opencgaSession="${opencgaSession}"
                                     .study="${study}"
-                                    .item="${"sample-browser"}">
-                                </study-config-update>
+                                    .item="${"SAMPLE"}">
+                                </study-settings-update>
                             `,
                         },
                     ],

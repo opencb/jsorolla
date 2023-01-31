@@ -18,6 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import Types from "../../commons/types";
 
 
 export default class StudySettingsUpdate extends LitElement {
@@ -90,7 +91,7 @@ export default class StudySettingsUpdate extends LitElement {
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
-                body: JSON.stringify(this.opencgaSession.study?.internal?.configuration?.clinical, null, 8) || "-",
+                body: JSON.stringify(BROWSERS_SETTINGS[this.item], null, 8) || "-",
             };
             this.config = this.getDefaultConfig();
         }
@@ -163,51 +164,46 @@ export default class StudySettingsUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        const params = [
-            {
-                title: "Study Filter",
-                elements: [
-                    {
-                        title: "Study",
-                        type: "custom",
-                        required: true,
-                        display: {
-                            render: toolParams => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolParams?.study}"
-                                    .resource="${"STUDY"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}"
-                                    @filterChange="${e => this.onFieldChange(e, "study")}">
-                                </catalog-search-autocomplete>
-                            `,
+        return Types.dataFormConfig({
+            type: "form",
+            sections: [
+                // {
+                //     title: "Study Filter",
+                //     elements: [
+                //         {
+                //             title: "Study",
+                //             type: "custom",
+                //             required: true,
+                //             display: {
+                //                 render: toolParams => html`
+                //                     <catalog-search-autocomplete
+                //                         .value="${toolParams?.study}"
+                //                         .resource="${"STUDY"}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         .config="${{multiple: false, disabled: !!this.study}}"
+                //                         @filterChange="${e => this.onFieldChange(e, "study")}">
+                //                     </catalog-search-autocomplete>
+                //                 `,
+                //             },
+                //         }
+                //     ],
+                // },
+                {
+                    title: "Configuration Parameters",
+                    elements: [
+                        {
+                            title: `${this.item} Settings`,
+                            field: "body",
+                            type: "json-editor",
+                            display: {
+                                rows: 25,
+                                defaultLayout: "vertical"
+                            }
                         },
-                    }
-                ],
-            },
-            {
-                title: "Configuration Parameters",
-                elements: [
-                    {
-                        title: `${this.item} Settings`,
-                        field: "body",
-                        type: "json-editor",
-                        display: {
-                            rows: 25,
-                            defaultLayout: "vertical"
-                        }
-                    },
-                ],
-            }
-        ];
-
-        return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
-            this.title ?? this.TITLE,
-            this.DESCRIPTION,
-            params,
-            this.check()
-        );
+                    ],
+                }
+            ],
+        });
     }
 
 }

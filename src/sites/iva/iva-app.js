@@ -84,6 +84,7 @@ import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
+import "../../webcomponents/study/admin/study-admin-iva.js";
 import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/study-variant-admin.js";
 import "../../webcomponents/user/user-login.js";
@@ -217,6 +218,7 @@ class IvaApp extends LitElement {
             "clinicalAnalysis",
             // Admin
             "study-admin",
+            "study-admin-iva",
             "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
@@ -1867,6 +1869,16 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["study-admin-iva"] ? html`
+                    <div class="content">
+                        <study-admin-iva
+                                .study="${this.opencgaSession.study}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @studyUpdateRequest="${this.onStudyUpdateRequest}">
+                        </study-admin-iva>
                     </div>
                 ` : null}
 
