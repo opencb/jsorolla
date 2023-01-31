@@ -9,7 +9,7 @@ const comparators = {
 };
 
 const CUSTOM_ACTIONS = {
-    highlightVariantDefault: {
+    highlightVariant: {
         version: "2.4.0",
         permission: "admin",
         execute: (variant, highlight) => {

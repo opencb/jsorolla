@@ -258,7 +258,7 @@ export default class GridCommons {
         this.config.highlights
             .filter(highlight => highlight.active)
             .forEach(highlight => {
-                if (CUSTOM_ACTIONS[highlight.id].execute(row, highlight)) {
+                if (CUSTOM_ACTIONS[highlight.actionId].execute(row, highlight)) {
                     rowStyle = {
                         css: {
                             "background-color": highlight.style?.rowBackgroundColor || "",

@@ -52,9 +52,10 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         },
         highlights: [
             {
-                id: "highlightVariantDefault",
+                id: "highlightVariantDP",
                 name: "Low depth variant (DP<20)",
                 description: "Highlight variants with a DP<20",
+                actionId: "highlightVariant",
                 filters: ["DP<20", "GQX<10"],
                 // filters: ["GQX<10", "GT==0/1"],
                 // filters: ["FILTER==LowGQX"],
@@ -66,9 +67,10 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                 },
             },
             {
-                id: "highlightVariantDefault",
+                id: "highlightVariantQual",
                 name: "Low QUAL variant (QUAL<10)",
                 description: "Low QUAL variant with a QUAL<10",
+                actionId: "highlightVariant",
                 filters: ["QUAL<10"],
                 active: false,
                 style: {
@@ -78,7 +80,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
                 },
             },
         ],
-        activeHighlights: ["highlightVariantDefault"],
+        activeHighlights: ["highlightVariantDP"],
 
         copies: [
             {
