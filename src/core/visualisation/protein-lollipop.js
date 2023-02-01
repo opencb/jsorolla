@@ -665,7 +665,7 @@ export default {
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
-            if (this.isVariantsTrack(track.type) && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
+            if (this.isVariantsTrack(track) && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(countsByConsequenceType).map(id => ({
                         id: id,
