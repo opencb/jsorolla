@@ -18,92 +18,29 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "lit";
+import {html, LitElement} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
-
-// @dev[jsorolla]
-import { OpenCGAClient } from "../../core/clients/opencga/opencga-client.js";
-import { CellBaseClient } from "../../core/clients/cellbase/cellbase-client.js";
-import { ReactomeClient } from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import "../../webcomponents/clinical/clinical-analysis-browser.js";
-import "../../webcomponents/clinical/clinical-analysis-portal.js";
-import "../../webcomponents/variant/variant-browser.js";
-import "../../webcomponents/variant/variant-beacon.js";
-import "../../webcomponents/opencga/opencga-gene-view.js";
-import "../../webcomponents/opencga/opencga-transcript-view.js";
-import "../../webcomponents/opencga/opencga-protein-view.js";
-import "../../webcomponents/user/opencga-projects.js";
-import "../../webcomponents/sample/sample-browser.js";
-import "../../webcomponents/sample/sample-view.js";
-import "../../webcomponents/sample/sample-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-cancer-variant-stats-browser.js";
-import "../../webcomponents/sample/sample-update.js";
-import "../../webcomponents/disease-panel/disease-panel-browser.js";
-import "../../webcomponents/disease-panel/disease-panel-update.js";
-import "../../webcomponents/file/file-browser.js";
-// import "../../webcomponents/file/file-update.js";
-import "../../webcomponents/family/family-browser.js";
-import "../../webcomponents/family/family-update.js";
-import "../../webcomponents/individual/individual-browser.js";
-import "../../webcomponents/individual/individual-update.js";
-import "../../webcomponents/cohort/cohort-browser.js";
-import "../../webcomponents/job/job-browser.js";
-import "../../webcomponents/job/job-view.js";
-import "../../webcomponents/clinical/analysis/mutational-signature-analysis.js";
-import "../../webcomponents/variant/analysis/gwas-analysis.js";
-import "../../webcomponents/variant/analysis/sample-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/cohort-variant-stats-analysis.js";
-import "../../webcomponents/variant/analysis/sample-eligibility-analysis.js";
-import "../../webcomponents/variant/analysis/inferred-sex-analysis.js";
-import "../../webcomponents/variant/analysis/individual-relatedness-analysis.js";
-import "../../webcomponents/variant/analysis/mendelian-error-analysis.js";
-import "../../webcomponents/variant/analysis/sample-qc-analysis.js";
-import "../../webcomponents/variant/analysis/individual-qc-analysis.js";
-import "../../webcomponents/variant/analysis/family-qc-analysis.js";
-import "../../webcomponents/variant/analysis/knockout-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-plink-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-gatk-analysis.js";
-import "../../webcomponents/variant/analysis/variant-export-analysis.js";
-import "../../webcomponents/variant/analysis/opencga-variant-stats-exporter-analysis.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter-browser-rearrangement.js";
-import "../../webcomponents/variant/interpretation/variant-interpreter.js";
-import "../../webcomponents/clinical/analysis/rd-tiering-analysis.js";
-import "../../webcomponents/clinical/analysis/hrdetect-analysis.js";
-import "../../webcomponents/clinical/clinical-analysis-create.js";
-import "../../webcomponents/file/file-manager.js";
-import "../../webcomponents/job/job-monitor.js";
+
 import "../../webcomponents/loading-spinner.js";
-import "../../webcomponents/project/projects-admin.js";
-import "../../webcomponents/study/admin/study-admin.js";
-import "../../webcomponents/study/admin/catalog-admin.js";
-import "../../webcomponents/study/admin/variant/study-variant-admin.js";
-import "../../webcomponents/user/user-login.js";
-import "../../webcomponents/user/user-profile.js";
-// import "../../webcomponents/user/user-password-reset.js";
-import "../../webcomponents/api/rest-api.js";
+import "../../webcomponents/variant/variant-browser-grid.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-import "../../webcomponents/clinical/rga/rga-browser.js";
-import "../../webcomponents/visualization/genome-browser.js";
+import "./test-component.js";
 
-import { DATA_FORM_EXAMPLE } from "./conf/data-form.js";
-import { SAMPLE_DATA } from "./data/data-example.js";
-import { VARIANT_BROWSER_DATA } from "./data/variant-browser-data.js";
+import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
+import {SAMPLE_DATA} from "./data/data-example.js";
+import {VARIANT_BROWSER_DATA} from "./data/variant-browser-data.js";
 
-import { DATA_FORM_ELEMENTS } from "./conf/data-form-elements.js";
-import { FORM_INPUT_DATA } from "./data/data-form-elements.fixture.js";
 
 class TestApp extends LitElement {
 
@@ -132,7 +69,8 @@ class TestApp extends LitElement {
      * @private
      */
     #init() {
-        this.dataTest = { ...SAMPLE_DATA };
+        this.dataTest = {...SAMPLE_DATA};
+        this._dataFormConfig = DATA_FORM_EXAMPLE;
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
@@ -173,8 +111,6 @@ class TestApp extends LitElement {
 
         // We set the global Polymer variable, this produces one single event
         this.config = _config;
-
-        this.updateCellBaseClient();
 
         // Get version from env variable
         // eslint-disable-next-line no-undef
@@ -225,13 +161,6 @@ class TestApp extends LitElement {
         // Show confirmation
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
-
-        // TODO remove browserSearchQuery
-        this.browserSearchQuery = {};
-        // keeps track of the executedQueries transitioning from browser tool to facet tool
-        this.queries = [];
-        // keeps track of status and version of the hosts (opencga and cellbase)
-        this.host = {};
         globalThis.addEventListener("signingIn", e => {
             this.signingIn = e.detail.value;
             this.requestUpdate();
@@ -242,10 +171,10 @@ class TestApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
-            this.host = { ...this.host, [e.detail.host]: e.detail.value };
+            this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
-        this.initOpencgaSessionTest()
+        this.initOpencgaSessionTest();
         this.configVariantGrid = {
             pageSize: 10,
             pageList: [10, 25, 50],
@@ -260,60 +189,7 @@ class TestApp extends LitElement {
                 exportTabs: ["download", "link", "code"]
                 // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
-        }
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        // Import server configuration from conf/server.json file (if exists)
-        // See issue https://github.com/opencb/jsorolla/issues/425
-        UtilsNew.importJSONFile("conf/server.json").then(serverConf => {
-
-            // Initialize opencga configuration
-            const opencgaHost = serverConf?.host || this.config.opencga.host;
-            const opencgaVersion = serverConf?.version || this.config.opencga.version;
-            const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            // console.log(opencgaHost, opencgaVersion);
-
-            // Initialise clients and create the session
-            // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
-            const sid = Cookies.get(opencgaPrefix + "_sid");
-            const userId = Cookies.get(opencgaPrefix + "_userId");
-
-            this.opencgaClient = new OpenCGAClient({
-                host: opencgaHost,
-                version: opencgaVersion,
-                token: sid,
-                userId: userId,
-                cookies: {
-                    active: true,
-                    prefix: opencgaPrefix,
-                },
-            });
-
-            this.reactomeClient = new ReactomeClient();
-
-            if (sid) {
-                this.checkSessionActive();
-                this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
-                this._createOpenCGASession();
-            } else {
-                this._createOpencgaSessionFromConfig();
-            }
-        });
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-    }
-
-    opencgaSessionObserver() {
-        this.renderHashFragments();
-        this.queries = {};
-        this.requestUpdate();
+        };
     }
 
     initOpencgaSessionTest() {
@@ -335,259 +211,18 @@ class TestApp extends LitElement {
 
                 }
             }
+        };
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
         }
     }
 
-    async _createOpenCGASession() {
-        // This check prevents displaying the annoying message of 'No valid token:null' when the token has expired
-        if (!this.opencgaClient._config.token) {
-            return;
-        }
-        this.signingIn = "Creating session..";
+    opencgaSessionObserver() {
+        this.renderHashFragments();
         this.requestUpdate();
-        await this.updateComplete;
-        this.opencgaClient.createSession()
-            .then(response => {
-                const _response = response;
-                console.log("_createOpenCGASession", response);
-                // check if project array has been defined in the config.js
-                if (UtilsNew.isNotEmptyArray(this.config.opencga.projects)) {
-                    // We store the project and study ids the user needs to visualise (defined in the config.js)
-                    const configProjects = {};
-                    for (let i = 0; i < this.config.opencga.projects.length; i++) {
-                        configProjects[this.config.opencga.projects[i].id] = [];
-
-                        for (let j = 0; j < this.config.opencga.projects[i].studies.length; j++) {
-                            configProjects[this.config.opencga.projects[i].id].push(
-                                this.config.opencga.projects[i].studies[j].id
-                            );
-                        }
-                    }
-
-                    // We must keep only the projects defined in the configuration file
-                    const activeProjects = [];
-                    for (let i = 0; i < response.projects.length; i++) {
-                        if (response.projects[i].id in configProjects) {
-                            const project = response.projects[i];
-                            const activeStudies = [];
-                            for (let j = 0; j < project.studies.length; j++) {
-                                const study = project.studies[j];
-                                if (configProjects[project.id].indexOf(study.id) > -1) {
-                                    activeStudies.push(study);
-                                }
-                            }
-
-                            // We replace the studies obtained with the ones from the configuration file
-                            project.studies = activeStudies;
-                            activeProjects.push(project);
-                        }
-                    }
-
-                    // TODO we must query projects/info URL to get the whole object
-                    _response.projects = activeProjects || [];
-                    if (UtilsNew.isNotEmptyArray(response.projects[0].studies)) {
-                        _response.project = response.projects[0];
-                        _response.study = response.projects[0].studies[0];
-                    }
-                }
-                // this forces the observer to be executed.
-                this.opencgaSession = { ..._response };
-                this.opencgaSession.mode = this.config.mode;
-                this.updateCellBaseClient();
-                // this.config.menu = [...application.menu];
-                this.config = { ...this.config };
-            })
-            .catch(e => {
-                console.error(e);
-                this.notificationManager.error("Error creating session", e.message);
-            })
-            .finally(() => {
-                this.signingIn = false;
-                this.requestUpdate();
-                // this.updateComplete;
-            });
-    }
-
-    // TODO turn this into a Promise
-    _createOpencgaSessionFromConfig() {
-
-        // Create a private opencga-session to avoid calling to the Observer
-        const opencgaSession = this.opencgaClient.createAnonymousSession();
-
-        // If 'config.opencga.anonymous' exists and contains either 'user' or 'projects'
-        if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous) && Object.keys(this.config.opencga.anonymous).length > 0) {
-            // If 'projects' is defined we only load those projects
-            if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous.projects)) {
-                if (this.config.opencga.anonymous.projects.length > 0) {
-                    // TODO we must query projects/info URL to get the whole object
-                    opencgaSession.projects = this.config.opencga.anonymous.projects;
-                    if (UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
-                        opencgaSession.project = opencgaSession.projects[0];
-                        opencgaSession.study = opencgaSession.projects[0].studies[0];
-                    }
-                }
-
-                // This triggers the event and call to opencgaSessionObserver
-                this.opencgaSession = opencgaSession;
-                this.updateCellBaseClient();
-            } else {
-                // When no 'projects' is defined we fetch all public projects
-                if (UtilsNew.isNotUndefinedOrNull(this.config.opencga.anonymous.user)) {
-                    this.opencgaClient.users().projects(this.config.opencga.anonymous.user, {})
-                        .then(restResponse => {
-                            // _this._setup(_projects);
-
-                            opencgaSession.projects = restResponse.response[0].result;
-                            if (UtilsNew.isNotEmptyArray(opencgaSession.projects) && UtilsNew.isNotEmptyArray(opencgaSession.projects[0].studies)) {
-                                // this sets the current active project and study
-                                opencgaSession.project = opencgaSession.projects[0];
-                                opencgaSession.study = opencgaSession.projects[0].studies[0];
-                            }
-
-                            // This triggers the event and call to opencgaSessionObserver
-                            this.opencgaSession = opencgaSession;
-                            this.updateCellBaseClient();
-                        })
-                        .catch(function (response) {
-                            console.log("An error when getting projects");
-                            console.log(response);
-                        });
-                }
-            }
-        } else {
-            // This triggers the event and call to opencgaSessionObserver
-            this.opencgaSession = opencgaSession;
-        }
-    }
-
-    onLogin(credentials) {
-        // This creates a new authenticated opencga-session object
-
-        // console.log("iva-app: roger I'm in", credentials);
-        this.opencgaClient._config.token = credentials.detail.token;
-        this._createOpenCGASession();
-
-        if (this.tool === "#login") {
-            this.tool = "#home";
-            this.app = this.getActiveAppConfig();
-        }
-
-        // 60000 ms = 1 min. Every 1 min we check if session is close to expire.
-        this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
-    }
-
-    refresh() {
-        this.opencgaClient.refresh();
-    }
-
-    async logout() {
-        // this delete token in the client and removes the Cookies
-        await this.opencgaClient.logout();
-        this._createOpencgaSessionFromConfig();
-
-        this.tool = "#home";
-        this.app = this.getActiveAppConfig();
-        window.location.hash = "home";
-        window.clearInterval(this.intervalCheckSession);
-    }
-
-    async saveLastStudy(newStudy) {
-        const userConfig = await this.opencgaClient.updateUserConfigs({
-            ...this.opencgaSession.user.configs.IVA,
-            lastStudy: newStudy.fqn
-        });
-        this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
-    }
-
-    onFieldChange(e) {
-        console.log("Execute onFieldChange");
-        this.dataTest = { ...e.detail.data }; // force to refresh the object-list
-        this.requestUpdate();
-    }
-
-    onUrlChange(e) {
-        let hashFrag = e.detail.id;
-        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias)) {
-
-            hashFrag += "/" + this.opencgaSession.project.alias;
-            if (UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
-                hashFrag += "/" + this.opencgaSession.study.alias;
-            }
-        }
-
-        const myQueryParams = [];
-        for (const key in e.detail.query) {
-            myQueryParams.push(key + "=" + e.detail.query[key]);
-        }
-        if (myQueryParams.length > 0) {
-            hashFrag += `?${myQueryParams.join("&")}`;
-        }
-
-        window.location.hash = hashFrag;
-    }
-
-    // TODO: we should move this code to an OpenCGA Utils
-    checkSessionActive() {
-        // We check if refresh token has updated session id cookie
-        // let sid = Cookies.get(this.config.opencga.cookie.prefix + "_sid");
-
-        if (UtilsNew.isNotUndefinedOrNull(this.opencgaClient._config.token)) { // UtilsNew.isNotEmpty(this.opencgaSession.token) &&
-            // this.token = sid;
-            const decoded = jwt_decode(this.opencgaClient._config.token);
-            const currentTime = new Date().getTime();
-            const remainingTime = ((decoded.exp * 1000) - currentTime);
-            // 600000 ms = 10 min = 1000(1sec) * 60(60 sec = 1min) * 10(10 min)
-            if (remainingTime <= this.config.session.maxRemainingTime && remainingTime >= this.config.session.minRemainingTime) {
-                const remainingMinutes = Math.floor(remainingTime / this.config.session.minRemainingTime);
-
-                // _message = html`Your session is close to expire. <strong>${remainingMinutes}
-                // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-
-                // Handle session refresh
-                const handleSessionRefresh = () => {
-                    this.opencgaClient.refresh().then(response => {
-                        const sessionId = response.getResult(0).token;
-                        const decoded = jwt_decode(sessionId);
-                        const dateExpired = new Date(decoded.exp * 1000);
-                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
-
-                        // Display confirmation message
-                        this.notificationManager.success(null, `Your session is now valid until ${validTimeSessionId}.`);
-                    });
-                };
-
-                // Display expiration notification
-                this.notificationManager.showNotification({
-                    type: "warning",
-                    display: {
-                        showIcon: true,
-                        showCloseButton: true,
-                    },
-                    title: "Your session is close to expire",
-                    message: `
-                        In <b>${remainingMinutes} minutes</b> your session will be automatically closed.
-                        To keep working, please click on <b>Refresh Session</b> button.
-                    `,
-                    removeAfter: 20000,
-                    buttons: [
-                        {
-                            text: "Refresh session",
-                            onClick: () => handleSessionRefresh(),
-                            removeOnClick: true,
-                        }
-                    ]
-                });
-
-            } else {
-                if (remainingTime < this.config.session.minRemainingTime) {
-                    this.logout();
-                    window.clearInterval(this.intervalCheckSession);
-
-                    // Display notification message
-                    this.notificationManager.info(null, "Your session has expired");
-                }
-            }
-        }
     }
 
     changeTool(e) {
@@ -644,7 +279,7 @@ class TestApp extends LitElement {
     route(e) {
         this.tool = e.detail.hash;
         if (e.detail?.resource) {
-            this.queries = { ...this.queries, [e.detail.resource]: e.detail?.query };
+            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
         }
         this.renderHashFragments();
     }
@@ -716,7 +351,6 @@ class TestApp extends LitElement {
                     this.familyId = feature;
                     break;
                 case "#study-admin":
-                    // this.studyAdminFqn = arr[1];
                     this.changeActiveStudy(arr[1]);
                     break;
                 case "#diseasePanelUpdate":
@@ -756,7 +390,7 @@ class TestApp extends LitElement {
             this.config.enabledComponents["customPage"] = true;
         }
 
-        this.config = { ...this.config };
+        this.config = {...this.config};
 
         // TODO quickfix to avoid hash browser scroll
         $("body,html").animate({
@@ -764,126 +398,6 @@ class TestApp extends LitElement {
         }, 1);
     }
 
-    onStudySelect(e, study, project) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        this.changeActiveStudy(study.fqn);
-    }
-
-    changeActiveStudy(studyFqn) {
-        if (this.opencgaSession.study.fqn === studyFqn) {
-            console.log("New selected study is already the current active study!");
-            return;
-        }
-
-        // Change active study
-        let studyFound = false;
-        for (const project of this.opencgaSession.projects) {
-            const studyIndex = project.studies.findIndex(s => s.fqn === studyFqn);
-            if (studyIndex >= 0) {
-                this.opencgaSession.project = project;
-                this.opencgaSession.study = project.studies[studyIndex];
-                studyFound = true;
-                break;
-            }
-        }
-
-        if (studyFound) {
-            // Update the lastStudy in config iff has changed
-            this.opencgaClient.updateUserConfigs({ ...this.opencgaSession.user.configs, lastStudy: studyFqn });
-
-            // Refresh the session and update cellbase
-            this.opencgaSession = { ...this.opencgaSession };
-            this.updateCellBaseClient();
-        } else {
-            // TODO Convert this into a user notification
-            console.error("Study not found!");
-        }
-    }
-
-    updateCellBaseClient() {
-        this.cellbaseClient = new CellBaseClient({
-            host: this.config.cellbase.host,
-            version: this.config.cellbase.version,
-            species: "hsapiens",
-            project: "projectTest"
-        });
-    }
-
-    updateProject(e) {
-        this.project = this.projects.find(project => project.name === e.detail.project.name);
-        this.tool = "#project";
-        this.renderHashFragments();
-        // this.renderBreadcrumb();
-    }
-
-    updateStudy(e) {
-        if (UtilsNew.isNotUndefined(e.detail.project) && UtilsNew.isNotEmpty(e.detail.project.name)) {
-            this.project = e.detail.project;
-        }
-        this.study = this.project.studies.find(study => study.name === e.detail.study.name || study.alias === e.detail.study.alias);
-
-        //                TODO: Opencga study will be shown later. For now variant browser is shown when the study changes
-        //                this.tool = "studyInformation";
-        this.tool = "#browser";
-        this.renderHashFragments();
-        // this.renderBreadcrumb();
-    }
-
-    onSampleChange(e) {
-        if (UtilsNew.isNotUndefinedOrNull(this.samples) && UtilsNew.isNotUndefinedOrNull(e.detail)) {
-            this.samples = e.detail.samples;
-            this._samplesPerTool[this.tool.replace("#", "")] = this.samples;
-            // this.renderBreadcrumb();
-        }
-    }
-
-    quickSearch(e) {
-        // debugger
-        this.tool = "#browser";
-        window.location.hash = "browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
-
-        this.browserSearchQuery = e.detail;
-    }
-
-    quickFacetSearch(e) {
-        console.log("IVA-APP quickfacetsearch");
-        this.tool = "#facet";
-        window.location.hash = "facet/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
-        // this.browserQuery = {xref: e.detail.value};
-        this.browserSearchQuery = e.detail;
-    }
-
-    onJobSelected(e) {
-        this.jobSelected = e.detail.jobId;
-        this.requestUpdate();
-    }
-
-    // TODO remove
-    onNotifyMessage(e) {
-        this.notificationManager.info(e.detail.title, e.detail.message);
-    }
-
-    // TODO this should keep in sync the query object between variant-browser and variant-facet
-    onQueryChange(e) {
-        console.log("onQueryChange", e);
-        this.browserSearchQuery = { ...e.detail.query };
-    }
-
-
-    onQueryFilterSearch(e, source) {
-        // FIXME filters component emits a event containing {detail:{query:Object}} while active-filter emits {detail:{Object}}
-        // TODO fix active-filters
-        const q = e.detail.query ? { ...e.detail.query } : { ...e.detail };
-        this.queries[source] = { ...q };
-        this.queries = { ...this.queries };
-        // console.log("this.queries",this.queries);
-        this.requestUpdate();
-    }
-
-    onSelectClinicalAnalysis(e) {
-        this.clinicalAnalysis = e.detail.clinicalAnalysis;
-    }
 
     /* Set the width of the side navigation to 250px */
     openNav() {
@@ -939,44 +453,6 @@ class TestApp extends LitElement {
         }
     }
 
-    isLoggedIn() {
-        return !!this?.opencgaSession?.token;
-    }
-
-    onSessionUpdateRequest() {
-        this._createOpenCGASession();
-    }
-
-    onStudyUpdateRequest(e) {
-        if (e.detail.value) {
-            this.opencgaSession.opencgaClient.studies()
-                .info(e.detail.value)
-                .then(res => {
-                    const updatedStudy = res.responses[0].results[0];
-                    for (const project of this.opencgaSession.user.projects) {
-                        if (project.studies?.length > 0) {
-                            const studyIndex = project.studies.findIndex(study => study.fqn === e.detail.value);
-                            if (studyIndex >= 0) {
-                                project.studies[studyIndex] = updatedStudy;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Update opencgaSession.study if the study updated is the active one
-                    if (this.opencgaSession.study && this.opencgaSession.study.fqn === e.detail.value) {
-                        this.opencgaSession.study = updatedStudy;
-                    }
-
-                    this.opencgaSession = { ...this.opencgaSession };
-                    // this.requestUpdate();
-                })
-                .catch(e => {
-                    console.error(e);
-                    params.error(e);
-                });
-        }
-    }
 
     onSubmit(e) {
         console.log("Data Test", this.dataTest);
@@ -1035,7 +511,6 @@ class TestApp extends LitElement {
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             <custom-sidebar
                 .config="${this.config}"
-                .loggedIn="${this.isLoggedIn()}"
                 @changeApp="${e => this.onChangeApp(e.detail.event, e.detail.toggle)}"
                 @sideBarToggle="${e => this.toggleSideBar(e.detail.event)}">
             </custom-sidebar>
@@ -1044,7 +519,6 @@ class TestApp extends LitElement {
             <custom-navbar
                 .app="${this.app}"
                 .version="${this.version}"
-                .loggedIn="${this.isLoggedIn()}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.config}"
                 @logout="${() => this.logout()}"
@@ -1121,13 +595,13 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
-                        <data-form
+                        <test-component
                             .data="${this.dataTest}"
-                            .config="${DATA_FORM_EXAMPLE}"
+                            .config="${this._dataFormConfig}"
                             @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
-                        </data-form>
+                        </test-component>
                     </div>
                 ` : null}
 
@@ -1195,10 +669,8 @@ class TestApp extends LitElement {
                             .region="${"1:1000000"}"
                             .active="${true}"
                             .config="${{
-                    cellBaseClient: this.cellbaseClient,
-                    featuresOfInterest: [],
-                }
-                }"
+            cellBaseClient: this.cellbaseClient,
+            featuresOfInterest: []}}"
                             .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
                         </genome-browser>
                     </div>
