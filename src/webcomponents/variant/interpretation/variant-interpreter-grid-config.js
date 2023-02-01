@@ -104,9 +104,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 this._highlights = e.detail.value || "";
                 this.requestUpdate();
                 break;
-            // case "activeHighlights":
-            //     this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
-            //     break;
         }
 
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);

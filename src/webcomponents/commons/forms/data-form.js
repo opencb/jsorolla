@@ -870,7 +870,7 @@ export default class DataForm extends LitElement {
                 } else {
                     if (typeof element.allowedValues === "function") {
                         let item;
-                        if (element.field.includes("[]")) {
+                        if (element.field?.includes("[]")) {
                             const match = element.field.match(DataForm.re);
                             if (match) {
                                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
@@ -891,21 +891,13 @@ export default class DataForm extends LitElement {
 
             // Check if data field contains a value
             defaultValue = this.getValue(element.field);
-            if (defaultValue) {
-                // If apply is defined we need to apply the same transformation to be selected
-                if (element.display?.apply && allowedValues) {
-                    for (const allowedValue of allowedValues) {
-                        if (allowedValue.includes(defaultValue)) {
-                            defaultValue = allowedValue;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                // Check if a defaultValue is set in element config
-                if (element.defaultValue) {
-                    defaultValue = element.defaultValue;
-                }
+            // Check if a defaultValue is set in element config
+            if (!defaultValue && element.defaultValue) {
+                defaultValue = element.defaultValue;
+            }
+            // Check if 'apply' must be executed
+            if (defaultValue && element.display?.apply) {
+                defaultValue = element.display.apply(defaultValue);
             }
         }
 
@@ -1618,6 +1610,11 @@ export default class DataForm extends LitElement {
 
     onFilterChange(element, value, objectListEvent) {
         let eventDetail;
+
+        // Check field exists
+        if (!element.field) {
+            return;
+        }
 
         // Process the value to save it correctly.
         value = this.parseValue(element, value);
