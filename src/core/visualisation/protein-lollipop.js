@@ -588,7 +588,7 @@ export default {
                         case this.TRACK_TYPES.VARIANTS:
                         case this.TRACK_TYPES.OPENCGA_VARIANTS:
                         case this.TRACK_TYPES.CELLBASE_VARIANTS:
-                            color = this.CONSEQUENCE_TYPES_COLORS[info.type];
+                            color = this.CONSEQUENCE_TYPES_COLORS[info.type] || this.CONSEQUENCE_TYPES_COLORS.other;
                             break;
                         default:
                             color = this.CONSEQUENCE_TYPES_COLORS.other;
