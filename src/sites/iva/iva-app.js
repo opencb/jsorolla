@@ -1877,6 +1877,7 @@ class IvaApp extends LitElement {
                         <study-admin-iva
                                 .study="${this.opencgaSession.study}"
                                 .opencgaSession="${this.opencgaSession}"
+                                .settings="${this.settings}"
                                 @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin-iva>
                     </div>

@@ -257,6 +257,8 @@ export default class OpencgaBrowser extends LitElement {
             return html`No view has been configured`;
         }
 
+        debugger
+
         return this._config.views.map(view => html`
             <div id="${view.id}" class="content-tab ${this.activeView === view.id ? "active" : ""}">
                 ${view.render({

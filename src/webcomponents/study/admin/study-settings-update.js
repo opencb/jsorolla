@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
-import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/component-settings-previewer.js";
 import Types from "../../commons/types";
 
 
@@ -41,11 +41,16 @@ export default class StudySettingsUpdate extends LitElement {
             study: {
                 type: Object,
             },
-
             config: {
                 type: Object,
             },
-            item: {
+            tool: {
+                type: String,
+            },
+            settings: {
+                type: Object,
+            },
+            componentId: {
                 type: String,
             },
             title: {
@@ -68,7 +73,6 @@ export default class StudySettingsUpdate extends LitElement {
         };
 
         this.config = this.getDefaultConfig();
-
     }
 
     firstUpdated(changedProperties) {
@@ -82,16 +86,17 @@ export default class StudySettingsUpdate extends LitElement {
         // CAUTION 20230110 Vero:
         //  When study changes out of configuration operations menu option:
         //    1. this.toolParams is updated with the keys studies and body in condition if (changedProperties.has("opencgaSession"))
-        //  When the user click on one of the configuartion operation options:
+        //  When the user click on one of the configuration operation options:
         //    1. The property toolParams is overwritten (see study-variant-admin.js render method) removing the body key with the appropriate
-        //    2. Consequently, json-editor is gets renderd with an empty json
+        //    2. Consequently, json-editor is gets rendered with an empty json
         //  Besides, the contents get rendered twice.
         //  The following fix displays the json correctly, but needs to be optimized.
-        if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
+            debugger
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
-                body: JSON.stringify(BROWSERS_SETTINGS[this.item], null, 8) || "-",
+                body: this.settings
             };
             this.config = this.getDefaultConfig();
         }
@@ -131,7 +136,26 @@ export default class StudySettingsUpdate extends LitElement {
     }
 
     // --- EVENTS ---
-    onJsonChange(e, field) {}
+    onFieldChange(e, field) {
+        this._settings = {...e.detail.value.json};
+        this.toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
+            body: this._settings
+        };
+
+        this.requestUpdate();
+
+
+        // const param = field || e.detail.param;
+        // debugger
+        // if (param) {
+        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+        // }
+        // this.config = this.getDefaultConfig();
+        // this.requestUpdate();
+
+    }
 
     onReset() {}
 
@@ -142,12 +166,11 @@ export default class StudySettingsUpdate extends LitElement {
 
     // --- RENDER ---
     render() {
-        // 1. If state loading
-        // 2. Render JSON
-        // 3. Render PREVIEW
+        // Todo: State loading
+        debugger
         return html `
-            <!-- Data form wrapper -->
-            <div>
+            <!-- 1. Render Data form wrapper -->
+            <div style="display: flex; flex:1">
                 <data-form
                     .data="${this.toolParams}"
                     .config="${this.config}"
@@ -156,10 +179,14 @@ export default class StudySettingsUpdate extends LitElement {
                     @submit="${this.onSubmit}">
                 </data-form>
             </div>
-            <!-- Preview -->
-            <div>
-
+            <!-- 2. Render Preview -->
+            <div  style="display: flex; flex:2">
+                <component-settings-previewer style="transform: scale(0.7);transform-origin: top;"
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolParams.body}">
+                </component-settings-previewer>
             </div>
+
         `;
     }
 
@@ -189,10 +216,10 @@ export default class StudySettingsUpdate extends LitElement {
                 //     ],
                 // },
                 {
-                    title: "Configuration Parameters",
+                    //title: "Configuration Parameters",
                     elements: [
                         {
-                            title: `${this.item} Settings`,
+                            title: `${this.tool} Settings`,
                             field: "body",
                             type: "json-editor",
                             display: {

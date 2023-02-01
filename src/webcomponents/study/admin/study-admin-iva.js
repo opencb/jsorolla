@@ -19,6 +19,7 @@ import {LitElement, html} from "lit";
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../study/admin/study-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
+import UtilsNew from "../../../core/utils-new";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -35,13 +36,16 @@ export default class StudyAdminIva extends LitElement {
     static get properties() {
         return {
             studyId: {
-                type: String
+                type: String,
             },
             study: {
-                type: Object
+                type: Object,
+            },
+            settings: {
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -54,6 +58,10 @@ export default class StudyAdminIva extends LitElement {
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             this.studyIdObserver();
         }
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+
         super.update(changedProperties);
     }
 
@@ -96,6 +104,9 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
+    settingsObserver() {
+    }
+
     render() {
         const activeMenuItem = "sample";
         return html`
@@ -131,10 +142,11 @@ export default class StudyAdminIva extends LitElement {
                             icon: "fas fa-vial",
                             visibility: "private",
                             render: (opencgaSession, study) => html `
-                                <study-settings-update
+                                <study-settings-update style="display: flex"
                                     .opencgaSession="${opencgaSession}"
                                     .study="${study}"
-                                    .item="${"SAMPLE"}">
+                                    .settings="${this.settings["SAMPLE"]}"
+                                    .tool="${"SAMPLE"}">
                                 </study-settings-update>
                             `,
                         },
