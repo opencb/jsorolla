@@ -1,7 +1,14 @@
 [
   {
     "id": "X:150596530:-:T",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "T",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -80,11 +87,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150596530,
+    "end": 150596529,
+    "length": 1
   },
   {
     "id": "X:150596563:-:A",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "A",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -163,11 +181,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150596563,
+    "end": 150596562,
+    "length": 1
   },
   {
     "id": "X:150598594:AAA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AAA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "inframe_deletion",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -232,11 +261,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150598594,
+    "end": 150598596,
+    "length": 3
   },
   {
     "id": "X:150598594:AAAG:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AAAG",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -301,11 +341,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150598594,
+    "end": 150598597,
+    "length": 4
   },
   {
     "id": "X:150598596:AG:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AG",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -384,11 +435,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150598596,
+    "end": 150598597,
+    "length": 2
   },
   {
     "id": "X:150598606:TACA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "TACA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -449,11 +511,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150598606,
+    "end": 150598609,
+    "length": 4
   },
   {
     "id": "X:150598609:A:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "A",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -532,11 +605,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150598609,
+    "end": 150598609,
+    "length": 1
   },
   {
     "id": "X:150614609:T:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "T",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -615,11 +699,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150614609,
+    "end": 150614609,
+    "length": 1
   },
   {
     "id": "X:150614695:GTAAA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "GTAAA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -672,11 +767,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150614695,
+    "end": 150614699,
+    "length": 5
   },
   {
     "id": "X:150619090:AT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -755,11 +861,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150619090,
+    "end": 150619091,
+    "length": 2
   },
   {
     "id": "X:150619095:T:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "T",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -838,11 +955,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150619095,
+    "end": 150619095,
+    "length": 1
   },
   {
     "id": "X:150619114:-:A",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "A",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -925,11 +1053,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150619114,
+    "end": 150619113,
+    "length": 1
   },
   {
     "id": "X:150619126:T:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "T",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1008,11 +1147,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150619126,
+    "end": 150619126,
+    "length": 1
   },
   {
     "id": "X:150638967:G:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "G",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1091,11 +1241,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150638967,
+    "end": 150638967,
+    "length": 1
   },
   {
     "id": "X:150641276:CCAATCA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "CCAATCA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1141,11 +1302,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641276,
+    "end": 150641282,
+    "length": 7
   },
   {
     "id": "X:150641288:-:G",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "G",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1224,11 +1396,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641288,
+    "end": 150641287,
+    "length": 1
   },
   {
     "id": "X:150641304:TAA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "TAA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "inframe_deletion",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1289,11 +1472,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641304,
+    "end": 150641306,
+    "length": 3
   },
   {
     "id": "X:150641329:ACTT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "ACTT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1354,11 +1548,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641329,
+    "end": 150641332,
+    "length": 4
   },
   {
     "id": "X:150641334:CCCTG:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "CCCTG",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1404,11 +1609,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641334,
+    "end": 150641338,
+    "length": 5
   },
   {
     "id": "X:150641342:T:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "T",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1487,11 +1703,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150641342,
+    "end": 150641342,
+    "length": 1
   },
   {
     "id": "X:150645809:AAAC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AAAC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1552,11 +1779,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150645809,
+    "end": 150645812,
+    "length": 4
   },
   {
     "id": "X:150645871:-:GG",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "GG",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1626,11 +1864,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150645871,
+    "end": 150645870,
+    "length": 2
   },
   {
     "id": "X:150649735:AA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1709,11 +1958,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649735,
+    "end": 150649736,
+    "length": 2
   },
   {
     "id": "X:150649759:C:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "C",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1792,11 +2052,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649759,
+    "end": 150649759,
+    "length": 1
   },
   {
     "id": "X:150649767:TTC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "TTC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "inframe_deletion",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1857,11 +2128,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649767,
+    "end": 150649769,
+    "length": 3
   },
   {
     "id": "X:150649797:-:A",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "A",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1940,11 +2222,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649797,
+    "end": 150649796,
+    "length": 1
   },
   {
     "id": "X:150649808:TT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "TT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2023,11 +2316,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649808,
+    "end": 150649809,
+    "length": 2
   },
   {
     "id": "X:150649811:-:A",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "A",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2106,11 +2410,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649811,
+    "end": 150649810,
+    "length": 1
   },
   {
     "id": "X:150649811:A:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "A",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2189,11 +2504,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649811,
+    "end": 150649811,
+    "length": 1
   },
   {
     "id": "X:150649863:-:T",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "T",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2272,11 +2598,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150649863,
+    "end": 150649862,
+    "length": 1
   },
   {
     "id": "X:150657854:-:A",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "A",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2355,11 +2692,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150657854,
+    "end": 150657853,
+    "length": 1
   },
   {
     "id": "X:150657854:AA:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AA",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2438,11 +2786,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150657854,
+    "end": 150657855,
+    "length": 2
   },
   {
     "id": "X:150657994:AG:T",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AG",
+    "alternate": "T",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2484,11 +2843,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150657994,
+    "end": 150657995,
+    "length": 2
   },
   {
     "id": "X:150659682:A:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "A",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2567,11 +2937,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659682,
+    "end": 150659682,
+    "length": 1
   },
   {
     "id": "X:150659685:AACC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AACC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2632,11 +3013,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659685,
+    "end": 150659688,
+    "length": 4
   },
   {
     "id": "X:150659707:CTC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "CTC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "inframe_deletion",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2697,11 +3089,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659707,
+    "end": 150659709,
+    "length": 3
   },
   {
     "id": "X:150659708:-:TCCTA",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "",
+    "alternate": "TCCTA",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2747,11 +3150,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659708,
+    "end": 150659707,
+    "length": 5
   },
   {
     "id": "X:150659709:C:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "C",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2830,11 +3244,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659709,
+    "end": 150659709,
+    "length": 1
   },
   {
     "id": "X:150659750:AAAACAGGT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AAAACAGGT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "splice_donor_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2880,11 +3305,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150659750,
+    "end": 150659758,
+    "length": 9
   },
   {
     "id": "X:150660373:CC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "CC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2967,11 +3403,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150660373,
+    "end": 150660374,
+    "length": 2
   },
   {
     "id": "X:150660432:GT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "GT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3050,11 +3497,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150660432,
+    "end": 150660433,
+    "length": 2
   },
   {
     "id": "X:150660479:AGAC:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AGAC",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3119,11 +3577,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150660479,
+    "end": 150660482,
+    "length": 4
   },
   {
     "id": "X:150663474:C:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "C",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3202,11 +3671,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150663474,
+    "end": 150663474,
+    "length": 1
   },
   {
     "id": "X:150663608:AAGT:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "AAGT",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "splice_donor_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3267,11 +3747,22 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150663608,
+    "end": 150663611,
+    "length": 4
   },
   {
     "id": "X:150671572:C:-",
+    "names": [],
+    "studies": [],
+    "chromosome": "X",
+    "reference": "C",
+    "alternate": "",
+    "strand": "+",
     "annotation": {
+      "displayConsequenceType": "frameshift_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3350,6 +3841,10 @@
           ]
         }
       ]
-    }
+    },
+    "type": "INDEL",
+    "start": 150671572,
+    "end": 150671572,
+    "length": 1
   }
 ]

@@ -1,6 +1,10 @@
 [
   {
+    "names": [],
+    "start": 150596535,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -124,10 +128,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150596535,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598649,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -251,10 +266,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150598649,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598685,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -382,10 +408,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150598685,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598600,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -511,10 +548,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150598600,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598613,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -638,10 +686,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150598613,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150596504,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -716,10 +775,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150596504,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598610,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -843,10 +913,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150598610,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614595,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -977,10 +1058,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150614595,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150596519,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1055,10 +1147,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150596519,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150592674,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1182,10 +1285,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150592674,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150598640,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1309,10 +1423,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150598640,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614596,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1443,10 +1568,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150614596,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150592624,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1569,10 +1705,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150592624,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614619,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1703,10 +1850,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150614619,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614652,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1831,10 +1989,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150614652,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614659,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -1959,10 +2128,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150614659,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641359,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2086,10 +2266,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641359,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641411,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2213,10 +2404,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150641411,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619113,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2334,10 +2536,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150619113,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645851,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2461,10 +2674,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645851,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641354,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2590,10 +2814,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641354,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641335,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2719,10 +2954,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641335,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645807,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2846,10 +3092,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150645807,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663455,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -2979,10 +3236,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150663455,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663499,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3112,10 +3380,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663499,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657834,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3239,10 +3518,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150657834,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663580,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3366,10 +3656,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150663580,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657899,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3495,10 +3796,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150657899,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657963,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3622,10 +3934,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150657963,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663516,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3755,10 +4078,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150663516,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657999,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3833,10 +4167,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150657999,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619078,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -3954,10 +4299,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150619078,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150638964,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4075,10 +4431,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150638964,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663536,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4208,10 +4575,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663536,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657829,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4335,10 +4713,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150657829,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150659665,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4468,10 +4857,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150659665,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641410,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4546,10 +4946,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641410,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641297,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4673,10 +5084,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150641297,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645690,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4751,10 +5173,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645690,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660438,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4884,10 +5317,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150660438,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663442,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -4962,10 +5406,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663442,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641380,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5089,10 +5544,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641380,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641269,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5220,10 +5686,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150641269,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657998,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5347,10 +5824,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150657998,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150659704,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5474,10 +5962,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150659704,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150671491,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5601,10 +6100,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150671491,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150671440,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5728,10 +6238,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150671440,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619068,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5849,10 +6370,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150619068,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150638994,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -5976,10 +6508,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150638994,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619087,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "splice_acceptor_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6097,10 +6640,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150619087,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619081,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6218,10 +6772,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150619081,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641368,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6345,10 +6910,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641368,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614662,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6473,10 +7049,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150614662,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619038,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6598,10 +7185,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150619038,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619108,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6719,10 +7317,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150619108,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150649761,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6846,10 +7455,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150649761,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645714,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -6973,10 +7593,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645714,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645747,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7100,10 +7731,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645747,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660474,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7233,10 +7875,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150660474,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150638967,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7311,10 +7964,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150638967,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150639019,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7438,10 +8102,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150639019,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663565,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7571,10 +8246,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150663565,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641404,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7649,10 +8335,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641404,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641269,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7780,10 +8477,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641269,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645870,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -7911,10 +8619,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150645870,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150649779,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8038,10 +8757,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150649779,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660395,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8116,10 +8846,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150660395,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663476,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8249,10 +8990,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663476,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663497,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8382,10 +9134,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150663497,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663541,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8515,10 +9278,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663541,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663550,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8648,10 +9422,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663550,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663566,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8781,10 +9566,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150663566,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150659716,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -8908,10 +9704,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150659716,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660398,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9035,10 +9842,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150660398,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660406,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9162,10 +9980,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150660406,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663524,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9295,10 +10124,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150663524,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150659686,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9422,10 +10262,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150659686,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150671513,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9549,10 +10400,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150671513,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645811,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9676,10 +10538,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645811,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645863,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9803,10 +10676,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645863,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657931,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -9930,10 +10814,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150657931,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641416,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10061,10 +10956,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641416,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645746,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10188,10 +11094,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645746,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150649742,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10315,10 +11232,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150649742,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645819,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10442,10 +11370,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645819,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645846,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10569,10 +11508,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645846,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641288,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10647,10 +11597,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150641288,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645704,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10774,10 +11735,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150645704,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645710,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10852,10 +11824,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645710,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645712,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -10979,10 +11962,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645712,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645725,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11108,10 +12102,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150645725,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641346,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11235,10 +12240,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150641346,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150641347,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11362,10 +12378,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150641347,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150645840,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11491,10 +12518,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "G",
+    "chromosome": "X",
+    "end": 150645840,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150614685,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11619,10 +12657,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150614685,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150619075,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11740,10 +12789,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150619075,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150671494,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11867,10 +12927,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150671494,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663592,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -11994,10 +13065,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150663592,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150659670,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12121,10 +13203,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150659670,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150638995,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12248,10 +13341,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150638995,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150649847,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12375,10 +13479,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "A",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150649847,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660401,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12502,10 +13617,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "T",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150660401,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150660473,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12580,10 +13706,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "C",
+    "alternate": "T",
+    "chromosome": "X",
+    "end": 150660473,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150663588,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "stop_gained",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12658,10 +13795,21 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "A",
+    "chromosome": "X",
+    "end": 150663588,
+    "strand": "+",
+    "studies": []
   },
   {
+    "names": [],
+    "start": 150657995,
+    "length": 1,
     "annotation": {
+      "displayConsequenceType": "missense_variant",
       "consequenceTypes": [
         {
           "geneId": "ENSG00000171100",
@@ -12785,6 +13933,13 @@
           ]
         }
       ]
-    }
+    },
+    "type": "SNV",
+    "reference": "G",
+    "alternate": "C",
+    "chromosome": "X",
+    "end": 150657995,
+    "strand": "+",
+    "studies": []
   }
 ]
