@@ -712,7 +712,6 @@ export default {
             "stroke": config.positionRuleColor,
             "stroke-width": config.positionRuleWidth,
             "stroke-opacity": "0.75",
-            "stroke-dasharray": "3",
         });
         SVG.addChild(rule, "path", {
             "d": "M-0.5,8L-5.5,0L5,0Z",
