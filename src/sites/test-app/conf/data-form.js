@@ -1,4 +1,4 @@
-// import UtilsNew from "../../../core/utils-new";
+
 import {html} from "lit";
 
 const defaultHighchartConfig = {
@@ -24,7 +24,7 @@ const defaultHighchartConfig = {
         useHTML: true
     }
 };
-
+// empty,data,disabled,validation
 export const DATA_FORM_EXAMPLE = {
     test: {
         prefix: "test1",
@@ -35,13 +35,44 @@ export const DATA_FORM_EXAMPLE = {
             title: "Basic Input Field",
             elements: [
                 {
-                    title: "String Field",
-                    field: "inputText",
+                    title: "String Field Empty",
+                    field: "inputTextEmpty",
+                    type: "input-text",
+                    display: {
+                        placeholder: "Add a short ID...",
+                        helpMessage: "Created on ...",
+                    },
+                },
+                {
+                    title: "String Field Filled",
+                    field: "inputTextFilled",
                     type: "input-text",
                     required: true,
                     display: {
                         placeholder: "Add a short ID...",
                         helpMessage: "Created on ...",
+                    },
+                },
+                {
+                    title: "String Field Disabled",
+                    field: "inputTextDisabled",
+                    type: "input-text",
+                    display: {
+                        disabled: true,
+                        placeholder: "Add a short ID...",
+                        helpMessage: "Created on ...",
+                    },
+                },
+                {
+                    title: "String Field Validation",
+                    field: "inputTextVal",
+                    type: "input-text",
+                    required: true,
+                    display: {
+                        validation: {
+                            message: "must not contain spaces",
+                            validate: inputTextVal => inputTextVal && !inputTextVal.includes(" ")
+                        },
                     },
                 },
                 {
@@ -57,7 +88,6 @@ export const DATA_FORM_EXAMPLE = {
                     title: "String Field",
                     field: "inputTextDisabled",
                     type: "input-text",
-                    required: true,
                     display: {
                         placeholder: "Add a short ID...",
                         disabled: true

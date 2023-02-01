@@ -28,6 +28,8 @@ const defaultHighchartConfig = {
 
 export const SAMPLE_DATA = {
     // inputComplex: "test template",
+    inputTextFilled: "FieldWithText",
+    inputTextVal: "",
     testComplex: "test1",
     inputComplex: "test complex",
     inputJsonEditor: {

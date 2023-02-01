@@ -60,3 +60,6 @@ cypress/downloads
 cypress/screenshots
 cypress/videos
 
+## vscode
+.vscode/settings.json
+

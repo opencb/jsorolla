@@ -140,7 +140,7 @@ describe("Data Form Component", () => {
     it("should be a table", () => {
         cy.get("label").contains("Table Example")
             .parents("div[class='row form-group ']")
-            .within(()=> {
+            .within(() => {
                 cy.get("table").should("be.visible");
             });
     });
@@ -162,7 +162,7 @@ describe("Data Form Component", () => {
         cy.log("Test Coming Soon");
     });
 
-        // Check each elements
+    // Check each elements
     // Type each elements
     // Add element to the list
     // Remove element to the list
