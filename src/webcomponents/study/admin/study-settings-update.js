@@ -92,11 +92,10 @@ export default class StudySettingsUpdate extends LitElement {
         //  Besides, the contents get rendered twice.
         //  The following fix displays the json correctly, but needs to be optimized.
         if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
-            debugger
             this.toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
-                body: this.settings
+                body: this.settings[this.tool],
             };
             this.config = this.getDefaultConfig();
         }
@@ -122,10 +121,10 @@ export default class StudySettingsUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
+    // #setLoading(value) {
+    //     this.isLoading = value;
+    //     this.requestUpdate();
+    // }
 
     // --- OBSERVERS ---
     configObserver() {
@@ -136,7 +135,7 @@ export default class StudySettingsUpdate extends LitElement {
     }
 
     // --- EVENTS ---
-    onFieldChange(e, field) {
+    onFieldChange(e) {
         this._settings = {...e.detail.value.json};
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -167,7 +166,6 @@ export default class StudySettingsUpdate extends LitElement {
     // --- RENDER ---
     render() {
         // Todo: State loading
-        debugger
         return html `
             <!-- 1. Render Data form wrapper -->
             <div style="display: flex; flex:1">
@@ -216,10 +214,10 @@ export default class StudySettingsUpdate extends LitElement {
                 //     ],
                 // },
                 {
-                    //title: "Configuration Parameters",
+                    // title: "Configuration Parameters",
                     elements: [
                         {
-                            title: `${this.tool} Settings`,
+                            title: "Modify the json",
                             field: "body",
                             type: "json-editor",
                             display: {

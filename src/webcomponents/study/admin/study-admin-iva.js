@@ -19,7 +19,6 @@ import {LitElement, html} from "lit";
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../study/admin/study-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
-import UtilsNew from "../../../core/utils-new";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -138,15 +137,14 @@ export default class StudyAdminIva extends LitElement {
                         {
                             id: "sample",
                             name: "Sample browser settings",
-                            title: "Sample Browser settings",
-                            icon: "fas fa-vial",
+                            icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => html `
                                 <study-settings-update style="display: flex"
                                     .opencgaSession="${opencgaSession}"
                                     .study="${study}"
-                                    .settings="${this.settings["SAMPLE"]}"
-                                    .tool="${"SAMPLE"}">
+                                    .settings="${this.settings}"
+                                    .tool="${"SAMPLE_BROWSER"}">
                                 </study-settings-update>
                             `,
                         },
