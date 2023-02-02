@@ -204,7 +204,7 @@ export default {
         }
     },
 
-    lollipopTooltipFormatter(variant, consequenceType) {
+    variantsTooltipFormatter(variant, consequenceType) {
         return `
             <div><strong>Position</strong>: ${consequenceType.proteinVariantAnnotation.position}</div>
         `;
@@ -264,8 +264,8 @@ export default {
             "style": "display:none;",
         });
 
-        if (config.showProteinScale) {
-            offset = offset + 25;
+        if (config.scaleVisible) {
+            offset = offset + config.scaleHeight;
             const group = SVG.addChild(container, "g", {
                 "transform": `translate(0, ${offset})`,
             });
@@ -311,7 +311,7 @@ export default {
         }
 
         // Show protein lollipops track
-        if (config.showProteinLollipops) {
+        if (config.variantsVisible) {
             const group = SVG.addChild(container, "g", {});
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
@@ -368,11 +368,11 @@ export default {
                         });
 
                         // Add tooltip to the circle
-                        if (config.lollipopTooltipVisible && typeof config.lollipopTooltipFormatter === "function") {
+                        if (config.variantsTooltipVisible && typeof config.variantsTooltipFormatter === "function") {
                             VizUtils.createTooltip(circleElement, {
                                 title: info.variant.id,
-                                content: config.lollipopTooltipFormatter(info.variant, info.consequenceType),
-                                width: config.lollipopTooltipWidth,
+                                content: config.variantsTooltipFormatter(info.variant, info.consequenceType),
+                                width: config.variantsTooltipWidth,
                             });
                         }
 
@@ -440,7 +440,7 @@ export default {
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display lollipops legend
-            if (config.showLegend && Object.keys(variantsCounts).length > 0) {
+            if (config.legendVisible && Object.keys(variantsCounts).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(variantsCounts).map(id => ({
                         id: id,
@@ -470,7 +470,7 @@ export default {
         }
 
         // Show protein structure
-        if (config.showProteinStructure) {
+        if (config.proteinVisible) {
             offset = offset + 10 + config.proteinHeight;
 
             const featuresCounts = {};
@@ -555,7 +555,7 @@ export default {
                 translateY: -config.proteinHeight,
             });
 
-            if (config.showLegend) {
+            if (config.legendVisible) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(featuresCounts).map(id => ({
                         title: id.toUpperCase(),
@@ -666,7 +666,7 @@ export default {
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
-            if (this.isVariantsTrack(track) && config.showLegend && Object.keys(countsByConsequenceType).length > 0) {
+            if (this.isVariantsTrack(track) && config.legendVisible && Object.keys(countsByConsequenceType).length > 0) {
                 this.generateTrackLegend(group, {
                     items: Object.keys(countsByConsequenceType).map(id => ({
                         id: id,
@@ -727,13 +727,13 @@ export default {
         return {
             title: "",
             padding: 10,
-            showProteinScale: true,
-            showProteinStructure: true,
-            showProteinLollipops: true,
-            showLegend: true,
-            lollipopTooltipVisible: true,
-            lollipopTooltipWidth: "120px",
-            lollipopTooltipFormatter: this.lollipopTooltipFormatter,
+            scaleVisible: true,
+            scaleHeight: 25,
+            variantsVisible: true,
+            variantsTooltipVisible: true,
+            variantsTooltipWidth: "120px",
+            variantsTooltipFormatter: this.variantsTooltipFormatter,
+            proteinVisible: true,
             proteinHeight: 40,
             proteinFeatures: [
                 "domain",
@@ -747,6 +747,7 @@ export default {
             trackInfoPadding: 12,
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
+            legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
             highlightStrokeColor: "#fd984399",
