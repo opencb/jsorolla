@@ -21,7 +21,6 @@ import {html, LitElement} from "lit";
 import "../../webcomponents/commons/forms/data-form.js";
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
-import {VARIANT_BROWSER_DATA} from "./data/variant-browser-data.js";
 import JSZip from "jszip";
 import UtilsNew from "../../core/utils-new.js";
 
