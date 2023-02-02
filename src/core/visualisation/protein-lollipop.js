@@ -4,6 +4,9 @@ import UtilsNew from "../utils-new.js";
 import VizUtils from "./viz-utils.js";
 
 export default {
+    COLORS: {
+        GRAY: "#6c757d",
+    },
     TRACK_TYPES: {
         VARIANTS: "variants",
         OPENCGA_VARIANTS: "opencga-variants",
@@ -340,7 +343,7 @@ export default {
                     .forEach((x1, index) => {
                         const info = lollipopsVariants[index];
                         const x0 = getPixelPosition(info.position);
-                        const color = this.CONSEQUENCE_TYPES_COLORS[info.type] || this.CONSEQUENCE_TYPES_COLORS.other;
+                        const color = config.variantsColors?.[info.type] || this.COLORS.GRAY;
 
                         // We will generate a new group to wrap all lollipop elements
                         const lollipopGroup = SVG.addChild(group, "g", {
@@ -603,10 +606,10 @@ export default {
                         case this.TRACK_TYPES.VARIANTS:
                         case this.TRACK_TYPES.OPENCGA_VARIANTS:
                         case this.TRACK_TYPES.CELLBASE_VARIANTS:
-                            color = this.CONSEQUENCE_TYPES_COLORS[info.type] || this.CONSEQUENCE_TYPES_COLORS.other;
+                            color = config.variantsColors?.[info.type] || this.COLORS.GRAY;
                             break;
                         default:
-                            color = this.CONSEQUENCE_TYPES_COLORS.other;
+                            color = this.COLORS.GRAY;
                     }
 
                     const lollipopGroup = SVG.addChild(group, "g", {
@@ -744,6 +747,7 @@ export default {
             scaleVisible: true,
             scaleHeight: 25,
             variantsVisible: true,
+            variantsColors: this.CONSEQUENCE_TYPES_COLORS,
             variantsTooltipVisible: true,
             variantsTooltipWidth: "120px",
             variantsTooltipFormatter: this.variantsTooltipFormatter,
