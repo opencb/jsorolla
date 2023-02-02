@@ -22,6 +22,8 @@ import "../../webcomponents/commons/forms/data-form.js";
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
 import {VARIANT_BROWSER_DATA} from "./data/variant-browser-data.js";
+import JSZip from "jszip";
+import UtilsNew from "../../core/utils-new.js";
 
 class TestVariantBrowserGrid extends LitElement {
 
@@ -46,7 +48,6 @@ class TestVariantBrowserGrid extends LitElement {
     }
 
     #init() {
-        const zip = new JSZip();
         this._dataFormConfig = DATA_FORM_EXAMPLE;
         this.configVariantGrid = {
             pageSize: 10,
@@ -63,13 +64,28 @@ class TestVariantBrowserGrid extends LitElement {
                 // columns list for the dropdown will be added in grid components based on settings.table.columns
             },
         };
+        this.#loadFileJson("data/variant-browser-data.zip", "variant-browser-data.json");
+    }
 
+
+    #loadFileJson(path, filename) {
+        // Approach #1: read file from zip
+        JSZip.loadAsync(UtilsNew.importBinaryFile(path))
+            .then(zip => {
+                zip.file(filename).async("string")
+                    .then(content => {
+                        this.variantBrowserData = JSON.parse(content);
+                        this.requestUpdate();
+                    });
+            }).catch(err => {
+                console.error("File not exist", err);
+            });
     }
 
     render() {
         return html`
             <variant-browser-grid
-                .variants="${VARIANT_BROWSER_DATA}"
+                .variants="${this.variantBrowserData}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.configVariantGrid}"
                 .populationFrequencies="${this.config.populationFrequencies}">
