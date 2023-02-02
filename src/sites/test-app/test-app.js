@@ -35,11 +35,12 @@ import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-import "./test-component.js";
+import "./test-data-form.js";
+import "./test-variant-browser-grid.js";
+import "./test-variant-interpreter-grid.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
-import {VARIANT_BROWSER_DATA} from "./data/variant-browser-data.js";
 
 
 class TestApp extends LitElement {
@@ -93,7 +94,8 @@ class TestApp extends LitElement {
             "utils-new",
             "catalog-filters",
             "opencga-update",
-            "variant-browser",
+            "variant-grid",
+            "variant-interpreter-grid",
             "variant-filters",
             "genome-browser",
             "lollipop",
@@ -175,21 +177,6 @@ class TestApp extends LitElement {
             this.requestUpdate();
         }, false);
         this.initOpencgaSessionTest();
-        this.configVariantGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                // showNew: true,
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
-            },
-        };
     }
 
     initOpencgaSessionTest() {
@@ -595,13 +582,13 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
-                        <test-component
+                        <test-data-form
                             .data="${this.dataTest}"
                             .config="${this._dataFormConfig}"
                             @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
-                        </test-component>
+                        </test-data-form>
                     </div>
                 ` : null}
 
@@ -634,15 +621,21 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-browser"] ? html`
-                <div style="padding:2%" class="content" id="variant-browser">
-                    <variant-browser-grid
-                        .variants="${VARIANT_BROWSER_DATA}"
+                ${this.config.enabledComponents["variant-grid"] ? html`
+                <div style="padding:2%" class="content" id="variant-grid">
+                    <test-variant-browser-grid
                         .opencgaSession="${this.opencgaSession}"
-                        .cellbaseClient="${this.cellbaseClient}"
-                        .config="${this.configVariantGrid}"
-                        .populationFrequencies="${this.config.populationFrequencies}">
-                    </variant-browser-grid>
+                        .config="${this.config}">
+                    </test-variant-browser-grid>
+                </div>
+            ` : null}
+
+            ${this.config.enabledComponents["variant-interpreter-grid"] ? html`
+                <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                    <test-variant-interpreter-grid
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config}">
+                    </test-variant-interpreter-grid>
                 </div>
             ` : null}
 

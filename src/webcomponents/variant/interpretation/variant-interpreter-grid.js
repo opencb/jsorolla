@@ -163,7 +163,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.checkedVariants.clear();
             }
 
-            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+            if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
                     this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
                     this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
@@ -181,7 +181,7 @@ export default class VariantInterpreterGrid extends LitElement {
     fillReportedVariants(variants) {
         // Prepare queried variants to contain the interpretations
         this.queriedVariants = {};
-        return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
+        return this.opencgaSession.opencgaClient?.clinical().searchInterpretation({
             primaryFindings: variants.map(variant => variant.id).join(","),
             study: this.opencgaSession.study.fqn,
         })
@@ -242,6 +242,7 @@ export default class VariantInterpreterGrid extends LitElement {
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
+            debugger;
             this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
         }
 
@@ -296,7 +297,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
                     // We need to make sure that the proband is the first sample when analysing Families
-                    if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
+                    if (this.clinicalAnalysis.type?.toUpperCase() === "FAMILY" && this.query?.sample) {
                         // Note:
                         // - sample=A;B;C
                         // - sample=A:0/1,1/1;B:1/1;C:1/1
@@ -762,7 +763,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
                     halign: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER"
                 },
                 {
                     id: "VCF_Data",
@@ -996,7 +997,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 // Interpretation Column
                 {
                     id: "reported",
-                    title: `Interpreted and/or<br> Reported`,
+                    title: "Interpreted and/or<br> Reported",
                     // field: "prediction",
                     rowspan: 1,
                     colspan: 1,
@@ -1015,7 +1016,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
                     },
                     align: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY"
                 },
                 {
                     id: "Select",
@@ -1096,7 +1097,7 @@ export default class VariantInterpreterGrid extends LitElement {
             return;
         }
 
-        if (this.clinicalAnalysis && (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY")) {
+        if (this.clinicalAnalysis && (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY")) {
             // Add Samples
             // const samples = [];
             const sampleInfo = {};
@@ -1175,7 +1176,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
         }
 
-        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+        if (this.clinicalAnalysis && this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
             // Add sample columns
             // let samples = null;
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
