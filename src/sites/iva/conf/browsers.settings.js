@@ -1,5 +1,5 @@
 const BROWSERS_SETTINGS = {
-    INDIVIDUAL: {
+    INDIVIDUAL_BROWSER: {
         /**
          *  Full settings
          */
@@ -32,7 +32,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["individual-view", "clinical-analysis-grid", "individual-inferred-sex", "individual-mendelian-error", "json-view"]
     },
-    COHORT: {
+    COHORT_BROWSER: {
         /**
          *  Full settings
          */
@@ -63,7 +63,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["cohort-view", "sample-view", "json-view"]
     },
-    FAMILY: {
+    FAMILY_BROWSER: {
         /**
          *  Full settings
          */
@@ -94,7 +94,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["family-view", "family-relatedness", "json-view"]
     },
-    SAMPLE: {
+    SAMPLE_BROWSER: {
         /**
          *  Full settings
          */
@@ -125,7 +125,7 @@ const BROWSERS_SETTINGS = {
         detail: ["sample-view", "sample-variant-stats-view", "samtools-flags-stats-view", "individual-view", "file-view", "json-view"]
 
     },
-    FILE: {
+    FILE_BROWSER: {
         /**
          *  Full settings
          */
@@ -155,7 +155,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["file-view", "file-preview", "json-view"]
     },
-    JOB: {
+    JOB_BROWSER: {
         /**
          *  Full settings
          */
@@ -187,7 +187,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["job-view", "job-log", "json-view"]
     },
-    VARIANT: {
+    VARIANT_BROWSER: {
         menu: {
             // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
             sections: [
@@ -276,7 +276,7 @@ const BROWSERS_SETTINGS = {
         details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "cohortStats", "samples", "beacon", "json-view"]
         // hiddenDetails: ["json-view"]
     },
-    DISEASE_PANEL: {
+    DISEASE_PANEL_BROWSER: {
         /**
          *  Full settings
          */
@@ -306,7 +306,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["disease-panel-view", "disease-panel-genes", "disease-panel-regions", "disease-panel-variants", "json-view"]
     },
-    CLINICAL_ANALYSIS: {
+    CLINICAL_ANALYSIS_BROWSER: {
         menu: {
             // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
             sections: [
@@ -334,7 +334,7 @@ const BROWSERS_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D array.
         details: ["clinical-analysis-view", "json-view"]
     },
-    CLINICAL_ANALYSIS_PORTAL: {
+    CLINICAL_ANALYSIS_PORTAL_BROWSER: {
         title: "Case Portal",
         icon: "fas fa-window-restore",
         menu: {
@@ -371,5 +371,5 @@ const BROWSERS_SETTINGS = {
         },
         details: ["clinical-analysis-view"],
     },
-    RGA: {},
+    RGA_BROWSER: {},
 };
