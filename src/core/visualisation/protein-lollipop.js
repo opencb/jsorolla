@@ -405,11 +405,11 @@ export default {
                                         childEl.style.strokeWidth = config.hoverStrokeWidth;
                                     });
                                 }
-
-                                // Show and translate rule element
-                                rule.style.display = "";
-                                rule.setAttribute("transform", `translate(${getPixelPosition(info.position)},0)`);
                             });
+
+                            // Show and translate rule element
+                            rule.style.display = "";
+                            rule.setAttribute("transform", `translate(${getPixelPosition(info.position)},0)`);
                         });
                         circleElement.addEventListener("mouseout", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
@@ -423,10 +423,10 @@ export default {
                                         child.style.strokeWidth = child.dataset.defaultStrokeWidth;
                                     });
                                 }
-
-                                // Hide rule
-                                rule.style.display = "none";
                             });
+
+                            // Hide rule
+                            rule.style.display = "none";
                         });
 
                         // Update track max height, using the size of the variant ID
