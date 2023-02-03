@@ -89,20 +89,22 @@ export default class ProteinLollipopVariantView extends LitElement {
 
         return html`
             <div class="row" style="margin-top:16px;margin-bottom:32px;">
-                <div class="col-md-2">
-                    <ul class="nav nav-pills nav-stacked">
-                        ${this.genes.map(gene => html`
-                            <li
-                                class="${gene === this.activeGene ? "active" : ""}"
-                                style="cursor:pointer;"
-                                @click="${() => this.onGeneChange(gene)}"
-                            >
-                                <a>${gene}</a>
-                            </li>
-                        `)}
-                    </ul>
-                </div>
-                <div class="col-md-10">
+                ${this.genes.length > 1 ? html`
+                    <div class="col-md-2">
+                        <ul class="nav nav-pills nav-stacked">
+                            ${this.genes.map(gene => html`
+                                <li
+                                    class="${gene === this.activeGene ? "active" : ""}"
+                                    style="cursor:pointer;"
+                                    @click="${() => this.onGeneChange(gene)}"
+                                >
+                                    <a>${gene}</a>
+                                </li>
+                            `)}
+                        </ul>
+                    </div>
+                ` : null}
+                <div class="${this.genes.length === 1 ? "col-md-12" : "col-md-10"}">
                     ${this.activeGene ? html`
                         <h3 style="font-weight:bold">${this.activeGene}</h3>
                         <protein-lollipop
