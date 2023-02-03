@@ -154,6 +154,28 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             }
                         },
                         {
+                            title: "Method",
+                            field: "method",
+                            type: "custom",
+                            display: {
+                                visible: interpretation => !!interpretation.method?.name && !!interpretation.method?.version,
+                                render: method => html`
+                                    <div>
+                                        <strong>Name</strong>: ${method.name}
+                                    </div>
+                                    <div>
+                                        <strong>Version</strong>: ${method.version}
+                                    </div>
+                                    <div>
+                                        <strong>Dependencies</strong>: 
+                                        ${(method.dependencies || []).map(item => html`
+                                            <span class="label label-primary">${item.name} (${item.version})</span>
+                                        `)}
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
                             title: "Primary Findings",
                             type: "custom",
                             display: {
