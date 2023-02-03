@@ -903,4 +903,20 @@ export default class VariantInterpreterGridFormatter {
         return tooltipText;
     }
 
+    static interpretationScoresFormatter(value, row, method) {
+        switch (method.toLowerCase()) {
+            case "interpretation-exomiser":
+                const evidence = (row?.evidences || []).find(evidence => {
+                    return evidence.interpretationMethodName === "interpretation-exomiser";
+                });
+                return `
+                    <div data-tooltip="">
+                        <b>Exomiser</b>: ${evidence?.attributes?.ExVarScore || "-"}
+                    </div>
+                `;
+            default:
+                return "-";
+        }
+    }
+
 }
