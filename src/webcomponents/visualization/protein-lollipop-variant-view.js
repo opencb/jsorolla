@@ -40,7 +40,7 @@ export default class ProteinLollipopVariantView extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("variant")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -101,10 +101,12 @@ export default class ProteinLollipopVariantView extends LitElement {
                 </div>
                 <div class="col-md-10">
                     ${this.activeGene ? html`
+                        <h3 style="font-weight:bold">${this.activeGene}</h3>
                         <protein-lollipop
                             .opencgaSession="${this.opencgaSession}"
                             .geneId="${this.activeGene}"
-                            .tracks="${this._config.proteinTracks || []}"
+                            .tracks="${this._config.proteinTracks}"
+                            .highlights="${this._config.proteinHighlights}"
                             .active="${this.active}">
                         </protein-lollipop>
                     ` : null}
@@ -115,6 +117,15 @@ export default class ProteinLollipopVariantView extends LitElement {
 
     getDefaultConfig() {
         return {
+            proteinHighlights: [
+                {
+                    variants: [this.variant?.id],
+                    style: {
+                        strokeColor: "#fd984399",
+                        strokeWidth: "4px",
+                    },
+                }
+            ],
             proteinTracks: [
                 {
                     title: "Clinvar",
