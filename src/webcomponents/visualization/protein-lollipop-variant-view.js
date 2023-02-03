@@ -25,6 +25,9 @@ export default class ProteinLollipopVariantView extends LitElement {
             variant: {
                 type: String,
             },
+            query: {
+                type: Object,
+            },
             config: {
                 type: Object,
             },
@@ -105,9 +108,10 @@ export default class ProteinLollipopVariantView extends LitElement {
                         <protein-lollipop
                             .opencgaSession="${this.opencgaSession}"
                             .geneId="${this.activeGene}"
+                            .query="${this.query}"
                             .tracks="${this._config.proteinTracks}"
                             .highlights="${this._config.proteinHighlights}"
-                            .active="${this.active}">
+                            ?active="${this.active}">
                         </protein-lollipop>
                     ` : null}
                 </div>

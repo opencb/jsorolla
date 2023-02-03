@@ -659,6 +659,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 <protein-lollipop-variant-view
                                     .opencgaSession="${opencgaSession}"
                                     .variant="${variant}"
+                                    .query="${this.query}"
                                     .active="${active}">
                                 </protein-lollipop-variant-view>
                             `,
