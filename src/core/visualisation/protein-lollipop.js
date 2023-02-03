@@ -351,6 +351,7 @@ export default {
                             "data-index": index,
                             "data-ct": info.type,
                             "data-position": info.position,
+                            "data-highlighted": "false",
                             "style": "opacity:1;",
                         });
 
@@ -396,12 +397,14 @@ export default {
                         // Register hover and out events
                         circleElement.addEventListener("mouseover", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
-                                [el.querySelector("circle"), el.querySelector("path")].forEach(childEl => {
-                                    // eslint-disable-next-line no-param-reassign
-                                    childEl.style.stroke = config.hoverStrokeColor;
-                                    // eslint-disable-next-line no-param-reassign
-                                    childEl.style.strokeWidth = config.hoverStrokeWidth;
-                                });
+                                if (el.dataset.highlighted === "false") {
+                                    [el.querySelector("circle"), el.querySelector("path")].forEach(childEl => {
+                                        // eslint-disable-next-line no-param-reassign
+                                        childEl.style.stroke = config.hoverStrokeColor;
+                                        // eslint-disable-next-line no-param-reassign
+                                        childEl.style.strokeWidth = config.hoverStrokeWidth;
+                                    });
+                                }
 
                                 // Show and translate rule element
                                 rule.style.display = "";
@@ -410,14 +413,16 @@ export default {
                         });
                         circleElement.addEventListener("mouseout", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
-                                // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
-                                // attribute in the element
-                                [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
-                                    // eslint-disable-next-line no-param-reassign
-                                    child.style.stroke = child.dataset.defaultStrokeColor;
-                                    // eslint-disable-next-line no-param-reassign
-                                    child.style.strokeWidth = child.dataset.defaultStrokeWidth;
-                                });
+                                if (el.dataset.highlighted === "false") {
+                                    // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
+                                    // attribute in the element
+                                    [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
+                                        // eslint-disable-next-line no-param-reassign
+                                        child.style.stroke = child.dataset.defaultStrokeColor;
+                                        // eslint-disable-next-line no-param-reassign
+                                        child.style.strokeWidth = child.dataset.defaultStrokeWidth;
+                                    });
+                                }
 
                                 // Hide rule
                                 rule.style.display = "none";
@@ -773,6 +778,7 @@ export default {
             positionRuleVisible: true,
             positionRuleColor: "#909294",
             positionRuleWidth: "1px",
+            highlights: [],
         };
     },
 
