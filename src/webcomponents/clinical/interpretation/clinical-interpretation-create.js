@@ -122,8 +122,24 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onSubmit() {
-        // remove private fields
-        const data = {...this.interpretation};
+        const data = {
+            ...this.interpretation,
+            method: {
+                // eslint-disable-next-line no-undef
+                version: process.env.VERSION,
+                name: "iva-dss",
+                dependencies: [
+                    {
+                        name: "OpenCGA",
+                        version: this.opencgaSession.opencgaClient?._config?.version || "-",
+                    },
+                    {
+                        name: "Cellbase",
+                        version: this.opencgaSession.project?.cellbase?.version || "-",
+                    },
+                ],
+            },
+        };
 
         this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {
             study: this.opencgaSession.study.fqn
