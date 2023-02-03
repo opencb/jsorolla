@@ -909,9 +909,32 @@ export default class VariantInterpreterGridFormatter {
                 const evidence = (row?.evidences || []).find(evidence => {
                     return evidence.interpretationMethodName === "interpretation-exomiser";
                 });
+
+                let tooltipText = "No Exomiser scores..";
+                if (evidence?.attributes?.ExVarScore) {
+                    const scoreFields = [
+                        {field: "ExGeneSPheno", title: "Phenotype Score"},
+                        {field: "ExVarScore", title: "Variant Score"},
+                        {field: "ExGeneSCombi", title: "Exomiser Score"},
+                        {field: "ExGeneSVar", title: "Gene Variant Score"},
+                    ];
+                    tooltipText = `
+                        <table style='width:100%;'>
+                            ${scoreFields.map(value => `
+                                <tr>
+                                    <td><strong>${value.title}:</strong></td>
+                                    <td>${evidence.attributes?.[value.field] || "-"}</td>
+                                </tr>
+                            `).join("")}
+                        </table>
+                    `;
+                }
+
                 return `
-                    <div data-tooltip="">
-                        <b>Exomiser</b>: ${evidence?.attributes?.ExVarScore || "-"}
+                    <div>
+                        <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
+                            <b>Exomiser</b>: ${evidence?.attributes?.ExVarScore || "-"}
+                        </a>
                     </div>
                 `;
             default:
