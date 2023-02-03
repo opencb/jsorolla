@@ -29,6 +29,9 @@ export default class ProteinLollipop extends LitElement {
             query: {
                 type: Object,
             },
+            highlights: {
+                type: Object,
+            },
             tracks: {
                 type: Object,
             },
@@ -67,7 +70,7 @@ export default class ProteinLollipop extends LitElement {
             this.rendered = false;
         }
 
-        if (changedProperties.has("geneId") || changedProperties.has("query") || changedProperties.has("tracks")) {
+        if (changedProperties.has("geneId") || changedProperties.has("query") || changedProperties.has("tracks") || changedProperties.has("highlights")) {
             this.rendered = false;
         }
 
@@ -194,6 +197,7 @@ export default class ProteinLollipop extends LitElement {
             ProteinLollipopViz.draw(target, transcript, protein, variants, {
                 title: this._config.title,
                 tracks: tracks,
+                highlights: this.highlights || [],
             });
             this.loading = false;
             this.requestUpdate();
