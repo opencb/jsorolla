@@ -143,7 +143,7 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
-        this.settingsName = "IVA_CONFIG_DELETEME_3";
+        this.settingsName = "IVA_CONFIG_TEST_1";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
             USER_PROFILE_SETTINGS,
@@ -372,54 +372,24 @@ class IvaApp extends LitElement {
     }
 
     #initStudiesSettings() {
-        // TODO: UNCOMMENT
-        /*
+        // 1. Init with default settings all studies that do not have settings
         this.opencgaSession.projects.forEach((project, p) => {
             project.studies?.forEach((study, s) => {
-                const activeStudy = this.opencgaSession.study;
-                const isSettingsEmpty = UtilsNew.isEmpty(study?.attributes["IVA_CONFIG"]);
-
-                if (isSettingsEmpty){
-                    this.opencgaSession.projects[p].studies[s].attributes[this.settingsName].attributes = this.defaultSettings;
-                    if (activeStudy.fqn === study.fqn) {
-                        this.opencgaSession.study.attributes[this.settingsName].settings = this.defaultSettings;
-                    }
-                    this.settings = UtilsNew.objectClone(this.defaultSettings);
-                    const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
+                // If the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
+                if (UtilsNew.isEmpty(study?.attributes[this.settingsName]?.settings)) {
+                    this.opencgaSession.projects[p].studies[s].attributes[this.settingsName] = {
+                        // Todo: more metadata here?
+                        settings: this.defaultSettings,
+                    };
                     // Store the default settings if the user is admin/owner
-                    if (userIsAdmin) {
+                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
                         this.#saveSettings(study, this.defaultSettings);
                     }
                 }
-                else {
-                   this.settings = UtilsNew.objectClone(study.attributes[this.settingsName].settings);
-                }
             });
         });
-         */
-
-        // TODO: *** REMOVE THIS BLOCK ONCE TESTED ***
-        const study = this.opencgaSession.projects[0].studies[0];
-        const activeStudy = this.opencgaSession.study;
-        const isSettingsEmpty = UtilsNew.isEmpty(study?.attributes[this.settingsName]?.settings);
-
-        if (isSettingsEmpty) {
-            // The study do not have IVA_CONFIG settings, the default settings saved in the opencgaSession
-            this.opencgaSession.projects[0].studies[0].attributes[this.settingsName].settings = this.defaultSettings;
-            if (activeStudy.fqn === study.fqn) {
-                this.opencgaSession.study.attributes[this.settingsName].settings = this.defaultSettings;
-            }
-            this.settings = UtilsNew.objectClone(this.defaultSettings);
-            const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
-            // Store the default settings if the user is admin/owner
-            if (userIsAdmin) {
-                this.#saveSettings(study, this.defaultSettings);
-            }
-        } else {
-            this.settings = UtilsNew.objectClone(study.attributes[this.settingsName].settings);
-        }
-        // \TODO: *** REMOVE THIS BLOCK ONCE TESTED ***
-
+        // 2. Init settings
+        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.settingsName].settings);
     }
 
     /**
@@ -430,6 +400,7 @@ class IvaApp extends LitElement {
         const updateParams = {
             attributes: {
                 [this.settingsName]: {
+                    ...study.attributes,
                     author: this.opencgaSession.user.id,
                     // FIXME: it will store a '*-dev' version
                     // version: this.version
