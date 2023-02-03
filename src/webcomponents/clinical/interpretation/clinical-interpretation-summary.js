@@ -124,18 +124,25 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             display: {
                                 render: interpretation => html`
                                     <div class="row" style="padding-left: 5px">
-                                        <div class="col-md-6">
-                                            <span style="font-size: 1.2em">${interpretation.id}</span>
-                                            <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
+                                        <div class="col-md-7" style="display:flex;">
+                                            <div style="margin-right:16px;">
+                                                <div class="label ${interpretation.status?.id ? "label-primary" : "label-default"}" style="display:block;font-size:1em;">
+                                                    <strong>${interpretation.status.id || "NO_STATUS"}</strong>
+                                                </div>
+                                            </div>
+                                            <div style="">
+                                                <span style="font-size:1.2em;">${interpretation.id}</span>
+                                                <span style="color:grey;margin-left:8px;">version ${interpretation.version}</span>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-5" style="display:flex;justify-content:end;">
                                             <span title="Analysed by">
                                                 <i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>
                                                 Assigned to <label>${interpretation?.analyst?.name ?? "-"}</label>
                                             </span>
-                                            <span style="margin-left: 25px" title="Created on">
+                                            <span style="margin-left: 16px" title="Created on">
                                                 <i class="far fa-calendar-alt"></i>
-                                                <label>Creation Date:</label> ${UtilsNew.dateFormatter(interpretation?.creationDate)}
+                                                Created on <label>${UtilsNew.dateFormatter(interpretation?.creationDate)}</label>
                                             </span>
                                         </div>
                                     </div>
@@ -147,11 +154,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             field: "description",
                             type: "basic",
                             defaultValue: "No description available",
-                        },
-                        {
-                            title: "Status",
-                            field: "status.id",
-                            type: "basic",
                         },
                         {
                             title: "Disease Panels",
