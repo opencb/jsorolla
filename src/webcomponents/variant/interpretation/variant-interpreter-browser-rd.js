@@ -654,7 +654,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         },
                         {
                             id: "protein",
-                            name: "Protein",
+                            name: "Protein (Beta)",
                             render: (variant, active, opencgaSession) => html`
                                 <protein-lollipop-variant-view
                                     .opencgaSession="${opencgaSession}"
