@@ -397,7 +397,7 @@ export default {
                         // Register hover and out events
                         circleElement.addEventListener("mouseover", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
-                                if (el.dataset.highlighted === "false") {
+                                if (el.dataset.highlighted !== "true") {
                                     [el.querySelector("circle"), el.querySelector("path")].forEach(childEl => {
                                         // eslint-disable-next-line no-param-reassign
                                         childEl.style.stroke = config.hoverStrokeColor;
@@ -416,7 +416,7 @@ export default {
                         });
                         circleElement.addEventListener("mouseout", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
-                                if (el.dataset.highlighted === "false") {
+                                if (el.dataset.highlighted !== "true") {
                                     // We need to restore the previous stroke and color of the variant, that is stored as a 'data-default-*'
                                     // attribute in the element
                                     [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
