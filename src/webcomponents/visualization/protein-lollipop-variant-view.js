@@ -62,9 +62,9 @@ export default class ProteinLollipopVariantView extends LitElement {
         this.activeGene = null;
         if (this.variant) {
             const genesList = new Set();
-            (this.variant.evidences || []).forEach(evidence => {
-                if (evidence?.genomicFeature?.type === "GENE" && evidence.genomicFeature.geneName) {
-                    genesList.add(evidence.genomicFeature.geneName);
+            (this.variant.annotation?.consequenceTypes || []).forEach(ct => {
+                if (ct.geneName) {
+                    genesList.add(ct.geneName);
                 }
             });
 
