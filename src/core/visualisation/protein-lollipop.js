@@ -393,14 +393,14 @@ export default {
                             });
                         }
 
-                        // Register hover and out events for highlighting matches
+                        // Register hover and out events
                         circleElement.addEventListener("mouseover", () => {
                             Array.from(parent.querySelectorAll(`g[data-position="${info.position}"]`)).forEach(el => {
                                 [el.querySelector("circle"), el.querySelector("path")].forEach(childEl => {
                                     // eslint-disable-next-line no-param-reassign
-                                    childEl.style.stroke = config.highlightStrokeColor;
+                                    childEl.style.stroke = config.hoverStrokeColor;
                                     // eslint-disable-next-line no-param-reassign
-                                    childEl.style.strokeWidth = config.highlightStrokeWidth;
+                                    childEl.style.strokeWidth = config.hoverStrokeWidth;
                                 });
 
                                 // Show and translate rule element
@@ -768,8 +768,8 @@ export default {
             legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
-            highlightStrokeColor: "#fd984399",
-            highlightStrokeWidth: "4px",
+            hoverStrokeColor: "#fd984399",
+            hoverStrokeWidth: "4px",
             positionRuleVisible: true,
             positionRuleColor: "#909294",
             positionRuleWidth: "1px",
