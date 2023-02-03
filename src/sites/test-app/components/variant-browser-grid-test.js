@@ -18,13 +18,13 @@
 import {html, LitElement} from "lit";
 
 
-import "../../webcomponents/commons/forms/data-form.js";
-import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
-import {SAMPLE_DATA} from "./data/data-example.js";
+import "../../../webcomponents/commons/forms/data-form.js";
+import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
+import {SAMPLE_DATA} from "../data/data-example.js";
 import JSZip from "jszip";
-import UtilsNew from "../../core/utils-new.js";
+import UtilsNew from "../../../core/utils-new.js";
 
-class TestVariantBrowserGrid extends LitElement {
+class VariantBrowserGridTest extends LitElement {
 
     constructor() {
         super();
@@ -94,4 +94,4 @@ class TestVariantBrowserGrid extends LitElement {
 
 }
 
-customElements.define("test-variant-browser-grid", TestVariantBrowserGrid);
+customElements.define("variant-browser-grid-test", VariantBrowserGridTest);

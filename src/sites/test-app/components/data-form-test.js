@@ -18,11 +18,11 @@
 import {html, LitElement} from "lit";
 
 
-import "../../webcomponents/commons/forms/data-form.js";
-import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
-import {SAMPLE_DATA} from "./data/data-example.js";
+import "../../../webcomponents/commons/forms/data-form.js";
+import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
+import {SAMPLE_DATA} from "../data/data-example.js";
 
-class TestDataForm extends LitElement {
+class DataFormTest extends LitElement {
 
     constructor() {
         super();
@@ -69,4 +69,4 @@ class TestDataForm extends LitElement {
 
 }
 
-customElements.define("test-data-form", TestDataForm);
+customElements.define("data-form-test", DataFormTest);

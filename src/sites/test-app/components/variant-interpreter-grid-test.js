@@ -18,12 +18,11 @@
 import {html, LitElement} from "lit";
 
 
-import "../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
-import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
-import {VARIANT_INTERPRETER_DATA} from "./data/variant-interpreter-data.js";
-import {CLINICAL_ANALYSIS_DATA} from "./data/clinical-analysis-data.js";
+import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
+import {VARIANT_INTERPRETER_DATA} from "../data/variant-interpreter-data.js";
+import {CLINICAL_ANALYSIS_DATA} from "../data/clinical-analysis-data.js";
 
-class TestVariantInterpreterGrid extends LitElement {
+class VariantInterpreterGridTest extends LitElement {
 
     constructor() {
         super();
@@ -46,7 +45,6 @@ class TestVariantInterpreterGrid extends LitElement {
     }
 
     #init() {
-        this._dataFormConfig = DATA_FORM_EXAMPLE;
         this.configVariantInterpreterGrid = {
             renderLocal: true,
             pagination: true,
@@ -96,5 +94,5 @@ class TestVariantInterpreterGrid extends LitElement {
 
 }
 
-customElements.define("test-variant-interpreter-grid", TestVariantInterpreterGrid);
+customElements.define("variant-interpreter-grid-test", VariantInterpreterGridTest);
 

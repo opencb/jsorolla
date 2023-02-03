@@ -3,7 +3,7 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable valid-jsdoc */
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +25,20 @@ import "./iva-settings.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
+import {OpenCGAClientMock} from "./clients/opencga-client-mock.js";
 
 
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/variant/variant-browser-grid.js";
-
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
-import "./test-data-form.js";
-import "./test-variant-browser-grid.js";
-import "./test-variant-interpreter-grid.js";
+
+import "./components/data-form-test.js";
+import "./components/variant-browser-grid-test.js";
+import "./components/variant-interpreter-grid-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
@@ -176,10 +177,16 @@ class TestApp extends LitElement {
             this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
-        this.initOpencgaSessionTest();
+        this.initOpencgaSessionMock();
     }
 
-    initOpencgaSessionTest() {
+    initOpencgaSessionMock() {
+        console.log("This opencgaClient Mock Session");
+        this.opencgaSession = new OpenCGAClientMock().createAnonymousSession();
+        this.initProjectMock();
+    }
+
+    initProjectMock() {
         this.opencgaSession = {
             project: {
                 id: "family",
@@ -200,6 +207,7 @@ class TestApp extends LitElement {
             }
         };
     }
+
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -582,13 +590,13 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["data-form"] ? html`
                     <div class="content" id="data-form" style="padding:2%">
-                        <test-data-form
+                        <data-form-test
                             .data="${this.dataTest}"
                             .config="${this._dataFormConfig}"
                             @fieldChange="${e => this.onFieldChange(e)}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${e => this.onSubmit(e)}">
-                        </test-data-form>
+                        </data-form-test>
                     </div>
                 ` : null}
 
@@ -623,19 +631,19 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["variant-grid"] ? html`
                 <div style="padding:2%" class="content" id="variant-grid">
-                    <test-variant-browser-grid
+                    <variant-browser-grid-test
                         .opencgaSession="${this.opencgaSession}"
                         .config="${this.config}">
-                    </test-variant-browser-grid>
+                    </variant-browser-grid-test>
                 </div>
             ` : null}
 
             ${this.config.enabledComponents["variant-interpreter-grid"] ? html`
                 <div style="padding:2%" class="content" id="variant-interpreter-grid">
-                    <test-variant-interpreter-grid
+                    <variant-interpreter-grid-test
                         .opencgaSession="${this.opencgaSession}"
                         .config="${this.config}">
-                    </test-variant-interpreter-grid>
+                    </variant-interpreter-grid-test>
                 </div>
             ` : null}
 
