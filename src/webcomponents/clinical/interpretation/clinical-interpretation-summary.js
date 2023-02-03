@@ -66,6 +66,32 @@ export default class ClinicalInterpretationSummary extends LitElement {
         }
     }
 
+    renderPrimaryFindingsStats(stats) {
+        const fields = [
+            {title: "Tier", field: "tierCount"},
+            {title: "Gene", field: "geneCount"},
+            {title: "Status", field: "statusCount"},
+            {title: "Status", field: "variantStatusCount"},
+        ];
+
+        return fields
+            .filter(value => stats?.primaryFindings?.[value.field])
+            .map(value => {
+                const items = Object.entries(stats?.primaryFindings?.[value.field])
+                    .filter(([, value]) => value > 0)
+                    .map(([gene, numVariants]) => `${gene} (${numVariants})`);
+
+                return html`
+                    <div style="margin-left: 10px">
+                        <span style="width: 120px; display: inline-block;">${value.title}: </span>
+                        <span style="margin-left: 20px">
+                            ${items.join(", ")}
+                        </span>
+                    </div>
+                `;
+            });
+    }
+
     render() {
         return html`
             <data-form
@@ -135,19 +161,19 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 render: panels => {
                                     let panelHtml = "-";
                                     if (panels?.length > 0) {
-                                        panelHtml = html`
-                                            ${panels.map(panel => {
-                                                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                                                    return html`
-                                                        <div style="margin: 5px 0">
-                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                                                ${panel.name} (${panel.source.project} v${panel.source.version})
-                                                            </a>
-                                                        </div>`;
-                                                } else {
-                                                    return html`<div style="margin: 5px 0px">${panel.id}</div>`;
-                                                }
-                                            })}`;
+                                        panelHtml = panels.map(panel => {
+                                            if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                                                return html`
+                                                    <div style="margin: 5px 0">
+                                                        <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                                                            ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                        </a>
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return html`<div style="margin: 5px 0px">${panel.id}</div>`;
+                                            }
+                                        });
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
@@ -182,30 +208,17 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 render: interpretation => html`
                                     ${interpretation?.primaryFindings?.length > 0 ? html`
                                         <div>
-                                            <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
+                                            <div>
+                                                <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
+                                            </div>
+                                            ${this.renderPrimaryFindingsStats(interpretation?.stats)}
                                         </div>
-                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "statusCount"}, {title: "Status", field: "variantStatusCount"}]
-                                            .filter(value => interpretation?.stats?.primaryFindings?.[value.field])
-                                            .map(value => html`
-                                                <div style="margin-left: 10px">
-                                                    <span style="width: 120px; display: inline-block;">${value.title}: </span>
-                                                    <span style="margin-left: 20px">
-                                                        ${Object.entries(interpretation?.stats?.primaryFindings?.[value.field])
-                                                            .filter(([, value]) => value > 0)
-                                                            .map(([gene, numVariants]) => {
-                                                                return `${gene} (${numVariants})`;
-                                                            })
-                                                            .join(", ")
-                                                        }
-                                                    </span>
-                                                </div>
-                                            `)
-                                        }` : html`
+                                    ` : html`
                                         <div>
                                             <span style="">No variants selected</span>
-                                        </div>`
-                                    }
-                                `
+                                        </div>
+                                    `}
+                                `,
                             }
                         },
                         {
