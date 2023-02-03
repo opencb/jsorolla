@@ -438,6 +438,29 @@ export default {
                         }
                         variantsCounts[info.type]++;
                     });
+
+                // Apply highlights
+                (config.highlights || []).forEach(highlight => {
+                    (highlight.variants || []).forEach(id => {
+                        const el = group.querySelector(`g[data-id="${id}"]`);
+
+                        if (el && el.dataset.highlighted === "false") {
+                            [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
+                                if (highlight.style?.strokeColor) {
+                                    // eslint-disable-next-line no-param-reassign
+                                    child.style.stroke = highlight.style.strokeColor;
+                                }
+                                if (highlight.style?.strokeWidth) {
+                                    // eslint-disable-next-line no-param-reassign
+                                    child.style.strokeWidth = highlight.style.strokeWidth;
+                                }
+                            });
+
+                            // Mark this variant as highlighted
+                            el.dataset.highlighted = "true";
+                        }
+                    });
+                });
             } else {
                 // No variants to display
                 this.generateTrackEmptyMessage(group, {
