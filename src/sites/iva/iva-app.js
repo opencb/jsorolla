@@ -143,6 +143,7 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
+        this.settingsName = "IVA_CONFIG_DELETEME_3";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
             USER_PROFILE_SETTINGS,
@@ -370,51 +371,28 @@ class IvaApp extends LitElement {
         this.requestUpdate();
     }
 
-    #saveSettings() {
+    #initStudiesSettings() {
         // TODO: UNCOMMENT
         /*
-        this.opencgaSession.projects.forEach(project => {
-            project.studies?.forEach(study => {
-                const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
+        this.opencgaSession.projects.forEach((project, p) => {
+            project.studies?.forEach((study, s) => {
+                const activeStudy = this.opencgaSession.study;
                 const isSettingsEmpty = UtilsNew.isEmpty(study?.attributes["IVA_CONFIG"]);
-                const defaultSettings = {
-                    ...BROWSERS_SETTINGS,
-                    ...USER_PROFILE_SETTINGS,
-                    ...CUSTOM_PAGES,
-                    // FIXME: In Variant interpreter settings
-                };
 
-                // 1. Save settings
-                if (userIsAdmin && studyHasSettings) {
-                    const params = {};
-                    const updateParams = {
-                        attributes: {
-                            IVA_CONFIG: {
-                                author: this.opencgaSession.user.id,
-                                // FIXME: it will store a '*-dev' version
-                                // version: this.version
-                                updateDate: UtilsNew.getDatetime(),
-                                settings: UtilsNew.objectClone(defaultSettings),
-                            }
-                        }
-                    };
-                    let error;
-                    // this.#setLoading(true);
-                    this.opencgaSession.opencgaClient.studies()
-                        .update(this.opencgaSession.study.fqn, updateParams, params)
-                        .then(response => {
-                            console.log(`${study.id} attributes settings stored correctly`);
-                            // Todo?
-                        })
-                        .catch(reason => {
-                            error = reason;
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                        })
-                        .finally(() => {
-                            // Todo: dispatch event?
-                            // this.#setLoading(false);
-                        });
-
+                if (isSettingsEmpty){
+                    this.opencgaSession.projects[p].studies[s].attributes[this.settingsName].attributes = this.defaultSettings;
+                    if (activeStudy.fqn === study.fqn) {
+                        this.opencgaSession.study.attributes[this.settingsName].settings = this.defaultSettings;
+                    }
+                    this.settings = UtilsNew.objectClone(this.defaultSettings);
+                    const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
+                    // Store the default settings if the user is admin/owner
+                    if (userIsAdmin) {
+                        this.#saveSettings(study, this.defaultSettings);
+                    }
+                }
+                else {
+                   this.settings = UtilsNew.objectClone(study.attributes[this.settingsName].settings);
                 }
             });
         });
@@ -422,37 +400,23 @@ class IvaApp extends LitElement {
 
         // TODO: *** REMOVE THIS BLOCK ONCE TESTED ***
         const study = this.opencgaSession.projects[0].studies[0];
-        const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
-        const isSettingsEmpty = UtilsNew.isEmpty(study?.attributes["IVA_CONFIG_DELETEME_1"]);
-        if (userIsAdmin && isSettingsEmpty) {
-            const params = {};
-            const updateParams = {
-                attributes: {
-                    IVA_CONFIG_DELETEME_1: {
-                        author: this.opencgaSession.user.id,
-                        // FIXME: it will store a '*-dev' version
-                        // version: this.version
-                        updateDate: UtilsNew.getDatetime(),
-                        settings: UtilsNew.objectClone(this.defaultSettings),
-                    }
-                }
-            };
-            let error;
-            // this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .update(this.opencgaSession.study.fqn, updateParams, params)
-                .then(response => {
-                    console.log(`${study.id} attributes settings stored correctly`);
-                    // Todo?
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                })
-                .finally(() => {
-                    // Todo: dispatch event?
-                    // this.#setLoading(false);
-                });
+        const activeStudy = this.opencgaSession.study;
+        const isSettingsEmpty = UtilsNew.isEmpty(study?.attributes[this.settingsName]?.settings);
+
+        if (isSettingsEmpty) {
+            // The study do not have IVA_CONFIG settings, the default settings saved in the opencgaSession
+            this.opencgaSession.projects[0].studies[0].attributes[this.settingsName].settings = this.defaultSettings;
+            if (activeStudy.fqn === study.fqn) {
+                this.opencgaSession.study.attributes[this.settingsName].settings = this.defaultSettings;
+            }
+            this.settings = UtilsNew.objectClone(this.defaultSettings);
+            const userIsAdmin = OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id);
+            // Store the default settings if the user is admin/owner
+            if (userIsAdmin) {
+                this.#saveSettings(study, this.defaultSettings);
+            }
+        } else {
+            this.settings = UtilsNew.objectClone(study.attributes[this.settingsName].settings);
         }
         // \TODO: *** REMOVE THIS BLOCK ONCE TESTED ***
 
@@ -461,11 +425,36 @@ class IvaApp extends LitElement {
     /**
      * To init IVA_CONFIG settings in memory
      */
-    #setSettings() {
-        const settings = this.opencgaSession.study?.attributes["IVA_CONFIG"]?.settings;
-        this.settings = (UtilsNew.isEmpty(settings)) ?
-            UtilsNew.objectClone(this.defaultSettings) :
-            UtilsNew.objectClone(settings);
+    #saveSettings(study) {
+        const params = {};
+        const updateParams = {
+            attributes: {
+                [this.settingsName]: {
+                    author: this.opencgaSession.user.id,
+                    // FIXME: it will store a '*-dev' version
+                    // version: this.version
+                    updateDate: UtilsNew.getDatetime(),
+                    settings: UtilsNew.objectClone(this.defaultSettings),
+                }
+            }
+        };
+        let error;
+        // this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .update(study.fqn, updateParams, params)
+            .then(response => {
+                console.log(`${study.id} attributes settings stored correctly`);
+                // Todo ?
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            })
+            .finally(() => {
+                // Todo: dispatch event?
+                // this.#setLoading(false);
+            });
+
     }
 
     async _createOpenCGASession() {
@@ -523,7 +512,7 @@ class IvaApp extends LitElement {
                 // this forces the observer to be executed.
                 this.opencgaSession = {..._response};
                 this.opencgaSession.mode = this.config.mode;
-                this.#saveSettings();
+                this.#initStudiesSettings();
                 this.updateCellBaseClient();
                 // this.config.menu = [...application.menu];
                 this.config = {...this.config};
@@ -918,7 +907,7 @@ class IvaApp extends LitElement {
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
-            this.#setSettings();
+            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes.settings);
             this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
