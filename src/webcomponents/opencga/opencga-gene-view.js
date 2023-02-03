@@ -125,7 +125,7 @@ export default class OpencgaGeneView extends LitElement {
                 element.classList.add("active");
             }
         });
-        const query = this.query;
+        const query = this.query || {};
         switch (e.target.dataset.value) {
             case "missense":
                 query.ct = "missense_variant";
@@ -139,6 +139,10 @@ export default class OpencgaGeneView extends LitElement {
         }
         this.query = {
             ...query,
+        };
+        // Terrible hack to force detail-tabs to update tabs content
+        this.gene = {
+            ...this.gene,
         };
         this.requestUpdate();
     }
@@ -336,13 +340,13 @@ export default class OpencgaGeneView extends LitElement {
                         active: true,
                         render: (gene, active, opencgaSession) => html`
                             <div class="btn-group" role="group" style="padding-top:16px;">
-                                <button type="button" class="btn btn-primary active" data-value="all" @click="${this.updateQuery}">
+                                <button type="button" class="btn btn-primary active" data-value="all" @click="${e => this.updateQuery(e)}">
                                     All
                                 </button>
-                                <button type="button" class="btn btn-primary" data-value="missense" @click="${this.updateQuery}">
+                                <button type="button" class="btn btn-primary" data-value="missense" @click="${e => this.updateQuery(e)}">
                                     Missense
                                 </button>
-                                <button type="button" class="btn btn-primary" data-value="lof" @click="${this.updateQuery}">
+                                <button type="button" class="btn btn-primary" data-value="lof" @click="${e => this.updateQuery(e)}">
                                     LoF
                                 </button>
                             </div>
