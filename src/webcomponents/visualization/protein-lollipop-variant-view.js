@@ -43,15 +43,15 @@ export default class ProteinLollipopVariantView extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+
         if (changedProperties.has("config") || changedProperties.has("variant")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
-        }
-
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
         }
 
         super.update(changedProperties);
