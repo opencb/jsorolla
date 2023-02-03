@@ -107,13 +107,14 @@ export default class ProteinLollipopVariantView extends LitElement {
                 <div class="${this.genes.length === 1 ? "col-md-12" : "col-md-10"}">
                     ${this.activeGene ? html`
                         <h3 style="font-weight:bold">${this.activeGene}</h3>
+                        <hr/>
                         <protein-lollipop
                             .opencgaSession="${this.opencgaSession}"
                             .geneId="${this.activeGene}"
                             .query="${this.query}"
                             .tracks="${this._config.proteinTracks}"
                             .highlights="${this._config.proteinHighlights}"
-                            ?active="${this.active}">
+                            .active="${this.active}">
                         </protein-lollipop>
                     ` : null}
                 </div>
