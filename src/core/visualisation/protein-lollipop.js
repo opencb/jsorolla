@@ -382,7 +382,7 @@ export default {
                             "fill": color,
                             "text-anchor": "start",
                             "dominant-baseline": "middle",
-                            "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;font-weight:bold;`,
+                            "style": `transform:rotate(-90deg) translate(85px,${x1}px);font-size:0.8em;`,
                         });
 
                         // Add tooltip to the circle
@@ -407,6 +407,9 @@ export default {
                                 }
                             });
 
+                            // Change font-weight style of lollipop text
+                            text.style.fontWeight = "bold";
+
                             // Show and translate rule element
                             rule.style.display = "";
                             rule.setAttribute("transform", `translate(${getPixelPosition(info.position)},0)`);
@@ -424,6 +427,9 @@ export default {
                                     });
                                 }
                             });
+
+                            // Reset font-weight style of lollipop text
+                            text.style.fontWeight = "normal";
 
                             // Hide rule
                             rule.style.display = "none";
