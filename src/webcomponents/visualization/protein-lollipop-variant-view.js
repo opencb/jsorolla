@@ -81,9 +81,19 @@ export default class ProteinLollipopVariantView extends LitElement {
     }
 
     render() {
-        if (!this.variant || this.genes.length === 0) {
+        if (!this.variant || !this.opencgaSession) {
             return html`
-                <div class="">No protein info available.</div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle icon-padding"></i> No variant provided.
+                </div>
+            `;
+        }
+
+        if (this.genes.length === 0) {
+            return html`
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle icon-padding"></i> No genes available for variant '${this.variant.id}'.
+                </div>
             `;
         }
 
