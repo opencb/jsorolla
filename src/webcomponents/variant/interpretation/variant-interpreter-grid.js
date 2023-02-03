@@ -826,7 +826,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 5,
                     halign: "center"
                 },
                 {
@@ -994,6 +994,20 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: !this._config.hideClinicalInfo,
                 },
                 // Interpretation Column
+                {
+                    id: "interpretationScores",
+                    title: "Scores",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const variant = this.checkedVariants.get(row.id);
+                        const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
+
+                        return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
+                    },
+                    align: "center",
+                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
+                },
                 {
                     id: "reported",
                     title: `Interpreted and/or<br> Reported`,
