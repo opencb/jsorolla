@@ -36,7 +36,6 @@ export default {
                 centerWidth = centerWidth + minSeparation;
                 centerSum = centerSum + initialPositions[j];
                 count = count + 1;
-                // center = Math.min(width - centerWidth / 2, centerSum / count);
                 center = centerSum / count;
                 j = j + 1;
             }
