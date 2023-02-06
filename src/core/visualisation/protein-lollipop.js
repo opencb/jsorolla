@@ -100,10 +100,9 @@ export default {
     },
 
     generateTrackLegend(parent, config) {
-        // const legendId = UtilsNew.randomString(8);
         const legendParent = SVG.addChild(parent, "foreignObject", {
-            x: config.x || 0,
-            y: config.y || 0,
+            x: config.x,
+            y: config.y,
             width: config.width,
             height: config.height,
         });
@@ -173,7 +172,7 @@ export default {
         });
     },
 
-    parseVariantsList(data = [], transcript, protein, type) {
+    parseVariantsList(data, transcript, protein, type) {
         switch (type) {
             case this.TRACK_TYPES.VARIANTS:
             case this.TRACK_TYPES.OPENCGA_VARIANTS:

@@ -22,8 +22,6 @@ export default {
 
     // WIP: custom tooltip implementation
     createTooltip(target, config) {
-        // const position = config.position || "bottom";
-        // const tooltipId = UtilsNew.randomString(8);
         const tooltipTemplate = `
             <div class="viz-tooltip" style="width:${config.width || "auto"}">
                 ${config.title ? `
