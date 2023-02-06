@@ -919,7 +919,7 @@ export default class VariantInterpreterGridFormatter {
                         {field: "ExGeneSVar", title: "Gene Variant Score"},
                     ];
                     tooltipText = `
-                        <table style='width:100%;'>
+                        <table style='width:160px;'>
                             ${scoreFields.map(value => `
                                 <tr>
                                     <td><strong>${value.title}:</strong></td>
