@@ -1,6 +1,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import ProteinLollipopViz from "../../core/visualisation/protein-lollipop.js";
+import "../commons/view/detail-tabs.js";
 import "./protein-lollipop.js";
 
 export default class ProteinLollipopVariantView extends LitElement {
@@ -36,10 +37,9 @@ export default class ProteinLollipopVariantView extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
+        this._genes = [];
         this._config = this.getDefaultConfig();
         this.active = false;
-        this.genes = [];
-        this.activeGene = null;
     }
 
     update(changedProperties) {
@@ -58,8 +58,7 @@ export default class ProteinLollipopVariantView extends LitElement {
     }
 
     variantObserver() {
-        this.genes = [];
-        this.activeGene = null;
+        this._genes = [];
         if (this.variant) {
             const genesList = new Set();
             (this.variant.annotation?.consequenceTypes || []).forEach(ct => {
@@ -68,15 +67,7 @@ export default class ProteinLollipopVariantView extends LitElement {
                 }
             });
 
-            this.genes = Array.from(genesList);
-            this.activeGene = this.genes[0];
-        }
-    }
-
-    onGeneChange(gene) {
-        if (this.activeGene !== gene) {
-            this.activeGene = gene;
-            this.requestUpdate();
+            this._genes = Array.from(genesList);
         }
     }
 
@@ -89,7 +80,7 @@ export default class ProteinLollipopVariantView extends LitElement {
             `;
         }
 
-        if (this.genes.length === 0) {
+        if (this._genes.length === 0) {
             return html`
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle icon-padding"></i> No genes available for variant '${this.variant.id}'.
@@ -98,67 +89,66 @@ export default class ProteinLollipopVariantView extends LitElement {
         }
 
         return html`
-            <div class="row" style="margin-top:16px;margin-bottom:32px;">
-                ${this.genes.length > 1 ? html`
-                    <div class="col-md-2">
-                        <ul class="nav nav-pills nav-stacked">
-                            ${this.genes.map(gene => html`
-                                <li
-                                    class="${gene === this.activeGene ? "active" : ""}"
-                                    style="cursor:pointer;"
-                                    @click="${() => this.onGeneChange(gene)}"
-                                >
-                                    <a>${gene}</a>
-                                </li>
-                            `)}
-                        </ul>
-                    </div>
-                ` : null}
-                <div class="${this.genes.length === 1 ? "col-md-12" : "col-md-10"}">
-                    ${this.activeGene ? html`
-                        <h3 style="font-weight:bold">${this.activeGene}</h3>
-                        <hr/>
-                        <protein-lollipop
-                            .opencgaSession="${this.opencgaSession}"
-                            .geneId="${this.activeGene}"
-                            .query="${this.query}"
-                            .tracks="${this._config.proteinTracks}"
-                            .highlights="${this._config.proteinHighlights}"
-                            .active="${this.active}">
-                        </protein-lollipop>
-                    ` : null}
-                </div>
+            <div style="margin-top:16px;margin-bottom:32px;">
+                <detail-tabs
+                    .mode="${"pills"}"
+                    .data="${this.variant}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
             </div>
         `;
     }
 
     getDefaultConfig() {
+        const proteinTracks = [
+            {
+                title: "Clinvar",
+                type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                query: {
+                    source: "clinvar",
+                },
+            },
+            {
+                title: "Cosmic",
+                type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                query: {
+                    source: "cosmic",
+                },
+            },
+        ];
+
         return {
-            proteinHighlights: [
-                {
-                    variants: [this.variant?.id],
-                    style: {
-                        strokeColor: "#fd984399",
-                        strokeWidth: "4px",
-                    },
-                }
-            ],
-            proteinTracks: [
-                {
-                    title: "Clinvar",
-                    type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
-                    query: {
-                        source: "clinvar",
-                    },
+            title: "",
+            items: this._genes.map((geneId, index) => ({
+                id: geneId,
+                name: geneId,
+                active: index === 0,
+                render: (variant, active, opencgaSession) => {
+                    const highlights = [
+                        {
+                            variants: [variant?.id],
+                            style: {
+                                strokeColor: "#fd984399",
+                                strokeWidth: "4px",
+                            },
+                        },
+                    ];
+
+                    return html`
+                        <h3 style="font-weight:bold">${geneId}</h3>
+                        <hr/>
+                        <protein-lollipop
+                            .opencgaSession="${opencgaSession}"
+                            .geneId="${geneId}"
+                            .query="${this.query}"
+                            .tracks="${proteinTracks}"
+                            .highlights="${highlights}"
+                            .active="${active}">
+                        </protein-lollipop>
+                    `;
                 },
-                {
-                    title: "Cosmic",
-                    type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
-                    query: {
-                        source: "cosmic",
-                    },
-                },
-            ],
+            })),
         };
     }
 
