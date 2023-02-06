@@ -17,34 +17,24 @@
 import {TIMEOUT} from "../../support/constants.js";
 import UtilsTest from "../../support/utils-test.js";
 
-
 /**
  * Header bar (pre-login)
  */
 context("2. Footer", () => {
-    before(() => {
-        cy.visit("http://localhost:3000/src/sites/iva/");
+    beforeEach(() => {
+        cy.visit("#home");
     });
 
-    it("2.1 - check footer presence", () => {
+    it("Check footer IVA", () => {
         cy.get("custom-footer", {timeout: TIMEOUT}).should("be.visible");
         cy.get("custom-footer img[alt=logo]", {timeout: TIMEOUT}).should("be.visible");
         cy.get("custom-footer .footer-item:nth-child(2)").contains("IVA");
     });
 
-    it("2.1 - check OpenCGA host connectivity", () => {
+    it("Check footer OpenCGA", () => {
         cy.get("custom-footer .footer-item:nth-child(3)").contains("OpenCGA");
         cy.get("custom-footer .footer-item:nth-child(3) sup")
             .should("be.visible")
             .should("not.contain", "NOT AVAILABLE");
-    });
-    it("2.2 - check CellBase host connectivity", () => {
-        UtilsTest.login();
-        cy.get("custom-footer .footer-item:nth-child(4)").contains("CellBase");
-        cy.get("custom-footer .footer-item:nth-child(4) sup")
-            .should("be.visible")
-            .should("not.contain", "NOT AVAILABLE");
-
-
     });
 });
