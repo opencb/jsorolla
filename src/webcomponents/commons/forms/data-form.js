@@ -110,6 +110,7 @@ export default class DataForm extends LitElement {
             // we need to get the value from the array, information is encoded as:
             //  phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
+                debugger;
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
                     const [itemIndex, ...itemFieldIds] = right.split(".");
@@ -117,7 +118,14 @@ export default class DataForm extends LitElement {
                     if (itemFieldIds.length === 1) {
                         value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
-                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        // value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        if (itemFieldIds[1].includes("[]")) {
+                            // i.e. genes[].cancer.roles[]
+                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1].replace("[]", "")];
+                        } else {
+                            // i.e. genes[].cancer.role
+                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        }
                     }
                 } else {
                     // FIXME this should never be reached
@@ -383,31 +391,31 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="${className}" style="${style}">
                         ${this.config?.display.layout.map(section => {
-                            const sectionClassName = section.className ?? section.classes ?? "";
-                            const sectionStyle = section.style ?? "";
+                    const sectionClassName = section.className ?? section.classes ?? "";
+                    const sectionStyle = section.style ?? "";
 
-                            if (section.id) {
-                                return html`
+                    if (section.id) {
+                        return html`
                                     <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
                                         ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                                     </div>
                                 `;
-                            } else {
-                                return html`
+                    } else {
+                        return html`
                                     <div class="${sectionClassName}" style="${sectionStyle}">
                                         ${(section.sections || []).map(subsection => {
-                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                                            const subsectionStyle = subsection.style ?? "";
-                                            return subsection.id && html`
+                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                            const subsectionStyle = subsection.style ?? "";
+                            return subsection.id && html`
                                                 <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
                                                     ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                                 </div>
                                             `;
-                                        })}
+                        })}
                                     </div>
                                 `;
-                            }
-                        })}
+                    }
+                })}
                     </div>
                 `;
             } else {
@@ -1048,32 +1056,32 @@ export default class DataForm extends LitElement {
                     </thead>` : null}
                 <tbody>
                 ${array
-                    .map(row => html`
+            .map(row => html`
                         <tr scope="row">
                             ${element.display.columns
-                                .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = elem.display?.style ?? "";
-                                    let content = null;
+                .map(elem => {
+                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                    const elemStyle = elem.display?.style ?? "";
+                    let content = null;
 
-                                    // Check the element type
-                                    switch (elem.type) {
-                                        case "complex":
-                                            content = this._createComplexElement(elem, row);
-                                            break;
-                                        case "custom":
-                                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                            break;
-                                        default:
-                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                                    }
+                    // Check the element type
+                    switch (elem.type) {
+                        case "complex":
+                            content = this._createComplexElement(elem, row);
+                            break;
+                        case "custom":
+                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
+                            break;
+                        default:
+                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
+                    }
 
-                                    return html`
+                    return html`
                                         <td class="${elemClassName}" style="${elemStyle}">
                                             ${content}
                                         </td>
                                     `;
-                                })}
+                })}
                         </tr>
                     `)}
                 </tbody>
@@ -1301,38 +1309,38 @@ export default class DataForm extends LitElement {
                 const view = html`
                     <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
                         ${items?.slice(0, maxNumItems)
-                            .map((item, index) => {
-                                const _element = JSON.parse(JSON.stringify(element));
-                                // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                                // items have a virtual element associated, this will allow to get the proper value later.
-                                for (let i = 0; i< _element.elements.length; i++) {
-                                    // This support object nested
-                                    const [left, right] = _element.elements[i].field.split("[].");
-                                    _element.elements[i].field = left + "[]." + index + "." + right;
-                                    if (_element.elements[i].type === "custom") {
-                                        _element.elements[i].display.render = element.elements[i].display.render;
-                                    }
-                                    if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
-                                        _element.elements[i].allowedValues = element.elements[i].allowedValues;
-                                    }
-                                    if (typeof element.elements[i]?.validation?.validate === "function") {
-                                        _element.elements[i].validation.validate = element.elements[i].validation.validate;
-                                    }
-                                    if (typeof element.elements[i]?.save === "function") {
-                                        _element.elements[i].save = element.elements[i].save;
-                                    }
-                                    // if (typeof element.elements[i]?.validation?.message === "function") {
-                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
-                                    // }
-                                    // Copy JSON stringify and parse ignores functions, we need to copy them
-                                    if (typeof element.elements[i]?.display?.disabled === "function") {
-                                        _element.elements[i].display.disabled = element.elements[i].display.disabled;
-                                    }
-                                    if (typeof element.elements[i]?.display?.visible === "function") {
-                                        _element.elements[i].display.visible = element.elements[i].display.visible;
-                                    }
-                                }
-                                return html`
+                    .map((item, index) => {
+                        const _element = JSON.parse(JSON.stringify(element));
+                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                        // items have a virtual element associated, this will allow to get the proper value later.
+                        for (let i = 0; i< _element.elements.length; i++) {
+                            // This support object nested
+                            const [left, right] = _element.elements[i].field.split("[].");
+                            _element.elements[i].field = left + "[]." + index + "." + right;
+                            if (_element.elements[i].type === "custom") {
+                                _element.elements[i].display.render = element.elements[i].display.render;
+                            }
+                            if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
+                                _element.elements[i].allowedValues = element.elements[i].allowedValues;
+                            }
+                            if (typeof element.elements[i]?.validation?.validate === "function") {
+                                _element.elements[i].validation.validate = element.elements[i].validation.validate;
+                            }
+                            if (typeof element.elements[i]?.save === "function") {
+                                _element.elements[i].save = element.elements[i].save;
+                            }
+                            // if (typeof element.elements[i]?.validation?.message === "function") {
+                            //     _element.elements[i].validation.message = element.elements[i].validation.message;
+                            // }
+                            // Copy JSON stringify and parse ignores functions, we need to copy them
+                            if (typeof element.elements[i]?.display?.disabled === "function") {
+                                _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                            }
+                            if (typeof element.elements[i]?.display?.visible === "function") {
+                                _element.elements[i].display.visible = element.elements[i].display.visible;
+                            }
+                        }
+                        return html`
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                         <div>
                                             ${element.display.view(item)}
@@ -1364,7 +1372,7 @@ export default class DataForm extends LitElement {
                                             </button>
                                         </div>
                                     </div>`;
-                            })
+                    })
                         }
                     </div>
 
@@ -1580,6 +1588,7 @@ export default class DataForm extends LitElement {
         } else {
             // 2. Check if the element field is part of an object-list
             if (element.field.includes("[]")) {
+                debugger;
                 const [parentArrayField, itemField] = element.field.split("[].");
                 if (itemField.includes(".")) {
                     // 2.1 Updating a field in an existing item in the array
@@ -1588,10 +1597,19 @@ export default class DataForm extends LitElement {
                     if (fields.length === 1) {
                         currentElementList[index][fields[0]] = value;
                     } else {
+                        // currentElementList[index][fields[0]] = {
+                        //     [fields[1]]: value
+                        // };
+                        if (fields[1].includes("[]")) {
+                            // eslint-disable-next-line no-param-reassign
+                            value = value.split(",");
+                            fields[1] = fields[1].replace("[]", "");
+                        }
                         currentElementList[index][fields[0]] = {
                             [fields[1]]: value
                         };
                     }
+
                     UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
                     eventDetail = {
                         param: element.field,
@@ -1600,7 +1618,6 @@ export default class DataForm extends LitElement {
                     };
                 } else {
                     // FIXME To be deleted: 2.2 Updating a field in a "Create New Item" form
-                    debugger
                     console.error("This code should never be reached!");
                     if (value) {
                         this.objectListItems[parentArrayField] = {...this.objectListItems[parentArrayField], [itemField]: value};
@@ -1832,15 +1849,15 @@ export default class DataForm extends LitElement {
             return html`
                 <ul class="nav nav-tabs">
                     ${this._getVisibleSections().map((section, index) => {
-                        const active = index === this.activeSection;
-                        return html`
+                const active = index === this.activeSection;
+                return html`
                             <li role="presentation" class="${active ? "active" : ""}">
                                 <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                     ${section.title || ""}
                                 </a>
                             </li>
                         `;
-                    })}
+            })}
                 </ul>
                 <div style="margin-top:24px;">
                     ${this.renderData()}
@@ -1856,15 +1873,15 @@ export default class DataForm extends LitElement {
                     <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
                             ${this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
+                const active = index === this.activeSection;
+                return html`
                                     <li role="presentation" class="${active ? "active" : ""}">
                                         <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                             ${section.title || ""}
                                         </a>
                                     </li>
                                 `;
-                            })}
+            })}
                         </ul>
                     </div>
                     <div class="col-md-9">
