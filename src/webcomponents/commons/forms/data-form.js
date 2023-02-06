@@ -118,10 +118,12 @@ export default class DataForm extends LitElement {
                     if (itemFieldIds.length === 1) {
                         value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
+                        // FIXME We are assuming there are 2 itemIds !!
                         // value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
-                        if (itemFieldIds[1].includes("[]")) {
-                            // i.e. genes[].cancer.roles[]
-                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1].replace("[]", "")];
+                        const lastIndex = itemFieldIds.length - 1;
+                        if (itemFieldIds[lastIndex].includes("[]")) {
+                            // i.e. genes[].1.cancer.roles[]
+                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[lastIndex].replace("[]", "")];
                         } else {
                             // i.e. genes[].cancer.role
                             value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
@@ -1600,10 +1602,11 @@ export default class DataForm extends LitElement {
                         // currentElementList[index][fields[0]] = {
                         //     [fields[1]]: value
                         // };
-                        if (fields[1].includes("[]")) {
+                        const lastIndex = fields.length - 1;
+                        if (fields[lastIndex].includes("[]")) {
                             // eslint-disable-next-line no-param-reassign
                             value = value.split(",");
-                            fields[1] = fields[1].replace("[]", "");
+                            fields[lastIndex] = fields[lastIndex].replace("[]", "");
                         }
                         currentElementList[index][fields[0]] = {
                             [fields[1]]: value
