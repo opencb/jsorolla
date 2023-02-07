@@ -815,6 +815,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "exomiser",
+                    title: "Exomiser Scores",
+                    rowspan: 1,
+                    colspan: 2,
+                    halign: "center",
+                },
+                {
                     id: "interpretation",
                     title: `Interpretation
                         <a class='interpretation-info-icon'
@@ -826,7 +833,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 5,
+                    colspan: 4,
                     halign: "center"
                 },
                 {
@@ -993,21 +1000,38 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
-                // Interpretation Column
+                // Exomiser column
                 {
-                    id: "interpretationScores",
-                    title: "Scores",
+                    id: "exomiserRecessive",
+                    title: "REC",
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
                         const variant = this.checkedVariants.get(row.id);
                         const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
 
-                        return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
+                        // return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
+                        return "-";
                     },
                     align: "center",
                     visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
                 },
+                {
+                    id: "exomiserDominant",
+                    title: "DOM",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const variant = this.checkedVariants.get(row.id);
+                        const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
+
+                        // return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
+                        return "-";
+                    },
+                    align: "center",
+                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
+                },
+                // Interpretation Column
                 {
                     id: "reported",
                     title: `Interpreted and/or<br> Reported`,
