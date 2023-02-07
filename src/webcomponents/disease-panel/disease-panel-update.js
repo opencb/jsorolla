@@ -298,8 +298,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "genes[].modeOfInheritance",
+                                    field: "genes[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -316,8 +318,12 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Role In Cancer",
-                                    field: "genes[].cancer.role",
+                                    field: "genes[].cancer.roles",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => {
+                                        return value.split(","); // Array when select and multiple
+                                    },
                                     allowedValues: ROLE_IN_CANCER,
                                     display: {
                                         placeholder: "Select role in cancer..."

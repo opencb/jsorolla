@@ -110,7 +110,6 @@ export default class DataForm extends LitElement {
             // we need to get the value from the array, information is encoded as:
             //  phenotypes[].1.id: field id from second item of phenotypes
             if (field.includes("[]")) {
-                debugger;
                 const [parentItemArray, right] = field.split("[].");
                 if (right?.includes(".")) {
                     const [itemIndex, ...itemFieldIds] = right.split(".");
@@ -118,16 +117,14 @@ export default class DataForm extends LitElement {
                     if (itemFieldIds.length === 1) {
                         value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
-                        // FIXME We are assuming there are 2 itemIds !!
-                        // value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
-                        const lastIndex = itemFieldIds.length - 1;
-                        if (itemFieldIds[lastIndex].includes("[]")) {
-                            // i.e. genes[].1.cancer.roles[]
-                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[lastIndex].replace("[]", "")];
-                        } else {
-                            // i.e. genes[].cancer.role
-                            value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
-                        }
+                        value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        // if (itemFieldIds[1].includes("[]")) {
+                        //     // i.e. genes[].cancer.roles[]
+                        //     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1].replace("[]", "")];
+                        // } else {
+                        //     // i.e. genes[].cancer.role
+                        //     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
+                        // }
                     }
                 } else {
                     // FIXME this should never be reached
@@ -1590,7 +1587,6 @@ export default class DataForm extends LitElement {
         } else {
             // 2. Check if the element field is part of an object-list
             if (element.field.includes("[]")) {
-                debugger;
                 const [parentArrayField, itemField] = element.field.split("[].");
                 if (itemField.includes(".")) {
                     // 2.1 Updating a field in an existing item in the array
@@ -1599,18 +1595,17 @@ export default class DataForm extends LitElement {
                     if (fields.length === 1) {
                         currentElementList[index][fields[0]] = value;
                     } else {
-                        // currentElementList[index][fields[0]] = {
-                        //     [fields[1]]: value
-                        // };
-                        const lastIndex = fields.length - 1;
-                        if (fields[lastIndex].includes("[]")) {
-                            // eslint-disable-next-line no-param-reassign
-                            value = value.split(",");
-                            fields[lastIndex] = fields[lastIndex].replace("[]", "");
-                        }
                         currentElementList[index][fields[0]] = {
                             [fields[1]]: value
                         };
+                        // if (fields[1].includes("[]")) {
+                        //     // eslint-disable-next-line no-param-reassign
+                        //     value = value.split(",");
+                        //     fields[1] = fields[1].replace("[]", "");
+                        // }
+                        // currentElementList[index][fields[0]] = {
+                        //     [fields[1]]: value
+                        // };
                     }
 
                     UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
