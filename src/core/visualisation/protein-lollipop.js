@@ -627,7 +627,7 @@ export default {
             const group = SVG.addChild(container, "g", {});
             const trackType = track.type || this.TRACK_TYPES.VARIANTS;
             let trackHeight = 40; // Track maximum height
-            const countsByConsequenceType = {};
+            const countsByType = {};
             const lollipopsVariants = this.parseVariantsList(track.data, transcript, protein, trackType);
 
             // Render lollipops
@@ -677,10 +677,10 @@ export default {
                     });
 
                     if (this.isVariantsTrack(track)) {
-                        if (typeof countsByConsequenceType[info.type] !== "number") {
-                            countsByConsequenceType[info.type] = 0;
+                        if (typeof countsByType[info.type] !== "number") {
+                            countsByType[info.type] = 0;
                         }
-                        countsByConsequenceType[info.type]++;
+                        countsByType[info.type]++;
                     }
                 });
             } else {
@@ -718,13 +718,13 @@ export default {
             group.setAttribute("transform", `translate(0, ${offset})`);
 
             // Display track legend
-            if (this.isVariantsTrack(track) && config.legendVisible && Object.keys(countsByConsequenceType).length > 0) {
+            if (this.isVariantsTrack(track) && config.legendVisible && Object.keys(countsByType).length > 0) {
                 this.generateTrackLegend(group, {
-                    items: Object.keys(countsByConsequenceType).map(id => ({
+                    items: Object.keys(countsByType).map(id => ({
                         id: id,
                         title: id.toUpperCase(),
                         color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
-                        count: countsByConsequenceType[id],
+                        count: countsByType[id],
                     })),
                     width: width,
                     height: config.legendHeight,
