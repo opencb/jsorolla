@@ -143,7 +143,7 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
-        this.settingsName = "IVA_CONFIG_TEST_1";
+        this.SETTINGS_NAME = "IVA_CONFIG_TEST_1";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
             USER_PROFILE_SETTINGS,
@@ -375,21 +375,21 @@ class IvaApp extends LitElement {
         // 1. Init with default settings all studies that do not have settings
         this.opencgaSession.projects.forEach((project, p) => {
             project.studies?.forEach((study, s) => {
-                // If the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
-                if (UtilsNew.isEmpty(study?.attributes[this.settingsName]?.settings)) {
-                    this.opencgaSession.projects[p].studies[s].attributes[this.settingsName] = {
+                // 1.1 Check if the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
+                if (UtilsNew.isEmpty(study?.attributes[this.SETTINGS_NAME]?.settings)) {
+                    this.opencgaSession.projects[p].studies[s].attributes[this.SETTINGS_NAME] = {
                         // Todo: more metadata here?
                         settings: this.defaultSettings,
                     };
-                    // Store the default settings if the user is admin/owner
+                    // 1.2. Save the default settings if the user is admin/owner
                     if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        this.#saveSettings(study, this.defaultSettings);
+                        this.#saveSettings(study);
                     }
                 }
             });
         });
         // 2. Init settings
-        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.settingsName].settings);
+        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
     }
 
     /**
@@ -399,18 +399,17 @@ class IvaApp extends LitElement {
         const params = {};
         const updateParams = {
             attributes: {
-                [this.settingsName]: {
+                [this.SETTINGS_NAME]: {
                     ...study.attributes,
-                    author: this.opencgaSession.user.id,
+                    userId: this.opencgaSession.user.id,
                     // FIXME: it will store a '*-dev' version
-                    // version: this.version
-                    updateDate: UtilsNew.getDatetime(),
+                    version: this.version.split("-")[0],
+                    date: UtilsNew.getDatetime(),
                     settings: UtilsNew.objectClone(this.defaultSettings),
                 }
             }
         };
         let error;
-        // this.#setLoading(true);
         this.opencgaSession.opencgaClient.studies()
             .update(study.fqn, updateParams, params)
             .then(response => {
