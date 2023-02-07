@@ -8,6 +8,9 @@ export default {
         GRAY: "#6c757d",
     },
     TRACK_TYPES: {
+        MAIN_SCALE: "main:scale",
+        MAIN_VARIANTS: "main:variants",
+        MAIN_PROTEIN: "main:protein",
         VARIANTS: "variants",
         OPENCGA_VARIANTS: "opencga-variants",
         CELLBASE_VARIANTS: "cellbase-variants",
@@ -285,6 +288,7 @@ export default {
         if (config.scaleVisible) {
             offset = offset + config.scaleHeight;
             const group = SVG.addChild(container, "g", {
+                "data-track": this.TRACK_TYPES.MAIN_SCALE,
                 "transform": `translate(0, ${offset})`,
             });
 
@@ -330,7 +334,9 @@ export default {
 
         // Show protein lollipops track
         if (config.variantsVisible) {
-            const group = SVG.addChild(container, "g", {});
+            const group = SVG.addChild(container, "g", {
+                "data-track": this.TRACK_TYPES.MAIN_VARIANTS,
+            });
             const variantsCounts = {};
             let maxHeight = 0; // Track maximum height
             const lollipopsVariants = this.parseVariantsList(variants, transcript, protein, this.TRACK_TYPES.VARIANTS);
@@ -445,29 +451,6 @@ export default {
                         }
                         variantsCounts[info.type]++;
                     });
-
-                // Apply highlights
-                (config.highlights || []).forEach(highlight => {
-                    (highlight.variants || []).forEach(id => {
-                        const el = group.querySelector(`g[data-id="${id}"]`);
-
-                        if (el && el.dataset.highlighted === "false") {
-                            [el.querySelector("circle"), el.querySelector("path")].forEach(child => {
-                                if (highlight.style?.strokeColor) {
-                                    // eslint-disable-next-line no-param-reassign
-                                    child.style.stroke = highlight.style.strokeColor;
-                                }
-                                if (highlight.style?.strokeWidth) {
-                                    // eslint-disable-next-line no-param-reassign
-                                    child.style.strokeWidth = highlight.style.strokeWidth;
-                                }
-                            });
-
-                            // Mark this variant as highlighted
-                            el.dataset.highlighted = "true";
-                        }
-                    });
-                });
             } else {
                 // No variants to display
                 this.generateTrackEmptyMessage(group, {
@@ -528,6 +511,7 @@ export default {
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(container, "g", {
+                "data-track": this.TRACK_TYPES.MAIN_PROTEIN,
                 "transform": `translate(0, ${offset})`,
             });
 
@@ -624,8 +608,10 @@ export default {
 
         // Render additional tracks
         (config.tracks || []).forEach(track => {
-            const group = SVG.addChild(container, "g", {});
             const trackType = track.type || this.TRACK_TYPES.VARIANTS;
+            const group = SVG.addChild(container, "g", {
+                "data-track": trackType,
+            });
             let trackHeight = 40; // Track maximum height
             const countsByType = {};
             const lollipopsVariants = this.parseVariantsList(track.data, transcript, protein, trackType);
@@ -651,6 +637,7 @@ export default {
                         "data-ct": info.type || "",
                         "data-index": index,
                         "data-position": info.position,
+                        "data-highlighted": "false",
                         "style": "opacity:1;",
                     });
 
@@ -754,6 +741,33 @@ export default {
                 // We need to update the offset to take into accound the legend height
                 offset = offset + config.legendHeight;
             }
+        });
+
+        // Apply highlights
+        (config.highlights || []).forEach(highlight => {
+            (highlight.variants || []).forEach(id => {
+                const el = svg.querySelector(`g[data-track="${this.TRACK_TYPES.MAIN_VARIANTS}"] g[data-id="${id}"]`);
+
+                if (el && el.dataset.highlighted === "false") {
+                    const selector = `g[data-position="${el.dataset.position}"]`;
+
+                    Array.from(svg.querySelectorAll(selector)).forEach(element => {
+                        [element.querySelector("circle"), element.querySelector("path")].forEach(child => {
+                            if (highlight.style?.strokeColor) {
+                                // eslint-disable-next-line no-param-reassign
+                                child.style.stroke = highlight.style.strokeColor;
+                            }
+                            if (highlight.style?.strokeWidth) {
+                                // eslint-disable-next-line no-param-reassign
+                                child.style.strokeWidth = highlight.style.strokeWidth;
+                            }
+                        });
+                        // Mark this variant as highlighted
+                        // eslint-disable-next-line no-param-reassign
+                        element.dataset.highlighted = "true";
+                    });
+                }
+            });
         });
 
         // We need to update the SVG height with the total height of all tracks
