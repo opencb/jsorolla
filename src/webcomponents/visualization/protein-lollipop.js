@@ -135,10 +135,14 @@ export default class ProteinLollipop extends LitElement {
     async getTracks() {
         const tracks = [];
         if (this.tracks?.length > 0) {
-            for (let i = 0; i < this.tracks.length; i++) {
+            const tracksLength = this.tracks.length;
+            for (let i = 0; i < tracksLength; i++) {
                 const track = this.tracks[i];
-                let data = track.data || [];
+                let data = [];
                 switch (track.type) {
+                    case ProteinLollipopViz.TRACK_TYPES.OPENCGA_VARIANTS:
+                        // Not implemented yet
+                        break;
                     case ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS:
                         try {
                             const response = await this.cellbaseClient.get("clinical", "variant", null, "search", {
@@ -154,6 +158,9 @@ export default class ProteinLollipop extends LitElement {
                             console.error(error);
                         }
                         break;
+                    case ProteinLollipopViz.TRACK_TYPES.VARIANTS:
+                    default:
+                        data = track.data || [];
                 }
 
                 // Save this track data
