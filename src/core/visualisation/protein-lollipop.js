@@ -231,6 +231,14 @@ export default {
         `;
     },
 
+    cosmicTooltipFormatter(variant, consequenceType) {
+        return "Cosmic";
+    },
+
+    clinvarTooltipFormatter(variant, consequenceType) {
+        return "Clinvar";
+    },
+
     exonsTooltipFormatter(exon) {
         return `
             <div><strong>cdsStart</strong>: ${exon.cdsStart}</div>
@@ -652,7 +660,7 @@ export default {
                     });
 
                     // Lollipop circle
-                    SVG.addChild(lollipopGroup, "circle", {
+                    const circleElement = SVG.addChild(lollipopGroup, "circle", {
                         "cx": x - 0.5,
                         "cy": (-1) * (trackHeight - 20),
                         "r": 6,
@@ -662,6 +670,15 @@ export default {
                         "data-default-stroke-color": "#fff",
                         "data-default-stroke-width": "1px",
                     });
+
+                    // Add tooltip
+                    if (typeof track.tooltip === "function") {
+                        VizUtils.createTooltip(circleElement, {
+                            // title: info.variant.id,
+                            content: track.tooltip(info.variant, info.consequenceType),
+                            width: track.tooltipWidth || config.trackTooltipWidth,
+                        });
+                    }
 
                     if (this.isVariantsTrack(track)) {
                         if (typeof countsByType[info.type] !== "number") {
@@ -815,6 +832,7 @@ export default {
             trackInfoPadding: 12,
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
+            trackTooltipWidth: "120px",
             legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
