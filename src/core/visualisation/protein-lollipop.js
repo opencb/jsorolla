@@ -113,7 +113,9 @@ export default {
                     <div data-index="${index}" style="display:flex;align-items:center;font-size:8px;margin-left:1em;cursor:pointer;">
                         <div style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
                         <div style="margin-left:0.5em;line-height:1.5;">
-                            <strong style="color:${item.color};">${item.title.toUpperCase()}</strong>
+                            <strong style="color:${item.color};">
+                                ${item.title.toUpperCase()} ${item.count ? `(${item.count})` : ""}
+                            </strong>
                         </div>
                     </div>
                 `).join("")}
@@ -496,7 +498,7 @@ export default {
                         id: id,
                         title: id.toUpperCase(),
                         color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
-                        // color: this.PROTEIN_FEATURES_COLORS[id] || defaultColor,
+                        count: variantsCounts[id],
                     })),
                     width: width,
                     height: config.legendHeight,
@@ -722,6 +724,7 @@ export default {
                         id: id,
                         title: id.toUpperCase(),
                         color: this.CONSEQUENCE_TYPES_COLORS[id] || this.CONSEQUENCE_TYPES_COLORS.other,
+                        count: countsByConsequenceType[id],
                     })),
                     width: width,
                     height: config.legendHeight,
