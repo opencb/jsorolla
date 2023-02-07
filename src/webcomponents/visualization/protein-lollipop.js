@@ -75,7 +75,6 @@ export default class ProteinLollipop extends LitElement {
         }
 
         super.update(changedProperties);
-
     }
 
     updated() {
@@ -95,9 +94,10 @@ export default class ProteinLollipop extends LitElement {
 
     // This is a terrible hack to find the correct protein ID and the transcript ID
     getProtein() {
-        return this.cellbaseClient.getProteinClient(null, "search", {
-            gene: this.geneId,
-        })
+        return this.cellbaseClient
+            .getProteinClient(null, "search", {
+                gene: this.geneId,
+            })
             .then(response => {
                 return response.responses[0].results[0] || null;
             })
@@ -105,7 +105,8 @@ export default class ProteinLollipop extends LitElement {
     }
 
     getTranscript(protein) {
-        return this.cellbaseClient.getGeneClient(this.geneId, "transcript", {})
+        return this.cellbaseClient
+            .getGeneClient(this.geneId, "transcript", {})
             .then(response => {
                 // We need to find the transcript using the proteinSequence
                 return (response.responses[0]?.results || []).find(item => {
@@ -123,7 +124,9 @@ export default class ProteinLollipop extends LitElement {
             ...this.query,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().queryVariant(params)
+        return this.opencgaSession.opencgaClient
+            .clinical()
+            .queryVariant(params)
             .then(response => {
                 return response.responses?.[0]?.results || [];
             });
@@ -199,6 +202,7 @@ export default class ProteinLollipop extends LitElement {
                 tracks: tracks,
                 highlights: this.highlights || [],
             });
+
             this.loading = false;
             this.requestUpdate();
         }
