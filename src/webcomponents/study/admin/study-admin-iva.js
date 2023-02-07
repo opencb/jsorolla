@@ -140,7 +140,7 @@ export default class StudyAdminIva extends LitElement {
                             icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => html `
-                                <study-settings-update style="display: flex"
+                                <study-settings-update
                                     .opencgaSession="${opencgaSession}"
                                     .study="${study}"
                                     .settings="${this.settings}"

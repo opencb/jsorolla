@@ -168,7 +168,7 @@ export default class StudySettingsUpdate extends LitElement {
         // Todo: State loading
         return html `
             <!-- 1. Render Data form wrapper -->
-            <div style="display: flex; flex:1">
+            <div>
                 <data-form
                     .data="${this.toolParams}"
                     .config="${this.config}"
@@ -177,20 +177,28 @@ export default class StudySettingsUpdate extends LitElement {
                     @submit="${this.onSubmit}">
                 </data-form>
             </div>
-            <!-- 2. Render Preview -->
-            <div  style="display: flex; flex:2">
-                <component-settings-previewer style="transform: scale(0.7);transform-origin: top;"
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolParams.body}">
-                </component-settings-previewer>
-            </div>
-
         `;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
+            id: "interpreter-grid-config",
+            title: "",
+            icon: "",
+            type: "tabs",
+            display: {
+                width: 10,
+                titleVisible: false,
+                titleAlign: "left",
+                titleWidth: 4,
+                defaultLayout: "vertical",
+                buttonsVisible: true,
+                buttonsLayout: "top"
+            },
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Update",
+            },
             sections: [
                 // {
                 //     title: "Study Filter",
@@ -215,18 +223,59 @@ export default class StudySettingsUpdate extends LitElement {
                 // },
                 {
                     // title: "Configuration Parameters",
+                    id: "settings-json",
+                    title: "Settings",
+                    description: "TODO THINK ABOUT A DESCRIPTION",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        // visible: () => !!this.config?.genotype?.type
+                    },
                     elements: [
                         {
-                            title: "Modify the json",
                             field: "body",
                             type: "json-editor",
                             display: {
-                                rows: 25,
-                                defaultLayout: "vertical"
+                                // rows: 25,
+                                // defaultLayout: "vertical"
                             }
                         },
                     ],
-                }
+                },
+                {
+                    // title: "Configuration Parameters",
+                    id: "gt",
+                    title: "Preview",
+                    description: "TODO THINK ABOUT A DESCRIPTION",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                        descriptionClassName: "help-block",
+                        descriptionStyle: "margin: 0px 10px",
+                        // visible: () => !!this.config?.genotype?.type
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                defaultLayout: "vertical",
+                                render: () => {
+                                    return html `
+                                        <!-- 2. Render Preview -->
+                                        <div>
+                                            <component-settings-previewer
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .settings="${this.toolParams.body}">
+                                            </component-settings-previewer>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        },
+                    ],
+                },
             ],
         });
     }
