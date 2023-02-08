@@ -104,8 +104,8 @@ export default {
 
     generateTrackLegend(parent, config) {
         const legendParent = SVG.addChild(parent, "foreignObject", {
-            x: config.x,
-            y: config.y,
+            x: config.x ?? 0,
+            y: config.y ?? 0,
             width: config.width,
             height: config.height,
         });
