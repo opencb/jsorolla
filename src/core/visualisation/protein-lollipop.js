@@ -276,8 +276,38 @@ export default {
         `;
     },
 
-    clinvarTooltipFormatter(variant, consequenceType) {
-        return "Clinvar";
+    clinvarTooltipFormatter(variant) {
+        const traitAssociation = variant.annotation?.traitAssociation?.[0] || {};
+        const heritableTraits = traitAssociation.heritableTraits?.filter(item => !!item.trait);
+        const additionalProperties = traitAssociation.additionalProperties || [];
+
+        return `
+            ${this.tooltipField("ID", traitAssociation.id)}
+            ${this.tooltipField("Clinical Significance", traitAssociation?.variantClassification?.clinicalSignificance)}
+            <div style="margin-top:2px;">
+                <strong>Heritable Traits</strong>
+            </div>
+            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
+            ${heritableTraits?.length > 0 ? `
+                ${heritableTraits.map(item => `<div>- ${item.trait}</div>`).join("")}
+            ` : `
+                <span style="font-size:0.9em;">
+                    No heritable traits available.
+                </span>
+            `}
+            </div>
+            <div style="margin-top:2px;">
+                <strong>Additional properties</strong>
+            </div>
+            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
+            ${additionalProperties?.length > 0 ? `
+                ${additionalProperties.map(item => this.tooltipField(item.name, item.value)).join("")}
+            ` : `
+                <span style="font-size:0.9em;">
+                    No additional attributes available.
+                </span>
+            `}
+        `;
     },
 
     exonsTooltipFormatter(exon) {
@@ -872,7 +902,7 @@ export default {
             trackInfoPadding: 12,
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
-            trackTooltipWidth: "180px",
+            trackTooltipWidth: "200px",
             legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
