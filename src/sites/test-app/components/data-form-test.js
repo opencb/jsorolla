@@ -60,7 +60,6 @@ class DataFormTest extends LitElement {
             <data-form
                 .data="${this.dataTest}"
                 .config="${this._dataFormConfig}"
-                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
