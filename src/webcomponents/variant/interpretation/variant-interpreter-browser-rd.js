@@ -351,6 +351,19 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             },
                             {
+                                id: "individual-hpo",
+                                title: "Proband Phenotype Filter",
+                                tooltip: tooltips.sample,
+                                disabled: () => !this.clinicalAnalysis?.proband?.phenotypes?.length,
+                                message: {
+                                    visible: () => !this.clinicalAnalysis?.proband?.phenotypes?.length,
+                                    text: "No phenotypes found."
+                                },
+                                params: {
+                                    individual: this.clinicalAnalysis?.proband
+                                }
+                            },
+                            {
                                 id: "variant-file-sample-filter",
                                 title: "Variant Caller Sample Filters",
                                 // tooltip: "VCF file sample filters"
