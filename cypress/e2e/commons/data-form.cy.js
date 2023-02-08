@@ -14,12 +14,12 @@ describe("Data Form Component", () => {
     });
 
     it("should be render string field", () => {
-        UtilsTest.getByDataTest("test1-inputText", "input")
+        UtilsTest.getByDataTest("test1-inputTextEmpty", "input")
             .should("be.visible");
     });
 
     it("should be render string multiline as textarea ", () => {
-        UtilsTest.getByDataTest("test1-inputDescription", "textarea")
+        UtilsTest.getByDataTest("test1-inputDescEmpty", "textarea")
             .should("be.visible");
     });
 
@@ -29,7 +29,7 @@ describe("Data Form Component", () => {
     });
 
     it("should be render number field", () => {
-        UtilsTest.getByDataTest("test1-inputNum", "input")
+        UtilsTest.getByDataTest("test1-inputNumEmpty", "input")
             .should("be.visible")
             .and("have.attr", "type", "number");
     });
@@ -41,12 +41,12 @@ describe("Data Form Component", () => {
             .should("exist");
 
         cy.log("### check if select have options ###");
-        UtilsTest.getByDataTest("test1-inputSelect", "select")
+        UtilsTest.getByDataTest("test1-inputSelected", "select")
             .find("option").should("have.length", 3);
     });
 
     it("should be render date field", () => {
-        UtilsTest.getByDataTest("test1-inputDate", "input")
+        UtilsTest.getByDataTest("test1-inputDateEmpty", "input")
             .should("be.visible")
             .and("have.attr", "type", "date");
     });
@@ -56,7 +56,7 @@ describe("Data Form Component", () => {
     });
 
     it("should be render checkbox field", () => {
-        UtilsTest.getByDataTest("test1-inputCheckBox", "input")
+        UtilsTest.getByDataTest("test1-inputCheckBoxFalse", "input")
             .should("be.visible")
             .and("have.attr", "type", "checkbox");
     });

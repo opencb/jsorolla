@@ -29,11 +29,12 @@ context("Variant Browser Grid", () => {
 
 
     it("Should be render variant-browser-grid", () => {
-        expect(true).to.equal(true)
+        cy.get(browserGrid).should("be.visible")
     })
 
     it("Change page variant-browser-grid", () => {
-        expect(true).to.equal(true)
+        UtilsTest.changePage(browserGrid,2)
+        UtilsTest.changePage(browserGrid,3)
     })
 
     // Columns tooltips
