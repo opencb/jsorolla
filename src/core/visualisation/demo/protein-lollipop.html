@@ -37,13 +37,13 @@
                     type: ProteinLollipop.TRACK_TYPES.VARIANTS,
                     title: "Clinvar",
                     data: clinvarVariantsData,
-                    tooltip: ProteinLollipop.clinvarTooltipFormatter,
+                    tooltip: variant => ProteinLollipop.clinvarTooltipFormatter(variant),
                 },
                 {
                     type: ProteinLollipop.TRACK_TYPES.VARIANTS,
                     title: "Cosmic",
                     data: cosmicVariantsData,
-                    tooltip: ProteinLollipop.cosmicTooltipFormatter,
+                    tooltip: variant => ProteinLollipop.cosmicTooltipFormatter(variant),
                 },
                 {
                     type: ProteinLollipop.TRACK_TYPES.CANCERHOTSPOTS,
