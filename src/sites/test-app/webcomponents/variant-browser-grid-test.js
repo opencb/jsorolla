@@ -76,9 +76,20 @@ class VariantBrowserGridTest extends LitElement {
                         this.variantBrowserData = JSON.parse(content);
                         this.requestUpdate();
                     });
+
+                this.mutate();
             }).catch(err => {
-                console.error("File not exist", err);
-            });
+            console.error("File not exist", err);
+        });
+    }
+
+    mutate() {
+        // 1. no CT array
+        this.variantBrowserData.responses[0].results[0].annotation.consequenceTypes = [];
+
+        // ...
+        // 34. ...
+
     }
 
     render() {

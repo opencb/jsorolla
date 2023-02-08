@@ -204,6 +204,22 @@ class TestApp extends LitElement {
                 }
             }
         };
+
+        // TODO
+        // JSZip.loadAsync(UtilsNew.importBinaryFile(opencgasession.data.zip))
+        //     .then(zip => {
+        //         zip.file(filename).async("string")
+        //             .then(content => {
+        //                 this.opencgaSession = JSON.parse(content);
+        //                 this.requestUpdate();
+        //             });
+        //     }).catch(err => {
+        //     console.error("File not exist", err);
+        // });
+        // this.opencgaSession.projects = this.opencgaSession.user.projects;
+        // this.opencgaSession.project = this.opencgaSession.projects[0];
+        // this.opencgaSession.study = this.opencgaSession.project.studies[0];
+        // this.mutate();
     }
 
 
