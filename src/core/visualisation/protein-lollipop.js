@@ -225,14 +225,55 @@ export default {
         }
     },
 
+    tooltipField(key, value) {
+        return `
+            <div style="margin-top:1px;">
+                <strong>${key}</strong>: ${value || "-"}
+            </div>
+        `;
+    },
+
     variantsTooltipFormatter(variant, consequenceType) {
         return `
             <div><strong>Position</strong>: ${consequenceType.proteinVariantAnnotation.position}</div>
         `;
     },
 
-    cosmicTooltipFormatter(variant, consequenceType) {
-        return "Cosmic";
+    cosmicTooltipFormatter(variant) {
+        const traitAssociation = variant.annotation?.traitAssociation?.[0] || {};
+        const somaticInformation = traitAssociation?.somaticInformation || null;
+        const additionalProperties = traitAssociation.additionalProperties || [];
+
+        return `
+            ${this.tooltipField("ID", traitAssociation.id)}
+            <div style="margin-top:2px;">
+                <strong>Somatic information</strong>
+            </div>
+            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
+            ${somaticInformation ? `
+                ${this.tooltipField("Primary Site", somaticInformation.primarySite)}
+                ${this.tooltipField("Primary Histology", somaticInformation.primaryHistology)}
+                ${this.tooltipField("Histology Subtype", somaticInformation.histologySubtype)}
+                ${this.tooltipField("Tumour Origin", somaticInformation.tumourOrigin)}
+                ${this.tooltipField("Sample Source", somaticInformation.sampleSource)}
+            ` : `
+                <span style="font-size:0.9em;">
+                    No information available.
+                </span>
+            `}
+            </div>
+            <div style="margin-top:2px;">
+                <strong>Additional properties</strong>
+            </div>
+            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
+            ${additionalProperties?.length > 0 ? `
+                ${additionalProperties.map(item => this.tooltipField(item.name, item.value)).join("")}
+            ` : `
+                <span style="font-size:0.9em;">
+                    No additional attributes available.
+                </span>
+            `}
+        `;
     },
 
     clinvarTooltipFormatter(variant, consequenceType) {
@@ -674,7 +715,6 @@ export default {
                     // Add tooltip
                     if (typeof track.tooltip === "function") {
                         VizUtils.createTooltip(circleElement, {
-                            // title: info.variant.id,
                             content: track.tooltip(info.variant, info.consequenceType),
                             width: track.tooltipWidth || config.trackTooltipWidth,
                         });
@@ -832,7 +872,7 @@ export default {
             trackInfoPadding: 12,
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
-            trackTooltipWidth: "120px",
+            trackTooltipWidth: "180px",
             legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
