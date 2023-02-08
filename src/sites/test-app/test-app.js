@@ -19,8 +19,6 @@
  */
 
 import {html, LitElement} from "lit";
-import "./getting-started.js";
-import "./iva-settings.js";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -36,9 +34,9 @@ import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
-import "./components/data-form-test.js";
-import "./components/variant-browser-grid-test.js";
-import "./components/variant-interpreter-grid-test.js";
+import "./webcomponents/data-form-test.js";
+import "./webcomponents/variant-browser-grid-test.js";
+import "./webcomponents/variant-interpreter-grid-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";

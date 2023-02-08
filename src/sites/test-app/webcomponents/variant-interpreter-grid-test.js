@@ -46,7 +46,7 @@ class VariantInterpreterGridTest extends LitElement {
 
     #init() {
         this.configVariantInterpreterGrid = {
-            renderLocal: true,
+            renderLocal: false,
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],

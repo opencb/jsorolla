@@ -60,7 +60,7 @@ class VariantBrowserGridTest extends LitElement {
                 showExport: false,
                 showSettings: false,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid components based on settings.table.columns
+                // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
             },
         };
         this.#loadFileJson("data/variant-browser-data.zip", "variant-browser-data.json");
