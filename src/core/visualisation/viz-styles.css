@@ -5,7 +5,7 @@
     color: white;
     display: block;
     font-size: 1rem;
-    padding: 8px;
+    padding: 12px;
     position: fixed;
     transform: translateX(-50%) translateY(6px);
 }
