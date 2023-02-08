@@ -716,11 +716,11 @@ class IvaApp extends LitElement {
                     break;
                 case "#sampleVariantStatsBrowser":
                 case "#sampleCancerVariantStatsBrowser":
-                case "#fileUpdate":
-                    this.fileId = feature;
-                    break;
                 case "#sampleUpdate":
                     this.sampleId = feature;
+                    break;
+                case "#fileUpdate":
+                    this.fileId = feature;
                     break;
                 case "#individualUpdate":
                     this.individualId = feature;
