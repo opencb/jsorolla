@@ -436,6 +436,14 @@ export default class UtilsNew {
         return JSON.parse(JSON.stringify(obj));
     }
 
+    static objectCloneExclude(obj, excludedKeys) {
+        const clone = UtilsNew.objectClone(obj);
+        for (const key of excludedKeys) {
+            delete clone[key];
+        }
+        return clone;
+    }
+
     /**
      * Returns the object sorted by key in lexicographic order.
      * @param {Object} unordered Unordered object
