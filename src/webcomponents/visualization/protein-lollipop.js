@@ -165,10 +165,10 @@ export default class ProteinLollipop extends LitElement {
 
                 // Save this track data
                 tracks.push({
+                    ...track,
                     title: track.title || "",
                     type: track.type || ProteinLollipopViz.TRACK_TYPES.VARIANTS,
                     data: data,
-                    tooltip: track.tooltip,
                 });
             }
         }
