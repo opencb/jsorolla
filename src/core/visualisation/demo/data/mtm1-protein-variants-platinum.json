@@ -1156,7 +1156,70 @@
   {
     "id": "X:150638967:G:-",
     "names": [],
-    "studies": [],
+    "studies": [
+      {
+        "stats": [
+          {
+            "cohortId": "ALL",
+            "sampleCount": 6,
+            "genotypeCount": {
+              "0": 3,
+              "0/0": 3,
+              "0/1": 0,
+              "1/1": 0
+            },
+            "filterCount": {
+              "PASS": 3
+            },
+            "qualityAvg": 0,
+            "alleleCount": 9,
+            "fileCount": 3,
+            "refAlleleCount": 9,
+            "altAlleleCount": 0,
+            "genotypeFreq": {
+              "0": 0.5,
+              "0/0": 0.5,
+              "0/1": 0,
+              "1/1": 0
+            },
+            "missingAlleleCount": 0,
+            "missingGenotypeCount": 0,
+            "refAlleleFreq": 1,
+            "altAlleleFreq": 0,
+            "maf": 0,
+            "mgf": 0,
+            "mafAllele": "",
+            "mgfGenotype": "0/1",
+            "filterFreq": {
+              "PASS": 1
+            },
+            "qualityCount": 3
+          }
+        ],
+        "samples": [],
+        "issues": [],
+        "files": [],
+        "studyId": "demo@family:platinum",
+        "sampleDataKeys": [
+          "GT",
+          "GQ",
+          "GQX",
+          "DP",
+          "DPF",
+          "AD",
+          "ADF",
+          "ADR",
+          "FT",
+          "VF",
+          "DPI",
+          "PL",
+          "PS",
+          "SB"
+        ],
+        "scores": [],
+        "secondaryAlternates": []
+      }
+    ],
     "chromosome": "X",
     "reference": "G",
     "alternate": "",
@@ -1231,7 +1294,24 @@
             "proteinId": "ENSP00000359423.3",
             "position": 157,
             "reference": "GLU",
-            "alternate": "LYS"
+            "alternate": "LYS",
+            "substitutionScores": [
+              {
+                "score": 0.07,
+                "source": "sift",
+                "description": "tolerated"
+              },
+              {
+                "score": 0.351,
+                "source": "polyphen",
+                "description": "benign"
+              },
+              {
+                "score": 0.112,
+                "source": "revel",
+                "description": ""
+              }
+            ]
           },
           "sequenceOntologyTerms": [
             {
