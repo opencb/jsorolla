@@ -26,7 +26,7 @@ export default {
     createTooltip(target, config) {
         const tooltipTemplate = `
             <div class="viz-tooltip" style="width:${config.width || "auto"};">
-                <div class="viz-tooltip-box" style="height:${config.height || ""};">
+                <div class="viz-tooltip-box" style="max-height:${config.height || "auto"};">
                     ${config.title ? `
                         <div class="viz-tooltip-title">${config.title}</div>
                     ` : ""}
@@ -70,10 +70,12 @@ export default {
 
         // Mouse out --> remove tooltip from document
         target.addEventListener("mouseleave", () => {
-            if (!tooltipState.hovered && tooltipState.displayed) {
-                document.body.removeChild(tooltipElement);
-                tooltipState.displayed = false;
-            }
+            UtilsNew.sleep(50).then(() => {
+                if (!tooltipState.hovered && tooltipState.displayed) {
+                    document.body.removeChild(tooltipElement);
+                    tooltipState.displayed = false;
+                }
+            });
         });
     },
 
