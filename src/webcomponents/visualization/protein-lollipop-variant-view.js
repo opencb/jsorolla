@@ -105,6 +105,7 @@ export default class ProteinLollipopVariantView extends LitElement {
             {
                 title: "Clinvar",
                 type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                tooltip: ProteinLollipopViz.clinvarTooltipFormatter,
                 query: {
                     source: "clinvar",
                 },
@@ -112,6 +113,7 @@ export default class ProteinLollipopVariantView extends LitElement {
             {
                 title: "Cosmic",
                 type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
+                tooltip: ProteinLollipopViz.cosmicTooltipFormatter,
                 query: {
                     source: "cosmic",
                 },
