@@ -178,7 +178,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     title: `${toolName} Settings Update`,
                     message: `${toolName} settings updated correctly`,
                 });
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", study.fqn, {}, error);
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", study.fqn);
             })
             .catch(reason => {
                 error = reason;
@@ -191,7 +191,6 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- RENDER ---
     render() {
-        debugger
         return html `
             <data-form
                 .data="${this.toolParams}"

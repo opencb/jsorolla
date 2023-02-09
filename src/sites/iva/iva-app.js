@@ -143,11 +143,11 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
-        this.SETTINGS_NAME = "IVA_CONFIG_TEST_7";
+        this.SETTINGS_NAME = "IVA_CONFIG_TEST_3";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
-            USER_PROFILE_SETTINGS,
-            CUSTOM_PAGES,
+            // USER_PROFILE_SETTINGS,
+            // CUSTOM_PAGES,
             // FIXME: In Variant interpreter settings, solve dependencies?
         };
 
@@ -390,7 +390,6 @@ class IvaApp extends LitElement {
         }
         // 2. Init settings
         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
-        debugger
     }
 
     /**
@@ -1074,12 +1073,8 @@ class IvaApp extends LitElement {
         }
         this.opencgaSession = {...this.opencgaSession};
     }
-    onStudyUpdate(e) {
-        this.opencgaSession.study = UtilsNew.objectClone(e.detail.value)
-    }
 
     onStudyUpdateRequest(e) {
-        debugger
         if (e.detail.value) {
             this.opencgaSession.opencgaClient.studies()
                 .info(e.detail.value)
@@ -1100,6 +1095,7 @@ class IvaApp extends LitElement {
                         this.opencgaSession.study = updatedStudy;
                     }
 
+                    this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
                     this.opencgaSession = {...this.opencgaSession};
                     // this.requestUpdate();
                 })

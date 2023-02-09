@@ -61,6 +61,9 @@ export default class StudySettingsDetail extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
         if (changedProperties.has("toolSettings")) {
             this.toolSettingsObserver();
         }
@@ -71,6 +74,13 @@ export default class StudySettingsDetail extends LitElement {
     }
 
     // --- OBSERVERS ---
+    opencgaSessionObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+    }
+
     toolSettingsObserver() {
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
     }
@@ -95,6 +105,7 @@ export default class StudySettingsDetail extends LitElement {
             <detail-tabs
                 .data="${this._toolSettings}"
                 .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </detail-tabs>

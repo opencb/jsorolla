@@ -19,6 +19,7 @@ import {LitElement, html} from "lit";
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "./study-settings-detail.js";
 import LitUtils from "../../commons/utils/lit-utils";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -53,11 +54,12 @@ export default class StudyAdminIva extends LitElement {
     }
 
     #init() {
-        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        //  || changedProperties.has("opencgaSession")
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
 
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
@@ -72,6 +74,10 @@ export default class StudyAdminIva extends LitElement {
     #setLoading(value) {
         this.isLoading = value;
         this.requestUpdate();
+    }
+
+    opencgaSessionObserver() {
+        this._config = this.getDefaultConfig();
     }
 
     studyIdObserver() {
@@ -132,36 +138,34 @@ export default class StudyAdminIva extends LitElement {
             menu: [
                 {
                     id: "config",
-                    name: "Configuration",
+                    name: "Catalog settings",
                     description: "",
                     icon: "",
                     featured: "", // true | false
                     visibility: "private",
                     category: true,
-                    submenu: [
-                        {
-                            id: "sample",
-                            name: "Sample browser settings",
-                            icon: "fa-solid fa-square",
-                            visibility: "private",
-                            render: (opencgaSession, study) => {
-                                const tool = "SAMPLE_BROWSER";
-                                // .toolSettings="${this.settings[tool]}"
-                                debugger
-                                return html `
-                                <study-settings-detail
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${study}"
-                                    .toolSettings="${study.attributes[this.ivaSettingsName].settings[tool]}"
-                                    .tool="${tool}"
-                                    .ivaSettingsName="${this.ivaSettingsName}"
-                                    .config="${this.config}">
-                                </study-settings-detail>
-                            `;
-                            }
-
-                        },
-                    ],
+                    submenu: Object.entries(this.settings)
+                        .map(([toolId, toolSettings]) => {
+                            const name = UtilsNew.capitalize(toolId.split("_")[0]);
+                            return {
+                                id: name.toLowerCase(),
+                                name: `${name} Browser Settings`,
+                                icon: "fa-solid fa-square",
+                                visibility: "private",
+                                render: (opencgaSession, study) => {
+                                    return html `
+                                        <study-settings-detail
+                                            .opencgaSession="${opencgaSession}"
+                                            .study="${study}"
+                                            .toolSettings="${toolSettings}"
+                                            .tool="${toolId}"
+                                            .ivaSettingsName="${this.ivaSettingsName}"
+                                            .config="${this.config}">
+                                        </study-settings-detail>
+                                    `;
+                                }
+                            };
+                        }),
                 },
             ],
         };

@@ -98,6 +98,7 @@ export default class ToolSettingsPreview extends LitElement {
                     `;
                 }
             },
+            /*
             "FILE_BROWSER": {
                 render: settings => {
                     return html `
@@ -158,7 +159,7 @@ export default class ToolSettingsPreview extends LitElement {
                     `;
                 }
             },
-            /* "RGA_BROWSER": {
+            "RGA_BROWSER": {
                 render: settings => {
                     return html `
                         <rga-browser
