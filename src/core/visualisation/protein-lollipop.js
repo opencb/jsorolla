@@ -667,6 +667,7 @@ export default {
                                 title: exon.id,
                                 content: config.proteinExonsTooltipFormatter(exon),
                                 width: config.proteinExonsTooltipWidth,
+                                hoverable: true,
                             });
                         }
                     }
