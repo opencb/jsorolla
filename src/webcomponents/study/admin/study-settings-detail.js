@@ -99,7 +99,6 @@ export default class StudySettingsDetail extends LitElement {
                 @submit="${this.onSubmit}">
             </detail-tabs>
         `;
-
     }
 
     getDefaultConfig() {
