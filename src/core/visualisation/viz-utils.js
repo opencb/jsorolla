@@ -44,7 +44,6 @@ export default {
 
         // Register enter and leave listeners to the tooltip element if it is hoverable
         if (config.hoverable) {
-            console.log("ADD_HOVER");
             tooltipElement.addEventListener("mouseenter", () => {
                 tooltipState.hovered = true;
             });
