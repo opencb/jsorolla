@@ -498,6 +498,7 @@ export default {
                                 title: info.variant.id,
                                 content: config.variantsTooltipFormatter(info.variant, info.consequenceType),
                                 width: config.variantsTooltipWidth,
+                                hoverable: true,
                             });
                         }
 
@@ -768,6 +769,8 @@ export default {
                         VizUtils.createTooltip(circleElement, {
                             content: track.tooltip(info.variant, info.consequenceType),
                             width: track.tooltipWidth || config.trackTooltipWidth,
+                            height: track.tooltipHeight || config.trackTooltipHeight,
+                            hoverable: true,
                         });
                     }
 
@@ -925,6 +928,7 @@ export default {
             trackSeparationVisible: true,
             trackSeparationHeight: 10,
             trackTooltipWidth: "240px",
+            trackTooltipHeight: "200px",
             legendVisible: true,
             legendHeight: 20,
             emptyHeight: 40,
