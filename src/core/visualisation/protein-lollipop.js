@@ -226,8 +226,28 @@ export default {
     },
 
     variantsTooltipFormatter(variant, consequenceType) {
+        const protein = consequenceType.proteinVariantAnnotation;
+        // const cohort = variant.studies?.[0]?.stats?.find(   );
         return `
-            <div><strong>Position</strong>: ${consequenceType.proteinVariantAnnotation.position}</div>
+            ${consequenceType.hgvs?.length > 0 ? `
+                <div style="margin-top:4px;">
+                    <b>HGVS</b>
+                </div>
+                <ul style="padding-left:16px;margin-bottom:0px;">
+                    ${consequenceType.hgvs.map(item => `<li>${item}</li>`).join("")}
+                </ul>
+            ` : ""}
+            <div style="margin-top:8px;">
+                <b>Protein</b>: ${protein.proteinId || "-"}
+            </div>
+            <div><b>ID</b>: ${(protein.reference || "-")}${protein.position}${(protein.alternate || "-")}</div>
+            <div><b>Position</b>: ${protein.position}</div>
+            ${protein.substitutionScores?.length > 0 ? `
+                <div><b>Substitution Scores</b>:</div>
+                <ul style="padding-left:16px;margin-bottom:0px;">
+                    ${protein.substitutionScores.map(s => `<li><b>${s.source}</b>: ${s.score}</li>`).join("")}
+                </ul>
+            ` : ""}
         `;
     },
 
@@ -880,7 +900,8 @@ export default {
             variantsVisible: true,
             variantsColors: this.CONSEQUENCE_TYPES_COLORS,
             variantsTooltipVisible: true,
-            variantsTooltipWidth: "120px",
+            variantsTooltipWidth: "200px",
+            variantsTooltipPosition: "bottom",
             variantsTooltipFormatter: this.variantsTooltipFormatter,
             proteinVisible: true,
             proteinHeight: 40,
