@@ -227,7 +227,8 @@ export default {
 
     variantsTooltipFormatter(variant, consequenceType) {
         const protein = consequenceType.proteinVariantAnnotation;
-        // const cohort = variant.studies?.[0]?.stats?.find(   );
+        const cohort = variant.studies?.[0]?.stats?.find(item => item.cohortId?.toUpperCase() === "ALL");
+
         return `
             ${consequenceType.hgvs?.length > 0 ? `
                 <div style="margin-top:4px;">
@@ -237,17 +238,33 @@ export default {
                     ${consequenceType.hgvs.map(item => `<li>${item}</li>`).join("")}
                 </ul>
             ` : ""}
-            <div style="margin-top:8px;">
-                <b>Protein</b>: ${protein.proteinId || "-"}
+            <div style="margin-top:8px;margin-bottom:4px;border-bottom:1px solid #ffffff50;">
+                <b>PROTEIN ${protein.proteinId || "-"}</b>
             </div>
             <div><b>ID</b>: ${(protein.reference || "-")}${protein.position}${(protein.alternate || "-")}</div>
-            <div><b>Position</b>: ${protein.position}</div>
             ${protein.substitutionScores?.length > 0 ? `
                 <div><b>Substitution Scores</b>:</div>
                 <ul style="padding-left:16px;margin-bottom:0px;">
                     ${protein.substitutionScores.map(s => `<li><b>${s.source}</b>: ${s.score}</li>`).join("")}
                 </ul>
             ` : ""}
+            ${cohort ? `
+                <div style="margin-top:8px;margin-bottom:4px;border-bottom:1px solid #ffffff50;">
+                    <b>COHORT STATS</b>
+                </div>
+                <div><b>Num Samples</b>: ${cohort.sampleCount ?? "-"}</div>
+                <div><b>Allele frequencies</b></div>
+                <ul style="padding-left:16px;margin-bottom:0px;">
+                    <li><b>${variant.reference || "-"} (ref)</b>: ${cohort.refAlleleFreq}</li>
+                    <li><b>${variant.alternate || "-"} (alt)</b>: ${cohort.altAlleleFreq}</li>
+                </ul>
+                <div><b>Genotype frequencies</b></div>
+                <ul style="padding-left:16px;margin-bottom:0px;">
+                    <li><b>${variant.reference}${variant.reference} (0/0)</b>: ${cohort.genotypeFreq["0/0"] ?? "-"}</li>
+                    <li><b>${variant.reference}${variant.alternate} (0/1)</b>: ${cohort.genotypeFreq["0/1"] ?? "-"}</li>
+                    <li><b>${variant.alternate}${variant.alternate} (1/1)</b>: ${cohort.genotypeFreq["1/1"] ?? "-"}</li>
+                </ul>
+            `: ""}
         `;
     },
 
