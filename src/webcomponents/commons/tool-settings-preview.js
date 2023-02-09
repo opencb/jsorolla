@@ -15,7 +15,19 @@
  */
 
 import {html, LitElement} from "lit";
+import "../disease-panel/disease-panel-browser.js";
+
+import "../individual/individual-browser.js";
+import "../cohort/cohort-browser.js";
+import "../family/family-browser.js";
 import "../sample/sample-browser.js";
+import "../file/file-browser.js";
+import "../job/job-browser.js";
+import "../variant/variant-browser.js";
+import "../disease-panel/disease-panel-browser.js";
+import "../clinical/clinical-analysis-browser.js";
+import "../clinical/clinical-analysis-portal.js";
+
 
 export default class ToolSettingsPreview extends LitElement {
 
@@ -37,12 +49,46 @@ export default class ToolSettingsPreview extends LitElement {
             settings: {
                 type: Object,
             },
+            tool: {
+                type: String,
+            }
         };
     }
 
     #init() {
+
         this.map = {
-            "SAMPLE": {
+            "INDIVIDUAL_BROWSER": {
+                render: settings => {
+                    return html `
+                        <individual-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </individual-browser>
+                    `;
+                }
+            },
+            "COHORT_BROWSER": {
+                render: settings => {
+                    return html `
+                        <cohort-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </cohort-browser>
+                    `;
+                }
+            },
+            "FAMILY_BROWSER": {
+                render: settings => {
+                    return html `
+                        <family-browser
+                                .opencgaSession="${this.opencgaSession}"
+                                .settings="${settings}">
+                        </family-browser>
+                    `;
+                }
+            },
+            "SAMPLE_BROWSER": {
                 render: settings => {
                     return html `
                         <sample-browser
@@ -52,6 +98,76 @@ export default class ToolSettingsPreview extends LitElement {
                     `;
                 }
             },
+            "FILE_BROWSER": {
+                render: settings => {
+                    return html `
+                        <file-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </file-browser>
+                    `;
+                }
+            },
+            "JOB_BROWSER": {
+                render: settings => {
+                    return html `
+                        <job-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </job-browser>
+                    `;
+                }
+            },
+            "VARIANT_BROWSER": {
+                render: settings => {
+                    return html `
+                        <variant-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </variant-browser>
+                    `;
+                }
+            },
+            "DISEASE_PANEL_BROWSER": {
+                render: settings => {
+                    return html `
+                        <disease-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </disease-panel-browser>
+                    `;
+                }
+            },
+            "CLINICAL_ANALYSIS_BROWSER": {
+                render: settings => {
+                    return html `
+                        <clinical-analysis-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </clinical-analysis-browser>
+                    `;
+                }
+            },
+            "CLINICAL_ANALYSIS_PORTAL_BROWSER": {
+                render: settings => {
+                    return html `
+                        <clinical-analysis-portal-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </clinical-analysis-portal-browser>
+                    `;
+                }
+            },
+            /* "RGA_BROWSER": {
+                render: settings => {
+                    return html `
+                        <rga-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
+                        </rga-browser>
+                    `;
+                }
+            },*/
         };
     }
 
@@ -65,7 +181,7 @@ export default class ToolSettingsPreview extends LitElement {
     render() {
         return html `
             <div id="#tool-settings-preview">
-                ${this.map.SAMPLE.render(this.settings)}
+                ${this.map[this.tool].render(this.settings)}
             </div>
         `;
     }
