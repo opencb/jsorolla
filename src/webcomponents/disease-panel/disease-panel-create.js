@@ -381,8 +381,10 @@ export default class DiseasePanelCreate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "regions[].modeOfInheritance",
+                                    field: "regions[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -426,8 +428,10 @@ export default class DiseasePanelCreate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "variants[].modeOfInheritance",
+                                    field: "variants[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
