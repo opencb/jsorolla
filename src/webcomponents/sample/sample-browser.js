@@ -64,7 +64,6 @@ export default class SampleBrowser extends LitElement {
 
     settingsObserver() {
         this.config = {...this.getDefaultConfig()};
-        debugger
         if (this.settings?.menu) {
             this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
         }
