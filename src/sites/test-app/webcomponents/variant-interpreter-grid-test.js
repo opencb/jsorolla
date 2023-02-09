@@ -16,11 +16,13 @@
  */
 
 import {html, LitElement} from "lit";
+import UtilsTest from "../../../../cypress/support/utils-test.js";
 
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
-import {VARIANT_INTERPRETER_DATA} from "../data/variant-interpreter-data.js";
-import {CLINICAL_ANALYSIS_DATA} from "../data/clinical-analysis-data.js";
+
+// import {VARIANT_INTERPRETER_DATA} from "../data/variant-interpreter-data.js";
+// import {CLINICAL_ANALYSIS_DATA} from "../data/clinical-analysis-data.js";
 
 class VariantInterpreterGridTest extends LitElement {
 
@@ -74,14 +76,24 @@ class VariantInterpreterGridTest extends LitElement {
             somatic: false,
             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
         };
+        UtilsTest.getFileJson("data/iva-data.zip", "variant-interpreter-data.json")
+            .then(content => {
+                this.variantInterpreterData = content;
+                this.requestUpdate();
+            });
+        UtilsTest.getFileJson("data/iva-data.zip", "clinical-analysis-data.json")
+            .then(content => {
+                this.clinicalAnalysisData = content;
+                this.requestUpdate();
+            });
     }
 
     render() {
         return html`
             <variant-interpreter-grid
                 .opencgaSession="${this.opencgaSession}"
-                .clinicalVariants="${VARIANT_INTERPRETER_DATA}"
-                .clinicalAnalysis="${CLINICAL_ANALYSIS_DATA}"
+                .clinicalVariants="${this.variantInterpreterData}"
+                .clinicalAnalysis="${this.clinicalAnalysisData}"
                 .review="${true}"
                 .config="${this.configVariantInterpreterGrid}"
                 @selectrow="${this.onSelectVariant}"

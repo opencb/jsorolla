@@ -40,7 +40,8 @@ import "./webcomponents/variant-interpreter-grid-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
-
+import JSZip from "jszip";
+import UtilsTest from "../../../cypress/support/utils-test.js";
 
 class TestApp extends LitElement {
 
@@ -176,10 +177,19 @@ class TestApp extends LitElement {
             this.requestUpdate();
         }, false);
         this.initOpencgaSessionMock();
+        // this.opencgaSession.projects = this.opencgaSession.user.projects;
+        // this.opencgaSession.project = this.opencgaSession.projects[0];
+        // this.opencgaSession.study = this.opencgaSession.project.studies[0];
+        // this.mutate();
     }
 
     initOpencgaSessionMock() {
         console.log("This opencgaClient Mock Session");
+        // UtilsTest.getFileJson("data/variant-browser-data.zip", "variant-browser-data.json")
+        //     .then(content => {
+        //         this.opencgaSession = content;
+        //         this.requestUpdate();
+        //     });
         this.opencgaSession = new OpenCGAClientMock().createAnonymousSession();
         this.initProjectMock();
     }

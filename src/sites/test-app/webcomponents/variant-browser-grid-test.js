@@ -20,9 +20,8 @@ import {html, LitElement} from "lit";
 
 import "../../../webcomponents/commons/forms/data-form.js";
 import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
-import {SAMPLE_DATA} from "../data/data-example.js";
-import JSZip from "jszip";
 import UtilsNew from "../../../core/utils-new.js";
+import UtilsTest from "../../../../cypress/support/utils-test.js";
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -63,24 +62,11 @@ class VariantBrowserGridTest extends LitElement {
                 // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
             },
         };
-        this.#loadFileJson("data/variant-browser-data.zip", "variant-browser-data.json");
-    }
-
-
-    #loadFileJson(path, filename) {
-        // Approach #1: read file from zip
-        JSZip.loadAsync(UtilsNew.importBinaryFile(path))
-            .then(zip => {
-                zip.file(filename).async("string")
-                    .then(content => {
-                        this.variantBrowserData = JSON.parse(content);
-                        this.requestUpdate();
-                    });
-
-                this.mutate();
-            }).catch(err => {
-            console.error("File not exist", err);
-        });
+        UtilsTest.getFileJson("data/variant-browser-data.zip", "variant-browser-data.json")
+            .then(content => {
+                this.variantBrowserData = content;
+                this.requestUpdate();
+            });
     }
 
     mutate() {
