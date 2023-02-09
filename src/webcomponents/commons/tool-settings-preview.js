@@ -17,7 +17,7 @@
 import {html, LitElement} from "lit";
 import "../sample/sample-browser.js";
 
-export default class ComponentSettingsPreviewer extends LitElement {
+export default class ToolSettingsPreview extends LitElement {
 
     constructor() {
         super();
@@ -44,7 +44,6 @@ export default class ComponentSettingsPreviewer extends LitElement {
         this.map = {
             "SAMPLE": {
                 render: settings => {
-                    debugger
                     return html `
                         <sample-browser
                             .opencgaSession="${this.opencgaSession}"
@@ -56,31 +55,16 @@ export default class ComponentSettingsPreviewer extends LitElement {
         };
     }
 
-    firstUpdated(changedProperties) {
-    }
-
     update(changedProperties) {
         super.update(changedProperties);
     }
 
-    #setLoading(value) {
-    }
-
-    // --- OBSERVERS ---
-    configObserver() {
-    }
-
     // --- EVENTS ---
-    onJsonChange(e, field) {}
-
-    onReset() {}
-
-    onSubmit() {}
 
     // --- RENDER ---
     render() {
         return html `
-            <div id="#component-previewer">
+            <div id="#tool-settings-preview">
                 ${this.map.SAMPLE.render(this.settings)}
             </div>
         `;
@@ -90,5 +74,5 @@ export default class ComponentSettingsPreviewer extends LitElement {
 
 }
 
-customElements.define("component-settings-previewer", ComponentSettingsPreviewer);
+customElements.define("tool-settings-preview", ToolSettingsPreview);
 
