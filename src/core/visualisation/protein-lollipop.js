@@ -263,7 +263,7 @@ export default {
                         <div style="margin-top:2px;">
                             <b>Somatic information</b>
                         </div>
-                        <ul style="padding-left:24px;margin-bottom:0px;">
+                        <ul style="padding-left:20px;margin-bottom:0px;">
                             <li><b>Primary Site</b>: ${somaticInformation.primarySite || "-"}</li>
                             <li><b>Primary Histology</b>: ${somaticInformation.primaryHistology || "-"}</li>
                             <li><b>Histology Subtype</b>: ${somaticInformation.histologySubtype || "-"}</li>
@@ -275,7 +275,7 @@ export default {
                         <div style="margin-top:2px;">
                             <b>Additional properties</b>
                         </div>
-                        <ul style="padding-left:24px;margin-bottom:0px;">
+                        <ul style="padding-left:20px;margin-bottom:0px;">
                             ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
                         </ul>
                     ` : ""}
@@ -285,38 +285,33 @@ export default {
     },
 
     clinvarTooltipFormatter(variant) {
-        const traitAssociation = variant.annotation?.traitAssociation?.[0] || {};
-        const heritableTraits = traitAssociation.heritableTraits?.filter(item => !!item.trait);
-        const additionalProperties = traitAssociation.additionalProperties || [];
+        return (variant.annotation?.traitAssociation || [])
+            .map(traitAssociation => {
+                const heritableTraits = traitAssociation.heritableTraits?.filter(item => !!item.trait);
+                const additionalProperties = traitAssociation.additionalProperties || [];
 
-        return `
-            <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
-            <div><b>Clinical Significance</b>: ${traitAssociation?.variantClassification?.clinicalSignificance || "-"}</div>
-            <div style="margin-top:4px;">
-                <b>Heritable Traits</b>
-            </div>
-            ${heritableTraits?.length > 0 ? `
-                <ul style="padding-left:16px;margin-bottom:0px;">
-                    ${heritableTraits.map(item => `<li>${item.trait}</li>`).join("")}
-                </ul>
-            ` : `
-                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
-                    No heritable traits available.
-                </div>
-            `}
-            <div style="margin-top:4px;">
-                <b>Additional properties</b>
-            </div>
-            ${additionalProperties?.length > 0 ? `
-                <ul style="padding-left:16px;margin-bottom:0px;">
-                    ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
-                </ul>
-            ` : `
-                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
-                    No additional attributes available.
-                </div>
-            `}
-        `;
+                return `
+                    <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
+                    <div><b>Clinical Significance</b>: ${traitAssociation?.variantClassification?.clinicalSignificance || "-"}</div>
+                    ${heritableTraits?.length > 0 ? `
+                        <div style="margin-top:2px;">
+                            <b>Heritable Traits</b>
+                        </div>
+                        <ul style="padding-left:20px;margin-bottom:0px;">
+                            ${heritableTraits.map(item => `<li>${item.trait}</li>`).join("")}
+                        </ul>
+                    ` : ""}
+                    ${additionalProperties?.length > 0 ? `
+                        <div style="margin-top:2px;">
+                            <b>Additional properties</b>
+                        </div>
+                        <ul style="padding-left:20px;margin-bottom:0px;">
+                            ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
+                        </ul>
+                    ` : ""}
+                `;
+            })
+            .join("<hr style='margin-top:8px;margin-bottom:8px;opacity:0.2;' />");
     },
 
     exonsTooltipFormatter(exon) {
