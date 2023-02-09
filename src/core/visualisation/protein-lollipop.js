@@ -238,11 +238,11 @@ export default {
 
         return `
             <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
-            <div style="margin-top:2px;">
+            <div style="margin-top:4px;">
                 <b>Somatic information</b>
             </div>
             ${somaticInformation ? `
-                <ul style="padding-left:16px;">
+                <ul style="padding-left:16px;margin-bottom:0px;">
                     <li><b>Primary Site</b>: ${somaticInformation.primarySite || "-"}</li>
                     <li><b>Primary Histology</b>: ${somaticInformation.primaryHistology || "-"}</li>
                     <li><b>Histology Subtype</b>: ${somaticInformation.histologySubtype || "-"}</li>
@@ -254,11 +254,11 @@ export default {
                     No information available.
                 </div>
             `}
-            <div style="margin-top:2px;">
+            <div style="margin-top:4px;">
                 <b>Additional properties</b>
             </div>
             ${additionalProperties?.length > 0 ? `
-                <ul style="padding-left:16px;">
+                <ul style="padding-left:16px;margin-bottom:0px;">
                     ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
                 </ul>
             ` : `
@@ -277,11 +277,11 @@ export default {
         return `
             <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
             <div><b>Clinical Significance</b>: ${traitAssociation?.variantClassification?.clinicalSignificance || "-"}</div>
-            <div style="margin-top:2px;">
+            <div style="margin-top:4px;">
                 <b>Heritable Traits</b>
             </div>
             ${heritableTraits?.length > 0 ? `
-                <ul style="padding-left:16px;">
+                <ul style="padding-left:16px;margin-bottom:0px;">
                     ${heritableTraits.map(item => `<li>${item.trait}</li>`).join("")}
                 </ul>
             ` : `
@@ -289,11 +289,11 @@ export default {
                     No heritable traits available.
                 </div>
             `}
-            <div style="margin-top:2px;">
+            <div style="margin-top:4px;">
                 <b>Additional properties</b>
             </div>
             ${additionalProperties?.length > 0 ? `
-                <ul style="padding-left:16px;">
+                <ul style="padding-left:16px;margin-bottom:0px;">
                     ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
                 </ul>
             ` : `
