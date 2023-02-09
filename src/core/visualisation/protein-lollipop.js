@@ -225,14 +225,6 @@ export default {
         }
     },
 
-    tooltipField(key, value) {
-        return `
-            <div style="margin-top:1px;">
-                <strong>${key}</strong>: ${value || "-"}
-            </div>
-        `;
-    },
-
     variantsTooltipFormatter(variant, consequenceType) {
         return `
             <div><strong>Position</strong>: ${consequenceType.proteinVariantAnnotation.position}</div>
@@ -245,33 +237,34 @@ export default {
         const additionalProperties = traitAssociation.additionalProperties || [];
 
         return `
-            ${this.tooltipField("ID", traitAssociation.id)}
+            <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
             <div style="margin-top:2px;">
-                <strong>Somatic information</strong>
+                <b>Somatic information</b>
             </div>
-            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
             ${somaticInformation ? `
-                ${this.tooltipField("Primary Site", somaticInformation.primarySite)}
-                ${this.tooltipField("Primary Histology", somaticInformation.primaryHistology)}
-                ${this.tooltipField("Histology Subtype", somaticInformation.histologySubtype)}
-                ${this.tooltipField("Tumour Origin", somaticInformation.tumourOrigin)}
-                ${this.tooltipField("Sample Source", somaticInformation.sampleSource)}
+                <ul style="padding-left:16px;">
+                    <li><b>Primary Site</b>: ${somaticInformation.primarySite || "-"}</li>
+                    <li><b>Primary Histology</b>: ${somaticInformation.primaryHistology || "-"}</li>
+                    <li><b>Histology Subtype</b>: ${somaticInformation.histologySubtype || "-"}</li>
+                    <li><b>Tumour Origin</b>: ${somaticInformation.tumourOrigin || "-"}</li>
+                    <li><b>Sample Source</b>: ${somaticInformation.sampleSource || "-"}</li>
+                </ul>
             ` : `
-                <span style="font-size:0.9em;">
+                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
                     No information available.
-                </span>
+                </div>
             `}
-            </div>
             <div style="margin-top:2px;">
-                <strong>Additional properties</strong>
+                <b>Additional properties</b>
             </div>
-            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
             ${additionalProperties?.length > 0 ? `
-                ${additionalProperties.map(item => this.tooltipField(item.name, item.value)).join("")}
+                <ul style="padding-left:16px;">
+                    ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
+                </ul>
             ` : `
-                <span style="font-size:0.9em;">
+                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
                     No additional attributes available.
-                </span>
+                </div>
             `}
         `;
     },
@@ -282,30 +275,31 @@ export default {
         const additionalProperties = traitAssociation.additionalProperties || [];
 
         return `
-            ${this.tooltipField("ID", traitAssociation.id)}
-            ${this.tooltipField("Clinical Significance", traitAssociation?.variantClassification?.clinicalSignificance)}
+            <div><b>ID</b>: ${traitAssociation.id || "-"}</div>
+            <div><b>Clinical Significance</b>: ${traitAssociation?.variantClassification?.clinicalSignificance || "-"}</div>
             <div style="margin-top:2px;">
-                <strong>Heritable Traits</strong>
+                <b>Heritable Traits</b>
             </div>
-            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
             ${heritableTraits?.length > 0 ? `
-                ${heritableTraits.map(item => `<div>- ${item.trait}</div>`).join("")}
+                <ul style="padding-left:16px;">
+                    ${heritableTraits.map(item => `<li>${item.trait}</li>`).join("")}
+                </ul>
             ` : `
-                <span style="font-size:0.9em;">
+                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
                     No heritable traits available.
-                </span>
+                </div>
             `}
-            </div>
             <div style="margin-top:2px;">
-                <strong>Additional properties</strong>
+                <b>Additional properties</b>
             </div>
-            <div style="padding-left:8px;border-left:1px solid #ffffff50;">
             ${additionalProperties?.length > 0 ? `
-                ${additionalProperties.map(item => this.tooltipField(item.name, item.value)).join("")}
+                <ul style="padding-left:16px;">
+                    ${additionalProperties.map(item => `<li><b>${item.name}</b>: ${item.value || "-"}</li>`).join("")}
+                </ul>
             ` : `
-                <span style="font-size:0.9em;">
+                <div style="padding-left:8px;border-left:1px solid #ffffff50;font-size:0.9em;">
                     No additional attributes available.
-                </span>
+                </div>
             `}
         `;
     },
