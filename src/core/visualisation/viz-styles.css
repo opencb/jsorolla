@@ -31,4 +31,5 @@
 }
 .viz-tooltip-content {
     display: block;
+    overflow-wrap: break-word;
 }
