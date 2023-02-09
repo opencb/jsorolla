@@ -317,6 +317,7 @@ export default class OpencgaGeneView extends LitElement {
                 title: "Clinvar",
                 type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
                 tooltip: ProteinLollipopViz.clinvarTooltipFormatter,
+                tooltipWidth: "360px",
                 query: {
                     source: "clinvar",
                 },
@@ -325,6 +326,7 @@ export default class OpencgaGeneView extends LitElement {
                 title: "Cosmic",
                 type: ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS,
                 tooltip: ProteinLollipopViz.cosmicTooltipFormatter,
+                tooltipWidth: "280px",
                 query: {
                     source: "cosmic",
                 },
