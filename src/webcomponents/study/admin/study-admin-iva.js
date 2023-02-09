@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 
 import "../../commons/layouts/custom-vertical-navbar.js";
-import "../../study/admin/study-settings-update.js";
+import "./study-settings-detail.js";
 import LitUtils from "../../commons/utils/lit-utils";
 
 export default class StudyAdminIva extends LitElement {
@@ -41,7 +41,10 @@ export default class StudyAdminIva extends LitElement {
                 type: Object,
             },
             settings: {
-                type: Object,
+                type: Object, // Todo: change variable name. This is the list of all tools in "IVA_CONFIG"
+            },
+            ivaSettingsName: {
+                type: String, // Todo: change variable name. This is the attribute key "IVA_CONFIG"
             },
             opencgaSession: {
                 type: Object,
@@ -54,7 +57,9 @@ export default class StudyAdminIva extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
+        //  || changedProperties.has("opencgaSession")
+
+        if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         if (changedProperties.has("settings")) {
@@ -139,14 +144,22 @@ export default class StudyAdminIva extends LitElement {
                             name: "Sample browser settings",
                             icon: "fa-solid fa-square",
                             visibility: "private",
-                            render: (opencgaSession, study) => html `
-                                <study-settings-update
+                            render: (opencgaSession, study) => {
+                                const tool = "SAMPLE_BROWSER";
+                                // .toolSettings="${this.settings[tool]}"
+                                debugger
+                                return html `
+                                <study-settings-detail
                                     .opencgaSession="${opencgaSession}"
                                     .study="${study}"
-                                    .settings="${this.settings}"
-                                    .tool="${"SAMPLE_BROWSER"}">
-                                </study-settings-update>
-                            `,
+                                    .toolSettings="${study.attributes[this.ivaSettingsName].settings[tool]}"
+                                    .tool="${tool}"
+                                    .ivaSettingsName="${this.ivaSettingsName}"
+                                    .config="${this.config}">
+                                </study-settings-detail>
+                            `;
+                            }
+
                         },
                     ],
                 },

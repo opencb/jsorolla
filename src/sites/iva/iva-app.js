@@ -143,7 +143,7 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
-        this.SETTINGS_NAME = "IVA_CONFIG_TEST_1";
+        this.SETTINGS_NAME = "IVA_CONFIG_TEST_7";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
             USER_PROFILE_SETTINGS,
@@ -373,11 +373,11 @@ class IvaApp extends LitElement {
 
     #initStudiesSettings() {
         // 1. Init with default settings all studies that do not have settings
-        this.opencgaSession.projects.forEach((project, p) => {
-            project.studies?.forEach((study, s) => {
+        for (const project of this.opencgaSession.projects) {
+            for (const study of project.studies) {
                 // 1.1 Check if the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
                 if (UtilsNew.isEmpty(study?.attributes[this.SETTINGS_NAME]?.settings)) {
-                    this.opencgaSession.projects[p].studies[s].attributes[this.SETTINGS_NAME] = {
+                    study.attributes[this.SETTINGS_NAME] = {
                         // Todo: more metadata here?
                         settings: this.defaultSettings,
                     };
@@ -386,27 +386,30 @@ class IvaApp extends LitElement {
                         this.#saveSettings(study);
                     }
                 }
-            });
-        });
+            }
+        }
         // 2. Init settings
         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
+        debugger
     }
 
     /**
      * To init IVA_CONFIG settings in memory
      */
     #saveSettings(study) {
-        const params = {};
+        const params = {
+            includeResult: true,
+        };
         const updateParams = {
             attributes: {
+                ...study.attributes,
                 [this.SETTINGS_NAME]: {
-                    ...study.attributes,
                     userId: this.opencgaSession.user.id,
                     // FIXME: it will store a '*-dev' version
                     version: this.version.split("-")[0],
                     date: UtilsNew.getDatetime(),
                     settings: UtilsNew.objectClone(this.defaultSettings),
-                }
+                },
             }
         };
         let error;
@@ -877,7 +880,7 @@ class IvaApp extends LitElement {
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
-            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes.settings);
+            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
             this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
@@ -1071,8 +1074,12 @@ class IvaApp extends LitElement {
         }
         this.opencgaSession = {...this.opencgaSession};
     }
+    onStudyUpdate(e) {
+        this.opencgaSession.study = UtilsNew.objectClone(e.detail.value)
+    }
 
     onStudyUpdateRequest(e) {
+        debugger
         if (e.detail.value) {
             this.opencgaSession.opencgaClient.studies()
                 .info(e.detail.value)
@@ -1945,6 +1952,7 @@ class IvaApp extends LitElement {
                                 .study="${this.opencgaSession.study}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this.settings}"
+                                .ivaSettingsName="${this.SETTINGS_NAME}"
                                 @studyUpdateRequest="${this.onStudyUpdateRequest}">
                         </study-admin-iva>
                     </div>
