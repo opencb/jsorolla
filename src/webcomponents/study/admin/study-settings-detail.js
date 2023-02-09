@@ -152,6 +152,7 @@ export default class StudySettingsDetail extends LitElement {
                             <tool-settings-preview
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this._toolSettings}"
+                                .tool="${this.tool}"
                                 .highlightPreview="${this.highlightPreview}">
                             </tool-settings-preview>
                         `;
