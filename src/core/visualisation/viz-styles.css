@@ -1,15 +1,24 @@
 /* Custom tooltip for visualization modules */
 .viz-tooltip {
+    background-color: transparent;
+    display: block;
+    padding-top: 6px;
+    position: fixed;
+    transform: translateX(-50%); /* translateY(6px); */
+}
+.viz-tooltip-box {
     background-color: #333;
     border-radius: 4px;
     color: white;
     display: block;
     font-size: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 12px;
-    position: fixed;
-    transform: translateX(-50%) translateY(6px);
+    position: relative;
+    width: 100%;
 }
-.viz-tooltip:before {
+.viz-tooltip-box:before {
     content: "";
     background: transparent;
     border-color: transparent;

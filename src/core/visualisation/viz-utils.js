@@ -20,31 +20,60 @@ export default {
         return ticksValues.filter(value => start <= value && value <= end);
     },
 
-    // WIP: custom tooltip implementation
+    // Display a tooltip in the specified element
+    // @param {object} target - HTML element to attach the tooltip
+    // @param {object} config - Tooltip configuration
     createTooltip(target, config) {
         const tooltipTemplate = `
-            <div class="viz-tooltip" style="width:${config.width || "auto"}">
-                ${config.title ? `
-                    <div class="viz-tooltip-title">${config.title}</div>
-                ` : ""}
-                ${config.content ? `
-                    <div class="viz-tooltip-content">${config.content}</div>
-                ` : ""}
+            <div class="viz-tooltip" style="width:${config.width || "auto"};">
+                <div class="viz-tooltip-box" style="height:${config.height || ""};">
+                    ${config.title ? `
+                        <div class="viz-tooltip-title">${config.title}</div>
+                    ` : ""}
+                    ${config.content ? `
+                        <div class="viz-tooltip-content">${config.content}</div>
+                    ` : ""}
+                </div>
             </div>
         `;
         const tooltipElement = UtilsNew.renderHTML(tooltipTemplate).querySelector("div.viz-tooltip");
+        const tooltipState = {
+            displayed: false,
+            hovered: false,
+        };
+
+        // Register enter and leave listeners to the tooltip element if it is hoverable
+        if (config.hoverable) {
+            console.log("ADD_HOVER");
+            tooltipElement.addEventListener("mouseenter", () => {
+                tooltipState.hovered = true;
+            });
+            tooltipElement.addEventListener("mouseleave", () => {
+                tooltipState.hovered = false;
+                if (tooltipState.displayed) {
+                    document.body.removeChild(tooltipElement);
+                    tooltipState.displayed = false;
+                }
+            });
+        }
 
         // Mouse over the element --> append the tooltip to the document
-        target.addEventListener("mouseover", event => {
-            document.body.appendChild(tooltipElement);
-            const targetPosition = event.currentTarget.getBoundingClientRect();
-            tooltipElement.style.top = (targetPosition.top + targetPosition.height) + "px";
-            tooltipElement.style.left = (targetPosition.left + targetPosition.width / 2) + "px";
+        target.addEventListener("mouseenter", event => {
+            if (!tooltipState.displayed) {
+                document.body.appendChild(tooltipElement);
+                const targetPosition = event.currentTarget.getBoundingClientRect();
+                tooltipElement.style.top = (targetPosition.top + targetPosition.height) + "px";
+                tooltipElement.style.left = (targetPosition.left + targetPosition.width / 2) + "px";
+                tooltipState.displayed = true;
+            }
         });
 
         // Mouse out --> remove tooltip from document
-        target.addEventListener("mouseout", () => {
-            document.body.removeChild(tooltipElement);
+        target.addEventListener("mouseleave", () => {
+            if (!tooltipState.hovered && tooltipState.displayed) {
+                document.body.removeChild(tooltipElement);
+                tooltipState.displayed = false;
+            }
         });
     },
 
