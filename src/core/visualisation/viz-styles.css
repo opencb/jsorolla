@@ -6,19 +6,7 @@
     position: fixed;
     transform: translateX(-50%); /* translateY(6px); */
 }
-.viz-tooltip-box {
-    background-color: #333;
-    border-radius: 4px;
-    color: white;
-    display: block;
-    font-size: 1rem;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 12px;
-    position: relative;
-    width: 100%;
-}
-.viz-tooltip-box:before {
+.viz-tooltip-content::before {
     content: "";
     background: transparent;
     border-color: transparent;
@@ -28,7 +16,18 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: -6px;
+    top: 0px;
+}
+.viz-tooltip-box {
+    background-color: #333;
+    border-radius: 4px;
+    color: white;
+    display: block;
+    font-size: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 12px;
+    width: 100%;
 }
 .viz-tooltip-title {
     font-weight: bold;
