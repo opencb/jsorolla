@@ -29,6 +29,24 @@
     padding: 12px;
     width: 100%;
 }
+.viz-tooltip-box::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+.viz-tooltip-box::-webkit-scrollbar-track, 
+.viz-tooltip-box::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+.viz-tooltip-box::-webkit-scrollbar-thumb {
+    background-color: #595959;
+    border-radius: 16px;
+}
+.viz-tooltip-box::-webkit-scrollbar-thumb:hover {
+    background-color: #737373;
+}
+.viz-tooltip-box::-webkit-scrollbar-button {
+    display: none;
+}
 .viz-tooltip-title {
     font-weight: bold;
     overflow: hidden;
