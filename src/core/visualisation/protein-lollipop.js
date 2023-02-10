@@ -498,6 +498,7 @@ export default {
                                 title: info.variant.id,
                                 content: config.variantsTooltipFormatter(info.variant, info.consequenceType),
                                 width: config.variantsTooltipWidth,
+                                height: config.variantsTooltipHeight,
                                 hoverable: true,
                             });
                         }
@@ -912,6 +913,7 @@ export default {
             variantsColors: this.CONSEQUENCE_TYPES_COLORS,
             variantsTooltipVisible: true,
             variantsTooltipWidth: "240px",
+            variantsTooltipHeight: "240px",
             variantsTooltipPosition: "bottom",
             variantsTooltipFormatter: this.variantsTooltipFormatter,
             proteinVisible: true,
