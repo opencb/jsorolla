@@ -60,12 +60,10 @@ export default {
         target.addEventListener("mouseenter", event => {
             if (!tooltipState.displayed) {
                 const tooltipRect = event.currentTarget.getBoundingClientRect();
-                const scrollTop = window.pageYOffset ?? 0;
-                const scrollLeft = window.pageXOffset ?? 0;
 
                 document.body.appendChild(tooltipElement);
-                tooltipElement.style.top = (scrollTop + tooltipRect.top + tooltipRect.height) + "px";
-                tooltipElement.style.left = (scrollLeft + tooltipRect.left + tooltipRect.width / 2) + "px";
+                tooltipElement.style.top = (window.scrollY + tooltipRect.top + tooltipRect.height) + "px";
+                tooltipElement.style.left = (window.scrollX + tooltipRect.left + tooltipRect.width / 2) + "px";
                 tooltipState.displayed = true;
             }
         });
