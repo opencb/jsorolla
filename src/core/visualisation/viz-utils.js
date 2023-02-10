@@ -59,10 +59,13 @@ export default {
         // Mouse over the element --> append the tooltip to the document
         target.addEventListener("mouseenter", event => {
             if (!tooltipState.displayed) {
+                const tooltipRect = event.currentTarget.getBoundingClientRect();
+                const scrollTop = window.pageYOffset ?? 0;
+                const scrollLeft = window.pageXOffset ?? 0;
+
                 document.body.appendChild(tooltipElement);
-                const targetPosition = event.currentTarget.getBoundingClientRect();
-                tooltipElement.style.top = (targetPosition.top + targetPosition.height) + "px";
-                tooltipElement.style.left = (targetPosition.left + targetPosition.width / 2) + "px";
+                tooltipElement.style.top = (scrollTop + tooltipRect.top + tooltipRect.height) + "px";
+                tooltipElement.style.left = (scrollLeft + tooltipRect.left + tooltipRect.width / 2) + "px";
                 tooltipState.displayed = true;
             }
         });
