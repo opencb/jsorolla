@@ -195,7 +195,6 @@ export default {
                                 id: variant.id,
                                 position: ct.proteinVariantAnnotation.position,
                                 title: `${(annotation.reference || "-")}${annotation.position}${(annotation.alternate || "-")}`,
-                                // type: ct.sequenceOntologyTerms?.[0]?.name || "other",
                                 type: variant?.annotation?.displayConsequenceType || "other",
                                 variant: variant,
                                 consequenceType: ct,
@@ -217,9 +216,7 @@ export default {
                             cancerHotspot: item,
                         };
                     });
-
                 return parsedItems;
-                // return (parsedItems.length >= data.length * 0.75) ? parsedItems : [];
             default:
                 return [];
         }
