@@ -133,8 +133,10 @@ export default class StudySettingsDetail extends LitElement {
                         contentStyle: "",
                     },
                     render: () => {
+                        // .toolSettings="${this.toolSettings}"
                         return html `
                             <tool-settings-update
+                                .study="${this.study}"
                                 .toolSettings="${this.toolSettings}"
                                 .tool="${this.tool}"
                                 .ivaSettingsName="${this.ivaSettingsName}"

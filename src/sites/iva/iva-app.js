@@ -143,7 +143,7 @@ class IvaApp extends LitElement {
         _config.enabledComponents.home = true;
 
         // Default Settings
-        this.SETTINGS_NAME = "IVA_CONFIG_TEST_3";
+        this.SETTINGS_NAME = "IVA_CONFIG_TEST_4";
         this.defaultSettings = {
             ...BROWSERS_SETTINGS,
             // USER_PROFILE_SETTINGS,

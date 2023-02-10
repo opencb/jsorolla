@@ -146,7 +146,9 @@ export default class StudyAdminIva extends LitElement {
                     category: true,
                     submenu: Object.entries(this.settings)
                         .map(([toolId, toolSettings]) => {
-                            const name = UtilsNew.capitalize(toolId.split("_")[0]);
+                            // const name = UtilsNew.capitalize(toolId.split("_")[0]);
+                            const match = toolId.match(/^(.*)_[^_]*$/);
+                            const name = match ? match[1] : toolId;
                             return {
                                 id: name.toLowerCase(),
                                 name: `${name} Browser Settings`,

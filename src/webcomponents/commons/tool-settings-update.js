@@ -19,6 +19,7 @@ import Types from "./types";
 import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
+import FormUtils from "./forms/form-utils";
 
 export default class ToolSettingsUpdate extends LitElement {
 
@@ -34,15 +35,19 @@ export default class ToolSettingsUpdate extends LitElement {
 
     static get properties() {
         return {
+            tool: {
+                type: String,
+            },
+            study: {
+                type: Object,
+            },
             toolSettings: {
                 type: Object,
             },
             // settings: {
             //     type: Object,
             // },
-            toolLabel: {
-                type: String,
-            },
+
             ivaSettingsName: {
                 type: String,
             },
@@ -55,7 +60,7 @@ export default class ToolSettingsUpdate extends LitElement {
     #init() {
         this.toolSettings = {};
         this.ivaSettingsName = "";
-        this.toolLabel = "";
+        this.tool = "";
 
         this.isLoading = false;
         this.DEFAULT_TOOLPARAMS = {};
@@ -63,8 +68,10 @@ export default class ToolSettingsUpdate extends LitElement {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
-        this._toolSettings = {}; // Local copy for mai
-        this.config = this.getDefaultConfig();
+
+        this._toolSettings = {}; // Local copy for tool settings
+        this._listStudies = [];
+        // this.config = this.getDefaultConfig();
 
     }
 
@@ -90,39 +97,57 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("toolSettings")) {
-            this.initOriginalObjects();
+
+        if (changedProperties.has("study") || changedProperties.has("toolSettings")) {
+            this.componentObserver();
         }
         super.update(changedProperties);
     }
 
+    componentObserver() {
+        if (this.study && this.toolSettings && this.opencgaSession) {
+            this.initOriginalObjects();
+        }
+    }
 
     initOriginalObjects() {
-        // We maintain the original settings and use a copy for
+        // We maintain the original settings and study and use a copy for previewing the ongoing changes in json
+        this._study = UtilsNew.objectClone(this.study);
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
+        this.updatedFields = {};
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
             body: this._toolSettings,
         };
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
     }
     // --- OBSERVERS ---
 
+
     // --- EVENTS ---
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         // The json has been modified, so we need to:
         // 1. To update the local object settings where we store the settings modifications
-        this._toolSettings = {...e.detail.value.json};
-        // 2. To update the form this.toolParams
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this.toolParams,
-            body: this._toolSettings
-        };
+        if (e.detail.value?.json) {
+            this._toolSettings = {...e.detail.value?.json};
+        }
+        if (e.detail.param === "id") {
+            this._listStudies = e.detail.value.split(",");
+        }
+
+        // // 2. To update the form this.toolParams
+        // this.toolParams = {
+        //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        //     ...this.toolParams,
+        //     body: this._toolSettings
+        // };
+
         // To notify that the json has been modified
-        // CAUTION 20230208 Vero: distinguish events:
-        //  - Update of the json
-        //  - Update in opencga
+        // CAUTION 20230208 Vero: the toolSettings json has been updated
         LitUtils.dispatchCustomEvent(this, "studyToolSettingsUpdate", null, {
             _toolSettings: this._toolSettings,
         }, null, {bubbles: true, composed: true});
@@ -146,8 +171,12 @@ export default class ToolSettingsUpdate extends LitElement {
         const params = {
             includeResult: true,
         };
+
+        // TODO:  for each this._listStudies, update the attributes
         const otherAttributes = UtilsNew.objectCloneExclude(this.opencgaSession.study.attributes, [this.ivaSettingsName, `${this.ivaSettingsName}_BACKUP`]);
         const otherToolsSettings = UtilsNew.objectCloneExclude(this.opencgaSession.study.attributes[this.ivaSettingsName].settings, [this.tool]);
+
+        // const updateParams = FormUtils.getUpdateParams(this._study, this.updatedFields);
 
         const updateParams = {
             attributes: {
@@ -168,33 +197,38 @@ export default class ToolSettingsUpdate extends LitElement {
 
         let error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.studies()
-            .update(this.opencgaSession.study.fqn, updateParams, params)
-            .then(response => {
-                // 1. Update the attributes property
-                const study = UtilsNew.objectClone(response.responses[0].results[0]);
-                // 2. Dispatch notification
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `${toolName} Settings Update`,
-                    message: `${toolName} settings updated correctly`,
+        this._listStudies.forEach(studyId => {
+            this.opencgaSession.opencgaClient.studies()
+                // .update(this.opencgaSession.study.fqn, updateParams, params)
+                .update(studyId, updateParams, params)
+                .then(response => {
+                    // 1. Update the attributes property
+                    const study = UtilsNew.objectClone(response.responses[0].results[0]);
+                    // 2. Dispatch notification
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        title: `${toolName} Settings Update`,
+                        message: `${toolName} settings updated correctly`,
+                    });
+                    LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", study.fqn);
+                })
+                .catch(reason => {
+                    error = reason;
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                })
+                .finally(() => {
+                    this.#setLoading(false);
                 });
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", study.fqn);
-            })
-            .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                this.#setLoading(false);
-            });
+        });
     }
 
     // --- RENDER ---
     render() {
+    // .data="${this.toolParams}"
         return html `
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
+                .data="${this._study}"
+                .config="${this._config}"
+                .updateParams="${this.updatedFields}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -234,19 +268,28 @@ export default class ToolSettingsUpdate extends LitElement {
                     elements: [
                         {
                             title: "Study",
-                            type: "custom",
+                            field: "id",
+                            type: "select",
+                            multiple: true,
                             required: true,
+                            allowedValues: this.opencgaSession.projects
+                                .map(project => project.studies)
+                                .flat()
+                                .map(study => study.fqn),
                             // FIXME 20230208 Vero: look for another approach if this form element is always disabled.
                             display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.opencgaSession.study.fqn}"
-                                        .resource="${"STUDY"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!this.opencgaSession.study.fqn}}"
-                                        @filterChange="${e => this.onFieldChange(e, "study")}">
-                                    </catalog-search-autocomplete>
-                                `,
+                                placeholder: "Select study or studies..."
+
+                                // .config="${{multiple: true, disabled: !!this.opencgaSession.study.fqn}}"
+                                // render: () => html `
+                                //     <catalog-search-autocomplete
+                                //         .value="${this.opencgaSession.study.fqn}"
+                                //         .resource="${"STUDY"}"
+                                //         .opencgaSession="${this.opencgaSession}"
+                                //         .config="${{multiple: true}}"
+                                //         @filterChange="${e => this.onFieldChange(e, "study")}">
+                                //     </catalog-search-autocomplete>
+                                // `,
                             },
                         }
                     ],
@@ -265,7 +308,8 @@ export default class ToolSettingsUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "body",
+                            // field: "body",
+                            field: `attributes.${this.ivaSettingsName}.settings.${this.tool}`,
                             type: "json-editor",
                         },
                     ],
