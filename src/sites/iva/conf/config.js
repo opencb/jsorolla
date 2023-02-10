@@ -38,15 +38,15 @@ const hosts = [
     },
     {
         id: "test-reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/iva-3799/opencga"
     },
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[3].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[3].id
     }
 
     // This forces the following projects to be used instead of the user's project

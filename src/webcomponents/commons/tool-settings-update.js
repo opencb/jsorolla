@@ -139,6 +139,10 @@ export default class ToolSettingsUpdate extends LitElement {
             this._listStudies = e.detail.value.split(",");
         }
 
+        if (e.detail.param === "nosequeponer") {
+            debugger
+        }
+
         // // 2. To update the form this.toolParams
         // this.toolParams = {
         //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -223,6 +227,8 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- RENDER ---
     render() {
+        this.opencgaSession;
+        debugger
     // .data="${this.toolParams}"
         return html `
             <data-form
@@ -290,6 +296,15 @@ export default class ToolSettingsUpdate extends LitElement {
                                 //         @filterChange="${e => this.onFieldChange(e, "study")}">
                                 //     </catalog-search-autocomplete>
                                 // `,
+                            },
+                        },
+                        {
+                            title: "Load default settings",
+                            field: "nosequeponer",
+                            type: "checkbox",
+                            // FIXME 20230208 Vero: look for another approach if this form element is always disabled.
+                            display: {
+                                placeholder: "Select study or studies..."
                             },
                         }
                     ],

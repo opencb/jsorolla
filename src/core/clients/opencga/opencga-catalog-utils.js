@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../utils-new.js";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -135,5 +136,24 @@ export default class OpencgaCatalogUtils {
                 opencgaSession.user.configs.IVA = response.responses[0].results[0];
             });
     }
+
+    static getNewStudySettings(opencgaSession, study, defaultSettings) {
+        const params = {
+            includeResult: true,
+        };
+        const updateParams = {
+            attributes: {
+                ...study.attributes,
+                [this.SETTINGS_NAME]: {
+                    userId: opencgaSession.user.id,
+                    // FIXME: it will store a '*-dev' version
+                    version: this.version.split("-")[0],
+                    date: UtilsNew.getDatetime(),
+                    settings: UtilsNew.objectClone(defaultSettings),
+                },
+            }
+        };
+    }
+
 
 }
