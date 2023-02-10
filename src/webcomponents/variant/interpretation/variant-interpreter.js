@@ -161,7 +161,8 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
-        return this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });
@@ -191,7 +192,8 @@ class VariantInterpreter extends LitElement {
             locked: !this.clinicalAnalysis.locked,
         };
 
-        return this.opencgaSession.opencgaClient.clinical().update(id, updateParams, {study: this.opencgaSession.study.fqn})
+        return this.opencgaSession.opencgaClient.clinical()
+            .update(id, updateParams, {study: this.opencgaSession.study.fqn})
             .then(() => this.onClinicalAnalysisUpdate())
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -253,7 +255,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "report",
-                    title: "Report",
+                    title: "Observations",
                     acronym: "VB",
                     description: "",
                     // disabled: true,
@@ -273,7 +275,6 @@ class VariantInterpreter extends LitElement {
                 </div>
             `;
         }
-
 
         // Note: this a temporal
         const configReportTabs = {
@@ -351,7 +352,7 @@ class VariantInterpreter extends LitElement {
             default:
                 configReportTabs.items.push({
                     id: "caseReport",
-                    name: "Case Report Review",
+                    name: "Case Observation Review",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
@@ -425,12 +426,12 @@ class VariantInterpreter extends LitElement {
                     <tool-header
                         icon="${this._config.icon}"
                         .title="${`
-                            ${this._config.title}
-                            <span class="inverse">
-                                Case ${this.clinicalAnalysis?.id}
-                                ${this.clinicalAnalysis.interpretation.locked ? "<span class=\"fa fa-lock\"></span>" : ""}
-                            </span>
-                        `}"
+                        ${this._config.title}
+                        <span class="inverse">
+                            Case ${this.clinicalAnalysis?.id}
+                            ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                        </span>
+                    `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -454,37 +455,42 @@ class VariantInterpreter extends LitElement {
                                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
                                                 <a style="background-color:white!important;">
-                                                    <i class="fa fa-user-md icon-padding"></i>
                                                     <strong>Change interpretation</strong>
                                                 </a>
                                             </li>
                                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                                 <li>
-                                                    <a style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                                         ${item.id}
+                                                        <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
                                                     </a>
                                                 </li>
                                             `)}
                                             <li role="separator" class="divider"></li>
                                         ` : null}
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
-                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
-                                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"}
+                                            <a style="background-color:white!important;">
+                                                <strong>Case Actions</strong>
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisRefresh}">
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                                <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
+                                                ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
+                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
                                                 <i class="fa fa-download icon-padding"></i> Download
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                                 <i class="fa fa-times icon-padding"></i> Close
                                             </a>
                                         </li>
@@ -498,7 +504,7 @@ class VariantInterpreter extends LitElement {
                 `}
 
                 <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
+                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
@@ -596,10 +602,6 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                        <!-- <variant-interpreter-report
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </variant-interpreter-report> -->
                                     <detail-tabs
                                         .data="${this.clinicalAnalysis}"
                                         .config="${configReportTabs}"

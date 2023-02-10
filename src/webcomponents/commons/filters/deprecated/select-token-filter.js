@@ -23,7 +23,7 @@ import UtilsNew from "../../../../core/utils-new.js";
  *
  *
  * TODO
- * 1. find a better way than silendClear() to clear the tokens without triggering filterChange(). We need that in updated().
+ * 1. find a better way than silentClear() to clear the tokens without triggering filterChange(). We need that in updated().
  * 2. avoid pointless remote requests each click on the blank area of the select.
  * 3. custom template in dropdown
  * 4. debug

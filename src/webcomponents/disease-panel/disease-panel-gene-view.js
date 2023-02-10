@@ -118,9 +118,10 @@ export default class DiseasePanelGeneView extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    geneFormatter(geneName) {
+    geneFormatter(row) {
         const geneLinks = [];
 
+        const geneName = row.name || row.id;
         if (geneName) {
             const tooltipText = `
                 ${VariantGridFormatter.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
@@ -162,7 +163,7 @@ export default class DiseasePanelGeneView extends LitElement {
                     id: "name",
                     title: "Gene",
                     field: "name",
-                    formatter: (value, row) => this.geneFormatter(row.name, this.opencgaSession),
+                    formatter: (value, row) => this.geneFormatter(row, this.opencgaSession),
                     halign: this._config.header.horizontalAlign
                 },
                 {

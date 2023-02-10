@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -54,7 +54,7 @@ export default class FamilyQcAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Run quality control (QC) for a given family. It computes the relatedness scores among the family members";
 
         this.DEFAULT_TOOLPARAMS = {
-            relatednessMaf: "1000G:ALL>0.3",
+            relatednessMaf: "1000G:ALL>=0.05",
         };
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
@@ -84,23 +84,23 @@ export default class FamilyQcAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.family;
+        if (this.opencgaSession && !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user?.id)) {
+            return {
+                message: "Only Study admins can execute QC methods"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
             family: this.toolParams.family,
-            minorAlleleFreq: this.toolParams.minorAlleleFreq
+            relatednessMaf: this.toolParams.relatednessMaf
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -143,19 +143,17 @@ export default class FamilyQcAnalysis extends LitElement {
                         title: "Select Family",
                         field: "family",
                         type: "custom",
+                        required: true,
                         display: {
-                            render: family => html `
+                            render: (family, dataFormFilterChange)=> html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.family}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                    .config="${{multiple: false}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
-                            help: {
-                                text: "Select a family to run QC"
-                            },
                         },
                     },
                 ],
@@ -164,10 +162,14 @@ export default class FamilyQcAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Select minor allele frequency",
+                        title: "Select Relatedness Minor Allele Frequency",
                         field: "relatednessMaf",
                         type: "input-text",
-                        display: {}
+                        display: {
+                            help: {
+                                text: "Format allowed is STUDY:COHORT{<|<=|>|>=}FREQUENCY, eg. 1000G:ALL>0.3"
+                            }
+                        }
                     },
                 ],
             }

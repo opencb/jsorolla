@@ -24,6 +24,7 @@ import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
+import "../commons/filters/role-in-cancer-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
@@ -205,6 +206,7 @@ export default class VariantBrowserFilter extends LitElement {
     }
 
     // DEPRECATED
+    // FIXME: is it deprecated?
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
@@ -464,6 +466,15 @@ export default class VariantBrowserFilter extends LitElement {
                             @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
                         </consequence-type-select-filter>`;
                     break;
+                case "role-in-cancer":
+                    content = html`
+                        <role-in-cancer-filter
+                            .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
+                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .disabled="${disabled}"
+                            @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
+                        </role-in-cancer-filter>`;
+                    break;
                 case "proteinSubstitutionScore":
                     content = html`
                         <protein-substitution-score-filter
@@ -517,15 +528,17 @@ export default class VariantBrowserFilter extends LitElement {
                             .showPanelTitle="${true}"
                             .disabled="${disabled}"
                             .showExtendedFilters="${true}"
-                            @filterChange="${e => this.onFilterChange({
-                                panel: "panel",
-                                panelFeatureType: "panelFeatureType",
-                                panelModeOfInheritance: "panelModeOfInheritance",
-                                panelConfidence: "panelConfidence",
-                                panelRoleInCancer: "panelRoleInCancer",
-                                panelIntersection: "panelIntersection",
-                            }, e.detail.query)}">
-                        </disease-panel-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    panel: "panel",
+                                    panelFeatureType: "panelFeatureType",
+                                    panelModeOfInheritance: "panelModeOfInheritance",
+                                    panelConfidence: "panelConfidence",
+                                    panelRoleInCancer: "panelRoleInCancer",
+                                    panelIntersection: "panelIntersection",
+                                }, e.detail.query)}">
+                        </disease-panel-filter>
+                    `;
                     break;
                 case "clinical-annotation":
                     content = html`
@@ -533,22 +546,25 @@ export default class VariantBrowserFilter extends LitElement {
                             .clinical="${this.preparedQuery.clinical}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
                             .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinical: "clinical",
-                                clinicalSignificance: "clinicalSignificance",
-                                clinicalConfirmedStatus: "clinicalConfirmedStatus"
-                            }, e.detail)}">
-                        </clinical-annotation-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinical: "clinical",
+                                    clinicalSignificance: "clinicalSignificance",
+                                    clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                }, e.detail)}">
+                        </clinical-annotation-filter>
+                    `;
                     break;
                 case "clinvar": // Deprecated: use clinical instead
                     content = html`
                         <clinvar-accessions-filter
                             .clinvar="${this.preparedQuery.clinvar}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinvar: "xref",
-                                clinicalSignificance: "clinicalSignificance"
-                            }, e.detail.value)}">
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinvar: "xref",
+                                    clinicalSignificance: "clinicalSignificance"
+                                }, e.detail.value)}">
                         </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":

@@ -15,16 +15,16 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import Types from "../../commons/types.js";
+import UtilsNew from "../../../../core/utils-new.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
+import FormUtils from "../../../commons/forms/form-utils.js";
+import Types from "../../../commons/types.js";
 
-export default class StatusUpdate extends LitElement {
+export default class OntologyTermAnnotationUpdate extends LitElement {
 
     constructor() {
         super();
-        this.#init();
+        this._init();
     }
 
     createRenderRoot() {
@@ -33,8 +33,11 @@ export default class StatusUpdate extends LitElement {
 
     static get properties() {
         return {
-            status: {
+            ontology: {
                 type: Object
+            },
+            ontologyId: {
+                type: String
             },
             displayConfig: {
                 type: Object
@@ -42,11 +45,11 @@ export default class StatusUpdate extends LitElement {
         };
     }
 
-    #init() {
+    _init() {
         this.displayConfigDefault = {
             buttonsAlign: "right",
             buttonClearText: "Clear",
-            buttonOkText: "Create Status",
+            buttonOkText: "Create Ontology Term",
             titleVisible: false,
             titleWidth: 4,
             defaultLayout: "horizontal",
@@ -55,12 +58,19 @@ export default class StatusUpdate extends LitElement {
     }
 
     firstUpdated(changedProperties) {
-        if (changedProperties.has("status")) {
-            this.statusObserver();
+        // To avoid override data
+        if (changedProperties.has("ontology")) {
+            this.ontologyObserver();
         }
     }
 
     update(changedProperties) {
+        /*
+        *    if (changedProperties.has("ontology")) {
+        *        this.ontologyObserver();
+        *    }
+        */
+
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
@@ -68,52 +78,82 @@ export default class StatusUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    statusObserver() {
-        if (this.status) {
-            this._status = UtilsNew.objectClone(this.status);
+    ontologyObserver() {
+        if (this.ontology) {
+            this._ontology = UtilsNew.objectClone(this.ontology);
         }
     }
 
     onFieldChange(e) {
         e.stopPropagation();
         // No need to switch(field) since all of them are processed in the same way
-        this.updateParams = FormUtils.updateScalar(
-            this._status,
-            this.status,
-            this.updateParams,
+        this.data = FormUtils.updateScalarParams(
+            this._ontology,
+            this.ontology,
+            this.data?.updateParams,
             e.detail.param,
             e.detail.value);
 
-        LitUtils.dispatchCustomEvent(this, "fieldChange", this.updateParams, null, null, {bubbles: false, composed: true});
+        LitUtils.dispatchCustomEvent(this, "fieldChange", {...this.data?.updateParams}, null, null, {bubbles: false, composed: true});
+        // to reflect which field is updating...
+        this.requestUpdate();
     }
 
-    onSendStatus(e) {
-        // Send the status to the upper component
+    onSendOntology(e) {
+        // Send the ontology to the upper component
         e.stopPropagation();
         this.updateParams = {};
-        LitUtils.dispatchCustomEvent(this, "updateItem", this.status);
+        this.ontology = {...this.data?.original};
+        this.data = {};
+        LitUtils.dispatchCustomEvent(this, "updateItem", this.ontology);
     }
 
     onClear(e) {
         e.stopPropagation();
-        this.status = JSON.parse(JSON.stringify(this._status));
+        this.ontology = JSON.parse(JSON.stringify(this._ontology));
         this.updateParams = {};
+        this.data = {};
         LitUtils.dispatchCustomEvent(this, "closeForm");
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.status}"
+                .data="${this.ontology}"
                 .config="${this._config}"
-                .updateParams="${this.updateParams}"
+                .updateParams="${this.data?.updateParams}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
-                @submit="${e => this.onSendStatus(e)}">
+                @submit="${e => this.onSendOntology(e)}">
             </data-form>
-    `;
+        `;
     }
 
+    _configOntology(entity) {
+        switch (entity) {
+            case "phenotype":
+                return [
+                    {
+                        name: "Age of onset",
+                        field: "ageOfOnset",
+                        type: "input-num",
+                        display: {
+                            placeholder: "Add an age of on set..."
+                        }
+                    },
+                    {
+                        name: "Status",
+                        field: "status",
+                        type: "select",
+                        allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                        display: {
+                            placeholder: "Select a status..."
+                        }
+                    }];
+            default:
+                return [];
+        }
+    }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
@@ -127,6 +167,7 @@ export default class StatusUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "add short id",
+                                // disabled: true,
                             }
                         },
                         {
@@ -138,6 +179,15 @@ export default class StatusUpdate extends LitElement {
                             }
                         },
                         {
+                            name: "Source",
+                            field: "source",
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a source"
+                            }
+                        },
+                        ...this._configOntology(this.entity),
+                        {
                             name: "Description",
                             field: "description",
                             type: "input-text",
@@ -145,7 +195,7 @@ export default class StatusUpdate extends LitElement {
                                 rows: 3,
                                 placeholder: "Add a description..."
                             }
-                        },
+                        }
                     ]
                 }
             ]
@@ -154,4 +204,4 @@ export default class StatusUpdate extends LitElement {
 
 }
 
-customElements.define("status-update", StatusUpdate);
+customElements.define("ontology-term-annotation-update", OntologyTermAnnotationUpdate);

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class IndividualGrid extends LitElement {
@@ -29,7 +28,7 @@ export default class IndividualGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,20 +46,20 @@ export default class IndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
-            config: {
-                type: Object
-            },
             active: {
                 type: Boolean
+            },
+            config: {
+                type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "IndividualBrowserGrid";
-        this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
     connectedCallback() {
@@ -71,17 +70,14 @@ export default class IndividualGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -103,15 +99,12 @@ export default class IndividualGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            const filters = {...this.query};
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
-            // Store the current filters
-            this.lastFilters = {...filters};
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -139,17 +132,19 @@ export default class IndividualGrid extends LitElement {
                         sort: this.table.bootstrapTable("getOptions").sortName,
                         order: this.table.bootstrapTable("getOptions").sortOrder
                     } : {};
-                    const _filters = {
+                    this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...sort,
-                        ...filters
+                        ...this.query
                     };
+
                     // Store the current filters
-                    this.lastFilters = {..._filters};
-                    this.opencgaSession.opencgaClient.individuals().search(_filters)
+                    this.lastFilters = {...this.filters};
+                    this.opencgaSession.opencgaClient.individuals()
+                        .search(this.filters)
                         .then(individualResponse => {
                             // Fetch Clinical Analysis ID per individual in 1 single query
                             const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
@@ -340,8 +335,8 @@ export default class IndividualGrid extends LitElement {
     }
 
     sexFormatter(value, row) {
-        let sexHtml = `<span>${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}</span>`;
-        if (row.karyotypicSex) {
+        let sexHtml = `${UtilsNew.isEmpty(row?.sex) ? "Not specified" : row.sex?.id || row.sex}`;
+        if (row?.karyotypicSex) {
             sexHtml += ` (${row.karyotypicSex?.id || row.karyotypicSex})`;
         }
         return sexHtml;
@@ -376,6 +371,21 @@ export default class IndividualGrid extends LitElement {
             `;
         } else {
             return "-";
+        }
+    }
+
+    onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "qualityControl":
+                alert("Not implemented yet");
+                break;
         }
     }
 
@@ -462,22 +472,82 @@ export default class IndividualGrid extends LitElement {
                 sortable: true,
                 formatter: CatalogGridFormatter.dateFormatter,
                 halign: this._config.header.horizontalAlign
-            }
-        ];
-
-        if (this._config.showSelectCheckbox) {
-            _columns.push({
+            },
+            {
                 id: "state",
                 field: "state",
                 checkbox: true,
-                // formatter: this.stateFormatter,
                 class: "cursor-pointer",
-                eligible: false
+                eligible: false,
+                visible: this._config.showSelectCheckbox
+            }
+        ];
+
+        if (this.opencgaSession && this._config.showActions) {
+            _columns.push({
+                id: "actions",
+                title: "Actions",
+                field: "actions",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
+                                        </a>
+                                    `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
+                                    </a>`
+                }
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                    href='#individualUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-
         return _columns;
     }
 
@@ -485,22 +555,24 @@ export default class IndividualGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         this.requestUpdate();
         await this.updateComplete;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...this.query,
-            limit: e.detail?.exportLimit ?? 1000,
+
+        const filters = {
+            ...this.filters,
             skip: 0,
+            limit: 1000,
             count: false
         };
-
-        this.opencgaSession.opencgaClient.individuals().search(params)
+        this.opencgaSession.opencgaClient.individuals()
+            .search(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex", "lifeStatus", "dateOfBirth", "creationDate"];
-                        const data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex.id", "lifeStatus", "dateOfBirth", "creationDate"];
+                        const data = UtilsNew.toTableString(results, fields, {
+                            "sex.id": this.sexFormatter,
+                        });
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "individuals_" + this.opencgaSession.study.id + ".json", "application/json");
@@ -529,10 +601,11 @@ export default class IndividualGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : ""}
+                </opencb-grid-toolbar>` : nothing
+            }
+
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}IndividualBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
@@ -548,11 +621,11 @@ export default class IndividualGrid extends LitElement {
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
+            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            disorderSources: ["ICD", "ICD10", "GelDisorder"],
             customAnnotations: {
                 title: "Custom Annotation",
                 fields: []

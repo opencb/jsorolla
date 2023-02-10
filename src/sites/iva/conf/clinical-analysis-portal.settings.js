@@ -24,8 +24,8 @@ const CLINICAL_ANALYSIS_PORTAL_SETTINGS = {
         toolbar: {
             showColumns: true,
             showCreate: false,
-            showExport: false,
-            showDownload: true,
+            showExport: true,
+            showDownload: false,
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span

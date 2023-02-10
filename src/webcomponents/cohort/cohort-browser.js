@@ -145,7 +145,7 @@ export default class CohortBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "ID",
+                                name: "Cohort ID",
                                 type: "string",
                                 placeholder: "Start typing...",
                                 description: ""
@@ -160,8 +160,8 @@ export default class CohortBrowser extends LitElement {
                             {
                                 id: "type",
                                 name: "Type",
+                                type: "string",
                                 multiple: true,
-                                allowedValues: ["All", "CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO"],
                                 description: ""
                             },
                             {
@@ -216,12 +216,8 @@ export default class CohortBrowser extends LitElement {
                                 return html`
                                     <sample-grid
                                         .opencgaSession="${opencgaSession}"
-                                        .query="${{
-                                            cohortIds: cohort.id,
-                                        }}"
-                                        .config="${{
-                                            showSelectCheckbox: false,
-                                        }}"
+                                        .query="${{cohortIds: cohort.id}}"
+                                        .config="${{showSelectCheckbox: false}}"
                                         .active="${active}">
                                     </sample-grid>
                                 `;

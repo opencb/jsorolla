@@ -168,6 +168,39 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
+    // example: getObjectValue(sample,"processing.product.id","")
+    static getObjectValue(obj, props, defaultValue) {
+        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
+    }
+
+    // example: setObjectValue(sample,'processing.product.id',value)
+    static setObjectValue(obj, props, value) {
+        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
+    }
+
+    // 1st approach remove value (recursive way)
+    static deleteObjectValue(obj, props) {
+        const [head, ...params] = props.split(".");
+        if (!params.length) {
+            delete obj[head];
+        } else {
+            UtilsNew.deleteObjectValue(obj[head], params.join("."));
+        }
+    }
+
+    // 2nd approach remove value (loop way)
+    static deleteObjectValue2(obj, props) {
+        const parts = props.split(".");
+        const last = parts.pop();
+        for (const part of parts) {
+            obj = obj[part];
+            if (!obj) {
+                return;
+            }
+        }
+        delete obj[last];
+    }
+
     static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
@@ -255,6 +288,12 @@ export default class UtilsNew {
         }
         return "-";
     }
+
+
+    /*
+     * This function capitalizes the first letter of a string and lowercase the rest.
+     */
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join('').toLowerCase();
 
 
     /*
@@ -378,26 +417,23 @@ export default class UtilsNew {
      * Compares the objects by key and value (nested object are not supported yet)
      * @param {Object} a First object
      * @param {Object} b Second object
-     * @returns {boolean} true if the oject are equals
+     * @returns {boolean} true if the objects are equals
      */
     static objectCompare(a, b) {
         if (a && b) {
-            const _a = UtilsNew.objectSort(a);
-            const _b = UtilsNew.objectSort(b);
-            return JSON.stringify(_a) === JSON.stringify(_b);
+            const _a = JSON.stringify(UtilsNew.objectSort(a));
+            const _b = JSON.stringify(UtilsNew.objectSort(b));
+            return _a === _b;
         } else {
             return false;
         }
     }
 
     static isObjectValuesEmpty(obj) {
-
         return Object.values(obj).every(val => {
-
             if (val !== null && (typeof val === "object" || Array.isArray(val))) {
                 return UtilsNew.isObjectValuesEmpty(val);
             }
-
             return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
         });
     }
@@ -828,6 +864,14 @@ export default class UtilsNew {
         }
     }
 
+    static hasVisibleItems(aItems, session) {
+        return aItems.some(item => UtilsNew.isAppVisible(item, session));
+    }
+
+    static getVisibleItems(aItems, session) {
+        return aItems.filter(subItem => UtilsNew.isAppVisible(subItem, session));
+    }
+
     static sort(stringArray) {
         if (stringArray.length > 0) {
             return stringArray.sort((a, b) => {
@@ -842,6 +886,25 @@ export default class UtilsNew {
         }
         return stringArray;
     }
+
+    // split comma with any characters or space
+    // [^,]+/g
+    // split comma without any characters or space
+    // (?:(?!,\S).)+
+    static splitByCommas(value) {
+        if (!value) {
+            return [];
+        }
+        return value.match(/[^,]+/g);
+    }
+
+    static splitByRegex(value, regex) {
+        if (!value) {
+            return [];
+        }
+        return value.match(regex);
+    }
+
 
     // Escape HTML characters from the provided string
     static escapeHtml(str) {
@@ -888,12 +951,67 @@ export default class UtilsNew {
     // This function returns a positive number when version 2 is bigger
     static compareVersions(version1, version2) {
         // Get the three numbers and remove any version tag
-        const [major1, minor1, patch1] = version1.split("-")[0].split(".");
-        const [major2, minor2, patch2] = version2.split("-")[0].split(".");
+        const [major1, minor1, patch1] = version1.split("-")[0].replace("v", "").split(".");
+        const [major2, minor2, patch2] = version2.split("-")[0].replace("v", "").split(".");
 
-        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + Number.parseInt(patch1);
-        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + Number.parseInt(patch2);
+        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + (Number.parseInt(patch1) || 0);
+        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + (Number.parseInt(patch2) || 0);
         return versionNumber2 - versionNumber1;
+    }
+
+    // It always returns an array
+    static getObjectValues(obj, props, defaultValue, results) {
+        if (!results) {
+            // eslint-disable-next-line no-param-reassign
+            results = [];
+        }
+        const fields = props.split(".");
+        if (fields.length === 1) {
+            if (obj?.[fields[0]] || defaultValue) {
+                results.push(obj?.[fields[0]] ?? defaultValue);
+            }
+        } else {
+            if (obj?.[fields[0]]) {
+                if (Array.isArray(obj[fields[0]])) {
+                    obj[fields[0]].map(o => this.getObjectValue(o, fields.slice(1).join("."), defaultValue, results));
+                } else {
+                    this.getObjectValue(obj[fields[0]], fields.slice(1).join("."), defaultValue, results);
+                }
+            }
+        }
+        return results;
+    }
+
+    // Wrapper around Clipboard API for supporting non secure contexts (HTTP)
+    static copyToClipboard(text) {
+        return Promise.resolve().then(() => {
+            if (window?.navigator?.clipboard?.writeText) {
+                return window.navigator.clipboard.writeText(text);
+            } else {
+                const el = document.createElement("textarea");
+                el.value = text;
+                el.setAttribute("readonly", "");
+                el.style.contain = "strict";
+                el.style.position = "absolute";
+                el.style.left = "-9999px";
+
+                document.body.appendChild(el);
+                el.select();
+                const copied = document.execCommand("copy");
+                document.body.removeChild(el);
+
+                return copied;
+            }
+        });
+    }
+
+    static commaSeparatedArray(strOrArray) {
+        return Array.isArray(strOrArray) ?
+            strOrArray :
+            (strOrArray || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(item => !!item);
     }
 
 }

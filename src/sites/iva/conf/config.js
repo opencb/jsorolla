@@ -34,7 +34,7 @@ const hosts = [
     },
     {
         id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga-preprod"
+        url: "https://eglh.app.zettagenomics.com/opencga"
     },
     {
         id: "test-reference",
@@ -106,10 +106,7 @@ const CATALOG_NAVBAR_MENU = {
         //     name: "Projects",
         //     visibility: "public"
         // },
-        // {
-        //     separator: true,
-        //     visibility: "public"
-        // },
+
         {
             name: "Browsers",
             category: true,
@@ -151,8 +148,21 @@ const CATALOG_NAVBAR_MENU = {
             visibility: "public"
         },
         {
+            separator: true,
+            visibility: "public"
+        },
+        {
             id: "clinicalAnalysis",
             name: "Clinical Analysis Browser",
+            visibility: "public"
+        },
+        {
+            id: "disease-panel",
+            name: "Disease Panel Browser",
+            visibility: "public"
+        },
+        {
+            separator: true,
             visibility: "public"
         },
         {
@@ -160,11 +170,6 @@ const CATALOG_NAVBAR_MENU = {
             name: "Job Browser",
             visibility: "public"
         },
-        {
-            id: "disease-panel",
-            name: "Disease Panel Browser",
-            visibility: "public"
-        }
     ]
 };
 
@@ -798,6 +803,42 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "study-admin",
+                    name: "Study admin",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
+                // {
+                //     id: "variant-admin",
+                //     name: "Variant database",
+                //     fa_icon: "fas fa-file-invoice",
+                //     icon: "img/tools/icons/variant_browser.svg",
+                //     description: "",
+                //     visibility: "public",
+                //     featured: false,
+                // },
+                {
+                    id: "catalog-admin",
+                    name: "Catalog Management",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: false,
+                },
+                {
+                    id: "study-variant-admin",
+                    name: "Study Variant Admin",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: true,
+                },
+                {
                     id: "projects-admin",
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
@@ -806,15 +847,6 @@ const SUITE = {
                     visibility: "public",
                     featured: true,
                 },
-                {
-                    id: "study-admin",
-                    name: "Study Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
-                    visibility: "public",
-                    featured: true,
-                }
             ],
             fileExplorer: {
                 visibility: "private"

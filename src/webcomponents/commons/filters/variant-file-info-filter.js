@@ -118,7 +118,7 @@ export default class VariantFileInfoFilter extends LitElement {
 
                     infoFieldToBasicInfo[line.id].push({
                         fileName: file.name,
-                        callerId: file.software?.name,
+                        callerId: this.fileNameToCallerId[file.name],
                         description: line.description
                     });
                 });
@@ -129,32 +129,59 @@ export default class VariantFileInfoFilter extends LitElement {
         const variantCallersWithInfoField = studyInternalConfiguration?.clinical?.interpretation?.variantCallers
             ?.filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
         const variantCallers = [];
+
+        // 1. Check if variant callers configuration is defined
         if (variantCallersWithInfoField?.length > 0) {
-            const indexedFields = {};
+            const indexedCustomFields = {};
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
                     if (customField.source === "FILE") {
-                        indexedFields[customField.key] = customField;
+                        indexedCustomFields[customField.key] = customField;
                     }
                 }
             }
 
             // Add caller INDEXED-FILE filters from study configuration
-            for (const caller of variantCallersWithInfoField) {
-                if (this.callerIdToFile?.[caller.id]) {
+            for (const variantCaller of variantCallersWithInfoField) {
+                if (this.callerIdToFile?.[variantCaller.id]) {
                     const _dataFilters = [];
-                    for (const dataFilter of caller.dataFilters) {
+                    for (const dataFilter of variantCaller.dataFilters) {
                         // Make sure that only FILE filters are added
                         // Check if dataFilter are indexed
-                        if (dataFilter.source && dataFilter.source === "FILE" && indexedFields[dataFilter.id]) {
+                        if (dataFilter?.source === "FILE" && indexedCustomFields[dataFilter.id]) {
                             const _dataFilter = {...dataFilter};
-                            const field = indexedFields[_dataFilter.id];
-                            if (field.type.startsWith("RANGE_")) {
-                                _dataFilter.comparators = field.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
-                                _dataFilter.allowedValues = field.thresholds;
+                            const indexedCustomField = indexedCustomFields[_dataFilter.id];
+
+                            // Check if field id is FILTER and has only PASS value
+                            if (_dataFilter.id === "FILTER") {
+                                if (_dataFilter.allowedValues?.length > 0) {
+                                    if (_dataFilter.allowedValues?.length === 1 && _dataFilter.allowedValues[0] === "PASS") {
+                                        _dataFilter.name = "PASS";
+                                        _dataFilter.type = "BOOLEAN";
+                                    } else {
+                                        // Check if the variant caller defines a allowedValues, if yes we must use it
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                        _dataFilter.multiple = true;
+                                        _dataFilter.maxOptions = 5;
+                                    }
+                                } else {
+                                    // We use the default configuration
+                                    _dataFilter.allowedValues = indexedCustomField.values;
+                                }
                             } else {
-                                _dataFilter.allowedValues = field.values;
+                                if (indexedCustomField.type.startsWith("RANGE_")) {
+                                    _dataFilter.comparators = indexedCustomField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                                    _dataFilter.allowedValues = indexedCustomField.thresholds;
+                                } else {
+                                    // Categorical: check if the variant caller defines a allowedValues, if yes we must use it
+                                    if (dataFilter.allowedValues?.length > 0) {
+                                        _dataFilter.allowedValues = dataFilter.allowedValues;
+                                    } else {
+                                        _dataFilter.allowedValues = indexedCustomField.values;
+                                    }
+                                }
                             }
+
                             _dataFilters.push(_dataFilter);
                         }
                     }
@@ -162,45 +189,47 @@ export default class VariantFileInfoFilter extends LitElement {
                     // If at least one FILE filter has been found
                     if (_dataFilters.length > 0) {
                         variantCallers.push({
-                            ...caller,
+                            ...variantCaller,
                             dataFilters: _dataFilters,
-                            fileId: this.callerIdToFile[caller.id]?.name
+                            fileId: this.callerIdToFile[variantCaller.id]?.name
                         });
                     }
                 }
             }
         } else {
-            // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
-            // Example:
-            // "customFields": [
-            //     {
-            //         "source": "FILE",
-            //         "key": "FILTER",
-            //         "type": "CATEGORICAL",
-            //         "values": [
-            //             "PASS"
-            //         ],
-            //         "nullable": true
-            //     },
-            //     {
-            //         "source": "FILE",
-            //         "key": "ASMD",
-            //         "type": "RANGE_LT",
-            //         "thresholds": [
-            //             20,
-            //             30,
-            //             250,
-            //             300
-            //         ],
-            //         "nullable": true
-            //     }
-            // ]
+            // 2. If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
+            //      Example:
+            //      "customFields": [
+            //          {
+            //              "source": "FILE",
+            //              "key": "FILTER",
+            //              "type": "CATEGORICAL",
+            //              "values": [
+            //                  "PASS"
+            //              ],
+            //              "nullable": true
+            //          },
+            //          {
+            //              "source": "FILE",
+            //              "key": "ASMD",
+            //              "type": "RANGE_LT",
+            //              "thresholds": [
+            //                  20,
+            //                  30,
+            //                  250,
+            //                  300
+            //              ],
+            //              "nullable": true
+            //          }
+            //      ]
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
                     // At the moment we support all FILE fields but QUAL, since the values do not follow any standard
                     if (customField.source === "FILE" && customField.key !== "QUAL") {
                         let fieldName, fieldType, fieldValues, fieldComparators;
+                        let multiple = false;
+                        let maxOptions = 1;
 
                         // Check if field id is FILTER and has only PASS value
                         if (customField.key === "FILTER") {
@@ -210,6 +239,8 @@ export default class VariantFileInfoFilter extends LitElement {
                             } else {
                                 fieldType = "CATEGORICAL";
                                 fieldValues = customField.values;
+                                multiple = true;
+                                maxOptions = 5;
                             }
                         } else {
                             // All other fields are processed normally
@@ -235,6 +266,8 @@ export default class VariantFileInfoFilter extends LitElement {
                                 type: fieldType,
                                 source: customField.source,
                                 allowedValues: fieldValues,
+                                multiple: multiple,
+                                maxOptions: maxOptions,
                                 comparators: fieldComparators || [],
                             });
                         });
@@ -259,6 +292,30 @@ export default class VariantFileInfoFilter extends LitElement {
         this.requestUpdate();
     }
 
+    // This function can split filters in filterData in a safe way.
+    // Some values can have semicolon characters, example: "FILTER=PASS;A,B;CLPM<=0.5;ASMD>=1,400"
+    //
+    #splitFilters(filtersString) {
+        // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
+        const re = /(?<file>[a-zA-Z]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const match1 = filtersString.match(re);
+        // 2. Get the indexes: [0, 16, 26]
+        const filters = [];
+        const indexes = [];
+        for (const m of match1) {
+            indexes.push(filtersString.indexOf(m));
+        }
+        // 3. substring the whole values: ["FILTER=PASS;A,B", "CLPM<=0.5", "ASMD>=1,400"]
+        for (let i = 0; i < indexes.length; i++) {
+            if (i < indexes.length - 1) {
+                filters.push(filtersString.substring(indexes[i], indexes[i+1] - 1));
+            } else {
+                filters.push(filtersString.substring(indexes[i]));
+            }
+        }
+        return filters;
+    }
+
     /*
      * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.
@@ -272,7 +329,7 @@ export default class VariantFileInfoFilter extends LitElement {
                 if (fileDataItem.includes(":")) {
                     const [fileId, filters] = fileDataItem.split(":");
                     _fileDataQuery[this.fileNameToCallerId[fileId]] = {};
-                    for (const filter of filters.split(";")) {
+                    for (const filter of this.#splitFilters(filters)) {
                         let key, comparator, value;
                         if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
                             [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
@@ -280,7 +337,10 @@ export default class VariantFileInfoFilter extends LitElement {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
                                 comparator = "";
-                                value = value === "PASS";
+                                const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
+                                if (type?.toUpperCase() === "BOOLEAN") {
+                                    value = value === "PASS";
+                                }
                             } else {
                                 // number-field-filter needs the equal operator
                                 isNaN(value) ? comparator = "" : comparator = "=";
@@ -313,15 +373,6 @@ export default class VariantFileInfoFilter extends LitElement {
         // ADD, UPDATE or DELETE the field
         if (value) {
             this.fileDataQuery[caller][field] = value;
-
-            // Fix categorical fields (related to TASK-1458)
-            const callerInfo = this.callers?.find(c => c.id === caller);
-            if (callerInfo) {
-                const fieldInfo = callerInfo.dataFilters?.find(f => f.id === field);
-                if (fieldInfo && fieldInfo.type === "CATEGORICAL") {
-                    this.fileDataQuery[caller][field] = "=" + value;
-                }
-            }
         } else {
             delete this.fileDataQuery[caller][field];
             // If not filter left we delete the caller section
@@ -338,7 +389,18 @@ export default class VariantFileInfoFilter extends LitElement {
                 const filterString = Object.entries(callerEntry[1])
                     .map(filterEntry => {
                         // FILTER requires a PASS value when true
-                        const value = filterEntry[0] !== "FILTER" ? filterEntry[1] : "=PASS";
+                        let value = filterEntry[1]; //  : "=PASS";
+                        if (filterEntry[0] === "FILTER" && typeof filterEntry[1] === "boolean") {
+                            value = "=PASS";
+                        } else {
+                            // Fix categorical fields (related to TASK-1458 and TASK-2322)
+                            const callerInfo = this.callers?.find(caller => caller.id === callerEntry[0]);
+                            const fieldInfo = callerInfo?.dataFilters?.find(f => f.id === filterEntry[0]);
+                            if (fieldInfo && fieldInfo.type === "CATEGORICAL") {
+                                value = "=" + value;
+                            }
+                        }
+
                         return filterEntry[0] + "" + value;
                     })
                     .join(";");
@@ -347,6 +409,16 @@ export default class VariantFileInfoFilter extends LitElement {
             .join(",");
 
         LitUtils.dispatchCustomEvent(this, "filterChange", fileData);
+    }
+
+    render() {
+        return html`
+            <data-form
+                .data=${this.fileDataQuery}
+                .config="${this._config}"
+                @fieldChange="${this.filterChange}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -375,6 +447,8 @@ export default class VariantFileInfoFilter extends LitElement {
                         type: this.callerParamTypeToDataForm[field.type],
                         comparators: (field.comparators || []).join(","),
                         allowedValues: field.allowedValues,
+                        multiple: field.multiple ?? false,
+                        maxOptions: field.maxOptions ?? 1,
                         defaultValue: "",
                     }))
                 ],
@@ -394,16 +468,6 @@ export default class VariantFileInfoFilter extends LitElement {
             },
             sections: _sections,
         };
-    }
-
-    render() {
-        return html`
-            <data-form
-                .data=${this.fileDataQuery}
-                .config="${this._config}"
-                @fieldChange="${this.filterChange}">
-            </data-form>
-        `;
     }
 
 }

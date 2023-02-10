@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2022 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/tool-header.js";
-import "../study/annotationset/annotation-set-update.js";
-import "../study/status/status-create.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
 
@@ -81,30 +79,7 @@ export default class CohortCreate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "samples":
-                let samples = [];
-                if (e.detail.value) {
-                    samples = e.detail.value.split(",").map(sample => {
-                        return {id: sample};
-                    });
-                }
-                this.cohort = {...this.cohort, samples: samples};
-                break;
-            case "annotationSets":
-                this.cohort = {...this.cohort, annotationSets: e.detail.value};
-                break;
-            default:
-                this.cohort = {
-                    ...FormUtils.createObject(
-                        this.cohort,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-        }
-        // We need this for validation
+        this.cohort = {...this.cohort};
         this.requestUpdate();
     }
 
@@ -130,19 +105,18 @@ export default class CohortCreate extends LitElement {
         this.opencgaSession.opencgaClient.cohorts()
             .create(this.cohort, params)
             .then(() => {
+                this.cohort = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Cohort",
                     message: "cohort created correctly"
                 });
-                // this.onClear();
             })
             .catch(reason => {
                 error = reason;
-                console.error(reason);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.cohort = {};
-                this._config = this.getDefaultConfig();
                 LitUtils.dispatchCustomEvent(this, "cohortCreate", this.cohort, {}, error);
                 this.#setLoading(false);
             });
@@ -196,14 +170,26 @@ export default class CohortCreate extends LitElement {
                             field: "samples",
                             type: "custom",
                             display: {
-                                render: samples => html `
-                                <catalog-search-autocomplete
-                                    .value="${samples?.map(sample => sample.id).join(",")}"
-                                    .resource="${"SAMPLE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    @filterChange="${e => this.onFieldChange(e, "samples")}">
-                                </catalog-search-autocomplete>
-                                `
+                                render: (samples, dataFormFilterChange) => {
+                                    const sampleFormatter = value => {
+                                        return value?.split(",").map(sample => {
+                                            return {id: sample};
+                                        });
+                                    };
+
+                                    const handleSampleFilterChange = e => {
+                                        dataFormFilterChange(e.detail.value ? sampleFormatter(e.detail.value) :[]);
+                                    };
+
+                                    return html `
+                                        <catalog-search-autocomplete
+                                            .value="${samples?.map(sample => sample.id).join(",")}"
+                                            .resource="${"SAMPLE"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => handleSampleFilterChange(e)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                }
                             },
                         },
                         {
@@ -218,42 +204,35 @@ export default class CohortCreate extends LitElement {
                         {
                             title: "Status",
                             field: "status",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <status-create
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonsVisible: false,
-                                            width: 12,
-                                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px",
-                                        }}"
-                                        @fieldChange="${e => this.onFieldChange(e, "status")}">
-                                    </status-create>`
-                            },
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "status.id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add an ID",
+                                    }
+                                },
+                                {
+                                    title: "Name",
+                                    field: "status.name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add source name"
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status.description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description..."
+                                    }
+                                },
+                            ]
                         },
-                        // {
-                        //     title: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
-                        // {
-                        //     title: "Modification Date",
-                        //     field: "modificationDate",
-                        //     type: "input-date",
-                        //     display: {
-                        //         render: date =>
-                        //             moment(date, "YYYYMMDDHHmmss").format(
-                        //                 "DD/MM/YYYY"
-                        //             )
-                        //     }
-                        // },
                     ],
                 },
                 // {

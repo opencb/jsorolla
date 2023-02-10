@@ -75,6 +75,32 @@ const DISEASE_PANEL_IMPRINTED = ["NOT", "MATERNALLY", "PATERNALLY", "UNKNOWN"];
 
 const ACMG_STRENGTH_LEVEL = ["SUPPORTING", "MODERATE", "STRONG", "VERY_STRONG"];
 
+const AMINOACID_CODE = {
+    "A": "Ala",
+    "R": "Arg",
+    "N": "Asn",
+    "D": "Asp",
+    "B": "Asx",
+    "C": "Cys",
+    "E": "Glu",
+    "Q": "Gln",
+    "Z": "Glx",
+    "G": "Gly",
+    "H": "His",
+    "I": "Ile",
+    "L": "Leu",
+    "K": "Lys",
+    "M": "Met",
+    "F": "Phe",
+    "P": "Pro",
+    "S": "Ser",
+    "T": "Thr",
+    "W": "Trp",
+    "Y": "Tyr",
+    "V": "Val",
+    "*": "Stop"
+};
+
 const CONSEQUENCE_TYPES = {
     style: {
         // This is the impact color. It allows to customise both the impact categories and desired colors
@@ -107,14 +133,14 @@ const CONSEQUENCE_TYPES = {
         {
             name: "Protein Altering",
             description: "Filter Protein Altering variants",
-            terms: ["frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
-                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "missense_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion"]
         },
         {
             name: "Coding Sequence",
             description: "Filter Coding variants",
-            terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
-                "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+            terms: ["missense_variant", "frameshift_variant", "incomplete_terminal_codon_variant", "start_lost", "stop_gained", "stop_lost", "splice_acceptor_variant",
+                "splice_donor_variant", "feature_truncation", "transcript_ablation", "inframe_deletion", "inframe_insertion", "synonymous_variant"]
         }
     ],
 
@@ -457,12 +483,33 @@ const POPULATION_FREQUENCIES = {
                 {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 }
-                // {
-                //     id: "SAS", title: "South Asian [SAS]"
-                // }
             ]
-        }
-    ]
+        },
+        {
+            id: "GNOMAD_EXOMES",
+            title: "gnomAD Exomes",
+            populations: [
+                {
+                    id: "ALL", title: "gnomAD [ALL]"
+                },
+                {
+                    id: "AFR", title: "African/African American [AFR]"
+                },
+                {
+                    id: "AMR", title: "American [AMR]"
+                },
+                {
+                    id: "EAS", title: "East Asian [EAS]"
+                },
+                {
+                    id: "FIN", title: "Finnish[FIN]"
+                },
+                {
+                    id: "NFE", title: "Non-Finnish European [NFE]"
+                },
+            ],
+        },
+    ],
 };
 
 
@@ -814,6 +861,7 @@ const tooltips = {
     feature: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
     diseasePanels: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",
     biotype: "Filtering out variants without the selected gene biotypes terms",
+    roleInCancer: "Filtering out variants by the different role in cancer of the genes",
     type: "Only considers variants of the selected type",
     consequenceTypeSelect: "Filtering out variants without the selected Consequence type SO terms",
     go: "The Gene Ontology (GO) knowledgebase is the world's largest source of information on the functions of genes." +

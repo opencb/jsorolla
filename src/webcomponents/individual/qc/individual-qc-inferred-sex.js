@@ -1,4 +1,5 @@
 /**
+/**
  * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -159,7 +160,7 @@ export default class IndividualQcInferredSex extends LitElement {
                                     <td>
                                         <label>${individual.id}</label>
                                     </td>
-                                    <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
+                                    <td>${inferredSex?.sampleId ?? "N/A"}</td>
                                     <td>${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex}</td>
                                     <td>
                                     <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">

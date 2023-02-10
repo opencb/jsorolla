@@ -16,7 +16,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
             {
                 title: "Clinical",
                 collapsed: true,
-                filters: ["diseasePanels", "clinical-annotation"]
+                filters: ["diseasePanels", "clinical-annotation", "role-in-cancer"]
             },
             {
                 title: "Consequence Type",

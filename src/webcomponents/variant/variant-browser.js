@@ -339,6 +339,7 @@ export default class VariantBrowser extends LitElement {
         try {
             await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
             this.settingsObserver();
+            this.requestUpdate();
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",
@@ -459,6 +460,19 @@ export default class VariantBrowser extends LitElement {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
+                            },
+                            {
+                                id: "role-in-cancer",
+                                title: "Gene Role In Cancer",
+                                tooltip: tooltips.roleInCancer,
+                                disabled: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                message: {
+                                    visible: () => UtilsNew.compareVersions("2.6.0", this.opencgaSession.about.Version) < 0,
+                                    text: "Gene Role in Cancer filter is only available from OpenCGA 2.6.0"
+                                },
+                                params: {
+                                    rolesInCancer: ROLE_IN_CANCER
+                                },
                             },
                             {
                                 id: "fullTextSearch",
@@ -634,7 +648,18 @@ export default class VariantBrowser extends LitElement {
                                 id: "biotypes", name: "Biotype", type: "string"
                             },
                             {
-                                id: "consequenceType", name: "Consequence Type", type: "string"
+                                // id: "consequence-type",
+                                id: "consequenceType",
+                                name: "Consequence Type",
+                                type: "consequence-type",
+                                // type: "string"
+                                // render: facetId => html `
+                                //     <consequence-type-select-filter
+                                //         .ct="${this.preparedQuery.ct}"
+                                //         .config="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                //         @filterChange="${e => this.onNestedFacetFieldChange(e, facetId)}">
+                                //     </consequence-type-select-filter>
+                                // `,
                             }
                         ]
                     },
