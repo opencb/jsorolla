@@ -22,6 +22,7 @@ import "../../../webcomponents/commons/forms/data-form.js";
 import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
 import UtilsTest from "../../../../cypress/support/utils-test.js";
+import opencgaSession from "../../../webcomponents/opencga/catalog/variableSets/test/opencgaSession";
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -46,6 +47,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
         this.configVariantGrid = {
             pageSize: 10,
@@ -62,37 +64,43 @@ class VariantBrowserGridTest extends LitElement {
                 // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
             },
         };
-        // const url = "http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json";
-        // fetch("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json", {
-        //     // mode: "no-cors",
-        //     method: "GET",
-        //     headers: {
-        //         "Access-Control-Allow-Origin": "*"
-        //     }})
-        //     .then(content => {
-        //         debugger;
-        //         console.log(content);
-        //     }).catch((err => console.log(err)));
-        UtilsTest.getFileJson("data/variant-browser-data.zip", "variant-browser-data.json")
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        fetch("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json")
             .then(content => {
-                this.variantBrowserData = content;
+                return content.json();
+            })
+            .then(json => {
+                this.variants = json;
+
+                this.mutate();
+
                 this.requestUpdate();
-            });
+            })
+            .catch((err => {
+                this.variants = [];
+                console.log(err);
+            }));
     }
 
     mutate() {
         // 1. no CT array
-        this.variantBrowserData.responses[0].results[0].annotation.consequenceTypes = [];
-
-        // ...
-        // 34. ...
+        this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
     }
 
     render() {
         return html`
             <variant-browser-grid
-                .variants="${this.variantBrowserData}"
+                .variants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.configVariantGrid}"
                 .populationFrequencies="${this.config.populationFrequencies}">
