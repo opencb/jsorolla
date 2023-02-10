@@ -1,5 +1,9 @@
 
 import UtilsTest from "../../support/utils-test.js";
+import UtilsNew from "../../../src/core/utils-new.js";
+import { SAMPLE_DATA } from "../../../src/sites/test-app/data/data-example.js";
+import moment from "moment";
+
 
 describe("Data Form Component", () => {
 
@@ -13,25 +17,86 @@ describe("Data Form Component", () => {
             .find("div", "General Information");
     });
 
-    it("should be render string field", () => {
+    it("should be render string field empty", () => {
         UtilsTest.getByDataTest("test1-inputTextEmpty", "input")
-            .should("be.visible");
+            .should("be.visible")
+            .should("be.empty");
     });
 
-    it("should be render string multiline as textarea ", () => {
-        UtilsTest.getByDataTest("test1-inputDescEmpty", "textarea")
-            .should("be.visible");
+    it("should be render string field filled", () => {
+        UtilsTest.getByDataTest("test1-inputTextFilled", "input")
+            .should("be.visible")
+            .should("have.value",SAMPLE_DATA.inputTextFilled)
     });
 
-    it("sould be render string field as disabled", () => {
+    it("should be render string field disabled", () => {
         UtilsTest.getByDataTest("test1-inputTextDisabled", "input")
+            .should("be.visible")
             .should("be.disabled");
     });
 
-    it("should be render number field", () => {
-        UtilsTest.getByDataTest("test1-inputNumEmpty", "input")
+
+    it("should be render string multiline as textarea empty", () => {
+        UtilsTest.getByDataTest("test1-inputDescEmpty", "textarea")
             .should("be.visible")
-            .and("have.attr", "type", "number");
+            .should("have.value","")
+    });
+
+    it("should be render string multiline as textarea filled", () => {
+        UtilsTest.getByDataTest("test1-inputDescFilled", "textarea")
+            .should("be.visible")
+            .should("have.value",SAMPLE_DATA.inputDescFilled)
+    });
+
+    it("should be render string multiline as textarea disabled", () => {
+        UtilsTest.getByDataTest("test1-inputDescDisabled", "textarea")
+            .should("be.visible")
+            .should("be.disabled")
+    });
+
+
+    it("should be render number field empty", () => {
+        UtilsTest.getByDataTest("test1-inputNumEmpty", "input")
+            .should("have.attr", "type", "number")
+            .should("be.visible")
+            .should("be.empty")
+    });
+
+    it("should be render number field filled", () => {
+        UtilsTest.getByDataTest("test1-inputNumFilled", "input")
+            .should("have.attr", "type", "number")
+            .should("be.visible")
+            .should("have.value", SAMPLE_DATA.inputNumFilled)
+    });
+
+    it("should be render number field disabled", () => {
+        UtilsTest.getByDataTest("test1-inputNumDisabled", "input")
+            .should("have.attr", "type", "number")
+            .should("be.visible")
+            .should("be.disabled")
+    });
+
+
+    it("should be render date field empty", () => {
+        UtilsTest.getByDataTest("test1-inputDateEmpty", "input")
+            .should("have.attr", "type", "date")
+            .should("be.visible")
+    });
+
+    it("should be render date field filled", () => {
+        const formatDate = moment(SAMPLE_DATA.inputDateFilled, "YYYY-MM-DD").format("YYYY-MM-DD")
+        UtilsTest.getByDataTest("test1-inputDateFilled", "input")
+            .should("have.attr", "type", "date")
+            .should("be.visible")
+            .should("have.value",formatDate)
+
+    });
+
+    it("should be render date field disabled", () => {
+        UtilsTest.getByDataTest("test1-inputDateDisabled", "input")
+            .should("have.attr", "type", "date")
+            .should("be.visible")
+            .should("be.disabled");
     });
 
     it("should be render select field", () => {
@@ -43,34 +108,54 @@ describe("Data Form Component", () => {
         cy.log("### check if select have options ###");
         UtilsTest.getByDataTest("test1-inputSelected", "select")
             .find("option").should("have.length", 3);
+
+        cy.log("### check if select have no selected ###");
+        UtilsTest.getByDataTest("test1-inputSelected", "select")
+            .should("contain","");
     });
 
-    it("should be render date field", () => {
-        UtilsTest.getByDataTest("test1-inputDateEmpty", "input")
-            .should("be.visible")
-            .and("have.attr", "type", "date");
-    });
+    it("should be render select field selected", () => {
+        // select2 is not visible because it has CSS property: opacity: 0
+        cy.log("### check if select is exist ###");
+        UtilsTest.getByDataTest("test1-inputSelected", "select")
+            .should("exist");
 
-    it("should be render object list", () => {
-        cy.log("Soon! render object list form");
+        cy.log("### check if select have options ###");
+        UtilsTest.getByDataTest("test1-inputSelected", "select")
+            .find("option").should("have.length", 3);
+
+        cy.log("### check if select have option selected ###");
+            UtilsTest.getByDataTest("test1-inputSelected", "select")
+                .should("contain",SAMPLE_DATA.inputSelected)
     });
 
     it("should be render checkbox field", () => {
         UtilsTest.getByDataTest("test1-inputCheckBoxFalse", "input")
-            .should("be.visible")
-            .and("have.attr", "type", "checkbox");
+        .should("have.attr", "type", "checkbox")
+        .should("be.visible")
+        .should("not.be.checked")
+    });
+
+    it("should be render checkbox field", () => {
+        UtilsTest.getByDataTest("test1-inputCheckBoxTrue", "input")
+        .should("have.attr", "type", "checkbox")
+        .should("be.visible")
+        .should("be.checked")
     });
 
     it("should be render toggle switch", () => {
-        cy.get("toggle-switch div[class='btn-group']")
-            .find("button")
-            .should("have.length", 2);
+        UtilsTest.getByDataTest("test1-inputToggleSwitch","button")
+            .should("have.length",2)
     });
 
     it("should be render toggle buttons", () => {
-        cy.get("toggle-buttons div[class='btn-group']")
-            .find("button")
-            .should("have.length", 3);
+        UtilsTest.getByDataTest("test1-inputToggleButtons","button")
+        .should("have.length",3)
+    });
+
+
+    it("should be render object list", () => {
+        cy.log("Soon! render object list form");
     });
 
     it("should be render object fields", () => {

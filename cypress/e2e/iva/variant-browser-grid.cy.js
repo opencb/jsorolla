@@ -38,8 +38,12 @@ context("Variant Browser Grid", () => {
     })
 
     // Columns tooltips
-    it("Tooltip: Check variant tooltip", () => {
-        expect(true).to.equal(true)
+    it.only("Tooltip: Check variant tooltip", () => {
+        // Table
+        cy.get("tbody tr:first > td").eq(2).within(() =>{
+            cy.get("a").trigger("mouseover")
+        })
+        cy.get(".qtip-content").should('be.visible')
     })
 
     it("Tooltip: Check gene", () => {

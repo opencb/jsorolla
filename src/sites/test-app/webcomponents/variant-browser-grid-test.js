@@ -62,6 +62,17 @@ class VariantBrowserGridTest extends LitElement {
                 // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
             },
         };
+        // const url = "http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json";
+        // fetch("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json", {
+        //     // mode: "no-cors",
+        //     method: "GET",
+        //     headers: {
+        //         "Access-Control-Allow-Origin": "*"
+        //     }})
+        //     .then(content => {
+        //         debugger;
+        //         console.log(content);
+        //     }).catch((err => console.log(err)));
         UtilsTest.getFileJson("data/variant-browser-data.zip", "variant-browser-data.json")
             .then(content => {
                 this.variantBrowserData = content;

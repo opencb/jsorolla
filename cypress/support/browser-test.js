@@ -19,16 +19,16 @@ import UtilsTest from "./utils-test.js";
 
 export default class BrowserTest {
 
-    static setGenomicLocation = value => {
-        UtilsTest.checkLabel("div[data-cy='region']", "span", "Genomic Location");
-        UtilsTest.setInput("region-filter textarea", value);
-
-    }
-
     // Should this command be used for all tests?
     static selectStudy = fqn => {
         // fqn example: demo@family:platinum
         cy.get(`ul[class='dropdown-menu'] li a[data-cy-fqn='${fqn}']`, { timeout: 6000 }).click({ force: true });
+    }
+
+    static setGenomicLocation = value => {
+        UtilsTest.checkLabel("div[data-cy='region']", "span", "Genomic Location");
+        UtilsTest.setInput("region-filter textarea", value);
+
     }
 
     static selectCaseVariantBrowser = caseName => {

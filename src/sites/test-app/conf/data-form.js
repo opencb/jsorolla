@@ -102,6 +102,7 @@ export const DATA_FORM_EXAMPLE = {
                     field: "inputDescDisabled",
                     type: "input-text",
                     display: {
+                        disabled: true,
                         rows: 2,
                         placeholder: "Add a large text...",
                     },

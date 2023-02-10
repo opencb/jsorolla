@@ -49,6 +49,11 @@ class DataFormTest extends LitElement {
         this._dataFormConfig = DATA_FORM_EXAMPLE;
     }
 
+    onFieldChange(e) {
+        this.dataTest = {...e.detail.data}; // force to refresh the object-list
+        this.requestUpdate();
+    }
+
     onSubmit(e) {
         console.log("Data Test", this.dataTest);
         console.log("Data form Data", e);
@@ -60,6 +65,7 @@ class DataFormTest extends LitElement {
             <data-form
                 .data="${this.dataTest}"
                 .config="${this._dataFormConfig}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
