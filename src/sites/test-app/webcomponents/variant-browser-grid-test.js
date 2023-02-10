@@ -74,15 +74,10 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     opencgaSessionObserver() {
-        fetch("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json")
+        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json")
             .then(content => {
-                return content.json();
-            })
-            .then(json => {
-                this.variants = json;
-
+                this.variants = content;
                 this.mutate();
-
                 this.requestUpdate();
             })
             .catch((err => {

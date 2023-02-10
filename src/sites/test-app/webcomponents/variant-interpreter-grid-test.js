@@ -17,7 +17,7 @@
 
 import {html, LitElement} from "lit";
 import UtilsTest from "../../../../cypress/support/utils-test.js";
-
+import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
 
@@ -76,16 +76,42 @@ class VariantInterpreterGridTest extends LitElement {
             somatic: false,
             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
         };
-        UtilsTest.getFileJson("data/iva-data.zip", "variant-interpreter-data.json")
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-interpreter-data.json")
             .then(content => {
                 this.variantInterpreterData = content;
+                this.mutate();
                 this.requestUpdate();
-            });
-        UtilsTest.getFileJson("data/iva-data.zip", "clinical-analysis-data.json")
+            })
+            .catch((err => {
+                this.variantInterpreterData = [];
+                console.log(err);
+            }));
+
+        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/clinical-analysis-data.json")
             .then(content => {
                 this.clinicalAnalysisData = content;
+                this.mutate();
                 this.requestUpdate();
-            });
+            })
+            .catch((err => {
+                this.clinicalAnalysisData = {};
+                console.log(err);
+            }));
+    }
+
+    mutate() {
+        // 1. no CT array
+        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
     }
 
     render() {
