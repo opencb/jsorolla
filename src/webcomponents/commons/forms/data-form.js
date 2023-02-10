@@ -118,13 +118,6 @@ export default class DataForm extends LitElement {
                         value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]];
                     } else {
                         value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
-                        // if (itemFieldIds[1].includes("[]")) {
-                        //     // i.e. genes[].cancer.roles[]
-                        //     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1].replace("[]", "")];
-                        // } else {
-                        //     // i.e. genes[].cancer.role
-                        //     value = UtilsNew.getObjectValue(_object, parentItemArray, "")[itemIndex][itemFieldIds[0]]?.[itemFieldIds[1]];
-                        // }
                     }
                 } else {
                     // FIXME this should never be reached
@@ -1598,14 +1591,6 @@ export default class DataForm extends LitElement {
                         currentElementList[index][fields[0]] = {
                             [fields[1]]: value
                         };
-                        // if (fields[1].includes("[]")) {
-                        //     // eslint-disable-next-line no-param-reassign
-                        //     value = value.split(",");
-                        //     fields[1] = fields[1].replace("[]", "");
-                        // }
-                        // currentElementList[index][fields[0]] = {
-                        //     [fields[1]]: value
-                        // };
                     }
 
                     UtilsNew.setObjectValue(this.data, parentArrayField, currentElementList);
