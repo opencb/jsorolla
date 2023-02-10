@@ -3,7 +3,7 @@
     background-color: transparent;
     display: block;
     padding-top: 6px;
-    position: fixed;
+    position: absolute;
     transform: translateX(-50%); /* translateY(6px); */
 }
 .viz-tooltip-content::before {
