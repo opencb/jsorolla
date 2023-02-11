@@ -42,13 +42,7 @@ export default class StudySettingsDetail extends LitElement {
             toolSettings: {
                 type: Object,
             },
-            tool: {
-                type: String,
-            },
-            ivaSettingsName: {
-                type: String,
-            },
-            config: {
+            locus: {
                 type: Object,
             },
 
@@ -112,6 +106,7 @@ export default class StudySettingsDetail extends LitElement {
         `;
     }
 
+    // --- DEFAULT CONFIG ---
     getDefaultConfig() {
         return {
             display: {
@@ -133,13 +128,11 @@ export default class StudySettingsDetail extends LitElement {
                         contentStyle: "",
                     },
                     render: () => {
-                        // .toolSettings="${this.toolSettings}"
                         return html `
                             <tool-settings-update
                                 .study="${this.study}"
                                 .toolSettings="${this.toolSettings}"
-                                .tool="${this.tool}"
-                                .ivaSettingsName="${this.ivaSettingsName}"
+                                .locus="${this.locus}"
                                 .opencgaSession="${this.opencgaSession}"
                                 @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
                             </tool-settings-update>
@@ -165,7 +158,7 @@ export default class StudySettingsDetail extends LitElement {
                             <tool-settings-preview
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this._toolSettings}"
-                                .tool="${this.tool}"
+                                .tool="${this.locus.toolId}"
                                 .highlightPreview="${this.highlightPreview}">
                             </tool-settings-preview>
                         `;
@@ -175,12 +168,11 @@ export default class StudySettingsDetail extends LitElement {
         };
     }
 
+    // CAUTION 20231102 Vero: Planned to change the structure of the elements. Remove when finished.
     /*
 getDefaultConfigOld() {
     return Types.dataFormConfig({
         id: "interpreter-grid-config",
-        title: "",
-        icon: "",
         type: "tabs",
         display: {
             width: 10,

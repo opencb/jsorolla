@@ -19,7 +19,7 @@ import {LitElement, html} from "lit";
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "./study-settings-detail.js";
 import LitUtils from "../../commons/utils/lit-utils";
-import UtilsNew from "../../../core/utils-new.js";
+import NotificationUtils from "../../commons/utils/notification-utils";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -42,10 +42,7 @@ export default class StudyAdminIva extends LitElement {
                 type: Object,
             },
             settings: {
-                type: Object, // Todo: change variable name. This is the list of all tools in "IVA_CONFIG"
-            },
-            ivaSettingsName: {
-                type: String, // Todo: change variable name. This is the attribute key "IVA_CONFIG"
+                type: Object,
             },
             opencgaSession: {
                 type: Object,
@@ -53,21 +50,18 @@ export default class StudyAdminIva extends LitElement {
         };
     }
 
-    #init() {
-    }
+    #init() {}
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -76,21 +70,12 @@ export default class StudyAdminIva extends LitElement {
         this.requestUpdate();
     }
 
+    /* -- OBSERVER METHODS -- */
     opencgaSessionObserver() {
         this._config = this.getDefaultConfig();
     }
 
     studyIdObserver() {
-        /*
-        for (const project of this.opencgaSession?.projects) {
-            for (const study of project.studies) {
-                if (study.id === this.studyId || study.fqn === this.studyId) {
-                    this.study = study;
-                    break;
-                }
-            }
-        }
-        */
         if (this.studyId && this.opencgaSession) {
             let error;
             this.#setLoading(true);
@@ -100,25 +85,22 @@ export default class StudyAdminIva extends LitElement {
                     this.study = response.responses[0].results[0];
                 })
                 .catch(reason => {
-                    this.study = {};
                     error = reason;
-                    console.error(reason);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
                     LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
                     this.#setLoading(false);
                 });
-        } else {
-            this.study = {};
         }
     }
 
-    settingsObserver() {
-    }
+    settingsObserver() {}
 
+    /* -- RENDER METHOD  -- */
     render() {
-        const activeMenuItem = "sample";
+        const activeMenuItem = "individual";
         return html`
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
@@ -130,46 +112,153 @@ export default class StudyAdminIva extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "",
-            name: "IVA Settings",
+            name: "IVA Configuration",
             logo: "",
-            icon: "",
+            icon: "fas fa-sliders-h",
             visibility: "private", // public | private | none
-            menu: [
-                {
-                    id: "config",
-                    name: "Catalog settings",
-                    description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
-                    category: true,
-                    submenu: Object.entries(this.settings)
-                        .map(([toolId, toolSettings]) => {
-                            // const name = UtilsNew.capitalize(toolId.split("_")[0]);
-                            const match = toolId.match(/^(.*)_[^_]*$/);
-                            const name = match ? match[1] : toolId;
-                            return {
-                                id: name.toLowerCase(),
-                                name: `${name} Browser Settings`,
-                                icon: "fa-solid fa-square",
-                                visibility: "private",
-                                render: (opencgaSession, study) => {
-                                    return html `
-                                        <study-settings-detail
-                                            .opencgaSession="${opencgaSession}"
-                                            .study="${study}"
-                                            .toolSettings="${toolSettings}"
-                                            .tool="${toolId}"
-                                            .ivaSettingsName="${this.ivaSettingsName}"
-                                            .config="${this.config}">
-                                        </study-settings-detail>
-                                    `;
-                                }
-                            };
-                        }),
-                },
-            ],
+            menu: Object.entries(this.settings)
+                // module: catalog | user | about
+                // moduleSettings: CATALOG_SETTINGS | USER_SETTINGS | ABOUT_SETTINGS
+                .map(([module, moduleSettings]) => {
+                    return {
+                        id: module,
+                        name: module.toUpperCase(),
+                        visibility: "private",
+                        category: true,
+                        submenu: Object.entries(moduleSettings)
+                            .map(([toolName, toolSettings]) => {
+                                const match = toolName.match(/^(.*)_[^_]*$/);
+                                const name = (match ? match[1] : toolName);
+                                return {
+                                    id: name.toLowerCase(),
+                                    name: `${name}`,
+                                    icon: "fa-solid fa-square",
+                                    visibility: "private",
+                                    render: (opencgaSession, study) => {
+                                        const locus = {
+                                            toolId: toolName,
+                                            module: "catalog",
+                                        };
+                                        return html `
+                                            <study-settings-detail
+                                                .opencgaSession="${opencgaSession}"
+                                                .study="${study}"
+                                                .toolSettings="${toolSettings}"
+                                                .locus="${locus}">
+                                            </study-settings-detail>
+                                        `;
+                                    }
+                                };
+                            }),
+                    };
+                }),
+            // [
+            // {
+            //     id: "catalog",
+            //     name: "CATALOG",
+            //     description: "",
+            //     icon: "",
+            //     featured: "", // true | false
+            //     visibility: "private",
+            //     category: true,
+            //     submenu: Object.entries(this.settings.catalog)
+            //         .map(([toolId, toolSettings]) => {
+            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
+            //             const match = toolId.match(/^(.*)_[^_]*$/);
+            //             const name = (match ? match[1] : toolId);
+            //             return {
+            //                 id: name.toLowerCase(),
+            //                 name: `${name} Browser`,
+            //                 icon: "fa-solid fa-square",
+            //                 visibility: "private",
+            //                 render: (opencgaSession, study) => {
+            //                     const locus = {
+            //                         toolId: toolId,
+            //                         module: "catalog",
+            //                     };
+            //                     return html `
+            //                         <study-settings-detail
+            //                             .opencgaSession="${opencgaSession}"
+            //                             .study="${study}"
+            //                             .toolSettings="${toolSettings}"
+            //                             .locus="${locus}">
+            //                         </study-settings-detail>
+            //                     `;
+            //                 }
+            //             };
+            //         }),
+            // },
+            // {
+            //     id: "user",
+            //     name: "USER PROFILE",
+            //     description: "",
+            //     icon: "",
+            //     featured: "", // true | false
+            //     visibility: "private",
+            //     category: true,
+            //     submenu: Object.entries(this.settings.user)
+            //         .map(([toolId, toolSettings]) => {
+            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
+            //             const match = toolId.match(/^(.*)_[^_]*$/);
+            //             const name = (match ? match[1] : toolId);
+            //             return {
+            //                 id: name.toLowerCase(),
+            //                 name: `${name}`,
+            //                 icon: "fa-solid fa-square",
+            //                 visibility: "private",
+            //                 render: (opencgaSession, study) => {
+            //                     const locus = {
+            //                         toolId: toolId,
+            //                         module: "user",
+            //                     };
+            //                     return html `
+            //                         <study-settings-detail
+            //                             .opencgaSession="${opencgaSession}"
+            //                             .study="${study}"
+            //                             .toolSettings="${toolSettings}"
+            //                             .locus="${locus}">
+            //                         </study-settings-detail>
+            //                     `;
+            //                 }
+            //             };
+            //         }),
+            // },
+            // {
+            //     id: "about",
+            //     name: "ABOUT",
+            //     description: "",
+            //     icon: "",
+            //     featured: "",
+            //     visibility: "private",
+            //     category: true,
+            //     submenu: this.settings.pages
+            //         .map(([toolId, toolSettings]) => {
+            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
+            //             const match = toolId.match(/^(.*)_[^_]*$/);
+            //             const name = (match ? match[1] : toolId);
+            //             return {
+            //                 id: name.toLowerCase(),
+            //                 name: `${name}`,
+            //                 icon: "fa-solid fa-square",
+            //                 visibility: "private",
+            //                 render: (opencgaSession, study) => {
+            //                     const locus = {
+            //                         toolId: toolId,
+            //                         module: "about",
+            //                     };
+            //                     return html `
+            //                         <study-settings-detail
+            //                             .opencgaSession="${opencgaSession}"
+            //                             .study="${study}"
+            //                             .toolSettings="${toolSettings}"
+            //                             .locus="${locus}">
+            //                         </study-settings-detail>
+            //                     `;
+            //                 }
+            //             };
+            //         }),
+            // },
+            // ],
         };
     }
 

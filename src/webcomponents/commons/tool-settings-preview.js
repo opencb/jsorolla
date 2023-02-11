@@ -27,10 +27,11 @@ import "../variant/variant-browser.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../clinical/clinical-analysis-browser.js";
 import "../clinical/clinical-analysis-portal.js";
-
+import {ReactomeClient} from "../../core/clients/reactome/reactome-client";
 
 export default class ToolSettingsPreview extends LitElement {
 
+    // --- CONSTRUCTOR ---
     constructor() {
         super();
 
@@ -41,6 +42,7 @@ export default class ToolSettingsPreview extends LitElement {
         return this;
     }
 
+    // --- PROPERTIES ---
     static get properties() {
         return {
             opencgaSession: {
@@ -55,15 +57,16 @@ export default class ToolSettingsPreview extends LitElement {
         };
     }
 
+    // --- PRIVATE METHODS ---
     #init() {
-
         this.map = {
             "INDIVIDUAL_BROWSER": {
                 render: settings => {
                     return html `
                         <individual-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </individual-browser>
                     `;
                 }
@@ -73,7 +76,8 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <cohort-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </cohort-browser>
                     `;
                 }
@@ -83,7 +87,8 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <family-browser
                                 .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}">
+                                .settings="${settings}"
+                                .config="${{showHeader: false}}">
                         </family-browser>
                     `;
                 }
@@ -93,18 +98,19 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <sample-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </sample-browser>
                     `;
                 }
             },
-            /*
             "FILE_BROWSER": {
                 render: settings => {
                     return html `
                         <file-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </file-browser>
                     `;
                 }
@@ -114,7 +120,8 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <job-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </job-browser>
                     `;
                 }
@@ -124,7 +131,13 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <variant-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .reactomeClient="${new ReactomeClient()}"
+                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                            .populationFrequencies="${POPULATION_FREQUENCIES}"
+                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE.style}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </variant-browser>
                     `;
                 }
@@ -134,7 +147,9 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <disease-panel-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </disease-panel-browser>
                     `;
                 }
@@ -144,39 +159,43 @@ export default class ToolSettingsPreview extends LitElement {
                     return html `
                         <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </clinical-analysis-browser>
                     `;
-                }
+                },
             },
             "CLINICAL_ANALYSIS_PORTAL_BROWSER": {
                 render: settings => {
                     return html `
-                        <clinical-analysis-portal-browser
+                        <clinical-analysis-portal
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
-                        </clinical-analysis-portal-browser>
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
+                        </clinical-analysis-portal>
                     `;
                 }
             },
+            /*
             "RGA_BROWSER": {
                 render: settings => {
                     return html `
                         <rga-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}">
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </rga-browser>
                     `;
                 }
-            },*/
+                },
+            */
         };
     }
 
+    // --- UPDATE ---
     update(changedProperties) {
         super.update(changedProperties);
     }
-
-    // --- EVENTS ---
 
     // --- RENDER ---
     render() {
@@ -187,6 +206,7 @@ export default class ToolSettingsPreview extends LitElement {
         `;
     }
 
+    // --- DEFAULT CONFIG ---
     getDefaultConfig() {}
 
 }
