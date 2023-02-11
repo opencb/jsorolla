@@ -137,7 +137,7 @@ export default class StudyAdminIva extends LitElement {
                                     render: (opencgaSession, study) => {
                                         const locus = {
                                             toolId: toolName,
-                                            module: "catalog",
+                                            module: module,
                                         };
                                         return html `
                                             <study-settings-detail
