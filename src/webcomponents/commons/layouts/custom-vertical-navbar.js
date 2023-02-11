@@ -18,6 +18,7 @@ import UtilsNew from "../../../core/utils-new";
 
 export default class CustomVerticalNavBar extends LitElement {
 
+    // --- PRIVATE FIELDS ---
     #divMenu;
     #divContent;
 
@@ -32,6 +33,7 @@ export default class CustomVerticalNavBar extends LitElement {
         return this;
     }
 
+    // --- PROPERTIES ---
     static get properties() {
         return {
             studyId: {
@@ -56,6 +58,7 @@ export default class CustomVerticalNavBar extends LitElement {
         };
     }
 
+    // --- PRIVATE METHODS ---
     #init() {
         this.isLoading = false;
         this._activeMenuItem = "";
@@ -66,6 +69,12 @@ export default class CustomVerticalNavBar extends LitElement {
         this.#divContent = "admin-vertical-content";
     }
 
+    #initActiveMenu() {
+        const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
+        activeElement.click();
+    }
+
+    // --- LIT LIFECYCLE ---
     update(changedProperties) {
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             this.studyIdObserver();
@@ -84,6 +93,7 @@ export default class CustomVerticalNavBar extends LitElement {
         this.#initActiveMenu();
     }
 
+    // --- OBSERVERS ---
     studyIdObserver() {
         for (const project of this.opencgaSession?.projects) {
             for (const study of project.studies) {
@@ -109,14 +119,9 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
-    #initActiveMenu() {
-        const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
-        activeElement.click();
-    }
-
+    // --- EVENTS ---
     _onItemNavClick(e) {
         e.preventDefault();
-
         // Set menu id clicked
         if (e.target !== e.currentTarget) {
             this.clicked = e.target.dataset?.id || e.target.parentElement.dataset.id;
@@ -136,6 +141,7 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
+    // --- RENDER METHODS ---
     // TODO: REFACTOR STYLE
     #renderStyle() {
         return html`
@@ -439,7 +445,7 @@ export default class CustomVerticalNavBar extends LitElement {
             <!-- STYLE -->
             ${this.#renderStyle()}
             <!-- TOOL HEADER -->
-            <tool-header title="${this._config.name}" icon="fas fa-rocket"></tool-header>
+            <tool-header title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <div class="row left">
                 <!-- NAVIGATION -->
                 <div class="col-md-2">
@@ -460,8 +466,8 @@ export default class CustomVerticalNavBar extends LitElement {
         `;
     }
 
-    getDefaultConfig() {
-    }
+    // --- DEFAULT CONFIG ---
+    getDefaultConfig() {}
 
 
 }
