@@ -143,16 +143,6 @@ class IvaApp extends LitElement {
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
 
-        // Default Settings
-        this.SETTINGS_NAME = "IVA_CONFIG_TEST_4";
-        this.DEFAULT_SETTINGS = {
-            ...BROWSERS_SETTINGS,
-            // USER_PROFILE_SETTINGS,
-            // CUSTOM_PAGES,
-            // FIXME: In Variant interpreter settings, solve dependencies?
-        };
-
-
         const components = [
             "home",
             "gettingstarted",
@@ -296,7 +286,6 @@ class IvaApp extends LitElement {
         // Show confirmation
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
-
         // TODO remove browserSearchQuery
         this.browserSearchQuery = {};
         // keeps track of the executedQueries transitioning from browser tool to facet tool
@@ -377,21 +366,20 @@ class IvaApp extends LitElement {
         for (const project of this.opencgaSession.projects) {
             for (const study of project.studies) {
                 let modified = false;
-
-                // 1.1 Check if the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
-                if (UtilsNew.isEmpty(study?.attributes[this.SETTINGS_NAME]?.settings)) {
-                    study.attributes[this.SETTINGS_NAME] = {
+                // 1.1 If the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
+                if (UtilsNew.isEmpty(study?.attributes[SETTINGS_NAME]?.settings)) {
+                    study.attributes[SETTINGS_NAME] = {
                         // We must initialise with the default settings
                         // TODO Implement visible: true ?
                         version: this.version.split("-")[0],
-                        settings: UtilsNew.objectClone(this.DEFAULT_SETTINGS),
+                        settings: UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings),
                     };
                     modified = true;
                 }
 
                 // 1.2 Check if a migration is needed
                 // TODO implement migration
-                // if (this.version !== study.attributes[this.SETTINGS_NAME].version) {
+                // if (this.version !== study.attributes[SETTINGS_NAME].version) {
                 //     migration.run();
                 //     modified = true;
                 // }
@@ -402,9 +390,8 @@ class IvaApp extends LitElement {
                 }
             }
         }
-
         // 2. Init settings
-        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
+        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
     }
 
     /**
@@ -414,36 +401,21 @@ class IvaApp extends LitElement {
         const params = {
             includeResult: true,
         };
-        const updateParams = {
-            attributes: {
-                ...study.attributes,
-                [this.SETTINGS_NAME]: {
-                    userId: this.opencgaSession.user.id,
-                    // FIXME: it will store a '*-dev' version
-                    version: this.version.split("-")[0],
-                    date: UtilsNew.getDatetime(),
-                    settings: UtilsNew.objectClone(this.DEFAULT_SETTINGS),
-                },
-            }
-        };
-        // const newAttributes = OpencgaCatalogUtils.getNewStudySettings(opencgaSession, study, this.DEFAULT_SETTINGS)
+        const updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, study);
 
-        let error;
         this.opencgaSession.opencgaClient.studies()
             .update(study.fqn, updateParams, params)
             .then(response => {
                 console.log(`${study.id} attributes settings stored correctly`);
-                // Todo ?
+                // FIXME : We should notify to the admin that the default settings has been stored
+                //  Notifications icon?
             })
             .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 // Todo: dispatch event?
-                // this.#setLoading(false);
             });
-
     }
 
     async _createOpenCGASession() {
@@ -501,7 +473,13 @@ class IvaApp extends LitElement {
                     }
                 }
                 // this forces the observer to be executed.
-                this.opencgaSession = {..._response, ivaDefaultSettings: UtilsNew.objectClone(this.DEFAULT_SETTINGS)};
+                this.opencgaSession = {
+                    ..._response,
+                    ivaDefaultSettings: {
+                        version: this.version,
+                        settings: UtilsNew.objectClone(DEFAULT_SETTINGS),
+                    }
+                };
                 this.opencgaSession.mode = this.config.mode;
                 this.#initStudiesSettings();
                 this.updateCellBaseClient();
@@ -739,10 +717,8 @@ class IvaApp extends LitElement {
         }
 
         if (window.location.hash === hashFrag) {
-            // debugger
             this.hashFragmentListener(this);
         } else {
-            // debugger
             window.location.hash = hashFrag;
         }
     }
@@ -899,7 +875,7 @@ class IvaApp extends LitElement {
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
-            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
+            this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
             this.updateCellBaseClient();
         } else {
             // TODO Convert this into a user notification
@@ -958,7 +934,6 @@ class IvaApp extends LitElement {
     }
 
     quickSearch(e) {
-        // debugger
         this.tool = "#browser";
         window.location.hash = "browser/" + this.opencgaSession.project.id + "/" + this.opencgaSession.study.id;
         // this.browserQuery = {xref: e.detail.value};
@@ -1115,13 +1090,13 @@ class IvaApp extends LitElement {
                         this.opencgaSession.study = updatedStudy;
                     }
 
-                    this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[this.SETTINGS_NAME].settings);
+                    this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
                     this.opencgaSession = {...this.opencgaSession};
                     // this.requestUpdate();
                 })
                 .catch(e => {
                     console.error(e);
-                    params.error(e);
+                    // params.error(e);
                 });
         }
     }
@@ -1269,7 +1244,7 @@ class IvaApp extends LitElement {
                     .cellbaseClient="${this.cellbaseClient}"
                     .reactomeClient="${this.reactomeClient}"
                     .query="${this.queries.variant}"
-                    .settings="${this.settings.VARIANT_BROWSER}"
+                    .settings="${this.settings.catalog.VARIANT_BROWSER}"
                     .consequenceTypes="${this.config.consequenceTypes}"
                     .populationFrequencies="${this.config.populationFrequencies}"
                     .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
@@ -1286,7 +1261,7 @@ class IvaApp extends LitElement {
             <div class="content" id="clinicalAnalysisPortal">
                 <clinical-analysis-portal
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
+                    .settings="${this.settings.catalog.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
                     @sessionPanelUpdate="${this.onSessionPanelUpdate}">
                 </clinical-analysis-portal>
             </div>
@@ -1297,7 +1272,7 @@ class IvaApp extends LitElement {
                 <rga-browser
                     .opencgaSession="${this.opencgaSession}"
                     .cellbaseClient="${this.cellbaseClient}"
-                    .settings="${this.settings.RGA_BROWSER}">
+                    .settings="${this.settings.catalog.RGA_BROWSER}">
                 </rga-browser>
             </div>
         ` : null}
@@ -1361,7 +1336,7 @@ class IvaApp extends LitElement {
                 <sample-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.sample}"
-                    .settings="${this.settings.SAMPLE_BROWSER}"
+                    .settings="${this.settings.catalog.SAMPLE_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
                 </sample-browser>
@@ -1386,7 +1361,7 @@ class IvaApp extends LitElement {
                 <file-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.file}"
-                    .settings="${this.settings.FILE_BROWSER}"
+                    .settings="${this.settings.catalog.FILE_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
                 </file-browser>
@@ -1399,7 +1374,7 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .cellbaseClient="${this.cellbaseClient}"
                     .query="${this.queries["disease-panel"]}"
-                    .settings="${this.settings.DISEASE_PANEL_BROWSER}"
+                    .settings="${this.settings.catalog.DISEASE_PANEL_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
                 </disease-panel-browser>
@@ -1590,7 +1565,7 @@ class IvaApp extends LitElement {
                 <individual-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.individual}"
-                    .settings="${this.settings.INDIVIDUAL_BROWSER}"
+                    .settings="${this.settings.catalog.INDIVIDUAL_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
                 </individual-browser>
@@ -1602,7 +1577,7 @@ class IvaApp extends LitElement {
                 <family-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.family}"
-                    .settings="${this.settings.FAMILY_BROWSER}"
+                    .settings="${this.settings.catalog.FAMILY_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
                 </family-browser>
@@ -1614,7 +1589,7 @@ class IvaApp extends LitElement {
                 <cohort-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.cohort}"
-                    .settigns="${this.settings.COHORT_BROWSER}"
+                    .settigns="${this.settings.catalog.COHORT_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
                 </cohort-browser>
@@ -1625,7 +1600,7 @@ class IvaApp extends LitElement {
             <div class="content" id="clinicalAnalysis">
                 <clinical-analysis-browser
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                    .settings="${this.settings.catalog.CLINICAL_ANALYSIS_BROWSER}"
                     .query="${this.queries["clinical-analysis"]}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
@@ -1637,7 +1612,7 @@ class IvaApp extends LitElement {
             <div class="content" id="job">
                 <job-browser
                     .opencgaSession="${this.opencgaSession}"
-                    .settings= ${this.settings.JOB_BROWSER}
+                    .settings= ${this.settings.catalog.JOB_BROWSER}
                     .query="${this.queries.job}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
@@ -1856,7 +1831,7 @@ class IvaApp extends LitElement {
             <div class="content" id="account">
                 <user-profile
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${USER_PROFILE_SETTINGS}">
+                    .settings="${USER_SETTINGS}">
                 </user-profile>
             </div>
         ` : null}
@@ -1968,7 +1943,6 @@ class IvaApp extends LitElement {
                     .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings}"
-                    .ivaSettingsName="${this.SETTINGS_NAME}"
                     @studyUpdateRequest="${this.onStudyUpdateRequest}">
                 </study-admin-iva>
             </div>
