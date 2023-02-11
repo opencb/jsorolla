@@ -15,7 +15,7 @@
  */
 
 import UtilsNew from "../../utils-new.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
+import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -38,7 +38,7 @@ export default class OpencgaCatalogUtils {
         return project ? project.fqn.split("@")[0] : null;
     }
 
-    // Return an unique list of owners
+    // Return a unique list of owners
     static getProjectOwners(projects) {
         return projects ? [...new Set(projects.map(project => project.fqn.split("@")[0]))] : null;
     }
@@ -137,23 +137,77 @@ export default class OpencgaCatalogUtils {
             });
     }
 
-    static getNewStudySettings(opencgaSession, study, defaultSettings) {
-        const params = {
-            includeResult: true,
-        };
-        const updateParams = {
+    /** Prepares the study tool settings params that will be updated. If no settings are provided,
+     * it will restore its default settings.
+     * @param {object} opencgaSession   Session
+     * @param {object} locus            Information about the specific tool
+     * @param {string} locus.toolId     Tool identifier
+     * @param {string} locus.module     Group of similar configurations
+     * @param {object} settings         OPTIONAL: if no settings, the default settings will be stored
+     * @returns {Object}                Tool settings to be updated
+     */
+    static getNewToolIVASettings(opencgaSession, locus, settings) {
+
+        // 1. Retrieve other study attributes to avoid overwriting
+        const otherAttributes = UtilsNew.objectCloneExclude(
+            opencgaSession.study.attributes,
+            [
+                // eslint-disable-next-line no-undef
+                `${SETTINGS_NAME}_BACKUP`,
+                // eslint-disable-next-line no-undef
+                SETTINGS_NAME
+            ]
+        );
+        // 2. The params that will be updated
+        return {
             attributes: {
-                ...study.attributes,
-                [this.SETTINGS_NAME]: {
+                // 1. Other attributes that the study might have
+                ...otherAttributes,
+                // 2. BACKUP previous settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME + "_BACKUP"]:
+                // eslint-disable-next-line no-undef
+                    UtilsNew.objectClone(opencgaSession.study.attributes[SETTINGS_NAME]),
+                // 3. New tool settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME]: {
                     userId: opencgaSession.user.id,
-                    // FIXME: it will store a '*-dev' version
-                    version: this.version.split("-")[0],
-                    date: UtilsNew.getDatetime(),
-                    settings: UtilsNew.objectClone(defaultSettings),
+                    version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
+                    date: UtilsNew.getDatetime(), // Update date
+                    settings: {
+                        ...(
+                        // If settings param exists, save settings
+                            UtilsNew.objectCloneReplace(
+                                opencgaSession.study.attributes[SETTINGS_NAME].settings,
+                                [`${[locus.module]}.${[locus.toolId]}`],
+                                settings ?? opencgaSession.ivaDefaultSettings)
+                        // If settings param do not exists, save default tool settings
+                        )
+                    },
                 },
-            }
+            },
         };
     }
 
+    /** Gets study IVA DEFAULT settings
+     * @param {object} opencgaSession Session
+     * @param {object} study Study
+     * @returns {object} Study attributes with default IVA settings
+     */
+    static getDefaultIVASettings(opencgaSession, study) {
+        return {
+            attributes: {
+                ...study.attributes,
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME]: {
+                    userId: opencgaSession.user.id,
+                    version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
+                    date: UtilsNew.getDatetime(),
+                    settings: UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings),
+                },
+            }
+        };
+
+    }
 
 }
