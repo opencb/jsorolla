@@ -28,7 +28,7 @@
     "dist": "npm run clean && mkdir -p dist/js && npm install && npm run core && npm run genome-browser && npm run styles",
     "test": "jest",
     "serve-deprecated": "wds --watch --open src/sites/iva --node-resolve",
-    "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build && mv docker build",
+    "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
     "lint:js": "lint-staged",
     "e2e": "./cypress/credentials.sh npx cypress open --config-file ./cypress/cypress.json",
