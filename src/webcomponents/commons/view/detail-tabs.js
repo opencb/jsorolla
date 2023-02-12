@@ -154,7 +154,6 @@ export default class DetailTabs extends LitElement {
     }
 
     render() {
-
         // If data is undefined or null
         if (!this.data) {
             if (this._config?.errorMessage) {
