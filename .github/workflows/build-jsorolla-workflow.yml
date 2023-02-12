@@ -15,17 +15,17 @@ jobs:
       version: ${{ steps.package.outputs.version }}
     steps:
       - name: "Checkout JSorolla"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 #      - name: "Checkout private custom sites repo inside JSorolla"
 #        uses: actions/checkout@v2
 #        if: ${{ github.repository != 'opencb/jsorolla' }}
 #        with:
 #          repository: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
 #          path: custom-sites
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: "16"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
         with:
@@ -40,12 +40,13 @@ jobs:
       - run: npm run build
       - id: package
         uses: tyankatsu0105/read-package-version-actions@v1
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
-          name: jsorolla-build
+#          name: jsorolla-build
+          name: build-folder
           path: build
           retention-days: 1
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: jsorolla-release
           # TODO: we should rename the iva-VERSION.tar.gz file as jsorolla-VERSION.tar.gz
