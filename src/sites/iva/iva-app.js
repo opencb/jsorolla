@@ -1831,7 +1831,7 @@ class IvaApp extends LitElement {
             <div class="content" id="account">
                 <user-profile
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${USER_SETTINGS}">
+                    .settings="${this.settings.user.USER_PROFILE_SETTINGS}">
                 </user-profile>
             </div>
         ` : null}
@@ -1851,7 +1851,6 @@ class IvaApp extends LitElement {
                 </iva-settings>
             </div>
         ` : null}
-
 
                 ${this.config.enabledComponents["interpreter"] ? html`
             <div class="content" id="interpreter">
