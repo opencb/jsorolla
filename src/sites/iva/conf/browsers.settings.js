@@ -771,6 +771,7 @@ const DEFAULT_SETTINGS = {
     user: {
         ...USER_SETTINGS,
     },
+    // TODO: before enabling it, to discuss to split the settings into smaller chunks to streamline changes in the settings
     // variant: {
     //     ...VARIANT_INTERPRETER_SETTINGS,
     // },
