@@ -11,6 +11,8 @@ jobs:
 
   test:
     uses: opencb/jsorolla/.github/workflows/test.yml@TASK-2270
+    secrets: inherit
+
 #  docker:
 #    needs: build
 #    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
