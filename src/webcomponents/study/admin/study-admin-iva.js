@@ -117,8 +117,8 @@ export default class StudyAdminIva extends LitElement {
             icon: "fas fa-sliders-h",
             visibility: "private", // public | private | none
             menu: Object.entries(this.settings)
-                // module: catalog | user | about
-                // moduleSettings: CATALOG_SETTINGS | USER_SETTINGS | ABOUT_SETTINGS
+                // module: catalog | user | custom | variant
+                // moduleSettings: CATALOG_SETTINGS | USER_SETTINGS | CUSTOM_SETTINGS | VARIANT-SETTINGS
                 .map(([module, moduleSettings]) => {
                     return {
                         id: module,
