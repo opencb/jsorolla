@@ -454,23 +454,21 @@ export default class UtilsNew {
         return clone;
     }
 
-    /**
-     * Given a key in an object, replaces the value with a new object
+    /** Given a key in an object, replaces the value with a new object
      * @param {Object} obj Original object
-     * @param {Array} replaceKeys Keys of the value to replace
+     * @param {String} replaceKey Key of the value to replace
      * @param {Object} newObj New value for the key
      * @returns {Object} Clone of the original object after the replacement
      */
-    static objectCloneReplace(obj, replaceKeys, newObj) {
+    static objectCloneReplace(obj, replaceKey, newObj) {
         const clone = UtilsNew.objectClone(obj);
-        for (const key of replaceKeys) {
-            const aKey = key.split(".");
-            aKey.reduce(
-                // eslint-disable-next-line no-param-reassign
-                (acc, cv, i) => (i === aKey.length - 1) ? acc[cv] = UtilsNew.objectClone(newObj) : acc[cv],
-                clone
-            );
-        }
+        const aKey = replaceKey.split(".");
+        // Fixme, if key is undefined
+        aKey.reduce(
+            // eslint-disable-next-line no-param-reassign
+            (acc, cv, i) => (i === aKey.length - 1) ? acc[cv] = UtilsNew.objectClone(newObj) : acc[cv],
+            clone
+        );
         return clone;
     }
 
