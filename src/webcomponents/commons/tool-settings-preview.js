@@ -203,14 +203,18 @@ export default class ToolSettingsPreview extends LitElement {
             "VARIANT_INTERPRETER_SETTINGS": {
                 render: settings => {
                     return html `
-                        <variant-interpreter
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .clinicalAnalysisId="${this.opencgaSession.study.fqn}"
-                            .settings="${settings}"
-                            @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
-                        </variant-interpreter>
+                        Comming soon :)
                     `;
+
+                //     return html `
+                //         <variant-interpreter
+                //             .opencgaSession="${this.opencgaSession}"
+                //             .cellbaseClient="${this.cellbaseClient}"
+                //             .clinicalAnalysisId="${this.opencgaSession.study.fqn}"
+                //             .settings="${settings}"
+                //             @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                //         </variant-interpreter>
+                //     `;
                 },
             },
         };
