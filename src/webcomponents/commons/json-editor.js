@@ -107,24 +107,16 @@ export default class JsonEditor extends LitElement {
     }
 
     onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
-        let error;
         try {
             // updatedContent is an object which content 2 props (text & json)
             this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
             // Copy the updated content
             this._data = UtilsNew.objectClone(this.data);
-        } catch (reason) {
-            error = reason;
-            NotificationUtils.dispatch(
-                this,
-                NotificationUtils.NOTIFY_RESPONSE,
-                reason
-            );
-        }
+        } catch {}
         LitUtils.dispatchCustomEvent(this, "fieldChange", {
             json: {...this.data},
             text: updatedContent?.text
-        }, null, error);
+        }, null);
     }
 
     render() {
