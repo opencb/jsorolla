@@ -105,6 +105,7 @@ export default class ToolSettingsUpdate extends LitElement {
             ...this.config,
         };
     }
+
     // --- OBSERVERS ---
     componentObserver() {
         if (this.study && this.toolSettings && this.opencgaSession) {
@@ -136,11 +137,9 @@ export default class ToolSettingsUpdate extends LitElement {
         }
         // To notify that the json has been modified
         // CAUTION 20230208 Vero: the toolSettings json has been updated
-        LitUtils.dispatchCustomEvent(this,
-            "studyToolSettingsUpdate",
-            null,
-            {_toolSettings: this._toolSettings}
-        );
+        LitUtils.dispatchCustomEvent(this, "studyToolSettingsUpdate", null, {
+            _toolSettings: this._toolSettings
+        });
         this.requestUpdate();
     }
 
@@ -177,18 +176,12 @@ export default class ToolSettingsUpdate extends LitElement {
                         message: `${toolName} settings updated correctly`,
                     });
                     // 2. Dispatch study update event
-                    LitUtils.dispatchCustomEvent(
-                        this,
-                        "studyUpdateRequest",
+                    LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
                         UtilsNew.objectClone(response.responses[0].results[0].fqn)
                     );
                 })
                 .catch(reason => {
-                    NotificationUtils.dispatch(
-                        this,
-                        NotificationUtils.NOTIFY_RESPONSE,
-                        reason
-                    );
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 })
                 .finally(() => {
                     this.#setLoading(false);

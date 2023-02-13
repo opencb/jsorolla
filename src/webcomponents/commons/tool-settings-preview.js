@@ -216,11 +216,6 @@ export default class ToolSettingsPreview extends LitElement {
         };
     }
 
-    // --- UPDATE ---
-    update(changedProperties) {
-        super.update(changedProperties);
-    }
-
     // --- RENDER ---
     render() {
         return html `
