@@ -251,7 +251,7 @@ export default class GridCommons {
 
     rowHighlightStyle(row, index) {
         // Check if highlights have been configured
-        if (!this.config.highlights?.length === 0) {
+        if (!this.config.highlights?.length) {
             return {};
         }
 
