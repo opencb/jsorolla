@@ -27,7 +27,6 @@ import "../variant/variant-browser.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../clinical/clinical-analysis-browser.js";
 import "../clinical/clinical-analysis-portal.js";
-import {ReactomeClient} from "../../core/clients/reactome/reactome-client";
 import "../user/user-profile.js";
 import "../commons/view/detail-tabs.js";
 
@@ -135,7 +134,6 @@ export default class ToolSettingsPreview extends LitElement {
                         <variant-browser
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                            .reactomeClient="${new ReactomeClient()}"
                             .consequenceTypes="${CONSEQUENCE_TYPES}"
                             .populationFrequencies="${POPULATION_FREQUENCIES}"
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE.style}"
