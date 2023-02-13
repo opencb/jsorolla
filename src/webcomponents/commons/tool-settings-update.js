@@ -239,6 +239,8 @@ export default class ToolSettingsUpdate extends LitElement {
                             type: "select",
                             multiple: true,
                             required: true,
+                            // Fixme: defaultValue not working, not sure why
+                            // defaultValue: `${this._study.fqn}`,
                             allowedValues: this.opencgaSession.projects
                                 .map(project => project.studies)
                                 .flat()
@@ -266,7 +268,6 @@ export default class ToolSettingsUpdate extends LitElement {
                             field: "default",
                             type: "custom",
                             display: {
-                                placeholder: "Select study or studies...",
                                 render: () => {
                                     return html `
                                         <button class="btn" type="button" @click="${e => this.onFieldChange(e, "default")}">
