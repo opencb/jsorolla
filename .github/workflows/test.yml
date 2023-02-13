@@ -39,16 +39,34 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - run: npm install
-      - name: Test
-        run: npm run test:run
-      - name: Upload result dir
-        uses: actions/upload-artifact@v3
+#      - name: Test
+#        run: npm run test:run
+      - uses: cypress-io/github-action@v5
+        with:
+          spec: cypress/e2e/commons/*.js
+          browser: chrome
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      # Test run video was always captured, so this action uses "always()" condition
+      - uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: workdir
           path: |
             "cypress/reports"
             "cypress/screenshots"
             "cypress/videos"
+#      - name: Upload result dir
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: workdir
+#          path: |
+#            "cypress/reports"
+#            "cypress/screenshots"
+#            "cypress/videos"
 
   publish-test:
     name: Publish test results
