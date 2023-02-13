@@ -96,8 +96,9 @@ class VariantInterpreter extends LitElement {
     }
 
     settingsObserver() {
+        this._config = this.getDefaultConfig();
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
-        this._config = {...this._config};
+        // this._config = {...this._config};
         this.requestUpdate();
     }
 
