@@ -250,13 +250,8 @@ export default class GridCommons {
     }
 
     rowHighlightStyle(row, index) {
-        // Check if highlights have been configured
-        if (!this.config.highlights?.length) {
-            return {};
-        }
-
         let rowStyle = {};
-        this.config.highlights
+        (this.config.highlights || [])
             .filter(highlight => highlight.active)
             .forEach(highlight => {
                 if (CustomActions.get(highlight).execute(row, highlight)) {
