@@ -41,8 +41,8 @@ export default class UserProfile extends LitElement {
 
     settingsObserver() {
         if (this.settings?.items) {
+            this.config = this.getDefaultConfig();
             this.config.items = UtilsNew.mergeConfigById(this.config.items, this.settings?.items);
-            this.config = {...this.config};
             this.requestUpdate();
         }
     }
