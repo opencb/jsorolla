@@ -59,9 +59,6 @@ export default class StudyAdminIva extends LitElement {
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
         }
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
-        }
         super.update(changedProperties);
     }
 
@@ -96,18 +93,16 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
-    settingsObserver() {}
-
     /* -- RENDER METHOD  -- */
     render() {
-        const activeMenuItem = "individual";
         return html`
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .activeMenuItem="${activeMenuItem}">
-            </custom-vertical-navbar>`;
+                .activeMenuItem="${"individual"}">
+            </custom-vertical-navbar>
+        `;
     }
 
     getDefaultConfig() {
@@ -152,116 +147,9 @@ export default class StudyAdminIva extends LitElement {
                             }),
                     };
                 }),
-            // [
-            // {
-            //     id: "catalog",
-            //     name: "CATALOG",
-            //     description: "",
-            //     icon: "",
-            //     featured: "", // true | false
-            //     visibility: "private",
-            //     category: true,
-            //     submenu: Object.entries(this.settings.catalog)
-            //         .map(([toolId, toolSettings]) => {
-            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
-            //             const match = toolId.match(/^(.*)_[^_]*$/);
-            //             const name = (match ? match[1] : toolId);
-            //             return {
-            //                 id: name.toLowerCase(),
-            //                 name: `${name} Browser`,
-            //                 icon: "fa-solid fa-square",
-            //                 visibility: "private",
-            //                 render: (opencgaSession, study) => {
-            //                     const locus = {
-            //                         toolId: toolId,
-            //                         module: "catalog",
-            //                     };
-            //                     return html `
-            //                         <study-settings-detail
-            //                             .opencgaSession="${opencgaSession}"
-            //                             .study="${study}"
-            //                             .toolSettings="${toolSettings}"
-            //                             .locus="${locus}">
-            //                         </study-settings-detail>
-            //                     `;
-            //                 }
-            //             };
-            //         }),
-            // },
-            // {
-            //     id: "user",
-            //     name: "USER PROFILE",
-            //     description: "",
-            //     icon: "",
-            //     featured: "", // true | false
-            //     visibility: "private",
-            //     category: true,
-            //     submenu: Object.entries(this.settings.user)
-            //         .map(([toolId, toolSettings]) => {
-            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
-            //             const match = toolId.match(/^(.*)_[^_]*$/);
-            //             const name = (match ? match[1] : toolId);
-            //             return {
-            //                 id: name.toLowerCase(),
-            //                 name: `${name}`,
-            //                 icon: "fa-solid fa-square",
-            //                 visibility: "private",
-            //                 render: (opencgaSession, study) => {
-            //                     const locus = {
-            //                         toolId: toolId,
-            //                         module: "user",
-            //                     };
-            //                     return html `
-            //                         <study-settings-detail
-            //                             .opencgaSession="${opencgaSession}"
-            //                             .study="${study}"
-            //                             .toolSettings="${toolSettings}"
-            //                             .locus="${locus}">
-            //                         </study-settings-detail>
-            //                     `;
-            //                 }
-            //             };
-            //         }),
-            // },
-            // {
-            //     id: "about",
-            //     name: "ABOUT",
-            //     description: "",
-            //     icon: "",
-            //     featured: "",
-            //     visibility: "private",
-            //     category: true,
-            //     submenu: this.settings.pages
-            //         .map(([toolId, toolSettings]) => {
-            //             // const name = UtilsNew.capitalize(toolId.split("_")[0]);
-            //             const match = toolId.match(/^(.*)_[^_]*$/);
-            //             const name = (match ? match[1] : toolId);
-            //             return {
-            //                 id: name.toLowerCase(),
-            //                 name: `${name}`,
-            //                 icon: "fa-solid fa-square",
-            //                 visibility: "private",
-            //                 render: (opencgaSession, study) => {
-            //                     const locus = {
-            //                         toolId: toolId,
-            //                         module: "about",
-            //                     };
-            //                     return html `
-            //                         <study-settings-detail
-            //                             .opencgaSession="${opencgaSession}"
-            //                             .study="${study}"
-            //                             .toolSettings="${toolSettings}"
-            //                             .locus="${locus}">
-            //                         </study-settings-detail>
-            //                     `;
-            //                 }
-            //             };
-            //         }),
-            // },
-            // ],
         };
     }
 
-
 }
+
 customElements.define("study-admin-iva", StudyAdminIva);
