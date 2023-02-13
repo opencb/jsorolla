@@ -1282,8 +1282,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
                     });
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
-
-                    // UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
                     UtilsNew.copyToClipboard(CustomActions.get(copy).execute(row, showArrayIndexes));
                 }
                 break;
