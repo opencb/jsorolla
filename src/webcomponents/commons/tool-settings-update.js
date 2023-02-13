@@ -115,22 +115,22 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- EVENTS ---
     onFieldChange(e, field) {
-        // The json has been modified, so we need to:
         // FIXME: switch case when json-editor returns param.
         const param = field || e.detail.param;
-
+        // The json has been modified, so we need to:
         // 1. To update the local object settings where we store the settings modifications
         if (e.detail.value?.json) {
             this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
         }
-        if (e.detail.param === "id") {
+        if (param === "id") {
             this._listStudies = e.detail.value.split(",");
         }
-        if (e.detail.param === "default") {
+        if (param === "default") {
             // If checkbox true, set default settings for the tool, current toolSettings if false
-            this._toolSettings = (e.detail.value) ?
-                UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]) :
-                UtilsNew.objectClone(this.toolSettings);
+            // this._toolSettings = (e.detail.value) ?
+            //     UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]) :
+            //     UtilsNew.objectClone(this.toolSettings);
+            this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]);
             this._study.attributes[SETTINGS_NAME].settings[this.locus.module][this.locus.toolId] = this._toolSettings;
             // Shallow copy just for refreshing the memory direction of this._study
             this._study = {...this._study};
@@ -225,7 +225,6 @@ export default class ToolSettingsUpdate extends LitElement {
             sections: [
                 {
                     title: "Study",
-                    description: "TODO THINK ABOUT A STUDY DESCRIPTION",
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
@@ -248,21 +247,12 @@ export default class ToolSettingsUpdate extends LitElement {
                                 placeholder: "Select study or studies..."
                             },
                         },
-                        {
-                            title: "Load default settings",
-                            field: "default",
-                            type: "checkbox",
-                            display: {
-                                placeholder: "Select study or studies..."
-                            },
-                        }
                     ],
                 },
                 {
                     // title: "Configuration Parameters",
                     id: "settings-json",
                     title: "Settings",
-                    description: "TODO THINK ABOUT A DESCRIPTION",
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
@@ -271,6 +261,21 @@ export default class ToolSettingsUpdate extends LitElement {
                         // visible: () =>
                     },
                     elements: [
+                        {
+                            title: "Load default settings",
+                            field: "default",
+                            type: "custom",
+                            display: {
+                                placeholder: "Select study or studies...",
+                                render: () => {
+                                    return html `
+                                        <button class="btn" type="button" @click="${e => this.onFieldChange(e, "default")}">
+                                            DEFAULT SETTINGS
+                                        </button>
+                                    `;
+                                },
+                            },
+                        },
                         {
                             field: `attributes.${SETTINGS_NAME}.settings.${this.locus.module}.${this.locus.toolId}`,
                             type: "json-editor",
