@@ -45,7 +45,6 @@ export default class StudySettingsDetail extends LitElement {
             locus: {
                 type: Object,
             },
-
         };
     }
 
