@@ -152,15 +152,17 @@ export default class StudySettingsDetail extends LitElement {
                         contentClass: "",
                         contentStyle: "",
                     },
-                    render: () => {
-                        return html `
+                    render: (data, isActive) => {
+                        if (isActive) {
+                            return html `
                             <tool-settings-preview
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this._toolSettings}"
                                 .tool="${this.locus.toolId}"
                                 .highlightPreview="${this.highlightPreview}">
                             </tool-settings-preview>
-                        `;
+                            `;
+                        }
                     },
                 },
             ],
