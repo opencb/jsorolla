@@ -155,7 +155,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
 
-
         // Check for user configuration
         if (this.toolId && this.opencgaSession.user?.configs?.IVA?.[this.toolId]?.grid) {
             this._config.filter.result.grid = {
