@@ -53,7 +53,6 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     // --- PRIVATE METHODS ---
-
     #init() {
         this.toolSettings = {};
         this.isLoading = false;
@@ -114,17 +113,27 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     // --- EVENTS ---
-    onFieldChange(e) {
+    onFieldChange(e, field) {
         // The json has been modified, so we need to:
-        // FIXME: switch case
+        // FIXME: switch case when json-editor returns param.
+        const param = field || e.detail.param;
+
         // 1. To update the local object settings where we store the settings modifications
         if (e.detail.value?.json) {
-            this._toolSettings = {...e.detail.value?.json};
+            this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
         }
         if (e.detail.param === "id") {
             this._listStudies = e.detail.value.split(",");
         }
-        // if (e.detail.param === "default") {debugger;}
+        if (e.detail.param === "default") {
+            // If checkbox true, set default settings for the tool, current toolSettings if false
+            this._toolSettings = (e.detail.value) ?
+                UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]) :
+                UtilsNew.objectClone(this.toolSettings);
+            this._study.attributes[SETTINGS_NAME].settings[this.locus.module][this.locus.toolId] = this._toolSettings;
+            // Shallow copy just for refreshing the memory direction of this._study
+            this._study = {...this._study};
+        }
         // To notify that the json has been modified
         // CAUTION 20230208 Vero: the toolSettings json has been updated
         LitUtils.dispatchCustomEvent(this,
