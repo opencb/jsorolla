@@ -99,8 +99,6 @@ import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import opencgaSession from "../../webcomponents/opencga/catalog/variableSets/test/opencgaSession";
-
 
 class IvaApp extends LitElement {
 
