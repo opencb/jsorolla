@@ -164,7 +164,7 @@ export default class OpencgaCatalogUtils {
                 // 2. BACKUP previous settings
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME + "_BACKUP"]:
-                    // eslint-disable-next-line no-undef
+                // eslint-disable-next-line no-undef
                     UtilsNew.objectClone(opencgaSession.study.attributes[SETTINGS_NAME]),
                 // 3. New tool settings
                 // eslint-disable-next-line no-undef
@@ -174,7 +174,7 @@ export default class OpencgaCatalogUtils {
                     date: UtilsNew.getDatetime(), // Update date
                     settings: {
                         ...(
-                        // If settings param exists, save settings. If not, save defaultSettings
+                            // If settings param exists, save settings. If not, save defaultSettings
                             UtilsNew.objectCloneReplace(
                                 // eslint-disable-next-line no-undef
                                 opencgaSession.study.attributes[SETTINGS_NAME].settings,

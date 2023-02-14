@@ -141,7 +141,8 @@ class IvaApp extends LitElement {
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
 
-        // Reading the default settings from config file browser.settings.js
+        // Reading the default settings from the config files, eg. browser.settings.js
+        // Store them in a flat structure.
         this.DEFAULT_SETTINGS = {
             ...INTERPRETER_SETTINGS,
             ...CATALOG_SETTINGS,
@@ -387,16 +388,19 @@ class IvaApp extends LitElement {
                 // 1.2 Check if a migration is needed
                 // TODO implement migration
                 // if (this.version !== study.attributes[SETTINGS_NAME].version) {
-                //     migration.run();
+                //     const newSettings = migration.run();
+                //     study.attributes[SETTINGS_NAME + "_BACKUP"] = UitlsNew.objectClone(study.attributes[SETTINGS_NAME]);
+                //     study.attributes[SETTINGS_NAME] = newSettings;
                 //     modified = true;
                 // }
 
                 // 1.3. Save the default settings if the settings has changed and the user is admin/owner
                 if (modified && OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                    this.#saveSettings(study);
+                    this.#saveInitSettings(study);
                 }
             }
         }
+
         // 2. Init settings
         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
     }
@@ -404,24 +408,27 @@ class IvaApp extends LitElement {
     /**
      * To init IVA_CONFIG settings in memory
      */
-    #saveSettings(study) {
+    #saveInitSettings(study) {
+        study.attributes[SETTINGS_NAME].userId = this.opencgaSession.user.id;
+        study.attributes[SETTINGS_NAME].date = UtilsNew.getDatetime();
+        const updateParams = {
+            ...study.attributes
+        };
         const params = {
             includeResult: true,
         };
-        const updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, study);
 
         this.opencgaSession.opencgaClient.studies()
             .update(study.fqn, updateParams, params)
             .then(response => {
-                console.log(`${study.id} attributes settings stored correctly`);
-                // FIXME : We should notify to the admin that the default settings has been stored
-                //  Notifications icon?
+                // study = response.responses[0].results[0];
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `Study Settings Update`,
+                    message: `${study.id} settings updated correctly`,
+                });
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                // Todo: dispatch event?
             });
     }
 
@@ -1943,10 +1950,10 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
+            <!-- Remove this from the parameters: .study="${this.opencgaSession.study}" -->
                 ${this.config.enabledComponents["study-admin-iva"] ? html`
             <div class="content">
                 <study-admin-iva
-                    .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings}"
                     @studyUpdateRequest="${this.onStudyUpdateRequest}">
