@@ -1950,7 +1950,7 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
-            <!-- Remove this from the parameters: .study="${this.opencgaSession.study}" -->
+            <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
                 ${this.config.enabledComponents["study-admin-iva"] ? html`
             <div class="content">
                 <study-admin-iva
