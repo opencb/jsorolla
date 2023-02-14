@@ -114,6 +114,7 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- EVENTS ---
     onFieldChange(e, field) {
+        debugger
         // FIXME: switch case when json-editor returns param.
         const param = field || e.detail.param;
         // The json has been modified, so we need to:
@@ -198,9 +199,14 @@ export default class ToolSettingsUpdate extends LitElement {
         `;
     }
 
+    #studyToSelectName(study) {
+        const [user, projStudy] = study.fqn.split("@");
+        return `${projStudy.replace(":", "-")} [${user}]`;
+    }
+
     // --- DEFAULT CONFIG ---
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             id: "",
             title: "",
             icon: "",
@@ -230,16 +236,18 @@ export default class ToolSettingsUpdate extends LitElement {
                     elements: [
                         {
                             title: "Study",
-                            field: "id",
+                            field: "fqn",
                             type: "select",
                             multiple: true,
                             required: true,
                             // Fixme: defaultValue not working, not sure why
-                            // defaultValue: `${this._study.fqn}`,
+                            defaultValue: `${this._study.fqn}`,
                             allowedValues: this.opencgaSession.projects
                                 .map(project => project.studies)
                                 .flat()
-                                .map(study => study.fqn),
+                                .map(study => {
+                                    return {id: study.fqn, name: this.#studyToSelectName(study)};
+                                }),
                             display: {
                                 placeholder: "Select study or studies..."
                             },
@@ -279,7 +287,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     ],
                 },
             ]
-        });
+        };
     }
 
 }
