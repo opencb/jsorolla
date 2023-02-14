@@ -140,13 +140,11 @@ export default class OpencgaCatalogUtils {
     /** Prepares the study tool settings params that will be updated. If no settings are provided,
      * it will restore its default settings.
      * @param {object} opencgaSession   Session
-     * @param {object} locus            Information about the specific tool
-     * @param {string} locus.toolId     Tool identifier
-     * @param {string} locus.module     Group of similar configurations
+     * @param {string} toolName         Tool name
      * @param {object} settings         OPTIONAL: if no settings, the default settings will be stored
      * @returns {Object}                Tool settings to be updated
      */
-    static getNewToolIVASettings(opencgaSession, locus, settings) {
+    static getNewToolIVASettings(opencgaSession, toolName, settings) {
 
         // 1. Retrieve other study attributes to avoid overwriting
         const otherAttributes = UtilsNew.objectCloneExclude(
@@ -180,7 +178,7 @@ export default class OpencgaCatalogUtils {
                             UtilsNew.objectCloneReplace(
                                 // eslint-disable-next-line no-undef
                                 opencgaSession.study.attributes[SETTINGS_NAME].settings,
-                                `${[locus.module]}.${[locus.toolId]}`,
+                                `${[toolName]}`,
                                 settings ?? opencgaSession.ivaDefaultSettings)
                         )
                     },

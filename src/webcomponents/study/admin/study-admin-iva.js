@@ -93,7 +93,7 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
-    /* -- RENDER METHOD  -- */
+    // --- RENDER METHOD  ---
     render() {
         return html`
             <custom-vertical-navbar
@@ -111,42 +111,36 @@ export default class StudyAdminIva extends LitElement {
             logo: "",
             icon: "fas fa-sliders-h",
             visibility: "private", // public | private | none
-            menu: Object.entries(this.settings)
-                // module: catalog | user | custom | variant
-                // moduleSettings: CATALOG_SETTINGS | USER_SETTINGS | CUSTOM_SETTINGS | VARIANT-SETTINGS
-                .map(([module, moduleSettings]) => {
-                    return {
-                        id: module,
-                        name: module.toUpperCase(),
-                        visibility: "private",
-                        category: true,
-                        submenu: Object.entries(moduleSettings)
-                            .map(([toolName, toolSettings]) => {
-                                const match = toolName.match(/^(.*)_[^_]*$/);
-                                const name = (match ? match[1] : toolName);
-                                return {
-                                    id: name.toLowerCase(),
-                                    name: `${name}`,
-                                    icon: "fa-solid fa-square",
-                                    visibility: "private",
-                                    render: (opencgaSession, study) => {
-                                        const locus = {
-                                            toolId: toolName,
-                                            module: module,
-                                        };
-                                        return html `
-                                            <study-settings-detail
-                                                .opencgaSession="${opencgaSession}"
-                                                .study="${study}"
-                                                .toolSettings="${toolSettings}"
-                                                .locus="${locus}">
-                                            </study-settings-detail>
-                                        `;
-                                    }
-                                };
-                            }),
-                    };
-                }),
+            menu: [
+                {
+                    id: "config",
+                    name: "Configuration",
+                    visibility: "private",
+                    category: true,
+                    submenu: Object.entries(this.settings)
+                        .map(([toolName, toolSettings]) => {
+                            // const name = UtilsNew.capitalize(toolId.split("_")[0]);
+                            const match = toolName.match(/^(.*)_[^_]*$/);
+                            const name = (match ? match[1] : toolName);
+                            return {
+                                id: name.toLowerCase(),
+                                name: `${name}`,
+                                icon: "fa-solid fa-square",
+                                visibility: "private",
+                                render: (opencgaSession, study) => {
+                                    return html `
+                                        <study-settings-detail
+                                            .opencgaSession="${opencgaSession}"
+                                            .study="${study}"
+                                            .toolSettings="${toolSettings}"
+                                            .toolName="${toolName}">
+                                        </study-settings-detail>
+                                    `;
+                                }
+                            };
+                        }),
+                }
+            ],
         };
     }
 

@@ -42,8 +42,8 @@ export default class StudySettingsDetail extends LitElement {
             toolSettings: {
                 type: Object,
             },
-            locus: {
-                type: Object,
+            toolName: {
+                type: String,
             },
         };
     }
@@ -131,7 +131,7 @@ export default class StudySettingsDetail extends LitElement {
                             <tool-settings-update
                                 .study="${this.study}"
                                 .toolSettings="${this.toolSettings}"
-                                .locus="${this.locus}"
+                                .toolName="${this.toolName}"
                                 .opencgaSession="${this.opencgaSession}"
                                 @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
                             </tool-settings-update>
@@ -158,7 +158,7 @@ export default class StudySettingsDetail extends LitElement {
                             <tool-settings-preview
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${this._toolSettings}"
-                                .tool="${this.locus.toolId}"
+                                .tool="${this.toolName}"
                                 .highlightPreview="${this.highlightPreview}">
                             </tool-settings-preview>
                             `;

@@ -43,7 +43,7 @@ export default class ToolSettingsUpdate extends LitElement {
             toolSettings: {
                 type: Object,
             },
-            locus: {
+            toolName: {
                 type: Object,
             },
             opencgaSession: {
@@ -126,12 +126,8 @@ export default class ToolSettingsUpdate extends LitElement {
             this._listStudies = e.detail.value.split(",");
         }
         if (param === "default") {
-            // If checkbox true, set default settings for the tool, current toolSettings if false
-            // this._toolSettings = (e.detail.value) ?
-            //     UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]) :
-            //     UtilsNew.objectClone(this.toolSettings);
-            this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.locus.module][this.locus.toolId]);
-            this._study.attributes[SETTINGS_NAME].settings[this.locus.module][this.locus.toolId] = this._toolSettings;
+            this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.toolName]);
+            this._study.attributes[SETTINGS_NAME].settings[this.toolName] = this._toolSettings;
             // Shallow copy just for refreshing the memory direction of this._study
             this._study = {...this._study};
         }
@@ -155,7 +151,7 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     onSubmit() {
-        const toolName = this.#getResourceName(this.locus.toolId, "label");
+        const toolName = this.#getResourceName(this.toolName, "label");
         // 1. Prepare query params
         const params = {
             includeResult: true,
@@ -164,7 +160,7 @@ export default class ToolSettingsUpdate extends LitElement {
         this.#setLoading(true);
         this._listStudies.forEach(studyId => {
             // 2.1. Get new study tool settings
-            const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, this.locus, this._toolSettings);
+            const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, this.toolName, this._toolSettings);
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
                 // .update(this.opencgaSession.study.fqn, updateParams, params)
@@ -278,7 +274,7 @@ export default class ToolSettingsUpdate extends LitElement {
                             },
                         },
                         {
-                            field: `attributes.${SETTINGS_NAME}.settings.${this.locus.module}.${this.locus.toolId}`,
+                            field: `attributes.${SETTINGS_NAME}.settings.${this.toolName}`,
                             type: "json-editor",
                         },
                     ],

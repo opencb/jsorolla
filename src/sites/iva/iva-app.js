@@ -141,6 +141,14 @@ class IvaApp extends LitElement {
         _config.enabledComponents = {};
         _config.enabledComponents.home = true;
 
+        // Reading the default settings from config file browser.settings.js
+        this.DEFAULT_SETTINGS = {
+            ...INTERPRETER_SETTINGS,
+            ...CATALOG_SETTINGS,
+            ...USER_SETTINGS
+            // CUSTOM_PAGES,
+        };
+
         const components = [
             "home",
             "gettingstarted",
@@ -364,6 +372,7 @@ class IvaApp extends LitElement {
         for (const project of this.opencgaSession.projects) {
             for (const study of project.studies) {
                 let modified = false;
+
                 // 1.1 If the study does not have IVA_CONFIG settings, store in opencgaSession the default settings
                 if (UtilsNew.isEmpty(study?.attributes[SETTINGS_NAME]?.settings)) {
                     study.attributes[SETTINGS_NAME] = {
@@ -475,7 +484,7 @@ class IvaApp extends LitElement {
                     ..._response,
                     ivaDefaultSettings: {
                         version: this.version,
-                        settings: UtilsNew.objectClone(DEFAULT_SETTINGS),
+                        settings: UtilsNew.objectClone(this.DEFAULT_SETTINGS),
                     }
                 };
                 this.opencgaSession.mode = this.config.mode;
@@ -1242,7 +1251,7 @@ class IvaApp extends LitElement {
                     .cellbaseClient="${this.cellbaseClient}"
                     .reactomeClient="${this.reactomeClient}"
                     .query="${this.queries.variant}"
-                    .settings="${this.settings.catalog.VARIANT_BROWSER}"
+                    .settings="${this.settings.VARIANT_BROWSER}"
                     .consequenceTypes="${this.config.consequenceTypes}"
                     .populationFrequencies="${this.config.populationFrequencies}"
                     .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
@@ -1259,7 +1268,7 @@ class IvaApp extends LitElement {
             <div class="content" id="clinicalAnalysisPortal">
                 <clinical-analysis-portal
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.catalog.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
+                    .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
                     @sessionPanelUpdate="${this.onSessionPanelUpdate}">
                 </clinical-analysis-portal>
             </div>
@@ -1270,7 +1279,7 @@ class IvaApp extends LitElement {
                 <rga-browser
                     .opencgaSession="${this.opencgaSession}"
                     .cellbaseClient="${this.cellbaseClient}"
-                    .settings="${this.settings.catalog.RGA_BROWSER}">
+                    .settings="${this.settings.RGA_BROWSER}">
                 </rga-browser>
             </div>
         ` : null}
@@ -1334,7 +1343,7 @@ class IvaApp extends LitElement {
                 <sample-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.sample}"
-                    .settings="${this.settings.catalog.SAMPLE_BROWSER}"
+                    .settings="${this.settings.SAMPLE_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
                 </sample-browser>
@@ -1359,7 +1368,7 @@ class IvaApp extends LitElement {
                 <file-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.file}"
-                    .settings="${this.settings.catalog.FILE_BROWSER}"
+                    .settings="${this.settings.FILE_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
                 </file-browser>
@@ -1372,7 +1381,7 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .cellbaseClient="${this.cellbaseClient}"
                     .query="${this.queries["disease-panel"]}"
-                    .settings="${this.settings.catalog.DISEASE_PANEL_BROWSER}"
+                    .settings="${this.settings.DISEASE_PANEL_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
                 </disease-panel-browser>
@@ -1563,7 +1572,7 @@ class IvaApp extends LitElement {
                 <individual-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.individual}"
-                    .settings="${this.settings.catalog.INDIVIDUAL_BROWSER}"
+                    .settings="${this.settings.INDIVIDUAL_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
                 </individual-browser>
@@ -1575,7 +1584,7 @@ class IvaApp extends LitElement {
                 <family-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.family}"
-                    .settings="${this.settings.catalog.FAMILY_BROWSER}"
+                    .settings="${this.settings.FAMILY_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
                 </family-browser>
@@ -1587,7 +1596,7 @@ class IvaApp extends LitElement {
                 <cohort-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.cohort}"
-                    .settigns="${this.settings.catalog.COHORT_BROWSER}"
+                    .settigns="${this.settings.COHORT_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
                 </cohort-browser>
@@ -1598,7 +1607,7 @@ class IvaApp extends LitElement {
             <div class="content" id="clinicalAnalysis">
                 <clinical-analysis-browser
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.catalog.CLINICAL_ANALYSIS_BROWSER}"
+                    .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
                     .query="${this.queries["clinical-analysis"]}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
@@ -1610,7 +1619,7 @@ class IvaApp extends LitElement {
             <div class="content" id="job">
                 <job-browser
                     .opencgaSession="${this.opencgaSession}"
-                    .settings= ${this.settings.catalog.JOB_BROWSER}
+                    .settings= ${this.settings.JOB_BROWSER}
                     .query="${this.queries.job}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
@@ -1829,7 +1838,7 @@ class IvaApp extends LitElement {
             <div class="content" id="account">
                 <user-profile
                     .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.settings.user.USER_PROFILE_SETTINGS}">
+                    .settings="${this.settings.USER_PROFILE_SETTINGS}">
                 </user-profile>
             </div>
         ` : null}
@@ -1856,7 +1865,7 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .cellbaseClient="${this.cellbaseClient}"
                     .clinicalAnalysisId="${this.clinicalAnalysisId}"
-                    .settings="${this.settings.variant.VARIANT_INTERPRETER_SETTINGS}"
+                    .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
                     @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
                 </variant-interpreter>
             </div>

@@ -384,7 +384,7 @@ const USER_SETTINGS = {
     }
 };
 
-const VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS = {
+const BROWSER_CANCER_CNV_SETTINGS = {
     menu: {
         // add all filters and let variant-interpreter-browser-cancer handle the visibility based on callers
         // filters: []
@@ -427,7 +427,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS = {
     // details: []
 };
 
-const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
+const BROWSER_CANCER_SNV_SETTINGS = {
     menu: {
         // add all filters and let variant-interpreter-browser-cancer handle the visibility based on callers
         // filters: []
@@ -537,7 +537,7 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
 
 };
 
-const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
+const BROWSER_RD_SETTINGS = {
     menu: {
         sections: [
             {
@@ -637,7 +637,7 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
 
 };
 
-const VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS = {
+const BROWSER_REARRANGEMENT_SETTINGS = {
     menu: {
         // add all filters and let variant-interpreter-browser-cancer handle the visibility based on callers
         // filters: []
@@ -678,14 +678,15 @@ const VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS = {
 
 };
 
-const VARIANT_INTERPRETER_QC_OVERVIEW_SETTINGS = {
+const QC_OVERVIEW_SETTINGS = {
     // for both cancer and family cases
     tabs: ["Summary", "AscatMetrics", "VariantStats", "SamtoolsPlots", "Alignment", "InferredSex", "MendelianErrors", "Relatedness", "AlignmentStats", "GenomicContext"]
 };
 
-const VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS = {};
+// FIXME *** CHECK IF PROPERLY MANAGED IF UNDEFINED ***
+// const VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS = {};
 
-const VARIANT_INTERPRETER_SETTINGS = {
+const INTERPRETER_SETTINGS = {
     VARIANT_INTERPRETER_SETTINGS: {
         tools: [
             {
@@ -696,7 +697,7 @@ const VARIANT_INTERPRETER_SETTINGS = {
                 tabs: [
                     {
                         id: "overview",
-                        settings: VARIANT_INTERPRETER_QC_OVERVIEW_SETTINGS
+                        settings: QC_OVERVIEW_SETTINGS,
                     },
                     {id: "cancerQCPlots"},
                     {id: "mutationalSignature"},
@@ -712,10 +713,10 @@ const VARIANT_INTERPRETER_SETTINGS = {
             {
                 id: "variant-browser",
                 browsers: {
-                    CANCER_SNV: VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS,
-                    CANCER_CNV: VARIANT_INTERPRETER_BROWSER_CANCER_CNV_SETTINGS,
-                    RD: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
-                    REARRANGEMENT: VARIANT_INTERPRETER_BROWSER_REARRANGEMENT_SETTINGS,
+                    CANCER_SNV: BROWSER_CANCER_SNV_SETTINGS,
+                    CANCER_CNV: BROWSER_CANCER_CNV_SETTINGS,
+                    RD: BROWSER_RD_SETTINGS,
+                    REARRANGEMENT: BROWSER_REARRANGEMENT_SETTINGS,
                 },
                 // hideGenomeBrowser: false
             },
@@ -729,6 +730,7 @@ const VARIANT_INTERPRETER_SETTINGS = {
     },
 };
 
+// FIXME: we will need here an html editor
 const ABOUT_SETTINGS = {
     CUSTOM_PAGES_SETTINGS: [
         {
@@ -764,19 +766,19 @@ const ABOUT_SETTINGS = {
     ],
 };
 
-const DEFAULT_SETTINGS = {
-    // TODO: before enabling the variants, to discuss to split the settings into smaller chunks to streamline changes in the settings
-    variant: {
-        ...VARIANT_INTERPRETER_SETTINGS,
-    },
-    catalog: {
-        ...CATALOG_SETTINGS,
-    },
-    user: {
-        ...USER_SETTINGS,
-    },
-    // FIXME: we will need here an html editor
-    // about: {
-    //     ...ABOUT_SETTINGS
-    // },
-};
+// const DEFAULT_SETTINGS = {
+//     // TODO: before enabling the variants, to discuss to split the settings into smaller chunks to streamline changes in the settings
+//     variant: {
+//         ...VARIANT_INTERPRETER_SETTINGS,
+//     },
+//     catalog: {
+//         ...CATALOG_SETTINGS,
+//     },
+//     user: {
+//         ...USER_SETTINGS,
+//     },
+//     // FIXME: we will need here an html editor
+//     // about: {
+//     //     ...ABOUT_SETTINGS
+//     // },
+// };
