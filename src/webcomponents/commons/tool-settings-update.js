@@ -87,7 +87,6 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     // --- UPDATE ---
-
     update(changedProperties) {
         if (changedProperties.has("study") || changedProperties.has("toolSettings")) {
             this.componentObserver();
