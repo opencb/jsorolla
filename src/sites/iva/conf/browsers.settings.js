@@ -380,7 +380,7 @@ const CATALOG_SETTINGS = {
 const USER_SETTINGS = {
     // With a comment
     USER_PROFILE_SETTINGS: {
-        items: ["user-projects"]
+        items: ["user-projects", "user-password-change"]
     }
 };
 
