@@ -962,6 +962,14 @@ export default class UtilsNew {
         return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
     }
 
+    // Import file from the specified URL
+    // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
+    static importBinaryFile(url) {
+        return window.fetch(url)
+            .then(response => response.ok && response.arrayBuffer() || null)
+            .catch(() => null);
+    }
+
     // Convert an SVG to PNG
     static convertSvgToPng(svgElement) {
         return new Promise((resolve, reject) => {
