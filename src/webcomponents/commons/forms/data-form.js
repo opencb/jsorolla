@@ -1745,9 +1745,9 @@ export default class DataForm extends LitElement {
         const buttonPreviewVisible = !!this.config.buttons?.previewText;
         const buttonClearVisible = this.config.display?.buttonClearText !== "";
         const buttonOkVisible = this.config.display?.buttonOkText !== "";
-        const buttonPreviewDisabled = this.config.display?.buttonPreviewDisabled ?? false;
-        const buttonClearDisabled = this.config.display?.buttonClearDisabled ?? false;
-        const buttonOkDisabled = this.config.display?.buttonOkDisabled ?? false;
+        const buttonPreviewDisabled = this._getBooleanValue(this.config.display?.buttonPreviewDisabled, false);
+        const buttonClearDisabled = this._getBooleanValue(this.config.display?.buttonClearDisabled, false);
+        const buttonOkDisabled = this._getBooleanValue(this.config.display?.buttonOkDisabled, false);
 
         return html`
             ${this.renderGlobalValidationError()}

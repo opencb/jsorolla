@@ -146,6 +146,8 @@ export default class ToolSettingsUpdate extends LitElement {
             this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
         }
         if (param === "fqn") {
+            // FIXME this should not be necessary, we need to re-think the data-form.data object
+            this._study.fqn = "";
             this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
         }
         if (param === "default") {
@@ -161,10 +163,7 @@ export default class ToolSettingsUpdate extends LitElement {
         });
 
         // Refresh configuration object to read new this.allowedValues array.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this._config = {...this._config};
 
         this.requestUpdate();
     }
@@ -243,7 +242,7 @@ export default class ToolSettingsUpdate extends LitElement {
                 // defaultLayout: "vertical",
                 buttonsVisible: true,
                 buttonsLayout: "top",
-                buttonOkDisabled: this._listStudies?.length === 0
+                buttonOkDisabled: () => this._listStudies?.length === 0
             },
             buttons: {
                 clearText: "Discard Changes",
