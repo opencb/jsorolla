@@ -50,7 +50,13 @@ export default class StudyAdminIva extends LitElement {
         };
     }
 
-    #init() {}
+    #init() {
+        this.menuStructure = {
+            variant: ["Variant", Object.keys(INTERPRETER_SETTINGS)],
+            catalog: ["Catalog", Object.keys(CATALOG_SETTINGS)],
+            user: ["User", Object.keys(USER_SETTINGS)],
+        };
+    }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -111,24 +117,24 @@ export default class StudyAdminIva extends LitElement {
             logo: "",
             icon: "fas fa-sliders-h",
             visibility: "private", // public | private | none
-            menu: [
-                {
-                    id: "config",
-                    name: "Configuration",
-                    visibility: "private",
+            menu: Object.entries(this.menuStructure)
+                .map(([menuKey, [header, submenuKeys]]) => ({
+                    id: menuKey,
+                    name: header,
                     category: true,
-                    submenu: Object.entries(this.settings)
-                        .map(([toolName, toolSettings]) => {
-                            // const name = UtilsNew.capitalize(toolId.split("_")[0]);
-                            const match = toolName.match(/^(.*)_[^_]*$/);
-                            const name = (match ? match[1] : toolName);
-                            return {
-                                id: name.toLowerCase(),
-                                name: `${name}`,
-                                icon: "fa-solid fa-square",
-                                visibility: "private",
-                                render: (opencgaSession, study) => {
-                                    return html `
+                    visibility: "private",
+                    submenu: submenuKeys.map(toolName => {
+                        const toolSettings = this.settings[toolName];
+
+                        const match = toolName.match(/^(.*)_[^_]*$/);
+                        const name = (match ? match[1] : toolName);
+                        return {
+                            id: name.toLowerCase(),
+                            name: name.replace(/_/g, " "),
+                            icon: "fa-solid fa-square",
+                            visibility: "private",
+                            render: (opencgaSession, study) => {
+                                return html `
                                         <study-settings-detail
                                             .opencgaSession="${opencgaSession}"
                                             .study="${study}"
@@ -136,11 +142,10 @@ export default class StudyAdminIva extends LitElement {
                                             .toolName="${toolName}">
                                         </study-settings-detail>
                                     `;
-                                }
-                            };
-                        }),
-                }
-            ],
+                            }
+                        };
+                    })
+                }))
         };
     }
 
