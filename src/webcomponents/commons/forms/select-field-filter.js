@@ -173,6 +173,23 @@ export default class SelectFieldFilter extends LitElement {
         }, null, {bubbles: false, composed: false});
     }
 
+    selectAll(e) {
+        if (e.currentTarget.checked) {
+            if (this.data[0].fields) {
+                this.value = this.data.map(data => data.fields).flat().map(data => data.id ?? data.name);
+            } else {
+                this.value = this.data.map(data => data.id ?? data.name);
+            }
+        } else {
+            this.value = [];
+        }
+
+        // Notify to event to allow parent components to react
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value?.length > 0 ? this.value.join(",") : "", {
+            data: this.data,
+        }, null, {bubbles: false, composed: false});
+    }
+
     renderOption(option) {
         let dataContent;
         if (option.description) {
@@ -188,18 +205,6 @@ export default class SelectFieldFilter extends LitElement {
                 data-content="${dataContent}">
             </option>
         `;
-    }
-
-    selectAll(e) {
-        if (e.currentTarget.checked) {
-            if (this.data[0].fields) {
-                this.value = this.data.map(data => data.fields).flat().map(data => data.id);
-            } else {
-                this.value = this.data.map(data => data.id);
-            }
-        } else {
-            this.value = "";
-        }
     }
 
     render() {

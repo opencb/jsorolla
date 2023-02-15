@@ -1745,27 +1745,30 @@ export default class DataForm extends LitElement {
         const buttonPreviewVisible = !!this.config.buttons?.previewText;
         const buttonClearVisible = this.config.display?.buttonClearText !== "";
         const buttonOkVisible = this.config.display?.buttonOkText !== "";
+        const buttonPreviewDisabled = this.config.display?.buttonPreviewDisabled ?? false;
+        const buttonClearDisabled = this.config.display?.buttonClearDisabled ?? false;
+        const buttonOkDisabled = this.config.display?.buttonOkDisabled ?? false;
 
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
                     ${buttonPreviewVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
                                 @click="${this.onPreview}">
                             ${buttonPreviewText}
                         </button>
                     `: null
                     }
                     ${buttonClearVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
                     `: null
                     }
                     ${buttonOkVisible ? html`
-                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonOkDisabled}
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>

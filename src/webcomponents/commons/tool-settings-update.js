@@ -89,6 +89,7 @@ export default class ToolSettingsUpdate extends LitElement {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
+        this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
         this.updatedFields = {};
         this._config = {
             ...this.getDefaultConfig(),
@@ -127,7 +128,7 @@ export default class ToolSettingsUpdate extends LitElement {
                 this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
             }
 
-            // Refresh configuration pobject to read new this.allowedValues array.
+            // Refresh configuration object to read new this.allowedValues array.
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -145,7 +146,7 @@ export default class ToolSettingsUpdate extends LitElement {
             this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
         }
         if (param === "fqn") {
-            this._listStudies = e.detail.value.split(",");
+            this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
         }
         if (param === "default") {
             this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.toolName]);
@@ -158,6 +159,13 @@ export default class ToolSettingsUpdate extends LitElement {
         LitUtils.dispatchCustomEvent(this, "studyToolSettingsUpdate", null, {
             _toolSettings: this._toolSettings
         });
+
+        // Refresh configuration object to read new this.allowedValues array.
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+
         this.requestUpdate();
     }
 
@@ -234,7 +242,8 @@ export default class ToolSettingsUpdate extends LitElement {
                 titleWidth: 4,
                 // defaultLayout: "vertical",
                 buttonsVisible: true,
-                buttonsLayout: "top"
+                buttonsLayout: "top",
+                buttonOkDisabled: this._listStudies?.length === 0
             },
             buttons: {
                 clearText: "Discard Changes",
