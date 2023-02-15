@@ -907,6 +907,7 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     ?multiple="${element.multiple}"
+                    ?all="${element.all}"
                     .maxOptions="${element.maxOptions || false}"
                     ?disabled="${disabled}"
                     ?required="${element.required}"
@@ -1734,7 +1735,7 @@ export default class DataForm extends LitElement {
     renderButtons(dismiss, sectionId=null) {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
         const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
-        const btnWidth = this.config.display?.buttonsWidth ?? 12;
+        const btnWidth = this.config.display?.buttonsWidth ?? this.config.display?.width ?? 12;
         const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -55,6 +55,9 @@ export default class SelectFieldFilter extends LitElement {
             multiple: {
                 type: Boolean
             },
+            all: {
+                type: Boolean
+            },
             disabled: {
                 type: Boolean
             },
@@ -90,6 +93,7 @@ export default class SelectFieldFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.multiple = false;
+        this.all = false;
         this.data = [];
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
@@ -186,43 +190,63 @@ export default class SelectFieldFilter extends LitElement {
         `;
     }
 
+    selectAll(e) {
+        if (e.currentTarget.checked) {
+            if (this.data[0].fields) {
+                this.value = this.data.map(data => data.fields).flat().map(data => data.id);
+            } else {
+                this.value = this.data.map(data => data.id);
+            }
+        } else {
+            this.value = "";
+        }
+    }
+
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
-                <select id="${this.elm}"
-                    class="${this.elm}"
-                    ?multiple="${!this.forceSelection}"
-                    ?disabled="${this.disabled}"
-                    ?required="${this.required}"
-                    data-live-search="${this.liveSearch ? "true" : "false"}"
-                    data-size="${this.size}"
-                    title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
-                    data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
-                    @change="${this.filterChange}"
-                    data-width="100%"
-                    data-style="btn-default ${this.classes}">
-                    ${this.data?.map(opt => html`
-                        ${opt?.separator ? html`
-                            <option data-divider="true"></option>
-                        ` : html`
-                            ${opt?.fields ? html`
-                                <optgroup label="${opt.id ?? opt.name}">
-                                    ${opt.fields.map(subopt => html`
-                                        ${UtilsNew.isObject(subopt) ?
-                                            this.renderOption(subopt) :
-                                            html`<option>${subopt}</option>`
-                                        }
-                                    `)}
-                                </optgroup>
+                <div class="${this.all ? "input-group" : ""}">
+                    <select id="${this.elm}"
+                            class="${this.elm}"
+                            ?multiple="${!this.forceSelection}"
+                            ?disabled="${this.disabled}"
+                            ?required="${this.required}"
+                            data-live-search="${this.liveSearch ? "true" : "false"}"
+                            data-size="${this.size}"
+                            title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
+                            data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
+                            @change="${this.filterChange}"
+                            data-width="100%"
+                            data-style="btn-default ${this.classes}">
+                        ${this.data?.map(opt => html`
+                            ${opt?.separator ? html`
+                                <option data-divider="true"></option>
                             ` : html`
-                                ${UtilsNew.isObject(opt) ?
-                                    this.renderOption(opt) :
-                                    html`<option data-content="${opt}">${opt}</option>`
-                                }
+                                ${opt?.fields ? html`
+                                    <optgroup label="${opt.id ?? opt.name}">
+                                        ${opt.fields.map(subopt => html`
+                                            ${UtilsNew.isObject(subopt) ?
+                                                this.renderOption(subopt) :
+                                                html`<option>${subopt}</option>`
+                                            }
+                                        `)}
+                                    </optgroup>
+                                ` : html`
+                                    ${UtilsNew.isObject(opt) ?
+                                        this.renderOption(opt) :
+                                        html`<option data-content="${opt}">${opt}</option>`
+                                    }
+                                `}
                             `}
-                        `}
-                    `)}
-                </select>
+                        `)}
+                    </select>
+                    ${this.all ? html`
+                        <span class="input-group-addon">
+                            <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>
+                            <span style="font-weight: bold">All</span>
+                        </span>` : nothing
+                    }
+                </div>
             </div>
         `;
     }
