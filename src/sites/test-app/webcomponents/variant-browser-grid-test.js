@@ -88,7 +88,7 @@ class VariantBrowserGridTest extends LitElement {
 
     mutate() {
         // 1. no CT array
-        this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
     }
 

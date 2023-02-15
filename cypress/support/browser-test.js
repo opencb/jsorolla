@@ -359,6 +359,16 @@ export default class BrowserTest {
     static toggleSectionFilter = (filter) => {
         cy.get(`section-filter a[data-cy-section-title=${filter}]`).click();
     }
-
-
+    // This work for simple header table (No nested)
+    // index will be add global variable indexColumn
+    static getColumnIndexByHeader = (columnName) => {
+        let shouldStop = false;
+        cy.get("thead th").each(($column,index) => {
+            if(shouldStop) return true;
+            if($column[0].getAttribute("data-field") === columnName) {
+                shouldStop = true;
+                return cy.wrap(index).as("indexColumn")
+            }
+        })
+    }
 }
