@@ -2,7 +2,10 @@
   "plugins": [
     "@babel/plugin-proposal-export-default-from",
     "@babel/transform-runtime",
-    ["@babel/plugin-proposal-class-properties", {"loose": true}]
+    ["@babel/plugin-proposal-class-properties", {"loose": true}],
+    ["transform-class-properties",{"loose": true}],
+    "istanbul",
+    ["@babel/plugin-proposal-private-methods",{"loose": true}]
   ],
   "presets": [[
     "@babel/preset-env",
