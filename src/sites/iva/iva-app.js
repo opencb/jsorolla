@@ -1085,33 +1085,39 @@ class IvaApp extends LitElement {
 
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
-            this.opencgaSession.opencgaClient.studies()
-                .info(e.detail.value)
-                .then(res => {
-                    const updatedStudy = res.responses[0].results[0];
-                    for (const project of this.opencgaSession.user.projects) {
-                        if (project.studies?.length > 0) {
-                            const studyIndex = project.studies.findIndex(study => study.fqn === e.detail.value);
-                            if (studyIndex >= 0) {
-                                project.studies[studyIndex] = updatedStudy;
-                                break;
-                            }
-                        }
-                    }
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                title: `Refresh Session`,
+                message: `Session updated correctly`,
+            });
+            this._createOpenCGASession();
 
-                    // Update opencgaSession.study if the study updated is the active one
-                    if (this.opencgaSession.study && this.opencgaSession.study.fqn === e.detail.value) {
-                        this.opencgaSession.study = updatedStudy;
-                    }
-
-                    this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
-                    this.opencgaSession = {...this.opencgaSession};
-                    // this.requestUpdate();
-                })
-                .catch(e => {
-                    console.error(e);
-                    // params.error(e);
-                });
+            // this.opencgaSession.opencgaClient.studies()
+            //     .info(e.detail.value)
+            //     .then(res => {
+            //         const updatedStudy = res.responses[0].results[0];
+            //         for (const project of this.opencgaSession.user.projects) {
+            //             if (project.studies?.length > 0) {
+            //                 const studyIndex = project.studies.findIndex(study => study.fqn === e.detail.value);
+            //                 if (studyIndex >= 0) {
+            //                     project.studies[studyIndex] = updatedStudy;
+            //                     break;
+            //                 }
+            //             }
+            //         }
+            //
+            //         // Update opencgaSession.study if the study updated is the active one
+            //         if (this.opencgaSession.study && this.opencgaSession.study.fqn === e.detail.value) {
+            //             this.opencgaSession.study = updatedStudy;
+            //         }
+            //
+            //         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
+            //         this.opencgaSession = {...this.opencgaSession};
+            //         // this.requestUpdate();
+            //     })
+            //     .catch(e => {
+            //         console.error(e);
+            //         // params.error(e);
+            //     });
         }
     }
 

@@ -144,6 +144,7 @@ export default class ToolSettingsUpdate extends LitElement {
         // 1. To update the local object settings where we store the settings modifications
         if (e.detail.value?.json) {
             this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
+            this._study.attributes[SETTINGS_NAME].settings[this.toolName] = this._toolSettings;
         }
         if (param === "fqn") {
             // FIXME this should not be necessary, we need to re-think the data-form.data object
@@ -153,17 +154,16 @@ export default class ToolSettingsUpdate extends LitElement {
         if (param === "default") {
             this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.toolName]);
             this._study.attributes[SETTINGS_NAME].settings[this.toolName] = this._toolSettings;
-            // Shallow copy just for refreshing the memory direction of this._study
-            this._study = {...this._study};
         }
+
         // To notify that the json has been modified
         // CAUTION 20230208 Vero: the toolSettings json has been updated
         LitUtils.dispatchCustomEvent(this, "studyToolSettingsUpdate", null, {
             _toolSettings: this._toolSettings
         });
 
-        // Refresh configuration object to read new this.allowedValues array.
-        this._config = {...this._config};
+        // Shallow copy just for refreshing the memory direction of this._study
+        this._study = {...this._study};
 
         this.requestUpdate();
     }
