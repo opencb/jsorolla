@@ -94,8 +94,10 @@ class TestApp extends LitElement {
             "utils-new",
             "catalog-filters",
             "opencga-update",
-            "variant-grid",
-            "variant-interpreter-grid",
+            "variant-browser-grid-germline",
+            "variant-browser-grid-cancer",
+            "variant-interpreter-grid-germline",
+            "variant-interpreter-grid-cancer",
             "variant-filters",
             "genome-browser",
             "lollipop",
@@ -653,23 +655,34 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-grid"] ? html`
-                <div style="padding:2%" class="content" id="variant-grid">
-                    <variant-browser-grid-test
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}">
-                    </variant-browser-grid-test>
-                </div>
-            ` : null}
+                ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
+                    <div style="padding:2%" class="content" id="variant-grid">
+                        <variant-browser-grid-test
+                            .data="${"variant-interpreter-germline"}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-browser-grid-test>
+                    </div>
+                ` : null}
 
-            ${this.config.enabledComponents["variant-interpreter-grid"] ? html`
-                <div style="padding:2%" class="content" id="variant-interpreter-grid">
-                    <variant-interpreter-grid-test
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}">
-                    </variant-interpreter-grid-test>
-                </div>
-            ` : null}
+                ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
+                    <div style="padding: 2%" class="content" id="variant-grid">
+                        <variant-browser-grid-test
+                            .data="${"variant-interpreter-cancer"}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-browser-grid-test>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["variant-interpreter-grid"] ? html`
+                    <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                        <variant-interpreter-grid-test
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-interpreter-grid-test>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["variant-filters"] ? html`
                     <div class="content" id="variant-filters">
@@ -694,8 +707,8 @@ class TestApp extends LitElement {
                             .region="${"1:1000000"}"
                             .active="${true}"
                             .config="${{
-            cellBaseClient: this.cellbaseClient,
-            featuresOfInterest: []}}"
+                                cellBaseClient: this.cellbaseClient,
+                                featuresOfInterest: []}}"
                             .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
                         </genome-browser>
                     </div>

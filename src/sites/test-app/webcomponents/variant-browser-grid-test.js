@@ -37,6 +37,9 @@ class VariantBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
+            data: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -67,14 +70,14 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("data") || changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json")
+        UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.data}.json`)
             .then(content => {
                 this.variants = content;
                 this.mutate();
