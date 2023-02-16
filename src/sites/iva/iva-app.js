@@ -145,7 +145,7 @@ class IvaApp extends LitElement {
         // Store them in a flat structure.
         this.DEFAULT_SETTINGS = {
             ...CATALOG_SETTINGS,
-            ...VARIANT_SETTINGS,
+            // ...VARIANT_SETTINGS,
             ...INTERPRETER_SETTINGS,
             ...USER_SETTINGS
             // CUSTOM_PAGES,

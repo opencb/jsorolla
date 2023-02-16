@@ -54,7 +54,7 @@ export default class StudyAdminIva extends LitElement {
     #init() {
         this.menuStructure = {
             catalog: ["Catalog", Object.keys(CATALOG_SETTINGS)],
-            variant: ["Variant", Object.keys(VARIANT_SETTINGS)],
+            // variant: ["Variant", Object.keys(VARIANT_SETTINGS)],
             clinical: ["Clinical", Object.keys(INTERPRETER_SETTINGS)],
             user: ["User", Object.keys(USER_SETTINGS)],
         };
