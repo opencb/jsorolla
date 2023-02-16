@@ -54,8 +54,12 @@ local.properties
 .buildpath
 
 # Cypress
-screenshots
-videos
 mochawesome-report
 cypress/reports
+cypress/downloads
+cypress/screenshots
+cypress/videos
+
+## vscode
+.vscode/settings.json
 

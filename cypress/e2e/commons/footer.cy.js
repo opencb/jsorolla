@@ -20,22 +20,21 @@ import UtilsTest from "../../support/utils-test.js";
 /**
  * Header bar (pre-login)
  */
-context("1. Header bar (pre-login): checks on Header Bar elements", () => {
-    before(() => {
-        cy.visit("http://localhost:3000/src/sites/iva/");
-
+context("2. Footer", () => {
+    beforeEach(() => {
+        cy.visit("#home");
     });
 
-    it("1.1 - check login page content", () => {
-        cy.get("#loginButton", {timeout: TIMEOUT}).should("be.visible");
-        cy.get("#loginButton").click();
-        cy.get("user-login .panel-body #user").should("be.visible");
-        cy.get("user-login .panel-body #password").should("be.visible");
+    it("Check footer IVA", () => {
+        cy.get("custom-footer", {timeout: TIMEOUT}).should("be.visible");
+        cy.get("custom-footer img[alt=logo]", {timeout: TIMEOUT}).should("be.visible");
+        cy.get("custom-footer .footer-item:nth-child(2)").contains("IVA");
     });
 
-    it("1.2 - check header-bar icons resolve correctly", () => {
-        UtilsTest.goTo("iva");
-        cy.get("#welcome-page-title", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
-
+    it("Check footer OpenCGA", () => {
+        cy.get("custom-footer .footer-item:nth-child(3)").contains("OpenCGA");
+        cy.get("custom-footer .footer-item:nth-child(3) sup")
+            .should("be.visible")
+            .should("not.contain", "NOT AVAILABLE");
     });
 });

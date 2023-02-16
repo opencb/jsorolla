@@ -1,4 +1,4 @@
-// import UtilsNew from "../../../core/utils-new";
+
 import {html} from "lit";
 
 const defaultHighchartConfig = {
@@ -24,7 +24,7 @@ const defaultHighchartConfig = {
         useHTML: true
     }
 };
-
+// empty,data,disabled,validation
 export const DATA_FORM_EXAMPLE = {
     test: {
         prefix: "test1",
@@ -32,11 +32,20 @@ export const DATA_FORM_EXAMPLE = {
     },
     sections: [
         {
-            title: "Basic Input Field",
+            title: "Input Text Field",
             elements: [
                 {
-                    title: "String Field",
-                    field: "inputText",
+                    title: "String Field Empty",
+                    field: "inputTextEmpty",
+                    type: "input-text",
+                    display: {
+                        placeholder: "Add a short ID...",
+                        helpMessage: "Created on ...",
+                    },
+                },
+                {
+                    title: "String Field Filled",
+                    field: "inputTextFilled",
                     type: "input-text",
                     required: true,
                     display: {
@@ -45,8 +54,34 @@ export const DATA_FORM_EXAMPLE = {
                     },
                 },
                 {
-                    title: "String Field Multiline",
-                    field: "inputDescription",
+                    title: "String Field Disabled",
+                    field: "inputTextDisabled",
+                    type: "input-text",
+                    display: {
+                        placeholder: "Add a short ID...",
+                        disabled: true
+                    },
+                },
+                {
+                    title: "String Field Validation",
+                    field: "inputTextVal",
+                    type: "input-text",
+                    required: true,
+                    display: {
+                        validation: {
+                            message: "must not contain spaces",
+                            validate: inputTextVal => inputTextVal && !inputTextVal.includes(" ")
+                        },
+                    },
+                },
+            ],
+        },
+        {
+            title: "Input TextArea Field",
+            elements: [
+                {
+                    title: "String Field Multiline Empty",
+                    field: "inputDescEmpty",
                     type: "input-text",
                     display: {
                         rows: 2,
@@ -54,25 +89,101 @@ export const DATA_FORM_EXAMPLE = {
                     },
                 },
                 {
-                    title: "String Field",
-                    field: "inputTextDisabled",
+                    title: "String Field Multiline Filled",
+                    field: "inputDescFilled",
                     type: "input-text",
-                    required: true,
                     display: {
-                        placeholder: "Add a short ID...",
-                        disabled: true
+                        rows: 2,
+                        placeholder: "Add a large text...",
                     },
                 },
                 {
-                    title: "Number Field",
-                    field: "inputNum",
+                    title: "String Field Multiline Disabled",
+                    field: "inputDescDisabled",
+                    type: "input-text",
+                    display: {
+                        disabled: true,
+                        rows: 2,
+                        placeholder: "Add a large text...",
+                    },
+                },
+                {
+                    title: "String Field Multiline Validation",
+                    field: "inputDescVal",
+                    type: "input-text",
+                    display: {
+                        rows: 2,
+                        placeholder: "Add a large text...",
+                    },
+                },
+            ]
+        },
+        {
+            title: "Input Number Field",
+            elements: [
+                {
+                    title: "Number Field Empty",
+                    field: "inputNumEmpty",
                     type: "input-num",
                     display: {
                         helpMessage: "Add number"
                     }
                 },
                 {
-                    title: "Select Field",
+                    title: "Number Field Filled",
+                    field: "inputNumFilled",
+                    type: "input-num",
+                    display: {
+                        helpMessage: "Add number"
+                    }
+                },
+                {
+                    title: "Number Field Disabled",
+                    field: "inputNumDisabled",
+                    type: "input-num",
+                    display: {
+                        helpMessage: "Add number",
+                        disabled: true
+                    }
+                },
+                {
+                    title: "Number Field Validation",
+                    field: "inputNumVal",
+                    type: "input-num",
+                    display: {
+                        helpMessage: "Add number"
+                    }
+                },
+            ]
+        },
+        {
+            title: "Input Date Field",
+            elements: [
+                {
+                    title: "Date Field Empty",
+                    field: "inputDateEmpty",
+                    type: "input-date",
+                },
+                {
+                    title: "Date Field Filled",
+                    field: "inputDateFilled",
+                    type: "input-date",
+                },
+                {
+                    title: "Date Field Disabled",
+                    field: "inputDateDisabled",
+                    type: "input-date",
+                    display: {
+                        disabled: true
+                    }
+                },
+            ]
+        },
+        {
+            title: "Select Field",
+            elements: [
+                {
+                    title: "Select Field Empty",
                     field: "inputSelect",
                     type: "select",
                     allowedValues: ["Option 1", "Option 2", "Option 3"],
@@ -81,9 +192,79 @@ export const DATA_FORM_EXAMPLE = {
                     }
                 },
                 {
-                    title: "Date Field",
-                    field: "inputDate",
-                    type: "input-date",
+                    title: "Select Field Selected",
+                    field: "inputSelected",
+                    type: "select",
+                    allowedValues: ["Option 1", "Option 2", "Option 3"],
+                    display: {
+                        helpMessage: "select a option",
+                    }
+                },
+                {
+                    title: "Select Field",
+                    field: "inputSelectDisabled",
+                    type: "select",
+                    allowedValues: ["Option 1", "Option 2", "Option 3"],
+                    display: {
+                        helpMessage: "select a option",
+                        disabled: true
+                    }
+                },
+            ]
+        },
+        {
+            title: "Checkbox & Toggle",
+            elements: [
+                {
+                    title: "CheckBoxField",
+                    field: "inputCheckBoxFalse",
+                    type: "checkbox",
+                },
+                {
+                    title: "CheckBoxField Filled",
+                    field: "inputCheckBoxTrue",
+                    type: "checkbox",
+                },
+                {
+                    title: "toggle switch",
+                    field: "inputToggleSwitch",
+                    type: "toggle-switch",
+                },
+                {
+                    title: "toggle switch Filled",
+                    field: "inputToggleSwitchOn",
+                    type: "toggle-switch",
+                },
+                {
+                    title: "toggle buttons",
+                    field: "inputToggleButtons",
+                    type: "toggle-buttons",
+                    allowedValues: ["YES", "NO", "UNKNOWN"],
+                    display: {
+                        placeholder: "Add the lab sample ID...",
+                    },
+                },
+                {
+                    title: "toggle buttons Selected",
+                    field: "inputToggleButtonsSelected",
+                    type: "toggle-buttons",
+                    allowedValues: ["YES", "NO", "UNKNOWN"],
+                    display: {
+                        placeholder: "Add the lab sample ID...",
+                    },
+                },
+            ],
+        },
+        {
+            title: "Complex Field",
+            elements: [
+                {
+                    title: "Complex Field",
+                    // field: "inputComplex",
+                    type: "complex",
+                    display: {
+                        template: "${inputComplex}-${testComplex}"
+                    }
                 },
                 {
                     title: "Object List",
@@ -123,43 +304,6 @@ export const DATA_FORM_EXAMPLE = {
                             },
                         },
                     ],
-                },
-            ],
-        },
-        {
-            title: "Checkbox & Toggle",
-            elements: [
-                {
-                    title: "CheckBoxField",
-                    field: "inputCheckBox",
-                    type: "checkbox",
-                },
-                {
-                    title: "toggle switch",
-                    field: "inputToggleSwitch",
-                    type: "toggle-switch",
-                },
-                {
-                    title: "toggle buttons",
-                    field: "inputToggleButtons",
-                    type: "toggle-buttons",
-                    allowedValues: ["YES", "NO", "UNKNOWN"],
-                    display: {
-                        placeholder: "Add the lab sample ID...",
-                    },
-                },
-            ],
-        },
-        {
-            title: "Complex Field",
-            elements: [
-                {
-                    title: "Complex Field",
-                    // field: "inputComplex",
-                    type: "complex",
-                    display: {
-                        template: "${inputComplex}-${testComplex}"
-                    }
                 },
                 {
                     title: "Object",

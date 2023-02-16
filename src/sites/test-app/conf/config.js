@@ -188,6 +188,18 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "variant-grid",
+                            name: "variant Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "variant-interpreter-grid",
+                            name: "variant Interpreter Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "variant-filters",
                             name: "Variant Filters",
                             description: "",

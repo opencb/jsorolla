@@ -1,16 +1,14 @@
-/* eslint no-use-before-define: 2 */// --> ON
-
-const {defineConfig} = require("cypress");
+const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
     chromeWebSecurity: false,
     viewportWidth: 1600,
     viewportHeight: 1200,
-    video:false,
+    video: false,
     reporter: "cypress-mochawesome-reporter",
     reporterOptions: {
-        charts:true,
-        embeddedScreenshots:true,
+        charts: true,
+        embeddedScreenshots: true,
         timestamp: "ddmmyyyyhhmmss",
         reportFilename: "[status]_[datetime]-[name]-report",
         reportPageTitle: "Jsorolla Report Test",
@@ -27,6 +25,10 @@ module.exports = defineConfig({
     },
     env: {
         hideXHR: true,
+        apiUrl: "",
+        study: "demo@",
+        user: "",
+        pass: ""
     },
     experimentalWebKitSupport: true,
 });

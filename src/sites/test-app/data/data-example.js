@@ -28,6 +28,15 @@ const defaultHighchartConfig = {
 
 export const SAMPLE_DATA = {
     // inputComplex: "test template",
+    inputTextFilled: "FieldWithText",
+    inputDescFilled: "Lorem ipsum dolor sit amet, consectetur adipiscing elit esse cillum dolore magna aliquet",
+    inputNumFilled: 4,
+    inputDateFilled: "20210527101417",
+    inputSelected: "Option 2",
+    inputCheckBoxTrue: true,
+    inputToggleSwitchOn: "on",
+    inputToggleButtonsSelected: "YES",
+    inputTextVal: "",
     testComplex: "test1",
     inputComplex: "test complex",
     inputJsonEditor: {
