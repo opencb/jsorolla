@@ -20,6 +20,7 @@ import "../../commons/layouts/custom-vertical-navbar.js";
 import "./study-settings-detail.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
+import UtilsNew from "../../../core/utils-new";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -52,8 +53,9 @@ export default class StudyAdminIva extends LitElement {
 
     #init() {
         this.menuStructure = {
-            variant: ["Variant", Object.keys(INTERPRETER_SETTINGS)],
             catalog: ["Catalog", Object.keys(CATALOG_SETTINGS)],
+            variant: ["Variant", Object.keys(VARIANT_SETTINGS)],
+            clinical: ["Clinical", Object.keys(INTERPRETER_SETTINGS)],
             user: ["User", Object.keys(USER_SETTINGS)],
         };
     }
@@ -106,7 +108,7 @@ export default class StudyAdminIva extends LitElement {
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .activeMenuItem="${"individual"}">
+                .activeMenuItem="${"sample"}">
             </custom-vertical-navbar>
         `;
     }
@@ -130,18 +132,18 @@ export default class StudyAdminIva extends LitElement {
                         const name = (match ? match[1] : toolName);
                         return {
                             id: name.toLowerCase(),
-                            name: name.replace(/_/g, " "),
+                            name: UtilsNew.capitalize(name.toLowerCase().replace(/_/g, " ")),
                             icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => {
                                 return html `
-                                        <study-settings-detail
-                                            .opencgaSession="${opencgaSession}"
-                                            .study="${study}"
-                                            .toolSettings="${toolSettings}"
-                                            .toolName="${toolName}">
-                                        </study-settings-detail>
-                                    `;
+                                    <study-settings-detail
+                                        .opencgaSession="${opencgaSession}"
+                                        .study="${study}"
+                                        .toolSettings="${toolSettings}"
+                                        .toolName="${toolName}">
+                                    </study-settings-detail>
+                                `;
                             }
                         };
                     })
