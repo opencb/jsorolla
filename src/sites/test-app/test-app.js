@@ -40,8 +40,7 @@ import "./webcomponents/variant-interpreter-grid-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
-import JSZip from "jszip";
-import UtilsTest from "../../../cypress/support/utils-test.js";
+
 
 class TestApp extends LitElement {
 
@@ -98,6 +97,7 @@ class TestApp extends LitElement {
             "variant-browser-grid-cancer",
             "variant-interpreter-grid-germline",
             "variant-interpreter-grid-cancer",
+            "variant-interpreter-grid-cancer-cnv",
             "variant-filters",
             "genome-browser",
             "lollipop",
@@ -658,7 +658,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            .data="${"variant-interpreter-germline"}"
+                            variantData="variant-browser-germline"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-browser-grid-test>
@@ -668,21 +668,47 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
                     <div style="padding: 2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            .data="${"variant-interpreter-cancer"}"
+                            variantData="variant-browser-cancer"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-browser-grid-test>
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["variant-interpreter-grid"] ? html`
+                ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
+                            variantData="variant-interpreter-germline"
+                            clinicalData="clinical-analysis-CA-11-platinum"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-interpreter-grid-test>
                     </div>
                 ` : null}
+
+
+                ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
+                    <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                        <variant-interpreter-grid-test
+                            variantData="variant-interpreter-germline"
+                            clinicalData="clinical-analysis-AN-1-test38"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config}">
+                        </variant-interpreter-grid-test>
+                    </div>
+                ` : null}
+
+
+                ${this.config.enabledComponents["variant-interpreter-grid-cancer-cnv"] ? html`
+                <div style="padding:2%" class="content" id="variant-interpreter-grid">
+                    <variant-interpreter-grid-test
+                        variantData="variant-interpreter-cnv"
+                        clinicalData="clinical-analysis-AN-1-test38"
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config}">
+                    </variant-interpreter-grid-test>
+                </div>
+            ` : null}
 
                 ${this.config.enabledComponents["variant-filters"] ? html`
                     <div class="content" id="variant-filters">
@@ -707,8 +733,8 @@ class TestApp extends LitElement {
                             .region="${"1:1000000"}"
                             .active="${true}"
                             .config="${{
-                                cellBaseClient: this.cellbaseClient,
-                                featuresOfInterest: []}}"
+            cellBaseClient: this.cellbaseClient,
+            featuresOfInterest: []}}"
                             .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
                         </genome-browser>
                     </div>

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { TIMEOUT } from "../../support/constants.js";
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
