@@ -48,7 +48,7 @@ jobs:
           command: npm run test:run
 #          spec: cypress/e2e/commons/*.js
           browser: chrome
-          wait-on: 'http://localhost:3000'
+          wait-on: 'http://localhost:3000/src/sites/test-app/'
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
