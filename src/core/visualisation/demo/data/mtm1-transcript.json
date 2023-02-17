@@ -1,0 +1,1044 @@
+{
+  "id": "ENST00000370396.7",
+  "name": "MTM1-203",
+  "chromosome": "X",
+  "start": 150568621,
+  "end": 150673143,
+  "strand": "+",
+  "biotype": "protein_coding",
+  "status": "KNOWN",
+  "genomicCodingStart": 150592615,
+  "genomicCodingEnd": 150671595,
+  "cdnaCodingStart": 53,
+  "cdnaCodingEnd": 1864,
+  "cdsLength": 1811,
+  "proteinId": "ENSP00000359423.3",
+  "proteinSequence": "MASASTSKYNSHSLENESIKRTSRDGVNRDLTEAVPRLPGETLITDKEVIYICPFNGPIKGRVYITNYRLYLRSLETDSSLILDVPLGVISRIEKMGGATSRGENSYGLDITCKDMRNLRFALKQEGHSRRDMFEILTRYAFPLAHSLPLFAFLNEEKFNVDGWTVYNPVEEYRRQGLPNHHWRITFINKCYELCDTYPALLVVPYRASDDDLRRVATFRSRNRIPVLSWIHPENKTVIVRCSQPLVGMSGKRNKDDEKYLDVIRETNKQISKLTIYDARPSVNAVANKATGGGYESDDAYHNAELFFLDIHNIHVMRESLKKVKDIVYPNVEESHWLSSLESTHWLEHIKLVLTGAIQVADKVSSGKSSVLVHCSDGWDRTAQLTSLAMLMLDSFYRSIEGFEILVQKEWISFGHKFASRIGHGDKNHTDADRSPIFLQFIDCVWQMSKQFPTAFEFNEQFLIIILDHLYSCRFGTFLFNCESARERQKVTERTVSLWSLINSNKEKFKNPFYTKEINRVLYPVASMRHLELWVNYYIRWNPRIKQQQPNPVEQRYMELLALRDEYIKRLEELQLANSAKLSDPPTSPSSPSQMMPHVQTHF",
+  "exons": [
+    {
+      "id": "ENSE00001209472.4",
+      "chromosome": "X",
+      "start": 150568621,
+      "end": 150568662,
+      "strand": "+",
+      "genomicCodingStart": 0,
+      "genomicCodingEnd": 0,
+      "cdnaCodingStart": 0,
+      "cdnaCodingEnd": 0,
+      "cdsStart": 0,
+      "cdsEnd": 0,
+      "phase": -1,
+      "exonNumber": 1,
+      "sequence": "AGCCGAGCAGCCTGGCAACGGCGGTGGCGCCCGGAGCCCGAG"
+    },
+    {
+      "id": "ENSE00003647423.1",
+      "chromosome": "X",
+      "start": 150592605,
+      "end": 150592677,
+      "strand": "+",
+      "genomicCodingStart": 150592615,
+      "genomicCodingEnd": 150592677,
+      "cdnaCodingStart": 53,
+      "cdnaCodingEnd": 115,
+      "cdsStart": 1,
+      "cdsEnd": 63,
+      "phase": 0,
+      "exonNumber": 2,
+      "sequence": "AGTTTCCAGGATGGCTTCTGCATCAACTTCTAAATATAATTCACACTCCTTGGAGAATGAGTCTATTAAGAGG"
+    },
+    {
+      "id": "ENSE00003672204.1",
+      "chromosome": "X",
+      "start": 150596498,
+      "end": 150596570,
+      "strand": "+",
+      "genomicCodingStart": 150596498,
+      "genomicCodingEnd": 150596570,
+      "cdnaCodingStart": 116,
+      "cdnaCodingEnd": 188,
+      "cdsStart": 64,
+      "cdsEnd": 136,
+      "phase": 0,
+      "exonNumber": 3,
+      "sequence": "ACGTCTCGAGATGGAGTCAATCGAGATCTCACTGAGGCTGTTCCTCGACTTCCAGGAGAAACACTAATCACTG"
+    },
+    {
+      "id": "ENSE00001209481.1",
+      "chromosome": "X",
+      "start": 150598592,
+      "end": 150598686,
+      "strand": "+",
+      "genomicCodingStart": 150598592,
+      "genomicCodingEnd": 150598686,
+      "cdnaCodingStart": 189,
+      "cdnaCodingEnd": 283,
+      "cdsStart": 137,
+      "cdsEnd": 231,
+      "phase": 2,
+      "exonNumber": 4,
+      "sequence": "ACAAAGAAGTTATTTACATATGTCCTTTCAATGGCCCCATTAAGGGAAGAGTTTACATCACAAATTATCGTCTTTATTTAAGAAGTTTGGAAACG"
+    },
+    {
+      "id": "ENSE00003480949.1",
+      "chromosome": "X",
+      "start": 150614589,
+      "end": 150614699,
+      "strand": "+",
+      "genomicCodingStart": 150614589,
+      "genomicCodingEnd": 150614699,
+      "cdnaCodingStart": 284,
+      "cdnaCodingEnd": 394,
+      "cdsStart": 232,
+      "cdsEnd": 342,
+      "phase": 0,
+      "exonNumber": 5,
+      "sequence": "GATTCTTCTCTAATACTTGATGTTCCTCTGGGTGTGATCTCGAGAATTGAAAAAATGGGAGGCGCGACAAGTAGAGGAGAAAATTCCTATGGTCTAGATATTACTTGTAAA"
+    },
+    {
+      "id": "ENSE00003684863.1",
+      "chromosome": "X",
+      "start": 150619038,
+      "end": 150619139,
+      "strand": "+",
+      "genomicCodingStart": 150619038,
+      "genomicCodingEnd": 150619139,
+      "cdnaCodingStart": 395,
+      "cdnaCodingEnd": 496,
+      "cdsStart": 343,
+      "cdsEnd": 444,
+      "phase": 0,
+      "exonNumber": 6,
+      "sequence": "GACATGAGAAACCTGAGGTTCGCTTTGAAACAGGAAGGCCACAGCAGAAGAGATATGTTTGAGATCCTCACGAGATACGCGTTTCCCCTGGCTCACAGTCTG"
+    },
+    {
+      "id": "ENSE00003623254.1",
+      "chromosome": "X",
+      "start": 150638943,
+      "end": 150639026,
+      "strand": "+",
+      "genomicCodingStart": 150638943,
+      "genomicCodingEnd": 150639026,
+      "cdnaCodingStart": 497,
+      "cdnaCodingEnd": 580,
+      "cdsStart": 445,
+      "cdsEnd": 528,
+      "phase": 0,
+      "exonNumber": 7,
+      "sequence": "CCATTATTTGCATTTTTAAATGAAGAAAAGTTTAACGTGGATGGATGGACAGTTTACAATCCAGTGGAAGAATACAGGAGGCAG"
+    },
+    {
+      "id": "ENSE00003648599.1",
+      "chromosome": "X",
+      "start": 150641269,
+      "end": 150641418,
+      "strand": "+",
+      "genomicCodingStart": 150641269,
+      "genomicCodingEnd": 150641418,
+      "cdnaCodingStart": 581,
+      "cdnaCodingEnd": 730,
+      "cdsStart": 529,
+      "cdsEnd": 678,
+      "phase": 0,
+      "exonNumber": 8,
+      "sequence": "GGCTTGCCCAATCACCATTGGAGAATAACTTTTATTAATAAGTGCTATGAGCTCTGTGACACTTACCCTGCTCTTTTGGTGGTTCCGTATCGTGCCTCAGATGATGACCTCCGGAGAGTTGCAACTTTTAGGTCCCGAAATCGAATTCCA"
+    },
+    {
+      "id": "ENSE00003566589.1",
+      "chromosome": "X",
+      "start": 150645683,
+      "end": 150645871,
+      "strand": "+",
+      "genomicCodingStart": 150645683,
+      "genomicCodingEnd": 150645871,
+      "cdnaCodingStart": 731,
+      "cdnaCodingEnd": 919,
+      "cdsStart": 679,
+      "cdsEnd": 867,
+      "phase": 0,
+      "exonNumber": 9,
+      "sequence": "GTGCTGTCATGGATTCATCCAGAAAATAAGACGGTCATTGTGCGTTGCAGTCAGCCTCTTGTCGGTATGAGTGGGAAACGAAATAAAGATGATGAGAAATATCTCGATGTTATCAGGGAGACTAATAAACAAATTTCTAAACTCACCATTTATGATGCAAGACCCAGCGTAAATGCAGTGGCCAACAAG"
+    },
+    {
+      "id": "ENSE00003647417.1",
+      "chromosome": "X",
+      "start": 150649716,
+      "end": 150649901,
+      "strand": "+",
+      "genomicCodingStart": 150649716,
+      "genomicCodingEnd": 150649901,
+      "cdnaCodingStart": 920,
+      "cdnaCodingEnd": 1105,
+      "cdsStart": 868,
+      "cdsEnd": 1053,
+      "phase": 0,
+      "exonNumber": 10,
+      "sequence": "GCAACAGGAGGAGGATATGAAAGTGATGATGCATATCATAACGCCGAACTTTTCTTCTTAGACATTCATAATATTCATGTTATGCGGGAATCTTTAAAAAAAGTGAAGGACATTGTTTATCCTAATGTAGAAGAATCTCATTGGTTGTCCAGTTTGGAGTCTACTCATTGGTTAGAACATATCAAG"
+    },
+    {
+      "id": "ENSE00003515670.1",
+      "chromosome": "X",
+      "start": 150657821,
+      "end": 150658027,
+      "strand": "+",
+      "genomicCodingStart": 150657821,
+      "genomicCodingEnd": 150658027,
+      "cdnaCodingStart": 1106,
+      "cdnaCodingEnd": 1312,
+      "cdsStart": 1054,
+      "cdsEnd": 1260,
+      "phase": 0,
+      "exonNumber": 11,
+      "sequence": "CTCGTTTTGACAGGAGCCATTCAAGTAGCAGACAAAGTTTCTTCAGGGAAGAGTTCAGTGCTTGTGCATTGCAGTGACGGATGGGACAGGACTGCTCAGCTGACATCCTTGGCCATGCTGATGTTGGATAGCTTCTATAGGAGCATTGAAGGGTTCGAAATACTGGTACAAAAAGAATGGATAAGTTTTGGACATAAATTTGCATCT"
+    },
+    {
+      "id": "ENSE00003471580.1",
+      "chromosome": "X",
+      "start": 150659664,
+      "end": 150659756,
+      "strand": "+",
+      "genomicCodingStart": 150659664,
+      "genomicCodingEnd": 150659756,
+      "cdnaCodingStart": 1313,
+      "cdnaCodingEnd": 1405,
+      "cdsStart": 1261,
+      "cdsEnd": 1353,
+      "phase": 0,
+      "exonNumber": 12,
+      "sequence": "CGAATAGGTCATGGTGATAAAAACCACACCGATGCTGACCGTTCTCCTATTTTTCTCCAGTTTATTGATTGTGTGTGGCAAATGTCAAAACAG"
+    },
+    {
+      "id": "ENSE00003580713.1",
+      "chromosome": "X",
+      "start": 150660371,
+      "end": 150660484,
+      "strand": "+",
+      "genomicCodingStart": 150660371,
+      "genomicCodingEnd": 150660484,
+      "cdnaCodingStart": 1406,
+      "cdnaCodingEnd": 1519,
+      "cdsStart": 1354,
+      "cdsEnd": 1467,
+      "phase": 0,
+      "exonNumber": 13,
+      "sequence": "TTCCCTACAGCTTTTGAATTCAATGAACAATTTTTGATTATAATTTTGGATCATCTGTATAGTTGCCGATTTGGTACTTTCTTATTCAACTGTGAATCTGCTCGAGAAAGACAG"
+    },
+    {
+      "id": "ENSE00003638194.1",
+      "chromosome": "X",
+      "start": 150663433,
+      "end": 150663609,
+      "strand": "+",
+      "genomicCodingStart": 150663433,
+      "genomicCodingEnd": 150663609,
+      "cdnaCodingStart": 1520,
+      "cdnaCodingEnd": 1696,
+      "cdsStart": 1468,
+      "cdsEnd": 1644,
+      "phase": 0,
+      "exonNumber": 14,
+      "sequence": "AAGGTTACAGAAAGGACTGTTTCTTTATGGTCACTGATAAACAGTAATAAAGAAAAATTCAAAAACCCCTTCTATACTAAAGAAATCAATCGAGTTTTATATCCAGTTGCCAGTATGCGTCACTTGGAACTCTGGGTGAATTACTACATTAGATGGAACCCCAGGATCAAGCAACAA"
+    },
+    {
+      "id": "ENSE00001452583.3",
+      "chromosome": "X",
+      "start": 150671428,
+      "end": 150673143,
+      "strand": "+",
+      "genomicCodingStart": 150671428,
+      "genomicCodingEnd": 150671595,
+      "cdnaCodingStart": 1697,
+      "cdnaCodingEnd": 1864,
+      "cdsStart": 1645,
+      "cdsEnd": 1812,
+      "phase": 0,
+      "exonNumber": 15,
+      "sequence": "CAGCCGAATCCAGTGGAGCAGCGTTACATGGAGCTCTTAGCCTTACGCGACGAATACATAAAGCGGCTTGAGGAACTGCAGCTCGCCAACTCTGCCAAGCTTTCTGATCCCCCAACTTCACCTTCCAGTCCTTCGCAAATGATGCCCCATGTGCAAACTCACTTCTGAGGGGGGACCCTGGCACCGCATTAGAGCTCGAAATAAAGGCGATAGCTGACTTTCATTTGGGGCATTTGTAAAAAGTAGATTAAAATATTTGCCTCCATGTAGAACTTGAACTAACATAATCTTAAACTCTTGAATATGTGCCTTCTAGAATACATATTACAAGAAAACTACAGGGTCCACACGGCAATCAGAAGAAAGGAGCTGAGATGAGGTTTTGGAAAACCCTGACACCTTTAAAAAGCAGTTTTTGAAAGACAAAATTTAGATTTAATTTACGTCTTGAGAAATACTATATATACAATATATATTTTGTGGGCTTAATTGAAACAACATTATTTTAAAATCAAAGGGGATATATGTTTGTGGAATGGATTTTCCTGAAGCTGCTTAACAGTTGCTTTGGATTCTCTAAGATGAATCCAAATGTGAAAGATGCATGTTACTGCCAAAACCAAATTGAGCTCAGCTTCCTAGGCATTACCCAAAAGCAAGGTGTTTAAGTAATTGCCAGCTTTTATACCATCATGAGTGGTGACTTAAGGAGAAATAGCTGTATAGATGAGTTTTTCATTATTTGGAAATTTAGGGGTAGAAAATGTTTTCCCCTAATTTTCCAGAGAAGCCTATTTTTATATTTTTAAAAAACTGACAGGGCCCAGTTAAATATGATTTGCATTTTTTAAATTTGCCAGTTTTATTTTCTAAATTCTTTCATGAGCTTGCCTAAAATTCGGAATGGTTTTCGGGTTGTGGCAAACCCCAAAGAGAGCACTGTCCAAGGATGTCGGGAGCATCCTGCTGCTTAGGGGAATGTTTTCGCAAATGTTGCTCTAGTCAGTCCAGCTCATCTGCCAAAATGTAGGGCTACCGTCTTGGATGCATGAGCTATTGCTAGAGCATCATCCTTAGAAATCAGTGCCCCAGATGTACATGTGTTGAGCGTATTCTTGAAAGTATTGTGTTTATGCATTTCAATTTCAATGGTGTTGGCTTCCCCTCCCCACCCCACGCGTGCATAAAAACTGGTTCTACAAATTTTTACTTGAAGTACCAGGCCGTTTGCTTTTTCAGGTTGTTTTGTTTTATAGTATTAAGTGAAATTTTAAATGCACAGTTCTATTTGCTATCTGAACTAATTCATTTATTAAGTATATTTGTAAAAGCTAAGGCTCGAGTTAAAACAATGAAGTGTTTTACAATGATTTGTAAAGGACTATTTATAACTAATATGGTTTTGTTTTCAATGAATTAAGAAAGATTAAATATATCTTTGTAAATTATTTTATGTCATAGTTTAATTGGTCTACCAAGTAAGACATCTCAAATACAGTAGTATAATGTATGAATTTTGTAAGTATAAGAAATTTTATTAGACATTCTCTTACTTTTTGTAAATGCTGTAAATATTTCATAAATTAACAAAGTGTCACTCCATAAAAAGAAAGCTAATACTAATAGCCTAAAAGATTTTGTGAAATTTCATGAAAACTTTTTAATGGCAATAATGACTAAAGACCTGCTGTAATAAATGTATTAACTGAAACCTAA"
+    }
+  ],
+  "xrefs": [
+    {
+      "id": "Q13496",
+      "dbName": "uniprotkb_acc",
+      "dbDisplayName": "UniProtKB ACC"
+    },
+    {
+      "id": "MTM1_HUMAN",
+      "dbName": "uniprotkb_id",
+      "dbDisplayName": "UniProtKB ID"
+    },
+    {
+      "id": "ENSG00000171100",
+      "dbName": "ensembl_gene",
+      "dbDisplayName": "Ensembl Gene"
+    },
+    {
+      "id": "ENST00000370396.7",
+      "dbName": "ensembl_transcript",
+      "dbDisplayName": "Ensembl Transcript"
+    },
+    {
+      "id": "MTM1",
+      "dbName": "hgnc_symbol",
+      "dbDisplayName": "HGNC Symbol"
+    },
+    {
+      "id": "MTM1-203",
+      "dbName": "ensembl_transcript_name",
+      "dbDisplayName": "Ensembl Transcript Name"
+    },
+    {
+      "id": "CCDS14694",
+      "dbName": "ccds_id",
+      "dbDisplayName": "CCDS"
+    },
+    {
+      "id": "HGNC:7448",
+      "dbName": "hgnc_id",
+      "dbDisplayName": "HGNC ID"
+    },
+    {
+      "id": "NM_000252.3",
+      "dbName": "mane_select_refseq",
+      "dbDisplayName": "MANE Select RefSeq"
+    },
+    {
+      "id": "NP_000243.1",
+      "dbName": "mane_select_refseq_protein",
+      "dbDisplayName": "MANE Select RefSeq Protein"
+    },
+    {
+      "id": "NM_000252.2",
+      "dbName": "lrg_refseq",
+      "dbDisplayName": "LRG RefSeq"
+    }
+  ],
+  "tfbs": [
+    {
+      "id": "ENSM00525039292",
+      "pfmId": "ENSPFM0378",
+      "chromosome": "X",
+      "start": 150568631,
+      "end": 150568638,
+      "type": "TF_binding_site",
+      "transcriptionFactors": [
+        "MEIS2",
+        "MEIS3"
+      ],
+      "relativeStart": 11,
+      "relativeEnd": 18,
+      "score": 3.2300847
+    },
+    {
+      "id": "ENSM00523535777",
+      "pfmId": "ENSPFM0614",
+      "chromosome": "X",
+      "start": 150568636,
+      "end": 150568646,
+      "type": "TF_binding_site",
+      "transcriptionFactors": [
+        "YY2",
+        "YY1"
+      ],
+      "relativeStart": 16,
+      "relativeEnd": 26,
+      "score": 5.215494
+    },
+    {
+      "id": "ENSM01059942776",
+      "pfmId": "ENSPFM0070",
+      "chromosome": "X",
+      "start": 150568659,
+      "end": 150568682,
+      "type": "TF_binding_site",
+      "transcriptionFactors": [
+        "E2F1",
+        "EOMES",
+        "E2F3",
+        "EOMES",
+        "E2F3",
+        "TBX21"
+      ],
+      "relativeStart": 39,
+      "relativeEnd": 62,
+      "score": 3.727827
+    },
+    {
+      "id": "ENSM00186039420",
+      "pfmId": "ENSPFM0631",
+      "chromosome": "X",
+      "start": 150568661,
+      "end": 150568670,
+      "type": "TF_binding_site",
+      "transcriptionFactors": [
+        "ZNF784"
+      ],
+      "relativeStart": 41,
+      "relativeEnd": 50,
+      "score": 7.8574634
+    }
+  ],
+  "flags": [
+    "CCDS",
+    "LRG",
+    "TSL:1",
+    "MANE Select",
+    "canonical",
+    "basic"
+  ],
+  "annotation": {
+    "ontologies": [
+      {
+        "id": "GO:0048311",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "involved_in"
+          },
+          {
+            "code": "IMP",
+            "references": [
+              "PMID:21135508"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0048633",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000107"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0008333",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:14722070"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:1902902",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0046716",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0032007",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000107"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0046856",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "involved_in"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:10900271",
+              "PMID:12646134"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0032435",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000107"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0006470",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:9537414"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0006661",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "TAS",
+            "references": [
+              "Reactome:R-HSA-1660499",
+              "Reactome:R-HSA-1660516",
+              "Reactome:R-HSA-1660517"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0031674",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000107"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0045109",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IMP",
+            "references": [
+              "PMID:21135508"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0070584",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "involved_in"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:21135508"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0030175",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:12118066"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0005515",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IPI",
+            "references": [
+              "PMID:21135508",
+              "PMID:26760201",
+              "PMID:12847286",
+              "PMID:23917616"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0005829",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "GO_REF:0000052"
+            ],
+            "qualifier": "located_in"
+          },
+          {
+            "code": "TAS",
+            "references": [
+              "Reactome:R-HSA-1676065",
+              "Reactome:R-HSA-1676141",
+              "Reactome:R-HSA-6809680",
+              "Reactome:R-HSA-6809720",
+              "Reactome:R-HSA-1676105",
+              "Reactome:R-HSA-1675795",
+              "Reactome:R-HSA-1676203",
+              "Reactome:R-HSA-1675994"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0005886",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "is_active_in"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:12847286",
+              "GO_REF:0000052",
+              "PMID:12118066",
+              "PMID:12217958"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0005737",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "is_active_in"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:10900271",
+              "PMID:12118066",
+              "PMID:12217958"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0005770",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:14722070"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0044088",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:14722070"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0019215",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:21135508"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0004438",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "enables"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:10900271"
+            ],
+            "qualifier": "enables"
+          },
+          {
+            "code": "TAS",
+            "references": [
+              "Reactome:R-HSA-1676141",
+              "Reactome:R-HSA-1675795",
+              "Reactome:R-HSA-1675994"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0004725",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000002"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0004721",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:9537414"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0016020",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "is_active_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0001726",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:12118066"
+            ],
+            "qualifier": "located_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0015031",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000043"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0052629",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IBA",
+            "references": [
+              "PMID:21873635"
+            ],
+            "qualifier": "enables"
+          },
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:12646134"
+            ],
+            "qualifier": "enables"
+          },
+          {
+            "code": "TAS",
+            "references": [
+              "Reactome:R-HSA-1676065",
+              "Reactome:R-HSA-1676105",
+              "Reactome:R-HSA-1676203"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0051898",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000107"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      },
+      {
+        "id": "GO:0035091",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IDA",
+            "references": [
+              "PMID:14722070"
+            ],
+            "qualifier": "enables"
+          }
+        ]
+      },
+      {
+        "id": "GO:0035335",
+        "name": "",
+        "description": "",
+        "source": "GO",
+        "url": "",
+        "attributes": {},
+        "evidence": [
+          {
+            "code": "IEA",
+            "references": [
+              "GO_REF:0000108"
+            ],
+            "qualifier": "involved_in"
+          }
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "source": "gnomAD",
+        "method": "pLoF",
+        "name": "oe_mis",
+        "value": 0.56772
+      },
+      {
+        "source": "gnomAD",
+        "method": "pLoF",
+        "name": "oe_syn",
+        "value": 0.77235
+      },
+      {
+        "source": "gnomAD",
+        "method": "pLoF",
+        "name": "oe_lof",
+        "value": 0.037153
+      },
+      {
+        "source": "gnomAD",
+        "method": "pLoF",
+        "name": "exac_pLI",
+        "value": 0.99935
+      },
+      {
+        "source": "gnomAD",
+        "method": "pLoF",
+        "name": "exac_oe_lof",
+        "value": 0
+      }
+    ]
+  }
+}
