@@ -60,9 +60,9 @@ jobs:
         with:
           name: workdir
           path: |
-            "cypress/reports"
-            "cypress/screenshots"
-            "cypress/videos"
+            cypress/reports
+            cypress/screenshots
+            cypress/videos
 #      - name: Upload result dir
 #        uses: actions/upload-artifact@v3
 #        with:
