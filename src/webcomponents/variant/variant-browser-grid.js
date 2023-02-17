@@ -655,7 +655,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
+                    formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query?.ct, this._config),
                     halign: "center"
                 },
                 {
