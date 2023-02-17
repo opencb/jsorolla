@@ -73,9 +73,11 @@ export default class IndividualHpoFilter extends LitElement {
                 return (this.value || "").includes(phenotype.id);
             });
 
-            if (!allChecked) {
+            if (!allChecked && this.allChecked) {
                 // eslint-disable-next-line quotes
                 this.querySelector(`input[type="checkbox"]`).checked = false;
+                this.allChecked = false;
+                this.requestUpdate();
             }
         }
     }
