@@ -1211,7 +1211,7 @@ export default class DataForm extends LitElement {
             //     <span class="text-danger">apply() function that provides a 'text' property is mandatory in Tree-Viewer elements</span>
             // `;
             const message = "apply() function that provides a 'text' property is mandatory in Tree-Viewer elements";
-            this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
+            return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
 
         } else {
             if (Array.isArray(json)) {
@@ -1222,13 +1222,13 @@ export default class DataForm extends LitElement {
                             .data="${json.map(element.display.apply)}">
                         </tree-viewer>
                     `;
-                    this._createElementTemplate(element, null, content);
+                    return this._createElementTemplate(element, null, content);
 
                 } else {
                     // FIXME: IS THIS EQUIVALENT??
                     // return this._getDefaultValue();
                     const content = this._getDefaultValue();
-                    this._createElementTemplate(element, null, content);
+                    return this._createElementTemplate(element, null, content);
                 }
             } else if (UtilsNew.isObject(json)) {
                 //return html`<tree-viewer .data="${element.display.apply.call(null, json)}"></tree-viewer>`;
@@ -1237,11 +1237,11 @@ export default class DataForm extends LitElement {
                         .data="${element.display.apply.call(null, json)}">
                     </tree-viewer>
                 `;
-                this._createElementTemplate(element, null, content);
+                return this._createElementTemplate(element, null, content);
             } else {
                 // return html`<span class="text-danger">Unexpected JSON format</span>`;
                 const message = "Unexpected JSON format";
-                this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
+                return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
             }
         }
     }

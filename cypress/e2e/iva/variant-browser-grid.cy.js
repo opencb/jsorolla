@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { TIMEOUT } from "../../support/constants.js";
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
@@ -28,60 +27,116 @@ context("Variant Browser Grid", () => {
     });
 
 
-    it("Should be render variant-browser-grid", () => {
+    it("1.Should be render variant-browser-grid", () => {
         cy.get(browserGrid).should("be.visible")
     })
 
-    it("Change page variant-browser-grid", () => {
+    it("2.Change page variant-browser-grid", () => {
         UtilsTest.changePage(browserGrid,2)
         UtilsTest.changePage(browserGrid,3)
     })
 
     // Columns tooltips
-    it.only("Tooltip: Check variant tooltip", () => {
-        // Table
-        cy.get("tbody tr:first > td").eq(2).within(() =>{
+    it("3.Tooltip: Check variant tooltip", () => {
+        // Select first row, first column: Variant
+        // variant == id
+        BrowserTest.getColumnIndexByHeader("id")
+        cy.get("@indexColumn").then(index => {
+            cy.get("tbody tr:first > td").eq(index).within(() => {
+                cy.get("a").trigger("mouseover")
+            })
+            cy.get(".qtip-content").should('be.visible')
+        })
+    })
+
+    it("4.Tooltip: Check gene", () => {
+        BrowserTest.getColumnIndexByHeader("gene")
+        cy.get("@indexColumn").then(index => {
+            cy.get("tbody tr:first > td").eq(index).within(() => {
+                cy.get("a").trigger("mouseover")
+            })
+            cy.get(".qtip-content").should('be.visible')
+        })
+    })
+
+    it("5.Tooltip: Check consequenceType", () => {
+        BrowserTest.getColumnIndexByHeader("consequenceType")
+        cy.get("@indexColumn").then(index => {
+            cy.get("tbody tr:first > td").eq(index).within(() => {
+                cy.get("a").trigger("mouseover")
+            })
+            cy.get(".qtip-content").should('be.visible')
+        })
+    })
+
+    it("6.Tooltip: Check population frequencies", () => {
+        cy.get("tbody tr:first > td").eq(13).within(() => {
             cy.get("a").trigger("mouseover")
         })
         cy.get(".qtip-content").should('be.visible')
     })
 
-    it("Tooltip: Check gene", () => {
-        expect(true).to.equal(true)
-    })
-
-    it("Tooltip: Check population frequencies", () => {
-        expect(true).to.equal(true)
-    })
-
     // Columns helpers
-    it("Helpers: Check Deleteriousness column", () => {
-        expect(true).to.equal(true)
+    it("7.Helpers: Check Deleteriousness column", () => {
+        cy.get("thead th").contains("div","Deleteriousness").within(() => {
+            cy.get("a").trigger("mouseover")
+        })
+        cy.get(".qtip-content").should('be.visible')
     })
 
-    it("Helpers: Check Conservation column", () => {
-        expect(true).to.equal(true)
+    it("8.Helpers: Check Conservation column", () => {
+        cy.get("thead th").contains("div","Conservation").within(() => {
+            cy.get("a").trigger("mouseover")
+        })
+        cy.get(".qtip-content").should('be.visible')
     })
 
-    it("Helpers: Check Population Frequencies column", () => {
-        expect(true).to.equal(true)
+    it("9.Helpers: Check Population Frequencies column", () => {
+        cy.get("thead th").contains("div","Population Frequencies").within(() => {
+            cy.get("a").trigger("mouseover")
+        })
+        cy.get(".qtip-content").should('be.visible')
     })
 
-    it("Helpers: Check Clinical Info column", () => {
-        expect(true).to.equal(true)
+    it("10.Helpers: Check Clinical Info column", () => {
+        cy.get("thead th").contains("div","Clinical Info").within(() => {
+            cy.get("a").trigger("mouseover")
+        })
+        cy.get(".qtip-content").should('be.visible')
     })
 
     // Rows
-    it("Row: Copy Variant Json", () => {
-        expect(true).to.equal(true)
+    it("11.Row: Copy Variant Json", () => {
+        cy.get("tbody tr:first > td").eq(18).within(() =>{
+            cy.get("button").click()
+            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                .contains("a","Copy JSON")
+                .click()
+            UtilsTest.assertValueCopiedToClipboard().then(content => {
+                const dataClipboard = JSON.parse(content);
+                expect(dataClipboard.id).eq("14:91649858:C:T")
+                expect(dataClipboard.chromosome).eq("14")
+            })
+        })
     })
 
-    it("Row: Download Variant Json", () => {
-        expect(true).to.equal(true)
+    it("12.Row: Download Variant Json", () => {
+        cy.get("tbody tr:first > td").eq(18).within(() =>{
+            cy.get("button").click()
+            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                .contains("a","Download JSON")
+                .click()
+            cy.readFile("cypress/downloads/14_91649858_C_T.json")
+                .should("exist")
+        })
     })
 
-    it("Row: External Links", () => {
-        expect(true).to.equal(true)
+    it("13.Row: External Links", () => {
+        cy.get("tbody tr:first > td").eq(18).within(() =>{
+            cy.get("button").click()
+            cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                .contains("a","Ensembl Genome Browser").click()
+        })
     })
 
 });

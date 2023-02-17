@@ -27,7 +27,6 @@
 export default class ClinicalAnalysis {
 
     constructor(config) {
-        super(config);
     }
 
     /** Update the set of permissions granted for the member

@@ -1,4 +1,4 @@
-const { defineConfig } = require("cypress");
+const {defineConfig} = require("cypress");
 
 module.exports = defineConfig({
     chromeWebSecurity: false,
@@ -21,9 +21,18 @@ module.exports = defineConfig({
         baseUrl: "http://localhost:3000/src/sites/test-app/",
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
+            require("@cypress/code-coverage/task")(on, config);
+            on("file:preprocessor", require("@cypress/code-coverage/use-babelrc"));
+            return config;
         }
     },
     env: {
+        // it has limitation compared to nyc configuration
+        // codeCoverage: {
+        //     include: "src/**/*.js",
+        //     exclude: "cypress/**/*.*",
+        // },
+        coverage: true,
         hideXHR: true,
         apiUrl: "",
         study: "demo@",

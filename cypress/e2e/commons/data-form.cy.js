@@ -1,7 +1,7 @@
 
 import UtilsTest from "../../support/utils-test.js";
-import UtilsNew from "../../../src/core/utils-new.js";
 import { SAMPLE_DATA } from "../../../src/sites/test-app/data/data-example.js";
+import DataForm from "../../../src/webcomponents/commons/forms/data-form.js";
 import moment from "moment";
 
 

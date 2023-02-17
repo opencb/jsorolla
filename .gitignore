@@ -60,6 +60,10 @@ cypress/downloads
 cypress/screenshots
 cypress/videos
 
+# code-coverage
+.nyc_output
+coverage
+
 ## vscode
 .vscode/settings.json
 
