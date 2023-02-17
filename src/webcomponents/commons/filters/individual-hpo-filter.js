@@ -64,6 +64,19 @@ export default class IndividualHpoFilter extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("value") || changedProperties.has("individual")) {
+            const allChecked = (this.phenotypes || []).every(phenotype => {
+                return (this.value || "").includes(phenotype.id);
+            });
+
+            if (!allChecked) {
+                // eslint-disable-next-line quotes
+                this.querySelector(`input[type="checkbox"]`).checked = false;
+            }
+        }
+    }
+
     filterChange(e, source) {
         // Check if the event has been fired by checkbox or by selecting some phenotypes
         let value;
@@ -91,7 +104,6 @@ export default class IndividualHpoFilter extends LitElement {
                 <label style="padding-top: 0; font-weight: normal;margin: 0">
                     <input
                         type="checkbox"
-                        class="${this._prefix}_ctCheckbox"
                         ?disabled="${this.phenotypes?.length === 0 || this.disabled}"
                         @click="${e => this.filterChange(e, "ALL")}">
                     <span style="margin: 0 5px" title="${this.phenotypes?.map(phenotype => phenotype.id).join(",") || ""}">
