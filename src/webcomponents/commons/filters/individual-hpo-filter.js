@@ -59,7 +59,10 @@ export default class IndividualHpoFilter extends LitElement {
             this.phenotypes = this.individual?.phenotypes?.filter(phenotype => phenotype.id?.startsWith("HP:"));
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
