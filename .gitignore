@@ -11,11 +11,11 @@ custom-conf
 custom-sites
 *.tar.gz
 package-lock.json
-
 npm-debug.log
 
 ## VS Code
 *.code-workspace
+.vscode/settings.json
 
 ## IntelliJ
 *.iml
@@ -59,11 +59,11 @@ cypress/reports
 cypress/downloads
 cypress/screenshots
 cypress/videos
+.data-test
 
 # code-coverage
 .nyc_output
 coverage
 
-## vscode
-.vscode/settings.json
+
 
