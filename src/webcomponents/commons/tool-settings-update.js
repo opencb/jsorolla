@@ -123,7 +123,7 @@ export default class ToolSettingsUpdate extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 const fields = [];
                 for (const study of project.studies) {
-                    fields.push({id: study.fqn, name: study.fqn});
+                    fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
                 }
                 this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
             }

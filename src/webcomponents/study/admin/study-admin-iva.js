@@ -108,7 +108,7 @@ export default class StudyAdminIva extends LitElement {
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .activeMenuItem="${"sample"}">
+                .activeMenuItem="${"sample_browser"}">
             </custom-vertical-navbar>
         `;
     }
@@ -128,11 +128,15 @@ export default class StudyAdminIva extends LitElement {
                     submenu: submenuKeys.map(toolName => {
                         const toolSettings = this.settings[toolName];
 
-                        const match = toolName.match(/^(.*)_[^_]*$/);
-                        const name = (match ? match[1] : toolName);
+                        // const match = toolName.match(/^(.*)_[^_]*$/);
+                        // const name = (match ? match[1] : toolName);
+                        // const array = toolName.split("_");
+                        // array.pop();
+                        // const name = array.join("_");
+                        // debugger
                         return {
-                            id: name.toLowerCase(),
-                            name: UtilsNew.capitalize(name.toLowerCase().replace(/_/g, " ")),
+                            id: toolName.toLowerCase(),
+                            name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
                             icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => {

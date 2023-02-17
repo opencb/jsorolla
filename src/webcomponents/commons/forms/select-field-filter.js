@@ -181,7 +181,11 @@ export default class SelectFieldFilter extends LitElement {
                 this.value = this.data.map(data => data.id ?? data.name);
             }
         } else {
-            this.value = [];
+            if (this.data[0].fields) {
+                this.value = this.data.map(data => data.fields).flat().filter(data => data.disabled === true).map(data => data.id ?? data.name);
+            } else {
+                this.value = this.data.filter(data => data.disabled === true).map(data => data.id ?? data.name);
+            }
         }
 
         // Notify to event to allow parent components to react
