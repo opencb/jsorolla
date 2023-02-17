@@ -5,7 +5,8 @@
     ["@babel/plugin-proposal-class-properties", {"loose": true}],
     ["transform-class-properties",{"loose": true}],
     "istanbul",
-    ["@babel/plugin-proposal-private-methods",{"loose": true}]
+    ["@babel/plugin-proposal-private-methods",{"loose": true}],
+    ["@babel/plugin-proposal-private-property-in-object",{"loose": true}]
   ],
   "presets": [[
     "@babel/preset-env",

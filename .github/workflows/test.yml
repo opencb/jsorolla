@@ -45,7 +45,8 @@ jobs:
       - uses: cypress-io/github-action@v5
         with:
           start: npm run serve
-          spec: cypress/e2e/commons/*.js
+          command: npm run test:run
+#          spec: cypress/e2e/commons/*.js
           browser: chrome
           wait-on: 'http://localhost:3000'
       - uses: actions/upload-artifact@v3
