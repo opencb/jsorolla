@@ -5,14 +5,6 @@ import LollipopLayout from "../../core/visualisation/lollipop-layout.js";
 
 export default class VariantRenderer extends Renderer {
 
-    constructor(config) {
-        super(config);
-
-        this.lollipopLayout = new LollipopLayout({
-            minSeparation: this.config.lollipopMaxWidth,
-        });
-    }
-
     render(features, options) {
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
@@ -22,7 +14,9 @@ export default class VariantRenderer extends Renderer {
         let topPosition = this.config.lollipopVisible ? this.config.lollipopHeight : this.config.headerHeight;
 
         if (this.config.lollipopVisible) {
-            lollipopPositions = this.lollipopLayout.layout(features || [], options.requestedRegion, lollipopRegionWidth);
+            lollipopPositions = LollipopLayout.fromFeaturesList(features || [], options.requestedRegion, lollipopRegionWidth, {
+                minSeparation: this.config.lollipopMaxWidth,
+            });
         }
 
         // Check if highlights are visible

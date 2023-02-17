@@ -23,6 +23,7 @@ import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 import "../variant-samples.js";
 import "../../commons/view/detail-tabs.js";
+import "../../visualization/protein-lollipop-variant-view.js";
 
 export default class VariantInterpreterDetail extends LitElement {
 
@@ -200,6 +201,17 @@ export default class VariantInterpreterDetail extends LitElement {
                             .variantId="${variant.id}"
                             .active="${active}">
                         </variant-samples>
+                    `,
+                },
+                {
+                    id: "protein",
+                    name: "Protein",
+                    render: (variant, active, opencgaSession) => html`
+                        <protein-lollipop-variant-view
+                            .opencgaSession="${opencgaSession}"
+                            .variant="${variant}"
+                            .active="${active}">
+                        </protein-lollipop-variant-view>
                     `,
                 },
                 {
