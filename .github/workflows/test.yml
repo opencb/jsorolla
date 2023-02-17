@@ -68,9 +68,9 @@ jobs:
     name: Publish test results
     runs-on: ubuntu-22.04
     needs: test
-#    strategy:
-#      matrix:
-#        module: [ "cypress/reports","cypress/screenshots","cypress/videos" ]
+    strategy:
+      matrix:
+        module: [ "cypress/reports","cypress/screenshots","cypress/videos" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
@@ -79,8 +79,8 @@ jobs:
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: cypress
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/jsorolla/${{ github.sha }}/unit/
+          local: ${{ matrix.module }}
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/jsorolla/${{ github.sha }}/unit/${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
