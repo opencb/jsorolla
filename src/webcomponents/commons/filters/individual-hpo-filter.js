@@ -35,6 +35,9 @@ export default class IndividualHpoFilter extends LitElement {
             individual: {
                 type: Object
             },
+            value: {
+                type: String,
+            },
             disabled: {
                 type: Boolean
             },
@@ -46,6 +49,7 @@ export default class IndividualHpoFilter extends LitElement {
 
     _init() {
         this.phenotypes = [];
+        this.value = "";
         this.allChecked = false;
         this._config = this.getDefaultConfig();
     }
@@ -103,6 +107,7 @@ export default class IndividualHpoFilter extends LitElement {
                 <select-field-filter
                     multiple
                     ?liveSearch="${this.phenotypes?.length > 25}"
+                    .value="${this.value || ""}"
                     .data="${this.phenotypes}"
                     ?disabled="${this.phenotypes?.length === 0 || this.allChecked || this.disabled}"
                     @filterChange="${e => this.filterChange(e)}">
