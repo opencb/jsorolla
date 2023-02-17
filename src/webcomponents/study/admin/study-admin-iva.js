@@ -53,9 +53,9 @@ export default class StudyAdminIva extends LitElement {
 
     #init() {
         this.menuStructure = {
-            catalog: ["Catalog", Object.keys(CATALOG_SETTINGS)],
+            catalog: ["Catalog Tools", Object.keys(CATALOG_SETTINGS)],
             // variant: ["Variant", Object.keys(VARIANT_SETTINGS)],
-            clinical: ["Clinical", Object.keys(INTERPRETER_SETTINGS)],
+            clinical: ["Clinical Tools", Object.keys(INTERPRETER_SETTINGS)],
             user: ["User", Object.keys(USER_SETTINGS)],
         };
     }
@@ -101,6 +101,12 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
+    renderToolSettings() {
+        return html`
+            <div>This must allow to: reset all settings to default and restore the backup version</div>
+        `;
+    }
+
     // --- RENDER METHOD  ---
     render() {
         return html`
@@ -108,18 +114,29 @@ export default class StudyAdminIva extends LitElement {
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                .activeMenuItem="${"sample_browser"}">
+                .activeMenuItem="${"tool_settings"}">
             </custom-vertical-navbar>
         `;
     }
 
     getDefaultConfig() {
-        return {
-            name: "IVA Configuration",
-            logo: "",
-            icon: "fas fa-sliders-h",
-            visibility: "private", // public | private | none
-            menu: Object.entries(this.menuStructure)
+        const menu = [
+            {
+                id: "general",
+                name: "General",
+                // icon: "fa-solid fa-square",
+                visibility: "private",
+                submenu: [
+                    {
+                        id: "tool_settings",
+                        name: "Tool Settings",
+                        // icon: "fa-solid fa-square",
+                        visibility: "private",
+                        render: (opencgaSession, study) => this.renderToolSettings()
+                    }
+                ]
+            },
+            ...Object.entries(this.menuStructure)
                 .map(([menuKey, [header, submenuKeys]]) => ({
                     id: menuKey,
                     name: header,
@@ -152,6 +169,13 @@ export default class StudyAdminIva extends LitElement {
                         };
                     })
                 }))
+        ];
+        return {
+            name: "IVA Configuration",
+            logo: "",
+            icon: "fas fa-sliders-h",
+            visibility: "private", // public | private | none
+            menu: menu
         };
     }
 
