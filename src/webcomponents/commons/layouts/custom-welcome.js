@@ -104,7 +104,7 @@ export default class CustomWelcome extends LitElement {
             return html`
                 <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
                 ${featuredTools.map(item => {
-                    const itemLink = `${item.id}${session?.project ? `/${session.project.id}/${session.study.id}`: ""}`;
+                    const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
                     return html`
                         <div class="col-md-3 com-sm-6">
                             <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">

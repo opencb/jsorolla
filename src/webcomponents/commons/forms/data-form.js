@@ -629,7 +629,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createElementTemplate(element, value, content) {
+    _createElementTemplate(element, value, content, error) {
         const isValid = this._isValid(element, value);
         const isRequiredEmpty = this._isRequiredEmpty(element, value);
         const hasErrorMessages = this.formSubmitted && (!isValid || isRequiredEmpty);
@@ -639,8 +639,10 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         return html`
-            <div class="${hasErrorMessages ? "has-error" : ""}">
-                ${content}
+            <div class="${hasErrorMessages ? "has-error" : nothing}">
+                <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
+                    ${content}
+                </div>
                 ${helpMessage && helpMode !== "block" ? html`
                     <div class="help-block" style="margin:8px">${helpMessage}</div>
                 ` : null}
@@ -659,18 +661,21 @@ export default class DataForm extends LitElement {
     }
 
     _createTextElement(element) {
+        const value= element.text;
         const textClass = element.display?.textClassName ?? "";
         const textStyle = element.display?.textStyle ?? "";
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
-        return html`
+        const content = html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 ${element.display?.icon ? html`
                     <i class="fas fa-${element.display.icon} icon-padding"></i>
                 ` : null}
-                <span>${UtilsNew.renderHTML(element.text || "")}</span>
+                <span>${UtilsNew.renderHTML(value || "")}</span>
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
@@ -693,7 +698,8 @@ export default class DataForm extends LitElement {
                 .step="${step}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}"
+                data-test="pepe">
             </text-field-filter>
         `;
 
@@ -782,7 +788,7 @@ export default class DataForm extends LitElement {
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
-        return html`
+        const content = html`
             <div class="">
                 <toggle-switch
                     .disabled="${disabled}"
@@ -801,6 +807,9 @@ export default class DataForm extends LitElement {
                 }
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
+
     }
 
     _createToggleButtonsElement(element) {
@@ -809,7 +818,7 @@ export default class DataForm extends LitElement {
         const activeClassName = element.display?.activeClassName ?? element.display?.activeClass ?? "";
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
-        return html`
+        const content = html`
             <div class="">
                 <toggle-buttons
                     .names="${names}"
@@ -821,6 +830,8 @@ export default class DataForm extends LitElement {
                 </toggle-buttons>
             </div>
         `;
+
+        return this._createElementTemplate(element, value, content);
     }
 
     /**
@@ -922,11 +933,13 @@ export default class DataForm extends LitElement {
         if (!element.display?.template) {
             return html`<span class="text-danger">No template provided</span>`;
         }
-        return html`
+        const content = html`
             <span>
                 ${UtilsNew.renderHTML(this.applyTemplate(element.display.template, data, null, this._getDefaultValue(element)))}
             </span>
         `;
+
+        return this._createElementTemplate(element, null, content);
     }
 
     _createListElement(element) {
@@ -936,13 +949,20 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array || !array.length) {
-            return html`<span class="text-danger">${this._getDefaultValue(element)}</span>`;
+            //return html`<span class="text-danger">${this._getDefaultValue(element)}</span>`;
+            const message = this._getDefaultValue(element);
+            return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
         }
         if (!Array.isArray(array)) {
-            return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
+            // return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
+            const message = `Field '${element.field}' is not an array`;
+            return this._createElementTemplate(element, null, null, {message: message, classname: "text-danger"});
+
         }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
-            return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
+            // return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
+            const message = "Content layout must be 'horizontal', 'vertical' or 'bullets'";
+            return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
         }
 
         // Apply the template to all Array elements and store them in 'values'
@@ -994,7 +1014,9 @@ export default class DataForm extends LitElement {
                 `;
                 break;
         }
-        return content;
+        // return content;
+        return this._createElementTemplate(element, null, content);
+
     }
 
     _createTableElement(element) {
@@ -1008,35 +1030,48 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array) {
-            return html`
-                <span class="${errorClassName}">
-                    ${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}
-                </span>
-            `;
+            // return html`
+            //     <span class="${errorClassName}">
+            //         ${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}
+            //     </span>
+            // `;
+            const message = errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`;
+            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
+
+
         }
         if (!Array.isArray(array)) {
-            return html`
-                <span class="${errorClassName}">
-                    Field '${element.field}' is not an array
-                </span>
-            `;
+            // return html`
+            //     <span class="${errorClassName}">
+            //         Field '${element.field}' is not an array
+            //     </span>
+            // `;
+            const message = `Field '${element.field}' is not an array`;
+            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
+
         }
         if (typeof element.display?.transform === "function") {
             array = element.display.transform(array);
         }
         if (!array.length) {
             // return this.getDefaultValue(element);
-            return html`<span>${this._getDefaultValue(element)}</span>`;
+            // return html`<span>${this._getDefaultValue(element)}</span>`;
+            const message = this._getDefaultValue(element);
+            return this._createElementTemplate(element, null, null, {message: message});
+
         }
         if (!element.display && !element.display.columns) {
-            return html`
-                <span class="${errorClassName}">
-                    Type 'table' requires a 'columns' array
-                </span>
-            `;
+            // return html`
+            //     <span class="${errorClassName}">
+            //         Type 'table' requires a 'columns' array
+            //     </span>
+            // `;
+            const message = "Type 'table' requires a 'columns' array";
+            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
+
         }
 
-        return html`
+        const content = html`
             <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
                     <thead>
@@ -1079,6 +1114,8 @@ export default class DataForm extends LitElement {
                 </tbody>
             </table>
         `;
+        return this._createElementTemplate(element, null, content);
+
     }
 
     _createPlotElement(element) {
@@ -1112,7 +1149,16 @@ export default class DataForm extends LitElement {
             }
         }
         if (data) {
-            return html`
+            // return html`
+            //     <simple-chart
+            //         .active="${true}"
+            //         .type="${element.display?.highcharts?.chart?.type || "column"}"
+            //         .title="${element.display?.highcharts?.title?.text || element.name}"
+            //         .data="${data}"
+            //         .config="${element.display?.highcharts}">
+            //     </simple-chart>
+            // `;
+            const content = html`
                 <simple-chart
                     .active="${true}"
                     .type="${element.display?.highcharts?.chart?.type || "column"}"
@@ -1121,22 +1167,25 @@ export default class DataForm extends LitElement {
                     .config="${element.display?.highcharts}">
                 </simple-chart>
             `;
+            return this._createElementTemplate(element, null, content);
+
         } else {
-            return this._getErrorMessage(element);
+            // return this._getErrorMessage(element);
+            const message = this._getErrorMessage(element);
+            return this._createElementTemplate(element, null, null, {message: message});
         }
     }
 
     _createJsonElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
-        if (json.length || UtilsNew.isObject(json)) {
-            return html`
+        let content = "";
+        (json.length || UtilsNew.isObject(json)) ?
+            content = html`
                 <json-viewer
                     .data="${json}">
                 </json-viewer>
-            `;
-        } else {
-            return this._getDefaultValue(element);
-        }
+            ` : content = this._getDefaultValue(element);
+        return this._createElementTemplate(element, null, content);
     }
 
     _createJsonEditorElement(element) {
@@ -1145,31 +1194,54 @@ export default class DataForm extends LitElement {
             readOnly: this._getBooleanValue(element.display?.readOnly, false)
         };
         const jsonParsed = (UtilsNew.isObject(json) || UtilsNew.isEmpty(json)) ? json : JSON.parse(json);
-        return html`
+        const content = html`
             <json-editor
                 .data="${jsonParsed}"
                 .config="${config}">
             </json-editor>
         `;
+
+        return this._createElementTemplate(element, null, content);
     }
 
     _createTreeElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (typeof element.display.apply !== "function") {
-            return html`
-                <span class="text-danger">apply() function that provides a 'text' property is mandatory in Tree-Viewer elements</span>
-            `;
+            // return html`
+            //     <span class="text-danger">apply() function that provides a 'text' property is mandatory in Tree-Viewer elements</span>
+            // `;
+            const message = "apply() function that provides a 'text' property is mandatory in Tree-Viewer elements";
+            return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
+
         } else {
             if (Array.isArray(json)) {
                 if (json.length > 0) {
-                    return html`<tree-viewer .data="${json.map(element.display.apply)}"></tree-viewer>`;
+                    //return html`<tree-viewer .data="${json.map(element.display.apply)}"></tree-viewer>`;
+                    const content = html`
+                        <tree-viewer
+                            .data="${json.map(element.display.apply)}">
+                        </tree-viewer>
+                    `;
+                    return this._createElementTemplate(element, null, content);
+
                 } else {
-                    return this._getDefaultValue(element);
+                    // FIXME: IS THIS EQUIVALENT??
+                    // return this._getDefaultValue();
+                    const content = this._getDefaultValue();
+                    return this._createElementTemplate(element, null, content);
                 }
             } else if (UtilsNew.isObject(json)) {
-                return html`<tree-viewer .data="${element.display.apply.call(null, json)}"></tree-viewer>`;
+                //return html`<tree-viewer .data="${element.display.apply.call(null, json)}"></tree-viewer>`;
+                const content = html`
+                    <tree-viewer
+                        .data="${element.display.apply.call(null, json)}">
+                    </tree-viewer>
+                `;
+                return this._createElementTemplate(element, null, content);
             } else {
-                return html`<span class="text-danger">Unexpected JSON format</span>`;
+                // return html`<span class="text-danger">Unexpected JSON format</span>`;
+                const message = "Unexpected JSON format";
+                return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
             }
         }
     }
@@ -1197,17 +1269,23 @@ export default class DataForm extends LitElement {
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
-            return this._getErrorMessage(element);
+            // FIXME: IS THIS EQUIVALENT??
+            // return this._getErrorMessage(element);
+            const message = this._getErrorMessage(element);
+            return this._createElementTemplate(element, null, null, {message: message});
         }
     }
 
     _createDownloadElement(element) {
-        return html`
+        const content = html`
             <download-button
                 .json="${this.data}"
                 name="${element.title ?? element.name}">
             </download-button>
         `;
+
+        return this._createElementTemplate(element, null, content);
+
     }
 
     _createObjectElement(element) {
@@ -1260,7 +1338,9 @@ export default class DataForm extends LitElement {
                     </div>
                 `);
         }
-        return html`${contents}`;
+        // return html`${contents}`;
+        const content = html`${contents}`;
+        return this._createElementTemplate(element, null, content);
     }
 
     _createObjectListElement(element) {
@@ -1442,8 +1522,8 @@ export default class DataForm extends LitElement {
                 </div>`;
             contents.push(createHtml);
         }
-
-        return contents;
+        // return contents;
+        return this._createElementTemplate(element, null, contents);
     }
 
     #toggleEditItemOfObjectList(e, item, index, element) {

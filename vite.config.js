@@ -6,7 +6,7 @@ import pkg from "./package.json";
 
 // eslint-disable-next-line no-undef
 const env = process.env || {};
-const sites = ["iva", "api"];
+const sites = ["iva", "api", "test"];
 
 const getCustomSitePath = (name, folder) => {
     if (env.npm_config_custom_site) {
@@ -45,7 +45,7 @@ export default defineConfig({
     mode: env.NODE_ENV || "development",
     root: "./",
     server: {
-        open: env.NODE_ENV !== "production"? "/src/sites/iva/index.html": "/iva/index.html",
+        open: env.NODE_ENV !== "production" ? "/src/sites/iva/index.html" : "/iva/index.html",
         port: 3000,
         watch: ["src", "styles", "custom-sites"]
     },
