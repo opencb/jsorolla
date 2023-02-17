@@ -39,13 +39,15 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - run: npm install
-      - run: npm run serve
+#      - run: npm run serve
 #      - name: Test
 #        run: npm run test:run
       - uses: cypress-io/github-action@v5
         with:
+          start: npm run serve
           spec: cypress/e2e/commons/*.js
           browser: chrome
+          wait-on: 'http://localhost:3000'
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
