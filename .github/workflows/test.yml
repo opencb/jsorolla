@@ -59,7 +59,7 @@ jobs:
         if: always()
         with:
           name: workdir
-          path: cypress/reports
+          path: "**/reports"
 #            cypress/screenshots
 #            cypress/videos
       - run: ls .
@@ -71,7 +71,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        module: [ "cypress/reports" ]
+        module: [ "cypress" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
@@ -83,7 +83,7 @@ jobs:
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: ${{ matrix.module }}
+          local: ${{ matrix.module }}/reports
           remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/jsorolla/${{ github.sha }}/unit/cypress
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
