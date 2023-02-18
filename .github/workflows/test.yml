@@ -62,6 +62,8 @@ jobs:
           path: cypress/reports
 #            cypress/screenshots
 #            cypress/videos
+      - run: ls .
+      - run: ls cypress
 
   publish-test:
     name: Publish test results
