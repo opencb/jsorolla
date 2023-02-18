@@ -49,11 +49,11 @@ jobs:
 #          spec: cypress/e2e/commons/*.js
           browser: chrome
           wait-on: 'http://localhost:3000/src/sites/test-app/'
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
+#      - uses: actions/upload-artifact@v3
+#        if: failure()
+#        with:
+#          name: cypress-screenshots
+#          path: cypress/screenshots
       # Test run video was always captured, so this action uses "always()" condition
       - uses: actions/upload-artifact@v3
         if: always()
@@ -61,8 +61,8 @@ jobs:
           name: workdir
           path: |
             cypress/reports
-            cypress/screenshots
-            cypress/videos
+#            cypress/screenshots
+#            cypress/videos
 
   publish-test:
     name: Publish test results
@@ -70,7 +70,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        module: [ "cypress/reports","cypress/screenshots","cypress/videos" ]
+        module: [ "cypress/reports" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
