@@ -77,6 +77,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: workdir
+      - run: ls .
+      - run: ls cypress
+      - run: ls cypress/reports
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
