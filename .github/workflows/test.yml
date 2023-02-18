@@ -59,7 +59,7 @@ jobs:
         if: always()
         with:
           name: workdir
-          path: "cypress/reports"
+          path: cypress/reports
 #            cypress/screenshots
 #            cypress/videos
 
@@ -69,7 +69,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        module: [ "cypress" ]
+        module: [ "cypress/reports" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
@@ -79,7 +79,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: ${{ matrix.module }}
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/jsorolla/${{ github.sha }}/unit/${{ matrix.module }}
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/jsorolla/${{ github.sha }}/unit/cypress
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
