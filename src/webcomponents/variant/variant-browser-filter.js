@@ -36,6 +36,7 @@ import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/sample-genotype-filter.js";
+import "../commons/filters/individual-hpo-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
@@ -203,6 +204,7 @@ export default class VariantBrowserFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     // DEPRECATED
@@ -384,6 +386,15 @@ export default class VariantBrowserFilter extends LitElement {
                             .config="${sampleConfig}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
                         </sample-genotype-filter>`;
+                    break;
+                case "individual-hpo":
+                    content = html`
+                        <individual-hpo-filter
+                            .individual="${subsection.params?.individual}"
+                            .value="${this.preparedQuery?.["annot-hpo"]}"
+                            .disabled="${disabled}"
+                            @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
+                        </individual-hpo-filter>`;
                     break;
                 case "variant-file":
                     content = html`

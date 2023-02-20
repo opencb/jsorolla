@@ -163,7 +163,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.checkedVariants.clear();
             }
 
-            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+            if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
                     this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
                     this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
@@ -178,79 +178,81 @@ export default class VariantInterpreterGrid extends LitElement {
 
     // FIXME Temporary code to check which variants are being interpreted or have been reported
     // This should be implemented by OpenCGA
-    fillReportedVariants(variants) {
-        // Prepare queried variants to contain the interpretations
-        this.queriedVariants = {};
-        return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
-            primaryFindings: variants.map(variant => variant.id).join(","),
-            study: this.opencgaSession.study.fqn,
-        })
-            .then(interpretationSearchResponse => {
-                const interpretations = interpretationSearchResponse.responses[0]?.results;
-                if (interpretations?.length > 0) {
-                    variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
-
-                    // Add interpretations to the variants to be returned
-                    for (const interpretation of interpretations) {
-                        for (const variant of interpretation.primaryFindings) {
-                            if (this.queriedVariants[variant.id]) {
-                                if (!this.queriedVariants[variant.id].interpretations) {
-                                    this.queriedVariants[variant.id].interpretations = [];
-                                }
-                                this.queriedVariants[variant.id].interpretations.push(interpretation);
-                            }
-                        }
-                    }
-
-                    // Calculate stats
-                    for (const v of variants) {
-                        const variant = this.queriedVariants[v.id];
-                        if (variant.interpretations) {
-                            variant.interpretationStats = {
-                                status: {},
-                                tier: {},
-                                clinicalSignificance: {},
-                            };
-                            for (const interpretation of variant.interpretations) {
-                                interpretation?.primaryFindings
-                                    ?.filter(primaryFinding => primaryFinding.id === variant.id)
-                                    .forEach(primaryFinding => {
-                                        // Status stats
-                                        if (!variant.interpretationStats.status[primaryFinding.status]) {
-                                            variant.interpretationStats.status[primaryFinding.status] = 0;
-                                        }
-                                        variant.interpretationStats.status[primaryFinding.status]++;
-
-                                        // Tier stats
-                                        primaryFinding.evidences
-                                            .filter(evidence => evidence.review.tier)
-                                            .forEach(evidence => {
-                                                if (!variant.interpretationStats.tier[evidence.review.tier]) {
-                                                    variant.interpretationStats.tier[evidence.review.tier] = 0;
-                                                }
-                                                variant.interpretationStats.tier[evidence.review.tier]++;
-                                            });
-                                    });
-                            }
-                        }
-                    }
-                }
-                return this.queriedVariants;
-            });
-    }
+    // fillReportedVariants(variants) {
+    //     // Prepare queried variants to contain the interpretations
+    //     this.queriedVariants = {};
+    //     return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
+    //         primaryFindings: variants.map(variant => variant.id).join(","),
+    //         study: this.opencgaSession.study.fqn,
+    //     })
+    //         .then(interpretationSearchResponse => {
+    //             const interpretations = interpretationSearchResponse.responses[0]?.results;
+    //             if (interpretations?.length > 0) {
+    //                 variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
+    //
+    //                 // Add interpretations to the variants to be returned
+    //                 for (const interpretation of interpretations) {
+    //                     for (const variant of interpretation.primaryFindings) {
+    //                         if (this.queriedVariants[variant.id]) {
+    //                             if (!this.queriedVariants[variant.id].interpretations) {
+    //                                 this.queriedVariants[variant.id].interpretations = [];
+    //                             }
+    //                             this.queriedVariants[variant.id].interpretations.push(interpretation);
+    //                         }
+    //                     }
+    //                 }
+    //
+    //                 // Calculate stats
+    //                 for (const v of variants) {
+    //                     const variant = this.queriedVariants[v.id];
+    //                     if (variant.interpretations) {
+    //                         variant.interpretationStats = {
+    //                             status: {},
+    //                             tier: {},
+    //                             clinicalSignificance: {},
+    //                         };
+    //                         for (const interpretation of variant.interpretations) {
+    //                             interpretation?.primaryFindings
+    //                                 ?.filter(primaryFinding => primaryFinding.id === variant.id)
+    //                                 .forEach(primaryFinding => {
+    //                                     // Status stats
+    //                                     if (!variant.interpretationStats.status[primaryFinding.status]) {
+    //                                         variant.interpretationStats.status[primaryFinding.status] = 0;
+    //                                     }
+    //                                     variant.interpretationStats.status[primaryFinding.status]++;
+    //
+    //                                     // Tier stats
+    //                                     primaryFinding.evidences
+    //                                         .filter(evidence => evidence.review.tier)
+    //                                         .forEach(evidence => {
+    //                                             if (!variant.interpretationStats.tier[evidence.review.tier]) {
+    //                                                 variant.interpretationStats.tier[evidence.review.tier] = 0;
+    //                                             }
+    //                                             variant.interpretationStats.tier[evidence.review.tier]++;
+    //                                         });
+    //                                 });
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //             return this.queriedVariants;
+    //         });
+    // }
 
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
+            debugger;
             this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
         }
 
         if (this.clinicalVariants?.length > 0) {
             // FIXME Temporary code to check which variants are being interpreted or have been reported
             // This should be implemented by OpenCGA
-            this.fillReportedVariants(this.clinicalVariants)
-                .catch(error => console.error(error))
-                .finally(() => this.renderLocalVariants());
+            // this.fillReportedVariants(this.clinicalVariants)
+            //     .catch(error => console.error(error))
+            //     .finally(() => this.renderLocalVariants());
+            this.renderLocalVariants();
         } else {
             this.renderRemoteVariants();
         }
@@ -296,7 +298,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
                     // We need to make sure that the proband is the first sample when analysing Families
-                    if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
+                    if (this.clinicalAnalysis.type?.toUpperCase() === "FAMILY" && this.query?.sample) {
                         // Note:
                         // - sample=A;B;C
                         // - sample=A:0/1,1/1;B:1/1;C:1/1
@@ -365,7 +367,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                             // FIXME Temporary code to check which variants are being interpreted or have been reported
                             // This should be implemented by OpenCGA
-                            return this.fillReportedVariants(variantResponse.responses[0].results);
+                            // return this.fillReportedVariants(variantResponse.responses[0].results);
+                            return variantResponse;
                         })
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
@@ -762,7 +765,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
                     halign: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER"
                 },
                 {
                     id: "VCF_Data",
@@ -996,7 +999,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 // Interpretation Column
                 {
                     id: "reported",
-                    title: `Interpreted and/or<br> Reported`,
+                    title: "Interpreted and/or<br> Reported",
                     // field: "prediction",
                     rowspan: 1,
                     colspan: 1,
@@ -1015,7 +1018,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
                     },
                     align: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY"
                 },
                 {
                     id: "Select",
@@ -1096,7 +1099,7 @@ export default class VariantInterpreterGrid extends LitElement {
             return;
         }
 
-        if (this.clinicalAnalysis && (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY")) {
+        if (this.clinicalAnalysis && (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY")) {
             // Add Samples
             // const samples = [];
             const sampleInfo = {};
@@ -1175,7 +1178,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
         }
 
-        if (this.clinicalAnalysis && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+        if (this.clinicalAnalysis && this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
             // Add sample columns
             // let samples = null;
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
@@ -1234,8 +1237,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Generate a clone of the variant review to prevent changing original values
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
                     this.requestUpdate();
-
-                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+                    UtilsNew.draggableModal(document, modalElm);
+                    $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
             case "genome-browser":
@@ -1409,8 +1413,9 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the variant review to prevent changing original values
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
-
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}ReviewSampleModal`).modal("show");
         }
     }
 
@@ -1474,8 +1479,9 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the evidence review to prevent changing original values
             this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
-
-            $("#" + this._prefix + "EvidenceReviewModal").modal("show");
+            const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}EvidenceReviewModal`).modal("show");
         }
     }
 

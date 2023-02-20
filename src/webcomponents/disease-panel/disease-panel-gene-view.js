@@ -167,9 +167,19 @@ export default class DiseasePanelGeneView extends LitElement {
                     halign: this._config.header.horizontalAlign
                 },
                 {
-                    id: "modeOfInheritance",
+                    id: "modesOfInheritance",
                     title: "Mode of Inheritance",
-                    field: "modeOfInheritance",
+                    field: "modesOfInheritance",
+                    formatter: (value, row) => {
+                        const modesOfInheritanceContent = this.generateList(row.modesOfInheritance, "");
+                        return String.raw `
+                            ${modesOfInheritanceContent ? String.raw `
+                                <ul>
+                                    ${modesOfInheritanceContent}
+                                </ul>` : "-"
+                            }
+                        `;
+                    },
                 },
                 {
                     id: "confidence",

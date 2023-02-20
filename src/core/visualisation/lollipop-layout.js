@@ -1,21 +1,29 @@
-export default class LollipopLayout {
+export default {
+    MIN_SEPARATION: 10,
 
-    constructor(config) {
-        this.config = {
-            ...this.getDefaultConfig(),
-            ...(config || {}),
-        };
-    }
-
-    // Gelerate lollipop layout
-    layout(features, region, width) {
+    // Generate lollipop layout from features list
+    fromFeaturesList(features, region, width, config) {
         const length = region.length();
-        const minSeparation = Math.min(this.config.minSeparation, width / features.length);
-        const positions = [];
         const initialPositions = features.map(feature => {
-            const position = feature.start + Math.max(Math.abs(feature.end - feature.start + 1), 1) / 2;
+            let position = null;
+            if (typeof feature.position === "number") {
+                position = feature.position;
+            } else {
+                position = feature.start + Math.max(Math.abs(feature.end - feature.start + 1), 1) / 2;
+            }
             return width * (position - region.start) / length;
         });
+
+        return this.layout(initialPositions, {
+            ...config,
+            minSeparation: Math.min(config?.minSeparation ?? this.MIN_SEPARATION, width / features.length),
+        });
+    },
+
+    // Layout generator
+    layout(initialPositions, config) {
+        const minSeparation = config?.minSeparation ?? this.MIN_SEPARATION;
+        const positions = [];
         let i = 0;
         while (i < initialPositions.length) {
             let center = initialPositions[i];
@@ -24,11 +32,11 @@ export default class LollipopLayout {
             let count = 1;
             // Right side of the current point
             let j = i + 1;
-            while (j < features.length && (center + centerWidth / 2) > initialPositions[j] - minSeparation / 2) {
+            while (j < initialPositions.length && (center + centerWidth / 2) > initialPositions[j] - minSeparation / 2) {
                 centerWidth = centerWidth + minSeparation;
                 centerSum = centerSum + initialPositions[j];
                 count = count + 1;
-                center = Math.min(width - centerWidth / 2, centerSum / count);
+                center = centerSum / count;
                 j = j + 1;
             }
             // Left side of the current point
@@ -50,12 +58,5 @@ export default class LollipopLayout {
         }
         // Return processed positions
         return positions;
-    }
-
-    getDefaultConfig() {
-        return {
-            minSeparation: 10,
-        };
-    }
-
-}
+    },
+};

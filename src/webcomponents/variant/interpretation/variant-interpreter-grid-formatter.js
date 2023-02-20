@@ -298,8 +298,8 @@ export default class VariantInterpreterGridFormatter {
                                         <div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            ${gene.modeOfInheritance ? `
-                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            ${gene.modesOfInheritance ? `
+                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
                             }
                             ${gene.confidence ? `
@@ -313,8 +313,11 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let roleInCancer = "-";
-                if (re.roleInCancer) {
-                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
+                if (re.rolesInCancer) {
+                    roleInCancer = re.rolesInCancer
+                        .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
+                        .join(", ");
+
                 }
 
                 let acmgPrediction = "-";
