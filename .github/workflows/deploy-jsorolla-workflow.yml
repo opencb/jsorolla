@@ -35,4 +35,5 @@ jobs:
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+          rm: true
           concurrency: 2
