@@ -7,25 +7,12 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@TASK-2270
+    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
 
   test:
-    uses: opencb/jsorolla/.github/workflows/test.yml@TASK-2270
+    uses: opencb/jsorolla/.github/workflows/test.yml@develop
     needs: build
     secrets: inherit
-
-#  docker:
-#    needs: build
-#    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
-#    with:
-#      docker_tag: ${{ github.ref_name }}
-#    secrets:
-#      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
-#      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-#      DOCKER_HUB_ORGANISATION: ${{ secrets.DOCKER_HUB_ORGANISATION }}
-#      DOCKER_IMAGES_JSOROLLA: ${{ secrets.DOCKER_IMAGES_JSOROLLA }}
-#      JSOROLLA_CUSTOM_SITES_REPOSITORY: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
-#      GH_PRIVATE_TOKEN: ${{ secrets.GH_PRIVATE_TOKEN }}
 
   deploy-docker:
     uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
@@ -35,5 +22,3 @@ jobs:
       branch: ${{ github.ref_name }}
       cli: python3 ./docker/docker-build.py push --tag ${{ github.ref_name }}
     secrets: inherit
-#      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
-#      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
