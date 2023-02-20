@@ -204,6 +204,7 @@ export default class VariantBrowserFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     // DEPRECATED
@@ -390,6 +391,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <individual-hpo-filter
                             .individual="${subsection.params?.individual}"
+                            .value="${this.preparedQuery?.["annot-hpo"]}"
                             .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
                         </individual-hpo-filter>`;

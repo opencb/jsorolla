@@ -84,6 +84,12 @@ export default class DetailTabs extends LitElement {
             ...this.config,
         };
 
+        // We need to check if the active tab is in the new config
+        // If not, we will reset the activeTab for using the new config
+        if (this._activeTab && !(this._config.items || []).find(item => item.id === this._activeTab)) {
+            this._activeTab = null;
+        }
+
         // Set default active tab
         if (this._config?.items?.length > 0 && !this._activeTab) {
             const activeIndex = this._config.items.findIndex(item => item.active);
