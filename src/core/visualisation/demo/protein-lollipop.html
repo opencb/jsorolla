@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Protein Lollipop demo</title>
+
+    <link rel="stylesheet" href="../viz-styles.css">
+    <link rel="stylesheet" href="../../../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+</head>
+<body>
+    <div style="max-width:1400px;margin-left:auto;margin-right:auto;">
+        <h1 style="font-weight:bold;margin-bottom:16px;">Protein Lollipop Demo</h1>
+        <h3 style="font-weight:bold;">MTM1</h3>
+        <div id="root"></div>
+    </div>
+
+    <script type="module">
+        import ProteinLollipop from "../protein-lollipop.js";
+
+        import transcriptData from "./data/mtm1-transcript.json";
+        import proteinData from "./data/mtm1-protein.json";
+        import platinumVariantsData from "./data/mtm1-protein-variants-platinum.json";
+        import cosmicVariantsData from "./data/mtm1-protein-variants-cosmic.json";
+        import clinvarVariantsData from "./data/mtm1-protein-variants-clinvar.json";
+        import cancerHotspotsData from "./data/mtm1-cancerhotspots.json";
+
+        const target = document.getElementById("root");
+        const studyTitle = "Platinum";
+
+        // Draw protein lollipop
+        ProteinLollipop.draw(target, transcriptData, proteinData, platinumVariantsData, {
+            title: studyTitle,
+            tracks: [
+                {
+                    type: ProteinLollipop.TRACK_TYPES.VARIANTS,
+                    title: "Clinvar",
+                    data: clinvarVariantsData,
+                    tooltip: ProteinLollipop.clinvarTooltipFormatter,
+                    tooltipWidth: "360px",
+                },
+                {
+                    type: ProteinLollipop.TRACK_TYPES.VARIANTS,
+                    title: "Cosmic",
+                    data: cosmicVariantsData,
+                    tooltip: ProteinLollipop.cosmicTooltipFormatter,
+                    tooltipWidth: "280px",
+                },
+                {
+                    type: ProteinLollipop.TRACK_TYPES.CANCERHOTSPOTS,
+                    title: "Hotspots",
+                    data: cancerHotspotsData,
+                },
+            ],
+            highlights: [
+                {
+                    variants: ["X:150638967:G:-"],
+                    style: {
+                        strokeColor: "#fd984399",
+                        strokeWidth: "4px",
+                    },
+                }
+            ],
+        });
+
+    </script>
+</body>
+</html>

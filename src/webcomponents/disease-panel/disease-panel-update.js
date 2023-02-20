@@ -272,7 +272,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modeOfInheritance || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
                                         <div class="help-block">${gene.coordinates?.[0]?.location}</div>
                                     </div>
                                 `,
@@ -298,8 +298,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "genes[].modeOfInheritance",
+                                    field: "genes[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -316,8 +318,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Role In Cancer",
-                                    field: "genes[].cancer.role",
+                                    field: "genes[].cancer.roles",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: ROLE_IN_CANCER,
                                     display: {
                                         placeholder: "Select role in cancer..."
@@ -337,8 +341,8 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                view: region => html`
-                                    <div>${region.id} - ${region?.modeOfInheritance || "-"}</div>
+                                view: region => html `
+                                    <div>${region.id} - ${region?.modesOfInheritance.join(", ") || "-"}</div>
                                 `,
                             },
                             elements: [
@@ -352,8 +356,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "regions[].modeOfInheritance",
+                                    field: "regions[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."
@@ -383,7 +389,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: variant => html`
-                                    <div>${variant.id} - ${variant?.modeOfInheritance || "-"}</div>
+                                    <div>${variant.id} - ${variant?.modesOfInheritance.join(", ") || "-"}</div>
                                 `,
                             },
                             elements: [
@@ -397,8 +403,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 },
                                 {
                                     title: "Mode of Inheritance",
-                                    field: "variants[].modeOfInheritance",
+                                    field: "variants[].modesOfInheritance",
                                     type: "select",
+                                    multiple: true,
+                                    save: value => value.split(","), // Array when select and multiple
                                     allowedValues: MODE_OF_INHERITANCE,
                                     display: {
                                         placeholder: "Select a mode of inheritance..."

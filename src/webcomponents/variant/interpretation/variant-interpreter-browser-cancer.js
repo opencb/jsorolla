@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
+import "../../visualization/protein-lollipop-variant-view.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -634,6 +635,18 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     .variantId="${variant.id}"
                                     .active="${active}">
                                 </variant-samples>
+                            `,
+                        },
+                        {
+                            id: "protein",
+                            name: "Protein (Beta)",
+                            render: (variant, active, opencgaSession) => html`
+                                <protein-lollipop-variant-view
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .query="${this.query}"
+                                    .active="${active}">
+                                </protein-lollipop-variant-view>
                             `,
                         },
                         {
