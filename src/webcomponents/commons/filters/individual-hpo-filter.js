@@ -35,6 +35,9 @@ export default class IndividualHpoFilter extends LitElement {
             individual: {
                 type: Object
             },
+            value: {
+                type: String,
+            },
             disabled: {
                 type: Boolean
             },
@@ -46,6 +49,7 @@ export default class IndividualHpoFilter extends LitElement {
 
     _init() {
         this.phenotypes = [];
+        this.value = "";
         this.allChecked = false;
         this._config = this.getDefaultConfig();
     }
@@ -55,9 +59,27 @@ export default class IndividualHpoFilter extends LitElement {
             this.phenotypes = this.individual?.phenotypes?.filter(phenotype => phenotype.id?.startsWith("HP:"));
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("value") || changedProperties.has("individual")) {
+            const allChecked = (this.phenotypes || []).every(phenotype => {
+                return (this.value || "").includes(phenotype.id);
+            });
+
+            if (!allChecked && this.allChecked) {
+                // eslint-disable-next-line quotes
+                this.querySelector(`input[type="checkbox"]`).checked = false;
+                this.allChecked = false;
+                this.requestUpdate();
+            }
+        }
     }
 
     filterChange(e, source) {
@@ -87,7 +109,6 @@ export default class IndividualHpoFilter extends LitElement {
                 <label style="padding-top: 0; font-weight: normal;margin: 0">
                     <input
                         type="checkbox"
-                        class="${this._prefix}_ctCheckbox"
                         ?disabled="${this.phenotypes?.length === 0 || this.disabled}"
                         @click="${e => this.filterChange(e, "ALL")}">
                     <span style="margin: 0 5px" title="${this.phenotypes?.map(phenotype => phenotype.id).join(",") || ""}">
@@ -103,6 +124,7 @@ export default class IndividualHpoFilter extends LitElement {
                 <select-field-filter
                     multiple
                     ?liveSearch="${this.phenotypes?.length > 25}"
+                    .value="${this.value || ""}"
                     .data="${this.phenotypes}"
                     ?disabled="${this.phenotypes?.length === 0 || this.allChecked || this.disabled}"
                     @filterChange="${e => this.filterChange(e)}">

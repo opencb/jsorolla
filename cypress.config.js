@@ -21,9 +21,6 @@ module.exports = defineConfig({
         baseUrl: "http://localhost:3000/src/sites/test-app/",
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
-            require("@cypress/code-coverage/task")(on, config);
-            on("file:preprocessor", require("@cypress/code-coverage/use-babelrc"));
-            return config;
         }
     },
     env: {
@@ -32,7 +29,7 @@ module.exports = defineConfig({
         //     include: "src/**/*.js",
         //     exclude: "cypress/**/*.*",
         // },
-        coverage: true,
+        // coverage: true,
         hideXHR: true,
         apiUrl: "",
         study: "demo@",
