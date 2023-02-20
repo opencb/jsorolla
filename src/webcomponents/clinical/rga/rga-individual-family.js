@@ -93,6 +93,10 @@ export default class RgaIndividualFamily extends LitElement {
                     trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
                     trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
                     trio.child = clinicalAnalysis.family.members.find(m => m.father?.id === trio.proband.id || m.mother?.id === trio.proband.id);
+                    if (trio.proband.id !== individual.id && individual.fatherId === trio.proband.father.id && individual.motherId === trio.proband.mother.id) {
+                        // trio.sibling = clinicalAnalysis.family.members.find(m => m.father?.id === trio.proband.father.id && m.mother?.id === trio.proband.mother.id);
+                        trio.sibling = individual;
+                    }
                 } else {
                     // in case a Family array is not present, we use the proband (e.g. Cancer studies)
                     trio.proband = clinicalAnalysis.proband;
@@ -119,8 +123,9 @@ export default class RgaIndividualFamily extends LitElement {
             this.trio?.father?.samples?.[0]?.id,
             this.trio?.mother?.samples?.[0]?.id,
             this.trio?.child?.samples?.[0]?.id,
+            this.trio?.sibling?.sampleId,
         ];
-debugger
+
         if (!this.sampleIds[0]) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: "Sample of the Proband not available"
@@ -310,8 +315,6 @@ debugger
         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
         try {
             if (sampleIds.length && variantIds.length) {
-                console.log(sampleIds.filter(Boolean).join(","))
-                debugger
                 const params = {
                     study: this.opencgaSession.study.fqn,
                     id: variantIds.join(","),
@@ -322,7 +325,6 @@ debugger
                 console.log(sampleIds, variantIds);
                 console.error("params error");
             }
-
         } catch (e) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
             return Promise.reject(e);
@@ -438,30 +440,37 @@ debugger
                     formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
                 },
                 {
-                    title: `Proband (${this.trio?.proband?.id})<br> ${this.sampleIds[0]}`,
+                    title: `<span style="color: ${this.trio?.proband?.id === this.individual.id ? "darkred" : "black"};">Proband (${this.trio?.proband?.id})</span><br> ${this.sampleIds[0]}`,
                     field: "",
                     colspan: 2
                 },
                 {
-                    title: `Father (${this.trio?.father?.id})<br>${this.sampleIds[1]}`,
+                    title: `<span style="color: ${this.trio?.father?.id === this.individual.id ? "darkred" : "black"};">Father (${this.trio?.father?.id}))</span><br>${this.sampleIds[1]}`,
                     field: "id",
                     colspan: 2,
                     halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[1]
                 },
                 {
-                    title: `Mother (${this.trio?.mother?.id})<br>${this.sampleIds[2]}`,
+                    title: `<span style="color: ${this.trio?.mother?.id === this.individual.id ? "darkred" : "black"};">Mother (${this.trio?.mother?.id})</span><br>${this.sampleIds[2]}`,
                     field: "",
                     colspan: 2,
                     halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[2]
                 },
                 {
-                    title: `Child (${this.trio?.child?.id})<br>${this.sampleIds[3]}`,
+                    title: `<span style="color: ${this.trio?.child?.id === this.individual.id ? "darkred" : "black"};">Child (${this.trio?.child?.id})</span><br>${this.sampleIds[3]}`,
                     field: "",
                     colspan: 2,
                     halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[3]
+                },
+                {
+                    title: `<span style="color: ${this.trio?.sibling?.id === this.individual.id ? "darkred" : "black"};">Sibling (${this.trio?.sibling?.id})</span><br>${this.sampleIds[4]}`,
+                    field: "",
+                    colspan: 2,
+                    halign: this._config.header.horizontalAlign,
+                    visible: !!this.sampleIds[4]
                 }
             ],
             [
@@ -495,27 +504,41 @@ debugger
                     title: "GT",
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[2],
-                    formatter: value => this.gtFormatter(value, this.motherSampleIndx)
+                    formatter: value => this.gtFormatter(value, 2)
                 },
                 {
                     title: "Filter",
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[2],
-                    formatter: value => this.filterFormatter(value, this.motherSampleIndx)
+                    formatter: value => this.filterFormatter(value, 2)
 
                 },
-                // mother
+                // child
                 {
                     title: "GT",
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[3],
-                    formatter: value => this.gtFormatter(value, 0)
+                    formatter: value => this.gtFormatter(value, 3)
                 },
                 {
                     title: "Filter",
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[3],
-                    formatter: value => this.filterFormatter(value, 0)
+                    formatter: value => this.filterFormatter(value, 3)
+
+                },
+                // sibling
+                {
+                    title: "GT",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[4],
+                    formatter: value => this.gtFormatter(value, 4)
+                },
+                {
+                    title: "Filter",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[4],
+                    formatter: value => this.filterFormatter(value, 4)
 
                 }
             ]
@@ -596,7 +619,15 @@ debugger
     }
 
     filterFormatter(value, sampleIndex) {
-        const fileIndex = value?.studies?.[0]?.samples?.[sampleIndex]?.fileIndex;
+        let index = 0;
+        for (let i = 0; i < sampleIndex; i++) {
+            if (this.sampleIds[i]) {
+                index++;
+            }
+        }
+
+        // const fileIndex = value?.studies?.[0]?.samples?.[sampleIndex]?.fileIndex;
+        const fileIndex = value?.studies?.[0]?.samples?.[index]?.fileIndex;
         if (fileIndex !== undefined) {
             const terms = value?.studies?.[0]?.files[fileIndex].data.FILTER;
             if (terms) {
@@ -606,10 +637,18 @@ debugger
     }
 
     gtFormatter(value, sampleIndex) {
+        let index = 0;
+        for (let i = 0; i < sampleIndex; i++) {
+            if (this.sampleIds[i]) {
+                index++;
+            }
+        }
+
         if (value?.studies?.[0]?.sampleDataKeys.length) {
             const gtIndex = value.studies[0].sampleDataKeys.indexOf("GT");
             if (~gtIndex) {
-                return value.studies[0].samples?.[sampleIndex]?.data?.[gtIndex];
+                // return value.studies[0].samples?.[sampleIndex]?.data?.[gtIndex];
+                return value.studies[0].samples?.[index]?.data?.[gtIndex];
             }
         }
     }

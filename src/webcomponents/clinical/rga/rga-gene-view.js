@@ -325,7 +325,13 @@ export default class RgaGeneView extends LitElement {
                 {
                     title: "CH",
                     field: "variantStats.numPairedCompHet",
-                    formatter: (_, row) => row.variantStats.numPairedCompHet + row.variantStats.numDelOverlap ?? "-" // FIXME DELETION_OVERLAP replaced
+                    formatter: (_, row) => {
+                        let htmlResult = row.variantStats.numCompHet + row.variantStats.numDelOverlap ?? "-";
+                        htmlResult += row.variantStats.numPairedCompHet + row.variantStats.numPairedDelOverlap ?? "-";
+                        htmlResult = `${row.variantStats.numCompHet + row.variantStats.numDelOverlap} unique variants (forming ${row.variantStats.numPairedCompHet + row.variantStats.numPairedDelOverlap ?? "-"} pairs)`;
+                        // return row.variantStats.numPairedCompHet + row.variantStats.numDelOverlap ?? "-";
+                        return htmlResult;
+                    } // FIXME DELETION_OVERLAP replaced
                 }
             ]
         ];
@@ -388,6 +394,7 @@ export default class RgaGeneView extends LitElement {
     /*
      * @deprecated
      */
+
     /* _getConfidenceCount(facetFields, value) {
         // TODO note this code implies 4 nested loops
         const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
@@ -473,8 +480,8 @@ export default class RgaGeneView extends LitElement {
         return html`
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                 @columnChange="${this.onColumnChange}"
-                 @download="${this.onDownload}">
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}">
             </opencb-grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" data-cy="gene-view-grid">
