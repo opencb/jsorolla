@@ -24,7 +24,7 @@ jobs:
       - name: Download 'build' dir
         uses: actions/download-artifact@v3
         with:
-          name: jsorolla-build
+          name: build-folder
           path: build
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
