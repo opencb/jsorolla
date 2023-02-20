@@ -690,7 +690,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            variantData="variant-interpreter-germline"
+                            variantData="variant-interpreter-cancer"
                             clinicalData="clinical-analysis-AN-1-test38"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
