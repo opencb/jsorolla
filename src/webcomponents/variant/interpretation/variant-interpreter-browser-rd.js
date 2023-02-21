@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
+import "./exomiser/variant-interpreter-exomiser-view.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -676,6 +677,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "exomiser",
+                            name: "Exomiser",
+                            render: (variant, active) => html`
+                                <variant-interpreter-exomiser-view
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-interpreter-exomiser-view>
+                            `,
                         },
                         {
                             id: "json-view",
