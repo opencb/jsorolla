@@ -24,11 +24,11 @@ context("Variant Interpreter Grid Cancer", () => {
 
     beforeEach(() => {
         cy.visit("#variant-interpreter-grid-cancer")
-        cy.get("variant-interpreter-grid").should("be.visible")
+        cy.waitUntil(() => cy.get(browserInterpreterGrid).should("be.visible"))
     });
 
     it("1.Should be render variant-interpreter-grid", () => {
-        cy.get("variant-interpreter-grid").should("be.visible")
+        cy.get(browserInterpreterGrid).should("be.visible")
     })
 
     it("2.Change page variant-interpreter-grid", () => {

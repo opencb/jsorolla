@@ -24,7 +24,7 @@ context("Variant Browser Grid Cancer", () => {
 
     beforeEach(() => {
         cy.visit("#variant-browser-grid-cancer")
-        cy.get(browserGrid).should("be.visible")
+        cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
     });
 
 
