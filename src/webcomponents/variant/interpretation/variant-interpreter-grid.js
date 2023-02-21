@@ -818,10 +818,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    id: "exomiser",
-                    title: "Exomiser Scores",
+                    id: "methods",
+                    title: "Methods",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 1,
                     halign: "center",
                 },
                 {
@@ -1003,30 +1003,15 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
                 },
-                // Exomiser column
+                // Interpretation methods column
                 {
-                    id: "exomiserRecessive",
-                    title: "REC",
+                    id: "exomiser",
+                    title: "Exomiser",
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const variant = this.checkedVariants.get(row.id);
-                        const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
-
-                        // return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
-                        return "-";
-                    },
-                    align: "center",
-                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
-                },
-                {
-                    id: "exomiserDominant",
-                    title: "DOM",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        const variant = this.checkedVariants.get(row.id);
-                        const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
+                        // const variant = this.checkedVariants.get(row.id);
+                        // const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
 
                         // return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
                         return "-";
