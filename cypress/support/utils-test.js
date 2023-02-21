@@ -310,47 +310,47 @@ export default class UtilsTest {
     };
 
     /*
- * Lookup for the first simple text variable
- * type a random string and then check whether the button in opencga-active-filters is built correctly
- */
-static annotationFilterCheck = gridSelector => {
-    cy.get("opencga-annotation-filter-modal", {timeout: TIMEOUT})
-        .then($wc => {
-            // check whether there are variableSet
-            if (Cypress.$("button", $wc).length) {
-                cy.get("div[data-cy='annotations'] button").contains("Annotation").click();
-                const $tabs = Cypress.$("div.tab-pane", $wc);
-                // checkes whether there are VariableSets tabs
-                assert.isAbove($tabs.length, 0, "The number of VariableSets");
-                if ($tabs.length) {
-                    const $firstTab = Cypress.$($tabs[0]);
-                    if ($firstTab) {
-                        // check whether there is actually an input field in the first VariableSet, if not bypass the test
-                        const $inputFields = Cypress.$("input[data-variable-id]", $firstTab);
-                        if ($inputFields.length) {
-                            cy.get("opencga-annotation-filter-modal").find("input[data-variable-id]").first().should("be.visible").then($input => {
-                                const str = this.randomString();
-                                const variableSetId = $input.data("variableSetId");
-                                const variableId = $input.data("variableId");
-                                cy.wrap($input).type(str);
+    * Lookup for the first simple text variable
+    * type a random string and then check whether the button in opencga-active-filters is built correctly
+    */
+    static annotationFilterCheck = gridSelector => {
+        cy.get("opencga-annotation-filter-modal", {timeout: TIMEOUT})
+            .then($wc => {
+                // check whether there are variableSet
+                if (Cypress.$("button", $wc).length) {
+                    cy.get("div[data-cy='annotations'] button").contains("Annotation").click();
+                    const $tabs = Cypress.$("div.tab-pane", $wc);
+                    // checkes whether there are VariableSets tabs
+                    assert.isAbove($tabs.length, 0, "The number of VariableSets");
+                    if ($tabs.length) {
+                        const $firstTab = Cypress.$($tabs[0]);
+                        if ($firstTab) {
+                            // check whether there is actually an input field in the first VariableSet, if not bypass the test
+                            const $inputFields = Cypress.$("input[data-variable-id]", $firstTab);
+                            if ($inputFields.length) {
+                                cy.get("opencga-annotation-filter-modal").find("input[data-variable-id]").first().should("be.visible").then($input => {
+                                    const str = this.randomString();
+                                    const variableSetId = $input.data("variableSetId");
+                                    const variableId = $input.data("variableId");
+                                    cy.wrap($input).type(str);
+                                    cy.get("opencga-annotation-filter-modal .modal-footer button").contains("OK").click();
+                                    cy.get("opencga-active-filters button[data-filter-name='annotation']").contains(`annotation: ${variableSetId}:${variableId}=${str}`);
+                                    cy.get("opencga-active-filters button[data-filter-name='annotation']").click();
+                                    this.checkResults(gridSelector);
+                                });
+                            } else {
+                                // return true; // cy..then($wc => {}) fails because you cannot mixing up async and sync code.
+                                // so we can just make the test pass by check the non existence of inputs fields
+                                cy.get("opencga-annotation-filter-modal input[data-variable-id]", {timeout: TIMEOUT}).should("not.exist");
                                 cy.get("opencga-annotation-filter-modal .modal-footer button").contains("OK").click();
-                                cy.get("opencga-active-filters button[data-filter-name='annotation']").contains(`annotation: ${variableSetId}:${variableId}=${str}`);
-                                cy.get("opencga-active-filters button[data-filter-name='annotation']").click();
-                                this.checkResults(gridSelector);
-                            });
-                        } else {
-                            // return true; // cy..then($wc => {}) fails because you cannot mixing up async and sync code.
-                            // so we can just make the test pass by check the non existence of inputs fields
-                            cy.get("opencga-annotation-filter-modal input[data-variable-id]", {timeout: TIMEOUT}).should("not.exist");
-                            cy.get("opencga-annotation-filter-modal .modal-footer button").contains("OK").click();
+                            }
                         }
                     }
+                } else {
+                    cy.wrap($wc).contains("No variableSets defined in the study");
                 }
-            } else {
-                cy.wrap($wc).contains("No variableSets defined in the study");
-            }
-        });
-};
+            });
+    };
 
     /**
      * Select a token from a select2 textarea
@@ -410,4 +410,8 @@ static annotationFilterCheck = gridSelector => {
                 cy.visit("");
             });
         };
+
+    static assertValueCopiedToClipboard = () => {
+        return cy.window().then(win => win.navigator.clipboard.readText())
+    }
 }

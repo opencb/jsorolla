@@ -1,4 +1,4 @@
-const { defineConfig } = require("cypress");
+const {defineConfig} = require("cypress");
 
 module.exports = defineConfig({
     chromeWebSecurity: false,
@@ -24,6 +24,12 @@ module.exports = defineConfig({
         }
     },
     env: {
+        // it has limitation compared to nyc configuration
+        // codeCoverage: {
+        //     include: "src/**/*.js",
+        //     exclude: "cypress/**/*.*",
+        // },
+        // coverage: true,
         hideXHR: true,
         apiUrl: "",
         study: "demo@",

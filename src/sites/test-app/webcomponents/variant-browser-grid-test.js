@@ -18,11 +18,11 @@
 import {html, LitElement} from "lit";
 
 
-import "../../../webcomponents/commons/forms/data-form.js";
 import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
-import UtilsTest from "../../../../cypress/support/utils-test.js";
-import opencgaSession from "../../../webcomponents/opencga/catalog/variableSets/test/opencgaSession";
+import "../../../webcomponents/loading-spinner.js";
+import "../../../webcomponents/variant/variant-browser-grid.js";
+
 
 class VariantBrowserGridTest extends LitElement {
 
@@ -37,6 +37,9 @@ class VariantBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
+            variantData: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -47,6 +50,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     #init() {
+        this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
         this.configVariantGrid = {
@@ -66,41 +70,54 @@ class VariantBrowserGridTest extends LitElement {
         };
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("variantData") && changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-browser-data.json")
+        this.#setLoading(true);
+        UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.variantData}.json`)
             .then(content => {
                 this.variants = content;
                 this.mutate();
                 this.requestUpdate();
             })
-            .catch((err => {
-                this.variants = [];
+            .catch(err => {
+                // this.variants = [];
                 console.log(err);
-            }));
+            }).finally(() => {
+                this.#setLoading(false);
+            });
     }
 
     mutate() {
         // 1. no CT array
-        this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
     }
 
     render() {
+
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
-            <variant-browser-grid
-                .variants="${this.variants}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.configVariantGrid}"
-                .populationFrequencies="${this.config.populationFrequencies}">
-            </variant-browser-grid>
-        `;
+        <variant-browser-grid
+            .variants="${this.variants}"
+            .opencgaSession="${this.opencgaSession}"
+            .config="${this.configVariantGrid}"
+            .populationFrequencies="${this.config.populationFrequencies}">
+        </variant-browser-grid>
+    `;
     }
 
 }

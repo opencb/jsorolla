@@ -20,6 +20,7 @@ import UtilsTest from "../../../../cypress/support/utils-test.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
+import "../../../webcomponents/loading-spinner.js";
 
 // import {VARIANT_INTERPRETER_DATA} from "../data/variant-interpreter-data.js";
 // import {CLINICAL_ANALYSIS_DATA} from "../data/clinical-analysis-data.js";
@@ -37,6 +38,12 @@ class VariantInterpreterGridTest extends LitElement {
 
     static get properties() {
         return {
+            variantData: {
+                type: String,
+            },
+            clinicalData: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -47,6 +54,7 @@ class VariantInterpreterGridTest extends LitElement {
     }
 
     #init() {
+        this.isLoading = false;
         this.configVariantInterpreterGrid = {
             renderLocal: false,
             pagination: true,
@@ -78,35 +86,37 @@ class VariantInterpreterGridTest extends LitElement {
         };
     }
 
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession") &&
+            changedProperties.has("variantData") &&
+            changedProperties.has("clinicalData")) {
             this.opencgaSessionObserver();
         }
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-interpreter-data.json")
-            .then(content => {
-                this.variantInterpreterData = content;
-                this.mutate();
-                this.requestUpdate();
-            })
-            .catch((err => {
-                this.variantInterpreterData = [];
-                console.log(err);
-            }));
+        this.#setLoading(true);
+        const promises = [
+            UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.variantData}.json`),
+            UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.clinicalData}.json`)
+        ];
 
-        UtilsNew.importJSONFile("http://reports.test.zettagenomics.com/iva/tests/2.7/clinical-analysis-data.json")
+        Promise.all(promises)
             .then(content => {
-                this.clinicalAnalysisData = content;
-                this.mutate();
-                this.requestUpdate();
-            })
-            .catch((err => {
-                this.clinicalAnalysisData = {};
-                console.log(err);
-            }));
+                this.variantInterpreterData = content[0];
+                this.clinicalAnalysisData = content[1];
+            }).catch(err => {
+                console.log("Error to download data test", err);
+            }).finally(() => {
+                this.#setLoading(false);
+            });
     }
 
     mutate() {
@@ -115,6 +125,10 @@ class VariantInterpreterGridTest extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <variant-interpreter-grid
                 .opencgaSession="${this.opencgaSession}"

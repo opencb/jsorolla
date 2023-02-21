@@ -183,28 +183,55 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            name: "Variant",
+                            name: "Variant Browser",
                             category: true,
                             visibility: "public"
                         },
                         {
-                            id: "variant-grid",
-                            name: "variant Grid",
+                            id: "variant-browser-grid-germline",
+                            name: "Variant Grid Germline",
                             description: "",
                             visibility: "public"
                         },
                         {
-                            id: "variant-interpreter-grid",
-                            name: "variant Interpreter Grid",
+                            id: "variant-browser-grid-cancer",
+                            name: "Variant Grid Cancer",
+                            description: "",
+                            visibility: "public"
+                        },
+                        // {
+                        //     id: "variant-filters",
+                        //     name: "Variant Filters",
+                        //     description: "",
+                        //     visibility: "public"
+                        // },
+                        {
+                            separator: true,
+                            visibility: "public"
+                        },
+                        {
+                            name: "Variant Interpreter",
+                            category: true,
+                            visibility: "public"
+                        },
+                        {
+                            id: "variant-interpreter-grid-germline",
+                            name: "Variant Grid Germline",
                             description: "",
                             visibility: "public"
                         },
                         {
-                            id: "variant-filters",
-                            name: "Variant Filters",
+                            id: "variant-interpreter-grid-cancer",
+                            name: "Variant Grid Cancer",
                             description: "",
                             visibility: "public"
                         },
+                        {
+                            id: "variant-interpreter-grid-cancer-cnv",
+                            name: "Variant Grid Cancer CNV (WIP)",
+                            description: "",
+                            visibility: "public"
+                        }
                     ]
                 },
                 {
