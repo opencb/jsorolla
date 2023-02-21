@@ -21,7 +21,8 @@ module.exports = defineConfig({
         baseUrl: "http://localhost:3000/src/sites/test-app/",
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
-        }
+        },
+        defaultCommandTimeout: 8000
     },
     env: {
         // it has limitation compared to nyc configuration
