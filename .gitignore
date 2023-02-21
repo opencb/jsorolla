@@ -54,9 +54,16 @@ local.properties
 .buildpath
 
 # Cypress
-fixtures
-screenshots
-support
-videos
 mochawesome-report
+cypress/reports
+cypress/downloads
+cypress/screenshots
+cypress/videos
+
+# code-coverage
+.nyc_output
+coverage
+
+## vscode
+.vscode/settings.json
 

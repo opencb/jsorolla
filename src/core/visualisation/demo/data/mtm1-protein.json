@@ -1,0 +1,107 @@
+{
+  "name": [
+    "MTM1_HUMAN"
+  ],
+  "feature": [
+    {
+      "variation": [],
+      "location": {
+        "begin": {
+          "position": 1,
+          "status": "certain",
+          "evidence": []
+        },
+        "end": {
+          "position": 603,
+          "status": "certain",
+          "evidence": []
+        }
+      },
+      "type": "chain",
+      "id": "PRO_0000094930",
+      "description": "Myotubularin",
+      "evidence": []
+    },
+    {
+      "variation": [],
+      "location": {
+        "begin": {
+          "position": 29,
+          "status": "certain",
+          "evidence": []
+        },
+        "end": {
+          "position": 97,
+          "status": "certain",
+          "evidence": []
+        }
+      },
+      "type": "domain",
+      "description": "GRAM",
+      "evidence": []
+    },
+    {
+      "variation": [],
+      "location": {
+        "begin": {
+          "position": 163,
+          "status": "certain",
+          "evidence": []
+        },
+        "end": {
+          "position": 538,
+          "status": "certain",
+          "evidence": []
+        }
+      },
+      "type": "domain",
+      "description": "Myotubularin phosphatase",
+      "evidence": [
+        2
+      ]
+    },
+    {
+      "variation": [],
+      "location": {
+        "begin": {
+          "position": 1,
+          "status": "certain",
+          "evidence": []
+        },
+        "end": {
+          "position": 25,
+          "status": "certain",
+          "evidence": []
+        }
+      },
+      "type": "region of interest",
+      "description": "Disordered",
+      "evidence": [
+        4
+      ]
+    },
+    {
+      "variation": [],
+      "location": {
+        "begin": {
+          "position": 579,
+          "status": "certain",
+          "evidence": []
+        },
+        "end": {
+          "position": 603,
+          "status": "certain",
+          "evidence": []
+        }
+      },
+      "type": "region of interest",
+      "description": "Disordered",
+      "evidence": [
+        4
+      ]
+    }
+  ],
+  "sequence": {
+    "value": "MASASTSKYNSHSLENESIKRTSRDGVNRDLTEAVPRLPGETLITDKEVIYICPFNGPIKGRVYITNYRLYLRSLETDSSLILDVPLGVISRIEKMGGATSRGENSYGLDITCKDMRNLRFALKQEGHSRRDMFEILTRYAFPLAHSLPLFAFLNEEKFNVDGWTVYNPVEEYRRQGLPNHHWRITFINKCYELCDTYPALLVVPYRASDDDLRRVATFRSRNRIPVLSWIHPENKTVIVRCSQPLVGMSGKRNKDDEKYLDVIRETNKQISKLTIYDARPSVNAVANKATGGGYESDDAYHNAELFFLDIHNIHVMRESLKKVKDIVYPNVEESHWLSSLESTHWLEHIKLVLTGAIQVADKVSSGKSSVLVHCSDGWDRTAQLTSLAMLMLDSFYRSIEGFEILVQKEWISFGHKFASRIGHGDKNHTDADRSPIFLQFIDCVWQMSKQFPTAFEFNEQFLIIILDHLYSCRFGTFLFNCESARERQKVTERTVSLWSLINSNKEKFKNPFYTKEINRVLYPVASMRHLELWVNYYIRWNPRIKQQQPNPVEQRYMELLALRDEYIKRLEELQLANSAKLSDPPTSPSSPSQMMPHVQTHF"
+  }
+}
