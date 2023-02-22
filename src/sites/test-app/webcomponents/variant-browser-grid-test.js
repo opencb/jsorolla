@@ -84,7 +84,8 @@ class VariantBrowserGridTest extends LitElement {
 
     opencgaSessionObserver() {
         this.#setLoading(true);
-        UtilsNew.importJSONFile(`./.data-test/${this.variantData}.json`)
+        debugger
+        UtilsNew.importJSONFile(`./test-data/2.7/${this.variantData}.json`)
             .then(content => {
                 this.variants = content;
                 this.mutate();

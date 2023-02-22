@@ -104,8 +104,8 @@ class VariantInterpreterGridTest extends LitElement {
     opencgaSessionObserver() {
         this.#setLoading(true);
         const promises = [
-            UtilsNew.importJSONFile(`./.data-test/${this.variantData}.json`),
-            UtilsNew.importJSONFile(`./.data-test/${this.clinicalData}.json`)
+            UtilsNew.importJSONFile(`./test-data/2.7/${this.variantData}.json`),
+            UtilsNew.importJSONFile(`./test-data/2.7/${this.clinicalData}.json`)
         ];
 
         Promise.all(promises)

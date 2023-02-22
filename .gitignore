@@ -2,6 +2,7 @@
 build/
 build-next/
 dist/
+test-data/
 *node_modules/
 *web_modules/
 bower_components/
