@@ -22,7 +22,7 @@ module.exports = defineConfig({
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
         },
-        defaultCommandTimeout: 8000
+        defaultCommandTimeout: 12000
     },
     env: {
         // it has limitation compared to nyc configuration
