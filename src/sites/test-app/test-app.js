@@ -120,6 +120,9 @@ class TestApp extends LitElement {
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
+        const array = this.version.split(".");
+        this.testDataVersion = array[0] + "." + array[1];
+
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -660,6 +663,7 @@ class TestApp extends LitElement {
                         <variant-browser-grid-test
                             variantData="variant-browser-germline"
                             .opencgaSession="${this.opencgaSession}"
+                            .testDataVersion="${this.testDataVersion}"
                             .config="${this.config}">
                         </variant-browser-grid-test>
                     </div>

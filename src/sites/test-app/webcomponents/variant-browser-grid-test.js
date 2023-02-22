@@ -43,6 +43,9 @@ class VariantBrowserGridTest extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            testDataVersion: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -84,8 +87,7 @@ class VariantBrowserGridTest extends LitElement {
 
     opencgaSessionObserver() {
         this.#setLoading(true);
-        debugger
-        UtilsNew.importJSONFile(`./test-data/2.7/${this.variantData}.json`)
+        UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/${this.testDataVersion}/${this.variantData}.json`)
             .then(content => {
                 this.variants = content;
                 this.mutate();
