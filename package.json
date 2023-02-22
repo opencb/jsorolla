@@ -18,6 +18,7 @@
     "preview": "vite preview",
     "prepare": "husky install",
     "test:open": "cypress open",
+    "test:prepare": "./prepare-test.sh",
     "test:run": "cypress run --spec cypress/e2e/commons/data-form.cy.js,cypress/e2e/iva/*.cy.js",
     "browser-support": "npx browserslist",
     "build-deprecated": "npm run clean && npm run dist && npx webpack && npm run package && npm run build-genome-browser",
