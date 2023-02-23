@@ -20,6 +20,10 @@ jobs:
   test:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,6 +52,9 @@ jobs:
           command: npm run test:run
           browser: chrome
           wait-on: 'http://localhost:3000/src/sites/test-app/'
+        env:
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
 #      - uses: actions/upload-artifact@v3
 #        if: failure()
 #        with:
