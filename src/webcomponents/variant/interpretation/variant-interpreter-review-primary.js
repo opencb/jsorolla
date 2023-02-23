@@ -448,6 +448,16 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         }
                     },
                     {
+                        id: "exomiser",
+                        name: "Exomiser",
+                        render: (variant, active) => html`
+                            <variant-interpreter-exomiser-view
+                                .variant="${variant}"
+                                .active="${active}">
+                            </variant-interpreter-exomiser-view>
+                        `,
+                    },
+                    {
                         id: "json-view",
                         name: "JSON Data",
                         render: (variant, active) => html`
