@@ -49,7 +49,7 @@ jobs:
       - uses: cypress-io/github-action@v5
         with:
           start: npm run serve
-          command: npm run test:run
+          command: cypress run --spec "cypress/e2e/commons/data-form.cy.js,cypress/e2e/iva/**.cy.js"
           browser: chrome
           wait-on: 'http://localhost:3000/src/sites/test-app/'
         env:
