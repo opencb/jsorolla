@@ -78,6 +78,7 @@ class VariantInterpreterExomiserView extends LitElement {
                 {
                     title: "P-Value",
                     field: "attributes.exomiser",
+                    halign: "center",
                     formatter: exomiser => {
                         return exomiser?.["P-VALUE"] || "-";
                     },
