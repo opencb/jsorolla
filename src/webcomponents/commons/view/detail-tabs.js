@@ -125,38 +125,30 @@ export default class DetailTabs extends LitElement {
     }
 
     renderTabTitle() {
-        return html `
-            ${this._config.items.length && this._config.items.map(item => {
-            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                const isActive = this._activeTab === item.id;
-                return html`
-                        <li role="presentation"
-                            class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
-                            style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                               @click="${this.changeTab}">
-                                <span>${item.name}</span>
-                            </a>
-                        </li>
-                    `;
-            }
-        })}
-        `;
+        return this._config.items.length && this._config.items.map(item => {
+            const isActive = this._activeTab === item.id;
+            return html`
+                <li role="presentation"
+                    class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                    style="${this._config.display?.tabTitleStyle}">
+                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                        @click="${this.changeTab}">
+                        <span>${item.name}</span>
+                    </a>
+                </li>
+            `;
+        });
     }
 
     renderTabContent() {
-        return html`
-            ${this._config.items.length && this._config.items.map(item => {
-            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                const isActive = this._activeTab === item.id;
-                return html`
-                        <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
-                            ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
-                        </div>
-                    `;
-            }
-        })}
-        `;
+        return this._config.items.length && this._config.items.map(item => {
+            const isActive = this._activeTab === item.id;
+            return html`
+                <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                    ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
+                </div>
+            `;
+        });
     }
 
     render() {
