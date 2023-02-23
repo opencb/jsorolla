@@ -55,7 +55,7 @@ jobs:
         env:
           SPLIT: ${{ strategy.job-total }}
           SPLIT_INDEX: ${{ strategy.job-index }}
-          SPEC: cypress/e2e/commons/data-form.cy.js,cypress/e2e/iva/*.cy.js
+          # SPEC: cypress/e2e/commons/data-form.cy.js,cypress/e2e/iva/**.cy.js
 #      - uses: actions/upload-artifact@v3
 #        if: failure()
 #        with:
