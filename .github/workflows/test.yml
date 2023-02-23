@@ -43,9 +43,7 @@ jobs:
       - run: npm install
       - uses: cypress-io/github-action@v5
         with:
-            start: |
-            npm run serve
-            npm run test:prepare
+          start: npm run serve, npm run test:prepare
           command: npm run test:run
           browser: chrome
           wait-on: 'http://localhost:3000/src/sites/test-app/'
