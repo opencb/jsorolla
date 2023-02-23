@@ -57,24 +57,32 @@ class VariantInterpreterExomiserView extends LitElement {
             data: this.variant?.evidences || [],
             pagination: true,
             columns: [
-                [
-                    {
-                        title: "Gene",
-                        field: "genomicFeature.geneName",
-                        rowspan: 2,
-                        colspan: 1,
-                        halign: "center"
+                {
+                    title: "Gene",
+                    field: "genomicFeature.geneName",
+                    halign: "center",
+                },
+                {
+                    title: "Transcript ID",
+                    field: "genomicFeature.transcriptId",
+                    halign: "center",
+                },
+                {
+                    title: "Rank",
+                    field: "attributes.exomiser",
+                    halign: "center",
+                    formatter: exomiser => {
+                        return exomiser?.["RANK"] || "-";
                     },
-                    {
-                        title: "Transcript ID",
-                        field: "genomicFeature.transcriptId",
-                        rowspan: 2,
-                        colspan: 1,
-                        halign: "center"
+                },
+                {
+                    title: "P-Value",
+                    field: "attributes.exomiser",
+                    formatter: exomiser => {
+                        return exomiser?.["P-VALUE"] || "-";
                     },
-                ],
-                [],
-            ]
+                },
+            ],
         });
     }
 
