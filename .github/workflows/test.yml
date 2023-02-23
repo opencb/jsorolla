@@ -20,10 +20,10 @@ jobs:
   test:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2, 3]
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     containers: [1, 2, 3]
     steps:
       - uses: actions/checkout@v3
         with:
