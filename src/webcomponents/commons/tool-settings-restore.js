@@ -20,7 +20,7 @@ import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
-export default class ToolSettingsUpdate extends LitElement {
+export default class ToolSettingsRestore extends LitElement {
 
     // --- CONSTRUCTOR ---
     constructor() {
@@ -39,10 +39,7 @@ export default class ToolSettingsUpdate extends LitElement {
             study: {
                 type: Object,
             },
-            toolSettings: {
-                type: Object,
-            },
-            toolName: {
+            option: {
                 type: Object,
             },
             opencgaSession: {
@@ -53,10 +50,7 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- PRIVATE METHODS ---
     #init() {
-        this.toolSettings = {};
         this.isLoading = false;
-        this.DEFAULT_TOOLPARAMS = {};
-        this._toolSettings = {}; // Local copy for tool settings
         this._listStudies = [];
     }
 
@@ -65,35 +59,13 @@ export default class ToolSettingsUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    // TODO 20230210 Vero:
-    //  1. Move to utils-new.js.
-    //  2. Repeated in opencga-update
-    //  3. Rename first parameter and function name
-    #getResourceName(name, type) {
-        const words = name
-            .toLowerCase()
-            .split("_");
-
-        switch (type) {
-            case "event":
-                return words
-                    .reduce((result, word) => result + UtilsNew.capitalize(word));
-            case "label":
-                return words
-                    .map(word => UtilsNew.capitalize(word))
-                    .join(" ");
-        }
-    }
-
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
-        this._toolSettings = UtilsNew.objectClone(this.toolSettings);
         this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
-        this.updatedFields = {};
         this._config = {
             ...this.getDefaultConfig(),
-            ...this.config,
+            // ...this.config,
         };
     }
 
@@ -110,7 +82,7 @@ export default class ToolSettingsUpdate extends LitElement {
 
     // --- OBSERVERS ---
     componentObserver() {
-        if (this.study && this.toolSettings && this.opencgaSession) {
+        if (this.study && this.opencgaSession) {
             this.#initOriginalObjects();
         }
     }
@@ -127,44 +99,24 @@ export default class ToolSettingsUpdate extends LitElement {
                 }
                 this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
             }
-
             // Refresh configuration object to read new this.allowedValues array.
             this._config = {
                 ...this.getDefaultConfig(),
-                ...this.config,
+                // ...this.config,
             };
         }
     }
 
     // --- EVENTS ---
     onFieldChange(e, field) {
-        // FIXME: switch case when json-editor returns param.
         const param = field || e.detail.param;
-        // The json has been modified, so we need to:
-        // 1. To update the local object settings where we store the settings modifications
-        if (e.detail.value?.json) {
-            this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
-            this._study.attributes[SETTINGS_NAME].settings[this.toolName] = this._toolSettings;
-        }
+        // 1. Update the list of studies
         if (param === "fqn") {
-            // FIXME this should not be necessary, we need to re-think the data-form.data object
             this._study.fqn = "";
             this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
         }
-        if (param === "default") {
-            this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.toolName]);
-            this._study.attributes[SETTINGS_NAME].settings[this.toolName] = this._toolSettings;
-        }
-
-        // To notify that the json has been modified
-        // CAUTION 20230208 Vero: the toolSettings json has been updated
-        LitUtils.dispatchCustomEvent(this, "studyToolSettingsUpdate", null, {
-            _toolSettings: this._toolSettings
-        });
-
         // Shallow copy just for refreshing the memory direction of this._study
         this._study = {...this._study};
-
         this.requestUpdate();
     }
 
@@ -179,8 +131,7 @@ export default class ToolSettingsUpdate extends LitElement {
         });
     }
 
-    onSubmit() {
-        const toolName = this.#getResourceName(this.toolName, "label");
+    onSubmit(e, field) {
         // 1. Prepare query params
         const params = {
             includeResult: true,
@@ -190,9 +141,15 @@ export default class ToolSettingsUpdate extends LitElement {
         this._listStudies.forEach(studyId => {
             // 2.1. Get new study tool settings
             // const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, this.toolName, this._toolSettings);
-            const updateParams = this.toolName === "ALL" ?
-                OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, this._toolSettings) :
-                OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, this.toolName, this._toolSettings);
+            let updateParams;
+            switch (field) {
+                case "default":
+                    updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, studyId);
+                    break;
+                case "backup":
+                    updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, studyId);
+                    break;
+            }
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
                 // .update(this.opencgaSession.study.fqn, updateParams, params)
@@ -200,8 +157,8 @@ export default class ToolSettingsUpdate extends LitElement {
                 .then(response => {
                     // 1. Dispatch success notification
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: `${toolName} Settings Update`,
-                        message: `${toolName} settings updated correctly`,
+                        title: `${this.option} Settings Update`,
+                        message: `${this.option} settings updated correctly`,
                     });
                     // 2. Dispatch study update event
                     LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
@@ -223,10 +180,7 @@ export default class ToolSettingsUpdate extends LitElement {
             <data-form
                 .data="${this._study}"
                 .config="${this._config}"
-                .updateParams="${this.updatedFields}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
@@ -243,17 +197,13 @@ export default class ToolSettingsUpdate extends LitElement {
                 titleAlign: "left",
                 titleWidth: 4,
                 // defaultLayout: "vertical",
-                buttonsVisible: true,
+                buttonsVisible: false,
                 buttonsLayout: "top",
                 buttonOkDisabled: () => this._listStudies?.length === 0
             },
-            buttons: {
-                clearText: "Discard Changes",
-                okText: "Update",
-            },
             sections: [
                 {
-                    title: "Tool Configuration",
+                    title: "Reset default settings",
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
@@ -269,14 +219,49 @@ export default class ToolSettingsUpdate extends LitElement {
                             multiple: true,
                             all: true,
                             required: true,
-                            // Fixme: defaultValue not working, not sure why
                             defaultValue: `${this._study.fqn}`,
-                            // allowedValues: this.opencgaSession.projects
-                            //     .map(project => project.studies)
-                            //     .flat()
-                            //     .map(study => {
-                            //         return {id: study.fqn, name: study.fqn};
-                            //     }),
+                            allowedValues: this.allowedValues,
+                            display: {
+                                placeholder: "Select study or studies..."
+                            },
+                        },
+                        {
+                            title: "Reset default settings",
+                            field: "default",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    return html `
+                                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onSubmit(e, "default")}">
+                                            RESET DEFAULT SETTINGS
+                                        </button>
+                                    `;
+                                },
+                                help: {
+                                    text: "Warning: This will reset the default settings for all tools!"
+                                }
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Restore backup settings",
+                    display: {
+                        // titleHeader: "",
+                        // titleStyle: "",
+                        descriptionClassName: "help-block",
+                        // descriptionStyle: "",
+                        // visible: () =>
+                    },
+                    elements: [
+                        {
+                            title: "Study",
+                            field: "fqn",
+                            type: "select",
+                            multiple: true,
+                            all: true,
+                            required: true,
+                            defaultValue: `${this._study.fqn}`,
                             allowedValues: this.allowedValues,
                             display: {
                                 placeholder: "Select study or studies..."
@@ -289,31 +274,22 @@ export default class ToolSettingsUpdate extends LitElement {
                             display: {
                                 render: () => {
                                     return html `
-                                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onFieldChange(e, "default")}">
-                                            DEFAULT SETTINGS
+                                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onSubmit(e, "backup")}">
+                                            RESOTRE BACKUP SETTINGS
                                         </button>
                                     `;
                                 },
                                 help: {
-                                    text: "Warning: This will discard any change made!"
+                                    text: "Warning: This will restore the backup settings for all tools!"
                                 }
                             },
                         },
-                        {
-                            title: "You can edit the options in the JSON Editor",
-                            field: `attributes.${SETTINGS_NAME}.settings.${this.toolName}`,
-                            type: "json-editor",
-                            display: {
-                                defaultLayout: "vertical",
-                                visible: () => this.toolName !== "ALL",
-                            }
-                        },
                     ],
                 },
-            ]
+            ],
         };
     }
 
 }
 
-customElements.define("tool-settings-update", ToolSettingsUpdate);
+customElements.define("tool-settings-restore", ToolSettingsRestore);

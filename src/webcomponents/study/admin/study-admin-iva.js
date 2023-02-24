@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 
 import "../../commons/layouts/custom-vertical-navbar.js";
+import "../../commons/tool-settings-restore";
 import "./study-settings-detail.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
@@ -101,9 +102,26 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
-    renderToolSettings() {
+    renderRestore(option) {
         return html`
-            <div>This must allow to: reset all settings to default and restore the backup version</div>
+            <div>Reset all settings to their original defaults and restore the backup version</div>
+            <tool-settings-restore
+                .study="${this.opencgaSession.study}"
+                .option="${option}"
+                .opencgaSession="${this.opencgaSession}"
+                @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
+            </tool-settings-restore>
+        `;
+    }
+
+    renderToolSettings(toolSettings, toolName) {
+        return html `
+            <study-settings-detail
+                .opencgaSession="${this.opencgaSession}"
+                .study="${this.opencgaSession.study}"
+                .toolSettings="${toolSettings}"
+                .toolName="${toolName}">
+            </study-settings-detail>
         `;
     }
 
@@ -129,11 +147,19 @@ export default class StudyAdminIva extends LitElement {
                 submenu: [
                     {
                         id: "tool_settings",
-                        name: "Tool Settings",
+                        name: "Tool settings",
                         // icon: "fa-solid fa-square",
                         visibility: "private",
-                        render: (opencgaSession, study) => this.renderToolSettings()
-                    }
+                        render: (opencgaSession, study) => this.renderRestore(),
+                    },
+                    {
+                        id: "constants",
+                        name: "Constants",
+                        // icon: "fa-solid fa-square",
+                        visibility: "private",
+                        render: (opencgaSession, study) => this.renderToolSettings(),
+                    },
+
                 ]
             },
             ...Object.entries(this.menuStructure)
@@ -156,6 +182,8 @@ export default class StudyAdminIva extends LitElement {
                             name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
                             icon: "fa-solid fa-square",
                             visibility: "private",
+                            render: (opencgaSession, study) => this.renderToolSettings(toolSettings, toolName),
+                            /*
                             render: (opencgaSession, study) => {
                                 return html `
                                     <study-settings-detail
@@ -166,6 +194,7 @@ export default class StudyAdminIva extends LitElement {
                                     </study-settings-detail>
                                 `;
                             }
+                             */
                         };
                     })
                 }))
