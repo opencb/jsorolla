@@ -911,7 +911,6 @@ export default class VariantInterpreterGridFormatter {
             return !!evidence?.attributes?.exomiser;
         });
 
-        let tooltipText = "";
         if (evidence?.attributes?.exomiser) {
             const scoreFields = [
                 {field: "EXOMISER_GENE_COMBINED_SCORE", title: "Gene Combined Score"},
@@ -919,7 +918,7 @@ export default class VariantInterpreterGridFormatter {
                 {field: "EXOMISER_GENE_VARIANT_SCORE", title: "Gene Variant Score"},
                 {field: "EXOMISER_VARIANT_SCORE", title: "Variant Score"},
             ];
-            tooltipText = `
+            const tooltipText = `
                 <table style='width:160px;'>
                     ${scoreFields.map(value => `
                         <tr>
