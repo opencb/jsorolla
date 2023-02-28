@@ -29,6 +29,10 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-prod"
     },
     {
+        id: "test-exomiser",
+        url: "https://test.app.zettagenomics.com/exomiser/opencga"
+    },
+    {
         id: "test",
         url: "https://ws.opencb.org/opencga-test"
     },
