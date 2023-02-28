@@ -259,7 +259,6 @@ export default class SampleBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            mode: "development",
                             render: (sample, active, opencgaSession) => html`
                                 <json-viewer
                                     .data="${sample}"

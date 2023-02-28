@@ -303,7 +303,6 @@ export default class FileBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            mode: "development",
                             render: (file, active) => html`
                                 <json-viewer
                                     .data="${file}"
