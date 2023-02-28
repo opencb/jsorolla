@@ -906,43 +906,42 @@ export default class VariantInterpreterGridFormatter {
         return tooltipText;
     }
 
-    static interpretationScoresFormatter(value, row, method) {
-        switch (method.toLowerCase()) {
-            case "interpretation-exomiser":
-                const evidence = (row?.evidences || []).find(evidence => {
-                    return evidence.interpretationMethodName === "interpretation-exomiser";
-                });
+    static exomiserScoresFormatter(value, row) {
+        const evidence = (row?.evidences || []).find(evidence => {
+            return !!evidence?.attributes?.exomiser;
+        });
 
-                let tooltipText = "No Exomiser scores..";
-                if (evidence?.attributes?.ExVarScore) {
-                    const scoreFields = [
-                        {field: "ExGeneSPheno", title: "Phenotype Score"},
-                        {field: "ExVarScore", title: "Variant Score"},
-                        {field: "ExGeneSCombi", title: "Exomiser Score"},
-                        {field: "ExGeneSVar", title: "Gene Variant Score"},
-                    ];
-                    tooltipText = `
-                        <table style='width:160px;'>
-                            ${scoreFields.map(value => `
-                                <tr>
-                                    <td><strong>${value.title}:</strong></td>
-                                    <td>${evidence.attributes?.[value.field] || "-"}</td>
-                                </tr>
-                            `).join("")}
-                        </table>
-                    `;
-                }
+        let tooltipText = "";
+        if (evidence?.attributes?.exomiser) {
+            const scoreFields = [
+                {field: "EXOMISER_GENE_COMBINED_SCORE", title: "Gene Combined Score"},
+                {field: "EXOMISER_GENE_PHENO_SCORE", title: "Gene Phenotype Score"},
+                {field: "EXOMISER_GENE_VARIANT_SCORE", title: "Gene Variant Score"},
+                {field: "EXOMISER_VARIANT_SCORE", title: "Variant Score"},
+            ];
+            tooltipText = `
+                <table style='width:160px;'>
+                    ${scoreFields.map(value => `
+                        <tr>
+                            <td><strong>${value.title}:</strong></td>
+                            <td>${evidence.attributes?.exomiser[value.field] || "-"}</td>
+                        </tr>
+                    `).join("")}
+                </table>
+            `;
 
-                return `
-                    <div>
-                        <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
-                            <b>Exomiser</b>: ${evidence?.attributes?.ExVarScore || "-"}
-                        </a>
-                    </div>
-                `;
-            default:
-                return "-";
+            return `
+                <div>
+                    <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
+                        <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
+                        <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
+                    </a>
+                </div>
+            `;
         }
+
+        // No exomiser scores to display
+        return "-";
     }
 
 }
