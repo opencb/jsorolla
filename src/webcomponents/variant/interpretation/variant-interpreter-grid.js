@@ -1010,11 +1010,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        // const variant = this.checkedVariants.get(row.id);
-                        // const method = this.clinicalAnalysis?.interpretation?.method?.name || "";
-
-                        // return VariantInterpreterGridFormatter.interpretationScoresFormatter(value, variant, method);
-                        return "-";
+                        const variant = this.checkedVariants.get(row.id);
+                        return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
                     visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
