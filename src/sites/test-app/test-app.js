@@ -661,7 +661,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-germline"
+                            testVariantFile="variant-browser-germline"
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
@@ -672,7 +672,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
                     <div style="padding: 2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-cancer"
+                            testVariantFile="variant-browser-cancer"
                             testDataVersion="${this.testDataVersion}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
@@ -683,7 +683,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-germline"
+                            testVariantFile="variant-interpreter-germline"
                             testDataVersion="${this.testDataVersion}"
                             testClinicalData="clinical-analysis-CA-11-platinum"
                             .opencgaSession="${this.opencgaSession}"
@@ -696,7 +696,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-cancer"
+                            testVariantFile="variant-interpreter-cancer"
                             testDataVersion="${this.testDataVersion}"
                             testClinicalData="clinical-analysis-AN-1-test38"
                             .opencgaSession="${this.opencgaSession}"
@@ -709,7 +709,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer-cnv"] ? html`
                 <div style="padding:2%" class="content" id="variant-interpreter-grid">
                     <variant-interpreter-grid-test
-                        testDataFile="variant-interpreter-cnv"
+                        testVariantFile="variant-interpreter-cnv"
                         testDataVersion="${this.testDataVersion}"
                         testClinicalData="clinical-analysis-AN-1-test38"
                         .opencgaSession="${this.opencgaSession}"

@@ -38,7 +38,7 @@ class VariantInterpreterGridTest extends LitElement {
 
     static get properties() {
         return {
-            testDataFile: {
+            testVariantFile: {
                 type: String,
             },
             testClinicalData: {
@@ -97,7 +97,7 @@ class VariantInterpreterGridTest extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") &&
-            changedProperties.has("testDataFile") &&
+            changedProperties.has("testVariantFile") &&
             changedProperties.has("testDataVersion") &&
             changedProperties.has("testClinicalData")) {
             this.opencgaSessionObserver();
@@ -108,7 +108,7 @@ class VariantInterpreterGridTest extends LitElement {
     opencgaSessionObserver() {
         this.#setLoading(true);
         const promises = [
-            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testDataFile}.json`),
+            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`),
             UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testClinicalData}.json`)
         ];
 
@@ -134,6 +134,9 @@ class VariantInterpreterGridTest extends LitElement {
         }
 
         return html`
+            <h2 style="font-weight: bold;">
+                Variant Interpreter Browser (${this.testVariantFile?.split("-")?.at(-1)})
+            </h2>
             <variant-interpreter-grid
                 .opencgaSession="${this.opencgaSession}"
                 .clinicalVariants="${this.variantInterpreterData}"

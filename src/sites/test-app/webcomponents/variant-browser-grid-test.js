@@ -37,7 +37,7 @@ class VariantBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testDataFile: {
+            testVariantFile: {
                 type: String
             },
             opencgaSession: {
@@ -56,6 +56,7 @@ class VariantBrowserGridTest extends LitElement {
         this.isLoading = false;
         this.variants = [];
         this._dataFormConfig = DATA_FORM_EXAMPLE;
+
         this.configVariantGrid = {
             pageSize: 10,
             pageList: [10, 25, 50],
@@ -79,7 +80,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("testDataFile") &&
+        if (changedProperties.has("testVariantFile") &&
             changedProperties.has("testDataVersion") &&
             changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -89,7 +90,7 @@ class VariantBrowserGridTest extends LitElement {
 
     opencgaSessionObserver() {
         this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testDataFile}.json`)
+        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
             .then(content => {
                 this.variants = content;
                 this.mutate();
@@ -116,6 +117,9 @@ class VariantBrowserGridTest extends LitElement {
         }
 
         return html`
+        <h2 style="font-weight: bold;">
+            Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+        </h2>
         <variant-browser-grid
             .variants="${this.variants}"
             .opencgaSession="${this.opencgaSession}"

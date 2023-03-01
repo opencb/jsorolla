@@ -20,5 +20,11 @@ if [ ! -d "$FILE_TEST" ]; then
     mkdir -v -p $FILE_TEST
     wget -r -np -A .json R "index.html" http://reports.test.zettagenomics.com/iva/test-data/${VERSION}/ -P "$FILE_TEST"/ -nd
     exit 0;
+    # echo "testing wget output "
+    # >&2 echo "error test" $?
+    # # if [ $? -ne 0 ];
+    # #     then echo "Message wget" $?
+    # #     else echo "OK" $?
+    # # fi
 fi
 
