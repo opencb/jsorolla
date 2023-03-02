@@ -174,30 +174,13 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         // 3. Update disaply
         this.requestUpdate();
 
-        // 4. Notfify changes
+        // 4. Notify changes
         this.filterChange();
     }
 
     filterChange() {
         LitUtils.dispatchCustomEvent(this, "filterChange", this._ct.join(","));
     }
-
-    /*  Updates the state of all checkboxes in case of item selected from the dropdown and in case of click on a checkbox,
-        including indeterminate state (which is visual only, the real state is still true/false).
-     */
-    // updateCheckboxes() {
-    //     for (const alias of this._config.alias) {
-    //         this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
-    //         $(`.${this._prefix}_ctCheckbox`).prop("indeterminate", false);
-    //
-    //         if (!this.isChecked[alias.name]) {
-    //             const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
-    //             $(`#${id}`).prop("indeterminate", alias.terms.some(v => this._ct.indexOf(v) > -1));
-    //         }
-    //     }
-    //     this.isChecked = {...this.isChecked};
-    //     this.requestUpdate();
-    // }
 
     getDefaultConfig() {
         return CONSEQUENCE_TYPES;
