@@ -143,8 +143,10 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <span class="badge badge-default">${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_CLASSIFICATION"] ?? "-"}</span>
-                                    <span class="margin-left:8px">
+                                    <span class="badge badge-default">
+                                        <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_CLASSIFICATION"] ?? "-"}</b>
+                                    </span>
+                                    <span style="margin-left:8px;">
                                         (Evidence: <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_EVIDENCE"] ?? "-"}</b>)
                                     </span>
                                 `,
