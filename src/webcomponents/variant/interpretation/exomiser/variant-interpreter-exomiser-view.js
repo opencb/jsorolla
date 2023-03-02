@@ -168,10 +168,12 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_ID"] ?? "-"}</b>
-                                    <span style="margin-left:8px;">
-                                        (${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_NAME"] ?? "-"})
-                                    </span>
+                                    ${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_ID"] ? html`
+                                        <b>${evidences[0].attributes.exomiser["EXOMISER_ACMG_DISEASE_ID"]}</b>
+                                        <span style="margin-left:8px;">
+                                            (${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_NAME"] ?? "-"})
+                                        </span>
+                                    ` : "-"}
                                 `,
                             },
                         },
