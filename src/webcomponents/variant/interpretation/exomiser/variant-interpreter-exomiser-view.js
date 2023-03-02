@@ -100,6 +100,17 @@ class VariantInterpreterExomiserView extends LitElement {
                     title: geneName,
                     elements: [
                         {
+                            title: "Mode of Inheritances",
+                            type: "custom",
+                            display: {
+                                render: () => evidences[0].modeOfInheritances.map(mode => html`
+                                    <span class="badge badge-default" style="text-transform:uppercase;">
+                                        <b>${mode || "-"}</b>
+                                    </span>
+                                `),
+                            },
+                        },
+                        {
                             title: "Functional Classification",
                             type: "custom",
                             display: {
