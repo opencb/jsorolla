@@ -246,7 +246,7 @@ class TestApp extends LitElement {
 
     opencgaSessionObserver() {
         this.renderHashFragments();
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     changeTool(e) {
@@ -290,7 +290,6 @@ class TestApp extends LitElement {
                 hashFrag += "/" + this.opencgaSession.study.id;
             }
         }
-
         if (window.location.hash === hashFrag) {
             // debugger
             this.hashFragmentListener(this);
@@ -405,8 +404,8 @@ class TestApp extends LitElement {
             }
             this.query = query;
         }
-
         const componentName = this.tool.replace("#", "");
+
         if (UtilsNew.isNotUndefined(this.config.enabledComponents[componentName])) {
             this.config.enabledComponents[componentName] = true;
         } else {
@@ -420,6 +419,7 @@ class TestApp extends LitElement {
         $("body,html").animate({
             scrollTop: 0
         }, 1);
+
     }
 
 

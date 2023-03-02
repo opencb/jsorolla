@@ -93,7 +93,7 @@ class VariantBrowserGridTest extends LitElement {
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
             .then(content => {
                 this.variants = content;
-                this.mutate();
+                // this.mutate();
                 this.requestUpdate();
             })
             .catch(err => {
@@ -106,9 +106,20 @@ class VariantBrowserGridTest extends LitElement {
 
     mutate() {
         // 1. no CT array
-        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        console.log("Change data");
+        // Not working
+        this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        this.variants = {...this.variants};
+        this.requestUpdate();
 
     }
+
+
+    changeView(id) {
+        this.activeTab = id;
+        // this.mutate();
+    }
+
 
     render() {
 
@@ -120,6 +131,27 @@ class VariantBrowserGridTest extends LitElement {
         <h2 style="font-weight: bold;">
             Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
         </h2>
+
+        <!--
+        <div>
+            <button class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
+                type="button" @click="${() => this.mutate()}">
+                    <i class="fas fa-sync"></i>
+                    <strong>Mutate 1: missing variants</strong>
+            </button>
+            <button type="button" class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
+                @click="${() => this.mutate("sdsad")}">
+                    <i class="fas fa-sync"></i>
+                    <strong>Mutate 2: other case</strong>
+            </button>
+            <button type="button" class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
+                @click="${() => this.mutate("sadasd")}">
+                    <i class="fas fa-sync"></i>
+                    <strong>Mutate 3: worse case</strong>
+            </button>
+        </div>
+        -->
+
         <variant-browser-grid
             .variants="${this.variants}"
             .opencgaSession="${this.opencgaSession}"
