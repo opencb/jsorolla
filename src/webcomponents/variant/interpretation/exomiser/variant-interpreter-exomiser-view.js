@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new";
+import "../../../commons/forms/data-form.js";
+import VariantGridFormatter from "../../variant-grid-formatter.js";
+import UtilsNew from "../../../../core/utils-new.js";
 
 class VariantInterpreterExomiserView extends LitElement {
 
@@ -40,61 +42,143 @@ class VariantInterpreterExomiserView extends LitElement {
     }
 
     #init() {
-        this._prefix = UtilsNew.randomString(8);
         this.variant = null;
         this.active = false;
+        this.genes = [];
+        this.config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("variant") || (changedProperties.has("active") && this.active)) {
-            this.renderTable();
+    update(changedProperties) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
         }
+
+        super.update(changedProperties);
     }
 
-    renderTable() {
-        $("#" + this._prefix + "ExomiserTable").bootstrapTable("destroy");
-        $("#" + this._prefix + "ExomiserTable").bootstrapTable({
-            data: this.variant?.evidences || [],
-            pagination: true,
-            columns: [
-                {
-                    title: "Gene",
-                    field: "genomicFeature.geneName",
-                    halign: "center",
-                },
-                {
-                    title: "Transcript ID",
-                    field: "genomicFeature.transcriptId",
-                    halign: "center",
-                },
-                {
-                    title: "Rank",
-                    field: "attributes.exomiser",
-                    halign: "center",
-                    formatter: exomiser => {
-                        return exomiser?.["RANK"] || "-";
-                    },
-                },
-                {
-                    title: "P-Value",
-                    field: "attributes.exomiser",
-                    halign: "center",
-                    formatter: exomiser => {
-                        return exomiser?.["P-VALUE"] || "-";
-                    },
-                },
-            ],
-        });
+    variantObserver() {
+        this.genes = [];
+        if (this.variant?.evidences?.length > 0) {
+            const uniqueGenesList = new Set();
+            this.variant.evidences.forEach(evidence => {
+                if (evidence?.genomicFeature?.geneName) {
+                    uniqueGenesList.add(evidence.genomicFeature.geneName);
+                }
+            });
+
+            this.genes = Array.from(uniqueGenesList);
+        }
+
+        // Update config for displaying the new genes info
+        this.config = this.getDefaultConfig();
     }
 
     render() {
         return html`
             <div style="padding: 20px;">
-                <table id="${this._prefix}ExomiserTable"></table>
+                <data-form
+                    .data="${this.variant}"
+                    .config="${this.config}">
+                </data-form>
             </div>
         `;
     }
 
+    getDefaultConfig() {
+        return {
+            title: "",
+            display: {
+                buttonsVisible: false,
+            },
+            sections: this.genes.map(geneName => {
+                const evidences = this.variant?.evidences.filter(evidence => {
+                    return evidence?.genomicFeature?.geneName === geneName;
+                });
+
+                return {
+                    id: geneName,
+                    title: geneName,
+                    elements: [
+                        {
+                            title: "Functional Classification",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span class="badge badge-danger" style="text-transform:uppercase;">
+                                        <b>${evidences[0].attributes?.exomiser?.["FUNCTIONAL_CLASS"] ?? "-"}</b>
+                                    </span>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Exomiser Score",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <b>${evidences[0].attributes?.exomiser?.["EXOMISER_GENE_COMBINED_SCORE"] ?? "-"}</b>
+                                    <span style="margin-left:5px;">(p-value=${evidences[0].attributes?.exomiser?.["P-VALUE"] ?? "-"})</span>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Phenotype Score",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <b>${evidences[0].attributes?.exomiser?.["EXOMISER_GENE_PHENO_SCORE"] ?? "-"}</b>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Variant Score",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <b>${evidences[0].attributes?.exomiser?.["EXOMISER_GENE_VARIANT_SCORE"] ?? "-"}</b>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Exomiser ACMG",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span class="badge badge-default">${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_CLASSIFICATION"] ?? "-"}</span>
+                                    <span class="margin-left:8px">
+                                        (Evidence: <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_EVIDENCE"] ?? "-"}</b>)
+                                    </span>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Exomiser ACMG Disease",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_ID"] ?? "-"}</b>
+                                    <span style="margin-left:8px;">
+                                        (${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_DISEASE_NAME"] ?? "-"})
+                                    </span>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Transcripts",
+                            type: "custom",
+                            display: {
+                                render: () => evidences.map(evidence => {
+                                    const link = VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs) || "";
+                                    return html`
+                                        <div>${UtilsNew.renderHTML(link)}</div>
+                                    `;
+                                }),
+                            },
+                        },
+                    ],
+                };
+            }),
+        };
+    }
 
 }
 
