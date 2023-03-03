@@ -188,11 +188,20 @@ export default class OpencgaCatalogUtils {
     }
 
     /** Gets study IVA DEFAULT settings
-     * @param {object} opencgaSession Session
-     * @param {object} study Study
-     * @returns {object} Study attributes with default IVA settings
+     * @param {object} opencgaSession   Session
+     * @param {object} study            Study
+     * @param {string} type             Type of restore, default or backup
+     * @returns {object}                Study attributes with default IVA settings
      */
-    static getDefaultIVASettings(opencgaSession, study) {
+    static getRestoreIVASettings(opencgaSession, study, type) {
+        const getSettings = () => {
+            switch (type) {
+                case "default":
+                    return UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings);
+                case "backup":
+                    return UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings);
+            }
+        };
         return {
             attributes: {
                 ...study.attributes,
@@ -201,11 +210,10 @@ export default class OpencgaCatalogUtils {
                     userId: opencgaSession.user.id,
                     version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
                     date: UtilsNew.getDatetime(),
-                    settings: UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings),
+                    settings: getSettings(),
                 },
             }
         };
-
     }
 
 }

@@ -1886,11 +1886,12 @@ export default class DataForm extends LitElement {
                                 `;
                             })}
                     </ul>
+                    ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
                 </div>
                 <div style="margin-top:24px;">
                     ${this.renderData()}
                 </div>
-                ${buttonsVisible ? this.renderButtons(null) : null}
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 

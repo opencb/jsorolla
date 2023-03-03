@@ -102,12 +102,11 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
-    renderRestore(option) {
-        return html`
+    renderRestore() {
+        return html `
             <div>Reset all settings to their original defaults and restore the backup version</div>
             <tool-settings-restore
                 .study="${this.opencgaSession.study}"
-                .option="${option}"
                 .opencgaSession="${this.opencgaSession}"
                 @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
             </tool-settings-restore>
@@ -128,6 +127,7 @@ export default class StudyAdminIva extends LitElement {
     // --- RENDER METHOD  ---
     render() {
         return html`
+            <tool-header title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
@@ -159,8 +159,7 @@ export default class StudyAdminIva extends LitElement {
                         visibility: "private",
                         render: (opencgaSession, study) => this.renderToolSettings(),
                     },
-
-                ]
+                ],
             },
             ...Object.entries(this.menuStructure)
                 .map(([menuKey, [header, submenuKeys]]) => ({
@@ -170,31 +169,12 @@ export default class StudyAdminIva extends LitElement {
                     visibility: "private",
                     submenu: submenuKeys.map(toolName => {
                         const toolSettings = this.settings[toolName];
-
-                        // const match = toolName.match(/^(.*)_[^_]*$/);
-                        // const name = (match ? match[1] : toolName);
-                        // const array = toolName.split("_");
-                        // array.pop();
-                        // const name = array.join("_");
-                        // debugger
                         return {
                             id: toolName.toLowerCase(),
                             name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
                             icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => this.renderToolSettings(toolSettings, toolName),
-                            /*
-                            render: (opencgaSession, study) => {
-                                return html `
-                                    <study-settings-detail
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}"
-                                        .toolSettings="${toolSettings}"
-                                        .toolName="${toolName}">
-                                    </study-settings-detail>
-                                `;
-                            }
-                             */
                         };
                     })
                 }))
