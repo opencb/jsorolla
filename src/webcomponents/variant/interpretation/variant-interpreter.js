@@ -31,6 +31,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import {generate, BLANK_PDF} from "@pdfme/generator";
 
 class VariantInterpreter extends LitElement {
 
@@ -265,6 +266,44 @@ class VariantInterpreter extends LitElement {
         };
     }
 
+    onGeneratePDF() {
+        const template = {
+            basePdf: BLANK_PDF,
+            schemas: [
+                {
+                    "a": {
+                        type: "text",
+                        position: {x: 0, y: 0},
+                        width: 10,
+                        height: 10,
+                    },
+                    "b": {
+                        type: "text",
+                        position: {x: 10, y: 10},
+                        width: 10,
+                        height: 10,
+                    },
+                    "c": {
+                        type: "text",
+                        position: {x: 20, y: 20},
+                        width: 10,
+                        height: 10,
+                    },
+                },
+            ],
+        };
+
+
+        const inputs = [{a: "a1", b: "b1", c: "c1"}];
+        generate({template: template, inputs: inputs}).then(
+            pdf => {
+            // Browser
+                const blob = new Blob([pdf.buffer], {type: "application/pdf"});
+                window.open(URL.createObjectURL(blob));
+            });
+
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
@@ -340,10 +379,15 @@ class VariantInterpreter extends LitElement {
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
+                            <button type="button" class="btn btn-primary"
+                                @click="${() => this.onGeneratePDF()}">
+                                    Generate PDF (Beta)
+                            </button>
                             <case-sms-report
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}">
                             </case-sms-report>
+
                         </div>
                     `;
                     }

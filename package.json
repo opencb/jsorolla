@@ -42,6 +42,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.11.2",
     "@highlightjs/cdn-assets": "^10.6.0",
+    "@pdfme/generator": "^1.1.5",
     "@polymer/polymer": "2.6.1",
     "@svgdotjs/svg.js": "^3.0.16",
     "@toast-ui/editor": "^3.2.1",
@@ -85,8 +86,8 @@
     "@babel/core": "^7.15.5",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-export-default-from": "^7.8.3",
-    "@babel/plugin-proposal-private-property-in-object": "^7.8.3",
     "@babel/plugin-proposal-private-methods": "^7.18.6",
+    "@babel/plugin-proposal-private-property-in-object": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/polyfill": "^7.8.3",
     "@babel/preset-env": "^7.15.4",
