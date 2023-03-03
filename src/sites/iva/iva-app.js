@@ -1939,7 +1939,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["opencga-admin"] ? html`
             <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
-            <div id="opencga-admin" class="content col-md-10 col-md-offset-1">
+            <div id="projects-admin" class="content col-md-10 col-md-offset-1">
                 <projects-admin
                     .opencgaSession="${this.opencgaSession}"
                     @sessionUpdateRequest="${this.onSessionUpdateRequest}">
@@ -1948,7 +1948,7 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-            <div class="content">
+            <div class="content" id="study-admin">
                 <study-admin
                     .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"

@@ -171,34 +171,33 @@ export default class CustomVerticalNavBar extends LitElement {
                 }
 
                 .nav-item:hover:not(.active-item) {
-                    /*background-color: #AAAABC;*/
                     background-color: #767687;
                     cursor: pointer;
                 }
 
                 .navbar.navbar-inverse.main-navbar {
-                    position: fixed;
+                    /*position: fixed;*/
                     top: 0;
                     width: 100%;
-                    z-index: 1000;
+                    /*z-index: 1000;*/
                 }
 
-                div.page-title {
-                    position: fixed;
-                    top: 50px;
-                    width: 100%;
-                    z-index: 10
-                }
+                /*div.page-title {*/
+                /*    position: fixed;*/
+                /*    top: 50px;*/
+                /*    width: 100%;*/
+                /*    z-index: 10*/
+                /*}*/
 
-                .row.left {
-                    margin-left: -30px;
-                    margin-top: -10px
-                }
+                /*.row.left {*/
+                /*    margin-left: -30px;*/
+                /*    margin-top: -10px*/
+                /*}*/
 
                 /*Remove rounded coners*/
                 nav.sidebar.navbar {
                     border-radius: 0;
-                    top: 125px;
+                    /*top: 125px;*/
                 }
 
                 nav.sidebar, .main {
@@ -281,9 +280,9 @@ export default class CustomVerticalNavBar extends LitElement {
 
                     /*gives sidebar width/height*/
                     nav.sidebar {
-                        position: fixed;
+                        /*position: fixed;*/
                         height: 100%;
-                        width: 250px;
+                        /*width: 250px;*/
                         margin-left: -200px;
                         float: left;
                         /* z-index: 8000; */
@@ -320,7 +319,7 @@ export default class CustomVerticalNavBar extends LitElement {
                     /*Show all nav*/
                     nav.sidebar {
                         margin-left: 0;
-                        float: left;
+                        /*float: left;*/
                     }
 
                     /*Show hidden items on nav*/
@@ -337,11 +336,11 @@ export default class CustomVerticalNavBar extends LitElement {
                     padding-left: 15px;
                 }
 
-                .footer {
-                    position: fixed;
-                    bottom: 0;
-                    z-index: 10;
-                }
+                /*.footer {*/
+                /*    position: fixed;*/
+                /*    bottom: 0;*/
+                /*    z-index: 10;*/
+                /*}*/
 
             </style>`;
     }
@@ -445,8 +444,8 @@ export default class CustomVerticalNavBar extends LitElement {
             <!-- STYLE -->
             ${this.#renderStyle()}
             <!-- TOOL HEADER -->
-            <tool-header title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-            <div class="row left">
+            <!-- <tool-header title="$this._config.name}" icon="$this._config.icon}"></tool-header> -->
+            <div class="row">
                 <!-- NAVIGATION -->
                 <div class="col-md-2">
                     <nav class="navbar navbar-inverse sidebar" role="navigation">
@@ -459,7 +458,7 @@ export default class CustomVerticalNavBar extends LitElement {
                 <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
-                <div class="col-md-10" style="top:150px;">
+                <div class="col-md-10" style="">
                     ${this.#renderContent()}
                 </div>
             </div>

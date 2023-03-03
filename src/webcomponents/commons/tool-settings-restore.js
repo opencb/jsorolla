@@ -39,9 +39,6 @@ export default class ToolSettingsRestore extends LitElement {
             study: {
                 type: Object,
             },
-            option: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -111,13 +108,15 @@ export default class ToolSettingsRestore extends LitElement {
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         // 1. Update the list of studies
+        // NOTE Vero: In restoring settings, only changes in the study needs to be listened.
+        // Changes in the json editor are for read-only purposes (preview default/backup settings per tool)
         if (param === "fqn") {
             this._study.fqn = "";
             this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
+            // Shallow copy just for refreshing the memory direction of this._study
+            this._study = {...this._study};
+            this.requestUpdate();
         }
-        // Shallow copy just for refreshing the memory direction of this._study
-        this._study = {...this._study};
-        this.requestUpdate();
     }
 
     onClear() {
@@ -139,17 +138,8 @@ export default class ToolSettingsRestore extends LitElement {
         // 2. Query
         this.#setLoading(true);
         this._listStudies.forEach(studyId => {
-            // 2.1. Get new study tool settings
-            // const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, this.toolName, this._toolSettings);
-            let updateParams;
-            switch (field) {
-                case "default":
-                    updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, studyId);
-                    break;
-                case "backup":
-                    updateParams = OpencgaCatalogUtils.getDefaultIVASettings(this.opencgaSession, studyId);
-                    break;
-            }
+            // 2.1. Get new study settings
+            const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, studyId, field);
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
                 // .update(this.opencgaSession.study.fqn, updateParams, params)
@@ -191,15 +181,15 @@ export default class ToolSettingsRestore extends LitElement {
             id: "",
             title: "",
             icon: "",
+            type: "tabs",
             display: {
                 width: 10,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
-                // defaultLayout: "vertical",
-                buttonsVisible: false,
+                buttonsVisible: true,
                 buttonsLayout: "top",
-                buttonOkDisabled: () => this._listStudies?.length === 0
+                // buttonOkDisabled: () => this._listStudies?.length === 0
             },
             sections: [
                 {
@@ -226,20 +216,19 @@ export default class ToolSettingsRestore extends LitElement {
                             },
                         },
                         {
-                            title: "Reset default settings",
-                            field: "default",
                             type: "custom",
+                            field: "editor",
                             display: {
-                                render: () => {
+                                render: study => {
                                     return html `
-                                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onSubmit(e, "default")}">
-                                            RESET DEFAULT SETTINGS
-                                        </button>
+                                        <tool-settings-editor
+                                            .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
+                                            .selectSettings="${true}"
+                                            .study="${study}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </tool-settings-editor>
                                     `;
                                 },
-                                help: {
-                                    text: "Warning: This will reset the default settings for all tools!"
-                                }
                             },
                         },
                     ],
@@ -268,20 +257,18 @@ export default class ToolSettingsRestore extends LitElement {
                             },
                         },
                         {
-                            title: "Load default settings",
-                            field: "default",
                             type: "custom",
                             display: {
-                                render: () => {
+                                render: study => {
                                     return html `
-                                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onSubmit(e, "backup")}">
-                                            RESOTRE BACKUP SETTINGS
-                                        </button>
+                                        <tool-settings-editor
+                                            .toolSettings="${UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
+                                            .selectSettings="${true}"
+                                            .study="${study}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </tool-settings-editor>
                                     `;
                                 },
-                                help: {
-                                    text: "Warning: This will restore the backup settings for all tools!"
-                                }
                             },
                         },
                     ],

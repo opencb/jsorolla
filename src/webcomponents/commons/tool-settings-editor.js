@@ -41,6 +41,9 @@ export default class ToolSettingsEditor extends LitElement {
             toolSettings: {
                 type: Object,
             },
+            selectSettings: {
+                type: Boolean,
+            },
             toolName: {
                 type: Object,
             },
@@ -56,11 +59,13 @@ export default class ToolSettingsEditor extends LitElement {
     // --- PRIVATE METHODS ---
     #init() {
         this.isLoading = false;
+        this.selectSettings = false;
     }
 
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
+        this._toolName = this.toolName;
         this._config = {
             ...this.getDefaultConfig(),
             // ...this.config,
@@ -72,6 +77,9 @@ export default class ToolSettingsEditor extends LitElement {
         if (changedProperties.has("toolSettings")) {
             this.toolSettingsObserver();
         }
+        if (changedProperties.has("selectSettings")) {
+            this.selectSettingsObserver();
+        }
         super.update(changedProperties);
     }
 
@@ -81,6 +89,15 @@ export default class ToolSettingsEditor extends LitElement {
             this.#initOriginalObjects();
         }
     }
+
+    selectSettingsObserver() {
+        if (this.selectSettings) {
+            this._toolSettings = UtilsNew.objectClone(this.toolSettings[Object.keys(this.toolSettings)[0]]);
+            this._toolName = Object.keys(this.toolSettings)[0];
+            this.requestUpdate();
+        }
+    }
+
 
     // --- EVENTS ---
     onStudyToolSettingsChange(e, field) {
@@ -98,6 +115,22 @@ export default class ToolSettingsEditor extends LitElement {
         });
 
         this.requestUpdate();
+    }
+
+    onToolChange(e) {
+        this._toolSettings = this.toolSettings[e.detail.value];
+        this._toolName = e.detail.value;
+        this.requestUpdate();
+    }
+
+    renderSelect() {
+        return html `
+            <select-field-filter
+                .data="${Object.keys(this.toolSettings)}"
+                .value="${this._toolName}"
+                @filterChange="${this.onToolChange}">
+            </select-field-filter>
+        `;
     }
 
     // --- RENDER ---
@@ -131,9 +164,13 @@ export default class ToolSettingsEditor extends LitElement {
                 <div class="card-header" id="tool-settings-editor-card-header">
                     <div class="card-header-title"></div>
                     <div class="card-header-options">
-                        <button class="btn btn-warning btn-sm" type="button" @click="${e => this.onStudyToolSettingsChange(e, "default")}">
-                            DEFAULT SETTINGS
-                        </button>
+                        ${this.selectSettings ? this.renderSelect() : html `
+                            <button
+                                class="btn btn-warning btn-sm" type="button"
+                                @click="${e => this.onStudyToolSettingsChange(e, "default")}">
+                                DEFAULT SETTINGS
+                            </button>
+                            `}
                     </div>
                 </div>
                 <!-- Content -->
@@ -169,7 +206,6 @@ export default class ToolSettingsEditor extends LitElement {
                         contentStyle: "",
                     },
                     render: () => {
-                        debugger
                         return html `
                             <json-editor
                                 .data="${this._toolSettings}"
@@ -194,12 +230,11 @@ export default class ToolSettingsEditor extends LitElement {
                     },
                     render: (data, isActive) => {
                         if (isActive) {
-                            debugger
                             return html`
                                 <tool-settings-preview
                                     .opencgaSession="${this.opencgaSession}"
                                     .settings="${this._toolSettings}"
-                                    .tool="${this.toolName}"
+                                    .tool="${this._toolName}"
                                     .highlightPreview="${this.highlightPreview}">
                                 </tool-settings-preview>
                             `;
