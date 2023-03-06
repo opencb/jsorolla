@@ -58,7 +58,7 @@ class VariantInterpreterExomiserView extends LitElement {
 
     variantObserver() {
         this.genes = [];
-        if (this.variant?.evidences?.length > 0) {
+        if (this.variant && this.variant?.evidences?.length > 0) {
             const uniqueGenesList = new Set();
             this.variant.evidences.forEach(evidence => {
                 if (evidence?.genomicFeature?.geneName) {
@@ -74,6 +74,14 @@ class VariantInterpreterExomiserView extends LitElement {
     }
 
     render() {
+        if (!this.variant?.evidences?.some(e => e.interpretationMethodName === "interpretation-exomiser")) {
+            return html`
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle icon-padding"></i> This variant does not have exomiser scores.
+                </div>
+            `;
+        }
+
         return html`
             <div style="padding: 20px;">
                 <data-form
