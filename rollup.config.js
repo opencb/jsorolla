@@ -154,8 +154,8 @@ export default sites.map(site => ({
     ],
     moduleContext: {
         "./node_modules/countup.js/dist/countUp.min.js": "window",
-        "./node_modules/pdfmake/build/pdfmake.js": "window",
-        "./node_modules/pdfmake/build/vfs_fonts.js": "window",
+        // "./node_modules/pdfmake/build/pdfmake.js": "window",
+        // "./node_modules/pdfmake/build/vfs_fonts.js": "window",
     },
     // moduleContext: id => {
     //     // Avoid this Error: https://rollupjs.org/guide/en/#error-this-is-undefined

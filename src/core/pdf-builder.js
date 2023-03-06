@@ -1,5 +1,5 @@
-import * as pdfMake from "pdfmake/build/pdfmake";
-import "pdfmake/build/vfs_fonts";
+// import * as pdfMake from "pdfmake/build/pdfmake";
+// import "pdfmake/build/vfs_fonts";
 // eslint-disable-next-line no-import-assign
 // pdfMake.vfs = window.pdfMake.vfs;
 
@@ -26,7 +26,8 @@ export default class PdfBuilder {
     open() {
         // debugger;
 
-        pdfMake.createPdf(this.docDefinition, null, null, window.pdfMake.vfs).open();
+        pdfMake.createPdf(this.docDefinition).open();
+
     }
 
     /**
