@@ -152,28 +152,33 @@ export default sites.map(site => ({
             targets: getCopyTargets(site),
         }),
     ],
-    moduleContext: id => {
-        // Avoid this Error: https://rollupjs.org/guide/en/#error-this-is-undefined
-        /*
-        * In order to match native module behaviour, Rollup sets `this`
-        * as `undefined` at the top level of modules. Rollup also outputs
-        * a warning if a module tries to access `this` at the top level.
-        * The following modules use `this` at the top level and expect it
-        * to be the global `window` object, so we tell Rollup to set
-        *`this = window` for these modules.
-        */
-        const thisAsWindowForModules = [
-            "node_modules/countup.js/dist/countUp.min.js",
-            "node_modules/pdfmake/build/vfs_fonts.js"
-        ];
-
-        if (thisAsWindowForModules.some(id_ => id.trimRight().endsWith(id_))) {
-            return "window";
-        }
-
+    moduleContext: {
+        "./node_modules/countup.js/dist/countUp.min.js": "window",
+        "./node_modules/pdfmake/build/pdfmake.js": "window",
+        "./node_modules/pdfmake/build/vfs_fonts.js": "window",
     },
-    output: {
+    // moduleContext: id => {
+    //     // Avoid this Error: https://rollupjs.org/guide/en/#error-this-is-undefined
+    //     /*
+    //     * In order to match native module behaviour, Rollup sets `this`
+    //     * as `undefined` at the top level of modules. Rollup also outputs
+    //     * a warning if a module tries to access `this` at the top level.
+    //     * The following modules use `this` at the top level and expect it
+    //     * to be the global `window` object, so we tell Rollup to set
+    //     *`this = window` for these modules.
+    //     */
+    //     const thisAsWindowForModules = [
+    //         "node_modules/countup.js/dist/countUp.min.js",
+    //         "node_modules/pdfmake/build/pdfmake",
+    //         "node_modules/pdfmake/build/vfs_fonts.js"npm install @rollup/plugin-commonjs --save-dev
+    //     ];
 
+    //     if (thisAsWindowForModules.some(id_ => id.trimRight().endsWith(id_))) {
+    //         return "window";
+    //     }
+
+    // },
+    output: {
         dir: `${buildPath}/${site}`,
         manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
             if (id.includes("node_modules")) {

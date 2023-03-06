@@ -140,7 +140,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         // }
 
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisReportDataLocal();
+            this.clinicalAnalysisReportDataLocal(); // Testing temporal
             this.clinicalAnalysisObserver();
         }
 
@@ -839,9 +839,9 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             display: {
                                 render: data => {
                                     return html `
-                                    <p><b>${data.clinicalAnalysis.laboratory.name}</b> ${data.clinicalAnalysis.laboratory.responsible}</p>
-                                    <p><b>Fac:</b> ${data.clinicalAnalysis.laboratory.facultive?.join()}</p>
-                                    <p><b>Contacto:</b> ${data.clinicalAnalysis.laboratory.email}</p>
+                                    <p><b>${data?.clinicalAnalysis?.laboratory?.name}</b> ${data.clinicalAnalysis?.laboratory.responsible}</p>
+                                    <p><b>Fac:</b> ${data?.clinicalAnalysis?.laboratory?.facultive?.join()}</p>
+                                    <p><b>Contacto:</b> ${data?.clinicalAnalysis?.laboratory?.email}</p>
                                     `;
                                 }
                             },
@@ -856,8 +856,8 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             display: {
                                 render: data => {
                                     return html`
-                                        <p><b>Validado por:</b> ${data.clinicalAnalysis.laboratory.validation}</p>
-                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data.clinicalAnalysis.laboratory.date)}</p>
+                                        <p><b>Validado por:</b> ${data?.clinicalAnalysis?.laboratory.validation}</p>
+                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.laboratory.date)}</p>
                                         `;
                                 }
                             }
