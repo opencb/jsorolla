@@ -25,6 +25,8 @@ import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
+import PdfBuilder from "../../../core/pdf-builder.js";
+import PdfUtils from "../../commons/utils/pdf-utils.js";
 
 class CaseSmsReport extends LitElement {
 
@@ -332,6 +334,41 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         `;
     }
 
+    // pdfMake
+    onGeneratePDFMake() {
+        const docDefinition = {
+            content: [
+                {
+                    columns: [
+                        [
+                            PdfUtils.headerText("1. Patient Personal Details\n\n"),
+                            PdfUtils.fieldText("Name: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Last Name: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Birth Date: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("CIPA: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Sample Type: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Extration Date: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Reason: ", this._dataReportTest.patient.name)
+                        ],
+                        [
+                            PdfUtils.headerText("2. Diagnostics Request Info and Details\n\n"),
+                            PdfUtils.fieldText("Name: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Last Name: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Birth Date: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("CIPA: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Sample Type: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Extration Date: ", this._dataReportTest.patient.name),
+                            PdfUtils.fieldText("Reason: ", this._dataReportTest.patient.name)
+                        ],
+                    ]
+                },
+                // {text: "page break -----", pageBreak: "before"},
+            ]
+        };
+        const pdfDocument = new PdfBuilder(docDefinition);
+        pdfDocument.open();
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -340,6 +377,10 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         }
 
         return html`
+            <button type="button" class="btn btn-primary"
+                @click="${() => this.onGeneratePDFMake()}">
+                Generate PDF (Beta)
+            </button>
             <data-form
                 .data="${this._dataReportTest}"
                 .config="${this._config}"

@@ -42,7 +42,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.11.2",
     "@highlightjs/cdn-assets": "^10.6.0",
-    "@pdfme/generator": "^1.1.5",
     "@polymer/polymer": "2.6.1",
     "@svgdotjs/svg.js": "^3.0.16",
     "@toast-ui/editor": "^3.2.1",
@@ -73,7 +72,7 @@
     "lodash": "^4.17.19",
     "moment": "^2.15.1",
     "pako": "~0.2.8",
-    "pdfmake": "~0.1.20",
+    "pdfmake": "^0.2.7",
     "qtip2": "~3.0.3",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-theme": "0.1.0-beta.10",

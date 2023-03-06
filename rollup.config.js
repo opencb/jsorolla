@@ -164,11 +164,13 @@ export default sites.map(site => ({
         */
         const thisAsWindowForModules = [
             "node_modules/countup.js/dist/countUp.min.js",
+            "node_modules/pdfmake/build/vfs_fonts.js"
         ];
 
         if (thisAsWindowForModules.some(id_ => id.trimRight().endsWith(id_))) {
             return "window";
         }
+
     },
     output: {
 
