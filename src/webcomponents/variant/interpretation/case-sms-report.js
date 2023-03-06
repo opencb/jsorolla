@@ -339,6 +339,14 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         const docDefinition = {
             content: [
                 {
+                    alignment: "center",
+                    text: "GENOMIC REPORT",
+                    style: "header",
+                    fontSize: 23,
+                    bold: true,
+                    margin: [0, 10],
+                },
+                {
                     columns: [
                         [
                             PdfUtils.headerText("1. Patient Personal Details\n\n"),
@@ -360,8 +368,200 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             PdfUtils.fieldText("Extration Date: ", this._dataReportTest.patient.name),
                             PdfUtils.fieldText("Reason: ", this._dataReportTest.patient.name)
                         ],
-                    ]
+                    ],
+                    margin: [0, 12]
                 },
+                {
+                    stack: [
+                        {
+                            text: "3. Study Description\n\n",
+                            style: "header"
+                        },
+                        {
+                            text:
+                                "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n\n",
+                            style: "small"
+                        },
+                        {
+                            text: [
+                                {
+                                    text: "Name: ",
+                                    style: "label"
+                                },
+                                "Value"
+                            ]
+                        },
+                        {
+                            text: [
+                                {
+                                    text: "Name: ",
+                                    style: "label"
+                                },
+                                "Value"
+                            ]
+                        },
+                        {
+                            text: [
+                                {
+                                    text: "Name: ",
+                                    style: "label"
+                                },
+                                "Value"
+                            ]
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "4. Methodoly used\n\n",
+                            style: "header"
+                        },
+                        {
+                            text: "4.1. Study Reason \n\n",
+                            style: "subheader"
+                        },
+                        {
+                            text: `El test se ha realizado mediante enriquecimiento por captura con sondas específicas (SureSelect XT H@ Agilent) y posterior secuenciación en un equipo Illumina (Miseq). El análisis bioinformático se realizó utilizando los software: Isis (Analysis Software v2.6.2.3), BWA (Aligner 0.7.17), SAMtools (0.1.18 (r982:295)), GATK (Variant Caller v4.0) yy Picard (HS Metrics). Para el análisis de variantes y su anotación se ha empleado el software bioinformatico Alissa Interpret (Agilent Technologies) y se han consultado las siguientes bases de datos: dbSNP, 1000 genomes, ExAC, gnomAD, ClinVar, HGMD Professional y pkdb.mayo. El genoma humano de referencia utilizado para el ensamblaje de las secuencias due el CRCh37 hg19. La profundidad mínima de cobertura filtrada en este análisis fue de 20x.
+
+    La comprobación de las variantes detectadas mediante secuenciación masiva se ha realizado mediante secuenciación Sanger (Abi Prism 3130,) Sequencing Analysis Software 6; Applied BioSystem). Asimismo, se ha realizado tambíen mediante secuenciación Sanger el análisis de posibles variantes en el exón 1 del gen PKD1, debido a que esta región no está adecuadamente cubierta en el diseño actual del panel de secuenciación masiva.`
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "5. Results",
+                            style: "header",
+                            margin: [0, 10]
+                        },
+                        {
+                            text: "No reported variants to display (table)\n\n"
+                        },
+                        {
+                            text:
+                                "Variante Probablemente Patogénica en Heterocigosis en el gen PKD1.",
+                            bold: true
+                        },
+                        {
+                            text:
+                                "Variante de Significado Clínico Incierto (VSCI) en Heterocigosis en el gen REN.",
+                            bold: true
+                        },
+                        {
+                            text: "Variantes en Genes Prioritarios:",
+                            bold: true,
+                            margin: [0, 10]
+                        },
+                        {
+                            ol: [
+                                {
+                                    text: [
+                                        {
+                                            text:
+                                                "PKD1 (NM_001009944.2): c.9157G>A;p.Ala3053Thr ",
+                                            bold: true
+                                        },
+                                        "(cambio pendiente de confirmación mediante secuenciación Sanger)"
+                                    ]
+                                },
+                                {
+                                    text: [
+                                        {
+                                            text:
+                                                "REN (NM_000537.3): C.928G>; p.Glu310Gln ",
+                                            bold: true
+                                        },
+                                        "(cambio pendiente de confirmación mediante secuenciación Sanger)"
+                                    ]
+                                }
+                            ],
+                            margin: [0, 10]
+                        },
+                        {
+                            text: [
+                                {
+                                    text: "Hallazgos Incidentales: ",
+                                    style: "label"
+                                },
+                                "Value"
+                            ]
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "6. Interpretation results\n\n",
+                            style: "header"
+                        },
+                        {
+                            text: `Paciente diagnóstico clínico de PQRAD heterocigoto para la variante c.9157G>A (p.Ala3053Thr) en el exón 25 del gen PKD1 y para la variante c.928G>C (p.Glu310GIn) en el exón 8 del gen ACE.
+
+    PKD1 (NM_001009944.2): c.9157G>A;p.Ala3053Thr, exón 25
+    Este cambio ha sido identificado previamente por varios autores (Chang y cols., Hum Genet. 2013 Nov; 58(11);720-7; Carrera y cols., Sci Rep. 2016 Aug 8;6:30850; Wang y cols., Mol Genet Genomic Med.
+    2019 Jun;7(6):e720, en distintos individuos afectos de PQRAD. Además, este cambio aparece registrado en dos ocacsiones en la base de datos genómica CLinVar como una variante probablemente patogénica.
+
+    Por otra parte, esta variante no se ha encontrado hasta el momento en poblaciones consideradas control (dbSNP, 1000 genomes, ExAc, gnomAD), y los programas de prediccioón de poatogenicidad in silico utilizados clasifican esta variante como probablemente patogénica (SIFT, MutationTaster, PolyPhen, PROVEAN Y M-CAP).
+
+    En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2, PP3, PP5), esta variante se clasifica como una variante probablemente patogénica, siendo compatible con la clínica del paciente.
+
+    Variante patogénica en el gen PKD1 se asocian al desarrollo de poliquistosis renal autosómica dominante (PQRAD), enfermedad caracterizada por la aparición de quistes en el epitelio renal y que puede manifestarse con hematuria, infecciones del tracto urinario e hipertensión.
+
+    Recomendaciones: Se recomienda ampliar el estudio en el resto de familiares con riesgo de ser portadores de esta variante en PKD1. Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.
+
+
+    REN (NM_000537.3): C.928G>; p.Glu310Gln, exón 8
+
+    La información consultada en las bases de datos nos indica que este cambio ha sido descrito en la literatura científica (HGMD Professional) ni aparece registrada en los repositorios ClinVar o LOVD.
+
+    En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2 y BP4), esta variante se clasifica como una VSCI, cuya contribución al fenotipo observado en el paciente se desconoce.
+
+    Variaciones patogénicas en el gen REN se asocian al desarrollo de disgenesia tubular renal, trastorno raro del feto que se caracteriza por ausencia o escaso desarrollo de los túbulos proximales de los riñones y que presenta un patrón de herencia autosómico recesivo; o al desarrollo de Síndrome de hiperuricemia-insuficiencia renal, caracterizado por anemia de inicio temprano y aumento de ácido úricosérico, sin proteinuria, y que presenta un patrón de herencia autosómico dominante.
+
+    Recomendaciones: se recomienda valorar la posible implicacion de esta variante en REN en la hiperuricemia observada en el paciente. Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.`
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+
+                {
+                    text: "7. Notes\n\n",
+                    style: "header"
+                },
+                {
+                    stack: [
+                        {
+                            text: "Appendix\n\n",
+                            style: "header"
+                        },
+                        {
+                            text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+    printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+    only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+    It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+    and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+    printer took a galley of type and scrambled it to make a type specimen book. It has survived not
+    only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+    It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
+    and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+
+                {
+                    columns: [
+                        ["Respnsable Lab Genética Molecular:", "Fac:", "Contacto:"],
+                        ["Validado por:", "Fecha:"]
+                    ]
+                }
                 // {text: "page break -----", pageBreak: "before"},
             ]
         };
