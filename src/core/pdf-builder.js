@@ -2,7 +2,7 @@
 // import "pdfmake/build/vfs_fonts";
 // eslint-disable-next-line no-import-assign
 // pdfMake.vfs = window.pdfMake.vfs;
-import pdfMake from "pdfmake/build/pdfmake";
+// import pdfMake from "pdfmake/build/pdfmake";
 // Documentation: https://pdfmake.github.io/docs/0.1/
 
 export default class PdfBuilder {
