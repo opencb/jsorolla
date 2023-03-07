@@ -9,6 +9,15 @@ export default class PdfUtils {
         };
     }
 
+    static titleText = (content, config) => {
+        return {
+            text: content,
+            style: "header",
+            fontSize: 23,
+            ...config
+        };
+    }
+
     static headerText = (content, config) => {
         return {
             text: content,
@@ -21,9 +30,13 @@ export default class PdfUtils {
         return {
             text: [
                 this.boldText(field, config),
-                value
+                {text: value}
             ]
         };
+    }
+
+    static htmlToPdf = contentHtml => {
+        return htmlToPdfmake(contentHtml, {removeExtraBlanks: true, ignoreStyles: ["font-family"]});
     }
 
 }

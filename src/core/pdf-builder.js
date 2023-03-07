@@ -2,7 +2,7 @@
 // import "pdfmake/build/vfs_fonts";
 // eslint-disable-next-line no-import-assign
 // pdfMake.vfs = window.pdfMake.vfs;
-
+import pdfMake from "pdfmake/build/pdfmake";
 // Documentation: https://pdfmake.github.io/docs/0.1/
 
 export default class PdfBuilder {
@@ -17,6 +17,7 @@ export default class PdfBuilder {
 
     #init(docDefinition) {
         this.docDefinition = {...this.getDefaultConfig(), ...docDefinition};
+        this.tableLayouts = {...this.getTableLayouts()};
     }
 
     /**
@@ -24,10 +25,7 @@ export default class PdfBuilder {
      * @returns {void}
      */
     open() {
-        // debugger;
-
-        pdfMake.createPdf(this.docDefinition).open();
-
+        pdfMake.createPdf(this.docDefinition, this.tableLayouts).open();
     }
 
     /**
@@ -50,6 +48,40 @@ export default class PdfBuilder {
         this.docDefinition.styles = {
             ...this.docDefinition.styles,
             stylesDefinition
+        };
+    }
+
+    addCustomTableLayout(customTableLayoutDefinition) {
+        this.tableLayouts = {
+            ...this.getTableLayouts(),
+            ...customTableLayoutDefinition
+        };
+    }
+
+    getTableLayouts() {
+        return {
+            headerVerticalBlueLine: {
+                // top & bottom
+                hLineWidth: function () {
+                    return 0;
+                },
+                // left & right
+                vLineWidth: function (i, node) {
+                    // i == 0 mean no draw line on start
+                    // i == node.table.body.length no draw the last line
+                    if (i === node.table.body.length) {
+                        return 0;
+                    }
+                    // it will draw a line if i == 0
+                    return i === 0 ? 2 : 0;
+                },
+                vLineColor: function (i) {
+                    return i === 0 ? "#0c2f4c" : "";
+                },
+                fillColor: function () {
+                    return "#f3f3f3";
+                }
+            },
         };
     }
 
