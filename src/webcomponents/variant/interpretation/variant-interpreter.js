@@ -17,20 +17,23 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
-import "../../commons/tool-header.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
-import "./case-steiner-report.js";
-import "./case-sms-report.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
+import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
+import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
+import "../../clinical/clinical-analysis-review.js";
+import "../../clinical/clinical-analysis-review-beta.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "./case-sms-report.js";
+import "./case-steiner-report.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -306,6 +309,28 @@ class VariantInterpreter extends LitElement {
             }
         };
 
+        // reportReviewConfig
+        const caseReviewInfo = {
+            id: "caseReviewInfo",
+            name: "Case Review Info (Beta)",
+            active: false,
+            render: (clinicalAnalysis, active, opencgaSession) => {
+                return html`
+                    <div class="col-md-10 col-md-offset-1">
+                        <tool-header
+                            class="bg-white"
+                            title="Case - ${clinicalAnalysis.id}">
+                        </tool-header>
+                        <clinical-analysis-review-beta
+                            @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            .opencgaSession="${opencgaSession}">
+                        </clinical-analysis-review-beta>
+                    </div>
+                `;
+            }
+        };
+
         switch (settingReporter && settingReporter?.component) {
             case "steiner-report":
                 configReportTabs.items.push({
@@ -329,7 +354,7 @@ class VariantInterpreter extends LitElement {
                 });
                 break;
             case "sms-report":
-                configReportTabs.items.push(reportReviewConfig, {
+                configReportTabs.items.push(reportReviewConfig, caseReviewInfo, {
                     id: "reviewReport",
                     name: "Review",
                     active: false,
@@ -351,26 +376,7 @@ class VariantInterpreter extends LitElement {
                 });
                 break;
             default:
-                configReportTabs.items.push({
-                    id: "caseReport",
-                    name: "Case Observation Review",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header
-                                    class="bg-white"
-                                    title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                                </tool-header>
-                                <clinical-analysis-review
-                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-review>
-                            </div>
-                        `;
-                    }
-                });
+                configReportTabs.items.push(reportReviewConfig);
                 break;
         }
 
