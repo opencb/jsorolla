@@ -434,7 +434,7 @@ export default class StudyAdmin extends LitElement {
         const activeMenuItem = "UsersAndGroups";
         return html`
             <!-- TOOL HEADER -->
-            <tool-header title="${this._config.name}" icon="${this._config.icon}"></tool-header>
+            <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"

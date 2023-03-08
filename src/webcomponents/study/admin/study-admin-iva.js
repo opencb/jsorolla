@@ -127,7 +127,7 @@ export default class StudyAdminIva extends LitElement {
     // --- RENDER METHOD  ---
     render() {
         return html`
-            <tool-header title="${this._config.name}" icon="${this._config.icon}"></tool-header>
+            <tool-header class="page-title-no-margin" title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"

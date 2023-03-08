@@ -1928,18 +1928,18 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["catalog-admin"] ? html`
-            <div id="catalog-admin">
+            <div class="content row" id="catalog-admin">
                 <catalog-admin
                     .opencgaSession="${this.opencgaSession}"
                     @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                 </catalog-admin>
-            </div>
+            </>
         ` : null}
 
 
                 ${this.config.enabledComponents["opencga-admin"] ? html`
             <tool-header title="Study Dashboard" icon="${"fas fa-rocket"}"></tool-header>
-            <div id="projects-admin" class="content col-md-10 col-md-offset-1">
+            <div id="projects-admin" class="content row col-md-10 col-md-offset-1">
                 <projects-admin
                     .opencgaSession="${this.opencgaSession}"
                     @sessionUpdateRequest="${this.onSessionUpdateRequest}">
@@ -1948,7 +1948,7 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-            <div class="content" id="study-admin">
+            <div class="content row" id="study-admin">
                 <study-admin
                     .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"
@@ -1970,7 +1970,7 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["study-variant-admin"] ? html`
-            <div class="content">
+            <div class="content row">
                 <study-variant-admin
                     .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"
