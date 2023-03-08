@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
@@ -58,73 +57,7 @@ class CaseSmsReport extends LitElement {
 
     #init() {
         this._data = {};
-        this._dataReportTest = {
-            patient: {
-                name: "John",
-                lastName: "Doe",
-                birthDate: "20000711140653",
-                age: "30",
-                cipa: "",
-            },
-            sample: {
-                type: "Blood",
-                extractionDate: "20220904140653",
-                reason: "Polycystic Kidney Disease"
-            },
-            request: {
-                requestNumber: "60cc3667",
-                requestDate: "20220904140653",
-                requestingDoctor: {
-                    name: "Octavia Mountain",
-                    specialization: "Nephrology",
-                    hospitalName: "Hosp. Gen. Sample",
-                    address: "61 Washington Parkway",
-                    city: "Vidovci",
-                    code: "34000",
-                }
-            },
-            study: {
-                reason: "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)",
-                project: "NGS_0183-0009-0001-5517d6d27efa",
-                currentAnalysis: "Panel Medical Genetics 1 v.2 (Annex 1)",
-                genePriority: ["COL4A1", "COL4A3", "COL4A4", "COL4A5", "MYH9"],
-            },
-            methodology: {
-                description: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
-            },
-            results: [
-                {id: "Ploidy", name: "asdasd" || "NA"},
-                {id: "Aberrant cell fraction", name: "asdasd" || "NA"},
-            ],
-            interpretation: {},
-            variantAnnotation: {},
-            notes: "",
-            qcInfo: {
-            },
-            disclaimer: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-            printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
-            appendix: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
-        };
+        this._reportData = {};
         this._ready = false;
         this._config = this.getDefaultConfig();
     }
@@ -140,7 +73,6 @@ and more recently with desktop publishing software like Aldus PageMaker includin
         // }
 
         if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisReportDataLocal(); // Testing temporal
             this.clinicalAnalysisObserver();
         }
 
@@ -175,27 +107,15 @@ and more recently with desktop publishing software like Aldus PageMaker includin
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-            this._dataReportTest = {
-                ...this._dataReportTest,
-                interpretation: this.clinicalAnalysis?.interpretation
+            this._reportData = {
+                ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
+                interpretation: this.clinicalAnalysis?.interpretation,
+                // eslint-disable-next-line max-len
+                notes: "<ol><li><p>La información aquí contenida debe ser considerada como personal y estrictamente confidencial. El Consentimiento Informado para analizar esta muestra ha sido obtenido por el clínico remitente dentro de un proceso de Asesoramiento Genético adecuado. Los resultados e interpretaciones de este informe se emiten asumiendo que a) la muestra recibida por el laboratorio está correctamente identificada y b) las relaciones familiares y el diagnóstico clínico es tal y como se establece en la información que se adjunta a la muestra. El ADN sobrante este paciente, si lo hay, será conservado indefinidamente en este laboratorio a menos que se reciba una solicitud para su destrucción por parte del paciente o su representante legal. Este informe solo debe ser copiado en su integridad.</p></li><li><p>Se establecen como <strong>genes prioritarios</strong> aquellos que, a la vista de las evidencias científicas en el momento de emisión del informe, se considera que pueden ser responsable del fenotipo descrito en el paciente. Solo se mencionan las variantes clasificadas como patogénicas, posiblemente patogénicas y aquellas de significado clínico incierto que afecten a genes considerados prioritarios. El criterio aplicado en la interpretación de las variantes indetificadas es el recomendado por la ACMG Laboratory Quality Assurance Committee. Genet Med. 2015 May;17(5): 405-24. La nomenclatura utiizada para la descripción de las variantes identificadas es la recomendada por la Human Genome Variation Society (http://varnomen.hgvs.org).</p></li></ol><p><strong>Estadísticas de cobertura de la Muestra Analizada:</strong></p><p>Cobertura Media 489,4X</p><p>Unif. de Cobertura 97,8%</p><p>% Sec. 1X 100</p><p>% Sec. 10X 99,9</p><p>% Sec. 20X 99,7</p><p>% Sec. 50X 99,2</p>"
             };
             this._config = this.getDefaultConfig();
             this.requestUpdate();
         }
-    }
-
-    clinicalAnalysisReportDataLocal() {
-
-        if (REPORT_DATA) {
-            this._dataReportTest = {...this._dataReportTest, ...REPORT_DATA};
-            // TODO: for testing interative until endpoint is available
-            // localStorage.setItem("report_data", JSON.stringify(this._dataReportTest));
-        }
-
-        // if (localStorage.getItem("report_data") !== null) {
-        //     this._dataReportTest = JSON.parse(localStorage.getItem("report_data"));
-        // }
-
     }
 
     // TODO: It's possible this function turn into a component
@@ -266,10 +186,10 @@ and more recently with desktop publishing software like Aldus PageMaker includin
             ]
         });
 
+
         return html`
             <data-form
                 .data="${patientData}"
-                .onFieldChange={this.onFieldChange}
                 .config="${_config}">
             </data-form>
         `;
@@ -351,14 +271,14 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                                 table: {
                                     widths: [230],
                                     body: [
-                                        [PdfUtils.fieldText("Name: ", this._dataReportTest.patient.name)],
-                                        [PdfUtils.fieldText("Last Name: ", this._dataReportTest.patient.lastName)],
-                                        [PdfUtils.fieldText("Birth Date: ", UtilsNew.dateFormatter(this._dataReportTest.patient.birthDate))],
-                                        [PdfUtils.fieldText("Age: ", this._dataReportTest.patient.age)],
-                                        [PdfUtils.fieldText("CIPA: ", this._dataReportTest.patient.cipa)],
-                                        [PdfUtils.fieldText("Sample Type: ", this._dataReportTest.sample.type)],
-                                        [PdfUtils.fieldText("Extration Date: ", this._dataReportTest.sample.extractionDate)],
-                                        [PdfUtils.fieldText("Reason: ", this._dataReportTest.sample.reason)]
+                                        [PdfUtils.fieldText("Name: ", this._reportData.patient.name)],
+                                        [PdfUtils.fieldText("Last Name: ", this._reportData.patient.lastName)],
+                                        [PdfUtils.fieldText("Birth Date: ", UtilsNew.dateFormatter(this._reportData.patient.birthDate))],
+                                        [PdfUtils.fieldText("Age: ", this._reportData.patient.age)],
+                                        [PdfUtils.fieldText("CIPA: ", this._reportData.patient.cipa)],
+                                        [PdfUtils.fieldText("Sample Type: ", this._reportData.sample.type)],
+                                        [PdfUtils.fieldText("Extration Date: ", this._reportData.sample.extractionDate)],
+                                        [PdfUtils.fieldText("Reason: ", this._reportData.sample.reason)]
                                     ]
                                 },
                                 layout: "headerVerticalBlueLine"
@@ -370,8 +290,8 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                                 table: {
                                     widths: [230],
                                     body: [
-                                        [PdfUtils.fieldText("N. Request: ", this._dataReportTest.request.requestNumber)],
-                                        [PdfUtils.fieldText("Request Date: ", UtilsNew.dateFormatter(this._dataReportTest.request.requestDate))],
+                                        [PdfUtils.fieldText("N. Request: ", this._reportData.request.requestNumber)],
+                                        [PdfUtils.fieldText("Request Date: ", UtilsNew.dateFormatter(this._reportData.request.requestDate))],
                                         [PdfUtils.fieldText("Dr/Dra: ", ["Octavia Mountain\n", "Nephrology\n", "Hosp. Gen. Sample\n", "61 Washington Parkway\n", "34000\n"])],
                                     ]
                                 },
@@ -389,9 +309,9 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                                 "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
                             style: "small"
                         },
-                        PdfUtils.fieldText("Project: ", this._dataReportTest.study.project),
-                        PdfUtils.fieldText("Current Analysis: ", this._dataReportTest.study.currentAnalysis),
-                        PdfUtils.fieldText("Gene Priority: ", this._dataReportTest.study.genePriority),
+                        PdfUtils.fieldText("Project: ", this._reportData.study.project),
+                        PdfUtils.fieldText("Current Analysis: ", this._reportData.study.currentAnalysis),
+                        PdfUtils.fieldText("Gene Priority: ", this._reportData.study.genePriority),
                     ],
                     margin: [0, 10]
                 },
@@ -406,7 +326,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             style: "subheader"
                         },
                         {
-                            text: this._dataReportTest.methodology.description,
+                            text: this._reportData.methodology.description,
                             alignment: "justify"
                         },
                     ],
@@ -422,7 +342,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                         {
                             text: "No reported variants to display (table)\n\n"
                         },
-                        PdfUtils.htmlToPdf("<p><strong>Variante Probablemente Patogénica en Heterocigosis en el gen PKD1.</strong></p><p><strong>Variante de Significado Clínico Incierto (VSCI) en Heterocigosis en el gen REN.</strong></p><p><strong>Variantes en Genes Prioritarios:</strong></p><ol><li><p><strong>PKD1 (NM_001009944.2): c.9157G&gt;A;p.Ala3053Thr</strong> (cambio pendiente de confirmación mediante secuenciación Sanger)</p></li><li><p><strong>REN (NM_000537.3): C.928G&gt;; p.Glu310Gln</strong> (cambio pendiente de confirmación mediante secuenciación Sanger)</p></li></ol><p><strong>Hallazgos Incidentales:</strong> No procede. Datos Filtrados.</p><p><br></p>")
+                        PdfUtils.htmlToPdf(this._reportData.results)
                     ],
                     margin: [0, 10]
                 },
@@ -494,34 +414,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             text: "6. Interpretation results\n\n",
                             style: "header"
                         },
-                        PdfUtils.htmlToPdf("<p>Paciente diagnóstico clínico de PQRAD heterocigoto para la variante c.9157G&gt;A (p.Ala3053Thr) en el exón 25 del gen <strong>PKD1</strong> y para la variante <strong>c.928G&gt;C (p.Glu310GIn)</strong> en el exón 8 del gen ACE.</p><ol><li><p><strong>PKD1 (NM_001009944.2): c.9157G&gt;A;p.Ala3053Thr, exón 25</strong></p><p>Este cambio ha sido identificado previamente por varios autores (Chang y cols., Hum Genet. 2013 Nov; 58(11);720-7; Carrera y cols., Sci Rep. 2016 Aug 8;6:30850; Wang y cols., Mol Genet Genomic Med.</p><p>2019 Jun;7(6):e720, en distintos individuos afectos de PQRAD. Además, este cambio aparece registrado en dos ocacsiones en la base de datos genómica CLinVar como una variante probablemente patogénica.</p><p><br></p><p>Por otra parte, esta variante no se ha encontrado hasta el momento en poblaciones consideradas control (dbSNP, 1000 genomes, ExAc, gnomAD), y los programas de prediccioón de poatogenicidad in silico utilizados clasifican esta variante como probablemente patogénica (SIFT, MutationTaster, PolyPhen, PROVEAN Y M-CAP).</p><p><br></p><p>En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2, PP3, PP5), esta variante se clasifica como una <strong>variante probablemente patogénica, siendo compatible con la clínica del paciente.</strong></p><p><br></p><p>Variante patogénica en el gen PKD1 se asocian al desarrollo de poliquistosis renal autosómica dominante (PQRAD), enfermedad caracterizada por la aparición de quistes en el epitelio renal y que puede manifestarse con hematuria, infecciones del tracto urinario e hipertensión.</p><p><strong>Recomendaciones:</strong> Se recomienda ampliar el estudio en el resto de familiares con riesgo de ser portadores de esta variante en <strong>PKD1.</strong> Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.</p><p><br></p><p><br></p></li><li><p><strong>REN (NM_000537.3): C.928G&gt;; p.Glu310Gln, exón 8</strong></p></li></ol><p>La información consultada en las bases de datos nos indica que este cambio ha sido descrito en la literatura científica (HGMD Professional) ni aparece registrada en los repositorios ClinVar o LOVD.</p><p>En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2 y BP4), esta variante se clasifica como una VSCI, cuya contribución al fenotipo observado en el paciente se desconoce.</p><p>Variaciones patogénicas en el gen REN se asocian al desarrollo de disgenesia tubular renal, trastorno raro del feto que se caracteriza por ausencia o escaso desarrollo de los túbulos proximales de los riñones y que presenta un patrón de herencia autosómico recesivo; o al desarrollo de Síndrome de hiperuricemia-insuficiencia renal, caracterizado por anemia de inicio temprano y <strong>aumento de ácido úricosérico, sin proteinuria,</strong> y que presenta un patrón de herencia autosómico dominante.</p><p><strong>Recomendaciones:</strong> se recomienda valorar la posible implicacion de esta variante en REN en la hiperuricemia observada en el paciente. Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.</p><p><br></p><p><br></p>"),
-                        //                     {
-                        //                         alignment: "justify",
-                        //                         text: `Paciente diagnóstico clínico de PQRAD heterocigoto para la variante c.9157G>A (p.Ala3053Thr) en el exón 25 del gen PKD1 y para la variante c.928G>C (p.Glu310GIn) en el exón 8 del gen ACE.
-
-                        // PKD1 (NM_001009944.2): c.9157G>A;p.Ala3053Thr, exón 25
-                        // Este cambio ha sido identificado previamente por varios autores (Chang y cols., Hum Genet. 2013 Nov; 58(11);720-7; Carrera y cols., Sci Rep. 2016 Aug 8;6:30850; Wang y cols., Mol Genet Genomic Med.
-                        // 2019 Jun;7(6):e720, en distintos individuos afectos de PQRAD. Además, este cambio aparece registrado en dos ocacsiones en la base de datos genómica CLinVar como una variante probablemente patogénica.
-
-                        // Por otra parte, esta variante no se ha encontrado hasta el momento en poblaciones consideradas control (dbSNP, 1000 genomes, ExAc, gnomAD), y los programas de prediccioón de poatogenicidad in silico utilizados clasifican esta variante como probablemente patogénica (SIFT, MutationTaster, PolyPhen, PROVEAN Y M-CAP).
-
-                        // En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2, PP3, PP5), esta variante se clasifica como una variante probablemente patogénica, siendo compatible con la clínica del paciente.
-
-                        // Variante patogénica en el gen PKD1 se asocian al desarrollo de poliquistosis renal autosómica dominante (PQRAD), enfermedad caracterizada por la aparición de quistes en el epitelio renal y que puede manifestarse con hematuria, infecciones del tracto urinario e hipertensión.
-
-                        // Recomendaciones: Se recomienda ampliar el estudio en el resto de familiares con riesgo de ser portadores de esta variante en PKD1. Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.
-
-
-                        // REN (NM_000537.3): C.928G>; p.Glu310Gln, exón 8
-
-                        // La información consultada en las bases de datos nos indica que este cambio ha sido descrito en la literatura científica (HGMD Professional) ni aparece registrada en los repositorios ClinVar o LOVD.
-
-                        // En consecuencia, y siguiendo las guías de clasificación establecidas por la ACMG (cumple los criterios PP2, PM2 y BP4), esta variante se clasifica como una VSCI, cuya contribución al fenotipo observado en el paciente se desconoce.
-
-                        // Variaciones patogénicas en el gen REN se asocian al desarrollo de disgenesia tubular renal, trastorno raro del feto que se caracteriza por ausencia o escaso desarrollo de los túbulos proximales de los riñones y que presenta un patrón de herencia autosómico recesivo; o al desarrollo de Síndrome de hiperuricemia-insuficiencia renal, caracterizado por anemia de inicio temprano y aumento de ácido úricosérico, sin proteinuria, y que presenta un patrón de herencia autosómico dominante.
-
-                        // Recomendaciones: se recomienda valorar la posible implicacion de esta variante en REN en la hiperuricemia observada en el paciente. Se recomienda ofrecer asesoramiento genético al paciente y a su familia en una consulta especializada.`
-                        //                     }
+                        PdfUtils.htmlToPdf(this._reportData.interpretations),
                     ],
                     margin: [0, 10]
                 },
@@ -530,9 +423,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                     text: "7. Notes\n\n",
                     style: "header"
                 },
-
-                PdfUtils.htmlToPdf("<ol><li><p>La información aquí contenida debe ser considerada como personal y estrictamente confidencial. El Consentimiento Informado para analizar esta muestra ha sido obtenido por el clínico remitente dentro de un proceso de Asesoramiento Genético adecuado. Los resultados e interpretaciones de este informe se emiten asumiendo que a) la muestra recibida por el laboratorio está correctamente identificada y b) las relaciones familiares y el diagnóstico clínico es tal y como se establece en la información que se adjunta a la muestra. El ADN sobrante este paciente, si lo hay, será conservado indefinidamente en este laboratorio a menos que se reciba una solicitud para su destrucción por parte del paciente o su representante legal. Este informe solo debe ser copiado en su integridad.</p></li><li><p>Se establecen como <strong>genes prioritarios</strong> aquellos que, a la vista de las evidencias científicas en el momento de emisión del informe, se considera que pueden ser responsable del fenotipo descrito en el paciente. Solo se mencionan las variantes clasificadas como patogénicas, posiblemente patogénicas y aquellas de significado clínico incierto que afecten a genes considerados prioritarios. El criterio aplicado en la interpretación de las variantes indetificadas es el recomendado por la ACMG Laboratory Quality Assurance Committee. Genet Med. 2015 May;17(5): 405-24. La nomenclatura utiizada para la descripción de las variantes identificadas es la recomendada por la Human Genome Variation Society (http://varnomen.hgvs.org).</p></li></ol><p><strong>Estadísticas de cobertura de la Muestra Analizada:</strong></p><p>Cobertura Media 489,4X</p><p>Unif. de Cobertura 97,8%</p><p>% Sec. 1X 100</p><p>% Sec. 10X 99,9</p><p>% Sec. 20X 99,7</p><p>% Sec. 50X 99,2</p>"),
-
+                PdfUtils.htmlToPdf(this._reportData.notes),
                 {
                     stack: [
                         {
@@ -540,28 +431,23 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                             style: "header"
                         },
                         {
+                            ...PdfUtils.htmlToPdf(this._reportData.appendix),
                             alignment: "justify",
-                            text: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-printer took a galley of type and scrambled it to make a type specimen book. It has survived not
-only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`
                         }
                     ],
                     margin: [0, 10]
                 },
-
                 {
                     columns: [
-                        ["Respnsable Lab Genética Molecular:", "Fac:", "Contacto:"],
-                        ["Validado por:", "Fecha:"]
+                        [
+                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.laboratory.responsible),
+                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.laboratory.facultive.join()),
+                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.laboratory.email)
+                        ],
+                        [
+                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.laboratory.validation),
+                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.laboratory.date)),
+                        ]
                     ]
                 }
                 // {text: "page break -----", pageBreak: "before"},
@@ -584,7 +470,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                 Generate PDF (Beta)
             </button>
             <data-form
-                .data="${this._dataReportTest}"
+                .data="${this._reportData}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -1006,6 +892,7 @@ and more recently with desktop publishing software like Aldus PageMaker includin
                         {
                             title: "",
                             // field: "info.project",
+
                             type: "text",
                             display: {
                                 defaultLayout: "vertical",
