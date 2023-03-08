@@ -49,6 +49,11 @@ export default class ToolSettingsRestore extends LitElement {
     #init() {
         this.isLoading = false;
         this._listStudies = [];
+        this._activeSection = {
+            0: "default",
+            1: "backup",
+        };
+
     }
 
     #setLoading(value) {
@@ -59,7 +64,7 @@ export default class ToolSettingsRestore extends LitElement {
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
-        this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
+        this._listAdditionalStudies = [];
         this._config = {
             ...this.getDefaultConfig(),
             // ...this.config,
@@ -92,6 +97,8 @@ export default class ToolSettingsRestore extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 const fields = [];
                 for (const study of project.studies) {
+                    // CAUTION [Issue 1] 20230308 Vero: this.selectPicker.selectpicker("val", val), it is not setting the array val
+                    //  if val is disabled (in select-field-filter.js, method updated)
                     fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
                 }
                 this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
@@ -106,9 +113,10 @@ export default class ToolSettingsRestore extends LitElement {
 
     // --- EVENTS ---
     onFieldChange(e, field) {
+        debugger
         const param = field || e.detail.param;
         // 1. Update the list of studies
-        // NOTE Vero: In restoring settings, only changes in the study needs to be listened.
+        // NOTE Vero: In restoring settings, only changes in the study need to be listened.
         // Changes in the json editor are for read-only purposes (preview default/backup settings per tool)
         if (param === "fqn") {
             this._study.fqn = "";
@@ -130,16 +138,22 @@ export default class ToolSettingsRestore extends LitElement {
         });
     }
 
-    onSubmit(e, field) {
+    onSubmit(e) {
         // 1. Prepare query params
+        debugger
+        const sectionId = this._activeSection[e.detail.value];
         const params = {
             includeResult: true,
         };
         // 2. Query
         this.#setLoading(true);
+        // Caution 20230308 Vero: horrible fix to [Issue 1] described above
+        this._listStudies = [this.opencgaSession.study.fqn, ...this._listStudies];
         this._listStudies.forEach(studyId => {
-            // 2.1. Get new study settings
-            const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, studyId, field);
+            debugger
+            // 2.1. Get new study tool settings
+            const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
+            const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, sectionId);
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
                 // .update(this.opencgaSession.study.fqn, updateParams, params)
@@ -170,7 +184,9 @@ export default class ToolSettingsRestore extends LitElement {
             <data-form
                 .data="${this._study}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
     }
@@ -217,7 +233,6 @@ export default class ToolSettingsRestore extends LitElement {
                         },
                         {
                             type: "custom",
-                            field: "editor",
                             display: {
                                 render: study => {
                                     return html `

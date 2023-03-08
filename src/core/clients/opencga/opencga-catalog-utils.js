@@ -120,6 +120,20 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
+    // Find study object in opencgaSession
+    static getStudyInSession(opencgaSession, studyId) {
+        let study = {};
+        for (const p of opencgaSession?.projects) {
+            for (const s of p.studies) {
+                if (s.id === studyId || s.fqn === studyId) {
+                    study = s;
+                    break;
+                }
+            }
+        }
+        return study;
+    }
+
     // Update grid configuration of the specified browser
     static updateGridConfig(opencgaSession, browserName, newGridConfig) {
         const newConfig = {
@@ -140,15 +154,16 @@ export default class OpencgaCatalogUtils {
     /** Prepares the study tool settings params that will be updated. If no settings are provided,
      * it will restore its default settings.
      * @param {object} opencgaSession   Session
+     * @param {object} study            Study
      * @param {string} toolName         Tool name
      * @param {object} settings         OPTIONAL: if no settings, the default settings will be stored
      * @returns {Object}                Tool settings to be updated
      */
-    static getNewToolIVASettings(opencgaSession, toolName, settings) {
+    static getNewToolIVASettings(opencgaSession, study, toolName, settings) {
 
         // 1. Retrieve other study attributes to avoid overwriting
         const otherAttributes = UtilsNew.objectCloneExclude(
-            opencgaSession.study.attributes,
+            study.attributes,
             [
                 // eslint-disable-next-line no-undef
                 `${SETTINGS_NAME}_BACKUP`,
@@ -156,6 +171,7 @@ export default class OpencgaCatalogUtils {
                 SETTINGS_NAME
             ]
         );
+        debugger
         // 2. The params that will be updated
         return {
             attributes: {
@@ -165,7 +181,7 @@ export default class OpencgaCatalogUtils {
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME + "_BACKUP"]:
                 // eslint-disable-next-line no-undef
-                    UtilsNew.objectClone(opencgaSession.study.attributes[SETTINGS_NAME]),
+                    UtilsNew.objectClone(study.attributes[SETTINGS_NAME]),
                 // 3. New tool settings
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME]: {
@@ -177,7 +193,7 @@ export default class OpencgaCatalogUtils {
                             // If settings param exists, save settings. If not, save defaultSettings
                             UtilsNew.objectCloneReplace(
                                 // eslint-disable-next-line no-undef
-                                opencgaSession.study.attributes[SETTINGS_NAME].settings,
+                                study.attributes[SETTINGS_NAME].settings,
                                 `${[toolName]}`,
                                 settings ?? opencgaSession.ivaDefaultSettings)
                         )
@@ -194,6 +210,7 @@ export default class OpencgaCatalogUtils {
      * @returns {object}                Study attributes with default IVA settings
      */
     static getRestoreIVASettings(opencgaSession, study, type) {
+        debugger
         const getSettings = () => {
             switch (type) {
                 case "default":

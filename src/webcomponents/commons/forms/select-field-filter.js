@@ -102,6 +102,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     firstUpdated() {
+        debugger
         this.selectPicker = $("#" + this.elm, this);
         this.selectPicker.selectpicker({
             iconBase: "fas",
@@ -151,6 +152,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange() {
+        debugger
         const selection = this.selectPicker.selectpicker("val");
         let val = null;
         if (selection && selection.length) {

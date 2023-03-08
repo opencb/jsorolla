@@ -18,7 +18,6 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
-import "./tool-settings-update.js";
 import "./tool-settings-preview.js";
 
 

@@ -1957,9 +1957,10 @@ class IvaApp extends LitElement {
             </div>
         ` : null}
 
+            <!-- NOTE Vero: "row" class to avoid tricky css for undoing the margin bootstrap of container-fluid -->
             <!-- Remove this from the parameters: .study="$ {this.opencgaSession.study}" -->
                 ${this.config.enabledComponents["study-admin-iva"] ? html`
-            <div class="content">
+            <div class="content row">
                 <study-admin-iva
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings}"

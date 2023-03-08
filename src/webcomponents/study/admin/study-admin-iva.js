@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../commons/tool-settings-restore";
-import "./study-settings-detail.js";
+import "../../commons/tool-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
@@ -115,12 +115,12 @@ export default class StudyAdminIva extends LitElement {
 
     renderToolSettings(toolSettings, toolName) {
         return html `
-            <study-settings-detail
+            <tool-settings-update
                 .opencgaSession="${this.opencgaSession}"
                 .study="${this.opencgaSession.study}"
                 .toolSettings="${toolSettings}"
                 .toolName="${toolName}">
-            </study-settings-detail>
+            </tool-settings-update>
         `;
     }
 

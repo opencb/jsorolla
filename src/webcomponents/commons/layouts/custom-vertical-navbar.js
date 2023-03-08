@@ -23,7 +23,6 @@ export default class CustomVerticalNavBar extends LitElement {
     #divContent;
 
     constructor() {
-        console.log("CONSTRUCTOR Menu Admin");
         super();
 
         this.#init();
@@ -143,7 +142,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
     // --- RENDER METHODS ---
     // TODO: REFACTOR STYLE
-    #renderStyle() {
+    #renderStyleCopy() {
         return html`
             <style>
                 .nav-item {
@@ -153,14 +152,12 @@ export default class CustomVerticalNavBar extends LitElement {
                     width: 100%;
                     border-radius: 3px;
                     line-height: 30px;
-
                     /*transform: translate3d(0px, 0, 0);*/
                     /*transition: transform*/
                     /*    0.3s ease 0s,*/
                     /*    opacity 0.3s ease 0s,*/
                     /*    all .15s ease-in;*/
                 }
-
                 .active-item {
                     /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
                     background-color: #E25D1D;
@@ -169,49 +166,42 @@ export default class CustomVerticalNavBar extends LitElement {
                 .nav-item > .nav-link:hover{
                     background-color: inherit;
                 }
-
                 .nav-item:hover:not(.active-item) {
+                    /*background-color: #AAAABC;*/
                     background-color: #767687;
                     cursor: pointer;
                 }
-
                 .navbar.navbar-inverse.main-navbar {
-                    /*position: fixed;*/
+                    position: fixed;
                     top: 0;
                     width: 100%;
-                    /*z-index: 1000;*/
+                    z-index: 1000;
                 }
-
-                /*div.page-title {*/
-                /*    position: fixed;*/
-                /*    top: 50px;*/
-                /*    width: 100%;*/
-                /*    z-index: 10*/
-                /*}*/
-
-                /*.row.left {*/
-                /*    margin-left: -30px;*/
-                /*    margin-top: -10px*/
-                /*}*/
-
+                div.page-title {
+                    position: fixed;
+                    top: 50px;
+                    width: 100%;
+                    z-index: 10
+                }
+                .row.left {
+                    margin-left: -30px;
+                    margin-top: -10px
+                }
                 /*Remove rounded coners*/
                 nav.sidebar.navbar {
                     border-radius: 0;
-                    /*top: 125px;*/
+                    top: 125px;
                 }
-
                 nav.sidebar, .main {
                     -webkit-transition: margin 200ms ease-out;
                     -moz-transition: margin 200ms ease-out;
                     -o-transition: margin 200ms ease-out;
                     transition: margin 200ms ease-out;
                 }
-
                 /* Add gap to nav and right windows.*/
                 .main {
                     padding: 10px 10px 0 10px;
                 }
-
                 /* .....NavBar: Icon only with coloring/layout.....*/
                 /*small/medium side display*/
                 @media (min-width: 768px) {
@@ -221,39 +211,32 @@ export default class CustomVerticalNavBar extends LitElement {
                         margin-left: 40px;
                         float: right;
                     }
-
                     /*lets nav bar to be showed on mouseover*/
                     nav.sidebar:hover + .main {
                         margin-left: 200px;
                     }
-
                     /*Center Study Name*/
                     nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
                         margin-left: 0;
                     }
-
                     /*Center Study Name*/
                     nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
                         text-align: center;
                         width: 100%;
                         margin-left: 0;
                     }
-
                     /*Center Icons*/
                     nav.sidebar a {
                         padding-right: 13px;
                     }
-
                     /*adds border top to first nav box */
                     nav.sidebar .navbar-nav.left > li:first-child {
                         border-top: 1px #e5e5e5 solid;
                     }
-
                     /* adds border to bottom nav boxes */
                     nav.sidebar .navbar-nav.left > li {
                         border-bottom: 0 #e5e5e5 solid;
                     }
-
                     /* Colors/style dropdown box*/
                     nav.sidebar .navbar-nav.left .open .dropdown-menu {
                         position: static;
@@ -265,24 +248,21 @@ export default class CustomVerticalNavBar extends LitElement {
                         -webkit-box-shadow: none;
                         box-shadow: none;
                     }
-
                     /*allows nav box to use 100% width*/
                     nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
                         padding: 0;
                     }
-
                     /*colors dropdown box text */
                     .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
                         /*color: #777;*/
                         color: #d2d2d2;
                         white-space: normal;
                     }
-
                     /*gives sidebar width/height*/
                     nav.sidebar {
-                        /*position: fixed;*/
+                        position: fixed;
                         height: 100%;
-                        /*width: 250px;*/
+                        width: 250px;
                         margin-left: -200px;
                         float: left;
                         /* z-index: 8000; */
@@ -290,60 +270,222 @@ export default class CustomVerticalNavBar extends LitElement {
                         overflow-y: auto;
                         padding-bottom: 10%
                     }
-
                     /*give sidebar 100% width;*/
                     nav.sidebar li {
                         width: 100%;
                     }
-
                     /* Move nav to full on mouse over*/
                     nav.sidebar:hover {
                         margin-left: 0;
                     }
-
                     /*for hiden things when navbar hidden*/
                     .forAnimate {
                         opacity: 0;
                     }
                 }
-
                 /* .....NavBar: Fully showing nav bar..... */
                 @media (min-width: 1330px) {
-
                     /*Allow main to be next to Nav*/
                     .main {
                         width: calc(100% - 200px); /*keeps 100% minus nav size*/
                         margin-left: 200px;
                     }
-
                     /*Show all nav*/
                     nav.sidebar {
                         margin-left: 0;
-                        /*float: left;*/
+                        float: left;
                     }
-
                     /*Show hidden items on nav*/
                     nav.sidebar .forAnimate {
                         opacity: 1;
                     }
                 }
-
                 nav:hover .forAnimate {
                     opacity: 1;
                 }
-
                 section {
                     padding-left: 15px;
                 }
-
-                /*.footer {*/
-                /*    position: fixed;*/
-                /*    bottom: 0;*/
-                /*    z-index: 10;*/
-                /*}*/
-
+                .footer {
+                    position: fixed;
+                    bottom: 0;
+                    z-index: 10;
+                }
             </style>`;
     }
+
+    #renderStyle() {
+        return html`
+            <style>
+                .nav-item {
+                    margin-bottom: 3px;
+                    padding: 10px 15px;
+                    color: white;
+                    width: 100%;
+                    border-radius: 3px;
+                    line-height: 30px;
+                    /*transform: translate3d(0px, 0, 0);*/
+                    /*transition: transform*/
+                    /*    0.3s ease 0s,*/
+                    /*    opacity 0.3s ease 0s,*/
+                    /*    all .15s ease-in;*/
+                }
+                .active-item {
+                    /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
+                    background-color: #E25D1D;
+                    /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
+                }
+                .nav-item > .nav-link:hover{
+                    background-color: inherit;
+                }
+                .nav-item:hover:not(.active-item) {
+                    /*background-color: #AAAABC;*/
+                    background-color: #767687;
+                    cursor: pointer;
+                }
+                .navbar.navbar-inverse.main-navbar {
+                    position: fixed;
+                    top: 0;
+                    width: 100%;
+                    z-index: 1000;
+                }
+                div.page-title {
+                    position: fixed;
+                    top: 50px;
+                    width: 100%;
+                    z-index: 10
+                }
+                .row.left {
+                    margin-left: -30px;
+                    margin-top: -10px
+                }
+                /*Remove rounded coners*/
+                nav.sidebar.navbar {
+                    border-radius: 0;
+                    top: 125px;
+                }
+                nav.sidebar, .main {
+                    -webkit-transition: margin 200ms ease-out;
+                    -moz-transition: margin 200ms ease-out;
+                    -o-transition: margin 200ms ease-out;
+                    transition: margin 200ms ease-out;
+                }
+                /* Add gap to nav and right windows.*/
+                .main {
+                    padding: 10px 10px 0 10px;
+                }
+                /* .....NavBar: Icon only with coloring/layout.....*/
+                /*small/medium side display*/
+                @media (min-width: 768px) {
+                    /*Allow main to be next to Nav*/
+                    .main {
+                        width: calc(100% - 40px); /*keeps 100% minus nav size*/
+                        margin-left: 40px;
+                        float: right;
+                    }
+                    /*lets nav bar to be showed on mouseover*/
+                    nav.sidebar:hover + .main {
+                        margin-left: 200px;
+                    }
+                    /*Center Study Name*/
+                    nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
+                        margin-left: 0;
+                    }
+                    /*Center Study Name*/
+                    nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
+                        text-align: center;
+                        width: 100%;
+                        margin-left: 0;
+                    }
+                    /*Center Icons*/
+                    nav.sidebar a {
+                        padding-right: 13px;
+                    }
+                    /*adds border top to first nav box */
+                    nav.sidebar .navbar-nav.left > li:first-child {
+                        border-top: 1px #e5e5e5 solid;
+                    }
+                    /* adds border to bottom nav boxes */
+                    nav.sidebar .navbar-nav.left > li {
+                        border-bottom: 0 #e5e5e5 solid;
+                    }
+                    /* Colors/style dropdown box*/
+                    nav.sidebar .navbar-nav.left .open .dropdown-menu {
+                        position: static;
+                        float: none;
+                        width: auto;
+                        margin-top: 0;
+                        background-color: transparent;
+                        border: 0;
+                        -webkit-box-shadow: none;
+                        box-shadow: none;
+                    }
+                    /*allows nav box to use 100% width*/
+                    nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
+                        padding: 0;
+                    }
+                    /*colors dropdown box text */
+                    .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
+                        /*color: #777;*/
+                        color: #d2d2d2;
+                        white-space: normal;
+                    }
+                    /*gives sidebar width/height*/
+                    nav.sidebar {
+                        position: fixed;
+                        height: 100%;
+                        width: 250px;
+                        margin-left: -200px;
+                        float: left;
+                        /* z-index: 8000; */
+                        margin-bottom: 0;
+                        overflow-y: auto;
+                        padding-bottom: 10%
+                    }
+                    /*give sidebar 100% width;*/
+                    nav.sidebar li {
+                        width: 100%;
+                    }
+                    /* Move nav to full on mouse over*/
+                    nav.sidebar:hover {
+                        margin-left: 0;
+                    }
+                    /*for hiden things when navbar hidden*/
+                    .forAnimate {
+                        opacity: 0;
+                    }
+                }
+                /* .....NavBar: Fully showing nav bar..... */
+                @media (min-width: 1330px) {
+                    /*Allow main to be next to Nav*/
+                    .main {
+                        width: calc(100% - 200px); /*keeps 100% minus nav size*/
+                        margin-left: 200px;
+                    }
+                    /*Show all nav*/
+                    nav.sidebar {
+                        margin-left: 0;
+                        float: left;
+                    }
+                    /*Show hidden items on nav*/
+                    nav.sidebar .forAnimate {
+                        opacity: 1;
+                    }
+                }
+                nav:hover .forAnimate {
+                    opacity: 1;
+                }
+                section {
+                    padding-left: 15px;
+                }
+                .footer {
+                    position: fixed;
+                    bottom: 0;
+                    z-index: 10;
+                }
+            </style>`;
+    }
+
 
     // QUESTION: Make it optional?
     #renderToggle() {
@@ -420,7 +562,7 @@ export default class CustomVerticalNavBar extends LitElement {
 
     #renderContent() {
         return html`
-            <div class="content-tab-wrapper admin-vertical-content" id="${this.#divContent}" style="margin: 0 20px">
+            <div class="content-tab-wrapper admin-vertical-content" id="${this.#divContent}" style="margin: 150px 20px">
             ${UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
             .map(menuItem => menuItem.submenu && UtilsNew.hasVisibleItems(menuItem.submenu, this.opencgaSession) ? html `
                 ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
