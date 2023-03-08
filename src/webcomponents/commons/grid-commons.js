@@ -249,6 +249,15 @@ export default class GridCommons {
         }
     }
 
+    isColumnVisible(colName) {
+        if (this.config.columns?.length > 0) {
+            return this.config.columns.includes(colName);
+        } else {
+            // Columns are visible by default.
+            return true;
+        }
+    }
+
     rowHighlightStyle(row, index) {
         let rowStyle = {};
         (this.config.highlights || [])

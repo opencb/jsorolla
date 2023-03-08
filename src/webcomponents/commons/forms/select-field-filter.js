@@ -49,6 +49,9 @@ export default class SelectFieldFilter extends LitElement {
             value: {
                 type: String
             },
+            title: {
+                type: String
+            },
             placeholder: {
                 type: String
             },
@@ -222,35 +225,30 @@ export default class SelectFieldFilter extends LitElement {
                             ?multiple="${!this.forceSelection}"
                             ?disabled="${this.disabled}"
                             ?required="${this.required}"
+                            title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                             data-live-search="${this.liveSearch ? "true" : "false"}"
                             data-size="${this.size}"
-                            title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                             data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
-                            @change="${this.filterChange}"
                             data-width="100%"
-                            data-style="btn-default ${this.classes}">
+                            data-title="${this.title || nothing}"
+                            data-selected-text-format="${this.title ? "static" : "values"}"
+                            data-style="btn-default ${this.classes}"
+                            @change="${this.filterChange}">
                         ${this.data?.map(opt => html`
-                            ${opt?.separator ? html`
-                                <option data-divider="true"></option>
-                            ` : html`
-                                ${opt?.fields ? html`
+                            ${opt?.separator ? html`<option data-divider="true"></option>` : html`
+                                ${opt?.fields?.length > 0 ? html`
                                     <optgroup label="${opt.id ?? opt.name}">
                                         ${opt.fields.map(subopt => html`
-                                            ${UtilsNew.isObject(subopt) ?
-                                                this.renderOption(subopt) :
-                                                html`<option>${subopt}</option>`
-                                            }
+                                            ${UtilsNew.isObject(subopt) ? this.renderOption(subopt) : html`<option>${subopt}</option>`}
                                         `)}
                                     </optgroup>
                                 ` : html`
-                                    ${UtilsNew.isObject(opt) ?
-                                        this.renderOption(opt) :
-                                        html`<option data-content="${opt}">${opt}</option>`
-                                    }
+                                    ${UtilsNew.isObject(opt) ? this.renderOption(opt) : html`<option data-content="${opt}">${opt}</option>`}
                                 `}
                             `}
                         `)}
                     </select>
+
                     ${this.all ? html`
                         <span class="input-group-addon">
                             <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>

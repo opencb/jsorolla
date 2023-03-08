@@ -143,11 +143,15 @@ export default class OpencgaCatalogUtils {
                 grid: newGridConfig,
             },
         };
+
         return opencgaSession.opencgaClient.updateUserConfigs(newConfig)
             .then(response => {
                 // Update user configuration in opencgaSession object
                 // eslint-disable-next-line no-param-reassign
                 opencgaSession.user.configs.IVA = response.responses[0].results[0];
+            }).
+            catch(error => {
+                console.error(error);
             });
     }
 
