@@ -50,7 +50,6 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     #initOriginalObjects() {
-        debugger
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.opencgaSession.study);
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
@@ -135,7 +134,6 @@ export default class ToolSettingsUpdate extends LitElement {
         if (param === "fqn") {
             this._study.fqn = "";
             this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
-            debugger
         }
         if (e.detail.value?.json) {
             this._toolSettings = UtilsNew.objectClone(e.detail.value?.json);
@@ -163,14 +161,12 @@ export default class ToolSettingsUpdate extends LitElement {
             includeResult: true,
         };
         // 2. Query
-        debugger
         this.#setLoading(true);
         this._listStudies = [this.opencgaSession.study.fqn, ...this._listStudies];
         this._listStudies.forEach(studyId => {
             // 2.1. Get new study tool settings
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
             const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, study, this.toolName, this._toolSettings);
-            debugger
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
                 // .update(this.opencgaSession.study.fqn, updateParams, params)

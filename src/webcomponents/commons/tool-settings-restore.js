@@ -154,13 +154,12 @@ export default class ToolSettingsRestore extends LitElement {
             const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, sectionId);
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
-                // .update(this.opencgaSession.study.fqn, updateParams, params)
                 .update(studyId, updateParams, params)
                 .then(response => {
                     // 1. Dispatch success notification
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: `${this.option} Settings Update`,
-                        message: `${this.option} settings updated correctly`,
+                        title: `${UtilsNew.capitalize(sectionId)} Settings Update`,
+                        message: `${UtilsNew.capitalize(sectionId)} settings updated correctly`,
                     });
                     // 2. Dispatch study update event
                     LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
