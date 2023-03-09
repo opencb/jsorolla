@@ -105,7 +105,6 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     firstUpdated() {
-        debugger
         this.selectPicker = $("#" + this.elm, this);
         this.selectPicker.selectpicker({
             iconBase: "fas",
@@ -155,7 +154,12 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     filterChange() {
-        debugger
+        // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
+        //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
+        //  Possible solution:
+        //  const disabled = this.data.map(data => data.fields).flat().filter(data => data.disabled === true).map(data => data.id ?? data.name);
+        //  const selection = [...this.selectPicker.selectpicker("val"), ...disabled];
+        //  TODO: to implement a generic solution where only the disabled string or array of strings **selected** are added to selection.
         const selection = this.selectPicker.selectpicker("val");
         let val = null;
         if (selection && selection.length) {
