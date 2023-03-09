@@ -7,11 +7,11 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@release-2.4.x
 
   docker:
     needs: build
-    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
+    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@release-2.4.x
 #    if: ${{ github.repository != 'opencb/jsorolla' }}
     with:
       docker_tag: ${{ github.ref_name }}
