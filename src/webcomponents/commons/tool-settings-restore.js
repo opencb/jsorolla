@@ -64,7 +64,8 @@ export default class ToolSettingsRestore extends LitElement {
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
-        this._listAdditionalStudies = [];
+        // this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
+        this._listStudies = [];
         this._config = {
             ...this.getDefaultConfig(),
             // ...this.config,
@@ -113,7 +114,6 @@ export default class ToolSettingsRestore extends LitElement {
 
     // --- EVENTS ---
     onFieldChange(e, field) {
-        debugger
         const param = field || e.detail.param;
         // 1. Update the list of studies
         // NOTE Vero: In restoring settings, only changes in the study need to be listened.
@@ -140,7 +140,6 @@ export default class ToolSettingsRestore extends LitElement {
 
     onSubmit(e) {
         // 1. Prepare query params
-        debugger
         const sectionId = this._activeSection[e.detail.value];
         const params = {
             includeResult: true,
@@ -150,7 +149,6 @@ export default class ToolSettingsRestore extends LitElement {
         // Caution 20230308 Vero: horrible fix to [Issue 1] described above
         this._listStudies = [this.opencgaSession.study.fqn, ...this._listStudies];
         this._listStudies.forEach(studyId => {
-            debugger
             // 2.1. Get new study tool settings
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
             const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, sectionId);
