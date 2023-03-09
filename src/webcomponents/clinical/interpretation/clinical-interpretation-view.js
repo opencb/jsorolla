@@ -24,6 +24,8 @@ import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-view.js";
 import "./clinical-interpretation-summary.js";
+import "../../variant/interpretation/variant-interpreter-grid-beta.js";
+
 
 export default class ClinicalInterpretationView extends LitElement {
 
@@ -224,18 +226,18 @@ export default class ClinicalInterpretationView extends LitElement {
                                 render: data => {
                                     return !data.primaryFindings || UtilsNew.isNotEmptyArray(data?.primaryFindings) ?
                                         html`
-                                            <variant-interpreter-grid
+                                            <variant-interpreter-grid-beta
                                                 review
                                                 .clinicalAnalysis=${this.clinicalAnalysis}
                                                 .clinicalVariants="${data?.primaryFindings}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${
                                                     {
-                                                        showExport: true,
+                                                        showExport: false,
                                                         showSettings: false
                                                     }
                                                 }>
-                                            </variant-interpreter-grid>
+                                            </variant-interpreter-grid-beta>
                                         `:"No variants data to display";
                                 }
                             }

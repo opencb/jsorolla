@@ -1,0 +1,1889 @@
+/*
+ * Copyright 2015-2016 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
+import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
+import GridCommons from "../../commons/grid-commons.js";
+import VariantUtils from "../variant-utils.js";
+import "./variant-interpreter-grid-config.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
+import "../../commons/opencb-grid-toolbar.js";
+import "../../loading-spinner.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+
+export default class VariantInterpreterGridBeta extends LitElement {
+
+    constructor() {
+        super();
+
+        this._init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            opencgaSession: {
+                type: Object
+            },
+            clinicalAnalysis: {
+                type: Object
+            },
+            query: {
+                type: Object
+            },
+            clinicalVariants: {
+                type: Array
+            },
+            review: {
+                type: Boolean
+            },
+            config: {
+                type: Object
+            }
+        };
+    }
+
+    _init() {
+        this._prefix = UtilsNew.randomString(8);
+        this.gridId = this._prefix + "VariantBrowserGrid";
+
+        // Keep the status of selected variants
+        this._rows = [];
+        this.checkedVariants = new Map();
+        this.queriedVariants = {};
+        this.review = false;
+
+        // Set colors
+        // eslint-disable-next-line no-undef
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
+    }
+
+    // connectedCallback() {
+    //     super.connectedCallback();
+    // }
+
+    firstUpdated() {
+        this.table = $("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("clinicalVariants")) {
+            this.renderVariants();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+            // Config for the grid toolbar
+            // some columns have tooltips in title, we cannot used them for the dropdown
+            const defaultColumns = this._getDefaultColumns();
+            this.toolbarConfig = {
+                ...this._config,
+                ...this._config.toolbar, // it comes from external settings
+                resource: "CLINICAL_VARIANT",
+                columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
+                gridColumns: defaultColumns, // original column structure
+            };
+            this.requestUpdate();
+            this.renderVariants();
+        }
+    }
+
+    opencgaSessionObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+    }
+
+    clinicalAnalysisObserver() {
+        // We need to load server config always.
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+
+        // Make sure somatic sample is the first one
+        if (this.clinicalAnalysis) {
+            if (!this.clinicalAnalysis.interpretation) {
+                this.clinicalAnalysis.interpretation = {};
+            }
+
+            this.checkedVariants = new Map();
+            if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
+                for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
+                    this.checkedVariants.set(variant.id, variant);
+                }
+            } else {
+                this.checkedVariants.clear();
+            }
+
+            if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
+                if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
+                    this.clinicalAnalysis.proband.samples.length === 2 && this.clinicalAnalysis.proband.samples[1].somatic) {
+                    this.clinicalAnalysis.proband.samples = this.clinicalAnalysis.proband.samples.reverse();
+                }
+            }
+        }
+    }
+
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    // FIXME Temporary code to check which variants are being interpreted or have been reported
+    // This should be implemented by OpenCGA
+    // fillReportedVariants(variants) {
+    //     // Prepare queried variants to contain the interpretations
+    //     this.queriedVariants = {};
+    //     return this.opencgaSession.opencgaClient.clinical().searchInterpretation({
+    //         primaryFindings: variants.map(variant => variant.id).join(","),
+    //         study: this.opencgaSession.study.fqn,
+    //     })
+    //         .then(interpretationSearchResponse => {
+    //             const interpretations = interpretationSearchResponse.responses[0]?.results;
+    //             if (interpretations?.length > 0) {
+    //                 variants.forEach(variant => this.queriedVariants[variant.id] = {...variant});
+    //
+    //                 // Add interpretations to the variants to be returned
+    //                 for (const interpretation of interpretations) {
+    //                     for (const variant of interpretation.primaryFindings) {
+    //                         if (this.queriedVariants[variant.id]) {
+    //                             if (!this.queriedVariants[variant.id].interpretations) {
+    //                                 this.queriedVariants[variant.id].interpretations = [];
+    //                             }
+    //                             this.queriedVariants[variant.id].interpretations.push(interpretation);
+    //                         }
+    //                     }
+    //                 }
+    //
+    //                 // Calculate stats
+    //                 for (const v of variants) {
+    //                     const variant = this.queriedVariants[v.id];
+    //                     if (variant.interpretations) {
+    //                         variant.interpretationStats = {
+    //                             status: {},
+    //                             tier: {},
+    //                             clinicalSignificance: {},
+    //                         };
+    //                         for (const interpretation of variant.interpretations) {
+    //                             interpretation?.primaryFindings
+    //                                 ?.filter(primaryFinding => primaryFinding.id === variant.id)
+    //                                 .forEach(primaryFinding => {
+    //                                     // Status stats
+    //                                     if (!variant.interpretationStats.status[primaryFinding.status]) {
+    //                                         variant.interpretationStats.status[primaryFinding.status] = 0;
+    //                                     }
+    //                                     variant.interpretationStats.status[primaryFinding.status]++;
+    //
+    //                                     // Tier stats
+    //                                     primaryFinding.evidences
+    //                                         .filter(evidence => evidence.review.tier)
+    //                                         .forEach(evidence => {
+    //                                             if (!variant.interpretationStats.tier[evidence.review.tier]) {
+    //                                                 variant.interpretationStats.tier[evidence.review.tier] = 0;
+    //                                             }
+    //                                             variant.interpretationStats.tier[evidence.review.tier]++;
+    //                                         });
+    //                                 });
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //             return this.queriedVariants;
+    //         });
+    // }
+
+    renderVariants() {
+        if (this._config.renderLocal) {
+            // FIXME remove this ASAP
+            this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
+        }
+
+        if (this.clinicalVariants?.length > 0) {
+            // FIXME Temporary code to check which variants are being interpreted or have been reported
+            // This should be implemented by OpenCGA
+            // this.fillReportedVariants(this.clinicalVariants)
+            //     .catch(error => console.error(error))
+            //     .finally(() => this.renderLocalVariants());
+            this.renderLocalVariants();
+        } else {
+            this.renderRemoteVariants();
+        }
+    }
+
+    renderRemoteVariants() {
+        if (!this.clinicalAnalysis || !this.clinicalAnalysis.interpretation || !this._config) {
+            console.warn("clinicalAnalysis or interpretation do not exist");
+            return;
+        }
+
+        if (!this.query?.sample) {
+            console.warn("No sample found, query: ", this.query);
+            return;
+        }
+        if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
+            this.table = $("#" + this.gridId);
+            this.table.bootstrapTable("destroy");
+            this.table.bootstrapTable({
+                columns: this._getDefaultColumns(),
+                method: "get",
+                sidePagination: "server",
+                iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+                icons: GridCommons.GRID_ICONS,
+                // Set table properties, these are read from config property
+                uniqueId: "id",
+                silentSort: false,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
+                paginationVAlign: "both",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
+                detailFormatter: (value, row) => this.detailFormatter(value, row),
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+
+                // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
+                variantGrid: this,
+
+                ajax: params => {
+                    // Make a deep clone object to manipulate the query sent to OpenCGA
+                    const internalQuery = JSON.parse(JSON.stringify(this.query));
+
+                    // We need to make sure that the proband is the first sample when analysing Families
+                    if (this.clinicalAnalysis.type?.toUpperCase() === "FAMILY" && this.query?.sample) {
+                        // Note:
+                        // - sample=A;B;C
+                        // - sample=A:0/1,1/1;B:1/1;C:1/1
+                        // There is also another param called: 'includeSample'
+
+                        const samples = internalQuery.sample.split(";");
+                        const sortedSamples = [];
+                        for (const sample of samples) {
+                            const sampleFields = sample.split(":");
+                            if (sampleFields && sampleFields[0] === this.clinicalAnalysis.proband.samples[0].id) {
+                                sortedSamples.unshift(sample);
+                            } else {
+                                sortedSamples.push(sample);
+                            }
+                        }
+
+                        // For all non proband samples
+                        const newQuerySample = [sortedSamples[0]];
+                        for (let i = 1; i < sortedSamples.length; i++) {
+                            // Non proband samples must have a genotype filter BUT ir cannot have ALL the genotypes
+                            if (sortedSamples[i].includes(":")) {
+                                if (!sortedSamples[i].includes("0/0") || !sortedSamples[i].includes("0/1") || !sortedSamples[i].includes("1/1")) {
+                                    newQuerySample.push(sortedSamples[i]);
+                                }
+                            }
+                        }
+                        internalQuery.sample = newQuerySample.join(";");
+
+                        const sortedSampleIds = [];
+                        for (const member of this.clinicalAnalysis.family.members) {
+                            if (member && member.id === this.clinicalAnalysis.proband.id) {
+                                sortedSampleIds.unshift(member.samples[0].id);
+                            } else {
+                                if (member.samples?.[0]?.id) {
+                                    sortedSampleIds.push(member.samples[0].id);
+                                }
+                            }
+                        }
+                        internalQuery.includeSample = sortedSampleIds.join(",");
+                    }
+
+                    const tableOptions = $(this.table).bootstrapTable("getOptions");
+                    this.filters = {
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit || tableOptions.pageSize,
+                        skip: params.data.offset || 0,
+                        count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
+                        includeSampleId: "true",
+
+                        // TODO to be enabled once this is supported in OpenCGA
+                        // interpretationId: this.clinicalAnalysis?.interpretation.id,
+
+                        approximateCount: true,
+                        approximateCountSamplingSize: 500,
+
+                        ...internalQuery,
+                        unknownGenotype: "0/0",
+                        includeInterpretation: this.clinicalAnalysis?.interpretation?.id,
+                    };
+
+                    let variantResponse = null;
+                    this.opencgaSession.opencgaClient.clinical().queryVariant(this.filters)
+                        .then(variantQueryResponse => {
+                            this.isApproximateCount = variantQueryResponse.responses[0].attributes?.approximateCount ?? false;
+                            variantResponse = variantQueryResponse;
+
+                            // FIXME Temporary code to check which variants are being interpreted or have been reported
+                            // This should be implemented by OpenCGA
+                            // return this.fillReportedVariants(variantResponse.responses[0].results);
+                            return variantResponse;
+                        })
+                        .then(() => params.success(variantResponse))
+                        .catch(e => params.error(e))
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                        });
+                },
+                responseHandler: response => {
+                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                    return result.response;
+                },
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
+                    // We detail view is active we expand the row automatically.
+                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                    if (this._config.detailView) {
+                        if (element[0].innerHTML.includes("fa-plus")) {
+                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
+                        } else {
+                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
+                        }
+                    }
+                },
+                onLoadSuccess: data => {
+                    // We keep the table rows as global variable, needed to fetch the variant object when checked
+                    this._rows = data.rows;
+                    this.gridCommons.onLoadSuccess(data, 2);
+
+                    // Add events for displaying genes list
+                    const gridElement = document.querySelector(`#${this.gridId}`);
+                    if (gridElement) {
+                        Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
+                            const genesList = el.querySelector("span[data-role='genes-list-extra']");
+                            const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
+                            const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
+
+                            // Click on show more genes link
+                            genesShowLink.addEventListener("click", () => {
+                                genesShowLink.style.display = "none";
+                                genesHideLink.style.display = "block";
+                                genesList.style.display = "inline-block";
+                            });
+
+                            // Click on show less genes link
+                            genesHideLink.addEventListener("click", () => {
+                                genesHideLink.style.display = "none";
+                                genesShowLink.style.display = "block";
+                                genesList.style.display = "none";
+                            });
+                        });
+                    }
+                },
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onExpandRow: (index, row) => {
+                    // Automatically select this row after clicking on "+" icons
+                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
+                    // Listen to Show/Hide link in the detail formatter consequence type table
+                    // TODO remove this
+                    document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+
+                    document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                    // Enable or disable evidence select
+                    Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+                        if (row.id === element.dataset.variantId) {
+                            // eslint-disable-next-line no-param-reassign
+                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
+                            element.addEventListener("change", e => this.onEvidenceCheck(e));
+                        }
+                    });
+
+                    // Enable or disable evidence edit and register event listeners
+                    Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+                        if (row.id === element.dataset.variantId) {
+                            let isEvidenceSelected = false;
+                            if (this.checkedVariants.has(row.id)) {
+                                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                                const evidence = this.checkedVariants.get(row.id).evidences[evidenceIndex];
+
+                                isEvidenceSelected = evidence.review?.select || false;
+                            }
+
+                            // Prevent editing evidences of not selected variants
+                            // eslint-disable-next-line no-param-reassign
+                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
+                            element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                        }
+                    });
+
+                    UtilsNew.initTooltip(this);
+                },
+                rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
+            });
+        }
+    }
+
+    renderLocalVariants() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            data: this.clinicalVariants,
+            columns: this._getDefaultColumns(),
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+
+            // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
+            variantGrid: this,
+
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onDblClickRow: (row, element) => {
+                // We detail view is active we expand the row automatically.
+                // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                if (this._config.detailView) {
+                    if (element[0].innerHTML.includes("fa-plus")) {
+                        $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
+                    } else {
+                        $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
+                    }
+                }
+            },
+            onExpandRow: (index, row) => {
+                // Automatically select this row after clicking on "+" icons
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+
+                // Listen to Show/Hide link in the detail formatter consequence type table
+                document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+
+                document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                // Enable or disable evidence select
+                Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+                    if (row.id === element.dataset.variantId) {
+                        // eslint-disable-next-line no-param-reassign
+                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
+                        element.addEventListener("change", e => this.onEvidenceCheck(e));
+                    }
+                });
+
+                // Enable or disable evidence edit and register event listeners
+                Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+                    if (row.id === element.dataset.variantId) {
+                        let isEvidenceSelected = false;
+                        if (this.checkedVariants.has(row.id)) {
+                            const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                            const evidence = this.checkedVariants.get(row.id).evidences[evidenceIndex];
+
+                            isEvidenceSelected = evidence.review?.select || false;
+                        }
+
+                        // Prevent editing evidences of not selected variants
+                        // eslint-disable-next-line no-param-reassign
+                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
+                        element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                    }
+                });
+
+                UtilsNew.initTooltip(this);
+            },
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row, this is only needed when rendering from local
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+                this._rows = data;
+
+                // Add events for displaying genes list
+                const gridElement = document.querySelector(`#${this.gridId}`);
+                if (gridElement) {
+                    Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
+                        const genesList = el.querySelector("span[data-role='genes-list-extra']");
+                        const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
+                        const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
+
+                        // Click on show more genes link
+                        genesShowLink.addEventListener("click", () => {
+                            genesShowLink.style.display = "none";
+                            genesHideLink.style.display = "block";
+                            genesList.style.display = "inline-block";
+                        });
+
+                        // Click on show less genes link
+                        genesHideLink.addEventListener("click", () => {
+                            genesHideLink.style.display = "none";
+                            genesShowLink.style.display = "block";
+                            genesList.style.display = "none";
+                        });
+                    });
+                }
+            },
+            rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
+        });
+    }
+
+    // Grid formatters
+    detailFormatter(value, row) {
+        let variant = row;
+        if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
+            variant = this.checkedVariants.get(variant.id);
+        }
+        let result = "<div class='row' style='padding-bottom: 20px'>";
+        let detailHtml = "";
+        if (row?.annotation) {
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Evidences</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, variant, this, this.query, this.review, this._config);
+            detailHtml += "</div>";
+
+            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, this.queriedVariants[row.id], this.opencgaSession);
+            detailHtml += "</div>";
+
+            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
+            detailHtml += "</div>";
+
+            detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
+            detailHtml += "</div>";
+        }
+        result += detailHtml + "</div>";
+        return result;
+    }
+
+    vcfDataFormatter(value, row) {
+        if (row.studies?.length > 0) {
+            let source = "FILE";
+            if (this.field.variantCaller?.dataFilters) {
+                const dataFilter = this.field.variantCaller.dataFilters.find(filter => filter.id === this.field.key);
+                source = dataFilter?.source || "FILE";
+            } else {
+                // TODO Search in file.attributes to guess eh source
+            }
+
+            if (source === "FILE") {
+                for (const file of row.studies[0].files) {
+                    if (file.data[this.field.key]) {
+                        return file.data[this.field.key];
+                    }
+                }
+            } else {
+                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sampleId);
+                const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+                // debugger;
+                if (index >= 0) {
+                    return row.studies[0].samples[sampleIndex].data[index];
+                }
+            }
+        } else {
+            console.error("This should never happen: row.studies[] is not valid");
+        }
+        return "-";
+    }
+
+    _getDefaultColumns() {
+        // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
+        // Multiple file callers are supported.
+        let vcfDataColumns = [];
+        const vcfDataColumnNames = [];
+        const variantTypes = new Set(this._config.variantTypes || []);
+        const fileCallers = (this.clinicalAnalysis?.files || [])
+            .filter(file => file.format === "VCF" && file.software?.name)
+            .map(file => file.software.name.toUpperCase());
+
+        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+            // FIXME remove specific code for ASCAT!
+            const variantCallers = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                .filter(vc => vc.somatic === this._config.somatic)
+                .filter(vc => vc.types.some(type => variantTypes.has(type)));
+
+            if (variantCallers?.length > 0) {
+                for (const variantCaller of variantCallers) {
+                    if (fileCallers.includes(variantCaller.id.toUpperCase())) {
+                        // INFO column
+                        if (!vcfDataColumnNames.includes(variantCaller.id)) {
+                            vcfDataColumnNames.push(variantCaller.id);
+                        }
+                        if (variantCaller.columns?.length > 0) {
+                            for (const column of variantCaller.columns) {
+                                vcfDataColumns.push({
+                                    id: column.replace("EXT_", ""),
+                                    title: column.replace("EXT_", ""),
+                                    field: {
+                                        key: column,
+                                        sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
+                                        variantCaller: variantCaller
+                                    },
+                                    rowspan: 1,
+                                    colspan: 1,
+                                    formatter: this.vcfDataFormatter,
+                                    halign: "center"
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        // we need to create an empty not visible column when no VCF file data is configured.
+        if (!vcfDataColumns || vcfDataColumns.length === 0) {
+            vcfDataColumns = [
+                {
+                    visible: false
+                }
+            ];
+        }
+
+        // Prepare Grid columns
+        this._columns = [
+            [
+                {
+                    id: "id",
+                    title: "Variant",
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    halign: "center",
+                    // sortable: true
+                },
+                {
+                    id: "type",
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    halign: "center",
+                    visible: !this._config.hideType,
+                },
+                {
+                    id: "gene",
+                    title: "Gene",
+                    field: "gene",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
+                    halign: "center"
+                },
+                {
+                    id: "hgvs",
+                    title: "HGVS",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
+                    halign: "center",
+                    visible: !!this._config.showHgvs,
+                },
+                {
+                    id: "consequenceType",
+                    title: "Consequence Type",
+                    field: "consequenceType",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this?.query?.ct, this._config),
+                    halign: "center"
+                },
+                {
+                    id: "deleteriousness",
+                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
+                            C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
+                            and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
+                            SpliceAI: a deep learning-based tool to identify splice variants.">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    field: "deleteriousness",
+                    rowspan: 1,
+                    colspan: 2,
+                    align: "center"
+                },
+                {
+                    id: "evidences",
+                    title: "Role in Cancer",
+                    field: "evidences",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
+                    halign: "center",
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER"
+                },
+                {
+                    id: "VCF_Data",
+                    title: "VCF File Data: " + vcfDataColumnNames.join(", "),
+                    rowspan: 1,
+                    colspan: vcfDataColumns?.length,
+                    halign: "center",
+                    visible: vcfDataColumns?.length > 1
+                },
+                {
+                    id: "cohort",
+                    title: "Cohort Stats",
+                    field: "cohort",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "populationFrequencies",
+                    columnTitle: "Reference Population Frequencies",
+                    title: `Reference <br> Population <br> Frequencies
+                        <a class="pop-preq-info-icon"
+                            tooltip-title="Reference Population Frequencies"
+                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>`,
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                    visible: !this._config.hidePopulationFrequencies,
+                },
+                {
+                    id: "clinicalInfo",
+                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
+                                <div>
+                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
+                                    and phenotypes, with supporting evidence.
+                                </div>
+                                <div style='padding-top: 10px'>
+                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                                </div>"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    rowspan: 1,
+                    colspan: 3,
+                    align: "center"
+                },
+                {
+                    id: "interpretation",
+                    title: `Interpretation
+                        <a class='interpretation-info-icon'
+                            tooltip-title='Interpretation'
+                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-position-at="left bottom"
+                            tooltip-position-my="right top">
+                            <i class='fa fa-info-circle' aria-hidden='true'></i>
+                        </a>`,
+                    field: "interpretation",
+                    rowspan: 1,
+                    colspan: 4,
+                    halign: "center"
+                },
+                {
+                    id: "actions",
+                    title: "Actions",
+                    rowspan: 2,
+                    colspan: 1,
+                    eligible: false,
+                    formatter: (value, row) => {
+                        let copiesHtml = "";
+                        if (this._config.copies) {
+                            for (const copy of this._config.copies) {
+                                // Check if the copy object has an execute function, this prevents two possible scenarios:
+                                // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
+                                // 2. an incorrect copy configuration
+                                if (copy.execute) {
+                                    copiesHtml = `
+                                        <li>
+                                            <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
+                                                <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                            </a>
+                                        </li>
+                                    `;
+                                }
+                            }
+                        }
+
+                        const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
+                        const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a id="${reviewId}" href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
+                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit...
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a id="${reviewId}" href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit-report" ${reviewDisabled}>
+                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit (Beta)
+                                        </a>
+                                    </li>
+
+                                    <li role="separator" class="divider"></li>
+                                    ${this._config.showGenomeBrowserLink ? `
+                                        <li class="dropdown-header">Genome Browser</li>
+                                        <li>
+                                            <a class="btn force-text-left" data-action="genome-browser">
+                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                            </a>
+                                        </li>
+                                    ` : ""}
+                                    <li class="dropdown-header">External Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">CellBase Links</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-header">External Genome Browsers</li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left"
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
+                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                    ${copiesHtml ? `
+                                        <li role="separator" class="divider"></li>
+                                        <li class="dropdown-header">Custom Copy</li>
+                                        ${copiesHtml}
+                                    ` : ""}
+                                </ul>
+                            </div>`;
+                    },
+                    align: "center",
+                    events: {
+                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                    },
+                    visible: this._config?.showActions,
+                    excludeFromExport: true // this is used in opencga-export
+                    // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
+                },
+            ],
+            [
+                {
+                    id: "cadd",
+                    title: "CADD",
+                    field: "cadd",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
+                    align: "right",
+                    halign: "center"
+                },
+                {
+                    id: "splaiceai",
+                    title: "SpliceAI",
+                    field: "spliceai",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
+                    align: "right",
+                    halign: "center"
+                },
+                ...vcfDataColumns,
+                {
+                    id: "clinvar",
+                    title: "ClinVar",
+                    field: "clinvar",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                {
+                    id: "cosmic",
+                    title: "Cosmic",
+                    field: "cosmic",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    align: "center",
+                    visible: !this._config.hideClinicalInfo,
+                },
+                // Interpretation Column
+                {
+                    id: "reported",
+                    title: "Interpreted and/or<br> Reported",
+                    // field: "prediction",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
+                    align: "center",
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "prediction",
+                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
+                    field: "prediction",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const checkedVariant = this.checkedVariants?.has(row.id) ? this.checkedVariants.get(row.id) : row;
+                        return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
+                    },
+                    align: "center",
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY"
+                },
+                {
+                    id: "Select",
+                    title: "Select",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
+                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
+                    },
+                    align: "center",
+                    events: {
+                        "click input": e => this.onVariantCheck(e)
+                    },
+                    visible: this._config.showSelectCheckbox,
+                    excludeFromExport: true // this is used in opencga-export
+                },
+                {
+                    id: "review",
+                    title: "Review",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        // Check disable status
+                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        // Prepare comments
+                        let commentsTooltipText = "";
+                        if (row.comments?.length > 0) {
+                            for (const comment of row.comments) {
+                                commentsTooltipText += `
+                                    <div style="padding: 5px">
+                                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                                        <div>
+                                            ${comment.message || "-"}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                        return `
+                            ${this._config?.showEditReview ? `
+                                <button id="${this._prefix}${row.id}VariantReviewButton" class="btn btn-link" data-variant-id="${row.id}" ${disabled}>
+                                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                                </button>`: ""
+                        }
+                            ${this.checkedVariants?.has(row.id) ? `
+                                <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row.id).status}</div>
+                            ` : ""
+                        }
+                            ${row.comments?.length > 0 ? `
+                                <a class="" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${row.comments.length} comments</a>
+                            ` : ""
+                        }
+                        `;
+                    },
+                    align: "center",
+                    events: {
+                        "click button": e => this.onVariantReview(e)
+                    },
+                    visible: this.review,
+                    excludeFromExport: true // this is used in opencga-export
+                },
+            ]
+        ];
+
+        // update columns dynamically
+        this._columns = this._updateTableColumns(this._columns);
+
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+
+        return this._columns;
+    }
+
+    _updateTableColumns(_columns) {
+        let samples = [];
+        if (!_columns) {
+            return;
+        }
+
+        if (this.clinicalAnalysis && (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY")) {
+            // Add Samples
+            // const samples = [];
+            const sampleInfo = {};
+            if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
+                for (const member of this.clinicalAnalysis.family.members) {
+                    if (member.samples && member.samples.length > 0) {
+                        // Proband must be the first column
+                        if (member.id === this.clinicalAnalysis.proband.id) {
+                            samples.unshift(member.samples[0]);
+                        } else {
+                            samples.push(member.samples[0]);
+                        }
+                        sampleInfo[member.samples[0].id] = {
+                            proband: member.id === this.clinicalAnalysis.proband.id,
+                            affected: member.disorders && member.disorders.length > 0 && member.disorders[0].id === this.clinicalAnalysis.disorder.id,
+                            role: this.clinicalAnalysis.family?.roles[this.clinicalAnalysis.proband.id]?.[member.id]?.toLowerCase(),
+                            sex: member.sex
+                        };
+                    }
+                }
+            } else {
+                if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+                    samples.push(this.clinicalAnalysis.proband.samples[0]);
+                    sampleInfo[this.clinicalAnalysis.proband.samples[0].id] = {
+                        proband: true,
+                        affected: this.clinicalAnalysis.proband.disorders && this.clinicalAnalysis.proband.disorders.length > 0,
+                        role: "proband",
+                        sex: this.clinicalAnalysis.proband.sex
+                    };
+                }
+            }
+
+            if (samples.length > 0) {
+                _columns[0].splice(6, 0, {
+                    id: "sampleGenotypes",
+                    title: "Sample Genotypes",
+                    rowspan: 1,
+                    colspan: samples.length,
+                    align: "center"
+                });
+
+                for (let i = 0; i < samples.length; i++) {
+                    let color = "black";
+                    if (sampleInfo[samples[i].id].proband) {
+                        color = "darkred";
+                        if (UtilsNew.isEmpty(sampleInfo[samples[i].id].role)) {
+                            sampleInfo[samples[i].id].role = "proband";
+                        }
+                    }
+
+                    let affected = "<span>UnAff.</span>";
+                    if (sampleInfo[samples[i].id].affected) {
+                        affected = "<span style='color: red'>Aff.</span>";
+                    }
+
+                    _columns[1].splice(i + 2, 0, {
+                        id: samples[i].id,
+                        title: `<span style="color: ${color}">${samples[i].id}</span>
+                                <br>
+                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                        field: {
+                            memberIdx: i,
+                            memberName: samples[i].id,
+                            sampleId: samples[i].id,
+                            quality: this._config.quality,
+                            clinicalAnalysis: this.clinicalAnalysis,
+                            config: this._config
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        align: "center",
+                        nucleotideGenotype: true
+                    });
+                }
+            }
+        }
+
+        if (this.clinicalAnalysis && this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
+            // Add sample columns
+            // let samples = null;
+            if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+                // We only render somatic sample
+                if (this.query && this.query.sample) {
+                    const _sampleGenotypes = this.query.sample.split(";");
+                    for (const sampleGenotype of _sampleGenotypes) {
+                        const sampleId = sampleGenotype.split(":")[0];
+                        samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
+                    }
+                } else {
+                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
+                }
+
+                _columns[0].splice(7, 0, {
+                    id: "sampleGenotypes",
+                    title: "Sample Genotypes",
+                    rowspan: 1,
+                    colspan: samples.length,
+                    align: "center"
+                });
+                for (let i = 0; i < samples.length; i++) {
+                    const sample = samples[i];
+                    const color = sample?.somatic ? "darkred" : "black";
+
+                    _columns[1].splice(i + 2, 0, {
+                        id: sample.id,
+                        title: `
+                            <div style="word-break:break-all;max-width:192px;white-space:break-spaces;">${sample.id}</div>
+                            <div style="color:${color};font-style:italic;">${sample?.somatic ? "somatic" : "germline"}</div>
+                        `,
+                        field: {
+                            sampleId: sample.id,
+                            quality: this._config.quality,
+                            config: this._config,
+                            clinicalAnalysis: this.clinicalAnalysis
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        align: "center",
+                        nucleotideGenotype: true
+                    });
+                }
+            }
+        }
+
+        return _columns;
+    }
+
+    onActionClick(e, value, row) {
+        const action = e.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "edit":
+                if (this.checkedVariants) {
+                    // Generate a clone of the variant review to prevent changing original values
+                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+                    this.requestUpdate();
+                    const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+                    UtilsNew.draggableModal(document, modalElm);
+                    $(`#${this._prefix}ReviewSampleModal`).modal("show");
+                }
+                break;
+            case "edit-report":
+                if (this.checkedVariants) {
+                    // Generate a clone of the variant review to prevent changing original values
+                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+                    this.requestUpdate();
+                    const modalElm = document.querySelector(`#${this._prefix}EditReport`);
+                    // UtilsNew.draggableModal(document, modalElm);
+                    $(`#${this._prefix}EditReport`).modal("show");
+                }
+                break;
+            case "genome-browser":
+                LitUtils.dispatchCustomEvent(this, "genomeBrowserRegionChange", null, {
+                    region: row.chromosome + ":" + row.start + "-" + row.end,
+                });
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            default:
+                const copy = this._config.copies.find(copy => copy.id === action);
+                if (copy) {
+                    // Sort and group CTs by Gene name
+                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+
+                    // we need to prepare evidences to be filtered properly,
+                    // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
+                    // so we need to add consequenceType information
+                    const transcriptMap = new Map();
+                    row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
+                    const newEvidences = [];
+                    row.evidences.forEach((evidence, index) => {
+                        // we are missing regulatory variants
+                        if (evidence.genomicFeature?.transcriptId) {
+                            const newEvidence = {
+                                index,
+                                ...evidence,
+                                ...transcriptMap.get(evidence.genomicFeature.transcriptId)
+                            };
+                            newEvidences.push(newEvidence);
+                        }
+                    });
+                    const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
+
+                    UtilsNew.copyToClipboard(copy.execute(row, showArrayIndexes));
+                }
+                break;
+        }
+    }
+
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
+        await this.updateComplete;
+
+        // exportFilename is a way to override the default filename. Atm it is used in variant-interpreter-review-primary only.
+        // variant-interpreter-browser uses the default name (which doesn't include the interpretation id).
+        const date = UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm");
+        const filename = this._config?.exportFilename ?? `variant_interpreter_${this.opencgaSession.study.id}_${this.clinicalAnalysis.id}_${this.clinicalAnalysis?.interpretation?.id ?? ""}_${date}`;
+        if (this.clinicalVariants?.length > 0) {
+            // Check if user clicked in Tab or JSON format
+            if (e.detail.option.toLowerCase() === "tab") {
+                // List of samples for generating the TSV file
+                const samples = this.clinicalVariants[0].studies[0].samples.map(sample => sample.sampleId);
+                const dataString = VariantUtils.jsonToTabConvert(this.clinicalVariants, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+            } else {
+                UtilsNew.downloadData(JSON.stringify(this.clinicalVariants, null, "\t"), filename + ".json", "application/json");
+            }
+            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            this.requestUpdate();
+        } else {
+            const filters = {
+                ...this.filters,
+                limit: e.detail?.exportLimit ?? 1000,
+                count: false,
+            };
+            this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+                .then(restResponse => {
+                    const results = restResponse.getResults();
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        // List of samples for generating the TSV file
+                        const samples = this.query.sample.split(";").map(sample => ({
+                            id: sample.split(":")[0],
+                        }));
+                        const dataString = VariantUtils.jsonToTabConvert(results, POPULATION_FREQUENCIES.studies, samples, this._config.nucleotideGenotype, e.detail.exportFields);
+                        UtilsNew.downloadData(dataString, filename + ".tsv", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), filename + ".json", "application/json");
+                    }
+                })
+                .catch(response => {
+                    console.error(response);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                })
+                .finally(() => {
+                    this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                    this.requestUpdate();
+                });
+        }
+    }
+
+    showLoading() {
+        $("#" + this.gridId).bootstrapTable("showLoading");
+    }
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
+    }
+
+    onConfigClick(e) {
+        $("#" + this._prefix + "ConfigModal").modal("show");
+    }
+
+    onVariantCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+
+        // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
+        // If not, we will get the variant from the rows list
+        let variant = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).find(item => item.id === variantId);
+        if (!variant) {
+            variant = this._rows.find(e => e.id === variantId);
+        }
+
+        if (e.currentTarget.checked) {
+            // Add current filter executed when variant is checked
+            variant.filters = {...this.filters};
+            this.checkedVariants.set(variantId, variant);
+        } else {
+            this.checkedVariants.delete(variantId);
+        }
+
+        // Set 'Edit' button as enabled/disabled
+        document.getElementById(this._prefix + variantId + "VariantReviewButton").disabled = !e.currentTarget.checked;
+        const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
+        if (e.currentTarget.checked) {
+            reviewActionButton.removeAttribute("disabled");
+        } else {
+            reviewActionButton.setAttribute("disabled", "true");
+        }
+
+        // Enable or disable evidences select
+        Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id);
+            }
+        });
+
+        // Set 'Edit' button of evidences review as enabled/disabled
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            if (variant.id === element.dataset.variantId) {
+                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
+                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
+            }
+        });
+
+        this.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: variantId,
+                row: variant,
+                checked: e.currentTarget.checked,
+                rows: Array.from(this.checkedVariants.values())
+            }
+        }));
+    }
+
+    onVariantReview(e) {
+        if (this.checkedVariants) {
+            // Generate a clone of the variant review to prevent changing original values
+            this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
+            this.requestUpdate();
+            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}ReviewSampleModal`).modal("show");
+        }
+    }
+
+    onVariantReviewChange(e) {
+        this.variantReview = e.detail.value;
+    }
+
+    onVariantReviewOk() {
+        this.checkedVariants?.set(this.variantReview.id, this.variantReview);
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
+
+        // Clear selected variant to review
+        this.variantReview = null;
+        this.requestUpdate();
+    }
+
+    onVariantReviewCancel() {
+        this.variantReview = null;
+        this.requestUpdate();
+    }
+
+    onEvidenceCheck(e) {
+        const variantId = e.currentTarget.dataset.variantId;
+        const evidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+        // Update clinical evidence review data
+        const evidence = this.checkedVariants.get(variantId).evidences[evidenceIndex];
+        // TODO: remove this check when the evidence review is implemented in OpenCGA
+        if (typeof evidence.review === "undefined") {
+            evidence.review = {};
+        }
+        evidence.review.select = e.currentTarget.checked;
+
+        // Enable or disable evidence review edit
+        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
+            const dataset = element.dataset;
+            if (variantId === dataset.variantId && parseInt(dataset.clinicalEvidenceIndex) === evidenceIndex) {
+                // eslint-disable-next-line no-param-reassign
+                element.disabled = !evidence.review.select;
+            }
+        });
+
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: variantId,
+            row: this.checkedVariants.get(variantId),
+            rows: Array.from(this.checkedVariants.values()),
+        });
+    }
+
+    onVariantEvidenceReview(e) {
+        if (this.checkedVariants) {
+            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+            // Generate a clone of the evidence review to prevent changing original values
+            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
+            this.requestUpdate();
+            const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
+            UtilsNew.draggableModal(document, modalElm);
+            $(`#${this._prefix}EvidenceReviewModal`).modal("show");
+        }
+    }
+
+    onEvidenceReviewChange(e) {
+        // Update evidence review object
+        this.evidenceReview = e.detail.value;
+    }
+
+    onEvidenceReviewOk() {
+        // Update review object of the current variant
+        this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
+
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReview.id,
+            row: this.variantReview,
+            rows: Array.from(this.checkedVariants.values()),
+        });
+
+        // Clear evidence and variant review
+        this.variantReview = null;
+        this.evidenceReview = null;
+    }
+
+    getRightToolbar() {
+        if (this._config?.showSettings) {
+            return [
+                {
+                    render: () => html`
+                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        </button>`
+                }
+            ];
+        }
+        return [];
+    }
+
+    renderModalReport() {
+        const fullWidth = (window.innerWidth * 0.95) + "px";
+        const fullHeight = window.innerHeight + "px";
+        const configDetail = {
+            title: "Selected Variant: ",
+            showTitle: true,
+            items: [
+                {
+                    id: "annotationSummary",
+                    name: "Summary",
+                    active: true,
+                    render: variant => {
+                        return html`
+                            <cellbase-variant-annotation-summary
+                                .variantAnnotation="${variant.annotation}"
+                                .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                .assembly=${this.opencgaSession.project.organism.assembly}>
+                            </cellbase-variant-annotation-summary>`;
+                    }
+                },
+                {
+                    id: "annotationConsType",
+                    name: "Consequence Type",
+                    render: (variant, active) => {
+                        return html`
+                            <variant-consequence-type-view
+                                .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                .active="${active}">
+                            </variant-consequence-type-view>`;
+                    }
+                },
+                {
+                    id: "annotationPropFreq",
+                    name: "Population Frequencies",
+                    render: (variant, active) => {
+                        return html`
+                            <cellbase-population-frequency-grid
+                                .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                .active="${active}">
+                            </cellbase-population-frequency-grid>`;
+                    }
+                },
+                {
+                    id: "annotationClinical",
+                    name: "Clinical",
+                    render: variant => {
+                        return html`
+                            <variant-annotation-clinical-view
+                                .traitAssociation="${variant.annotation.traitAssociation}"
+                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                            </variant-annotation-clinical-view>`;
+                    }
+                },
+                {
+                    id: "fileMetrics",
+                    name: "File Metrics",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <opencga-variant-file-metrics
+                                .opencgaSession="${opencgaSession}"
+                                .variant="${variant}"
+                                .files="${this.clinicalAnalysis}">
+                            </opencga-variant-file-metrics>`;
+                    }
+                },
+                {
+                    id: "cohortStats",
+                    name: "Cohort Stats",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <variant-cohort-stats
+                                .opencgaSession="${opencgaSession}"
+                                .variant="${variant}"
+                                .active="${active}">
+                            </variant-cohort-stats>`;
+                    }
+                },
+                {
+                    id: "samples",
+                    name: "Samples",
+                    render: (variant, active, opencgaSession) => html`
+                        <variant-samples
+                            .opencgaSession="${opencgaSession}"
+                            .variantId="${variant.id}"
+                            .active="${active}">
+                        </variant-samples>
+                    `,
+                },
+                {
+                    id: "protein",
+                    name: "Protein (Beta)",
+                    render: (variant, active, opencgaSession) => html`
+                        <protein-lollipop-variant-view
+                            .opencgaSession="${opencgaSession}"
+                            .variant="${variant}"
+                            .query="${this.query}"
+                            .active="${active}">
+                        </protein-lollipop-variant-view>
+                    `,
+                },
+                {
+                    id: "beacon",
+                    name: "Beacon",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <variant-beacon-network
+                                .variant="${variant.id}"
+                                .assembly="${opencgaSession.project.organism.assembly}"
+                                .config="${this.beaconConfig}"
+                                .active="${active}">
+                            </variant-beacon-network>`;
+                    }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (variant, active) => html`
+                        <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                    `,
+                }
+            ]
+        };
+        // variant, classification y population
+        // z-index: 1;
+        // position: sticky;
+        // top: 12px;
+        // display: inline-block;
+        return html`
+        <!-- Modal Fullscreen -->
+            <div class="modal fade modal" id="${this._prefix}EditReport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width: ${fullWidth};">
+                <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
+                    <div>
+                        <rich-text-editor
+                            .data="${""}">
+                        </rich-text-editor>
+                    </div>
+                    <div>
+                        <variant-interpreter-grid
+                            review
+                            .clinicalAnalysis=${this.clinicalAnalysis}
+                            .clinicalVariants="${[this.variantReview]}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config=${
+                                {
+                                    showExport: false,
+                                    showSettings: false,
+                                    showActions: false,
+                                    showEditReview: false,
+                                }
+                            }>
+                        </variant-interpreter-grid>
+                        <variant-interpreter-detail
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .variant="${this.variantReview}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .config=${configDetail}>
+                        </variant-interpreter-detail>
+                    </div>
+                </div>
+            </div>
+            </div>
+        `;
+    }
+
+    render() {
+        return html`
+            <style>
+                .variant-link-dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+                .qtip-custom-class {
+                    font-size: 13px;
+                    max-width: none;
+                }
+                .check-variant {
+                    transform: scale(1.2);
+                }
+            </style>
+
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                .query="${this.query}"
+                .opencgaSession="${this.opencgaSession}"
+                .rightToolbar="${this.getRightToolbar()}"
+                @columnChange="${this.onColumnChange}"
+                @download="${this.onDownload}"
+                @export="${this.onDownload}">
+            </opencb-grid-toolbar>
+
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                <table id="${this._prefix}VariantBrowserGrid"></table>
+            </div>
+
+            ${this.renderModalReport()}
+
+            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Review Variant</h3>
+                        </div>
+                        ${this.variantReview ? html`
+                            <clinical-interpretation-variant-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .variant="${this.variantReview}"
+                                .mode="${"form"}"
+                                @variantChange="${e => this.onVariantReviewChange(e)}">
+                            </clinical-interpretation-variant-review>
+                        ` : null}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Review Variant Evidence</h3>
+                        </div>
+                        ${this.evidenceReview ? html`
+                            <clinical-interpretation-variant-evidence-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .review="${this.evidenceReview}"
+                                .mode="${"form"}"
+                                .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                                @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                            </clinical-interpretation-variant-evidence-review>
+                        ` : null}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
+                                </variant-interpreter-grid-config>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showExport: false,
+            detailView: true,
+            showReview: true,
+            showSettings: true,
+            showSelectCheckbox: false,
+            showActions: true,
+            showEditReview: true,
+            showType: true,
+            showGenomeBrowserLink: true,
+            multiSelection: false,
+            nucleotideGenotype: true,
+            alleleStringLengthMax: 10,
+
+            hideType: false,
+            hidePopulationFrequencies: false,
+            hideClinicalInfo: false,
+            showHgvs: false,
+
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+
+            quality: {
+                qual: 30,
+                dp: 20
+            },
+            populationFrequencies: [
+                "1000G:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "GNOMAD_EXOMES:ALL",
+            ],
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            },
+            genotype: {
+                type: "VAF"
+            },
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                // all: false,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
+
+            evidences: {
+                showSelectCheckbox: true
+            },
+
+            somatic: false,
+            variantTypes: [],
+        };
+    }
+
+}
+
+customElements.define("variant-interpreter-grid-beta", VariantInterpreterGridBeta);

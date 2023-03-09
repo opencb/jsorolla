@@ -23,6 +23,7 @@ import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./clinical-analysis-summary.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
+import "../variant/interpretation/variant-interpreter-grid-beta.js";
 import "../disease-panel/disease-panel-grid.js";
 import "./interpretation/clinical-interpretation-view.js";
 
@@ -444,12 +445,14 @@ export default class ClinicalAnalysisReviewBeta extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: data => html`
+                                render: data => {
+                                    console.log("data for interpretation updated", data);
+                                    return html`
                                     <h3 style="padding-bottom: 5px">Interpretations</h3>
                                     <div class="pull-right">
                                     <clinical-interpretation-update
-                                        .clinicalInterpretation="${data}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .clinicalInterpretation="${data?.interpretation}"
+                                        .clinicalAnalysis="${data}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .mode="${"modal"}"
                                         .displayConfig="${
@@ -469,7 +472,8 @@ export default class ClinicalAnalysisReviewBeta extends LitElement {
                                         @updaterow="${e => this.onUpdateVariant(e)}"
                                         @commentChange="${e => this.onInterpretationCommentChange(e)}">
                                     </clinical-interpretation-view>
-                                `
+                                `;
+                                }
                             }
                         }
                     ]
@@ -499,7 +503,7 @@ export default class ClinicalAnalysisReviewBeta extends LitElement {
                                         html`
                                             <variant-interpreter-grid
                                                 review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
+                                                .clinicalAnalysis=${data}
                                                 .clinicalVariants="${variantsReported}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${
