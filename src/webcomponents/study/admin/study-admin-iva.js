@@ -104,7 +104,7 @@ export default class StudyAdminIva extends LitElement {
 
     renderRestore(opencgaSession, study) {
         return html `
-            <div>Reset all settings to their original defaults and restore the backup version</div>
+            <div style="padding: 1em 0">Reset all settings to their original defaults and restore the backup version</div>
             <tool-settings-restore
                 .study="${study}"
                 .opencgaSession="${opencgaSession}"
@@ -137,7 +137,7 @@ export default class StudyAdminIva extends LitElement {
                     {
                         id: "tool_settings",
                         name: "Tool settings",
-                        // icon: "fa-solid fa-square",
+                        // icon: "fas fa-square",
                         visibility: "private",
                         render: (opencgaSession, study) => this.renderRestore(opencgaSession, study),
                     },
@@ -161,7 +161,7 @@ export default class StudyAdminIva extends LitElement {
                         return {
                             id: toolName.toLowerCase(),
                             name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
-                            icon: "fa-solid fa-square",
+                            // icon: "fa-solid fa-square",
                             visibility: "private",
                             render: (opencgaSession, study) => {
                                 return html `

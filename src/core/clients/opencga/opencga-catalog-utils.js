@@ -175,7 +175,6 @@ export default class OpencgaCatalogUtils {
                 SETTINGS_NAME
             ]
         );
-        debugger
         // 2. The params that will be updated
         return {
             attributes: {
@@ -214,7 +213,6 @@ export default class OpencgaCatalogUtils {
      * @returns {object}                Study attributes with default IVA settings
      */
     static getRestoreIVASettings(opencgaSession, study, type) {
-        debugger
         const getSettings = () => {
             switch (type) {
                 case "default":
