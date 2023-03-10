@@ -224,7 +224,7 @@ export default class VariantInterpreterReview extends LitElement {
                 if (variantCallerTypes.has("BREAKEND")) {
                     items.push({
                         id: "somatic-rearrangements",
-                        name: "Somatic Rearrangements Variants",
+                        name: "Somatic Rearrangements",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
@@ -297,7 +297,7 @@ export default class VariantInterpreterReview extends LitElement {
                     // Add Germline Rearrangements tab
                     items.push({
                         id: "germline-rearrangements",
-                        name: "Germline Rearrangements Variants",
+                        name: "Germline Rearrangements",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
