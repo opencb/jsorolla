@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import "../../loading-spinner.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "../../clinical/clinical-analysis-report-update.js";
 
 export default class VariantInterpreterGridBeta extends LitElement {
 
@@ -1664,45 +1665,46 @@ export default class VariantInterpreterGridBeta extends LitElement {
         // top: 12px;
         // display: inline-block;
         return html`
-        <!-- Modal Fullscreen -->
-            <div class="modal fade modal" id="${this._prefix}EditReport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" style="width: ${fullWidth};">
-                <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-                </div>
-                <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
-                    <div>
-                        <rich-text-editor
-                            .data="${""}">
-                        </rich-text-editor>
+            <div class="modal fade modal" id="${this._prefix}EditReport" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: ${fullWidth};">
+                    <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
                     </div>
-                    <div>
-                        <variant-interpreter-grid
-                            review
-                            .clinicalAnalysis=${this.clinicalAnalysis}
-                            .clinicalVariants="${[this.variantReview]}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config=${
-                                {
-                                    showExport: false,
-                                    showSettings: false,
-                                    showActions: false,
-                                    showEditReview: false,
-                                }
-                            }>
-                        </variant-interpreter-grid>
-                        <variant-interpreter-detail
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .variant="${this.variantReview}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .config=${configDetail}>
-                        </variant-interpreter-detail>
+                    <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
+                        <div>
+                            <clinical-analysis-report-update
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .opencgaSession="${this.opencgaSession}">
+                            </clinical-analysis-report-update>
+                        </div>
+                        <div>
+                            <variant-interpreter-grid
+                                review
+                                .clinicalAnalysis=${this.clinicalAnalysis}
+                                .clinicalVariants="${[this.variantReview]}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config=${
+                                    {
+                                        showExport: false,
+                                        showSettings: false,
+                                        showActions: false,
+                                        showEditReview: false,
+                                    }
+                                }>
+                            </variant-interpreter-grid>
+                            <variant-interpreter-detail
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .variant="${this.variantReview}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .config=${configDetail}>
+                            </variant-interpreter-detail>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
         `;
     }

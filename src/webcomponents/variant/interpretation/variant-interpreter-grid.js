@@ -242,7 +242,6 @@ export default class VariantInterpreterGrid extends LitElement {
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
-            debugger;
             this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
         }
 
