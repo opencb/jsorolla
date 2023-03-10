@@ -141,8 +141,8 @@ export default class VariantInterpreterReview extends LitElement {
                 const germlineSample = this.clinicalAnalysis?.proband?.samples?.find(s => !s.somatic);
 
                 items.push({
-                    id: "primary-findings",
-                    name: "Somatic Variants",
+                    id: "somatic-small-variants",
+                    name: "Somatic Small Variants",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         // TODO: fix this line to get correct variants to display
                         // const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
@@ -159,17 +159,23 @@ export default class VariantInterpreterReview extends LitElement {
                             <div class="col-md-10 col-md-offset-1">
                                 <tool-header
                                     class="bg-white"
-                                    title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                    title="Somatic Small Variants - ${clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
-                                <variant-interpreter-review-primary
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .clinicalVariants="${variants || []}"
-                                    .active="${active}"
-                                    .toolId="${"variantInterpreterCancerSNV"}"
-                                    .gridConfig="${gridConfig}"
-                                    .settings="${this.settings.browsers["CANCER_SNV"]}">
-                                </variant-interpreter-review-primary>
+                                ${variants.length > 0 ? html`
+                                    <variant-interpreter-review-primary
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants || []}"
+                                        .active="${active}"
+                                        .toolId="${"variantInterpreterCancerSNV"}"
+                                        .gridConfig="${gridConfig}"
+                                        .settings="${this.settings.browsers["CANCER_SNV"]}">
+                                    </variant-interpreter-review-primary>
+                                ` : html`
+                                    <div class="alert alert-info">
+                                        No <b>Somatic Small Variants</b> to display.
+                                    </div>
+                                `}
                             </div>
                         `;
                     },
@@ -194,15 +200,21 @@ export default class VariantInterpreterReview extends LitElement {
                                         class="bg-white"
                                         title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
-                                    <variant-interpreter-review-primary
-                                        .opencgaSession="${opencgaSession}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants || []}"
-                                        .active="${active}"
-                                        .toolId="${"variantInterpreterCancerCNV"}"
-                                        .gridConfig="${gridConfig}"
-                                        .settings="${this.settings.browsers["CANCER_CNV"]}">
-                                    </variant-interpreter-review-primary>
+                                    ${variants.length > 0 ? html`
+                                        <variant-interpreter-review-primary
+                                            .opencgaSession="${opencgaSession}"
+                                            .clinicalAnalysis="${clinicalAnalysis}"
+                                            .clinicalVariants="${variants || []}"
+                                            .active="${active}"
+                                            .toolId="${"variantInterpreterCancerCNV"}"
+                                            .gridConfig="${gridConfig}"
+                                            .settings="${this.settings.browsers["CANCER_CNV"]}">
+                                        </variant-interpreter-review-primary>
+                                    ` : html`
+                                        <div class="alert alert-info">
+                                            No <b>Somatic CNV Variants</b> to display.
+                                        </div>
+                                    `}
                                 </div>
                             `;
                         },
@@ -232,8 +244,8 @@ export default class VariantInterpreterReview extends LitElement {
                                             .review="${true}">
                                         </variant-interpreter-rearrangement-grid>
                                     ` : html`
-                                        <div class="alert alert-warning">
-                                            No rearrangements to display.
+                                        <div class="alert alert-info">
+                                            No <b>Somatic Rearrangements</b> to display.
                                         </div>
                                     `}
                                 </div>
@@ -262,15 +274,21 @@ export default class VariantInterpreterReview extends LitElement {
                                         class="bg-white"
                                         title="Germline Small Variants - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
-                                    <variant-interpreter-review-primary
-                                        .opencgaSession="${opencgaSession}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants || []}"
-                                        .active="${active}"
-                                        .toolId="${"variantInterpreterRD"}"
-                                        .gridConfig="${gridConfig}"
-                                        .settings="${this.settings.browsers["RD"]}">
-                                    </variant-interpreter-review-primary>
+                                    ${variants.length > 0 ? html`
+                                        <variant-interpreter-review-primary
+                                            .opencgaSession="${opencgaSession}"
+                                            .clinicalAnalysis="${clinicalAnalysis}"
+                                            .clinicalVariants="${variants || []}"
+                                            .active="${active}"
+                                            .toolId="${"variantInterpreterRD"}"
+                                            .gridConfig="${gridConfig}"
+                                            .settings="${this.settings.browsers["RD"]}">
+                                        </variant-interpreter-review-primary>
+                                    ` : html`
+                                        <div class="alert alert-info">
+                                            No <b>Germline Small Variants</b> to display.
+                                        </div>
+                                    `}
                                 </div>
                             `;
                         },
@@ -300,7 +318,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         </variant-interpreter-rearrangement-grid>
                                     ` : html`
                                         <div class="alert alert-info">
-                                            No Rearrangements to display.
+                                            No <b>Germline Rearrangements</b> to display.
                                         </div>
                                     `}
                                 </div>
