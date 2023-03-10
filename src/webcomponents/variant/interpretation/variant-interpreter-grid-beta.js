@@ -1553,7 +1553,28 @@ export default class VariantInterpreterGridBeta extends LitElement {
                                 .variantAnnotation="${variant.annotation}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                .assembly=${this.opencgaSession.project.organism.assembly}>
+                                .assembly=${this.opencgaSession.project.organism.assembly}
+                                .config="${{
+                                    showHgsvFromCT: true,
+                                    filter: {
+                                        geneSet: {
+                                            ensembl: true,
+                                            refseq: true,
+                                        },
+                                        consequenceType: {
+                                            maneTranscript: true,
+                                            gencodeBasicTranscript: false,
+                                            ensemblCanonicalTranscript: true,
+                                            refseqTranscript: true,
+                                            ccdsTranscript: false,
+                                            ensemblTslTranscript: false,
+                                            proteinCodingTranscript: false,
+                                            highImpactConsequenceTypeTranscript: false,
+
+                                            showNegativeConsequenceTypes: true
+                                        },
+                                    }
+                                }}">
                             </cellbase-variant-annotation-summary>`;
                     }
                 },
@@ -1692,6 +1713,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                                         showSettings: false,
                                         showActions: false,
                                         showEditReview: false,
+                                        showHgvs: true
                                     }
                                 }>
                             </variant-interpreter-grid>
@@ -1837,7 +1859,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
-            showHgvs: false,
+            showHgvs: true,
 
             header: {
                 horizontalAlign: "center",
