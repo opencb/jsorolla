@@ -297,7 +297,7 @@ export default class VariantFileInfoFilter extends LitElement {
     //
     #splitFilters(filtersString) {
         // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
-        const re = /(?<file>[a-zA-Z_]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const re = /(?<file>[\w]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
         const match1 = filtersString.match(re);
         // 2. Get the indexes: [0, 16, 26]
         const filters = [];
@@ -332,7 +332,7 @@ export default class VariantFileInfoFilter extends LitElement {
                     for (const filter of this.#splitFilters(filters)) {
                         let key, comparator, value;
                         if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
-                            [, key, comparator, value] = filter.match(/([\w_]*)(<=?|>=?|=)(-?\d*\.?\d+)/);
+                            [, key, comparator, value] = filter.match(/([\w]*)(<=?|>=?|=)(-?\d*\.?\d+)/);
                         } else {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
