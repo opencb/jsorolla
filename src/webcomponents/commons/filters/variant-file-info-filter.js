@@ -336,7 +336,7 @@ export default class VariantFileInfoFilter extends LitElement {
                         } else {
                             [key, value] = filter.split("=");
                             if (key === "FILTER") {
-                                comparator = "";
+                                comparator = "=";
                                 const type = this.callers[this.fileNameToCallerId[fileId]]?.dataFilters?.find(df => df.id === "FILTER")?.type;
                                 if (type?.toUpperCase() === "BOOLEAN") {
                                     value = value === "PASS";
