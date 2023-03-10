@@ -228,10 +228,16 @@ export default class FileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "internal.index.status.name",
+                                // id: "internal.index.status.name",
+                                id: "internal.variant.index.status.id",
                                 name: "Index Status",
                                 multiple: true,
-                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
+                                // CAUTION NOTE 2023 Vero: This allowed values correspond to the file status, not to the index status
+                                // "READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE",
+                                // NOTE 2023 Vero: The current variant.index.status vocabulary is:
+                                // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
+                                // But the DELETED status is moved in opencga to NONE.
+                                allowedValues: ["READY", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"],
                                 type: "category"
                             },
                             {

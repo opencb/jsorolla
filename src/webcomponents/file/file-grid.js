@@ -285,7 +285,8 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "index",
                 title: "Index",
-                field: "internal.index.status.name"
+                // field: "internal.index.status.name",
+                field: "internal.variant.index.status.id"
             },
             {
                 id: "creationDate",
