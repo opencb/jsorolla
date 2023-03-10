@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
 
@@ -45,6 +46,9 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             },
             assembly: {
                 type: String
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -60,6 +64,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
         if (changedProperties.has("consequenceTypes") || changedProperties.has("proteinSubstitutionScores")) {
             this.setColors();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
@@ -197,7 +205,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         }
 
         const variantId = this.variantAnnotation.id ? this.variantAnnotation.id : `${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}:${this.variantAnnotation.reference}:${this.variantAnnotation.alternate}`;
-
         return html`
             <div class="cellbase-variant-annotation-summary">
                 <div class="row">
@@ -217,7 +224,12 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             ${this.variantAnnotation?.hgvs?.length ? html`
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">HGVS</label>
-                                    <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br> `)}</span>
+                                    ${this._config.showHgsvFromCT ? html`
+                                    <span class="col-md-9">${UtilsNew.renderHTML(
+                                        VariantGridFormatter.hgvsFormatter({annotation: this.variantAnnotation},
+                                            this._config?.filter).replace("<hr style='margin: 5px'>", ""))}</span>`: html`
+                                    <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br>`)}</span>
+                                    `}
                                 </div>
                             ` : null}
 
@@ -297,6 +309,13 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             </div>
             <div id="${this._prefix}Traits"></div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            // CT: ConsequenceType
+            showHgsvFromCT: false
+        };
     }
 
 }
