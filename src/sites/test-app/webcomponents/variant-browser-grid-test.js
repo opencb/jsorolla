@@ -93,25 +93,33 @@ class VariantBrowserGridTest extends LitElement {
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
             .then(content => {
                 this.variants = content;
-                // this.mutate();
-                this.requestUpdate();
+                if (this.testVariantFile === "variant-browser-germline") {
+                    this.germlineMutate();
+                } else {
+                    // this.cancerMutate();
+                }
             })
             .catch(err => {
                 // this.variants = [];
                 console.log(err);
-            }).finally(() => {
+            })
+            .finally(() => {
                 this.#setLoading(false);
             });
     }
 
-    mutate() {
-        // 1. no CT array
-        console.log("Change data");
-        // Not working
-        this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
-        this.variants = {...this.variants};
-        this.requestUpdate();
+    germlineMutate() {
+        // 1. no gene names in the CT array
+        this.variants[10].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
 
+        // 2. SIFT with no description available
+        // this.variants[10].annotation.consequenceTypes
+        //     .filter(ct => ct.proteinVariantAnnotation)
+        //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
+
+
+        // Finally, we update variants mem address to force a rendering
+        this.variants = [...this.variants];
     }
 
 
@@ -122,17 +130,16 @@ class VariantBrowserGridTest extends LitElement {
 
 
     render() {
-
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
-        <h2 style="font-weight: bold;">
-            Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
-        </h2>
+            <h2 style="font-weight: bold;">
+                Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})
+            </h2>
 
-        <!--
+            <!--
         <div>
             <button class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
                 type="button" @click="${() => this.mutate()}">
@@ -152,13 +159,13 @@ class VariantBrowserGridTest extends LitElement {
         </div>
         -->
 
-        <variant-browser-grid
-            .variants="${this.variants}"
-            .opencgaSession="${this.opencgaSession}"
-            .config="${this.configVariantGrid}"
-            .populationFrequencies="${this.config.populationFrequencies}">
-        </variant-browser-grid>
-    `;
+            <variant-browser-grid
+                .variants="${this.variants}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.configVariantGrid}"
+                .populationFrequencies="${this.config.populationFrequencies}">
+            </variant-browser-grid>
+        `;
     }
 
 }

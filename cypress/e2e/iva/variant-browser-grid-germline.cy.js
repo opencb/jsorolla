@@ -27,7 +27,6 @@ context("Variant Browser Grid Germline", () => {
         cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
     });
 
-
     it("1.Should be render variant-browser-grid", () => {
         cy.get(browserGrid).should("be.visible")
     })
