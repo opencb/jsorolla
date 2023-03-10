@@ -151,6 +151,11 @@ export default class VariantInterpreterReview extends LitElement {
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                                 ?.filter(v => (v.type !== "COPY_NUMBER" && v.type !== "CNV"))
                                 ?.filter(v => v.type !== "BREAKEND");
+                            const gridConfig = {
+                                somatic: true,
+                                variantTypes: ["SNV", "INDEL"],
+                            };
+
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
@@ -163,10 +168,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants || []}"
                                         .active="${active}"
                                         .toolId="${"variantInterpreterCancerSNV"}"
-                                        .gridConfig="${{
-                                            somatic: true,
-                                            variantTypes: ["SNV", "INDEL"],
-                                        }}"
+                                        .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["CANCER_SNV"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
@@ -183,6 +185,11 @@ export default class VariantInterpreterReview extends LitElement {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                                 ?.filter(v => v.type === "COPY_NUMBER" || v.type === "CNV");
+                            const gridConfig = {
+                                somatic: true,
+                                variantTypes: ["COPY_NUMBER", "CNV"],
+                            };
+
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
@@ -195,10 +202,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants || []}"
                                         .active="${active}"
                                         .toolId="${"variantInterpreterCancerCNV"}"
-                                        .gridConfig="${{
-                                            somatic: true,
-                                            variantTypes: ["COPY_NUMBER", "CNV"],
-                                        }}"
+                                        .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["CANCER_CNV"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
@@ -249,6 +253,11 @@ export default class VariantInterpreterReview extends LitElement {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
                                 ?.filter(v => v.type !== "BREAKEND");
+                            const gridConfig = {
+                                somatic: false,
+                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                            };
+
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
@@ -261,10 +270,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants || []}"
                                         .active="${active}"
                                         .toolId="${"variantInterpreterRD"}"
-                                        .gridConfig="${{
-                                            somatic: false,
-                                            variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                                        }}"
+                                        .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["RD"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
@@ -313,6 +319,10 @@ export default class VariantInterpreterReview extends LitElement {
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             // TODO: fix this line to get correct variants to display
                             const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                            const gridConfig = {
+                                somatic: false,
+                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                            };
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
                                     <tool-header
@@ -325,10 +335,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants}"
                                         .active="${active}"
                                         .toolId="${"variantInterpreterRD"}"
-                                        .gridConfig="${{
-                                            somatic: false,
-                                            variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                                        }}"
+                                        .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["RD"]}">
                                     </variant-interpreter-review-primary>
                                 </div>
