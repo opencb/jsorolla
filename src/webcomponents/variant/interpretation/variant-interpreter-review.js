@@ -140,42 +140,40 @@ export default class VariantInterpreterReview extends LitElement {
                 const somaticSample = this.clinicalAnalysis?.proband?.samples?.find(s => s.somatic);
                 const germlineSample = this.clinicalAnalysis?.proband?.samples?.find(s => !s.somatic);
 
-                items.push(
-                    {
-                        id: "primary-findings",
-                        name: "Somatic Variants",
-                        render: (clinicalAnalysis, active, opencgaSession) => {
-                            // TODO: fix this line to get correct variants to display
-                            // const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
-                            const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                                ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
-                                ?.filter(v => (v.type !== "COPY_NUMBER" && v.type !== "CNV"))
-                                ?.filter(v => v.type !== "BREAKEND");
-                            const gridConfig = {
-                                somatic: true,
-                                variantTypes: ["SNV", "INDEL"],
-                            };
+                items.push({
+                    id: "primary-findings",
+                    name: "Somatic Variants",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        // TODO: fix this line to get correct variants to display
+                        // const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                        const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
+                            ?.filter(v => (v.type !== "COPY_NUMBER" && v.type !== "CNV"))
+                            ?.filter(v => v.type !== "BREAKEND");
+                        const gridConfig = {
+                            somatic: true,
+                            variantTypes: ["SNV", "INDEL"],
+                        };
 
-                            return html`
-                                <div class="col-md-10 col-md-offset-1">
-                                    <tool-header
-                                        class="bg-white"
-                                        title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                                    </tool-header>
-                                    <variant-interpreter-review-primary
-                                        .opencgaSession="${opencgaSession}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants || []}"
-                                        .active="${active}"
-                                        .toolId="${"variantInterpreterCancerSNV"}"
-                                        .gridConfig="${gridConfig}"
-                                        .settings="${this.settings.browsers["CANCER_SNV"]}">
-                                    </variant-interpreter-review-primary>
-                                </div>
-                            `;
-                        },
-                    }
-                );
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <variant-interpreter-review-primary
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .clinicalVariants="${variants || []}"
+                                    .active="${active}"
+                                    .toolId="${"variantInterpreterCancerSNV"}"
+                                    .gridConfig="${gridConfig}"
+                                    .settings="${this.settings.browsers["CANCER_SNV"]}">
+                                </variant-interpreter-review-primary>
+                            </div>
+                        `;
+                    },
+                });
 
                 if (variantCallerTypes.has("COPY_NUMBER") || variantCallerTypes.has("CNV")) {
                     items.push({
@@ -312,37 +310,36 @@ export default class VariantInterpreterReview extends LitElement {
                 }
 
             } else {
-                items.push(
-                    {
-                        id: "primary-findings",
-                        name: "Primary Findings",
-                        render: (clinicalAnalysis, active, opencgaSession) => {
-                            // TODO: fix this line to get correct variants to display
-                            const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
-                            const gridConfig = {
-                                somatic: false,
-                                variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                            };
-                            return html`
-                                <div class="col-md-10 col-md-offset-1">
-                                    <tool-header
-                                        class="bg-white"
-                                        title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                                    </tool-header>
-                                    <variant-interpreter-review-primary
-                                        .opencgaSession="${opencgaSession}"
-                                        .clinicalAnalysis="${clinicalAnalysis}"
-                                        .clinicalVariants="${variants}"
-                                        .active="${active}"
-                                        .toolId="${"variantInterpreterRD"}"
-                                        .gridConfig="${gridConfig}"
-                                        .settings="${this.settings.browsers["RD"]}">
-                                    </variant-interpreter-review-primary>
-                                </div>
-                            `;
-                        },
-                    }
-                );
+                items.push({
+                    id: "primary-findings",
+                    name: "Primary Findings",
+                    render: (clinicalAnalysis, active, opencgaSession) => {
+                        // TODO: fix this line to get correct variants to display
+                        const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+                        const gridConfig = {
+                            somatic: false,
+                            variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                        };
+
+                        return html`
+                            <div class="col-md-10 col-md-offset-1">
+                                <tool-header
+                                    class="bg-white"
+                                    title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
+                                </tool-header>
+                                <variant-interpreter-review-primary
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .clinicalVariants="${variants}"
+                                    .active="${active}"
+                                    .toolId="${"variantInterpreterRD"}"
+                                    .gridConfig="${gridConfig}"
+                                    .settings="${this.settings.browsers["RD"]}">
+                                </variant-interpreter-review-primary>
+                            </div>
+                        `;
+                    },
+                });
             }
         }
 
