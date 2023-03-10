@@ -228,8 +228,7 @@ export default class FileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                // id: "internal.index.status.name",
-                                id: "internal.variant.index.status.id",
+                                id: "internalVariantIndexStatus",
                                 name: "Index Status",
                                 multiple: true,
                                 // CAUTION NOTE 2023 Vero: This allowed values correspond to the file status, not to the index status

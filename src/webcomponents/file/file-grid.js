@@ -284,9 +284,19 @@ export default class OpencgaFileGrid extends LitElement {
             // },
             {
                 id: "index",
-                title: "Index",
+                title: "Variant Index Status",
                 // field: "internal.index.status.name",
-                field: "internal.variant.index.status.id"
+                field: "internal.variant.index.status.id",
+                // formatter: (value, row) => {
+                //     if (row.format === "VCF") {
+                //         return `
+                //             <div>${row.internal.variant.index?.status?.id}</div>
+                //             <div>${row.internal.variant.annotationIndex?.status?.id}</div>
+                //         `;
+                //     } else {
+                //         return `<div>NA</div>`;
+                //     }
+                // }
             },
             {
                 id: "creationDate",
