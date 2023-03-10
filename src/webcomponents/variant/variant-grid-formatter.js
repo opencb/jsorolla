@@ -269,7 +269,7 @@ export default class VariantGridFormatter {
                     </div>
                 `;
             }
-            return resultHtml;
+            return resultHtml || "-";
         } else {
             return "-";
         }
