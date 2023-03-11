@@ -246,7 +246,6 @@ export default class FileView extends LitElement {
                         {
                             // title: "Index Status",
                             title: "Variant Index Status",
-                            // field: "internal.index.status",
                             field: "internal.variant.index.status",
                             type: "custom",
                             display: {

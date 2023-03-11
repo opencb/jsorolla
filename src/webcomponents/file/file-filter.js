@@ -207,7 +207,6 @@ export default class OpencgaFileFilter extends LitElement {
             case "format":
             case "bioformat":
             case "internal.variant.index.status.id":
-                // case "internal.index.status.name":
                 content = html`
                     <select-field-filter
                         multiple

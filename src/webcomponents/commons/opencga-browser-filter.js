@@ -253,8 +253,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "lifeStatus":
                 case "format":
                 case "bioformat":
-                case "internal.variant.index.status.id": // DEPRECATED: "internal.index.status.name"
-                case "internalVariantIndexStatus": // "internal.index.status.name"
+                case "internalVariantIndexStatus":
                 case "internalStatus":
                 case "visited":
                 case "job_priority":
