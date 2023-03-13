@@ -139,6 +139,9 @@ export default class SelectFieldFilter extends LitElement {
                     val = this.value;
                 }
             }
+            // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
+            //  this.selectPicker.selectpicker("val", val), it is not setting the array val if val is disabled
+            //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
             this.selectPicker.selectpicker("val", val);
         }
 
@@ -153,14 +156,17 @@ export default class SelectFieldFilter extends LitElement {
         }
     }
 
-    filterChange() {
+    filterChange(e) {
         // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
         //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
         //  Possible solution:
-        //  const disabled = this.data.map(data => data.fields).flat().filter(data => data.disabled === true).map(data => data.id ?? data.name);
-        //  const selection = [...this.selectPicker.selectpicker("val"), ...disabled];
-        //  TODO: to implement a generic solution where only the disabled string or array of strings **selected** are added to selection.
-        const selection = this.selectPicker.selectpicker("val");
+        const disabled = Object.values(e.target.options).filter(data => data.disabled === true).map(data => {
+            if (data.selected) {
+                return data.value;
+            }
+        });
+        // const selection = this.selectPicker.selectpicker("val");
+        const selection = [...this.selectPicker.selectpicker("val"), ...disabled];
         let val = null;
         if (selection && selection.length) {
             if (this.multiple) {

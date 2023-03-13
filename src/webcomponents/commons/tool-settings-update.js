@@ -53,8 +53,7 @@ export default class ToolSettingsUpdate extends LitElement {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.opencgaSession.study);
         this._toolSettings = UtilsNew.objectClone(this.toolSettings);
-        // this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
-        this._listStudies = [];
+        this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
         this.updatedFields = {};
         // Read Projects and Study to prepare the allowed values in the Study select menu
         this.allowedValues = [];
@@ -162,7 +161,6 @@ export default class ToolSettingsUpdate extends LitElement {
         };
         // 2. Query
         this.#setLoading(true);
-        this._listStudies = [this.opencgaSession.study.fqn, ...this._listStudies];
         this._listStudies.forEach(studyId => {
             // 2.1. Get new study tool settings
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
@@ -209,7 +207,7 @@ export default class ToolSettingsUpdate extends LitElement {
         return {
             id: "",
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,

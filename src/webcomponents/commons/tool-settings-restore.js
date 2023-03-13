@@ -64,8 +64,7 @@ export default class ToolSettingsRestore extends LitElement {
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
-        // this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
-        this._listStudies = [];
+        this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
         this._config = {
             ...this.getDefaultConfig(),
             // ...this.config,
@@ -98,8 +97,6 @@ export default class ToolSettingsRestore extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 const fields = [];
                 for (const study of project.studies) {
-                    // CAUTION [Issue 1] 20230308 Vero: this.selectPicker.selectpicker("val", val), it is not setting the array val
-                    //  if val is disabled (in select-field-filter.js, method updated)
                     fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
                 }
                 this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
@@ -146,8 +143,6 @@ export default class ToolSettingsRestore extends LitElement {
         };
         // 2. Query
         this.#setLoading(true);
-        // Caution 20230308 Vero: horrible fix to [Issue 1] described above
-        this._listStudies = [this.opencgaSession.study.fqn, ...this._listStudies];
         this._listStudies.forEach(studyId => {
             // 2.1. Get new study tool settings
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
@@ -196,7 +191,7 @@ export default class ToolSettingsRestore extends LitElement {
             icon: "",
             type: "tabs",
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
