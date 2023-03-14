@@ -15,18 +15,17 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
+import "../file/file-create.js";
 import Types from "../commons/types";
 
-// WIP Form BETA
+// WIP: Form BETA
 export default class ClinicalAnalysisReportUpdate extends LitElement {
 
     constructor() {
@@ -126,7 +125,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     }
 
     getDefaultConfig() {
-        // Change to detail tabs
         return Types.dataFormConfig({
             type: "tabs",
             display: {
@@ -175,6 +173,26 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         {
                             field: "attributes.clinicalReport.population",
                             type: "rich-text",
+                        },
+                    ]
+                },
+                {
+                    id: "uploadReport",
+                    title: "Upload files",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: false,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: (individualId, dataFormFilterChange) => html`
+                                    <file-create
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </file-create>`
+                            },
                         },
                     ]
                 },
