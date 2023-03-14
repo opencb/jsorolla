@@ -1539,6 +1539,27 @@ export default class VariantInterpreterGridBeta extends LitElement {
     renderModalReport() {
         const fullWidth = (window.innerWidth * 0.95) + "px";
         const fullHeight = window.innerHeight + "px";
+        const configVariantAnnotation = {
+            showHgsvFromCT: true,
+            filter: {
+                geneSet: {
+                    ensembl: true,
+                    refseq: true,
+                },
+                consequenceType: {
+                    maneTranscript: true,
+                    gencodeBasicTranscript: false,
+                    ensemblCanonicalTranscript: true,
+                    refseqTranscript: true,
+                    ccdsTranscript: false,
+                    ensemblTslTranscript: false,
+                    proteinCodingTranscript: false,
+                    highImpactConsequenceTypeTranscript: false,
+
+                    showNegativeConsequenceTypes: true
+                },
+            }
+        };
         const configDetail = {
             title: "Selected Variant: ",
             showTitle: true,
@@ -1549,33 +1570,28 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     active: true,
                     render: variant => {
                         return html`
-                            <cellbase-variant-annotation-summary
-                                .variantAnnotation="${variant.annotation}"
-                                .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                .assembly=${this.opencgaSession.project.organism.assembly}
-                                .config="${{
-                                    showHgsvFromCT: true,
-                                    filter: {
-                                        geneSet: {
-                                            ensembl: true,
-                                            refseq: true,
-                                        },
-                                        consequenceType: {
-                                            maneTranscript: true,
-                                            gencodeBasicTranscript: false,
-                                            ensemblCanonicalTranscript: true,
-                                            refseqTranscript: true,
-                                            ccdsTranscript: false,
-                                            ensemblTslTranscript: false,
-                                            proteinCodingTranscript: false,
-                                            highImpactConsequenceTypeTranscript: false,
-
-                                            showNegativeConsequenceTypes: true
-                                        },
-                                    }
-                                }}">
-                            </cellbase-variant-annotation-summary>`;
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <cellbase-variant-annotation-summary
+                                        .variantAnnotation="${variant.annotation}"
+                                        .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                        .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                        .assembly=${this.opencgaSession.project.organism.assembly}
+                                        .config="${configVariantAnnotation}">
+                                    </cellbase-variant-annotation-summary>
+                            </div>
+                            <div class="col-md-6" style="padding-top:12px">
+                                <h3 class="section-title">Review Variant</h3>
+                                <clinical-interpretation-variant-review
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${this.variantReview}"
+                                    .mode="${"form"}"
+                                    @variantChange="${e => this.onVariantReviewChange(e)}">
+                                </clinical-interpretation-variant-review>
+                                <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Save</button>
+                            </div>
+                        </div>
+                            `;
                     }
                 },
                 {
