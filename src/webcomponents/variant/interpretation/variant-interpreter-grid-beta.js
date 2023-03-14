@@ -1612,8 +1612,10 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     render: (variant, active) => {
                         return html`
                             <variant-clinical-evidence-view
-                                .traitAssociation="${variant.annotation.traitAssociation}"
-                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                review
+                                .clinicalVariant="${variant}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-clinical-evidence-view>
                         `;
                     }
@@ -1675,18 +1677,18 @@ export default class VariantInterpreterGridBeta extends LitElement {
                         </variant-samples>
                     `,
                 },
-                {
-                    id: "protein",
-                    name: "Protein (Beta)",
-                    render: (variant, active, opencgaSession) => html`
-                        <protein-lollipop-variant-view
-                            .opencgaSession="${opencgaSession}"
-                            .variant="${variant}"
-                            .query="${this.query}"
-                            .active="${active}">
-                        </protein-lollipop-variant-view>
-                    `,
-                },
+                // {
+                //     id: "protein",
+                //     name: "Protein (Beta)",
+                //     render: (variant, active, opencgaSession) => html`
+                //         <protein-lollipop-variant-view
+                //             .opencgaSession="${opencgaSession}"
+                //             .variant="${variant}"
+                //             .query="${this.query}"
+                //             .active="${active}">
+                //         </protein-lollipop-variant-view>
+                //     `,
+                // },
                 {
                     id: "beacon",
                     name: "Beacon",
