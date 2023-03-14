@@ -29,7 +29,7 @@ import "./variant-interpreter-methods.js";
 import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../clinical/clinical-analysis-review.js";
-import "../../clinical/clinical-analysis-review-beta.js";
+import "../../clinical/clinical-analysis-review-info.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "./case-sms-report.js";
@@ -321,11 +321,11 @@ class VariantInterpreter extends LitElement {
                             class="bg-white"
                             title="Case - ${clinicalAnalysis.id}">
                         </tool-header>
-                        <clinical-analysis-review-beta
+                        <clinical-analysis-review-info
                             @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
                             .clinicalAnalysis="${clinicalAnalysis}"
                             .opencgaSession="${opencgaSession}">
-                        </clinical-analysis-review-beta>
+                        </clinical-analysis-review-info>
                     </div>
                 `;
             }
