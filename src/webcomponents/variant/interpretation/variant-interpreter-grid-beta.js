@@ -1540,7 +1540,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
     renderModalReport() {
         const fullWidth = (window.innerWidth * 0.95) + "px";
         const fullHeight = window.innerHeight + "px";
-        const configVariantAnnotation = {
+        const variantAnnotationConfig = {
             showHgsvFromCT: true,
             filter: {
                 geneSet: {
@@ -1556,12 +1556,11 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     ensemblTslTranscript: false,
                     proteinCodingTranscript: false,
                     highImpactConsequenceTypeTranscript: false,
-
                     showNegativeConsequenceTypes: true
                 },
             }
         };
-        const configDetail = {
+        const detailTabConfig = {
             title: "Selected Variant: ",
             showTitle: true,
             items: [
@@ -1578,7 +1577,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                                         .consequenceTypes="${CONSEQUENCE_TYPES}"
                                         .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                         .assembly=${this.opencgaSession.project.organism.assembly}
-                                        .config="${configVariantAnnotation}">
+                                        .config="${variantAnnotationConfig}">
                                     </cellbase-variant-annotation-summary>
                             </div>
                             <div class="col-md-6" style="padding-top:12px">
@@ -1711,11 +1710,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 }
             ]
         };
-        // variant, classification y population
-        // z-index: 1;
-        // position: sticky;
-        // top: 12px;
-        // display: inline-block;
+
         return html`
             <div class="modal fade modal" id="${this._prefix}EditReport" tabindex="-1"
                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
@@ -1754,7 +1749,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .variant="${this.variantReview}"
                                 .cellbaseClient="${this.cellbaseClient}"
-                                .config=${configDetail}>
+                                .config=${detailTabConfig}>
                             </variant-interpreter-detail>
                         </div>
                     </div>
