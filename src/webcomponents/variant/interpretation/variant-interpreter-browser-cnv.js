@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
+import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
 
@@ -516,6 +517,19 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                         .active="${active}">
                                     </variant-beacon-network>`;
                             }
+                        },
+                        {
+                            id: "exomiser",
+                            name: "Exomiser",
+                            visible: () => {
+                                return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
+                            },
+                            render: (variant, active) => html`
+                                <variant-interpreter-exomiser-view
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-interpreter-exomiser-view>
+                            `,
                         },
                         {
                             id: "json-view",
