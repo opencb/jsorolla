@@ -30,6 +30,7 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../clinical/clinical-analysis-report-update.js";
+import "../variant-clinical-evidence-view.js";
 
 export default class VariantInterpreterGridBeta extends LitElement {
 
@@ -1606,6 +1607,18 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     }
                 },
                 {
+                    id: "clinicalEvidence",
+                    name: "Clinical Evidence",
+                    render: (variant, active) => {
+                        return html`
+                            <variant-clinical-evidence-view
+                                .traitAssociation="${variant.annotation.traitAssociation}"
+                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                            </variant-clinical-evidence-view>
+                        `;
+                    }
+                },
+                {
                     id: "annotationPropFreq",
                     name: "Population Frequencies",
                     render: (variant, active) => {
@@ -1729,7 +1742,8 @@ export default class VariantInterpreterGridBeta extends LitElement {
                                         showSettings: false,
                                         showActions: false,
                                         showEditReview: false,
-                                        showHgvs: true
+                                        showHgvs: true,
+                                        detailView: true
                                     }
                                 }>
                             </variant-interpreter-grid>
