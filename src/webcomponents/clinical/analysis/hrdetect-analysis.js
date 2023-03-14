@@ -54,7 +54,9 @@ export default class HRDetectAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "HRDetect";
         this.ANALYSIS_DESCRIPTION = "Executes a HRDetect analysis job";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            bootstrap: true,
+        };
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
