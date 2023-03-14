@@ -93,18 +93,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
 
     clinicalAnalysisIdObserver(e) {
         this.clinicalAnalysis = e.detail.value;
-    /*
-        // Fixme: discuss what to do with:
-        //  (a) the custom event received.
-        //  (b) event.status error and message (notified to the user  in opencga-update catch)
-
-        LitUtils.dispatchCustomEvent(
-            this,
-            "clinicalAnalysisUpdate",
-            e.detail.value,
-            e.detail,
-            null);
-    */
     }
 
     opencgaSessionObserver() {
@@ -128,7 +116,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         return Types.dataFormConfig({
             type: "tabs",
             display: {
-                // pillsLeftColumnClass: "col-md-2",
                 buttonsVisible: false,
                 buttonOkText: "Save",
                 buttonClearText: ""
@@ -165,6 +152,34 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                 {
                     id: "populationReport",
                     title: "Population",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            field: "attributes.clinicalReport.population",
+                            type: "rich-text",
+                        },
+                    ]
+                },
+                {
+                    id: "diseaseAssociationReport",
+                    title: "Disease Association",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            field: "attributes.clinicalReport.population",
+                            type: "rich-text",
+                        },
+                    ]
+                },
+                {
+                    id: "recommendationsReport",
+                    title: "Recommendations",
                     display: {
                         titleStyle: "display:none",
                         buttonsVisible: true,
