@@ -188,8 +188,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
-                                render: (individualId, dataFormFilterChange) => html`
+                                render: (clinicalAnalysis, dataFormFilterChange) => html`
                                     <file-create
+                                        .data="${clinicalAnalysis}"
                                         .opencgaSession="${this.opencgaSession}">
                                     </file-create>`
                             },

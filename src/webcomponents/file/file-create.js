@@ -35,6 +35,9 @@ export default class FileCreate extends LitElement {
 
     static get properties() {
         return {
+            data: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -65,6 +68,7 @@ export default class FileCreate extends LitElement {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
+            console.log("Data...", this.data);
         }
         super.update(changedProperties);
     }
@@ -99,23 +103,23 @@ export default class FileCreate extends LitElement {
         this.#setLoading(true);
 
         try {
-            console.log("Comming Soon!");
-            // const dataContent = await UtilsNew.toBase64(this.file.fileUpload);
-            // this.file.content = dataContent.split("base64,")[1].trim();
-            // this.file.path = `/${params.study}/variants_file/${this.file.fileUpload.name}`;
-            // this.file.parents = true;
-            // this.file.format = "UNKNOWN";
-            // delete this.file.fileUpload;
+            const dataContent = await UtilsNew.toBase64(this.file.fileUpload);
+            this.file.content = dataContent.split("base64,")[1].trim();
+            this.file.path = `/reports/${this.data.interpretation.id}/${this.file.fileUpload.name}`;
+            this.file.format = "BINARY";
+            this.file.bioformat = "UNKNOWN";
+            this.file.type = "FILE";
 
-            // const response = this.opencgaSession.opencgaClient.files().create(this.file, params);
-            // if (response.ok) {
-            //     this.file = {};
-            //     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            //         title: "File Create",
-            //         message: "File created correctly"
-            //     });
-            // }
-            // return response;
+            delete this.file.fileUpload;
+            const response = this.opencgaSession.opencgaClient.files().create(this.file, params);
+            if (response.ok) {
+                this.file = {};
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "File Create",
+                    message: "File created correctly"
+                });
+            }
+            return response;
         } catch (reason) {
             error = reason;
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
