@@ -1244,7 +1244,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
                     this.requestUpdate();
                     const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-                    UtilsNew.draggableModal(document, modalElm);
+                    UtilsNew.draggableModal(this, modalElm);
                     $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
@@ -1430,7 +1430,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-            UtilsNew.draggableModal(document, modalElm);
+            UtilsNew.draggableModal(this, modalElm);
             $(`#${this._prefix}ReviewSampleModal`).modal("show");
         }
     }
@@ -1496,7 +1496,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
-            UtilsNew.draggableModal(document, modalElm);
+            UtilsNew.draggableModal(this, modalElm);
             $(`#${this._prefix}EvidenceReviewModal`).modal("show");
         }
     }
@@ -1692,7 +1692,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                     <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                        <h4 class="modal-title" id="myModalLabel">Variant Review Report</h4>
                     </div>
                     <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
                         <div>

@@ -200,7 +200,9 @@ export default class UtilsNew {
             modalDialog.style.left = (window.innerWidth * 0.30) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
+
         modalHeader.addEventListener("mousedown", e => {
+            e.preventDefault();
             isDown = true;
             offset = [
                 modalDialog.offsetLeft - e.clientX,
@@ -208,11 +210,12 @@ export default class UtilsNew {
             ];
         }, true);
 
-        self.addEventListener("mouseup", () => {
+        modalHeader.addEventListener("mouseup", e => {
+            e.preventDefault();
             isDown = false;
         }, true);
 
-        self.addEventListener("mousemove", e => {
+        modalHeader.addEventListener("mousemove", e => {
             e.preventDefault();
             if (isDown) {
                 modalDialog.style.left = (e.clientX + offset[0]) + "px";

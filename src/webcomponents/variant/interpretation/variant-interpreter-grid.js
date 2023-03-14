@@ -1237,7 +1237,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
                     this.requestUpdate();
                     const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-                    UtilsNew.draggableModal(document, modalElm);
+                    UtilsNew.draggableModal(this, modalElm);
                     $(`#${this._prefix}ReviewSampleModal`).modal("show");
                 }
                 break;
@@ -1413,7 +1413,7 @@ export default class VariantInterpreterGrid extends LitElement {
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-            UtilsNew.draggableModal(document, modalElm);
+            UtilsNew.draggableModal(this, modalElm);
             $(`#${this._prefix}ReviewSampleModal`).modal("show");
         }
     }
@@ -1479,7 +1479,7 @@ export default class VariantInterpreterGrid extends LitElement {
             this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
-            UtilsNew.draggableModal(document, modalElm);
+            UtilsNew.draggableModal(this, modalElm);
             $(`#${this._prefix}EvidenceReviewModal`).modal("show");
         }
     }
