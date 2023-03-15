@@ -114,19 +114,17 @@ class CaseSteinerReport extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             // We will assume that we always have a somatic and a germline sample
             // TODO: check if both samples exists
-            const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-            const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
+            this.somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
+            this.germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
 
             // Initialize report data
             this._data = {
-                somaticSample,
-                germlineSample,
                 info: {
                     project: `${this.opencgaSession.project.name} (${this.opencgaSession.project.id})`,
                     study: `${this.opencgaSession.study.name} (${this.opencgaSession.study.id})`,
                     clinicalAnalysisId: this.clinicalAnalysis.id,
-                    tumourId: somaticSample?.id || null,
-                    germlineId: germlineSample?.id || null,
+                    tumourId: this.somaticSample?.id || null,
+                    germlineId: this.germlineSample?.id || null,
                     tumourType: "Ovarian", // TODO
                 },
                 // clinicalAnalysis: this.clinicalAnalysis,
@@ -175,11 +173,11 @@ class CaseSteinerReport extends LitElement {
 
             const allPromises = [
                 this.opencgaSession.opencgaClient.files().search({
-                    sampleIds: [somaticSample.id, germlineSample.id].join(","),
+                    sampleIds: [this.somaticSample.id, this.germlineSample.id].join(","),
                     limit: 100,
                     study: this.opencgaSession.study.fqn,
                 }),
-                this.opencgaSession.opencgaClient.samples().info(somaticSample.id, {
+                this.opencgaSession.opencgaClient.samples().info(this.somaticSample.id, {
                     include: "annotationSets",
                     study: this.opencgaSession.study.fqn,
                 }),
@@ -199,7 +197,8 @@ class CaseSteinerReport extends LitElement {
                     }
 
                     // Fill tumour and normal stats fields
-                    Object.entries({tumour: somaticSample, normal: germlineSample}).forEach(([field, sample]) => {
+                    const statsFields = {tumour: this.somaticSample, normal: this.germlineSample};
+                    Object.entries(statsFields).forEach(([field, sample]) => {
                         const sampleBamName = sample.fileIds.find(f => f.endsWith(".bam"));
                         const file = files.find(f => f.id === sampleBamName);
                         // Find annotation sets of this BAM file
@@ -263,21 +262,21 @@ class CaseSteinerReport extends LitElement {
                     }
 
                     // Add QCPlots
-                    if (somaticSample.qualityControl?.variant?.genomePlot?.file) {
-                        this._data.qcPlots.genomePlotFile = somaticSample.qualityControl.variant.genomePlot.file;
+                    if (this.somaticSample.qualityControl?.variant?.genomePlot?.file) {
+                        this._data.qcPlots.genomePlotFile = this.somaticSample.qualityControl.variant.genomePlot.file;
                     }
-                    if (somaticSample.qualityControl?.variant?.signatures?.length > 0) {
-                        this._data.qcPlots.signatures = somaticSample.qualityControl.variant.signatures;
+                    if (this.somaticSample.qualityControl?.variant?.signatures?.length > 0) {
+                        this._data.qcPlots.signatures = this.somaticSample.qualityControl.variant.signatures;
                     }
-                    if (somaticSample?.qualityControl?.variant?.files?.length > 0) {
-                        this._data.qcPlots.deletionAggregationStatsPlotFile = somaticSample.qualityControl.variant.files.findLast(file => {
-                            return file.startsWith(`deletionAggregationStats:${somaticSample.id}`);
+                    if (this.somaticSample?.qualityControl?.variant?.files?.length > 0) {
+                        this._data.qcPlots.deletionAggregationStatsPlotFile = this.somaticSample.qualityControl.variant.files.findLast(file => {
+                            return file.startsWith(`deletionAggregationStats:${this.somaticSample.id}`);
                         });
                     }
 
                     // Add HRDetect data
-                    if (somaticSample.qualityControl?.variant?.hrDetects) {
-                        this._data.hrdetects = somaticSample.qualityControl.variant.hrDetects;
+                    if (this.somaticSample.qualityControl?.variant?.hrDetects) {
+                        this._data.hrdetects = this.somaticSample.qualityControl.variant.hrDetects;
                     }
 
                     // End filling report data
@@ -785,7 +784,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.germlineSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
@@ -800,7 +799,7 @@ class CaseSteinerReport extends LitElement {
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
-                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
+                                            .query="${{sample: this.germlineSample?.id || ""}}"
                                             .review="${false}"
                                             .config="${gridConfig}">
                                         </variant-interpreter-grid>
@@ -817,7 +816,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.germlineSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.germlineSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
 
                                     const gridConfig = {
@@ -830,7 +829,7 @@ class CaseSteinerReport extends LitElement {
                                             .opencgaSession="${this.opencgaSession}"
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .clinicalVariants="${filteredVariants}"
-                                            .query="${{sample: this._data?.germlineSample?.id || ""}}"
+                                            .query="${{sample: this.germlineSample?.id || ""}}"
                                             .review="${false}"
                                             .config="${gridConfig}">
                                         </variant-interpreter-rearrangement-grid>
@@ -862,7 +861,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1)
                                         .filter(v => v.confidence?.value === "HIGH");
 
@@ -885,7 +884,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1)
                                         .filter(v => v.confidence?.value === "HIGH");
 
@@ -906,7 +905,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1)
                                         .filter(v => v.confidence?.value === "HIGH");
 
@@ -938,7 +937,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1)
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
@@ -959,7 +958,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1)
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
@@ -978,7 +977,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "vertical",
                                 render: variants => {
                                     const filteredVariants = variants
-                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this.somaticSample?.id)
                                         .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1)
                                         .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
 
