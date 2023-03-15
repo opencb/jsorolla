@@ -488,6 +488,34 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     },
                     elements: [
                         {
+                            text: "Results",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            field: "interpretation.attributes.reportTest.results",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
+                            }
+                        },
+                        {
+                            text: "Interpretations",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            field: "interpretation.attributes.reportTest.interpretations",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
+                            }
+                        },
+                        {
                             text: "Reported Variants",
                             type: "title",
                             display: {

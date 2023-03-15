@@ -150,7 +150,7 @@ export default class RichTextEditor extends LitElement {
             ],
             hideModeSwitch: true,
             viewer: true,
-            height: "300px",
+            height: "400px",
             previewStyle: "vertical",
             usageStatistics: false,
             disabled: false
@@ -158,11 +158,12 @@ export default class RichTextEditor extends LitElement {
     }
 
     render() {
+        const styleContent = this._config.viewer ? `overflow-y: scroll; padding:1%; height:400px; border:1px solid #dadde6`: "height:400px;";
         return html`
             <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
                 <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
             </button>
-            <div id="${this.textEditorId}"></div>
+            <div id="${this.textEditorId}" style="${styleContent}"></div>
         `;
     }
 
