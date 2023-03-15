@@ -336,6 +336,23 @@ class CaseSteinerReport extends LitElement {
         `;
     }
 
+    renderSomaticRearrangementVariantsGrid(variants, gridConfig) {
+        if (variants.length === 0) {
+            return html`No variants found in this category.`;
+        }
+
+        return html`
+            <variant-interpreter-rearrangement-grid
+                .opencgaSession="${this.opencgaSession}"
+                .clinicalAnalysis="${this.clinicalAnalysis}"
+                .clinicalVariants="${variants}"
+                .query="${{sample: this.somaticSample?.id || ""}}"
+                .review="${false}"
+                .config="${gridConfig}">
+            </variant-interpreter-rearrangement-grid>
+        `;
+    }
+
     render() {
         if (!this.clinicalAnalysis || !this._ready) {
             return html`
@@ -869,23 +886,13 @@ class CaseSteinerReport extends LitElement {
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
-                                        .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1);
+                                        .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => v.confidence?.value === "HIGH");
 
-                                    const gridConfig = {
+                                    return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
-                                    };
-
-                                    return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-rearrangement-grid
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .clinicalVariants="${filteredVariants}"
-                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
-                                            .review="${false}"
-                                            .config="${gridConfig}">
-                                        </variant-interpreter-rearrangement-grid>
-                                    ` : null;
+                                    });
                                 },
                                 errorMessage: "No variants found in this category",
                             },
@@ -946,9 +953,21 @@ class CaseSteinerReport extends LitElement {
                         },
                         {
                             title: "Structural rearrangements",
-                            defaultValue: "No variants found in this category",
+                            type: "custom",
+                            field: "primaryFindings",
                             display: {
                                 defaultLayout: "vertical",
+                                render: variants => {
+                                    const filteredVariants = variants
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => REARRANGEMENTS_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
+
+                                    return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
+                                        ...defaultGridConfig,
+                                    });
+                                },
                             }
                         },
                         {
