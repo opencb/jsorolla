@@ -952,6 +952,29 @@ class CaseSteinerReport extends LitElement {
                             }
                         },
                         {
+                            title: "Copy number",
+                            type: "custom",
+                            field: "primaryFindings",
+                            display: {
+                                defaultLayout: "vertical",
+                                render: variants => {
+                                    const filteredVariants = variants
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
+
+                                    return this.renderSomaticVariantsGrid(filteredVariants, {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["COPY_NUMBER", "CNV"],
+                                    });
+                                },
+                                errorMessage: "No variants found in this category",
+                            },
+                            defaultValue: "No variants found in this category",
+                        },
+                        {
                             title: "",
                             type: "custom",
                             display: {
