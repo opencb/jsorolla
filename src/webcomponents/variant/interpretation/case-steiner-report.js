@@ -69,6 +69,9 @@ class CaseSteinerReport extends LitElement {
             "manta": {type: "Rearrangements", group: "germline", rank: 2},
         };
 
+        this.somaticSample = null;
+        this.germlineSample = null;
+
         this._data = null;
         // Data-form is not capturing the update of the data property
         // For that reason, we need this flag to check when the data is ready (TODO)
@@ -314,6 +317,23 @@ class CaseSteinerReport extends LitElement {
                     name: `${signature.id}  |  ${fitting.id}`,
                 })),
             }));
+    }
+
+    renderSomaticVariantsGrid(variants, gridConfig) {
+        if (variants.length === 0) {
+            return html`No variants found in this category.`;
+        }
+
+        return html`
+            <variant-interpreter-grid
+                .opencgaSession="${this.opencgaSession}"
+                .clinicalAnalysis="${this.clinicalAnalysis}"
+                .clinicalVariants="${variants}"
+                .query="${{sample: this.somaticSample?.id || ""}}"
+                .review="${false}"
+                .config="${gridConfig}">
+            </variant-interpreter-grid>
+        `;
     }
 
     render() {
@@ -826,28 +846,19 @@ class CaseSteinerReport extends LitElement {
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
-                                        .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1);
+                                        .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => v.confidence?.value === "HIGH");
 
-                                    const gridConfig = {
+                                    return this.renderSomaticVariantsGrid(filteredVariants, {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["SNV", "INDEL"],
-                                    };
-
-                                    return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .clinicalVariants="${filteredVariants}"
-                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
-                                            .review="${false}"
-                                            .config="${gridConfig}">
-                                        </variant-interpreter-grid>
-                                    ` : null;
+                                    });
                                 },
-                                errorMessage: "No variants found in this category",
+                                errorMessage: "No variants found in this category.",
                             },
+                            defaultValue: "No variants found in this category",
                         },
                         {
                             title: "Structural rearrangements",
@@ -889,25 +900,15 @@ class CaseSteinerReport extends LitElement {
                                 render: variants => {
                                     const filteredVariants = variants
                                         .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
-                                        .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1);
+                                        .filter(v => COPY_NUMBER_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => v.confidence?.value === "HIGH");
 
-                                    const gridConfig = {
+                                    return this.renderSomaticVariantsGrid(filteredVariants, {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.cnv]?.grid || {}),
                                         ...defaultGridConfig,
                                         somatic: true,
                                         variantTypes: ["COPY_NUMBER", "CNV"],
-                                    };
-
-                                    return filteredVariants.length > 0 ? html`
-                                        <variant-interpreter-grid
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                            .clinicalVariants="${filteredVariants}"
-                                            .query="${{sample: this._data?.somaticSample?.id || ""}}"
-                                            .review="${false}"
-                                            .config="${gridConfig}">
-                                        </variant-interpreter-grid>
-                                    ` : null;
+                                    });
                                 },
                                 errorMessage: "No variants found in this category",
                             },
@@ -924,8 +925,23 @@ class CaseSteinerReport extends LitElement {
                         {
                             title: "Substitutions and indels",
                             defaultValue: "No variants found in this category",
+                            type: "custom",
+                            field: "primaryFindings",
                             display: {
                                 defaultLayout: "vertical",
+                                render: variants => {
+                                    const filteredVariants = variants
+                                        .filter(v => v.studies[0]?.samples[0]?.sampleId === this._data.somaticSample?.id)
+                                        .filter(v => SUBSTITUTIONS_AND_INDELS_TYPES.indexOf(v.type) > -1)
+                                        .filter(v => !v.confidence?.value || v.confidence?.value !== "HIGH");
+
+                                    return this.renderSomaticVariantsGrid(filteredVariants, {
+                                        ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.snv]?.grid || {}),
+                                        ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["SNV", "INDEL"],
+                                    });
+                                },
                             }
                         },
                         {
