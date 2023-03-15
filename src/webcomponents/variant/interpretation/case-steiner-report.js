@@ -29,7 +29,7 @@ class CaseSteinerReport extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -53,7 +53,7 @@ class CaseSteinerReport extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.gridTypes = {
             snv: "variantInterpreterCancerSNV",
             cnv: "variantInterpreterCancerCNV",
