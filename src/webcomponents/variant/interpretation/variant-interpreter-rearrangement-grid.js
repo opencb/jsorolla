@@ -826,6 +826,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             discussion: this.variantsReview[0].discussion,
             status: this.variantsReview[0].status,
             comments: this.variantsReview[0].comments,
+            confidence: this.variantsReview[0].confidence,
         };
 
         // Update checked variants
