@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Editor from "@toast-ui/editor";
 import LitUtils from "./utils/lit-utils.js";
@@ -53,10 +53,13 @@ export default class RichTextEditor extends LitElement {
         this._config = this.getDefaultConfig();
         this.btnName = "Edit";
         this.updateContent = "";
+
     }
 
     firstUpdated(changedProperties) {
-        if (changedProperties.has("data")) {
+        if (changedProperties.has("data") && changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.isViewer = this._config.viewer;
             this.initTextEditor();
         }
     }
@@ -73,6 +76,7 @@ export default class RichTextEditor extends LitElement {
             // Check if exist the element and not the textEditor Object
             if (this.data && document.getElementById(this.textEditorId) && !this.textEditor) {
                 this.initTextEditor();
+
                 // this.textEditor.initialValue = this.data;
             }
 
@@ -83,14 +87,13 @@ export default class RichTextEditor extends LitElement {
         }
     }
 
-    filterChange() {
-        this.updateContent = this.textEditor.getMarkdown();
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.updateContent, null);
+    fieldChange() {
+        this.updateContent = this.textEditor.getHTML();
+        LitUtils.dispatchCustomEvent(this, "contentChange", this.updateContent, null);
     }
 
     textEditorObserver() {
         if (this.textEditor) {
-            this.textEditor.setMarkdown(this.data, false);
             this.updateContent = this.data;
         }
     }
@@ -108,32 +111,32 @@ export default class RichTextEditor extends LitElement {
 
     initTextEditor() {
         const textEditorElm = document.getElementById(this.textEditorId);
-        if (this._config.viewer || this._config.disabled) {
+        if (this.isViewer || this._config.disabled) {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
-                viewer: this._config.viewer,
+                viewer: this.isViewer,
                 initialValue: this.data || "",
                 height: this._config.height,
             });
         } else {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
-                viewer: this._config.viewer,
+                viewer: this.isViewer,
                 height: this._config.height,
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,
                 hideModeSwitch: this._config.hideModeSwitch,
                 previewStyle: this._config.previewStyle,
             });
-            this.textEditor.on("change", e => this.filterChange());
         }
+        this.textEditor.on("change", e => this.fieldChange());
     }
 
     // Allow to show or hide
 
     onChangeMode() {
-        this._config.viewer = !this.textEditor.isViewer();
-        this.btnName = this._config.viewer ? "Edit" : "Preview";
+        this.isViewer = !this.textEditor.isViewer();
+        this.btnName = this.isViewer ? "Edit" : "Preview";
         this.data = this.updateContent;
         this.textEditor.destroy();
         this.initTextEditor();
@@ -158,13 +161,13 @@ export default class RichTextEditor extends LitElement {
     }
 
     render() {
-        const styleContent = this._config.viewer ? `overflow-y: scroll; padding:1%; height:400px; border:1px solid #dadde6`: "height:400px;";
+        const styleContent = this.isViewer ? "overflow-y: scroll; padding:1%; height:400px; border:1px solid #dadde6": "height:400px;";
         return html`
-            <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
-                <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
-            </button>
-            <div id="${this.textEditorId}" style="${styleContent}"></div>
-        `;
+            ${this._config?.viewer ? html`
+                <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
+                    <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
+                </button>` : nothing }
+            <div id="${this.textEditorId}" style="${styleContent}"></div>`;
     }
 
 }

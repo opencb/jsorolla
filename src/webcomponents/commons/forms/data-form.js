@@ -1254,13 +1254,14 @@ export default class DataForm extends LitElement {
         const content = this.getValue(element.field, this.data, this._getDefaultValue(element));
         const config = {
             disabled: this._getBooleanValue(element.display?.disabled, false),
+            viewer: this._getBooleanValue(element.display?.preview, true)
         };
-
-            // const contentCleaned = !UtilsNew.isObject(content)? content.replace(/  +/g, " ") : "";
-            const _content = !UtilsNew.isObject(content)? content : "";
-            return html`
+        // const contentCleaned = !UtilsNew.isObject(content)? content.replace(/  +/g, " ") : "";
+        const _content = !UtilsNew.isObject(content)? content : "";
+        return html`
                 <rich-text-editor
                     .data="${_content}"
+                    @contentChange="${e => this.onFilterChange(element, e.detail.value)}"
                     .config="${config}">
                 </rich-text-editor>`;
 
