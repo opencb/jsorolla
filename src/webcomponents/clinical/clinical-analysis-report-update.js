@@ -23,6 +23,7 @@ import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../file/file-create.js";
+import {construction} from "../commons/under-construction.js";
 import Types from "../commons/types";
 
 // WIP: Form BETA
@@ -132,6 +133,26 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         {
                             field: "attributes.clinicalReport.variant",
                             type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "bibliographyEvidencesReport",
+                    title: "Bibliography Evidences",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            field: "attributes.clinicalReport.bibliographyEvidences",
+                            type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
                         },
                     ]
                 },
@@ -146,6 +167,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         {
                             field: "attributes.clinicalReport.classification",
                             type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
                         },
                     ]
                 },
@@ -160,6 +184,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         {
                             field: "attributes.clinicalReport.population",
                             type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
                         },
                     ]
                 },
@@ -172,8 +199,11 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "attributes.clinicalReport.population",
+                            field: "attributes.clinicalReport.diseaseAssociation",
                             type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
                         },
                     ]
                 },
@@ -186,8 +216,28 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "attributes.clinicalReport.population",
+                            field: "attributes.clinicalReport.recommendations",
                             type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "otherReports",
+                    title: "Other",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            field: "attributes.clinicalReport.other",
+                            type: "rich-text",
+                            display: {
+                                preview: false,
+                            }
                         },
                     ]
                 },
@@ -209,6 +259,23 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                         .opencgaSession="${this.opencgaSession}">
                                     </file-create>`
                             },
+                        },
+                    ]
+                },
+                {
+                    id: "previewReports",
+                    title: "Preview",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: false,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    ${construction}`
+                            }
                         },
                     ]
                 },
