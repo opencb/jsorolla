@@ -82,6 +82,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             this._config = this.getDefaultConfig();
+
             this.requestUpdate();
         }
     }
@@ -178,6 +179,25 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     }
 
     // ClinicalReport
+    submitReportVariant() {
+
+        // const updateParams = FormUtils.getUpdateParams(this._clinicalAnalysis, this.updateCaseParams);
+
+        if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                    {attributes: this.updateCaseParams.interpretation.attributes}, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.postUpdate(response);
+                })
+                .catch(response => {
+                    // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                    this.notifyError(response);
+                });
+        }
+    }
+
+
     submitCaseFinalSummary() {
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
             this.opencgaSession.opencgaClient.clinical()
@@ -195,6 +215,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 });
         }
     }
+
 
     submitInterpretationsComments() {
         const clinicalAnalysisId = this.clinicalAnalysis.id;
@@ -273,38 +294,56 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        switch (param) {
-            case "report.date":
-            case "status.id":
-            case "report.signedBy":
-                this.updateCaseParams = FormUtils.updateObjectParams(
-                    this._clinicalAnalysis,
-                    this.clinicalAnalysis,
-                    this.updateCaseParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "report.discussion.text":
-                // Josemi (2022-07-29) added very basic implementation for saving discussion data
-                // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
-                this.clinicalAnalysis.report = {
-                    ...this.clinicalAnalysis.report,
-                    discussion: {
-                        text: e.detail.value,
-                        author: this.opencgaSession?.user?.id || "-",
-                        date: UtilsNew.getDatetime(),
-                    },
-                };
-                this.updateCaseParams = {
-                    ...this.updateCaseParams,
-                    report: {
-                        ...this.updateCaseParams?.report,
-                        discussion: this.clinicalAnalysis.report.discussion,
-                    },
-                };
-                break;
+        if (param.includes("attributes")) {
+            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
+            UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
+        } else {
+            switch (param) {
+                case "report.date":
+                case "status.id":
+                case "report.signedBy":
+                    this.updateCaseParams = FormUtils.updateObjectParams(
+                        this._clinicalAnalysis,
+                        this.clinicalAnalysis,
+                        this.updateCaseParams,
+                        param,
+                        e.detail.value);
+                    break;
+                case "report.discussion.text":
+                    // Josemi (2022-07-29) added very basic implementation for saving discussion data
+                    // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
+                    this.clinicalAnalysis.report = {
+                        ...this.clinicalAnalysis.report,
+                        discussion: {
+                            text: e.detail.value,
+                            author: this.opencgaSession?.user?.id || "-",
+                            date: UtilsNew.getDatetime(),
+                        },
+                    };
+                    this.updateCaseParams = {
+                        ...this.updateCaseParams,
+                        report: {
+                            ...this.updateCaseParams?.report,
+                            discussion: this.clinicalAnalysis.report.discussion,
+                        },
+                    };
+                    break;
+            }
         }
+
     }
+
+    // onFieldChange(e, field) {
+    //     const param = field || e.detail.param;
+    //     this.updateCaseParams = FormUtils.getUpdatedFields(
+    //         this._clinicalAnalysis,
+    //         this.updateCaseParams,
+    //         param,
+    //         e.detail.value);
+    //     // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
+    //     // LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component, action: e.detail.action}, null);
+    //     this.requestUpdate();
+    // }
 
     onCaseCommentChange(e) {
         this.updateCaseComments = e.detail;
@@ -328,6 +367,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         switch (e.detail?.value) {
             case "caseInfo":
                 this.submitCaseComments();
+                break;
+            case "reportVariant":
+                this.submitReportVariant();
                 break;
             case "interpretationSummary":
                 this.submitInterpretationsComments();
@@ -484,7 +526,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     title: "Reported Variants",
                     display: {
                         titleStyle: "display:none",
-                        buttonsVisible: false,
+                        buttonsVisible: true,
                     },
                     elements: [
                         {
@@ -509,7 +551,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             },
                         },
                         {
-                            field: "interpretation.attributes.reportTest.interpretations",
+                            field: "interpretation.attributes.reportTest.interpretation",
                             type: "rich-text",
                             display: {
                                 disabled: false
@@ -610,4 +652,3 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 }
 
 customElements.define("clinical-analysis-review-info", ClinicalAnalysisReviewInfo);
-
