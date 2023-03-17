@@ -619,14 +619,18 @@ export default class VariantBrowserFilter extends LitElement {
         if (content !== "") {
             return html`
                 <div class="form-group">
-                    <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
-                        ${subsection.title ? html`
-                            <span>${this._getFilterField(subsection.title)}</span>` : null
-                        }
-                        <div class="tooltip-div pull-right">
-                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                    ${subsection.title ? html`
+                        <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
+                            <span>${this._getFilterField(subsection.title)}</span>
+                            ${subsection.tooltip ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            ` : null}
                         </div>
-                    </div>
+                    `: null}
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${this._createMessage(subsection)}
                         ${subsection.description ? html`
