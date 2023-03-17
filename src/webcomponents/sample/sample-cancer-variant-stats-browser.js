@@ -708,6 +708,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     },
                     complexFields: [
                         {id: "genotype", separator: ";"},
+                        {id: "fileData", separator: ","},
                     ],
                     hiddenFields: []
                 },
