@@ -73,10 +73,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         };
 
         this.callers = [
-            "caveman",
-            "pindel",
-            "ascat",
-            "brass",
+            "CAVEMAN",
+            "PINDEL",
+            "ASCAT",
+            "BRASS",
         ];
         this.files = [];
         this.filesByCaller = {};
@@ -143,7 +143,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     this.filesByCaller = {};
                     this.callers.forEach(callerName => {
                         this.filesByCaller[callerName] = this.files.filter(file => {
-                            return file?.software?.name === callerName;
+                            return (file?.software?.name || "").toUpperCase() === callerName;
                         });
                     });
 
@@ -156,17 +156,50 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         }
                     }
 
-                    // Init the default caller INFO filters
-                    const fileDataFilters = [];
-                    for (const caller of this._config.filter.callers) {
-                        if (this.callerToFile[caller.id]) {
-                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
-                        }
+                    // Update query with default fileData from callers config
+                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                        const callersConfig = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                            .filter(vc => vc.somatic)
+                            .filter(vc => this.callers.includes(vc.id.toUpperCase()));
+
+                        const fileDataFilters = [];
+                        callersConfig.forEach(vc => {
+                            const filtersWithDefaultValues = vc.dataFilters
+                                .filter(filter => !filter.source || filter.source === "FILE")
+                                .filter(filter => !!filter.defaultValue)
+                                .map(filter => {
+                                    // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                    return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                                });
+
+                            // Only add this file to the filter if we have at least one default value
+                            if (filtersWithDefaultValues.length > 0) {
+                                // We need to find the file for that caller
+                                const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                                if (fileId) {
+                                    fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
+                                }
+                            }
+                        });
+
+                        // Update query with default 'fileData' parameters
+                        this.query = {
+                            ...this.query,
+                            fileData: fileDataFilters.join(","),
+                        };
                     }
-                    this.query = {
-                        ...this.query,
-                        fileData: fileDataFilters.join(","),
-                    };
+
+                    // // Init the default caller INFO filters
+                    // const fileDataFilters = [];
+                    // for (const caller of this._config.filter.callers) {
+                    //     if (this.callerToFile[caller.id]) {
+                    //         fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                    //     }
+                    // }
+                    // this.query = {
+                    //     ...this.query,
+                    //     fileData: fileDataFilters.join(","),
+                    // };
 
                     this.parseFileDataQuery(this.query);
 
@@ -216,13 +249,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     parseFileDataQuery(query) {
         const fileData = query?.fileData;
+        const callersConfig = this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers || [];
+
         if (fileData) {
             const fileFilters = fileData.split(",");
             for (const fileFilter of fileFilters) {
                 const [fileName, filter] = fileFilter.split(":");
                 const callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
-                const caller = this._config.filter.callers.find(c => c.id === callerId[0]);
-                this.queries[caller.type] = {fileData: fileName + ":" + filter};
+                const caller = callersConfig.find(c => c.id === callerId[0]);
+                this.queries[caller.type] = {
+                    fileData: fileName + ":" + filter,
+                };
             }
         }
     }
@@ -693,9 +730,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         filters: [
                             {
                                 id: "variant-file-info-filter",
-                                visible: () => this.filesByCaller?.caveman?.length > 0,
+                                visible: () => this.filesByCaller["CAVEMAN"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller?.caveman || [],
+                                    files: this.filesByCaller["CAVEMAN"] || [],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -707,9 +744,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         filters: [
                             {
                                 id: "variant-file-info-filter",
-                                visible: () => this.filesByCaller?.pindel?.length > 0,
+                                visible: () => this.filesByCaller["PINDEL"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller?.pindel || [],
+                                    files: this.filesByCaller["PINDEL"] || [],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -721,9 +758,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         filters: [
                             {
                                 id: "variant-file-info-filter",
-                                visible: () => this.filesByCaller?.ascat?.length > 0,
+                                visible: () => this.filesByCaller["ASCAT"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller?.ascat || [],
+                                    files: this.filesByCaller["ASCAT"] || [],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -735,9 +772,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         filters: [
                             {
                                 id: "variant-file-info-filter",
-                                visible: () => this.filesByCaller?.brass?.length > 0,
+                                visible: () => this.filesByCaller["BRASS"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller?.brass || [],
+                                    files: this.filesByCaller["BRASS"] || [],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
