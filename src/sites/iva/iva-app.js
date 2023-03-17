@@ -96,6 +96,8 @@ import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
+import "../../webcomponents/commons/layouts/custom-landing.js";
+
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
 
@@ -135,6 +137,7 @@ class IvaApp extends LitElement {
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
+        _config.landing = LANDING_PAGE;
 
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
@@ -1048,6 +1051,18 @@ class IvaApp extends LitElement {
     }
 
     render() {
+        // TODO: we need to check if user is not logged in for displaying the landing screen
+        if (true) {
+            return html`
+                <div class="container-fluid">
+                    <custom-landing
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.config}">
+                    </custom-landing>
+                </div>
+            `;
+        }
+
         return html`
             <style>
                 .notification-nav {
