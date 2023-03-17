@@ -1054,12 +1054,10 @@ class IvaApp extends LitElement {
         // TODO: we need to check if user is not logged in for displaying the landing screen
         if (true) {
             return html`
-                <div class="container-fluid">
-                    <custom-landing
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.config}">
-                    </custom-landing>
-                </div>
+                <custom-landing
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}">
+                </custom-landing>
             `;
         }
 

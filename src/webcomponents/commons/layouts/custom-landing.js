@@ -45,13 +45,43 @@ export default class CustomLanding extends LitElement {
     render() {
         return html`
             <style>
+                .landing-top {
+                    align-items: center;
+                    display: flex;
+                    height: calc(16px * 5);
+                    justify-content: space-between;
+                    padding: 16px;
+                    width: 100%;
+                }
+                .landing-top-logo img {
+                    height: 40px;
+                    width: auto;
+                }
+                .landing-content {
+                    align-items: center;
+                    display: flex;
+                    height: calc(100vh - 112px - 70px);
+                    justify-content: center;
+                    padding: 16px;
+                    width: 100%;
+                }
             </style>
-            <div class="container" style="margin-top:50px;margin-bottom:50px;">
-                <!-- Display login buttons -->
-                <div align="center" style="margin-top:50px;">
-                    <a class="btn btn-primary" href="${this.getSSOUrl()}">
-                        <strong style="color:white;">Login with SSO</strong>
-                    </a>
+            <div class="landing">
+                <!-- Landing top section -->
+                <div class="landing-top">
+                    <div class="landing-top-logo">
+                        ${this.config?.landing?.logo ? html`
+                            <img src="${this.config.landing.logo}" />
+                        ` : null}
+                    </div>
+                </div>
+                <div class="landing-content">
+                    <!-- Display login buttons -->
+                    <div align="center" style="margin-top:50px;">
+                        <a class="btn btn-primary" href="${this.getSSOUrl()}">
+                            <strong style="color:white;">Login with SSO</strong>
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
