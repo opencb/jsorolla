@@ -174,6 +174,11 @@ const CATALOG_NAVBAR_MENU = {
     ]
 };
 
+const LANDING_PAGE = {
+    display: {},
+    logo: "./img/iva.svg",
+};
+
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
