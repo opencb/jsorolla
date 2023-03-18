@@ -127,7 +127,8 @@ export default class CircosView extends LitElement {
                         sample: this.sampleId,
                         // type: "DELETION",
                         // file: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz"
-                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+                        ...this.queries?.["BREAKEND"],
                     }
                 }
             ]

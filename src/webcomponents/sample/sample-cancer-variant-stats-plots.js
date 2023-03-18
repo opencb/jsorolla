@@ -109,7 +109,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             fitting: false,
             sample: this.sampleId,
             ...this.query,
-            // ...this.queries?.["SNV"]
         };
 
         // Add default region filter including only canonical chromosomes
@@ -139,9 +138,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         // Query for SV
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             ...params,
-            // ...params,
-            // ...this.queries?.["SV"],
-            fileData: "", // We need to remove the fileData param of the query
+            ...this.queries?.["SV"],
             type: "SV",
         })
             .then(response => {
@@ -165,7 +162,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
             ...this.query,
-            ...this.queries?.["INDEL"]
+            ...this.queries?.["INDEL"],
         };
 
         // Add default region filter including only canonical chromosomes
@@ -211,7 +208,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             study: this.opencgaSession.study.fqn,
             field: "EXT_REARR",
             sample: this.sampleId,
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
+            // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
+            ...this.queries?.["BREAKEND"],
         };
 
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
