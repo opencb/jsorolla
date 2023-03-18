@@ -257,9 +257,11 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 const [fileName, filter] = fileFilter.split(":");
                 const callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
                 const caller = callersConfig.find(c => c.id === callerId[0]);
-                this.queries[caller.type] = {
-                    fileData: fileName + ":" + filter,
-                };
+                (caller.types || []).forEach(callerType => {
+                    this.queries[callerType] = {
+                        fileData: fileName + ":" + filter,
+                    };
+                });
             }
         }
     }
