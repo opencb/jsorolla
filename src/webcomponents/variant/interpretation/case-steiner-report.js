@@ -1152,7 +1152,7 @@ class CaseSteinerReport extends LitElement {
                                 defaultLayout: "horizontal",
                                 render: (selectedHrdetect, onChange, updateParams, data) => {
                                     const hrdetect = data.hrdetects.find(hrdetect => hrdetect?.id === selectedHrdetect);
-                                    return hrdetect?.scores?.probability ?? "NA";
+                                    return hrdetect?.scores?.["probability"] ?? hrdetect?.scores?.["Probability"] ?? "NA";
                                 },
                             },
                         },
