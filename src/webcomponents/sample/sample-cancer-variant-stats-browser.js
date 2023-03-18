@@ -85,15 +85,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.circosPlot = null;
         this.signature = {};
         this.deletionAggregationStatsPlot = null;
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
@@ -109,6 +104,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     queryObserver() {
@@ -221,30 +218,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
-
-        // this._queries = {};
-        // let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
-        // for (let type of types) {
-        //     if (this.queries[type]) {
-        //         this._queries[type] = {
-        //             fileData: ""
-        //         };
-        //         for (let caller of Object.keys(this.queries[type])) {
-        //             if (this.callerToFile[caller]) {
-        //                 let fileId = this.callerToFile[caller].name;
-        //                 let fileFilter = this.queries[type][caller];
-        //                 // this._queries[type].fileData += fileId + ":" + fileFilter;
-        //                 let fileData = fileId + ":" + fileFilter;
-        //                 this._queries[type].fileData += this._queries[type].fileData ? "," + fileData : fileData
-        //             }
-        //         }
-        //     }
-        // }
-        // debugger
-
-        this.parseFileDataQuery(this.executedQuery);
-
+        this.query = {...this.executedQuery};
+        this.parseFileDataQuery(this.query);
         this.requestUpdate();
+    }
+
+    onRun() {
+        this.onVariantFilterSearch({
+            detail: {
+                query: this.preparedQuery,
+            },
+        });
     }
 
     parseFileDataQuery(query) {
@@ -485,12 +469,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             .finally(() => {
                 this.requestUpdate();
             });
-    }
-
-    onRun() {
-        this.executedQuery = {...this.preparedQuery};
-        this.parseFileDataQuery(this.executedQuery);
-        this.requestUpdate();
     }
 
     render() {
