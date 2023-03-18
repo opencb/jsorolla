@@ -418,6 +418,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <variant-file-info-filter
                             .files="${subsection.params.files}"
+                            .visibleCallers="${subsection.params.visibleCallers}"
                             .study="${subsection.params.study || this.opencgaSession.study}"
                             .fileData="${this.preparedQuery.fileData}"
                             .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"

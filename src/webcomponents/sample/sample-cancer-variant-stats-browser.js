@@ -713,7 +713,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 id: "variant-file-info-filter",
                                 visible: () => this.filesByCaller["CAVEMAN"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller["CAVEMAN"] || [],
+                                    // files: this.filesByCaller["CAVEMAN"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["caveman"],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -727,7 +729,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 id: "variant-file-info-filter",
                                 visible: () => this.filesByCaller["PINDEL"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller["PINDEL"] || [],
+                                    // files: this.filesByCaller["PINDEL"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["pindel"],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -741,7 +745,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 id: "variant-file-info-filter",
                                 visible: () => this.filesByCaller["ASCAT"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller["ASCAT"] || [],
+                                    // files: this.filesByCaller["ASCAT"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["ascat"],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
@@ -755,7 +761,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 id: "variant-file-info-filter",
                                 visible: () => this.filesByCaller["BRASS"]?.length > 0,
                                 params: {
-                                    files: this.filesByCaller["BRASS"] || [],
+                                    // files: this.filesByCaller["BRASS"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["brass"],
                                     opencgaSession: this.opencgaSession
                                 },
                             },
