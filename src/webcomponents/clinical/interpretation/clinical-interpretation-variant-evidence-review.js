@@ -95,7 +95,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         switch (param) {
             case "clinicalSignificance":
                 // Fix clinical significance value --> must be in uppercase
-                this.review.clinicalSignificance = e.detail.value.toUpperCase();
+                this.review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
                 break;
             case "discussion.text":
                 if (typeof this.updateParams?.discussion?.text !== "undefined") {
