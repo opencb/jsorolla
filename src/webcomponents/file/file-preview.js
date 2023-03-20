@@ -24,7 +24,7 @@ export default class FilePreview extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -57,18 +57,12 @@ export default class FilePreview extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.file = {};
         this.files = [];
         this.filesWithContent = [];
 
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -85,7 +79,10 @@ export default class FilePreview extends LitElement {
             this.fileIdsObserver();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
