@@ -245,6 +245,10 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this.query = {...this.query};
     }
 
+    onQueryChange(event) {
+        this.query = event.detail.query;
+    }
+
     render() {
         return html`
             <variant-interpreter-browser-template
@@ -254,7 +258,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
                 .toolId="${"variantInterpreterRearrangement"}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
