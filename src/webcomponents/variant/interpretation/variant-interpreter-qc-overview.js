@@ -25,6 +25,7 @@ import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-hrdetect.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "../../sample/sample-variant-stats-view.js";
+import "../../file/file-preview.js";
 import "../../file/qc/file-qc-ascat-metrics.js";
 import "../../alignment/qc/samtools-stats-view.js";
 import "../../alignment/qc/samtools-flagstats-view.js";
@@ -331,10 +332,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                     <file-preview
                                         .fileIds="${bamFile.qualityControl.alignment.samtoolsStats.files}"
                                         .active="${true}"
-                                        .opencgaSession=${this.opencgaSession}>
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{showFileSize: false}}">
                                     </file-preview>
-                                `)
-                                }
+                                `)}
                             </div>
                         </div>
 
