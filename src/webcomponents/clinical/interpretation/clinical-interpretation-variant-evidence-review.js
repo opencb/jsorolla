@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
@@ -96,7 +95,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         switch (param) {
             case "clinicalSignificance":
                 // Fix clinical significance value --> must be in uppercase
-                this.review.tier = e.detail.value.toUpperCase();
+                this.review.clinicalSignificance = e.detail.value.toUpperCase();
                 break;
             case "discussion.text":
                 if (typeof this.updateParams?.discussion?.text !== "undefined") {
