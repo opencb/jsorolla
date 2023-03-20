@@ -682,19 +682,22 @@ class CaseSteinerReport extends LitElement {
                                             <file-preview
                                                 .active="${true}"
                                                 .fileId="${images[0]}"
-                                                .opencgaSession="${this.opencgaSession}">
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{showFileSize: false}}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-7">
                                             <file-preview
                                                 .active="${true}"
                                                 .fileId="${images[2]}"
-                                                .opencgaSession="${this.opencgaSession}">
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{showFileSize: false}}">
                                             </file-preview>
                                             <file-preview
                                                 .active="${true}"
                                                 .fileId="${images[1]}"
-                                                .opencgaSession="${this.opencgaSession}">
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{showFileSize: false}}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
@@ -729,7 +732,8 @@ class CaseSteinerReport extends LitElement {
                                             <file-preview
                                                 .active="${true}"
                                                 .fileId="${qcPlots.genomePlotFile}"
-                                                .opencgaSession="${this.opencgaSession}">
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{showFileSize: false}}">
                                             </file-preview>
                                         </div>
                                         <div class="col-md-5">
