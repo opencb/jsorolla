@@ -102,7 +102,8 @@ export default class FileQcAscatMetrics extends LitElement {
                     <file-preview
                         .fileIds=${this.ascatMetrics.files}
                         .active="${true}"
-                        .opencgaSession=${this.opencgaSession}>
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${{showFileSize: false}}">
                     </file-preview>
                 ` : null
                 }
