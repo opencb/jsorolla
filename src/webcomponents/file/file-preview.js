@@ -220,8 +220,10 @@ export default class FilePreview extends LitElement {
                         ${this._config.showFileTitle ? html `
                             <div style="margin: 25px 0 5px 0">
                                 <label>
-                                    <span>${fileWithContent.name}</span>
-                                    <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                    <span style="padding-right:20px;">${fileWithContent.name}</span>
+                                    ${this._config.showFileSize ? html`
+                                        <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                    ` : null}
                                 </label>
                             </div>
                         ` : null}
@@ -251,6 +253,7 @@ export default class FilePreview extends LitElement {
     getDefaultConfig() {
         return {
             showFileTitle: true,
+            showFileSize: true,
         };
     }
 
