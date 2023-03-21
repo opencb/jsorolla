@@ -199,6 +199,10 @@ export default class ToolSettingsRestore extends LitElement {
                 buttonsLayout: "top",
                 // buttonOkDisabled: () => this._listStudies?.length === 0
             },
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Update",
+            },
             sections: [
                 {
                     title: "Reset default settings",
