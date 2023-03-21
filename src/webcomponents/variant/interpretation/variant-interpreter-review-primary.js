@@ -444,6 +444,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     {
                         id: "exomiser",
                         name: "Exomiser",
+                        visible: () => {
+                            return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
+                        },
                         render: (variant, active) => html`
                             <variant-interpreter-exomiser-view
                                 .variant="${variant}"
