@@ -82,10 +82,6 @@ export default class VariantInterpreterGridBeta extends LitElement {
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    // }
-
     firstUpdated() {
         this.table = $("#" + this.gridId);
         this._config = {
@@ -159,6 +155,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             this.checkedVariants = new Map();
             if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
                 for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
+                    debugger;
                     this.checkedVariants.set(variant.id, variant);
                 }
             } else {
@@ -630,7 +627,6 @@ export default class VariantInterpreterGridBeta extends LitElement {
             } else {
                 const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sampleId);
                 const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
-                // debugger;
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
                 }
@@ -1724,6 +1720,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                         <div>
                             <clinical-analysis-report-update
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .variant="${this.variantReview}"
                                     .opencgaSession="${this.opencgaSession}">
                             </clinical-analysis-report-update>
                         </div>

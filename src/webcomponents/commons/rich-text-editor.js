@@ -162,6 +162,10 @@ export default class RichTextEditor extends LitElement {
 
     render() {
         const styleContent = this.isViewer ? "overflow-y: scroll; padding:1%; height:400px; border:1px solid #dadde6": "height:400px;";
+        if (this._config?.preview) {
+            return html `<div id="${this.textEditorId}" style="${styleContent}"></div>`;
+        }
+
         return html`
             ${this._config?.viewer ? html`
                 <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
