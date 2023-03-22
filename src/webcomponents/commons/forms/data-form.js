@@ -1435,7 +1435,7 @@ export default class DataForm extends LitElement {
                         }
                         return html`
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                        <div>
+                                        <div style=${element.elements?.length === 0? "flex-grow:1" : nothing }>
                                             ${element.display.view(item)}
                                         </div>
                                         <div>
