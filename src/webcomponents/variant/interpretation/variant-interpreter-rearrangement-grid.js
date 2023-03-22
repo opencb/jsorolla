@@ -501,7 +501,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
-                    halign: "center"
+                    halign: "center",
+                    visible: false,
                 },
                 {
                     title: "VCF Data 1",
