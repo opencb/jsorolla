@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2022 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -489,25 +489,24 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    console.log("data for interpretation updated", data);
                                     return html`
                                     <h3 style="padding-bottom: 5px">Interpretations</h3>
                                     <div class="pull-right">
-                                    <clinical-interpretation-update
-                                        .clinicalInterpretation="${data?.interpretation}"
-                                        .clinicalAnalysis="${data}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .mode="${"modal"}"
-                                        .displayConfig="${
-                                            {
-                                                buttonClearText: "Cancel",
-                                                buttonOkText: "Update",
-                                                modalButtonClassName: "btn-default btn-sm",
-                                                modalDisabled: this.clinicalAnalysis.locked
-                                            }
-                                        }"
-                                        @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
-                                    </clinical-interpretation-update>
+                                        <clinical-interpretation-update
+                                            .clinicalInterpretation="${data?.interpretation}"
+                                            .clinicalAnalysis="${data}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .mode="${"modal"}"
+                                            .displayConfig="${
+                                                {
+                                                    buttonClearText: "Cancel",
+                                                    buttonOkText: "Update",
+                                                    modalButtonClassName: "btn-default btn-sm",
+                                                    modalDisabled: this.clinicalAnalysis.locked
+                                                }
+                                            }"
+                                            @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
+                                        </clinical-interpretation-update>
                                     </div>
                                     <clinical-interpretation-view
                                         .clinicalAnalysis="${data}"
@@ -529,34 +528,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         buttonsVisible: true,
                     },
                     elements: [
-                        {
-                            text: "Results",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            field: "interpretation.attributes.reportTest.results",
-                            type: "rich-text",
-                            display: {
-                                disabled: false
-                            }
-                        },
-                        {
-                            text: "Interpretations",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            field: "interpretation.attributes.reportTest.interpretation",
-                            type: "rich-text",
-                            display: {
-                                disabled: false
-                            }
-                        },
                         {
                             text: "Reported Variants",
                             type: "title",
@@ -590,6 +561,89 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                         "No reported variants to display";
                                 }
                             }
+                        },
+                        {
+                            text: "Results",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            field: "interpretation.attributes.reportTest.results",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
+                            }
+                        },
+                        {
+                            text: "Interpretations",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            text: "Intro",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:20px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            field: "interpretation.attributes.reportTest.interpretations.intro",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
+                            }
+                        },
+                        {
+                            text: "Variants",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:20px;font-weight: bold;",
+                            },
+                        },
+                        // {
+                        //     field: "interpretation.attributes.reportTest.interpretation",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         disabled: false
+                        //     }
+                        // },
+                        {
+                            field: "interpretation.attributes.reportTest.interpretations.variants",
+                            type: "object-list",
+                            display: {
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: variant => {
+                                    const variantkeys = [
+                                        "evidence",
+                                        "populationControl",
+                                        "acmg",
+                                        "diseaseAssociation",
+                                        "recommendations",
+                                        "others"
+                                    ];
+                                    // const variantContent = Object.keys(variant).map(key => variant[key]).join(" ");
+                                    const variantContent = variantkeys.map(key => variant[key]).join(" ");
+                                    return html `
+                                            <div style="display:flex">
+                                            <div style="font-size:20px;font-weight: bold;">
+                                                <span>${variant.id}</span>
+                                            </div>
+                                            <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px">Edit Content</button>
+                                            </div>
+                                            <rich-text-editor
+                                                .data="${variantContent}"
+                                                .config="${{preview: true}}">
+                                            </rich-text-editor>
+                                    `;
+
+                                }
+                            },
+                            elements: []
                         }
                     ]
                 },
