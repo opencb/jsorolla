@@ -302,7 +302,7 @@ export default class VariantFileInfoFilter extends LitElement {
     //
     #splitFilters(filtersString) {
         // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
-        const re = /(?<file>[a-zA-Z]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const re = /(?<file>[a-zA-Z]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.-]+)/g;
         const match1 = filtersString.match(re);
         // 2. Get the indexes: [0, 16, 26]
         const filters = [];
