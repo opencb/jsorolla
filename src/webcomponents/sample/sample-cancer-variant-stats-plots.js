@@ -138,7 +138,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         // Query for SV
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             ...params,
-            ...this.queries?.["SV"],
+            ...this.queries?.["BREAKEND"],
             type: "SV",
         })
             .then(response => {
@@ -206,9 +206,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     statsQuery() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            field: "EXT_REARR",
+            field: "EXT_SVTYPE",
             sample: this.sampleId,
-            // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
             ...this.queries?.["BREAKEND"],
         };
 
