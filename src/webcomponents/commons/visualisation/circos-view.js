@@ -79,12 +79,10 @@ export default class CircosView extends LitElement {
         this.requestUpdate();
 
         let query = {
-            title: "no.delete.Circos",
+            title: this.sampleId,
             density: "MEDIUM",
             query: {
                 sample: this.sampleId,
-                // ...this.query,
-                // filter: "PASS"
             },
             tracks: [
                 {
@@ -93,9 +91,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
+                        ...this.query,
+                        ...this.queries?.["SNV"],
                         type: "SNV",
-                        // filter: "PASS",
-                        ...this.queries?.["SNV"]
                     }
                 },
                 {
@@ -104,10 +102,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
+                        ...this.query,
+                        ...this.queries?.["INDEL"],
                         type: "INDEL,INSERTION,DELETION",
-                        // filter: "PASS",
-                        ...this.queries?.["INDEL"]
-                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
                     }
                 },
                 {
@@ -116,7 +113,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        type: "INSERTION",
+                        ...this.query,
+                        ...this.queries?.["CNV"],
+                        type: "COPY_NUMBER",
                     }
                 },
                 {
@@ -125,10 +124,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        // type: "DELETION",
-                        // file: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz"
-                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+                        ...this.query,
                         ...this.queries?.["BREAKEND"],
+                        type: "SV",
                     }
                 }
             ]
