@@ -771,7 +771,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     },
                     {
                         title: "Genomic Filters",
-                        collapsed: false,
+                        collapsed: true,
                         filters: [
                             // {
                             //     id: "file-quality",
