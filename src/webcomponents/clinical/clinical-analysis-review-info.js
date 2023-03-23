@@ -65,6 +65,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         this.updateInterpretationComments = [];
         this._clinicalAnalysis = {};
         this._config = this.getDefaultConfig();
+        this.variantReview = {};
     }
 
     connectedCallback() {
@@ -82,7 +83,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             this._config = this.getDefaultConfig();
-
             this.requestUpdate();
         }
     }
@@ -345,6 +345,13 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     //     this.requestUpdate();
     // }
 
+    openModalReport(variantId) {
+        const variantReview = this.clinicalAnalysis?.interpretation?.primaryFindings?.find(variant => variant.id === variantId);
+        this.variantReview = UtilsNew.objectClone(variantReview);
+        this.openModalTest = {flag: true};
+        this.requestUpdate();
+    }
+
     onCaseCommentChange(e) {
         this.updateCaseComments = e.detail;
     }
@@ -393,7 +400,15 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
-            </data-form>`;
+            </data-form>
+            <clinical-analysis-report-update
+                .openModal="${this.openModalTest}"
+                .variantReview="${this.variantReview}"
+                .cellbaseClient="${this.cellbaseClient}"
+                .opencgaSession="${this.opencgaSession}"
+                .displayConfig="${{buttonsVisible: false}}">
+            </clinical-analysis-report-update>
+        `;
     }
 
     getDefaultConfig() {
@@ -630,10 +645,12 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                     const variantContent = variantkeys.map(key => variant[key]).join(" ");
                                     return html `
                                             <div style="display:flex">
-                                            <div style="font-size:20px;font-weight: bold;">
-                                                <span>${variant.id}</span>
-                                            </div>
-                                            <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px">Edit Content</button>
+                                                <div style="font-size:20px;font-weight: bold;">
+                                                    <span>${variant.id}</span>
+                                                </div>
+                                                <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px"
+                                                    @click="${() => this.openModalReport(variant.id)}"
+                                                >Edit Content</button>
                                             </div>
                                             <rich-text-editor
                                                 .data="${variantContent}"

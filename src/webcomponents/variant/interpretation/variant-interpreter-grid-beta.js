@@ -76,7 +76,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
         this.checkedVariants = new Map();
         this.queriedVariants = {};
         this.review = false;
-
+        this.openModalTest = {flag: false};
         // Set colors
         // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
@@ -155,7 +155,6 @@ export default class VariantInterpreterGridBeta extends LitElement {
             this.checkedVariants = new Map();
             if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
                 for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                    debugger;
                     this.checkedVariants.set(variant.id, variant);
                 }
             } else {
@@ -1249,10 +1248,8 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 if (this.checkedVariants) {
                     // Generate a clone of the variant review to prevent changing original values
                     this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+                    this.openModalTest = {flag: true};
                     this.requestUpdate();
-                    const modalElm = document.querySelector(`#${this._prefix}EditReport`);
-                    // UtilsNew.draggableModal(document, modalElm);
-                    $(`#${this._prefix}EditReport`).modal("show");
                 }
                 break;
             case "genome-browser":
@@ -1784,10 +1781,16 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
-            ${this.renderModalReport()}
+            <clinical-analysis-report-update
+                .openModal="${this.openModalTest}"
+                .variantReview="${this.variantReview}"
+                .cellbaseClient="${this.cellbaseClient}"
+                .opencgaSession="${this.opencgaSession}"
+                .displayConfig="${{buttonsVisible: false}}">
+            </clinical-analysis-report-update>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
