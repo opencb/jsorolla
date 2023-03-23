@@ -277,7 +277,7 @@ span.subtitle {
 }
 
 .navbar .navbar-header {
-    padding-left: 8px;
+    /*padding-left: 8px;*/
 }
 
 .company-logo {
@@ -297,7 +297,7 @@ span.subtitle {
     height: 100%;
     margin-right: 4px;*/
     display: inline-block;
-    height: 1.5rem;
+    height: 1.3em;
     margin-right: 0.5rem;
     /* width: 70px; */
 }
@@ -318,7 +318,7 @@ span.subtitle {
 /* bringing bootstrap dropdown (opencga-active-filters) above bootstraptable */
 .dropdown-menu {
     z-index: 1001;
-    background-color: var(--main-color-white);
+    background-color: white;
     border: 0;
 }
 
@@ -676,7 +676,6 @@ h3.page-title {
     margin: 0 0 20px 0;
 }
 .search-button-wrapper > .btn {
-    background-color: var(--zetta-color-primary-orange);
     border: 0;
 }
 
