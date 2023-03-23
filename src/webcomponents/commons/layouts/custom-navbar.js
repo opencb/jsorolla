@@ -163,6 +163,15 @@ export default class CustomNavBar extends LitElement {
                     align-items: center;
                 }
 
+                .suite-logo {
+                    display: flex;
+                    align-items: center;
+                }
+
+                .suite-logo > img {
+                    height: 18px;
+                }
+
                 #logoutButton{
                     margin-right: 0.6rem;
                     background-color: var(--zetta-color-secondary-orange);
@@ -216,7 +225,7 @@ export default class CustomNavBar extends LitElement {
 
                 .study-switcher p.project-name {
                     color: #afafaf;
-                    margin-right: 9px;
+                    margin-right: 1em;
                 }
 
                 .study-switcher p.study-id{
@@ -255,18 +264,32 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
-                        <a href="#home" class="navbar-brand app-logo" @click="${this.onChangeTool}">
-                            <!-- Application logo provided -->
-                            ${this.app?.logo ? html`
-                                <img src="${this.app?.logo}" alt="logo" style="color: white">
+                        <a href="#home" class="navbar-brand suite-logo" @click="${this.onChangeTool}">
+                            <!-- Fixed logo -->
+                            ${this.config?.logo ? html`
+                                <img src="${this.config?.logo}" alt="logo">
                             ` : null}
                             <!-- No application logo provided -->
-                            ${!this.app?.logo && this.app?.name ? html`
+                            ${!this.config?.logo && this.config?.name ? html`
+                                <span style="color:var(--main-color-white);font-size:24px;margin-right:4px;">
+                                    <strong>${this.config.name}</strong>
+                                </span>
+                            ` : null}
+                        </a>
+                        ${this.app?.id !== "suite" ? html `
+                            <div class="navbar-brand app-logo">
+                                <!-- Application logo provided -->
+                                ${this.app?.logo ? html`
+                                <img src="${this.app?.logo}" alt="App logo" style="color: white">
+                            ` : null}
+                                <!-- No application logo provided -->
+                                ${!this.app?.logo && this.app?.name ? html`
                                 <span style="color:white;font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
                             ` : null}
-                        </a>
+                            </div>
+                        ` : null}
                     </div>
 
                     <!-- Collect the nav links, form, and other content for toggling -->
