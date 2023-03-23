@@ -142,6 +142,11 @@ export default class CustomFooter extends LitElement {
                                     ` : html `
                                         <img src="${logo.img}" style="height: ${logo.height}">
                                     `}
+                                    ${this.host?.opencga ? html `
+                                        <sup style="margin-left: 0.9rem; color: white">${this.host?.opencga}</sup>
+                                    ` : html`
+                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                    `}
                                 </div>
                             `)}
                         ` : null}
