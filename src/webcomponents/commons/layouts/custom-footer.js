@@ -102,6 +102,7 @@ export default class CustomFooter extends LitElement {
                     text-decoration: none;
                     color: ${this.config.footer?.versions?.display?.textColor || html `var(--main-color-white)` };
                 }
+
             </style>
         `;
     }
