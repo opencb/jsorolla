@@ -56,7 +56,8 @@ export class OpenCGAClient {
                 active: true,
                 prefix: ""
                 // expirationTime: ""
-            }
+            },
+            sso: false,
         };
     }
 
