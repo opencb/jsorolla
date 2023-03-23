@@ -175,11 +175,13 @@ const CATALOG_NAVBAR_MENU = {
 
 const SUITE = {
     id: "suite",
-    name: "OpenCB Suite",
+    name: "Suite",
     version: "",
-    logo: "img/iva-white.svg",
+    logo: "img/zetta-logo-white.webp",
     companyLogo: "",
-    logoAlt: "img/iva.svg",
+    favicon: "img/zetta-favicon.png",
+    logoAlt: "img/Zetta_logo.png", // Logo in custom-sidebar
+    logoAltHeight: "",
     footerLogo: "img/opencb-logo.png",
     mode: "development",
     appConfig: "opencb",
@@ -195,8 +197,19 @@ const SUITE = {
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
             {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
             {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
+            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"},
         ]
+    },
+    aboutPage: {
+        display: {
+            showTitle: true,
+            titleStyle: "",
+            titleClass: "",
+        },
+        favicon: "img/zetta-favicon.png",
+        linkTitle: "About Zetta Genomics",
+        title: "About Zetta Genomics",
+        content: "",
     },
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
@@ -206,6 +219,32 @@ const SUITE = {
     ],
     login: {
         visible: true
+    },
+    footer: {
+        display: {
+            backgroundColor: "",
+        },
+        copyright: {
+            logos: [
+                {img: "img/zetta-logo-white.webp", height: "2rem", link: "https://www.zettagenomics.com"},
+            ],
+            text: "",
+            textStyle: "",
+        },
+        product: {
+            logos: [
+                {img: "", height: "", link: ""},
+            ],
+        },
+        versions: {
+            display: {
+                textColor: "",
+            },
+            logo: {img: "", height: "", link: ""},
+            text: "Powered by OpenCB",
+            link: "https://github.com/opencb/",
+        },
+        custom: "", // Optionally, a custom footer can be added.
     },
     notifyEventMessage: "notifymessage",
     session: {
@@ -217,26 +256,26 @@ const SUITE = {
         display: {
             titleStyle: "text-align:center"
         },
-        title: "OpenCGA Suite",
-        logo: "",
+        title: "Suite",
+        logo: "img/Zetta_logo.png",
+        bottomLogo: {img: "", link: "", height: ""},
         content: `
         <div style="margin: 20px">
             <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                Welcome to the Suite for whole genome variant analysis.<br />
                 This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
                 pedigrees, case-controls or sporadic samples.
             </p>
             <br>
         </div>`,
     },
-
     // The order, title and nested submenus are respected
     apps: [
         {
             id: "iva",
             name: "Variant Analysis",
-            // logo: "img/iva-black.svg",
-            logo: "img/iva-white.svg",
+            logo: "img/tools/icons/variant_browser_white.svg",
+            logoAlt: "img/tools/icons/variant_browser.svg",
             icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
@@ -246,7 +285,7 @@ const SUITE = {
                 },
                 title: "Variant Analysis",
                 subtitle: "Explore variants in real-time and execute analysis",
-                logo: "./img/iva.svg",
+                logo: "img/Zetta_logo.png",
                 content: `
                     <p class="text-center">
                         Welcome to the Variant Analysis application.<br>
@@ -598,8 +637,6 @@ const SUITE = {
                     {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
                     {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
                     {id: "faq", name: "FAQ", icon: "fa fa-question"},
-
-
                 ]
             },
             userMenu: [
@@ -612,8 +649,8 @@ const SUITE = {
         {
             id: "clinical",
             name: "Clinical Analysis",
-            logo: "img/iva-white.svg",
-            // logoAlt: "img/tools/icons/interpretation_portal.svg",
+            logo: "img/tools/icons/interpretation_portal_white.svg",
+            logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             welcomePage: {
@@ -623,7 +660,7 @@ const SUITE = {
                     subtitleStyle: "text-align:center;"
                 },
                 subtitle: "Interactive Case Interpreter",
-                logo: "./img/iva.svg",
+                logo: "img/Zetta_logo.png",
                 content: `
                     <p class="text-center">
                         Welcome to the Clinical Analysis Application
@@ -781,8 +818,9 @@ const SUITE = {
         },
         {
             id: "admin",
-            name: "OpenCGA Admin",
-            logo: "img/tools/icons/file_explorer.svg",
+            name: "Admin",
+            logo: "img/tools/icons/file_explorer_white.svg",
+            logoAlt: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
@@ -790,14 +828,12 @@ const SUITE = {
                     titleStyle: "text-align:center;",
                     subtitleStyle: "text-align:center;"
                 },
-                title: " OpenCGA Admin",
-                // subtitle: "Clinical Analysis",
-                logo: "./img/iva.svg",
+                title: "Admin",
+                // subtitle: "",
+                logo: "img/Zetta_logo.png",
                 content: `
                     <p class="text-center">
-                        Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                        This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                        pedigrees, case-controls or sporadic samples.
+                        Welcome to the Administration Application
                     </p>
                     <br>`
             },
