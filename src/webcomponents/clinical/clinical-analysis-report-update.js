@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 
-
+import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
+import {construction} from "../commons/under-construction.js";
+import Types from "../commons/types";
 import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../file/file-create.js";
-import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
-import {construction} from "../commons/under-construction.js";
-import Types from "../commons/types";
+import "../variant/interpretation/variant-interpreter-grid.js";
+import "../variant/interpretation/variant-interpreter-detail.js";
 
 // WIP: Form BETA
 export default class ClinicalAnalysisReportUpdate extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -44,6 +44,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
 
     static get properties() {
         return {
+            openModal: {
+                type: Boolean
+            },
             clinicalAnalysis: {
                 type: Object,
             },
@@ -51,6 +54,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                 type: Object,
             },
             opencgaSession: {
+                type: Object,
+            },
+            cellbaseClient: {
                 type: Object,
             },
             displayConfig: {
@@ -63,6 +69,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         this.clinicalAnalysisId = "";
         this._clinicalAnalysis = {};
         this._config = this.getDefaultConfig();
+        this._prefix = UtilsNew.randomString(8);
         this.displayConfig = {
             titleWidth: 3,
             width: 8,
@@ -80,10 +87,29 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("clinicalAnalysis")) {
+        if (changedProperties.has("clinicalAnalysis") &&
+            changedProperties.has("variantReview")) {
             this.clinicalAnalysisObserver();
         }
+        if (changedProperties.has("openModal")) {
+            if (this.openModal?.flag) {
+                this.openModalReport();
+            }
+        }
         super.update(changedProperties);
+    }
+
+    firstUpdated() {
+        $(`#${this._prefix}EditReport`).on("hide.bs.modal", e => {
+            this.openModal = {flag: false};
+        });
+    }
+
+
+    clinicalAnalysisObserver() {
+        this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onFieldChange(e, field) {
@@ -96,10 +122,8 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
 
     }
 
-    clinicalAnalysisObserver() {
-        this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
+    openModalReport() {
+        $(`#${this._prefix}EditReport`).modal("show");
     }
 
     submitReportVariant() {
@@ -171,14 +195,247 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    render() {
+    renderModalReport() {
+        const fullWidth = (window.innerWidth * 0.95) + "px";
+        const fullHeight = window.innerHeight + "px";
+        const variantAnnotationConfig = {
+            showHgsvFromCT: true,
+            filter: {
+                geneSet: {
+                    ensembl: true,
+                    refseq: true,
+                },
+                consequenceType: {
+                    maneTranscript: true,
+                    gencodeBasicTranscript: false,
+                    ensemblCanonicalTranscript: true,
+                    refseqTranscript: true,
+                    ccdsTranscript: false,
+                    ensemblTslTranscript: false,
+                    proteinCodingTranscript: false,
+                    highImpactConsequenceTypeTranscript: false,
+                    showNegativeConsequenceTypes: true
+                },
+            }
+        };
+        const detailTabConfig = {
+            title: "Selected Variant: ",
+            showTitle: true,
+            items: [
+                {
+                    id: "annotationSummary",
+                    name: "Summary",
+                    active: true,
+                    render: variant => {
+                        return html`
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <cellbase-variant-annotation-summary
+                                        .variantAnnotation="${variant.annotation}"
+                                        .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                        .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                        .assembly=${this.opencgaSession.project.organism.assembly}
+                                        .config="${variantAnnotationConfig}">
+                                    </cellbase-variant-annotation-summary>
+                            </div>
+                            <div class="col-md-6" style="padding-top:12px">
+                                <h3 class="section-title">Review Variant</h3>
+                                <clinical-interpretation-variant-review
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${this.variantReview}"
+                                    .mode="${"form"}"
+                                    @variantChange="${e => this.onVariantReviewChange(e)}">
+                                </clinical-interpretation-variant-review>
+                                <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Save</button>
+                            </div>
+                        </div>
+                            `;
+                    }
+                },
+                {
+                    id: "annotationConsType",
+                    name: "Consequence Type",
+                    render: (variant, active) => {
+                        return html`
+                            <variant-consequence-type-view
+                                .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                .active="${active}">
+                            </variant-consequence-type-view>`;
+                    }
+                },
+                {
+                    id: "clinicalEvidence",
+                    name: "Clinical Evidence",
+                    render: (variant, active) => {
+                        return html`
+                            <variant-clinical-evidence-view
+                                review
+                                .clinicalVariant="${variant}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-clinical-evidence-view>
+                        `;
+                    }
+                },
+                {
+                    id: "annotationPropFreq",
+                    name: "Population Frequencies",
+                    render: (variant, active) => {
+                        return html`
+                            <cellbase-population-frequency-grid
+                                .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                .active="${active}">
+                            </cellbase-population-frequency-grid>`;
+                    }
+                },
+                {
+                    id: "annotationClinical",
+                    name: "Clinical",
+                    render: variant => {
+                        return html`
+                            <variant-annotation-clinical-view
+                                .traitAssociation="${variant.annotation.traitAssociation}"
+                                .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                            </variant-annotation-clinical-view>`;
+                    }
+                },
+                {
+                    id: "fileMetrics",
+                    name: "File Metrics",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <opencga-variant-file-metrics
+                                .opencgaSession="${opencgaSession}"
+                                .variant="${variant}"
+                                .files="${this.clinicalAnalysis}">
+                            </opencga-variant-file-metrics>`;
+                    }
+                },
+                {
+                    id: "cohortStats",
+                    name: "Cohort Stats",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <variant-cohort-stats
+                                .opencgaSession="${opencgaSession}"
+                                .variant="${variant}"
+                                .active="${active}">
+                            </variant-cohort-stats>`;
+                    }
+                },
+                {
+                    id: "samples",
+                    name: "Samples",
+                    render: (variant, active, opencgaSession) => html`
+                        <variant-samples
+                            .opencgaSession="${opencgaSession}"
+                            .variantId="${variant.id}"
+                            .active="${active}">
+                        </variant-samples>
+                    `,
+                },
+                // {
+                //     id: "protein",
+                //     name: "Protein (Beta)",
+                //     render: (variant, active, opencgaSession) => html`
+                //         <protein-lollipop-variant-view
+                //             .opencgaSession="${opencgaSession}"
+                //             .variant="${variant}"
+                //             .query="${this.query}"
+                //             .active="${active}">
+                //         </protein-lollipop-variant-view>
+                //     `,
+                // },
+                {
+                    id: "beacon",
+                    name: "Beacon",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            <variant-beacon-network
+                                .variant="${variant.id}"
+                                .assembly="${opencgaSession.project.organism.assembly}"
+                                .config="${this.beaconConfig}"
+                                .active="${active}">
+                            </variant-beacon-network>`;
+                    }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (variant, active) => html`
+                        <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                    `,
+                }
+            ]
+        };
+
         return html`
-            <data-form
-                .data="${this.clinicalAnalysis}"
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @submit="${e => this.submitReportVariant(e)}">
-            </data-form>
+            <div class="modal fade modal" id="${this._prefix}EditReport" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: ${fullWidth};">
+                    <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">Variant Review Report</h4>
+                        </div>
+                        <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
+                            <div>
+                                <data-form
+                                    .data="${this._clinicalAnalysis}"
+                                    .config="${this._config}"
+                                    @fieldChange="${e => this.onFieldChange(e)}"
+                                    @submit="${e => this.submitReportVariant(e)}">
+                                </data-form>
+                            </div>
+                            <div>
+                                <variant-interpreter-grid
+                                    review
+                                    .clinicalAnalysis=${this._clinicalAnalysis}
+                                    .clinicalVariants="${[this.variantReview]}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config=${
+                                        {
+                                            showExport: false,
+                                            showSettings: false,
+                                            showActions: false,
+                                            showEditReview: false,
+                                            showHgvs: true,
+                                            detailView: true
+                                        }
+                                    }>
+                                </variant-interpreter-grid>
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .variant="${this.variantReview}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config=${detailTabConfig}>
+                                </variant-interpreter-detail>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    render() {
+
+        if (UtilsNew.isEmpty(this.variantReview)) {
+            return "No Found Variants";
+        }
+
+        // open modal by btn
+        // open modal by Link
+        // open modal by prop/config
+        return html`
+            ${this.displayConfig?.buttonsVisible? html `
+                <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px"
+                    @click=${this.openModalReport}>
+                        ${this.displayConfig?.btnName? this.displayConfig.btnName : "Edit Content"}
+                </button>`: nothing}
+
+            ${this.renderModalReport()}
         `;
     }
 
