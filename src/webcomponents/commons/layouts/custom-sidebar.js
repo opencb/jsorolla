@@ -93,11 +93,19 @@ export default class CustomSidebar extends LitElement {
                 }
 
                 #side-nav .zetta-logo {
-                    font-size: 5px;
-                    margin: 30px;
                     display: flex;
                     align-items: flex-end;
+                    justify-content: flex-end;
                     flex: 1;
+                }
+
+                #side-nav .zetta-logo > div {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: flex-end;
+                    flex: 1;
+                    padding: 1.2em 1.5em;
+                    background-color: #efefef;
                 }
 
                 #side-nav .nav a {
@@ -176,7 +184,9 @@ export default class CustomSidebar extends LitElement {
                         </ul>
                     </nav>
                     <div class="zetta-logo">
-                        <img height="24px" src="img/Zetta-favicon.png"/>
+                        <div>
+                            <img height="24px" src="img/Zetta-favicon.png"/>
+                        </div>
                     </div>
                 </div>
             ` : null
