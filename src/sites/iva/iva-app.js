@@ -137,7 +137,6 @@ class IvaApp extends LitElement {
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;
         _config.proteinSubstitutionScores = PROTEIN_SUBSTITUTION_SCORE.style;
-        _config.landing = LANDING_PAGE;
 
         // We can customise which components are active by default, this improves the first loading time.
         _config.enabledComponents = {};
@@ -1078,8 +1077,7 @@ class IvaApp extends LitElement {
     }
 
     render() {
-        // TODO: we need to check if user is not logged in for displaying the landing screen
-        if (true) {
+        if (!this.isLoggedIn()) {
             return html`
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
