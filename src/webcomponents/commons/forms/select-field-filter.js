@@ -166,7 +166,10 @@ export default class SelectFieldFilter extends LitElement {
             }
         });
         // const selection = this.selectPicker.selectpicker("val");
-        const selection = [...this.selectPicker.selectpicker("val"), ...disabled];
+        const selection = Array.isArray(this.selectPicker.selectpicker("val")) ?
+            [...this.selectPicker.selectpicker("val"), ...disabled] :
+            this.selectPicker.selectpicker("val");
+
         let val = null;
         if (selection && selection.length) {
             if (this.multiple) {
