@@ -38,7 +38,7 @@ const hosts = [
     },
     {
         id: "test-reference",
-        url: "https://test.app.zettagenomics.com/TASK-1974/opencga"
+        url: "https://test.app.zettagenomics.com/reference/opencga"
     }
 ];
 
@@ -215,7 +215,9 @@ const SUITE = {
         maxRemainingTime: 600000 // 10 min
     },
     landingPage: {
-        display: {},
+        display: {
+            logoStyle: "margin-bottom:48px;",
+        },
         logo: "./img/iva.svg",
     },
     welcomePage: {
