@@ -417,15 +417,6 @@ export default class CustomNavBar extends LitElement {
                                 <li>${this.createAboutLink(link, true)}</li>
                             `)}
 
-                            <!-- Login/Logout button -->
-                            ${this.config.login.visible && !this.loggedIn ? html`
-                                <li class="dropdown">
-                                    <a href="#login" id="loginButton" role="button" @click="${this.onChangeTool}">
-                                        <i href="#login" class="fas fa-sign-in-alt" aria-hidden="true"></i>Login
-                                    </a>
-                                </li>
-                            ` : null}
-
                             <!--User-->
                             ${this.loggedIn ? html`
                                 <li class="dropdown" data-cy="user-menu">
