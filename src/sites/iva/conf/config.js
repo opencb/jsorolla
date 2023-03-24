@@ -174,11 +174,6 @@ const CATALOG_NAVBAR_MENU = {
     ]
 };
 
-const LANDING_PAGE = {
-    display: {},
-    logo: "./img/iva.svg",
-};
-
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
@@ -218,6 +213,10 @@ const SUITE = {
         checkTime: 60000, // 1 min
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
+    },
+    landingPage: {
+        display: {},
+        logo: "./img/iva.svg",
     },
     welcomePage: {
         display: {
