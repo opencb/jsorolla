@@ -43,11 +43,12 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[3].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
-    }
+        prefix: "iva-" + hosts[3].id
+    },
+    sso: false,
 
     // This forces the following projects to be used instead of the user's project
     // projects: [
@@ -251,6 +252,12 @@ const SUITE = {
         checkTime: 60000, // 1 min
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
+    },
+    landingPage: {
+        display: {
+            logoStyle: "margin-bottom:48px;",
+        },
+        logo: "./img/iva.svg",
     },
     welcomePage: {
         display: {

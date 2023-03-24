@@ -96,6 +96,8 @@ import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
+import "../../webcomponents/commons/layouts/custom-landing.js";
+
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
 
@@ -317,7 +319,33 @@ class IvaApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            // console.log(opencgaHost, opencgaVersion);
+            const opencgaSso = serverConf?.sso ?? this.config.opencga.sso ?? false;
+
+            // Check if SSO mode is enabled
+            if (opencgaSso) {
+                const currentUrl = new URL(window.location);
+                if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has("JSESSIONID")) {
+                    // Save token and session ID in cookies
+                    // eslint-disable-next-line no-undef
+                    Cookies.set("JSESSIONID", currentUrl.searchParams.get("JSESSIONID"));
+                    // eslint-disable-next-line no-undef
+                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"));
+
+                    // Decode token to get user ID
+                    // eslint-disable-next-line no-undef
+                    const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
+                    // eslint-disable-next-line no-undef
+                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
+
+                    // We need to remove the params from the url
+                    currentUrl.searchParams.delete("JSESSIONID");
+                    currentUrl.searchParams.delete("token");
+
+                    // Stop process, as we are going to reload IVA without the token and session ID in the URL
+                    window.location = currentUrl.href;
+                    return;
+                }
+            }
 
             // Initialise clients and create the session
             // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
@@ -333,6 +361,7 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
+                sso: opencgaSso,
             });
 
             this.reactomeClient = new ReactomeClient();
@@ -1049,6 +1078,17 @@ class IvaApp extends LitElement {
     }
 
     render() {
+        if (!this.isLoggedIn() && !this.signingIn) {
+            return html`
+                <custom-landing
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}"
+                    @login="${this.onLogin}"
+                    @redirect="${this.route}">
+                </custom-landing>
+            `;
+        }
+
         return html`
             <style>
                 .notification-nav {
