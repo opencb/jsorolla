@@ -78,8 +78,12 @@ export class OpenCGAClient {
             }
         } catch (e) {
             console.error(e);
-            globalEvent("signingInError", {value: "Opencga host not available."});
-            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            // Josemi NOTE 20230324 Terrible hack to prevent displaying OpenCGA host not available error
+            // when iva starts, as the /meta/about is restricted when SSO is enabled
+            if (!this._config.sso) {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
         }
     }
 
