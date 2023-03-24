@@ -254,6 +254,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.query = {...this.query};
     }
 
+    onQueryChange(event) {
+        this.query = event.detail.query;
+    }
+
     render() {
         return html`
             <variant-interpreter-browser-template
@@ -263,7 +267,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
                 .toolId="${"variantInterpreterCancerSNV"}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }

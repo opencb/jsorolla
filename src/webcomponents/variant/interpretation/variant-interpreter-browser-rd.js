@@ -270,6 +270,10 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.query = {...this.query};
     }
 
+    onQueryChange(event) {
+        this.query = event.detail.query;
+    }
+
     render() {
         return html`
             <variant-interpreter-browser-template
@@ -279,7 +283,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
                 .toolId="${"variantInterpreterRD"}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
