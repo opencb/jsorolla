@@ -178,10 +178,10 @@ const SUITE = {
     id: "suite",
     name: "Suite",
     version: "",
-    logo: "img/zetta-logo-white.webp",
+    logo: "img/iva-white.svg",
     companyLogo: "",
+    logoAlt: "img/iva.svg",
     favicon: "img/zetta-favicon.png",
-    logoAlt: "img/Zetta_logo.png", // Logo in custom-sidebar
     logoAltHeight: "",
     footerLogo: "img/opencb-logo.png",
     mode: "development",
@@ -234,16 +234,16 @@ const SUITE = {
         },
         product: {
             logos: [
-                {img: "", height: "3rem", link: "", version: ""},
+                {img: "", height: "3rem", link: ""},
             ],
         },
         versions: {
             display: {
                 textColor: "",
             },
-            logo: {img: "", height: "", link: ""},
-            text: "Powered by OpenCB",
-            link: "https://github.com/opencb/",
+            logo: {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
+            text: "",
+            link: "",
         },
         custom: "", // Optionally, a custom footer can be added.
     },
@@ -255,26 +255,26 @@ const SUITE = {
     },
     landingPage: {
         display: {
-            logoStyle: "margin-bottom:48px;",
+            logoStyle: "height:50px;",
             logoClass: "",
             titleStyle: "",
             titleClass: "",
             contentStyle: "",
             contentClass: "",
         },
-        logo: "",
+        logo: "img/opencb-logo.png",
     },
     welcomePage: {
         display: {
             titleStyle: "text-align:center"
         },
-        title: "Suite",
-        logo: "img/Zetta_logo.png",
+        title: "OpenCB Suite",
+        logo: "img/iva.svg",
         bottomLogo: {img: "", link: "", height: ""},
         content: `
         <div style="margin: 20px">
             <p class="text-center">
-                Welcome to the Suite for whole genome variant analysis.<br />
+                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
                 This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
                 pedigrees, case-controls or sporadic samples.
             </p>
@@ -302,7 +302,7 @@ const SUITE = {
                 logo: "img/tools/icons/variant_browser.svg",
                 content: `
                     <p class="text-center">
-                        Welcome to the Variant Analysis application.<br>
+                        Welcome to the OpenCB Variant Analysis application.<br>
                         This interactive tool allows browse and run variant analysis.
                     </p>
                 `,
@@ -679,7 +679,7 @@ const SUITE = {
                 logo: "img/tools/icons/interpretation_portal.svg",
                 content: `
                     <p class="text-center">
-                        Welcome to the Clinical Analysis Application
+                        Welcome to the OpenCB Clinical Analysis Application
                         <br>
                         This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
                     </p>`
@@ -849,7 +849,7 @@ const SUITE = {
                 logo: "img/Zetta_logo.png",
                 content: `
                     <p class="text-center">
-                        Welcome to the Administration Application
+                        Welcome to the OpenCB Administration Application
                     </p>
                     <br>`
             },
