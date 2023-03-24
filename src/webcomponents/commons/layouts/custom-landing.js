@@ -47,15 +47,32 @@ export default class CustomLanding extends LitElement {
     render() {
         return html`
             <style>
+                .landing-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    height: 100vh;
+                }
+
+                .landing-wrapper > div {
+                    flex: 1;
+                }
+
+                .landing-wrapper > .landing-left {
+                    background-color: var(--main-bg-color);
+                }
+
                 .landing {
-                    align-items: center;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    min-height: calc(100vh - 70px);
+                    align-items: center;
                     padding: 16px;
-                    width: 100%;
                 }
+
+                .landing-logo > img{
+                    margin: 1em;
+                }
+
                 .landing-logo {
                     height: 100px;
                     margin-bottom: 32px;
@@ -82,32 +99,42 @@ export default class CustomLanding extends LitElement {
                     text-align: center;
                     width: 100%;
                 }
+
+                .landing-login button.btn.btn-primary.btn-block {
+                    background-color: hsl(222, 20%, 45%);
+                    border: 0;
+                }
+
+
             </style>
-            <div class="landing">
-                <!-- Landing logo section -->
-                ${this.config?.landingPage?.logo ? html`
+            <div class="landing-wrapper">
+                <div class="landing-left">
+                    <!-- Landing logo section -->
+                    ${this.config?.landingPage?.logo ? html`
                     <div class="landing-logo ${this.config.landingPage.display?.logoClass}" style="${this.config.landingPage.display?.logoStyle}">
                         <img height="100%" src="${this.config.landingPage.logo}" />
                     </div>
                 ` : null}
-                <!-- Landing title -->
-                ${this.config?.landingPage?.title ? html`
+                </div>
+                <div class="landing">
+                    <!-- Landing title -->
+                    ${this.config?.landingPage?.title ? html`
                     <div class="landing-title ${this.config.landingPage.display?.titleClass}" style="${this.config.landingPage.display?.titleStyle}">
                         ${this.config.landingPage.title}
                     </div>
                 ` : null}
-                <!-- Landing description -->
-                ${this.config?.landingPage?.content ? html`
+                    <!-- Landing description -->
+                    ${this.config?.landingPage?.content ? html`
                     <div align="center" class="landing-content ${this.config.landingPage.display?.contentClass}" style="${this.config.landingPage.display?.contentStyle}">
                         ${UtilsNew.renderHTML(this.config.landingPage.content)}
                     </div>
                 ` : null}
-                <!-- Landing login -->
-                <div class="landing-login">
-                    ${this.opencgaSession?.opencgaClient?._config?.sso ? html `
+                    <!-- Landing login -->
+                    <div class="landing-login">
+                        ${this.opencgaSession?.opencgaClient?._config?.sso ? html `
                         <div align="center">
                             <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                <button type="button" class="btn btn-primary btn-lg" style="background-color: #286090;">
+                                <button type="button" class="btn btn-primary btn-lg" style="">
                                     <i class="fas fa-user"></i>
                                 </button>
                                 <button type="button" class="btn btn-primary btn-lg">
@@ -123,7 +150,9 @@ export default class CustomLanding extends LitElement {
                             .opencgaSession="${this.opencgaSession}">
                         </user-login>
                     `}
+                    </div>
                 </div>
+
             </div>
         `;
     }
