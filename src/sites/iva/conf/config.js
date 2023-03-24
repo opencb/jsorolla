@@ -256,6 +256,11 @@ const SUITE = {
     landingPage: {
         display: {
             logoStyle: "margin-bottom:48px;",
+            logoClass: "",
+            titleStyle: "",
+            titleClass: "",
+            contentStyle: "",
+            contentClass: "",
         },
         logo: "./img/iva.svg",
     },
