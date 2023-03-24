@@ -226,14 +226,14 @@ const SUITE = {
         },
         copyright: {
             logos: [
-                {img: "img/zetta-logo-white.webp", height: "2rem", link: "https://www.zettagenomics.com"},
+                {img: "img/zetta-logo-white.webp", height: "1.5rem", link: "https://www.zettagenomics.com"},
             ],
             text: "",
             textStyle: "",
         },
         product: {
             logos: [
-                {img: "", height: "", link: ""},
+                {img: "", height: "3rem", link: "", version: ""},
             ],
         },
         versions: {
@@ -280,12 +280,14 @@ const SUITE = {
             visibility: "public",
             welcomePage: {
                 display: {
+                    logoWidth: "100px",
                     titleStyle: "text-align:center;",
                     subtitleStyle: "text-align:center;"
                 },
                 title: "Variant Analysis",
                 subtitle: "Explore variants in real-time and execute analysis",
-                logo: "img/Zetta_logo.png",
+                // logo: "img/Zetta_logo.png",
+                logo: "img/tools/icons/variant_browser.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the Variant Analysis application.<br>
@@ -657,10 +659,12 @@ const SUITE = {
                 title: "Clinical Analysis",
                 display: {
                     titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;"
+                    subtitleStyle: "text-align:center;",
+                    logoWidth: "100px",
                 },
                 subtitle: "Interactive Case Interpreter",
-                logo: "img/Zetta_logo.png",
+                // logo: "img/Zetta_logo.png",
+                logo: "img/tools/icons/interpretation_portal.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the Clinical Analysis Application
