@@ -318,10 +318,10 @@ class IvaApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            // console.log(opencgaHost, opencgaVersion);
+            const opencgaSso = serverConf?.sso ?? this.config.opencga.sso ?? false;
 
             // Check if SSO mode is enabled
-            if (this.config.opencga.sso) {
+            if (opencgaSso) {
                 const currentUrl = new URL(window.location);
                 if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has("JSESSIONID")) {
                     // Save token and session ID in cookies
@@ -360,7 +360,7 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
-                sso: !!this.config.opencga.sso,
+                sso: opencgaSso,
             });
 
             this.reactomeClient = new ReactomeClient();
