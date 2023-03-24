@@ -332,6 +332,27 @@ export default class CustomVerticalNavBar extends LitElement {
             section {
                 padding-left: 15px;
             }
+
+            .settings-header-wrapper,
+            .settings-header-wrapper > div {
+                display: flex;
+                align-items: center;
+                flex: 1;
+                font-size: 2.5rem;
+                color: var(--main-color-darker);
+            }
+
+            .settings-header-wrapper {
+                margin: 1rem 0;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #C2C4C6;
+            }
+
+            .settings-header-icon {
+                margin-right: 1rem;
+            }
+
+
         </style>`;
     }
 
@@ -416,9 +437,19 @@ export default class CustomVerticalNavBar extends LitElement {
                 ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
                     <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
                         <!-- TODO: HEADER in a div-->
-                        <h2><i class="${subItem.icon} icon-padding" style="padding-right: 10px"></i>${subItem.name}</h2>
+                        <div class="settings-header-wrapper" id="settings-title-wrapper">
+                            <div class="settings-header-title-wrapper">
+                                <div class="settings-header-icon"><i class="${subItem.icon}"></i></div>
+                                <div class="settings-header-title">${subItem.name}</div>
+                            </div>
+                            <div class="settings-header-info-wrapper">
+                                <div></div>
+                            </div>
+                        </div>
                         <!-- TODO: CONTENT in a div -->
-                        ${subItem.render(this.opencgaSession, this.study)}
+                        <div class="settings-content-wrapper" id="settings-content-wrapper">
+                            ${subItem.render(this.opencgaSession, this.study)}
+                        </div>
                     </div>
                 `)}
             ` : html `
