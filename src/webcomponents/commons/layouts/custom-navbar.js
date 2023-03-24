@@ -423,7 +423,7 @@ export default class CustomNavBar extends LitElement {
                                     <a id="userButton" href="#" class="dropdown-toggle" data-toggle="dropdown"
                                        role="button" aria-haspopup="true" aria-expanded="false">
                                         <i class="fas fa-user-circle" aria-hidden="true" style="padding-right: 0.9rem">
-                                        </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.email} <span
+                                        </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id} <span
                                             class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
