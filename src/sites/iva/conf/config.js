@@ -262,7 +262,7 @@ const SUITE = {
             contentStyle: "",
             contentClass: "",
         },
-        logo: "./img/iva.svg",
+        logo: "",
     },
     welcomePage: {
         display: {
