@@ -1077,11 +1077,13 @@ class IvaApp extends LitElement {
     }
 
     render() {
-        if (!this.isLoggedIn()) {
+        if (!this.isLoggedIn() && !this.signingIn) {
             return html`
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config}">
+                    .config="${this.config}"
+                    @login="${this.onLogin}"
+                    @redirect="${this.route}">
                 </custom-landing>
             `;
         }
