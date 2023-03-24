@@ -136,18 +136,20 @@ export default class CustomFooter extends LitElement {
                         <div class="footer-section" id="footer-zetta-product">
                             ${this.config?.footer?.product?.logos ? html`
                             ${this.config?.footer?.product.logos.map(logo => html `
-                                <div class="footer-logo">
-                                    ${logo.link ? html `
+                                ${logo.img ? html `
+                                    <div class="footer-logo">
+                                        ${logo.link ? html `
                                         <a href="${logo.link}" target="blank"><img src="${logo.img}" style="height: ${logo.height}"></a>
                                     ` : html `
                                         <img src="${logo.img}" style="height: ${logo.height}">
                                     `}
-                                    ${this.host?.opencga ? html `
+                                        ${this.host?.opencga ? html `
                                         <sup style="margin-left: 0.9rem; color: white">${this.host?.opencga}</sup>
                                     ` : html`
                                         <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                                     `}
-                                </div>
+                                    </div>
+                                `: null}
                             `)}
                         ` : null}
                         </div>
