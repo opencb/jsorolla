@@ -313,9 +313,7 @@ export class OpenCGAClient {
         return Promise.resolve();
     }
 
-    /**
-     * Creates and return an anonymous session object, it is a sync function.
-     */
+    // Creates and return an anonymous session object, it is a sync function.
     createAnonymousSession() {
         const opencgaSession = {};
         opencgaSession.user = {
