@@ -40,7 +40,7 @@ export default class ToolSettingsEditor extends LitElement {
             toolSettings: {
                 type: Object,
             },
-            selectSettings: {
+            readOnly: {
                 type: Boolean,
             },
             toolName: {
@@ -58,7 +58,7 @@ export default class ToolSettingsEditor extends LitElement {
     // --- PRIVATE METHODS ---
     #init() {
         this.isLoading = false;
-        this.selectSettings = false;
+        this.readOnly = false;
     }
 
     #initOriginalObjects() {
@@ -76,8 +76,8 @@ export default class ToolSettingsEditor extends LitElement {
         if (changedProperties.has("toolSettings")) {
             this.toolSettingsObserver();
         }
-        if (changedProperties.has("selectSettings")) {
-            this.selectSettingsObserver();
+        if (changedProperties.has("readOnly")) {
+            this.readOnlyObserver();
         }
         super.update(changedProperties);
     }
@@ -89,8 +89,8 @@ export default class ToolSettingsEditor extends LitElement {
         }
     }
 
-    selectSettingsObserver() {
-        if (this.selectSettings) {
+    readOnlyObserver() {
+        if (this.readOnly) {
             this._toolSettings = UtilsNew.objectClone(this.toolSettings[Object.keys(this.toolSettings)[0]]);
             this._toolName = Object.keys(this.toolSettings)[0];
             this.requestUpdate();
@@ -127,6 +127,8 @@ export default class ToolSettingsEditor extends LitElement {
             <select-field-filter
                 .data="${Object.keys(this.toolSettings)}"
                 .value="${this._toolName}"
+                .multiple=${false}
+                .forceSelection=${true}
                 @filterChange="${this.onToolChange}">
             </select-field-filter>
         `;
@@ -136,18 +138,23 @@ export default class ToolSettingsEditor extends LitElement {
     #renderStyle() {
         return html`
             <style>
-                #tool-settings-editor-card{
+                #tool-settings-editor-card {
                     display: flex;
                     flex-direction: column;
+                    margin-top: 1em;
                 }
-                #tool-settings-editor-card-header{
-                    display: -ms-flexbox;
-                    display: -webkit-flex;
+                #tool-settings-editor-card-header {
                     display: flex;
-                    -webkit-justify-content: space-between;
-                    -ms-flex-pack: justify;
-                    justify-content: space-between;
+                    justify-content: center;
+                    align-items: center;
                     padding: 0.5em;
+                    margin: 1em 0;
+                }
+                #tool-settings-editor-card-header > .card-header-title {
+                    margin-right: 1em;
+                    font-weight: bold;
+                }
+                #tool-settings-editor-card-header > .card-header-options .filter-option-inner-inner {
                 }
 
             </style>`;
@@ -161,9 +168,11 @@ export default class ToolSettingsEditor extends LitElement {
             <div class="card" id="tool-settings-editor-card">
                 <!-- Header -->
                 <div class="card-header" id="tool-settings-editor-card-header">
-                    <div class="card-header-title"></div>
+                    ${this.readOnly ? html `
+                        <div class="card-header-title">Select one of the tools for previewing (READ-ONLY) the settings: </div>
+                    `: null}
                     <div class="card-header-options">
-                        ${this.selectSettings ? this.renderSelect() : html `
+                        ${this.readOnly ? this.renderSelect() : html `
                             <button
                                 class="btn btn-warning btn-sm" type="button"
                                 @click="${e => this.onStudyToolSettingsChange(e, "default")}">
@@ -208,6 +217,7 @@ export default class ToolSettingsEditor extends LitElement {
                         return html `
                             <json-editor
                                 .data="${this._toolSettings}"
+                                .config="${{readOnly: this.readOnly}}"
                                 @fieldChange="${e => this.onStudyToolSettingsChange(e, "json")}">
                             </json-editor>
                         `;

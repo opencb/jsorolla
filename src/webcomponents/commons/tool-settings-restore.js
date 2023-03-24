@@ -235,6 +235,7 @@ export default class ToolSettingsRestore extends LitElement {
                                         <tool-settings-editor
                                             .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
                                             .selectSettings="${true}"
+                                            .readOnly="${true}"
                                             .study="${study}"
                                             .opencgaSession="${this.opencgaSession}">
                                         </tool-settings-editor>
@@ -274,7 +275,7 @@ export default class ToolSettingsRestore extends LitElement {
                                     return html `
                                         <tool-settings-editor
                                             .toolSettings="${UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
-                                            .selectSettings="${true}"
+                                            .readOnly="${true}"
                                             .study="${study}"
                                             .opencgaSession="${this.opencgaSession}">
                                         </tool-settings-editor>
