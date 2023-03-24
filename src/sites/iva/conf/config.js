@@ -48,7 +48,10 @@ const opencga = {
     cookie: {
         prefix: "iva-" + hosts[3].id
     },
-    sso: false,
+    sso: {
+        active: true,
+        cookie: "JSESSIONID"
+    },
 
     // This forces the following projects to be used instead of the user's project
     // projects: [

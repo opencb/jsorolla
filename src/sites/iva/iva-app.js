@@ -318,15 +318,16 @@ class IvaApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            const opencgaSso = serverConf?.sso ?? this.config.opencga.sso ?? false;
+            const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
+            const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
 
             // Check if SSO mode is enabled
-            if (opencgaSso) {
+            if (opencgaSsoActive) {
                 const currentUrl = new URL(window.location);
-                if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has("JSESSIONID")) {
+                if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set("JSESSIONID", currentUrl.searchParams.get("JSESSIONID"));
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie));
                     // eslint-disable-next-line no-undef
                     Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"));
 
@@ -337,7 +338,7 @@ class IvaApp extends LitElement {
                     Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
 
                     // We need to remove the params from the url
-                    currentUrl.searchParams.delete("JSESSIONID");
+                    currentUrl.searchParams.delete(opencgaSsoCookie);
                     currentUrl.searchParams.delete("token");
 
                     // Stop process, as we are going to reload IVA without the token and session ID in the URL
@@ -360,7 +361,7 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
-                sso: opencgaSso,
+                sso: opencgaSsoActive,
             });
 
             this.reactomeClient = new ReactomeClient();
