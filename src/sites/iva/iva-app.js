@@ -143,7 +143,7 @@ class IvaApp extends LitElement {
 
         // Reading the default settings from the config files, eg. browser.settings.js
         // Store them in a flat structure.
-        this.DEFAULT_SETTINGS = {
+        this.DEFAULT_TOOL_SETTINGS = {
             ...CATALOG_SETTINGS,
             // ...VARIANT_SETTINGS,
             ...INTERPRETER_SETTINGS,
@@ -492,7 +492,7 @@ class IvaApp extends LitElement {
                     ..._response,
                     ivaDefaultSettings: {
                         version: this.version,
-                        settings: UtilsNew.objectClone(this.DEFAULT_SETTINGS),
+                        settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
                     }
                 };
                 this.opencgaSession.mode = this.config.mode;

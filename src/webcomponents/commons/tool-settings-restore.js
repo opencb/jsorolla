@@ -48,12 +48,12 @@ export default class ToolSettingsRestore extends LitElement {
     // --- PRIVATE METHODS ---
     #init() {
         this.isLoading = false;
-        this._listStudies = [];
-        this._activeSection = {
+        this._studyFqnList = [];
+        this._activeTab = {
             0: "default",
             1: "backup",
         };
-
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -64,7 +64,7 @@ export default class ToolSettingsRestore extends LitElement {
     #initOriginalObjects() {
         // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
         this._study = UtilsNew.objectClone(this.study);
-        this._listStudies = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
+        this._studyFqnList = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
         this._config = {
             ...this.getDefaultConfig(),
             // ...this.config,
@@ -73,8 +73,8 @@ export default class ToolSettingsRestore extends LitElement {
 
     // --- UPDATE ---
     update(changedProperties) {
-        if (changedProperties.has("study") || changedProperties.has("toolSettings")) {
-            this.componentObserver();
+        if (changedProperties.has("study")) {
+            this.studyObserver();
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -83,30 +83,33 @@ export default class ToolSettingsRestore extends LitElement {
     }
 
     // --- OBSERVERS ---
-    componentObserver() {
+    studyObserver() {
         if (this.study && this.opencgaSession) {
             this.#initOriginalObjects();
         }
     }
 
     opencgaSessionObserver() {
-        // Read Projects and Study to prepare the select menu
+        // Read Projects and Study to prepare the Study select dropdown
         this.allowedValues = [];
         if (this.opencgaSession?.projects) {
             // Prepare allowedValues for the select options menu
             for (const project of this.opencgaSession.projects) {
                 const fields = [];
-                for (const study of project.studies) {
-                    fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
+                if (project.studies?.length > 0) {
+                    for (const study of project.studies) {
+                        fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
+                    }
+                    this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
                 }
-                this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
             }
-            // Refresh configuration object to read new this.allowedValues array.
-            this._config = {
-                ...this.getDefaultConfig(),
-                // ...this.config,
-            };
         }
+
+        // Refresh configuration object to read new this.allowedValues array.
+        this._config = {
+            ...this.getDefaultConfig(),
+            // ...this.config,
+        };
     }
 
     // --- EVENTS ---
@@ -117,7 +120,7 @@ export default class ToolSettingsRestore extends LitElement {
         // Changes in the json editor are for read-only purposes (preview default/backup settings per tool)
         if (param === "fqn") {
             this._study.fqn = "";
-            this._listStudies = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
+            this._studyFqnList = e.detail.value?.length > 0 ? e.detail.value?.split(",") : [];
             // Shallow copy just for refreshing the memory direction of this._study
             this._study = {...this._study};
             this.requestUpdate();
@@ -137,24 +140,24 @@ export default class ToolSettingsRestore extends LitElement {
 
     onSubmit(e) {
         // 1. Prepare query params
-        const sectionId = this._activeSection[e.detail.value];
+        const activeTab = this._activeTab[e.detail.value];
         const params = {
             includeResult: true,
         };
         // 2. Query
         this.#setLoading(true);
-        this._listStudies.forEach(studyId => {
+        this._studyFqnList.forEach(studyFqn => {
             // 2.1. Get new study tool settings
-            const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyId);
-            const updateParams = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, sectionId);
+            const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyFqn);
+            const allToolSettings = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, activeTab);
             // 2.2 Query
             this.opencgaSession.opencgaClient.studies()
-                .update(studyId, updateParams, params)
+                .update(studyFqn, allToolSettings, params)
                 .then(response => {
                     // 1. Dispatch success notification
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: `${UtilsNew.capitalize(sectionId)} Settings Update`,
-                        message: `${UtilsNew.capitalize(sectionId)} settings updated correctly`,
+                        title: `${UtilsNew.capitalize(activeTab)} Settings Update`,
+                        message: `${UtilsNew.capitalize(activeTab)} settings updated correctly`,
                     });
                     // 2. Dispatch study update event
                     LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
@@ -197,7 +200,7 @@ export default class ToolSettingsRestore extends LitElement {
                 titleWidth: 4,
                 buttonsVisible: true,
                 buttonsLayout: "top",
-                // buttonOkDisabled: () => this._listStudies?.length === 0
+                // buttonOkDisabled: () => this._studyFqnList?.length === 0
             },
             buttons: {
                 clearText: "Discard Changes",
@@ -228,17 +231,22 @@ export default class ToolSettingsRestore extends LitElement {
                             },
                         },
                         {
+                            title: "Preview changes",
                             type: "custom",
                             display: {
+                                defaultLayout: "vertical",
                                 render: study => {
                                     return html `
-                                        <tool-settings-editor
-                                            .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
-                                            .selectSettings="${true}"
-                                            .readOnly="${true}"
-                                            .study="${study}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </tool-settings-editor>
+                                        <div style="padding: 10px 20px">
+                                            <tool-settings-editor
+                                                .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
+                                                .selectSettings="${true}"
+                                                .readOnly="${true}"
+                                                .study="${study}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                            </tool-settings-editor>
+                                        </div>
+
                                     `;
                                 },
                             },

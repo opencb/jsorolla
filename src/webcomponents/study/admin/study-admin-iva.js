@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-
 import "../../commons/layouts/custom-vertical-navbar.js";
 import "../../commons/tool-settings-restore";
 import "../../commons/tool-settings-update.js";
@@ -43,10 +42,10 @@ export default class StudyAdminIva extends LitElement {
             study: {
                 type: Object,
             },
-            settings: {
+            opencgaSession: {
                 type: Object,
             },
-            opencgaSession: {
+            settings: {
                 type: Object,
             },
         };
@@ -62,11 +61,11 @@ export default class StudyAdminIva extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
         if (changedProperties.has("studyId")) {
             this.studyIdObserver();
+        }
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
         }
         super.update(changedProperties);
     }
@@ -78,6 +77,7 @@ export default class StudyAdminIva extends LitElement {
 
     /* -- OBSERVER METHODS -- */
     opencgaSessionObserver() {
+        this.study = this.opencgaSession.study;
         this._config = this.getDefaultConfig();
     }
 
@@ -102,26 +102,15 @@ export default class StudyAdminIva extends LitElement {
         }
     }
 
-    renderRestore(opencgaSession, study) {
-        return html `
-            <div style="padding: 1em 0">Reset all settings to their original defaults and restore the backup version</div>
-            <tool-settings-restore
-                .study="${study}"
-                .opencgaSession="${opencgaSession}"
-                @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
-            </tool-settings-restore>
-        `;
-    }
-
     // --- RENDER METHOD  ---
     render() {
         return html`
             <tool-header class="page-title-no-margin" title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
-                .study="${this.opencgaSession.study}"
+                .study="${this.study}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .activeMenuItem="${"tool_settings"}">
+                .activeMenuItem="${"tool_settings"}"
+                .config="${this._config}">
             </custom-vertical-navbar>
         `;
     }
@@ -131,15 +120,22 @@ export default class StudyAdminIva extends LitElement {
             {
                 id: "general",
                 name: "General",
-                // icon: "fa-solid fa-square",
                 visibility: "private",
                 submenu: [
                     {
                         id: "tool_settings",
-                        name: "Tool settings",
-                        // icon: "fas fa-square",
+                        name: "Tool Settings",
                         visibility: "private",
-                        render: (opencgaSession, study) => this.renderRestore(opencgaSession, study),
+                        render: (opencgaSession, study) => {
+                            return html `
+                                <div style="padding: 1em 0">Reset all settings to their original defaults and restore the backup version</div>
+                                <tool-settings-restore
+                                    .study="${study}"
+                                    .opencgaSession="${opencgaSession}"
+                                    @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
+                                </tool-settings-restore>
+                            `;
+                        },
                     },
                     // {
                     //     id: "constants",

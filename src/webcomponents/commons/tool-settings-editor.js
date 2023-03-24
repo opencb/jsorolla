@@ -210,7 +210,7 @@ export default class ToolSettingsEditor extends LitElement {
             items: [
                 {
                     id: "settings-json",
-                    name: "Configure",
+                    name: "Tool Settings",
                     active: true,
                     display: {
                         align: "",
@@ -222,19 +222,27 @@ export default class ToolSettingsEditor extends LitElement {
                         contentStyle: "",
                     },
                     render: () => {
-                        return html `
-                            <json-editor
-                                .data="${this._toolSettings}"
-                                .config="${{readOnly: this.readOnly}}"
-                                @fieldChange="${e => this.onStudyToolSettingsChange(e, "json")}">
-                            </json-editor>
-                        `;
+                        if (this.readOnly) {
+                            return html `
+                                <json-viewer
+                                    .data="${this._toolSettings}">
+                                </json-viewer>
+                            `;
+                        } else {
+                            return html `
+                                <json-editor
+                                    .data="${this._toolSettings}"
+                                    .config="${{readOnly: this.readOnly}}"
+                                    @fieldChange="${e => this.onStudyToolSettingsChange(e, "json")}">
+                                </json-editor>
+                            `;
+                        }
                     }
                 },
                 // 2. Component responsible for previewing the IVA settings
                 {
                     id: "settings-preview",
-                    name: "Preview",
+                    name: "Tool Preview",
                     active: false,
                     display: {
                         align: "",
