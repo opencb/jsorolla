@@ -108,6 +108,9 @@ export default class ToolSettingsEditor extends LitElement {
             case "default":
                 this._toolSettings = UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings[this.toolName]);
                 break;
+            case "backup":
+                this._toolSettings = UtilsNew.objectClone(this.study.attributes[SETTINGS_NAME + "_BACKUP"].settings[this.toolName]);
+                break;
         }
         LitUtils.dispatchCustomEvent(this, "studyToolSettingsChange", null, {
             _toolSettings: this._toolSettings
@@ -178,7 +181,12 @@ export default class ToolSettingsEditor extends LitElement {
                                 @click="${e => this.onStudyToolSettingsChange(e, "default")}">
                                 DEFAULT SETTINGS
                             </button>
-                            `}
+                            <button
+                                class="btn btn-warning btn-sm" type="button"
+                                @click="${e => this.onStudyToolSettingsChange(e, "backup")}">
+                                BACKUP SETTINGS
+                            </button>
+                        `}
                     </div>
                 </div>
                 <!-- Content -->
