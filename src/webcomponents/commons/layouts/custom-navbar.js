@@ -171,7 +171,7 @@ export default class CustomNavBar extends LitElement {
                 }
 
                 .suite-logo > img {
-                    height: 18px;
+                    height: 20px;
                 }
 
 
