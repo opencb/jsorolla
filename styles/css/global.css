@@ -336,9 +336,8 @@ span.subtitle {
 .main-navbar .separator {
     background: rgba(255, 255, 255, 0.3);
     width: 1px;
-    height: 3.5rem;
-    border-radius: 3px;
-    margin: 0.7rem;
+    border-radius: 4px;
+    margin: 2px 8px;
 }
 
 /*********** bootstrap override *****************/
@@ -376,11 +375,6 @@ input[type=checkbox], input[type=radio] {
 
 .nav-tabs > li.active > a {
     border-top: 1px solid var(--main-bg-color) !important;
-}
-
-ul.nav.navbar-nav.navbar-right {
-    display: flex;
-    align-items: center;
 }
 
 .navbar-right > li.dropdown.open > ul.dropdown-menu {

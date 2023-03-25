@@ -91,6 +91,16 @@ export default class CustomNavBar extends LitElement {
                     background-color: var(--main-bg-color);
                 }
 
+                nav.navbar.navbar-inverse.main-navbar > div {
+                    display: flex;
+                    align-items: center;
+                }
+
+                div#bs-example-navbar-collapse-1 {
+                    display: flex;
+                    flex: 1;
+                }
+
                 .navbar-inverse .navbar-nav > .open > a,
                 .navbar-inverse .navbar-nav > .open > a:focus,
                 .navbar-inverse .navbar-nav > .open > a:hover {
@@ -144,14 +154,6 @@ export default class CustomNavBar extends LitElement {
                     background-color: #41a7ff;
                 }
 
-                .center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 60%;
-                    font-size: 18px;
-                    color: #797979;
-                }
-
                 .feature-view {
                     margin: auto;
                     text-align: justify;
@@ -172,82 +174,50 @@ export default class CustomNavBar extends LitElement {
                     height: 18px;
                 }
 
+
+                ul.nav.navbar-nav.navbar-right {
+                    display: flex;
+                }
+
+                .study-switcher div.project-name {
+                    color: #afafaf;
+                    margin-right: 2em;
+                }
+
+                .dropdown-button-wrapper,
+                .dropdown-button-text {
+                    display: flex!important;
+                    align-items: center;
+                }
+                .dropdown-button-wrapper {
+                    padding: 8px 15px!important;
+                    border-radius: 4px;
+                    background-color: var(--footer-color-deflt-blue);
+                }
+
+                .dropdown-button-icon {
+                    margin-right: 10px;
+                }
+                .caret {
+                    margin-left: 10px;
+                }
+
+                #aboutButton {
+                    margin-right: 4px;
+                }
                 #logoutButton{
-                    margin-right: 0.6rem;
+                    margin-right: 8px;
                     background-color: var(--zetta-color-secondary-orange);
+                }
+                #logoutButton > .dropdown-button-icon {
+                    margin-right: 0;
                 }
 
                 #about-zetta{
                     display: flex;
                     align-items: center;
                 }
-
-                #aboutButton {
-                    margin-right: 0.3rem;
-                }
-
-                #projects-button,
-                #userButton,
-                #aboutButton {
-                    background-color: var(--footer-color-deflt-blue);
-                }
-
-                #logoutButton,
-                #userButton,
-                #aboutButton,
-                #projects-button{
-                    border-radius: 4px;
-                    padding: 9px 15px;
-                }
-
-                .study-switcher {
-                    display: flex !important;
-                    align-items: center;
-                }
-
-                .study-switcher > .study-wrapper {
-                    display: flex !important;
-                    justify-content: space-between;
-                    flex:1;
-                };
-                .study-switcher > .caret {
-                    flex:0;
-                };
-
-                /*.study-switcher:hover {*/
-                /*    background: #1a4f8f;*/
-                /*}*/
-
-                .study-switcher p{
-                    padding: 0;
-                    line-height: 1.1em;
-                }
-
-                .study-switcher p.project-name {
-                    color: #afafaf;
-                    margin-right: 1em;
-                }
-
-                .study-switcher p.study-id{
-                    /*font-size: 1.2em;*/
-                    /*font-weight: bold;*/
-                }
-
-                .study-switcher .caret {
-                    /*align-self: flex-end;*/
-                }
-
-                /*#progress-bar {
-                    width: 100%;
-                    position: fixed;
-                    height: 3px;
-                    background: #41a7ff;
-                    z-index: 10;
-                    transition: width 2s ease-in-out, opacity 0.5s ease;
-                }*/
             </style>
-
-            <!-- <loading-bar></loading-bar> -->
 
             <nav class="navbar navbar-inverse main-navbar">
                 <div>
@@ -336,18 +306,19 @@ export default class CustomNavBar extends LitElement {
                                 }
                             `)}
                         </ul>
-
                         <!-- Controls aligned to the RIGHT: settings and about-->
                         <ul class="nav navbar-nav navbar-right">
-                            <!--Studies dropdown and Search menu-->
+                            <!--Studies dropdown -->
                             ${this.opencgaSession && this.opencgaSession.projects && this.opencgaSession.projects.length ? html`
                                 <li class="dropdown">
-                                    <a id="projects-button" href="#" class="dropdown-toggle study-switcher" data-toggle="dropdown"
-                                       role="button" aria-haspopup="true" aria-expanded="false" data-cy="active-study">
-                                        <!--                                        <div><i class="fa fa-database fa-lg" style="padding-right: 10px"></i></div>-->
-                                        <div class="study-wrapper">
-                                            <p class="project-name">${this.opencgaSession.project?.name}:</p>
-                                            <p class="study-id">${this.opencgaSession.study.name}</p>
+                                    <a id="projects-button" href="#"
+                                       class="dropdown-toggle study-switcher dropdown-button-wrapper"
+                                       data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
+                                       data-cy="active-study">
+                                        <!-- <div class="dropdown-button-icon"><i class="fa fa-database fa-lg"></i></div>-->
+                                        <div class="dropdown-button-text" id="study-wrapper">
+                                            <div class="project-name">${this.opencgaSession.project?.name}:</div>
+                                            <div class="study-id">${this.opencgaSession.study.name}</div>
                                         </div>
                                         <div class="caret"></div>
                                     </a>
@@ -380,8 +351,8 @@ export default class CustomNavBar extends LitElement {
 
                             ${UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
                                 <li id="jobsButton">
-                                    <a href="#file-manager" title="File Manager" role="button"
-                                       @click="${this.onChangeTool}">
+                                    <a href="#file-manager" class="dropdown-button-wrapper" title="File Manager"
+                                       role="button" @click="${this.onChangeTool}">
                                         <i class="fas fa-folder-open icon-padding"></i>
                                     </a>
                                 </li>
@@ -391,10 +362,11 @@ export default class CustomNavBar extends LitElement {
                             <!-- About dropdown menu-->
                             ${this.app?.about.dropdown ? html`
                                 <li class="dropdown">
-                                    <a id="aboutButton" href="#" class="dropdown-toggle" data-toggle="dropdown"
+                                    <a id="aboutButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
                                        role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-question-circle" style="padding-right: 0.9rem"></i>About <span
-                                            class="caret"></span>
+                                        <div class="dropdown-button-icon"><i class="fas fa-question-circle"></i></div>
+                                        <div class="dropdown-button-text">About</div>
+                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.app.about.links && this.app.about.links.map(link => html`
@@ -420,11 +392,13 @@ export default class CustomNavBar extends LitElement {
                             <!--User-->
                             ${this.loggedIn ? html`
                                 <li class="dropdown" data-cy="user-menu">
-                                    <a id="userButton" href="#" class="dropdown-toggle" data-toggle="dropdown"
+                                    <a id="userButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
                                        role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-user-circle" aria-hidden="true" style="padding-right: 0.9rem">
-                                        </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id} <span
-                                            class="caret"></span>
+                                        <div class="dropdown-button-icon"><i class="fas fa-user-circle"></i></div>
+                                        <div class="dropdown-button-text" >
+                                            ${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id}
+                                        </div>
+                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.app?.userMenu?.length ? this.app.userMenu.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
@@ -439,9 +413,10 @@ export default class CustomNavBar extends LitElement {
                                 </li>
                                 <li class="separator"></li>
                                 <li>
-                                    <a id="logoutButton" role="button" @click="${this.logout}" data-user-menu="logout">
-                                        <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                                        <!--                                        Logout-->
+                                    <a class="dropdown-button-wrapper" id="logoutButton" role="button" @click="${this.logout}" data-user-menu="logout">
+                                        <div class="dropdown-button-icon">
+                                            <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+                                        </div>
                                     </a>
                                 </li>
                             ` : null}
