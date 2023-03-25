@@ -1702,8 +1702,8 @@ Toggle Changes
 .hi-icon {
     display: inline-block;
     margin: 10px 20px;
-    width: 10em;
-    height: 10em;
+    width: 8em;
+    height: 8em;
     padding: 2em;
     /*border-radius: 50%;*/
     text-align: center;
@@ -1734,7 +1734,6 @@ Toggle Changes
 }
 
 .hi-icon:before {
-    /*font-family: 'ecoicon';*/
     speak: none;
     font-size: 32px;
     line-height: 80px;
@@ -1750,57 +1749,23 @@ Toggle Changes
     content: "\e009";
 }
 
-.hi-icon-animation .hi-icon {
-    /*background: #fff;*/
-    -webkit-transition: box-shadow 0.2s;
-    -moz-transition: box-shadow 0.2s;
-    transition: box-shadow 0.2s;
-}
-
 .hi-icon-animation p {
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    transition: all 0.3s;
-    color: #797979;
+    transition: all 0.4s;
 }
 
 .hi-icon-animation .hi-icon svg {
-    -webkit-transition: -webkit-transform 0.2s, all 0.2s;
-    -moz-transition: -moz-transform 0.2s, all 0.2s;
     transition: transform 0.2s, all 0.2s;
-    fill: var(--main-bg-color);
-    height: 90px;
-    width: 90px;
-}
-
-.hi-icon-animation .hi-icon.fa,
-.hi-icon-animation .icon-wrapper:hover .hi-icon img {
-    -webkit-transition: -webkit-transform 0.2s, all 0.2s;
-    -moz-transition: -moz-transform 0.2s, all 0.2s;
-    transition: transform 0.2s, all 0.2s;
-}
-
-.hi-icon-animation .hi-icon svg image {
-    height: 90px;
-    width: 90px;
 }
 
 .hi-icon-animation .hi-icon:after {
     top: 0;
     left: 0;
     padding: 0;
-    /*box-shadow: 0 0 0 4px var(--main-bg-color);*/
-    -webkit-transition: -webkit-transform 0.2s, opacity 0.2s;
-    -moz-transition: -moz-transform 0.2s, opacity 0.2s;
-    transition: transform 0.2s, opacity 0.2s;
 }
 
 .hi-icon-animation .icon-wrapper:not(.disabled):hover .hi-icon:after,
 .hi-icon-animation .icon-wrapper:not(.disabled).active .hi-icon:after {
-    -webkit-transform: scale(0.85);
-    -moz-transform: scale(0.85);
-    -ms-transform: scale(0.85);
-    transform: scale(0.85);
+    transform: scale(0.95);
     opacity: 0.5;
 }
 
@@ -1809,37 +1774,13 @@ Toggle Changes
 .hi-icon-animation .icon-wrapper:hover .hi-icon img,
 .hi-icon-animation .icon-wrapper.active .hi-icon svg,
 .hi-icon-animation .icon-wrapper.active .hi-icon img {
-    transform: scale(0.85);
+    transform: scale(0.95);
 }
 
 /* in case of fa icon*/
 .hi-icon-animation .icon-wrapper:not(.disabled):hover .hi-icon.fa,
 .hi-icon-animation .icon-wrapper.active:not(.disabled) .hi-icon.fa {
-    transform: scale(0.85);
-}
-
-.hi-icon-animation .icon-wrapper:hover .hi-icon,
-.hi-icon-animation .icon-wrapper.active .hi-icon {
-    /*box-shadow: 0 0 0 10px var(--main-bg-color);*/
-    color: #fff;
-}
-
-.hi-icon-animation .icon-wrapper:not(.disabled):hover p,
-.hi-icon-animation .icon-wrapper:not(.disabled).active p {
-    color: var(--main-bg-color);
-}
-
-.hi-icon-animation .icon-wrapper.disabled .hi-icon:after,
-.hi-icon-animation .icon-wrapper.active.disabled .hi-icon.fa,
-.hi-icon-animation .icon-wrapper.disabled:hover .hi-icon.fa,
-.hi-icon-animation .icon-wrapper.disabled:hover .hi-icon:after {
-    transform: none;
-    opacity: 1;
-    box-shadow: 0 0 0 4px #8e8e8e;
-}
-
-.hi-icon-animation .icon-wrapper.disabled {
-    cursor: not-allowed;
+    transform: scale(0.95);
 }
 
 .hi-icon-animation .icon-wrapper.disabled .hi-icon.fa:before {
