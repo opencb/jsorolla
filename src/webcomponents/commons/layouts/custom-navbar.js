@@ -94,11 +94,19 @@ export default class CustomNavBar extends LitElement {
                 nav.navbar.navbar-inverse.main-navbar > div {
                     display: flex;
                     align-items: center;
+                    flex-wrap: wrap;
                 }
 
                 div#bs-example-navbar-collapse-1 {
-                    display: flex;
+                    display: flex!important;
+                    flex-wrap: wrap;
                     flex: 1;
+                }
+                div#bs-example-navbar-collapse-1 > ul {
+                    display: flex!important;
+                    flex-wrap: wrap;
+                    flex: 1 1 auto;
+                    padding: 0 10px;
                 }
 
                 .navbar-inverse .navbar-nav > .open > a,
@@ -146,12 +154,32 @@ export default class CustomNavBar extends LitElement {
                     margin-right: 0;
                 }
 
+                .notification .dropdown-button-icon {
+                    position: absolute;
+                }
+
                 .notification-nav > li > a .badge {
                     position: relative;
                     z-index: 10;
-                    bottom: -7px;
-                    left: 11px;
+                    bottom: -8px;
                     background-color: #41a7ff;
+                }
+
+                #refresh-job {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 1;
+                    max-width: 6px;
+                    margin-left: 2em;
+                }
+
+                .center {
+                    margin: auto;
+                    text-align: justify;
+                    width: 60%;
+                    font-size: 18px;
+                    color: #797979;
                 }
 
                 .feature-view {
@@ -177,6 +205,8 @@ export default class CustomNavBar extends LitElement {
 
                 ul.nav.navbar-nav.navbar-right {
                     display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
                 }
 
                 .study-switcher div.project-name {
@@ -208,6 +238,9 @@ export default class CustomNavBar extends LitElement {
                 #logoutButton{
                     margin-right: 8px;
                     background-color: var(--zetta-color-secondary-orange);
+                }
+                #job-monitor {
+                    margin-right: 8px;
                 }
                 #logoutButton > .dropdown-button-icon {
                     margin-right: 0;
@@ -346,14 +379,16 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- Jobs -->
                             ${UtilsNew.isAppVisible(this.app?.jobMonitor, this.opencgaSession) ? html`
-                                <job-monitor .opencgaSession="${this.opencgaSession}"></job-monitor>
+                                <job-monitor
+                                        .opencgaSession="${this.opencgaSession}">
+                                </job-monitor>
                             ` : null}
 
                             ${UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
                                 <li id="jobsButton">
-                                    <a href="#file-manager" class="dropdown-button-wrapper" title="File Manager"
-                                       role="button" @click="${this.onChangeTool}">
-                                        <i class="fas fa-folder-open icon-padding"></i>
+                                    <a href="#file-manager" class="dropdown-button-wrapper dropdown-button-wrapper"
+                                       title="File Manager" role="button" @click="${this.onChangeTool}">
+                                        <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
                                     </a>
                                 </li>
                                 <li class="separator"></li>
