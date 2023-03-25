@@ -61,6 +61,12 @@ body {
     font-size: 14px;
 }
 
+.container-fluid > .content {
+    flex:1;
+    justify-content: center;
+    flex-direction: column;
+}
+
 p {
     margin: 0;
 }
@@ -335,9 +341,10 @@ span.subtitle {
 
 .main-navbar .separator {
     background: rgba(255, 255, 255, 0.3);
-    width: 1px;
     border-radius: 4px;
     margin: 2px 8px;
+    height: 32px;
+    width: 1px;
 }
 
 /*********** bootstrap override *****************/
@@ -2084,17 +2091,25 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 /* jobs-monitor*/
 .notification-nav li.notification,
 .notification-nav li.notification > a {
-    height: 50px;
-    min-width: 40px;
+    /*height: 50px;*/
+    /*min-width: 40px;*/
 }
 
 .notification-nav .dropdown-menu {
-    width: 340px;
+    width: 400px;
+    margin-top: 8px!important;
+    padding-top: 0;
 }
 
 .notification-nav .info {
-    padding: 3px 20px;
-    font-weight: bold;
+    padding: 10px 15px;
+    display: flex;
+    width: 100%;
+    flex: 1;
+}
+.notification-nav .info > button {
+    flex: 1;
+    margin-right: 4px;
 }
 
 .notification-nav .dropdown-menu a {
