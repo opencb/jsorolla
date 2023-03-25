@@ -122,6 +122,7 @@ export default class RichTextEditor extends LitElement {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this.isViewer,
+                initialValue: this.data || "",
                 height: this._config.height,
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,

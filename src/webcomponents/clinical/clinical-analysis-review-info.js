@@ -404,6 +404,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             <clinical-analysis-report-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
+                .clinicalAnalysis="${this._clinicalAnalysis}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .opencgaSession="${this.opencgaSession}"
                 .displayConfig="${{buttonsVisible: false}}">
@@ -632,6 +633,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             display: {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
+                                showAddItemListButton: false,
+                                showAddBatchListButton: false,
                                 view: variant => {
                                     const variantkeys = [
                                         "evidence",

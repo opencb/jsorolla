@@ -1784,6 +1784,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             <clinical-analysis-report-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
+                .clinicalAnalysis="${this.clinicalAnalysis}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .opencgaSession="${this.opencgaSession}"
                 .displayConfig="${{buttonsVisible: false}}">

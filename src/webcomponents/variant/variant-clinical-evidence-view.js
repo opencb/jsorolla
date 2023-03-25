@@ -68,7 +68,6 @@ export default class VariantClinicalEvidenceView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("clinicalVariant")) {
-            console.log("init variant.....");
             this.variantObserver();
         }
 

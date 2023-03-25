@@ -79,7 +79,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             buttonsWidth: 8,
             buttonsAlign: "right",
         };
-        this.variantAttribute = {};
     }
 
     update(changedProperties) {
@@ -87,24 +86,35 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("clinicalAnalysis") &&
-            changedProperties.has("variantReview")) {
+        if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-        if (changedProperties.has("openModal")) {
+        if (changedProperties.has("variantReview")) {
+            this.variantReviewObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        /**
+        * It has been moved here so that the first click works.
+        */
+        if (changedProperties.has("openModal") &&
+            changedProperties.has("variantReview")) {
             if (this.openModal?.flag) {
                 this.openModalReport();
             }
         }
-        super.update(changedProperties);
-    }
 
-    firstUpdated() {
+
+        // * It just in case
         $(`#${this._prefix}EditReport`).on("hide.bs.modal", e => {
+            console.log("closed modal");
             this.openModal = {flag: false};
+            this.variantReview = {};
         });
     }
-
 
     clinicalAnalysisObserver() {
         this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
@@ -112,14 +122,15 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    onFieldChange(e, field) {
-        // variant, Bibliography Evidences, Classification, Population,
-        // Disease Association, Recommendations, Other...
-        const param = field || e.detail.param;
-        if (param.includes("attributes")) {
-            UtilsNew.setObjectValue(this.variantAttribute, param, e.detail.value);
-        }
 
+    variantReviewObserver() {
+        if (UtilsNew.isNotEmpty(this._clinicalAnalysis)) {
+            this._variantReview = UtilsNew.objectClone(this.variantReview);
+            this._reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
+            this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant.id === this.variantReview.id) || {};
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
     }
 
     openModalReport() {
@@ -127,41 +138,62 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     }
 
     submitReportVariant() {
-        // variantID, variantTitle*
-        // interpretations[].interpretationId.variants[]
-        // variantTitle: variantId hgvs
 
-        const reportTest = {...this._clinicalAnalysis.interpretation.attributes?.reportTest};
-        this.variantAttribute.variantId = this.variantReview.id;
-        // check reportTest, interpretations and variants
-        if (reportTest && reportTest?.interpretations) {
-            const interpretationIndex = reportTest.interpretations.findIndex(interpretation => interpretation.id == this._clinicalAnalysis.interpretation.id);
-            if (reportTest?.interpretations[interpretationIndex].variants) {
-                const variantIndex = reportTest.interpretations[interpretationIndex]
-                    .variants.findIndex(variant => variant.id === this.variantReview.id);
-                reportTest.interpretations[interpretationIndex].variants[variantIndex] = {
-                    ...reportTest.interpretations[interpretationIndex].variants[variantIndex],
-                    ...this.variantAttribute
+        // * tmp solution until clinicalAnalysis attr works.
+        let reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
+
+        // check if exist variant
+        const hasReport = UtilsNew.isNotEmpty(reportInfo);
+        // check if exist interpretations
+        const hasInterpretations = hasReport && UtilsNew.isNotEmpty(reportInfo.interpretations);
+        // check if contains all structures
+        const hasVariants = hasInterpretations && UtilsNew.isNotEmptyArray(reportInfo.interpretations.variants);
+
+        switch (true) {
+            // reportTest.interpretations.variants
+            case hasVariants:
+                this._variantInfo.id = this.variantReview.id;
+                const variantIndex = reportInfo.interpretations.variants?.findIndex(variant => variant.id === this._variantReview.id);
+                if (variantIndex) {
+                    reportInfo.interpretations.variants[variantIndex] = {...this._variantInfo};
+                } else {
+                    reportInfo.interpretations.variants.push(...this._variantInfo);
+                }
+                break;
+            // reporTest.interpretations
+            case hasInterpretations:
+                console.log("Missing varints");
+                break;
+            // reportTest
+            case hasReport:
+                console.log("Missing interpretations");
+                break;
+            // nothing
+            default:
+                console.log("Missing all them");
+                reportInfo = {
+                    interpretations: {
+                        variants: [
+                            ...this._variantInfo
+                        ]
+                    }
                 };
-            }
-        } else {
-            const interpretations = [];
-            interpretations.push();
+                break;
         }
 
-
-        // if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
-        //     this.opencgaSession.opencgaClient.clinical()
-        //         .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
-        //             {attributes: this.updateCaseParams.interpretation.attributes}, {study: this.opencgaSession.study.fqn})
-        //         .then(response => {
-        //             this.postUpdate(response);
-        //         })
-        //         .catch(response => {
-        //             // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-        //             this.notifyError(response);
-        //         });
-        // }
+        if (reportInfo) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                    {attributes: {reportTest: reportInfo}}, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.postUpdate(response);
+                })
+                .catch(response => {
+                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                    this.notifyError(response);
+                });
+        }
+        // * End tmp solution
     }
 
     notifyError(response) {
@@ -172,7 +204,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         } else {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         }
-        console.error("An error occurred updating clinicalAnalysis: ", response);
+        console.error("An error occurred updating report: ", response);
     }
 
     postUpdate(response) {
@@ -381,9 +413,8 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
                             <div>
                                 <data-form
-                                    .data="${this._clinicalAnalysis}"
+                                    .data="${this._variantInfo}"
                                     .config="${this._config}"
-                                    @fieldChange="${e => this.onFieldChange(e)}"
                                     @submit="${e => this.submitReportVariant(e)}">
                                 </data-form>
                             </div>
@@ -391,7 +422,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                 <variant-interpreter-grid
                                     review
                                     .clinicalAnalysis=${this._clinicalAnalysis}
-                                    .clinicalVariants="${[this.variantReview]}"
+                                    .clinicalVariants="${[this._variantReview]}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config=${
                                         {
@@ -406,8 +437,8 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                 </variant-interpreter-grid>
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .variant="${this.variantReview}"
+                                    .clinicalAnalysis="${this._clinicalAnalysis}"
+                                    .variant="${this._variantReview}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .config=${detailTabConfig}>
                                 </variant-interpreter-detail>
@@ -422,7 +453,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     render() {
 
         if (UtilsNew.isEmpty(this.variantReview)) {
-            return "No Found Variants";
+            return nothing;
         }
 
         // open modal by btn
@@ -475,7 +506,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "variantEvidences",
+                            field: "evidence",
                             type: "rich-text",
                             display: {
                                 preview: false,
@@ -492,7 +523,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "classification",
+                            field: "acmg",
                             type: "rich-text",
                             display: {
                                 preview: false,
@@ -560,7 +591,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "other",
+                            field: "others",
                             type: "rich-text",
                             display: {
                                 preview: false,
