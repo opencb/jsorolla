@@ -48,6 +48,7 @@ export default class CustomFooter extends LitElement {
                     bottom: 0;
                     width: 100%;
                     min-height: 50px;
+                    margin-top: 2em;
                 }
 
                 .footer-section-wrapper,
