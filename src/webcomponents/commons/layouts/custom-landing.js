@@ -82,7 +82,7 @@ export default class CustomLanding extends LitElement {
                     font-size: 3.5rem;
                     font-weight: bold;
                     margin-bottom: 32px;
-                    max-width: 640px;
+                    max-width: 860px;
                     text-align: center;
                     width: 100%;
                 }
@@ -99,7 +99,6 @@ export default class CustomLanding extends LitElement {
                     text-align: center;
                     width: 100%;
                 }
-
                 .landing-login button.btn.btn-primary.btn-block {
                     background-color: hsl(222, 20%, 45%);
                     border: 0;
@@ -110,46 +109,52 @@ export default class CustomLanding extends LitElement {
             <div class="landing-wrapper">
                 <div class="landing-left">
                     <!-- Landing logo section -->
-                    ${this.config?.landingPage?.logo ? html`
-                    <div class="landing-logo ${this.config.landingPage.display?.logoClass}" style="${this.config.landingPage.display?.logoStyle}">
-                        <img height="100%" src="${this.config.landingPage.logo}" />
-                    </div>
-                ` : null}
+                    ${this.config?.landingPage?.company?.logo ? html`
+                        <div class="landing-logo ${this.config.landingPage?.company?.display?.logoClass}" style="${this.config.landingPage?.company?.display?.logoStyle}">
+                            <img height="100%" src="${this.config.landingPage?.company?.logo}" />
+                        </div>
+                        <div class="landing-title ${this.config.landingPage?.company?.display?.titleClass}" style="${this.config.landingPage?.company?.display?.titleStyle}">
+                            ${this.config.landingPage?.company?.title}
+                        </div>
+                    ` : null}
                 </div>
                 <div class="landing">
                     <!-- Landing title -->
-                    ${this.config?.landingPage?.title ? html`
-                    <div class="landing-title ${this.config.landingPage.display?.titleClass}" style="${this.config.landingPage.display?.titleStyle}">
-                        ${this.config.landingPage.title}
-                    </div>
-                ` : null}
+                    ${this.config?.landingPage?.login?.logo ? html`
+                        <div class="landing-logo ${this.config.landingPage?.login?.display?.logoClass}" style="${this.config.landingPage?.login?.display?.logoStyle}">
+                            <img height="100%" src="${this.config.landingPage?.login?.logo}" />
+                        </div>
+                        <div class="landing-title ${this.config.landingPage?.login?.display?.titleClass}" style="${this.config.landingPage?.login?.display?.titleStyle}">
+                            ${this.config.landingPage?.login?.title}
+                        </div>
+                    ` : null}
                     <!-- Landing description -->
-                    ${this.config?.landingPage?.content ? html`
-                    <div align="center" class="landing-content ${this.config.landingPage.display?.contentClass}" style="${this.config.landingPage.display?.contentStyle}">
-                        ${UtilsNew.renderHTML(this.config.landingPage.content)}
-                    </div>
-                ` : null}
+                    ${this.config?.landingPage?.login?.content ? html`
+                        <div align="center" class="landing-content ${this.config.landingPage?.login?.display?.contentClass}" style="${this.config.landingPage?.login?.display?.contentStyle}">
+                            ${UtilsNew.renderHTML(this.config.landingPage?.login?.content)}
+                        </div>
+                    ` : null}
                     <!-- Landing login -->
                     <div class="landing-login">
                         ${this.opencgaSession?.opencgaClient?._config?.sso ? html `
-                        <div align="center">
-                            <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                <button type="button" class="btn btn-primary btn-lg" style="">
-                                    <i class="fas fa-user"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-lg">
-                                    <strong style="color:white;">Login with SSO</strong>
-                                </button>
-                            </a>
-                        </div>
-                        <div class="landing-login-sso-helper">
-                            By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login page.
-                        </div>
-                    ` : html`
-                        <user-login
-                            .opencgaSession="${this.opencgaSession}">
-                        </user-login>
-                    `}
+                            <div>
+                                <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                                    <button type="button" class="btn btn-primary btn-lg" style="">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-lg">
+                                        <strong style="color:white;">Login with SSO</strong>
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="landing-login-sso-helper">
+                                By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login page.
+                            </div>
+                        ` : html`
+                            <user-login
+                                .opencgaSession="${this.opencgaSession}">
+                            </user-login>
+                        `}
                     </div>
                 </div>
 
