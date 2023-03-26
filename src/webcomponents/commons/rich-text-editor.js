@@ -93,8 +93,18 @@ export default class RichTextEditor extends LitElement {
     }
 
     textEditorObserver() {
-        if (this.textEditor) {
-            this.updateContent = this.data;
+        const textEditorElm = document.getElementById(this.textEditorId);
+        if (this.textEditor && (this.textEditor.options.initialValue !== this.data)) {
+            this.textEditor = Editor.factory({
+                el: textEditorElm,
+                viewer: this.isViewer,
+                initialValue: this.data || "",
+                height: this._config.height,
+                initialEditType: this._config.editMode, // "wysiwyg or markdown",
+                toolbarItems: this._config.toolbarItems,
+                hideModeSwitch: this._config.hideModeSwitch,
+                previewStyle: this._config.previewStyle,
+            });
         }
     }
 
@@ -110,6 +120,7 @@ export default class RichTextEditor extends LitElement {
     */
 
     initTextEditor() {
+        // TODO: add some improvements
         const textEditorElm = document.getElementById(this.textEditorId);
         if (this.isViewer || this._config.disabled) {
             this.textEditor = Editor.factory({
@@ -138,7 +149,9 @@ export default class RichTextEditor extends LitElement {
     onChangeMode() {
         this.isViewer = !this.textEditor.isViewer();
         this.btnName = this.isViewer ? "Edit" : "Preview";
-        this.data = this.updateContent;
+        if (this.updateContent) {
+            this.data = this.updateContent;
+        }
         this.textEditor.destroy();
         this.initTextEditor();
         this.requestUpdate();

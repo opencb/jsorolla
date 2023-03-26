@@ -475,6 +475,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             type: "tabs",
             description: "Update an variant report",
             display: {
+
                 buttonsVisible: false,
                 buttonOkText: "Save",
                 buttonClearText: ""
@@ -631,10 +632,17 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: () => html `
-                                    ${construction}`
+                                render: () => {
+                                    const variantContent = `${this._reportInfo.interpretations?._variantsKeys?.map(key => this._variantInfo[key]).join(" ")}`;
+                                    debugger;
+                                    return html `
+                                        <rich-text-editor
+                                            .data="${variantContent}"
+                                            .config="${{preview: true}}">
+                                        </rich-text-editor>`;
+                                }
                             }
-                        },
+                        }
                     ]
                 },
             ]
