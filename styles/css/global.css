@@ -611,6 +611,9 @@ h3.page-title {
     min-height: 5em;
     padding: 10px;
 }
+.page-title-no-margin {
+    margin: 0;
+}
 
 .page-title.no-background {
     background: none;

@@ -145,22 +145,21 @@ export default class DetailTabs extends LitElement {
     }
 
     renderTabContent() {
-        return html`
+        return html `
             ${this._config.items.length && this._config.items.map(item => {
             if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                 const isActive = this._activeTab === item.id;
-                return html`
-                        <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
-                            ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
-                        </div>
-                    `;
+                return html `
+                    <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                        ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
+                    </div>
+                `;
             }
         })}
         `;
     }
 
     render() {
-
         // If data is undefined or null
         if (!this.data) {
             if (this._config?.errorMessage) {

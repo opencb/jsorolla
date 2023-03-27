@@ -53,11 +53,36 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
             showDownload: false
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
+
+        highlights: [
+            {
+                id: "highlightVariant",
+                // description: "highlight variants with a dp<5",
+                active: true,
+                // name: "Low depth variant (DP<5)",
+                limit: 5,
+                param: "DP",
+                comparator: "lt",
+                paramDescription: "Low depth variant",
+                description: "Highlight variants with a ",
+                style: {
+                    // Row style
+                    // rowBackgroundColor: "#ededed",
+                    rowOpacity: 0.5,
+                    icon: "circle",
+                    iconColor: "blue",
+                },
+            },
+        ],
+        activeHighlights: ["highlightVariant"],
+
+        /*
         highlights: [
             {
                 id: "Low depth variant",
                 name: "Low depth variant (DP<5)",
                 description: "Highlight variants with a DP<5",
+                active: true,
                 condition: variant => {
                     const index = variant.studies[0]?.sampleDataKeys?.findIndex(key => key === "DP");
                     if (index > -1) {
@@ -72,7 +97,8 @@ const VARIANT_INTERPRETER_BROWSER_CANCER_SNV_SETTINGS = {
                     rowOpacity: 0.5,
                 },
             }
-        ]
+        ],
+*/
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
         // columns: ["id"]

@@ -38,15 +38,15 @@ const hosts = [
     },
     {
         id: "test-reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
-    }
+        url: "https://test.app.zettagenomics.com/iva-3799/opencga"
+    },
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[3].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[3].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -820,6 +820,15 @@ const SUITE = {
                 //     visibility: "public",
                 //     featured: false,
                 // },
+                {
+                    id: "study-admin-iva",
+                    name: "IVA configuration",
+                    fa_icon: "fas fa-file-invoice",
+                    icon: "img/tools/icons/variant_browser.svg",
+                    description: "",
+                    visibility: "public",
+                    featured: false,
+                },
                 {
                     id: "catalog-admin",
                     name: "Catalog Management",

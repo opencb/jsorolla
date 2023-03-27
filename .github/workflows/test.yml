@@ -20,6 +20,10 @@ jobs:
   test:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     containers: [1, 2, 3]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -41,12 +45,22 @@ jobs:
 #            ${{ runner.os }}-build-
 #            ${{ runner.os }}-
       - run: npm install
+      - run: npm run test:prepare
       - uses: cypress-io/github-action@v5
         with:
           start: npm run serve
           command: npm run test:run
           browser: chrome
           wait-on: 'http://localhost:3000/src/sites/test-app/'
+        # env:
+        #   SPLIT: ${{ strategy.job-total }}
+        #   SPLIT_INDEX: ${{ strategy.job-index }}
+        #   SPEC: cypress/e2e/commons/data-form.cy.js,
+        #     cypress/e2e/iva/variant-browser-grid-cancer.cy.js,
+        #     cypress/e2e/iva/variant-browser-grid-germline.cy.js,
+        #     cypress/e2e/iva/variant-interpreter-grid-cancer-cnv.cy.js,
+        #     cypress/e2e/iva/variant-interpreter-grid-cancer.cy.js,
+        #     cypress/e2e/iva/variant-interpreter-grid-germline.cy.js
 #      - uses: actions/upload-artifact@v3
 #        if: failure()
 #        with:
