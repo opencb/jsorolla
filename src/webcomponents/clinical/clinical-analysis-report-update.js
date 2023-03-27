@@ -634,7 +634,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             display: {
                                 render: () => {
                                     const variantContent = `${this._reportInfo.interpretations?._variantsKeys?.map(key => this._variantInfo[key]).join(" ")}`;
-                                    debugger;
                                     return html `
                                         <rich-text-editor
                                             .data="${variantContent}"
