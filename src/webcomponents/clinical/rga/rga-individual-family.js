@@ -88,7 +88,7 @@ export default class RgaIndividualFamily extends LitElement {
         if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
             const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
             if (clinicalAnalysis) {
-                if (clinicalAnalysis?.family?.members?.length) {
+                if (clinicalAnalysis?.family?.members?.length > 0) {
                     trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
                     trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
                     trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
@@ -96,6 +96,10 @@ export default class RgaIndividualFamily extends LitElement {
                     if (trio.proband.id !== individual.id && individual.fatherId === trio.proband.father.id && individual.motherId === trio.proband.mother.id) {
                         // trio.sibling = clinicalAnalysis.family.members.find(m => m.father?.id === trio.proband.father.id && m.mother?.id === trio.proband.mother.id);
                         trio.sibling = individual;
+                    }
+                    if (trio.proband.id !== individual.id && individual.fatherId !== trio.proband.father.id && individual.motherId !== trio.proband.mother.id) {
+                        // trio.sibling = clinicalAnalysis.family.members.find(m => m.father?.id === trio.proband.father.id && m.mother?.id === trio.proband.mother.id);
+                        trio.other = individual;
                     }
                 } else {
                     // in case a Family array is not present, we use the proband (e.g. Cancer studies)
@@ -124,6 +128,7 @@ export default class RgaIndividualFamily extends LitElement {
             this.trio?.mother?.samples?.[0]?.id,
             this.trio?.child?.samples?.[0]?.id,
             this.trio?.sibling?.sampleId,
+            this.trio?.other?.sampleId,
         ];
 
         if (!this.sampleIds[0]) {
@@ -184,6 +189,7 @@ export default class RgaIndividualFamily extends LitElement {
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query
                 };
+                debugger
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(async rgaVariantResponse => {
 
@@ -471,6 +477,13 @@ export default class RgaIndividualFamily extends LitElement {
                     colspan: 2,
                     halign: this._config.header.horizontalAlign,
                     visible: !!this.sampleIds[4]
+                },
+                {
+                    title: `<span style="color: ${this.trio?.other?.id === this.individual.id ? "darkred" : "black"};">Sibling (${this.trio?.other?.id})</span><br>${this.sampleIds[5]}`,
+                    field: "",
+                    colspan: 2,
+                    halign: this._config.header.horizontalAlign,
+                    visible: !!this.sampleIds[5]
                 }
             ],
             [
@@ -539,6 +552,20 @@ export default class RgaIndividualFamily extends LitElement {
                     field: "attributes.VARIANT",
                     visible: !!this.sampleIds[4],
                     formatter: value => this.filterFormatter(value, 4)
+
+                },
+                // other
+                {
+                    title: "GT",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[5],
+                    formatter: value => this.gtFormatter(value, 5)
+                },
+                {
+                    title: "Filter",
+                    field: "attributes.VARIANT",
+                    visible: !!this.sampleIds[5],
+                    formatter: value => this.filterFormatter(value, 5)
 
                 }
             ]

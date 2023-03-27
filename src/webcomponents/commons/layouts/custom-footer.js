@@ -40,7 +40,7 @@ export default class CustomFooter extends LitElement {
         return html `
             <div class="footer">
                 <div class="container">
-                    <img style="height: 25px;" src="${this.config?.footerLogo}" alt="logo">
+                    <img style="height: 25px;" src="${this.config?.footer.logo}" alt="logo">
                     <p class="footer-item">
                         IVA <sup>${this.version || this.config?.version}</sup>
                     </p>

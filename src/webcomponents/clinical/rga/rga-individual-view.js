@@ -403,7 +403,7 @@ export default class RgaIndividualView extends LitElement {
                 {
                     title: "Definite",
                     field: "ch_def",
-                    formatter: (value, row) => (this.getChConfidenceFormatter(row, 2) + row.variantStats.numDelOverlap) ?? "-" // FIXME DELETION_OVERLAP replaced
+                    formatter: (value, row) => this.getChConfidenceFormatter(row, 2) ?? "-" // FIXME DELETION_OVERLAP replaced
                 },
                 {
                     title: "Probable",
@@ -423,7 +423,7 @@ export default class RgaIndividualView extends LitElement {
      * Returns variantStats.numPairedCompHet iff numParents matches the number of parent Ids defined
      */
     getChConfidenceFormatter(row, numParents) {
-        return row.numParents === numParents ? row.variantStats.numPairedCompHet : null;
+        return row.numParents === numParents ? row.variantStats.numPairedCompHet + row.variantStats.numPairedDelOverlap : null;
     }
 
     /**

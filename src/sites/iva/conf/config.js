@@ -220,6 +220,14 @@ const SUITE = {
             <br>
         </div>`,
     },
+    footer: {
+        logo: "img/opencb-logo.png",
+        text: "",
+        opencb: true,
+        content: `
+            <div style=""><img></div>
+        `
+    },
 
     // The order, title and nested submenus are respected
     apps: [
