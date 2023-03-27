@@ -39,7 +39,7 @@ const hosts = [
     {
         id: "test-reference",
         url: "https://test.app.zettagenomics.com/reference/opencga"
-    }
+    },
 ];
 
 const opencga = {
@@ -49,7 +49,7 @@ const opencga = {
         prefix: "iva-" + hosts[3].id
     },
     sso: {
-        active: true,
+        active: false,
         cookie: "JSESSIONID"
     },
 
