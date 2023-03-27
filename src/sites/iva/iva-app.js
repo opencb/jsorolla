@@ -990,8 +990,8 @@ class IvaApp extends LitElement {
                 welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
-                about: this.config.about,
-                userMenu: this.config.userMenu,
+                // about: this.config.about,
+                // userMenu: this.config.userMenu,
             };
         }
     }
