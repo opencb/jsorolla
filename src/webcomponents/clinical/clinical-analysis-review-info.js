@@ -191,12 +191,11 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 }))
             .filter(variant => variant); // Removed undefined
         console.log("hgvs", evidencesWithHgvs);
-        const variantAcmg = evidencesWithHgvs.map(evidence => `variante clasificada como ${evidence.classification.clinicalSignificance}
-        en el gen ${evidence.genomicFeature.geneName}(${evidence.genomicFeature.transcriptId})`).join("</br>");
+        const variantAcmg = evidencesWithHgvs.map(evidence => `<b>variante clasificada como ${evidence.classification.clinicalSignificance}` +
+        ` en el gen ${evidence.genomicFeature.geneName}(${evidence.genomicFeature.transcriptId})</b>`).join("</br>");
         const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.hgvs}</b></li>`).join("");
-        // interpretation.attributes.reportTest.results
         const results = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", "");
-        UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `Template (Beta) <hr></br> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
+        UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `<p>Template (Beta)</p> <hr> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
     }
 
     submitCaseComments() {
