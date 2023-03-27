@@ -120,7 +120,7 @@ export default class CustomLanding extends LitElement {
                 </div>
                 <div class="landing">
                     <!-- Landing title -->
-                    ${this.config?.landingPage?.login?.logo ? html`
+                    ${this.config?.landingPage?.login?.logo || this.config.landingPage?.login?.title ? html`
                         <div class="landing-logo ${this.config.landingPage?.login?.display?.logoClass}" style="${this.config.landingPage?.login?.display?.logoStyle}">
                             <img height="100%" src="${this.config.landingPage?.login?.logo}" />
                         </div>

@@ -16,13 +16,6 @@
  */
 
 
-// Josemi 20220216 NOTE: The cellbase configuration is extracted from project config (see issue #173)
-// We keep this global configuration to be backward compatible with OpenCGA 2.1, but will be removed in future releases
-// const cellbase = {
-//     host: "https://ws.zettagenomics.com/cellbase",
-//     version: "v5.1"
-// };
-
 const hosts = [
     {
         id: "prod",
@@ -182,13 +175,73 @@ const SUITE = {
     name: "Suite",
     version: "",
     logo: "img/iva-white.svg",
-    companyLogo: "",
+    // companyLogo: "",
     logoAlt: "img/iva.svg",
     favicon: "img/zetta-favicon.png",
-    logoAltHeight: "",
-    footerLogo: "img/opencb-logo.png",
+    // logoAltHeight: "",
+    // footerLogo: "img/opencb-logo.png",
     mode: "development",
-    appConfig: "opencb",
+    // appConfig: "opencb",
+
+    fileExplorer: {
+        visibility: "private"
+    },
+    jobMonitor: {
+        visibility: "private"
+    },
+    restApi: {
+        visibility: "private"
+    },
+    login: {
+        visible: true
+    },
+    notifyEventMessage: "notifymessage",
+    session: {
+        checkTime: 60000, // 1 min
+        minRemainingTime: 60000,
+        maxRemainingTime: 600000 // 10 min
+    },
+    landingPage: {
+        company: {
+            logo: "img/opencb-logo.png",
+            title: "",
+            display: {
+                logoStyle: "margin: 32px 25px",
+                logoClass: "",
+                titleStyle: "color: white;margin: 50px 20px",
+                titleClass: "",
+            }
+        },
+        login: {
+            logo: "img/iva.svg",
+            title: "Welcome back!",
+            display: {
+                logoStyle: "margin-bottom: 32px;",
+                logoClass: "",
+                titleStyle: "",
+                titleClass: "",
+                contentStyle: "",
+                contentClass: "",
+            },
+        }
+    },
+    welcomePage: {
+        display: {
+            titleStyle: "text-align:center"
+        },
+        title: "OpenCB Suite",
+        logo: "img/iva.svg",
+        bottomLogo: {img: "", link: "", height: ""},
+        content: `
+        <div style="margin: 20px">
+            <p class="text-center">
+                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                pedigrees, case-controls or sporadic samples.
+            </p>
+            <br>
+        </div>`,
+    },
     about: {
         dropdown: true,
         links: [
@@ -219,18 +272,14 @@ const SUITE = {
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
         // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
         {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
-        // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
     ],
-    login: {
-        visible: true
-    },
     footer: {
         display: {
             backgroundColor: "",
         },
         copyright: {
             logos: [
-                {img: "img/zetta-logo-white.webp", height: "1.5rem", link: "https://www.zettagenomics.com"},
+                {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
             ],
             text: "",
             textStyle: "",
@@ -244,45 +293,11 @@ const SUITE = {
             display: {
                 textColor: "",
             },
-            logo: {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
-            text: "",
-            link: "",
+            logo: {img: "", height: "", link: ""},
+            text: "Powered by OpenCB",
+            link: "https://github.com/opencb/",
         },
         custom: "", // Optionally, a custom footer can be added.
-    },
-    notifyEventMessage: "notifymessage",
-    session: {
-        checkTime: 60000, // 1 min
-        minRemainingTime: 60000,
-        maxRemainingTime: 600000 // 10 min
-    },
-    landingPage: {
-        display: {
-            logoStyle: "height:50px;",
-            logoClass: "",
-            titleStyle: "",
-            titleClass: "",
-            contentStyle: "",
-            contentClass: "",
-        },
-        logo: "img/opencb-logo.png",
-    },
-    welcomePage: {
-        display: {
-            titleStyle: "text-align:center"
-        },
-        title: "OpenCB Suite",
-        logo: "img/iva.svg",
-        bottomLogo: {img: "", link: "", height: ""},
-        content: `
-        <div style="margin: 20px">
-            <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                pedigrees, case-controls or sporadic samples.
-            </p>
-            <br>
-        </div>`,
     },
     // The order, title and nested submenus are respected
     apps: [
@@ -646,22 +661,6 @@ const SUITE = {
                 placeholder: "Search",
                 visible: false
             },
-            about: {
-                dropdown: true,
-                links: [
-                    {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-                    {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-                    {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-                    {id: "faq", name: "FAQ", icon: "fa fa-question"},
-                ]
-            },
-            userMenu: [
-                {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
-                // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-                {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
-                // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
-            ]
         },
         {
             id: "clinical",
@@ -731,81 +730,6 @@ const SUITE = {
                     ]
                 },
                 CATALOG_NAVBAR_MENU
-                // {
-                //     separator: true,
-                //     visibility: "public"
-                // },
-                // {
-                //     title: "Clinical Analysis",
-                //     category: true,
-                //     id: "cat-analysis",
-                //     visibility: "public"
-                // },
-                // {
-                //     separator: true,
-                //     visibility: "public"
-                // },
-                // {
-                //     title: "Case Interpretation",
-                //     category: true,
-                //     id: "cat-clinical",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "rd-tiering",
-                //     title: "RD Tiering",
-                //     acronym: "RDT",
-                //     description: "",
-                //     icon: "",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "team",
-                //     title: "TEAM",
-                //     description: "",
-                //     icon: "",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "zetta",
-                //     title: "Zetta",
-                //     description: "",
-                //     icon: "",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "cancer-tiering",
-                //     title: "OpenCGA Cancer Tiering (Based on GEL algorithm)",
-                //     description: "",
-                //     icon: "",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "interpreter",
-                //     title: "Case Interpreter",
-                //     acronym: "",
-                //     icon: "",
-                //     description: "",
-                //     visibility: "public"
-                // }
-                // {
-                //     separator: true,
-                //     visibility: "public"
-                // },
-                // {
-                //     title: "Reported Variants",
-                //     category: true,
-                //     id: "cat-clinical",
-                //     visibility: "public"
-                // },
-                // {
-                //     id: "cva",
-                //     title: "Clinical Variant Browser",
-                //     acronym: "CVB",
-                //     description: "",
-                //     icon: "",
-                //     visibility: "public"
-                // }
             ],
             fileExplorer: {
                 visibility: "private"
@@ -817,23 +741,6 @@ const SUITE = {
                 placeholder: "Search",
                 visible: false
             },
-            about: {
-                dropdown: true,
-                links: [
-                    {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-                    {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-                    {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-                    {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
-                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-                    {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"}
-                ]
-            },
-            userMenu: [
-                {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
-                // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-                {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
-                // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
-            ]
         },
         {
             id: "admin",
@@ -913,23 +820,6 @@ const SUITE = {
                 placeholder: "Search",
                 visible: false
             },
-            about: {
-                dropdown: true,
-                links: [
-                    {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-                    {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-                    {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-                    {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
-                    {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-                    {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"}
-                ]
-            },
-            userMenu: [
-                {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
-                // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-                {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
-                // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
-            ]
         }
     ]
 };
