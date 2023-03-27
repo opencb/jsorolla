@@ -141,6 +141,10 @@ export default class CustomWelcome extends LitElement {
     renderStyle() {
         return html`
             <style>
+                div#home {
+                    display: flex;
+                    align-items: center;
+                }
                 .getting-started {
                     display: inline-block;
                     border: 4px var(--main-bg-color) solid;
@@ -234,7 +238,7 @@ export default class CustomWelcome extends LitElement {
 
             ${this.renderStyle()}
 
-            <div class="container" style="margin-top:50px;margin-bottom:50px;">
+            <div class="container" style="margin: 50px 0;">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div align="center">
