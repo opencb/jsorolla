@@ -469,14 +469,6 @@ export default class CustomNavBar extends LitElement {
                                             </a>
                                         </li>
                                     </ul>
-                                </li>
-                                <li class="separator"></li>
-                                <li>
-                                    <a class="dropdown-button-wrapper" id="logoutButton" role="button" @click="${this.logout}" data-user-menu="logout">
-                                        <div class="dropdown-button-icon">
-                                            <i class="fa fa-sign-out-alt icon-padding" aria-hidden="true"></i>Log out
-                                        </div>
-                                    </a>
                                 </li>` : null}
                         </ul>
                     </div>
