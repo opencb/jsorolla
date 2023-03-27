@@ -338,8 +338,9 @@ class IvaApp extends LitElement {
                     Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
 
                     // We need to remove the params from the url
-                    currentUrl.searchParams.delete(opencgaSsoCookie);
-                    currentUrl.searchParams.delete("token");
+                    Array.from(currentUrl.searchParams.keys()).forEach(key => {
+                        currentUrl.searchParams.delete(key);
+                    });
 
                     // Stop process, as we are going to reload IVA without the token and session ID in the URL
                     window.location = currentUrl.href;
