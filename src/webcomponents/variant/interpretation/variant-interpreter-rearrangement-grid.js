@@ -496,6 +496,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 //     halign: "center"
                 // },
                 {
+                    id: "evidences",
+                    title: "Role in Cancer",
+                    field: "evidences",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantInterpreterGridFormatter.roleInCancerFormatter(row[0]?.evidences, index),
+                    halign: "center",
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER",
+                },
+                {
                     title: "Type<br><span class='help-block' style='margin: 0px'>SVCLASS</span>",
                     field: "type",
                     rowspan: 2,
