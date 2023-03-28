@@ -58,7 +58,7 @@ export default class CustomFooter extends LitElement {
                     flex-wrap: wrap;
                     align-items: center;
                     align-content: center;
-                    flex: 1;
+                    flex: 1 1 auto;
                 }
 
                 #footer-zetta{
