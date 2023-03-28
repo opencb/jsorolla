@@ -34,9 +34,7 @@ class VariantInterpreterQcOverview extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -63,14 +61,8 @@ class VariantInterpreterQcOverview extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
 
         this._config = this.getDefaultConfig();
     }
@@ -85,7 +77,11 @@ class VariantInterpreterQcOverview extends LitElement {
         }
 
         if (changedProperties.has("settings")) {
-            this._config = {...this.getDefaultConfig(), ...this.settings};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.settings,
+            };
+
             if (this.settings.tabs) {
                 this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.tabs);
             }
