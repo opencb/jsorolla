@@ -23,8 +23,7 @@ export default class FileQcAscatMetrics extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +47,7 @@ export default class FileQcAscatMetrics extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.ascatMetrics = null;
         this.config = this.getDefaultConfig();
     }
@@ -64,28 +63,34 @@ export default class FileQcAscatMetrics extends LitElement {
     }
 
     fileObserver() {
-        this.ascatMetrics = this.file.qualityControl.variant.ascatMetrics;
-        this.ascatMetrics.file = this.file.name;
+        this.ascatMetrics = {
+            ...this.file.qualityControl.variant.ascatMetrics,
+            file: this.file?.name || "-",
+        };
     }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.files().search({
+            const searchParams = {
                 format: "VCF",
                 sampleIds: this.sampleId,
                 softwareName: "ascat",
                 study: this.opencgaSession.study.fqn,
-            }).then(response => {
-                this.file = response.responses[0].results[0];
-            }).catch(error => {
-                console.error(error);
-            });
+            };
+            this.opencgaSession.opencgaClient.files()
+                .search(searchParams)
+                .then(response => {
+                    this.file = response.responses[0].results[0];
+                })
+                .catch(error => console.error(error));
         }
     }
 
     render() {
         if (!this.ascatMetrics) {
-            return html`<div>No Ascat metrics provided.</div>`;
+            return html`
+                <div>No Ascat metrics provided.</div>
+            `;
         }
 
         return html`
