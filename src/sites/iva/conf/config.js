@@ -203,17 +203,17 @@ const SUITE = {
     },
     landingPage: {
         company: {
-            logo: "img/opencb-logo.png",
-            title: "",
+            logo: {img: "img/opencb-logo.png", height: "60px", link: "https://github.com/opencb"},
+            title: "Unleash the power of genomic data",
             display: {
-                logoStyle: "margin: 32px 25px",
+                logoStyle: "",
                 logoClass: "",
-                titleStyle: "color: white;margin: 50px 20px",
+                titleStyle: "",
                 titleClass: "",
             }
         },
         login: {
-            logo: "img/iva.svg",
+            logo: {img: "img/iva.svg", height: "80px", link: ""},
             title: "Welcome back!",
             display: {
                 logoStyle: "margin-bottom: 32px;",
