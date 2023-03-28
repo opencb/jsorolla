@@ -1801,8 +1801,10 @@ Toggle Changes
 
 .hi-icon-wrap {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
     justify-content: space-evenly;
-    overflow: hidden;
 }
 
 /* valid for the wizard only (interpreter page) */
