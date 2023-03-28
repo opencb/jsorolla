@@ -291,7 +291,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 config: {
                     title: "Variants",
                     query: {
-                        sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
+                        sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
                     },
                     height: 120,
                 },
