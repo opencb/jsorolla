@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "../../visualization/split-genome-browser.js";
+import "../../commons/json-viewer.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
 
@@ -458,6 +459,26 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     .tracks="${genomeBrowserTracks}"
                                     .config="${genomeBrowserConfig}">
                                 </split-genome-browser>
+                            `,
+                        },
+                        {
+                            id: "json-view-variant1",
+                            name: "JSON Data Variant 1",
+                            render: (variants, active) => html`
+                                <json-viewer
+                                    .data="${variants[0]}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
+                        },
+                        {
+                            id: "json-view-variant2",
+                            name: "JSON Data Variant 2",
+                            render: (variants, active) => html`
+                                <json-viewer
+                                    .data="${variants[1]}"
+                                    .active="${active}">
+                                </json-viewer>
                             `,
                         },
                     ]
