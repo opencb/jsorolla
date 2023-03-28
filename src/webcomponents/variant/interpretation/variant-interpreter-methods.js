@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
+import "../../clinical/analysis/hrdetect-analysis.js";
 
 class VariantInterpreterMethods extends LitElement {
 
@@ -171,14 +172,19 @@ class VariantInterpreterMethods extends LitElement {
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 items.push({
-                    id: "",
-                    name: "Cancer Analysis",
+                    id: "hrdetect",
+                    name: "HRDetect",
                     render: (clinicalAnalysis, active, opencgaSession) => {
+                        const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
+
                         return html`
-                            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
-                                <div class="alert alert-warning" role="alert">
-                                    No automatic methods available for cancer analysis at this time.
-                                </div>
+                            <div class="col-md-8 col-md-offset-2">
+                                <tool-header title="HRDetect - ${probandId} (${somaticSample?.id})" class="bg-white"></tool-header>
+                                <hrdetect-analysis
+                                    .toolParams="${{query: {sample: somaticSample?.id}}}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .active="${active}">
+                                </hrdetect-analysis>
                             </div>
                         `;
                     },
