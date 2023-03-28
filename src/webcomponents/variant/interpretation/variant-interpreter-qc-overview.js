@@ -114,13 +114,17 @@ class VariantInterpreterQcOverview extends LitElement {
                 this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
             }
 
+            // Bam files related to somatic samples will be added first
             const bamFileIds = [];
-            for (const sample of this.clinicalAnalysis.proband.samples) {
-                const bamFile = sample.fileIds.find(fileId => fileId.endsWith(".bam"));
-                if (bamFile) {
-                    bamFileIds.push(bamFile);
-                }
-            }
+            this.clinicalAnalysis.proband.samples
+                .sort(sample => sample.somatic ? -1 : 1)
+                .forEach(sample => {
+                    const bamFile = sample.fileIds.find(fileId => fileId.endsWith(".bam"));
+                    if (bamFile) {
+                        bamFileIds.push(bamFile);
+                    }
+                });
+
             if (bamFileIds.length > 0) {
                 this.opencgaSession.opencgaClient.files().info(bamFileIds.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
@@ -323,18 +327,18 @@ class VariantInterpreterQcOverview extends LitElement {
 
                         <div id="${this._prefix}SamtoolsPlots" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Plots</h3>
-                            <div style="padding: 15px">
+                            <div class="row">
                                 <!-- Display Samtools plots for each BAM file -->
                                 ${this.bamFiles?.filter(file => file.qualityControl?.alignment?.samtoolsStats?.files?.length > 0).map(bamFile => html`
-                                    <div>
+                                    <div class="col-md-6">
                                         <h4>${bamFile.name} <span class="badge">${bamFile.qualityControl.alignment.samtoolsStats.files.length}</span></h4>
+                                        <file-preview
+                                            .fileIds="${bamFile.qualityControl.alignment.samtoolsStats.files}"
+                                            .active="${true}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{showFileSize: false}}">
+                                        </file-preview>
                                     </div>
-                                    <file-preview
-                                        .fileIds="${bamFile.qualityControl.alignment.samtoolsStats.files}"
-                                        .active="${true}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{showFileSize: false}}">
-                                    </file-preview>
                                 `)}
                             </div>
                         </div>
