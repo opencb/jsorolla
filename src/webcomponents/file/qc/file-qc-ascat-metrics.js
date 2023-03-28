@@ -88,7 +88,6 @@ export default class FileQcAscatMetrics extends LitElement {
             return html`<div>No Ascat metrics provided.</div>`;
         }
 
-        // Display ASCAT Stats and Plots
         return html`
             <div class="container" style="margin: 20px 10px">
                 <h3>ASCAT Metrics</h3>
@@ -96,15 +95,18 @@ export default class FileQcAscatMetrics extends LitElement {
                     .config="${this.config}"
                     .data="${{ascat: [this.ascatMetrics]}}">
                 </data-form>
-
                 ${this.ascatMetrics?.files?.length > 0 ? html`
                     <h3>ASCAT QC Plots</h3>
-                    <file-preview
-                        .fileIds=${this.ascatMetrics.files}
-                        .active="${true}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${{showFileSize: false}}">
-                    </file-preview>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <file-preview
+                                .fileIds=${this.ascatMetrics.files}
+                                .active="${true}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${{showFileSize: false}}">
+                            </file-preview>
+                        </div>
+                    </div>
                 ` : null
                 }
             </div>
