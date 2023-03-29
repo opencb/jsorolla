@@ -253,8 +253,11 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
                                     .config="${this._config.result.grid}"
-                                    .review="${true}">
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-rearrangement-grid>
                             ` : html`
                                 <variant-interpreter-grid
