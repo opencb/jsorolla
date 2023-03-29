@@ -826,6 +826,8 @@ class CaseSteinerReport extends LitElement {
                                     const gridConfig = {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
+                                        somatic: false,
+                                        variantTypes: ["BREAKEND"],
                                     };
 
                                     return filteredVariants.length > 0 ? html`
@@ -895,6 +897,8 @@ class CaseSteinerReport extends LitElement {
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["BREAKEND"],
                                     });
                                 },
                                 errorMessage: "No variants found in this category",
@@ -969,6 +973,8 @@ class CaseSteinerReport extends LitElement {
                                     return this.renderSomaticRearrangementVariantsGrid(filteredVariants, {
                                         ...(this.opencgaSession?.user?.configs?.IVA?.[this.gridTypes.rearrangements]?.grid || {}),
                                         ...defaultGridConfig,
+                                        somatic: true,
+                                        variantTypes: ["BREAKEND"],
                                     });
                                 },
                             }
