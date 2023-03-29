@@ -463,7 +463,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         },
                         {
                             id: "json-view-variant1",
-                            name: "JSON Data Variant 1",
+                            name: "Variant 1 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
                                     .data="${variants[0]}"
@@ -473,7 +473,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         },
                         {
                             id: "json-view-variant2",
-                            name: "JSON Data Variant 2",
+                            name: "Variant 2 JSON Data",
                             render: (variants, active) => html`
                                 <json-viewer
                                     .data="${variants[1]}"
