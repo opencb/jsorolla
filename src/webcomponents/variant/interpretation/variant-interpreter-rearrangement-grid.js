@@ -305,8 +305,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            // detailView: this._config.detailView,
+            // detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
