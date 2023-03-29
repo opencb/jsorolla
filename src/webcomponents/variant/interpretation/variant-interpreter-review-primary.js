@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-grid.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
 import "../../clinical/interpretation/clinical-interpretation-view.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
@@ -247,24 +248,34 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 <div class="col-md-12">
                     <div style="padding-top: 5px">
                         ${this.clinicalAnalysis?.interpretation ? html`
-                            <variant-interpreter-grid
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .clinicalVariants="${this.clinicalVariants}"
-                                .review="${true}"
-                                .config="${this._config.result.grid}"
-                                @selectrow="${this.onSelectVariant}"
-                                @updaterow="${this.onUpdateVariant}"
-                                @checkrow="${this.onCheckVariant}"
-                                @gridconfigsave="${this.onGridConfigSave}">
-                            </variant-interpreter-grid>
-                            <variant-interpreter-detail
-                                .opencgaSession="${this.opencgaSession}"
-                                .variant="${this.variant}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .config="${this._config.detail}">
-                            </variant-interpreter-detail>
+                            ${this._config.result?.grid?.isRearrangement ? html`
+                                <variant-interpreter-rearrangement-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .config="${this._config.result.grid}"
+                                    .review="${true}">
+                                </variant-interpreter-rearrangement-grid>
+                            ` : html`
+                                <variant-interpreter-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
+                                    .config="${this._config.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @gridconfigsave="${this.onGridConfigSave}">
+                                </variant-interpreter-grid>
+                                <variant-interpreter-detail
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${this.variant}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .config="${this._config.detail}">
+                                </variant-interpreter-detail>
+                            `}
                         ` : html`
                             <div class="alert alert-info">
                                 <i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.
@@ -272,20 +283,6 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="col-md-12">
-                    ${this.interpretationView ? html`
-                        <clinical-interpretation-view
-                            id="id"
-                            interpretation="${this.interpretationView}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .opencgaClient="${this.opencgaSession.opencgaClient}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .consequenceTypes="${this.consequenceTypes}"
-                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
-                        </clinical-interpretation-view>
-                    ` : null}
-                </div>
-            </div>
             </div>
 
             <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -347,7 +344,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     },
                     evidences: {
                         showSelectCheckbox: true
-                    }
+                    },
+                    isRearrangement: false,
                 }
             },
             detail: {
