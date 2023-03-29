@@ -904,7 +904,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 @sharelink="${this.onShare}">
             </opencb-grid-toolbar>
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
