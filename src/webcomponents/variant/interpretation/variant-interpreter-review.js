@@ -251,6 +251,7 @@ export default class VariantInterpreterReview extends LitElement {
                             const gridConfig = {
                                 somatic: true,
                                 isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
                             };
 
                             return html`
@@ -331,6 +332,7 @@ export default class VariantInterpreterReview extends LitElement {
                             const gridConfig = {
                                 somatic: false,
                                 isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
                             };
 
                             return html`
