@@ -547,8 +547,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => `
                         <div class="dropdown">
-                            <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                                <span class="caret"></span>
+                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <span>Actions</span>
+                                <span class="caret" style="margin-left: 5px"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
                                 <li>
