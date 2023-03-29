@@ -114,6 +114,11 @@ export default class VariantInterpreterReview extends LitElement {
                 name: "General Info",
                 active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
+                    const displayConfig = {
+                        titleVisible: false,
+                        width: 8,
+                        buttonsWidth: 8,
+                    };
                     return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
@@ -130,11 +135,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 .clinicalInterpretation="${clinicalAnalysis?.interpretation}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}"
-                                .displayConfig="${{
-                                    titleVisible: false,
-                                    width: 8,
-                                    buttonsWidth: 8,
-                                }}"
+                                .displayConfig="${displayConfig}"
                                 @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                             </clinical-interpretation-update>
                         </div>
