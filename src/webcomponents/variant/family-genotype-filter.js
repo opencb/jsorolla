@@ -24,8 +24,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,27 +48,9 @@ export default class FamilyGenotypeFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.modeOfInheritance = null;
-
-        // TODO This is configurable via constants
-        // if (application.appConfig === "opencb") {
-        //     this.modeOfInheritanceList = [
-        //         {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
-        //         {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
-        //         {id: "X_LINKED_DOMINANT", name: "X-linked Dominant"},
-        //         {id: "X_LINKED_RECESSIVE", name: "X-linked Recessive"},
-        //         {id: "Y_LINKED", name: "Y-linked"}
-        //     ];
-        // } else {
-        //     this.modeOfInheritanceList = [
-        //         {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
-        //         {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
-        //         {id: "Y_LINKED", name: "Y-linked"}
-        //     ];
-        // }
-
         this.modeOfInheritanceList = MODE_OF_INHERITANCE;
         this.modeSelectData = [];
 
@@ -92,14 +73,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.noGtSamples = [];
         // this.depthAll = true;
         this.errorState = false;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
