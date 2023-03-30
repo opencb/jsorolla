@@ -147,21 +147,42 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         // check if exist interpretations
         const hasInterpretations = hasReport && UtilsNew.isNotEmpty(reportInfo.interpretations);
         // check if contains all structures
-        const hasVariants = hasInterpretations && UtilsNew.isNotEmptyArray(reportInfo.interpretations.variants);
-
+        // const hasVariants = hasInterpretations && UtilsNew.isNotEmptyArray(reportInfo.interpretations.variants);
+        const hasVariantsKeys = hasInterpretations && (reportInfo.interpretations.variants !== undefined);
         switch (true) {
             // reportTest.interpretations.variants
-            case hasVariants:
+            case hasVariantsKeys:
                 this._variantInfo.id = this.variantReview.id;
                 const variantIndex = reportInfo.interpretations.variants?.findIndex(variant => variant.id === this._variantReview.id);
-                if (variantIndex) {
+                if (variantIndex > -1) {
                     reportInfo.interpretations.variants[variantIndex] = {...this._variantInfo};
                 } else {
-                    reportInfo.interpretations.variants.push(...this._variantInfo);
+                    reportInfo.interpretations.variants.push(this._variantInfo);
                 }
                 break;
             // reporTest.interpretations
             case hasInterpretations:
+                // TODO: Soon
+                const newVariant = {
+                    "id": "",
+                    "genId": "",
+                    "title": "",
+                    "variant": "",
+                    "evidence": "",
+                    "populationControl": "",
+                    "acmg": "",
+                    "diseaseAssociation": "",
+                    "recommendations": "",
+                    "others": "exomisers...",
+                    "_metadata": {
+                        "opencgaInterpretation": [
+                            {
+                                "idInterpretation": "",
+                                "filter": {}
+                            }
+                        ]
+                    }
+                };
                 console.log("Missing varints");
                 break;
             // reportTest
