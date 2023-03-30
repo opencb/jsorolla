@@ -48,7 +48,6 @@ export default class CustomFooter extends LitElement {
                     bottom: 0;
                     width: 100%;
                     min-height: 50px;
-                    margin-top: 2em;
                 }
 
                 .footer-section-wrapper,
@@ -58,7 +57,7 @@ export default class CustomFooter extends LitElement {
                     flex-wrap: wrap;
                     align-items: center;
                     align-content: center;
-                    flex: 1 1 auto;
+                    flex: 1;
                 }
 
                 #footer-zetta{

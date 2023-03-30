@@ -61,7 +61,7 @@ export default class CustomLanding extends LitElement {
                 .landing-wrapper > .landing-company {
                     background-color: var(--main-bg-color);
                     display: flex;
-                    flex-direction: column-reverse;
+                    flex-direction: column;
                     align-items: center;
                 }
 
@@ -69,13 +69,12 @@ export default class CustomLanding extends LitElement {
                     flex: 1;
                     display: flex;
                     justify-content: center;
-                    align-items: flex-end;
-                    margin: 2em;
+                    align-items: flex-start;
+                    margin: 1em;
                 }
 
                 .landing-wrapper > .landing-company > .landing-logo {
-                    margin-top: 0;
-                    align-items: center;
+                    justify-content: flex-start;
                 }
 
                 .landing-wrapper .landing-title {
@@ -83,7 +82,7 @@ export default class CustomLanding extends LitElement {
                     justify-content: center;
                     align-items: center;
                     text-align: center;
-                    font-size: 24px;
+                    font-size: 1.5em;
                     font-weight: 100;
                     letter-spacing: 8px;
                     text-transform: uppercase;
@@ -91,7 +90,6 @@ export default class CustomLanding extends LitElement {
 
                 .landing-wrapper > .landing-company > .landing-title {
                     color: #f2f4f6;
-                    margin-bottom: 0;
                 }
                 .landing-wrapper > .landing > .landing-title {
                     flex:0;
@@ -110,13 +108,13 @@ export default class CustomLanding extends LitElement {
                     display: flex;
                     justify-content: center;
                     align-items: flex-start;
-                    margin: 2em;
+                    margin: 1em;
                 }
 
                 .landing-wrapper > .landing > .landing-logo {
                     display: flex;
                     justify-content: center;
-                    align-items: center;
+                    align-items: flex-end;
                     margin-bottom: 0;
                 }
 

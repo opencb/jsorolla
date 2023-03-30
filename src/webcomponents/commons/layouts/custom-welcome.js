@@ -238,7 +238,7 @@ export default class CustomWelcome extends LitElement {
 
             ${this.renderStyle()}
 
-            <div class="container" style="margin: 50px 0;">
+            <div class="container" style="margin: 2em 0;">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div align="center">
