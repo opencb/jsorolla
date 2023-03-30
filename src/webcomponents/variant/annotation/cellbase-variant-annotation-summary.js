@@ -207,7 +207,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                             <div class="form-group">
                                 <label class="col-md-3 label-title">Id</label>
                                 <!-- <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=\${this.variantAnnotation.id}">\${this.variantAnnotation.id}</a></span> -->
-                                <span class="col-md-9">
+                                <span class="col-md-9 break-word">
                                     <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "ensembl_genome_browser", this.assembly)}">
                                     ${variantId}
                                     </a>
