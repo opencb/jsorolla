@@ -163,39 +163,40 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     generateResultsTemplate() {
         const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
             variant => variant?.status === "REPORTED");
-
-        const evidencesWithHgvs = variantsReported
-            .map(variant => {
-                const selectedEvidences = variant.evidences
-                    .filter(evidence => evidence.review.select);
-                const hgvs = variant.annotation.hgvs;
-                if (selectedEvidences.length > 0) {
-                    return {
-                        evidences: selectedEvidences,
-                        hgvs: hgvs
-                    };
-                }
-            })
-            .filter(variant => variant) // Removed undefined
-            .flatMap(variant => variant.evidences
-                .map(evidence => {
-                    const transcriptId = evidence.genomicFeature.transcriptId;
-                    const hgvsFound = variant.hgvs
-                        .find(hgvs => hgvs.startsWith(transcriptId));
-                    if (hgvsFound) {
+        if (UtilsNew.isNotEmptyArray(variantsReported)) {
+            const evidencesWithHgvs = variantsReported
+                .map(variant => {
+                    const selectedEvidences = variant.evidences
+                        .filter(evidence => evidence.review.select);
+                    const hgvs = variant.annotation.hgvs;
+                    if (selectedEvidences.length > 0) {
                         return {
-                            ...evidence,
-                            hgvs: hgvsFound
+                            evidences: selectedEvidences,
+                            hgvs: hgvs
                         };
                     }
-                }))
-            .filter(variant => variant); // Removed undefined
-        console.log("hgvs", evidencesWithHgvs);
-        const variantAcmg = evidencesWithHgvs.map(evidence => `<b>variante clasificada como ${evidence.classification.clinicalSignificance}` +
+                })
+                .filter(variant => variant) // Removed undefined
+                .flatMap(variant => variant.evidences
+                    .map(evidence => {
+                        const transcriptId = evidence.genomicFeature.transcriptId;
+                        const hgvsFound = variant.hgvs
+                            .find(hgvs => hgvs.startsWith(transcriptId));
+                        if (hgvsFound) {
+                            return {
+                                ...evidence,
+                                hgvs: hgvsFound
+                            };
+                        }
+                    }))
+                .filter(variant => variant); // Removed undefined
+            console.log("hgvs", evidencesWithHgvs);
+            const variantAcmg = evidencesWithHgvs.map(evidence => `<b>variante clasificada como ${evidence.classification.clinicalSignificance}` +
         ` en el gen ${evidence.genomicFeature.geneName}(${evidence.genomicFeature.transcriptId})</b>`).join("</br>");
-        const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.hgvs}</b></li>`).join("");
-        const results = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", "");
-        UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `<p>Template (Beta)</p> <hr> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
+            const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.hgvs}</b></li>`).join("");
+            const results = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", "");
+            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `<p>Template (Beta)</p> <hr> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
+        }
     }
 
     submitCaseComments() {

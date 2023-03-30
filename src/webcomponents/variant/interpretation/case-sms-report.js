@@ -117,8 +117,6 @@ class CaseSmsReport extends LitElement {
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
                 caseInterpretation: this.clinicalAnalysis?.interpretation,
-                // eslint-disable-next-line max-len
-                notes: "<ol><li><p>La información aquí contenida debe ser considerada como personal y estrictamente confidencial. El Consentimiento Informado para analizar esta muestra ha sido obtenido por el clínico remitente dentro de un proceso de Asesoramiento Genético adecuado. Los resultados e interpretaciones de este informe se emiten asumiendo que a) la muestra recibida por el laboratorio está correctamente identificada y b) las relaciones familiares y el diagnóstico clínico es tal y como se establece en la información que se adjunta a la muestra. El ADN sobrante este paciente, si lo hay, será conservado indefinidamente en este laboratorio a menos que se reciba una solicitud para su destrucción por parte del paciente o su representante legal. Este informe solo debe ser copiado en su integridad.</p></li><li><p>Se establecen como <strong>genes prioritarios</strong> aquellos que, a la vista de las evidencias científicas en el momento de emisión del informe, se considera que pueden ser responsable del fenotipo descrito en el paciente. Solo se mencionan las variantes clasificadas como patogénicas, posiblemente patogénicas y aquellas de significado clínico incierto que afecten a genes considerados prioritarios. El criterio aplicado en la interpretación de las variantes indetificadas es el recomendado por la ACMG Laboratory Quality Assurance Committee. Genet Med. 2015 May;17(5): 405-24. La nomenclatura utiizada para la descripción de las variantes identificadas es la recomendada por la Human Genome Variation Society (http://varnomen.hgvs.org).</p></li></ol><p><strong>Estadísticas de cobertura de la Muestra Analizada:</strong></p><p>Cobertura Media 489,4X</p><p>Unif. de Cobertura 97,8%</p><p>% Sec. 1X 100</p><p>% Sec. 10X 99,9</p><p>% Sec. 20X 99,7</p><p>% Sec. 50X 99,2</p>"
             };
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
@@ -665,7 +663,7 @@ class CaseSmsReport extends LitElement {
                     elements: [
                         titleElement("3. Study Description"),
                         {
-                            // title: "Study Reason",
+                            title: "Study Reason",
                             field: "study.reason",
                             defaultValue: "Testing"
                         },
@@ -695,7 +693,7 @@ class CaseSmsReport extends LitElement {
                     // title: "4. Methodology used",
                     elements: [
                         titleElement("4. Methodology used"),
-                        titleElement("4.1 Study Reason", "16"),
+                        // titleElement("4.1 Study Reason", "16"),
                         {
                             field: "methodology.description",
                             type: "rich-text",
