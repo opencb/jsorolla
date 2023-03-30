@@ -139,6 +139,17 @@ class VariantInterpreter extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+            if (UtilsNew.isEmpty(this.clinicalAnalysis?.interpretation?.attributes?.reportTest)) {
+                this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                        {attributes: UtilsNew.initClinicalAnalysisReport()}, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        console.log("successfully created reportTest", response);
+                    })
+                    .catch(response => {
+                        console.log("Couldn't create reportTest", response);
+                    });
+            }
         }
     }
 

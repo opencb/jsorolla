@@ -1067,4 +1067,110 @@ export default class UtilsNew {
         });
     }
 
+    // tmp for report
+    static initClinicalAnalysisReport() {
+        return {
+            "reportTest": {
+                "case_id_match": "",
+                "patient": {
+                    "name": "",
+                    "lastName": "",
+                    "birthDate": "",
+                    "age": "30",
+                    "cipa": ""
+                },
+                "clinicalAnalysis": {
+                    "applicant": {
+                        "name": "",
+                        "center": "",
+                        "unit": "",
+                        "address": "",
+                        "phone": "",
+                        "email": ""
+                    },
+                    "analysts": [],
+                    "laboratory": {
+                        "name": "",
+                        "responsible": "",
+                        "facultive": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "center": "",
+                        "unit": "",
+                        "address": "",
+                        "phone": "",
+                        "email": "",
+                        "validation": "",
+                        "date": ""
+                    },
+                    "numPetition": "",
+                    "numHistoricalClinical": ""
+                },
+                "report": {
+                    "title": "",
+                    "overview": "",
+                    "methodology": "",
+                    "result": "",
+                    "discussion": "",
+                    "notes": "",
+                    "disclaimer": "",
+                    "annex": [
+                        ""
+                    ]
+                },
+                "sample": {
+                    "type": "",
+                    "extractionDate": "",
+                    "reason": ""
+                },
+                "request": {
+                    "requestNumber": "",
+                    "requestDate": "",
+                    "requestingDoctor": {
+                        "name": "",
+                        "specialization": "",
+                        "hospitalName": "",
+                        "address": "",
+                        "city": "",
+                        "code": ""
+                    }
+                },
+                "study": {
+                    "reason": "",
+                    "project": "",
+                    "currentAnalysis": "",
+                    "genePriority": []
+                },
+                "methodology": {
+                    "description": ""
+                },
+                "mainResults": {
+                    "resultsSummary": "",
+                    "variantResult": "",
+                    "variantAnnotation": {},
+                    "notes": ""
+                },
+                "interpretations": {
+                    "intro": "",
+                    "_variantsKeys": [
+                        "variant",
+                        "evidence",
+                        "populationControl",
+                        "acmg",
+                        "diseaseAssociation",
+                        "recommendations",
+                        "others"
+                    ],
+                    "variants": []
+                },
+                "qcInfo": {},
+                "limitations": "",
+                "disclaimer": "",
+                "appendix": ""
+            }
+        };
+    }
+
 }
