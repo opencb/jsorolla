@@ -1109,10 +1109,10 @@ export default class VariantGridFormatter {
                     // Prepare the tooltip links
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
+                        if (!cosmicMap.has(trait.id)) {
+                            cosmicMap.set(trait.id, new Set());
+                        }
                         if (trait?.somaticInformation?.primaryHistology) {
-                            if (!cosmicMap.has(trait.id)) {
-                                cosmicMap.set(trait.id, new Set());
-                            }
                             cosmicMap.get(trait.id).add(trait.somaticInformation.primaryHistology);
                         }
                     });
