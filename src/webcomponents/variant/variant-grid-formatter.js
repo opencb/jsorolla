@@ -1118,7 +1118,7 @@ export default class VariantGridFormatter {
                     });
 
                     Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
-                        const histolotiesItems = Array.from(histologies.values())
+                        const histologiesItems = Array.from(histologies.values())
                             .filter(histology => histology && histology !== "null")
                             .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
                             .join("");
@@ -1129,7 +1129,7 @@ export default class VariantGridFormatter {
                                     <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
                                 </div>
                                 <div>
-                                    ${histolotiesItems}
+                                    ${histologiesItems}
                                 </div>
                             </div>
                         `;
