@@ -1117,21 +1117,23 @@ export default class VariantGridFormatter {
                         }
                     });
 
-                    for (const [traitId, histologies] of cosmicMap.entries()) {
+                    Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
+                        const histolotiesItems = Array.from(histologies.values())
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("");
+
                         tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
                                 </div>
                                 <div>
-                                    ${histologies?.size > 0 && Array.from(histologies.values())
-                            .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                            .join("")
-                        }
+                                    ${histolotiesItems}
                                 </div>
-                            </div>`;
-                    }
+                            </div>
+                        `;
+                    });
 
                     return `
                         <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
