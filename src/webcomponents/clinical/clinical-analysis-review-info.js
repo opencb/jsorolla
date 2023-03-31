@@ -448,6 +448,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 .clinicalAnalysis="${this._clinicalAnalysis}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .opencgaSession="${this.opencgaSession}"
+                @onCloseModal="${e => (this.openModalTest = {flag: false})}"
                 .displayConfig="${{buttonsVisible: false}}">
             </clinical-analysis-report-update>
         `;

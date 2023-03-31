@@ -45,7 +45,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     static get properties() {
         return {
             openModal: {
-                type: Boolean
+                type: Object
             },
             clinicalAnalysis: {
                 type: Object,
@@ -107,12 +107,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             }
         }
 
-
-        // * It just in case
         $(`#${this._prefix}EditReport`).on("hide.bs.modal", e => {
-            console.log("closed modal");
-            this.openModal = {flag: false};
             this.variantReview = {};
+            LitUtils.dispatchCustomEvent(this, "onCloseModal");
         });
     }
 
