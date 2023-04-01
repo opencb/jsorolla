@@ -536,21 +536,21 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 disabled: false
                             }
                         },
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
-                                        html`
-                                            <disease-panel-grid
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .diseasePanels="${data?.panels}">
-                                            </disease-panel-grid>
-                                        `:
-                                        "No panel data to display";
-                                }
-                            }
-                        },
+                        // {
+                        //     type: "custom",
+                        //     display: {
+                        //         render: data => {
+                        //             return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
+                        //                 html`
+                        //                     <disease-panel-grid
+                        //                         .opencgaSession="${this.opencgaSession}"
+                        //                         .diseasePanels="${data?.panels}">
+                        //                     </disease-panel-grid>
+                        //                 `:
+                        //                 "No panel data to display";
+                        //         }
+                        //     }
+                        // },
                         {
                             text: "Case Comments",
                             type: "title",
