@@ -85,6 +85,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             this._config = this.getDefaultConfig();
             // Generate Result as Template
             this.generateResultsTemplate();
+            this.generateMethodologyTemplate();
             this.requestUpdate();
         }
     }
@@ -163,6 +164,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     generateResultsTemplate() {
         const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
             variant => variant?.status === "REPORTED");
+
+        // tmp function for template
+        const isHomozygosity = variant => variant.alternate === variant.reference;
         if (UtilsNew.isNotEmptyArray(variantsReported)) {
             const evidencesWithHgvs = variantsReported
                 .map(variant => {
@@ -171,6 +175,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     const hgvs = variant.annotation.hgvs;
                     if (selectedEvidences.length > 0) {
                         return {
+                            id: variant.id,
+                            // zigosityType: isHomozygosity(variant) ? "Homocigosis" : "heterocigosis",
                             evidences: selectedEvidences,
                             hgvs: hgvs
                         };
@@ -182,20 +188,39 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         const transcriptId = evidence.genomicFeature.transcriptId;
                         const hgvsFound = variant.hgvs
                             .find(hgvs => hgvs.startsWith(transcriptId));
-                        if (hgvsFound) {
-                            return {
-                                ...evidence,
-                                hgvs: hgvsFound
-                            };
-                        }
+                        return {
+                            ...evidence,
+                            variantId: variant.id,
+                            // zigosityType: variant.zigosityType,
+                            hgvs: hgvsFound || transcriptId
+                        };
                     }))
                 .filter(variant => variant); // Removed undefined
             console.log("hgvs", evidencesWithHgvs);
-            const variantAcmg = evidencesWithHgvs.map(evidence => `<b>variante clasificada como ${evidence.classification.clinicalSignificance}` +
-        ` en el gen ${evidence.genomicFeature.geneName}(${evidence.genomicFeature.transcriptId})</b>`).join("</br>");
-            const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.hgvs}</b></li>`).join("");
+            const variantAcmg = evidencesWithHgvs.map(evidence => `<span>La variante <b>${evidence.variantId}</b> es clasificada como <b>${evidence.classification.clinicalSignificance}</b>` +
+        ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
+            const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");
             const results = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", "");
             UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `<p>Template (Beta)</p> <hr> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
+        }
+    }
+
+    generateMethodologyTemplate() {
+        const generateContent = (tag, content) => `<${tag}>${content}</${tag}><p style="color:red">Content here...</p>`;
+        const methodologyTemplate = [
+            generateContent("h2", "Source of the sample and type of sample"),
+            generateContent("h2", "Sequencing Kit"),
+            generateContent("h2", "Panels"),
+            generateContent("h2", "Technical Specifications"),
+            generateContent("h2", "Sequencing"),
+            generateContent("h2", "Analysis"),
+            generateContent("h2", "Molecular classification"),
+            generateContent("h2", "Validation with sanger and MLPA"),
+            generateContent("h2", "Limitaciones del estudio"),
+        ];
+        const methodology = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.methodology.description", "");
+        if (UtilsNew.isEmpty(methodology)) {
+            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.methodology.description", `${methodologyTemplate.join("<br>")}`);
         }
     }
 
@@ -490,12 +515,26 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 }
                             }
                         },
+                        // {
+                        //     text: "Case Panels",
+                        //     type: "title",
+                        //     display: {
+                        //         textStyle: "font-size:24px;font-weight: bold;",
+                        //     },
+                        // },
                         {
-                            text: "Case Panels",
+                            text: "Description",
                             type: "title",
                             display: {
                                 textStyle: "font-size:24px;font-weight: bold;",
                             },
+                        },
+                        {
+                            field: "interpretation.attributes.reportTest.interpretations.methodology.description",
+                            type: "rich-text",
+                            display: {
+                                disabled: false
+                            }
                         },
                         {
                             type: "custom",
