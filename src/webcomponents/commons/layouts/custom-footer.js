@@ -102,112 +102,109 @@ export default class CustomFooter extends LitElement {
                     text-decoration: none;
                     color: ${this.config.footer?.versions?.display?.textColor || html `var(--main-color-white)` };
                 }
-
             </style>
         `;
     }
 
     render() {
+        if (this.config?.footer?.custom) {
+            return html`${this.config.footer.custom}`;
+        }
+
         return html `
             ${this.renderStyle()}
 
             <div class="footer">
-                <!-- CUSTOM FOOTER -->
-                ${this.config?.footer?.custom ? html `
-                    ${this.config.footer?.custom}
-                ` : html `
-                    <!-- ZETTA FOOTER -->
-                    <div class="footer-section-wrapper" id="footer-zetta">
-                        <!-- Optional: Copyright -->
-                       <div class="footer-section" id="footer-zetta-copyright">
-                            ${this.config?.footer?.copyright ? html`
-                                ${this.config.footer?.copyright?.logos.map(logo => html `
-                                    <div class="footer-logo">
-                                        ${logo.link ? html `
-                                        <a href="${logo.link}" target="blank"><img src="${logo.img}" style="height: ${logo.height}"></a>
-                                    ` : html `
-                                        <img src="${logo.img}" style="height: ${logo.height}">
-                                    `}
-                                    </div>
-                                `)}
-                        ` : null}
-                       </div>
-                        <!-- Optional: Product -->
-                        <div class="footer-section" id="footer-zetta-product">
-                            ${this.config?.footer?.product?.logos ? html`
-                            ${this.config?.footer?.product.logos.map(logo => html `
-                                ${logo.img ? html `
-                                    <div class="footer-logo">
-                                        ${logo.link ? html `
-                                        <a href="${logo.link}" target="blank"><img src="${logo.img}" style="height: ${logo.height}"></a>
-                                    ` : html `
-                                        <img src="${logo.img}" style="height: ${logo.height}">
-                                    `}
-                                        ${this.host?.opencga ? html `
-                                        <sup style="margin-left: 0.9rem; color: white">${this.host?.opencga}</sup>
-                                    ` : html`
-                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                    `}
-                                    </div>
-                                `: null}
-                            `)}
-                        ` : null}
-                        </div>
-                        <!-- OpenCB versions -->
-                        <div class="footer-section" id="footer-zetta-versions">
-                            <!-- Optional: OpenCB versions logo -->
-                            ${this.config.footer?.versions?.logo ? html `
-                                <div class="footer-logo">
-                                    ${this.config.footer?.versions?.logo.link ? html `
-                                        <a href="${this.config.footer?.versions?.logo.link}" target="blank">
-                                            <img
-                                                src="${this.config.footer?.versions?.logo.img}"
-                                                style="height: ${this.config.footer?.versions?.logo.height}">
-                                        </a>
-                                    ` : html `
-                                        <img
-                                            src="${this.config.footer?.versions?.logo.img}"
-                                            style="height: ${this.config.footer?.versions?.logo.height}">
-                                    `}
-                                </div>
-                            ` : null}
-                            <!-- Optional: OpenCB text -->
-                            ${this.config.footer?.versions?.text ? html `
-                                <div class="footer-section-text">
-                                    ${this.config.footer?.versions?.link ? html `
-                                        <a href="${this.config.footer?.versions?.link}" target="blank">
-                                            ${this.config?.footer?.versions?.text}
-                                        </a>
-                                    ` : html `${this.config?.footer?.versions?.text}`}
-                                </div>
-                            ` : null}
-                            <!-- Fixed: OpenCB versions -->
-                            <div class="footer-section-versions">
-                                <div class="footer-item">
-                                    ${this.appName || "JSorolla"} <sup style="margin-left: 0.9rem">${this.version || this.config?.version}</sup>
-                                </div>
-                                <div class="footer-item">
-                                    OpenCGA
-                                    ${this.host?.opencga ? html `
-                                        <sup style="margin-left: 0.9rem">${this.host?.opencga}</sup>
-                                    ` : html`
-                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                    `}
-                                </div>
-                                ${this.host?.cellbase ? html `
-                                    <div class="footer-item">
-                                    CellBase
-                                    ${this.host?.cellbase ? html `
-                                        <sup style="margin-left: 0.9rem">${this.host?.cellbase}</sup>
-                                    ` : html`
-                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                    `}
-                                    </div>
-                                ` : null}
+                <div class="footer-section-wrapper" id="footer-zetta">
+                    <!-- Optional: Organisation -->
+                    <div class="footer-section" id="footer-zetta-copyright">
+                        ${this.config.footer?.organisation?.logo ? html`
+                            <div class="footer-logo">
+                                ${this.config.footer.organisation.logo.link ? html `
+                                    <a href="${this.config.footer.organisation.logo.link}" target="blank">
+                                        <img src="${this.config.footer.organisation.logo.img}" style="height: ${this.config.footer.organisation.logo.height}">
+                                    </a>
+                                ` : html `
+                                    <img src="${this.config.footer.organisation.logo.img}" style="height: ${this.config.footer.organisation.logo.height}">
+                                `}
                             </div>
+                        ` : null}
+                        ${this.config.footer?.organisation?.text ? html`
+                            <div class="${this.config.footer?.organisation?.textStyle}">
+                                ${this.config.footer.organisation.text};
+                            </div>
+                        ` : null}
+                    </div>
+
+                    <!-- Optional: Project -->
+                    <div class="footer-section" id="footer-zetta-product">
+                        ${this.config?.footer?.project?.logo?.img ? html`
+                            <div class="footer-logo">
+                                ${this.config.footer.project.logo.link ? html `
+                                    <a href="${this.config.footer.project.logo.link}" target="blank">
+                                        <img src="${this.config.footer.project.logo.img}" style="height: ${this.config.footer.project.logo.height}">
+                                    </a>
+                                ` : html `
+                                    <img src="${this.config.footer.project.logo.img}" style="height: ${this.config.footer.project.logo.height}">
+                                `}
+                                ${this.host?.opencga ? html `
+                                    <sup style="margin-left: 0.9rem; color: white">${this.host?.opencga}</sup>` : html`
+                                    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
+                                }
+                            </div>
+                        `: null}
+                    </div>
+
+                    <!-- OpenCB -->
+                    <div class="footer-section" id="footer-zetta-versions">
+                        <!-- Optional: OpenCB versions logo -->
+                        ${this.config.footer?.opencb?.logo ? html `
+                            <div class="footer-logo">
+                                ${this.config.footer?.opencb?.logo.link ? html `
+                                    <a href="${this.config.footer?.opencb?.logo.link}" target="blank">
+                                        <img src="${this.config.footer?.opencb?.logo.img}" style="height: ${this.config.footer?.opencb?.logo.height}">
+                                    </a>
+                                ` : html `
+                                    <img src="${this.config.footer?.opencb?.logo.img}" style="height: ${this.config.footer?.opencb?.logo.height}">
+                                `}
+                            </div>
+                        ` : null}
+                        <!-- Optional: OpenCB text -->
+                        ${this.config.footer?.opencb?.text ? html `
+                            <div class="footer-section-text">
+                                ${this.config.footer?.opencb?.link ? html `
+                                    <a href="${this.config.footer?.opencb?.link}" target="blank">
+                                        ${this.config?.footer?.opencb?.text}
+                                    </a>
+                                ` : html `${this.config?.footer?.opencb?.text}`}
+                            </div>
+                        ` : null}
+                        <!-- Fixed: OpenCB versions -->
+                        <div class="footer-section-versions">
+                            <div class="footer-item">
+                                <a href="https://github.com/opencb/jsorolla" target="blank" style="color: white">
+                                    ${this.appName || "IVA (JSorolla)"} <sup style="margin-left: 5px">${this.version || this.config?.version}</sup>
+                                </a>
+                            </div>
+                            ${this.host?.opencga ? html `
+                                <div class="footer-item">
+                                    <a href="https://github.com/opencb/opencga" target="blank" style="color: white">
+                                        OpenCGA <sup style="margin-left: 5px">${this.host?.opencga}</sup>
+                                    </a>
+                                </div>
+                            ` : html`OpenCGA <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
+                            }
+                            ${this.host?.cellbase ? html `
+                                <div class="footer-item">
+                                    <a href="https://github.com/opencb/cellbase" target="blank" style="color: white">
+                                        CellBase <sup style="margin-left: 5px">${this.host?.cellbase}</sup>
+                                    </a>
+                                </div>
+                            ` : html`CellBase <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
+                            }
                         </div>
                     </div>
-                ` }
+                </div>
             </div>
         `;
     }

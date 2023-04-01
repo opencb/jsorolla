@@ -277,19 +277,15 @@ const SUITE = {
         display: {
             backgroundColor: "",
         },
-        copyright: {
-            logos: [
-                {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
-            ],
+        organisation: {
+            logo: {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
             text: "",
             textStyle: "",
         },
-        product: {
-            logos: [
-                {img: "", height: "3rem", link: ""},
-            ],
+        project: {
+            logo: {img: "", height: "3rem", link: ""},
         },
-        versions: {
+        opencb: {
             display: {
                 textColor: "",
             },
