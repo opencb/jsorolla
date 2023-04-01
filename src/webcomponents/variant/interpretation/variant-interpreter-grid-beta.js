@@ -1787,6 +1787,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 .clinicalAnalysis="${this.clinicalAnalysis}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .opencgaSession="${this.opencgaSession}"
+                @onCloseModal="${e => (this.openModalTest = {flag: false})}"
                 .displayConfig="${{buttonsVisible: false}}">
             </clinical-analysis-report-update>
 
