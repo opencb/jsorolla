@@ -440,23 +440,23 @@ export class OpenCGAClient {
                                         //     throw new Error("Default study not found");
                                         // }
 
-                                        // Fetch the Disease Panels for each Study
-                                        // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
-                                        // const panelPromises = [];
-                                        // for (const study of studies) {
-                                        //     const promise = _this.panels().search({
-                                        //         study: study,
-                                        //         limit: 2000,
-                                        //         include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
-                                        //     });
-                                        //     panelPromises.push(promise);
-                                        // }
-                                        // const panelResponses = await Promise.all(panelPromises);
-                                        // for (let i = 0, t = 0; i < session.projects.length; i++) {
-                                        //     for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                        //         session.projects[i].studies[x].panels = panelResponses[t].getResults();
-                                        //     }
-                                        // }
+                                        Fetch the Disease Panels for each Study
+                                        _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
+                                        const panelPromises = [];
+                                        for (const study of studies) {
+                                            const promise = _this.panels().search({
+                                                study: study,
+                                                limit: 2000,
+                                                include: "id,name,stats,source,genes.id,genes.name,genes.modeOfInheritance,genes.confidence,regions.id"
+                                            });
+                                            panelPromises.push(promise);
+                                        }
+                                        const panelResponses = await Promise.all(panelPromises);
+                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
+                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
+                                                session.projects[i].studies[x].panels = panelResponses[t].getResults();
+                                            }
+                                        }
                                     }
                                     resolve(session);
                                 } catch (e) {
