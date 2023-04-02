@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
@@ -32,7 +32,8 @@ export default class VariantBrowserGrid extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -65,33 +66,26 @@ export default class VariantBrowserGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
 
         // Set colors
+        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        // this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        // this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     firstUpdated() {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
-        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
-        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -99,7 +93,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
-            this.propertyObserver();
+            this.queryObserver();
             // update config to add new columns by filters as sample
             this.configObserver();
             this.renderVariants();
@@ -113,11 +107,14 @@ export default class VariantBrowserGrid extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    propertyObserver() {
+    queryObserver() {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query?.sample) {
@@ -142,9 +139,10 @@ export default class VariantBrowserGrid extends LitElement {
             resource: "VARIANT",
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            showColumns: false,
             ...this._config.toolbar,
-            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            gridColumns: this._getDefaultColumns() // original column structure
+            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
+            // gridColumns: this._getDefaultColumns() // original column structure
         };
     }
 

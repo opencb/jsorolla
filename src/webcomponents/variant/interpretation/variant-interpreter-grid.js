@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
@@ -36,7 +36,7 @@ export default class VariantInterpreterGrid extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -66,27 +66,23 @@ export default class VariantInterpreterGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
-
-        // Keep the status of selected variants
-        this._rows = [];
         this.checkedVariants = new Map();
-        this.queriedVariants = {};
-        this.review = false;
 
         // Set colors
         // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
+
+        // Keep the status of selected variants
+        this._rows = [];
+        this.queriedVariants = {};
+        this.review = false;
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    // }
-
     firstUpdated() {
-        this.table = $("#" + this.gridId);
+        this.table = this.querySelector("#" + this.gridId);
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
@@ -97,36 +93,14 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
-
-        if (changedProperties.has("clinicalVariants")) {
-            this.renderVariants();
-        }
-
         if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-            // Config for the grid toolbar
-            // some columns have tooltips in title, we cannot used them for the dropdown
-            const defaultColumns = this._getDefaultColumns();
-            this.toolbarConfig = {
-                ...this._config,
-                ...this._config.toolbar, // it comes from external settings
-                resource: "CLINICAL_VARIANT",
-                columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
-                gridColumns: defaultColumns, // original column structure
-            };
+            this.configObserver();
             this.requestUpdate();
             this.renderVariants();
         }
@@ -171,6 +145,22 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             }
         }
+    }
+
+    configObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        this.toolbarConfig = {
+            resource: "CLINICAL_VARIANT",
+            showExport: true,
+            exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
+            // ...this._config,
+            ...this._config.toolbar, // it comes from external settings
+            showColumns: false,
+            // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
+            // gridColumns: defaultColumns, // original column structure
+        };
     }
 
     onColumnChange(e) {
@@ -1207,7 +1197,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
                     }
                 } else {
-                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
+                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic === this._config?.somatic);
                 }
 
                 _columns[0].splice(7, 0, {
