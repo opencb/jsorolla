@@ -219,11 +219,15 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         ];
         const methodology = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.methodology.description", "");
         if (UtilsNew.isEmpty(methodology)) {
-            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.methodology.description", `${methodologyTemplate.join("<br>")}`);
+            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.methodology.description", `${methodologyTemplate.join("<br>")}`);
         }
     }
 
-    submitCaseComments() {
+    submitCaseInfo() {
+        // Update methodology description
+        this.submitReportVariant();
+
+        // update case comments
         if (this.updateCaseComments?.added?.length > 0) {
             this.updateOrDeleteCaseComments(false);
             this.opencgaSession.opencgaClient.clinical()
@@ -245,8 +249,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 
     // ClinicalReport
     submitReportVariant() {
-
-        // const updateParams = FormUtils.getUpdateParams(this._clinicalAnalysis, this.updateCaseParams);
 
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
             this.opencgaSession.opencgaClient.clinical()
@@ -357,7 +359,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    onFieldChange(e, field) {
+    onFieldChangeOld(e, field) {
         const param = field || e.detail.param;
         if (param.includes("attributes")) {
             UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
@@ -395,20 +397,46 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     break;
             }
         }
-
+        this.requestUpdate();
     }
 
-    // onFieldChange(e, field) {
-    //     const param = field || e.detail.param;
-    //     this.updateCaseParams = FormUtils.getUpdatedFields(
-    //         this._clinicalAnalysis,
-    //         this.updateCaseParams,
-    //         param,
-    //         e.detail.value);
-    //     // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
-    //     // LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component, action: e.detail.action}, null);
-    //     this.requestUpdate();
-    // }
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+
+        if (param.includes("attributes")) {
+            // Copy all attributes
+            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
+            // Update the attribute field
+            UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
+        } else {
+            switch (param) {
+                case "report.date":
+                case "status.id":
+                case "report.signedBy":
+                    UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
+                    break;
+                case "report.discussion.text":
+                    const discussion = {
+                        text: e.detail.value,
+                        author: this.opencgaSession?.user?.id || "-",
+                        date: UtilsNew.getDatetime(),
+                    };
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "report.discussion", discussion);
+                    UtilsNew.setObjectValue(this.updateCaseParams, "report.discussion", discussion);
+                    break;
+            }
+        }
+        // this.clinicalAnalysis = {...e.detail.data};
+        // console.log("Case Update", this.clinicalAnalysis);
+        // this.updateCaseParams = FormUtils.getUpdatedFields(
+        //     this._clinicalAnalysis,
+        //     this.updateCaseParams,
+        //     param,
+        //     e.detail.value);
+        // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
+        // LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component, action: e.detail.action}, null);
+        this.requestUpdate();
+    }
 
     openModalReport(variantId) {
         const variantReview = this.clinicalAnalysis?.interpretation?.primaryFindings?.find(variant => variant.id === variantId);
@@ -438,7 +466,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         // By Sections
         switch (e.detail?.value) {
             case "caseInfo":
-                this.submitCaseComments();
+                this.submitCaseInfo();
                 break;
             case "reportVariant":
                 this.submitReportVariant();
@@ -529,7 +557,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             },
                         },
                         {
-                            field: "interpretation.attributes.reportTest.interpretations.methodology.description",
+                            field: "interpretation.attributes.reportTest.methodology.description",
                             type: "rich-text",
                             display: {
                                 disabled: false
