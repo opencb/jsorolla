@@ -153,22 +153,22 @@ export default class CustomLanding extends LitElement {
             <div class="landing-wrapper">
                 <div class="landing-company">
                     <!-- Landing logo section -->
-                    ${this.config?.landingPage?.company?.logo?.img ? html`
-                        <div class="landing-logo ${this.config.landingPage?.company?.display?.logoClass}"
-                             style="${this.config.landingPage?.company?.display?.logoStyle}">
-                            ${this.config?.landingPage?.company?.logo?.link ? html `
-                                <a href="${this.config?.landingPage?.company?.logo?.link}" target="_blank">
-                                    <img height="${this.config?.landingPage?.company?.logo?.height || "30px"}"
-                                         src="${this.config.landingPage?.company?.logo?.img}"/>
+                    ${this.config?.landingPage?.organisation?.logo?.img ? html`
+                        <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
+                             style="${this.config.landingPage?.organisation?.display?.logoStyle}">
+                            ${this.config?.landingPage?.organisation?.logo?.link ? html `
+                                <a href="${this.config?.landingPage?.organisation?.logo?.link}" target="_blank">
+                                    <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
+                                         src="${this.config.landingPage?.organisation?.logo?.img}"/>
                                 </a>
                             `: html `
-                                <img height="${this.config?.landingPage?.company?.logo?.height || "30px"}"
-                                     src="${this.config.landingPage?.company?.logo?.img}"/>
+                                <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
+                                     src="${this.config.landingPage?.organisation?.logo?.img}"/>
                             `}
                         </div>
-                        <div class="landing-title ${this.config.landingPage?.company?.display?.titleClass}"
-                             style="${this.config.landingPage?.company?.display?.titleStyle}">
-                            ${this.config.landingPage?.company?.title}
+                        <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
+                             style="${this.config.landingPage?.organisation?.display?.titleStyle}">
+                            ${this.config.landingPage?.organisation?.title}
                         </div>
                     ` : null}
                 </div>

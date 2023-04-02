@@ -185,7 +185,7 @@ export default class CustomSidebar extends LitElement {
                     </nav>
                     <div class="zetta-logo">
                         <div>
-                            <img height="24px" src="img/zetta-favicon.png"/>
+                            <img height="24px" src="${this.config.landingPage?.organisation?.logo?.img}"/>
                         </div>
                     </div>
                 </div>

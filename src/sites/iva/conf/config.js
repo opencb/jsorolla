@@ -202,7 +202,7 @@ const SUITE = {
         maxRemainingTime: 600000 // 10 min
     },
     landingPage: {
-        company: {
+        organisation: {
             logo: {img: "img/opencb-logo.png", height: "60px", link: "https://github.com/opencb"},
             title: "Unleash the power of genomic data",
             display: {
@@ -263,10 +263,10 @@ const SUITE = {
             titleStyle: "",
             titleClass: "",
         },
-        favicon: "img/zetta-favicon.png",
-        linkTitle: "About Zetta Genomics",
-        title: "About Zetta Genomics",
-        content: "",
+        favicon: "img/opencb-icon.png",
+        linkTitle: "About OpenCB",
+        title: "About OpenCB",
+        content: "WIP",
     },
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
