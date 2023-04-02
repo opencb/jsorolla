@@ -196,7 +196,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         };
                     }))
                 .filter(variant => variant); // Removed undefined
-            console.log("hgvs", evidencesWithHgvs);
             const variantAcmg = evidencesWithHgvs.map(evidence => `<span>La variante <b>${evidence.variantId}</b> es clasificada como <b>${evidence.classification.clinicalSignificance}</b>` +
         ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
             const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");

@@ -227,7 +227,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                     ${this._config?.showHgsvFromCT ? html`
                                     <span class="col-md-9">${UtilsNew.renderHTML(
                                         VariantGridFormatter.hgvsFormatter({annotation: this.variantAnnotation},
-                                            this._config?.filter).replace("<hr style='margin: 5px'>", ""))}</span>`: html`
+                                            this._config?.filter)?.replace("<hr style='margin: 5px'>", ""))}</span>`: html`
                                     <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br>`)}</span>
                                     `}
                                 </div>
