@@ -67,14 +67,71 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         this.variant = this.variant || {}; // Prevent undefined variant review
         this._variant = UtilsNew.objectClone(this.variant);
         this.updateParams = {};
-        this._config = this.getDefaultconfig();
+        this._config = {
+            ...this.getDefaultConfig,
+            ...this._config
+        };
+        this.updateCustomisation = [
+            params => {
+                // Note: we need to remove additional fields to the status and priority objects that are
+                // added by OpenCGA but not accepted in the update endpoint
+                if (params.status?.id) {
+                    // eslint-disable-next-line no-param-reassign
+                    params.status = {
+                        id: params.status.id,
+                    };
+                }
+                if (params.confidence) {
+                    // eslint-disable-next-line no-param-reassign
+                    params.confidence = {
+                        value: params.confidence.value,
+                        author: this.opencgaSession.user?.id || "-",
+                        date: UtilsNew.getDatetime(),
+                    };
+                }
+
+                if (params.discussion) {
+                    // eslint-disable-next-line no-param-reassign
+                    params.discussion = {
+                        text: params.discussion.text
+                    };
+                }
+
+                if (params.comments) {
+                    // eslint-disable-next-line no-param-reassign
+                    params.comments = params.comments
+                        .filter(comment => !comment.author)
+                        .map(comment => ({
+                            ...comment,
+                            tags: UtilsNew.commaSeparatedArray(comment.tags),
+                            author: this.opencgaSession?.user?.id || "-",
+                            date: UtilsNew.getDatetime(),
+                        }));
+                }
+            },
+        ];
     }
 
     modeObserver() {
         this._config = this.getDefaultconfig();
     }
 
-    onFieldChange(e) {
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        this.updateParams = FormUtils.getUpdatedFields(
+            this.variant,
+            this.updateParams,
+            param,
+            e.detail.value,
+            e.detail.action);
+
+        const updateParams = FormUtils.getUpdateParams(this._variant, this.updateParams, this.updateCustomisation);
+        LitUtils.dispatchCustomEvent(this, "variantChange", {...this._variant, ...updateParams}, {update: updateParams});
+        this.requestUpdate();
+    }
+
+    // This doesn't work
+    onFieldChangeOld(e) {
         const param = e.detail.param;
         switch (param) {
             case "status":
@@ -134,14 +191,14 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         //     },
         // }));
         LitUtils.dispatchCustomEvent(this, "variantChange", this.variant, {update: this.updateParams});
-
         this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.variant}"
+                .data="${this._variant}"
+                .originalData="${this.variant}"
                 .updateParams="${this.updateParams}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}">
@@ -203,22 +260,26 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             // maxNumItems: 5,
                             showEditItemListButton: false,
                             showDeleteItemListButton: false,
-                            view: comment => html`
+                            view: comment => {
+                                const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                    .join(", ") || "-";
+                                return html`
                                 <div style="margin-bottom:1rem;">
                                     <div style="display:flex;margin-bottom:0.5rem;">
                                         <div style="padding-right:1rem;">
                                             <i class="fas fa-comment-dots"></i>
                                         </div>
                                         <div style="font-weight:bold">
-                                            ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            ${comment.author || "No user"} - ${UtilsNew.dateFormatter(comment.date)}
                                         </div>
                                     </div>
                                     <div style="width:100%;">
                                         <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                        <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        <div class="text-muted">Tags: ${tags}</div>
                                     </div>
                                 </div>
-                            `,
+                            `;
+                            },
                         },
                         elements: [
                             {
