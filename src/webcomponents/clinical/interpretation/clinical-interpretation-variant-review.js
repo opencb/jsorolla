@@ -128,7 +128,12 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             e.detail.action);
 
         const updateParams = FormUtils.getUpdateParams(this._variant, this.updateParams, this.updateCustomisation);
-        LitUtils.dispatchCustomEvent(this, "variantChange", {...this._variant, ...updateParams}, {update: updateParams});
+        if (updateParams.comments && updateParams.comments.length > 0) {
+            const commentsOld = this._variant.comments.filter(comment => comment.author);
+            updateParams.comments = [...commentsOld, ...updateParams.comments];
+        }
+        const updateVariant = {...this._variant, ...updateParams};
+        LitUtils.dispatchCustomEvent(this, "variantChange", updateVariant, {update: updateParams});
         this.requestUpdate();
     }
 

@@ -245,6 +245,24 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         this.requestUpdate();
     }
 
+    onVariantReviewChange(e) {
+        this.variantReviewUpdate = e.detail.value;
+    }
+
+    onVariantReviewOk() {
+        // this.checkedVariants?.set(this.variantReview.id, this.variantReview);
+        // Dispatch variant update
+        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+            id: this.variantReviewUpdate.id,
+            row: this.variantReviewUpdate
+            // rows: Array.from(this.checkedVariants.values()),
+        });
+
+        // Clear selected variant to review
+        this.variantReview = null;
+        this.requestUpdate();
+    }
+
     renderModalReport() {
         const fullWidth = (window.innerWidth * 0.95) + "px";
         const fullHeight = window.innerHeight + "px";
