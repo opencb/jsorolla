@@ -93,7 +93,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 if (params.discussion) {
                     // eslint-disable-next-line no-param-reassign
                     params.discussion = {
-                        text: params.discussion.text
+                        text: params.discussion.text,
+                        author: this.opencgaSession?.user?.id || "-",
+                        date: UtilsNew.getDatetime(),
                     };
                 }
 
