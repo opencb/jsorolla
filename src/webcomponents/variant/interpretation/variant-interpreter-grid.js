@@ -1197,7 +1197,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
                     }
                 } else {
-                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
+                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic === this._config?.somatic);
                 }
 
                 _columns[0].splice(7, 0, {
