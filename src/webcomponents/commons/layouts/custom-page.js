@@ -40,7 +40,7 @@ export default class CustomPage extends LitElement {
                         ${this.page.title}
                     </h1>
                 ` : null}
-                ${this.page.display?.showTitleRule !== false ? html`<hr></hr>` : null}
+                ${this.page.display?.showTitle !== false ? html`<hr></hr>` : null}
                 <!-- Page content -->
                 ${this.page.content ? html`
                     <div>${UtilsNew.renderHTML(this.page.content)}</div>

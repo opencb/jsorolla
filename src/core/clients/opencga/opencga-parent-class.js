@@ -47,6 +47,10 @@ export default class OpenCGAParentClass {
                 _options["post-method"] = "form";
             }
         }
+
+        // Enable credentials
+        _options.includeCredentials = !!this._config.sso;
+
         // console.log(`OpenCGA client calling to ${url}`);
         // if the URL query fails we try with next host
         return this.restClient.call(url, _options, k);
@@ -77,6 +81,10 @@ export default class OpenCGAParentClass {
         if (action === "upload") {
             _options["post-method"] = "form";
         }
+
+        // Enable credentials
+        _options.includeCredentials = !!this._config.sso;
+
         return this.restClient.call(url, _options, k);
     }
 
@@ -96,6 +104,9 @@ export default class OpenCGAParentClass {
         url = this._addQueryParams(url, _params);
         // _options.data = _params.body;
         // _options.body = _params.body;
+
+        // Enable credentials
+        _options.includeCredentials = !!this._config.sso;
 
         return this.restClient.call(url, _options, k);
     }

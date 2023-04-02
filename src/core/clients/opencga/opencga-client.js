@@ -57,7 +57,8 @@ export class OpenCGAClient {
                 active: true,
                 prefix: ""
                 // expirationTime: ""
-            }
+            },
+            sso: false,
         };
     }
 
@@ -78,8 +79,12 @@ export class OpenCGAClient {
             }
         } catch (e) {
             console.error(e);
-            globalEvent("signingInError", {value: "Opencga host not available."});
-            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            // Josemi NOTE 20230324 Terrible hack to prevent displaying OpenCGA host not available error
+            // when iva starts, as the /meta/about is restricted when SSO is enabled
+            if (!this._config.sso) {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
         }
     }
 
@@ -309,9 +314,7 @@ export class OpenCGAClient {
         return Promise.resolve();
     }
 
-    /**
-     * Creates and return an anonymous session object, it is a sync function.
-     */
+    // Creates and return an anonymous session object, it is a sync function.
     createAnonymousSession() {
         const opencgaSession = {};
         opencgaSession.user = {
@@ -463,7 +466,7 @@ export class OpenCGAClient {
                                         }
 
 
-                                        // Fetch the Disease Panels for each Study
+                                        Fetch the Disease Panels for each Study
                                         _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
