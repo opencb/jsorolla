@@ -160,10 +160,11 @@ export default class ClinicalInterpretationView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
+                                    // const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
                                     return html`
                                             <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
-                                                <span>${isLocked(data)} Interpretation Info</span>
+                                                <!-- <span>\${isLocked(data)} Interpretation Info</span> -->
+                                                <span>Interpretation - ${data.id}</span>
                                             </div>
                                             <clinical-interpretation-summary
                                                 .interpretation="${data}">

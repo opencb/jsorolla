@@ -603,31 +603,36 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
+                                    const isLocked = data => data?.interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
                                     return html`
-                                    <h3 style="padding-bottom: 5px">Interpretations</h3>
-                                    <div class="pull-right">
-                                        <clinical-interpretation-update
-                                            .clinicalInterpretation="${data?.interpretation}"
-                                            .clinicalAnalysis="${data}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .mode="${"modal"}"
-                                            .displayConfig="${
-                                                {
-                                                    buttonClearText: "Cancel",
-                                                    buttonOkText: "Update",
-                                                    modalButtonClassName: "btn-default btn-sm",
-                                                    modalDisabled: this.clinicalAnalysis.locked
-                                                }
-                                            }"
-                                            @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
-                                        </clinical-interpretation-update>
+                                    <div style="display:flex;gap:12px">
+                                        <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
+                                            <span>${isLocked(data)} Interpretation</span>
+                                        </div>
+                                        <div>
+                                            <clinical-interpretation-update
+                                                .clinicalInterpretation="${data?.interpretation}"
+                                                .clinicalAnalysis="${data}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .mode="${"modal"}"
+                                                .displayConfig="${
+                                                    {
+                                                        buttonClearText: "Cancel",
+                                                        buttonOkText: "Update",
+                                                        modalButtonClassName: "btn-default btn-sm",
+                                                        modalDisabled: this.clinicalAnalysis.locked
+                                                    }
+                                                }"
+                                                @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
+                                            </clinical-interpretation-update>
+                                        </div>
                                     </div>
                                     <clinical-interpretation-view
                                         .clinicalAnalysis="${data}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @updaterow="${e => this.onUpdateVariant(e)}"
                                         @commentChange="${e => this.onInterpretationCommentChange(e)}">
-                                    </clinical-interpretation-view>
+                                        </clinical-interpretation-view>
                                 `;
                                 }
                             }
