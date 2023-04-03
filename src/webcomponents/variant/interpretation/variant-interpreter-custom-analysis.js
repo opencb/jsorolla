@@ -139,7 +139,10 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                         const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                         return html`
                             <div class="col-md-8 col-md-offset-2">
-                                <tool-header title="Mutational Signature - ${probandId} (${somaticSample?.id})" class="bg-white"></tool-header>
+                                <tool-header
+                                    title="Mutational Signature - ${probandId} (${somaticSample?.id})"
+                                    class="bg-white">
+                                </tool-header>
                                 <mutational-signature-analysis
                                     .toolParams="${{query: {sample: somaticSample?.id}}}"
                                     .opencgaSession="${opencgaSession}"
@@ -158,7 +161,10 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                         const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                         return html`
                             <div class="col-md-8 col-md-offset-2">
-                                <tool-header title="HRDetect - ${probandId} (${somaticSample?.id})" class="bg-white"></tool-header>
+                                <tool-header
+                                    title="HRDetect - ${probandId} (${somaticSample?.id})"
+                                    class="bg-white">
+                                </tool-header>
                                 <hrdetect-analysis
                                     .toolParams="${{query: {sample: somaticSample?.id}}}"
                                     .opencgaSession="${opencgaSession}"
