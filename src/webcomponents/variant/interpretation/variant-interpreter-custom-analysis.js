@@ -53,24 +53,15 @@ class VariantInterpreterCustomAnalysis extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
+            this._config = this.getDefaultConfig();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
 
-        if (changedProperties.has("settings")) {
-            this._config = this.getDefaultConfig();
-        }
-
         super.update(changedProperties);
-    }
-
-    opencgaSessionObserver() {
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
     }
 
     clinicalAnalysisIdObserver() {
@@ -79,6 +70,7 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                 .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
+                    this._config = this.getDefaultConfig();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -101,7 +93,7 @@ class VariantInterpreterCustomAnalysis extends LitElement {
             return html`
                 <div class="col-md-6 col-md-offset-3" style="padding: 20px">
                     <div class="alert alert-warning" role="alert">
-                        No Custom analysis available.
+                        No Custom Analysis available.
                     </div>
                 </div>
             `;
