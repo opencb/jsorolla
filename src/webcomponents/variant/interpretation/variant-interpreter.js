@@ -26,6 +26,7 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
+import "./variant-interpreter-custom-analysis.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -230,6 +231,13 @@ class VariantInterpreter extends LitElement {
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-chart-bar"
+                },
+                {
+                    id: "custom-analysis",
+                    title: "Custom Analysis",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-sync",
                 },
                 {
                     id: "methods",
@@ -469,6 +477,16 @@ class VariantInterpreter extends LitElement {
                                         .settings="${this._config.tools.find(tool => tool.id === "qc")}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["custom-analysis"] ? html`
+                                <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
+                                    <variant-interpreter-custom-analysis
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .settings="${this._config.tools.find(tool => tool.id === "custom-analysis")}">
+                                    </variant-interpreter-custom-analysis>
                                 </div>
                             ` : null}
 
