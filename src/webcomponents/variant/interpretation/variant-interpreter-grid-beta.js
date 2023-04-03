@@ -1422,10 +1422,14 @@ export default class VariantInterpreterGridBeta extends LitElement {
         if (this.checkedVariants) {
             // Generate a clone of the variant review to prevent changing original values
             this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
+            // this.requestUpdate();
+            // const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+            // UtilsNew.draggableModal(this, modalElm);
+            // $(`#${this._prefix}ReviewSampleModal`).modal("show");
+
+            // Open report tool modal
+            this.openModalTest = {flag: true};
             this.requestUpdate();
-            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-            UtilsNew.draggableModal(this, modalElm);
-            $(`#${this._prefix}ReviewSampleModal`).modal("show");
         }
     }
 
