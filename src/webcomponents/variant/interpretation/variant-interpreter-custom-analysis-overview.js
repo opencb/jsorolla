@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
 import "./variant-interpreter-custom-analysis-signature.js";
-import "./variant-interpreter-qc-hrdetect.js";
+import "./variant-interpreter-custom-analysis-hrdetect.js";
 
 class VariantInterpreterCustomAnalysisOverview extends LitElement {
 
@@ -99,11 +99,11 @@ class VariantInterpreterCustomAnalysisOverview extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="col-md-10">
                             <h3>HRDetect</h3>
-                            <variant-interpreter-qc-hrdetect
+                            <variant-interpreter-custom-analysis-hrdetect
                                 .opencgaSession=${opencgaSession}
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 ?active="${active}">
-                            </variant-interpreter-qc-hrdetect>
+                            </variant-interpreter-custom-analysis-hrdetect>
                         </div>
                     `,
                 });
