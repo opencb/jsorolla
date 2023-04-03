@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
-import "./variant-interpreter-qc-signature.js";
+import "./variant-interpreter-custom-analysis-signature.js";
 import "./variant-interpreter-qc-hrdetect.js";
 
 class VariantInterpreterCustomAnalysisOverview extends LitElement {
@@ -83,11 +83,11 @@ class VariantInterpreterCustomAnalysisOverview extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="col-md-10">
                             <h3>Mutational Signature</h3>
-                            <variant-interpreter-qc-signature
+                            <variant-interpreter-custom-analysis-signature
                                 .opencgaSession=${opencgaSession}
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 ?active="${active}">
-                            </variant-interpreter-qc-signature>
+                            </variant-interpreter-custom-analysis-signature>
                         </div>
                     `,
                 });

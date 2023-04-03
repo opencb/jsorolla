@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../clinical/analysis/mutational-signature-view.js";
 
-class VariantInterpreterQcSignature extends LitElement {
+class VariantInterpreterCustomAnalysisSignature extends LitElement {
 
     constructor() {
         super();
@@ -140,4 +140,4 @@ class VariantInterpreterQcSignature extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-signature", VariantInterpreterQcSignature);
+customElements.define("variant-interpreter-custom-analysis-signature", VariantInterpreterCustomAnalysisSignature);
