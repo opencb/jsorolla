@@ -744,16 +744,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 showAddItemListButton: false,
                                 showAddBatchListButton: false,
                                 view: variant => {
-                                    const variantkeys = [
-                                        "evidence",
-                                        "populationControl",
-                                        "acmg",
-                                        "diseaseAssociation",
-                                        "recommendations",
-                                        "others"
-                                    ];
-                                    // const variantContent = Object.keys(variant).map(key => variant[key]).join(" ");
-                                    const variantContent = variantkeys.map(key => variant[key]).join(" ");
+                                    const variantKeys = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations._variantsKeys", []);
+                                    const variantContent = `${variantKeys?.map(key => variant[key]).join(" ")}`;
                                     return html `
                                             <div style="display:flex">
                                                 <div style="font-size:20px;font-weight: bold;">
