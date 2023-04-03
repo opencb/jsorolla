@@ -193,26 +193,26 @@ export default class ClinicalInterpretationView extends LitElement {
                                 }
                             }
                         },
-                        {
-                            text: "Interpretation Comments",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => html `
-                                    <clinical-analysis-comment-editor
-                                        .id=${data?.id}
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .disabled="${!!this.clinicalAnalysis?.interpretation?.locked}"
-                                        .comments="${data?.comments}">
-                                    </clinical-analysis-comment-editor>
-                                `
-                            }
-                        },
+                        // {
+                        //     text: "Interpretation Comments",
+                        //     type: "title",
+                        //     display: {
+                        //         textStyle: "font-size:24px;font-weight: bold;",
+                        //     },
+                        // },
+                        // {
+                        //     type: "custom",
+                        //     display: {
+                        //         render: data => html `
+                        //             <clinical-analysis-comment-editor
+                        //                 .id=${data?.id}
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 .disabled="${!!this.clinicalAnalysis?.interpretation?.locked}"
+                        //                 .comments="${data?.comments}">
+                        //             </clinical-analysis-comment-editor>
+                        //         `
+                        //     }
+                        // },
                         {
                             text: "Variants",
                             type: "title",
