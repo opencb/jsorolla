@@ -54,7 +54,7 @@ class VariantInterpreterCustomAnalysis extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("settings")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -71,7 +71,6 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                 .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this._config = this.getDefaultConfig();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
