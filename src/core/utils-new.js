@@ -1068,6 +1068,17 @@ export default class UtilsNew {
     }
 
     // tmp for report
+    static titleElement(title, size = "24") {
+        return {
+            text: title,
+            type: "title",
+            display: {
+                textStyle: `font-size:${size}px;font-weight: bold;`,
+            },
+        };
+    }
+
+
     static initClinicalAnalysisReport() {
         return {
             "reportTest": {

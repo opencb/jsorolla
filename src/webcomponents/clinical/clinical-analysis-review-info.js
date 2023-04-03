@@ -542,20 +542,16 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 }
                             }
                         },
-                        // {
-                        //     text: "Case Panels",
-                        //     type: "title",
-                        //     display: {
-                        //         textStyle: "font-size:24px;font-weight: bold;",
-                        //     },
-                        // },
+                        UtilsNew.titleElement("Description"),
                         {
-                            text: "Description",
-                            type: "title",
+                            field: "description",
+                            type: "input-text",
                             display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
+                                rows: 3,
+                                disabled: false
+                            }
                         },
+                        UtilsNew.titleElement("Methodology Used"),
                         {
                             field: "interpretation.attributes.reportTest.methodology.description",
                             type: "rich-text",
@@ -578,13 +574,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         //         }
                         //     }
                         // },
-                        {
-                            text: "Case Comments",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
+                        UtilsNew.titleElement("Case Comments"),
                         {
                             type: "custom",
                             display: {
@@ -652,13 +642,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         buttonsVisible: true,
                     },
                     elements: [
-                        {
-                            text: "Reported Variants",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
+                        UtilsNew.titleElement("Reported Variants"),
                         {
                             type: "custom",
                             display: {
@@ -686,13 +670,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 }
                             }
                         },
-                        {
-                            text: "Results",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
+                        UtilsNew.titleElement("Results"),
                         {
                             field: "interpretation.attributes.reportTest.results",
                             type: "rich-text",
@@ -700,20 +678,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 disabled: false
                             }
                         },
-                        {
-                            text: "Interpretations",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            text: "Intro",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:20px;font-weight: bold;",
-                            },
-                        },
+                        UtilsNew.titleElement("Interpretations"),
+                        UtilsNew.titleElement("Intro"),
                         {
                             field: "interpretation.attributes.reportTest.interpretations.intro",
                             type: "rich-text",
@@ -721,20 +687,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 disabled: false
                             }
                         },
-                        {
-                            text: "Variants",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:20px;font-weight: bold;",
-                            },
-                        },
-                        // {
-                        //     field: "interpretation.attributes.reportTest.interpretation",
-                        //     type: "rich-text",
-                        //     display: {
-                        //         disabled: false
-                        //     }
-                        // },
+                        UtilsNew.titleElement("Variants"),
                         {
                             field: "interpretation.attributes.reportTest.interpretations.variants",
                             type: "object-list",
@@ -775,13 +728,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         buttonsVisible: true
                     },
                     elements: [
-                        {
-                            text: "Final Summary",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
+                        UtilsNew.titleElement("Final Summary"),
                         {
                             title: "Case Status",
                             field: "status.id",
@@ -796,7 +743,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             display: {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
-
                             },
                         },
                         {
