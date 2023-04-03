@@ -123,8 +123,10 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     variantReviewObserver() {
         if (UtilsNew.isNotEmpty(this._clinicalAnalysis)) {
             this._variantReview = UtilsNew.objectClone(this.variantReview);
+            debugger;
             this._reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
             this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant.id === this.variantReview.id) || {};
+            UtilsNew.setObjectValue(this._variantInfo, "variant", this._variantReview?.discussion?.text || "");
             this._config = this.getDefaultConfig();
             this.requestUpdate();
         }
@@ -519,19 +521,31 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             sections: [
                 {
                     id: "variantReport",
-                    title: "Variant",
+                    title: "Variant Discussion",
                     display: {
                         titleStyle: "display:none",
                         buttonsVisible: true,
                     },
                     elements: [
+                        // {
+                        //     field: "variant",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         preview: true,
+                        //     }
+                        // },
                         {
-                            field: "variant",
-                            type: "rich-text",
+                            type: "custom",
                             display: {
-                                preview: false,
+                                render: () => {
+                                    return html `
+                                        <rich-text-editor
+                                            .data="${this._variantInfo.variant}"
+                                            .config="${{preview: true}}">
+                                        </rich-text-editor>`;
+                                }
                             }
-                        },
+                        }
                     ]
                 },
                 {
