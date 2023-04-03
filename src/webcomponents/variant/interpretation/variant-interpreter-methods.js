@@ -172,19 +172,14 @@ class VariantInterpreterMethods extends LitElement {
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 items.push({
-                    id: "hrdetect",
-                    name: "HRDetect",
+                    id: "",
+                    name: "Cancer Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
-                        const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
-
                         return html`
-                            <div class="col-md-8 col-md-offset-2">
-                                <tool-header title="HRDetect - ${probandId} (${somaticSample?.id})" class="bg-white"></tool-header>
-                                <hrdetect-analysis
-                                    .toolParams="${{query: {sample: somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .active="${active}">
-                                </hrdetect-analysis>
+                            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                                <div class="alert alert-warning" role="alert">
+                                    No automatic methods available for cancer analysis at this time.
+                                </div>
                             </div>
                         `;
                     },
