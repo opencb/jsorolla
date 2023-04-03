@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
+import "./variant-interpreter-custom-analysis-overview.js";
 import "../../clinical/analysis/hrdetect-analysis.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 
@@ -120,15 +121,20 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                     id: "overview",
                     active: true,
                     name: "Overview",
-                    render: () => {
+                    render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-8 col-md-offset-2">
-                                Analysis overview
+                                <tool-header title="Analysis Overview" class="bg-white"></tool-header>
+                                <variant-interpreter-custom-analysis-overview
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .settings="${this.settings}"
+                                    .active="${active}">
+                                </variant-interpreter-custom-analysis-overview>
                             </div>
                         `;
                     },
                 });
-
             }
 
             if (visibleTabs.has("mutational-signature")) {
