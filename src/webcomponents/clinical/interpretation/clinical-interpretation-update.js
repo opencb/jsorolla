@@ -122,7 +122,7 @@ export default class ClinicalInterpretationUpdate extends LitElement {
     getDefaultConfig() {
         return {
             id: "clinical-interpretation",
-            title: "Edit Interpretation",
+            title: "Edit Interpretation " + this.clinicalInterpretation.id,
             // icon: "fas fa-edit",
             type: this.mode,
             description: "Update an interpretation",
