@@ -36,7 +36,8 @@ export default class PdfUtils {
     }
 
     static htmlToPdf = contentHtml => {
-        return htmlToPdfmake(contentHtml, {removeExtraBlanks: true, ignoreStyles: ["font-family"]});
+
+        return htmlToPdfmake(contentHtml?contentHtml:"", {removeExtraBlanks: true, ignoreStyles: ["font-family"]});
     }
 
 }

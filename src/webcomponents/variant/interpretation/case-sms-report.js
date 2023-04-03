@@ -314,6 +314,8 @@ class CaseSmsReport extends LitElement {
                                 "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
                             style: "small"
                         },
+
+                        PdfUtils.htmlToPdf(this._reportData.methodology.description),
                         PdfUtils.fieldText("Project: ", this._reportData.study.project),
                         PdfUtils.fieldText("Current Analysis: ", this._reportData.study.currentAnalysis),
                         PdfUtils.fieldText("Gene Priority: ", this._reportData.study.genePriority),
@@ -329,10 +331,6 @@ class CaseSmsReport extends LitElement {
                         {
                             text: "4.1. Study Reason \n\n",
                             style: "subheader"
-                        },
-                        {
-                            text: this._reportData.methodology.description,
-                            alignment: "justify"
                         },
                     ],
                     margin: [0, 10]
@@ -436,8 +434,8 @@ class CaseSmsReport extends LitElement {
                             style: "header"
                         },
                         {
-                            ...PdfUtils.htmlToPdf(this._reportData.appendix),
-                            alignment: "justify",
+                            ...PdfUtils.htmlToPdf(this._reportData?.appendix || ""),
+                            // alignment: "justify", // if the content is empty this will crash
                         }
                     ],
                     margin: [0, 10]
