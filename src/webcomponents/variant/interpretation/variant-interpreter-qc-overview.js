@@ -21,8 +21,6 @@ import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
 import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
-import "./variant-interpreter-qc-signature.js";
-import "./variant-interpreter-qc-hrdetect.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "../../sample/sample-variant-stats-view.js";
 import "../../file/file-preview.js";
@@ -202,14 +200,6 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Summary"
                             },
                             {
-                                id: "MutationalSignature",
-                                title: "Mutational Signature",
-                            },
-                            {
-                                id: "HRDetect",
-                                title: "HRDetect",
-                            },
-                            {
                                 id: "VariantStats",
                                 title: "Variant Stats"
                             },
@@ -364,23 +354,6 @@ class VariantInterpreterQcOverview extends LitElement {
                             </file-qc-ascat-metrics>
                         </div>
 
-                        <div id="${this._prefix}MutationalSignature" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Mutational Signature</h3>
-                            <variant-interpreter-qc-signature
-                                .opencgaSession=${this.opencgaSession}
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                ?active="${this.active}">
-                            </variant-interpreter-qc-signature>
-                        </div>
-
-                        <div id="${this._prefix}HRDetect" role="tabpanel" class="tab-pane content-tab">
-                            <h3>HRDetect</h3>
-                            <variant-interpreter-qc-hrdetect
-                                .opencgaSession=${this.opencgaSession}
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                ?active="${this.active}">
-                            </variant-interpreter-qc-hrdetect>
-                        </div>
                         <!--
                         <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Gene Coverage Stats</h3>
