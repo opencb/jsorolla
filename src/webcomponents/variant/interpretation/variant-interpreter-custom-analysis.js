@@ -112,7 +112,6 @@ class VariantInterpreterCustomAnalysis extends LitElement {
         const items = [];
 
         if (this.clinicalAnalysis) {
-            const probandId = this.clinicalAnalysis.proband.id;
             const visibleTabs = new Set((this.settings?.tabs || []).map(tab => tab.id));
 
             if (visibleTabs.has("overview")) {
@@ -141,6 +140,7 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                     id: "mutational-signature",
                     name: "Mutational Signature",
                     render: (clinicalAnalysis, active, opencgaSession) => {
+                        const probandId = clinicalAnalysis.proband.id;
                         const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                         return html`
                             <div class="col-md-8 col-md-offset-2">
@@ -163,6 +163,7 @@ class VariantInterpreterCustomAnalysis extends LitElement {
                     id: "hrdetect",
                     name: "HRDetect",
                     render: (clinicalAnalysis, active, opencgaSession) => {
+                        const probandId = clinicalAnalysis.proband.id;
                         const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
                         return html`
                             <div class="col-md-8 col-md-offset-2">
