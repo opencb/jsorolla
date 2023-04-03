@@ -52,7 +52,7 @@ class VariantInterpreterCustomAnalysisOverview extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("settings")) {
             this._config = this.getDefaultConfig();
         }
 
