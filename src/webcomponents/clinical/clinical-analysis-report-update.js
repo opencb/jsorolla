@@ -446,7 +446,11 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     <div class="modal-content" style="height: ${fullHeight};  overflow-y:scroll;">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <div style="display:flex;gap:12px">
                             <h4 class="modal-title" id="myModalLabel">Variant Review Report</h4>
+                            <span class="label label-info">Status: ${this._variantReview.status}</span>
+                            <span class="label label-info">Confidence: ${this._variantReview.confidence.value}</span>
+                            </div>
                         </div>
                         <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
                             <div>
@@ -539,9 +543,10 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             display: {
                                 render: () => {
                                     return html `
+                                    <p class="text-muted"># Discussion provided from review variant (Not editable here, please use the summary tab at the bottom of the variant grid)</p>
                                         <rich-text-editor
                                             .data="${this._variantInfo.variant}"
-                                            .config="${{preview: true}}">
+                                            .config="${{preview: true, disabled: true}}">
                                         </rich-text-editor>`;
                                 }
                             }
