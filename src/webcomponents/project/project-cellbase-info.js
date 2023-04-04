@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import DetailTabs from "../commons/view/detail-tabs.js";
 
 export default class ProjectCellbaseInfo extends LitElement {
 
@@ -113,12 +114,62 @@ export default class ProjectCellbaseInfo extends LitElement {
         `;
     }
 
+    #renderProjectsCellBaseInfo(projects) {
+        const sections = [];
+        for (const project of projects) {
+            // const section = {
+            //     title: project.name,
+            //     display: {
+            //         titleHeader: "h4",
+            //         titleStyle: "margin: 5px 5px",
+            //     },
+            //     elements: [
+            //         {
+            //             type: "text",
+            //             text: "Select the page size",
+            //             display: {
+            //                 containerStyle: "margin: 5px 5px 5px 0px"
+            //             }
+            //         },
+            //     ]
+            // };
+            const section = {
+                id: project.id,
+                name: project.name,
+                // icon: "fas fa-notes-medical",
+                // active: true,
+                render: () => {
+                    return html`
+                        ${this.#renderCellBaseInfo(project.cellbase)}
+                    `;
+                }
+            };
+            sections.push(section);
+        }
+
+        let x = {
+            id: "interpreter-grid-config",
+            title: "aaaa",
+            icon: "fas fa-user-md",
+            // display: {
+            //     width: 10,
+            //     titleVisible: false,
+            //     titleAlign: "left",
+            //     titleWidth: 4,
+            //     defaultLayout: "vertical",
+            //     buttonsVisible: false
+            // },
+            items: sections
+        };
+        return x;
+    }
+
     render() {
         if (this.projects?.length === 0) {
             return html`<h4>No valid data found</h4>`;
         }
 
-        if (this.projects?.length === 1) {
+        if (this.projects?.length === 2) {
             return html`
                 <div>
                     <h4>Project '${this.projects[0].id}'</h4>
@@ -130,10 +181,15 @@ export default class ProjectCellbaseInfo extends LitElement {
         }
 
         return html`
-            ${this.projects.map(project => {
-                return html`<div>${project.id}</div>`;
-            })
-            }
+            <div class="row">
+                <detail-tabs
+                    .data="${{}}"
+                    .mode="${DetailTabs.PILLS_VERTICAL_MODE}"
+                    .config="${this.#renderProjectsCellBaseInfo(this.opencgaSession.projects)}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
+
         `;
     }
 
