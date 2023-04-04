@@ -96,18 +96,16 @@ export default class ProjectCellbaseInfo extends LitElement {
                         </div>
                     </div>
                     <div style="margin: 20px 10px">
-                        ${cellbaseConfig.sources.map(source => {
-                            return html`
-                                <div class="col-md-12">
-                                    <div class="col-md-2">
-                                        <label>${source.name}:</label>
-                                    </div>
-                                    <div class="col-md-3">
-                                        ${source.version || source.date}
-                                    </div>
+                        ${cellbaseConfig.sources.map(source => html`
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <label>${source.name}:</label>
                                 </div>
-                            `;
-                        })}
+                                <div class="col-md-3">
+                                    ${source.version || source.date}
+                                </div>
+                            </div>
+                        `)}
                     </div>
                 </div>
             </div>
@@ -149,7 +147,7 @@ export default class ProjectCellbaseInfo extends LitElement {
             sections.push(section);
         }
 
-        let x = {
+        const x = {
             id: "interpreter-grid-config",
             title: "aaaa",
             icon: "fas fa-user-md",
