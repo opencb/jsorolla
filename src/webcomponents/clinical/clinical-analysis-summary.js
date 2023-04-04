@@ -184,6 +184,34 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             </span>
                                         `,
                             }
+                        },
+                        {
+                            title: "Report",
+                            field: "interpretation.attributes.reportTest",
+                            type: "custom",
+                            display: {
+                                render: report => {
+                                    const generateUrl = file => {
+                                        return {
+                                            name: file,
+                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
+                                        };
+                                    };
+                                    if (report?.report_files && report?.report_files.length > 0) {
+                                        const urlPdfs = report.report_files.map(report => generateUrl(report.fileName));
+                                        return urlPdfs.map(report => html`
+                                            <div>
+                                                <span style="margin-right: 10px">${report.name}</span>
+                                                    <a href="${report.url}" >
+                                                        <i class="fas fa-download icon-padding"></i>
+                                                    </a>
+                                                </div>`);
+                                    } else {
+                                        return html `No files uploaded yet!`;
+                                    }
+
+                                }
+                            }
                         }
                     ]
                 },
