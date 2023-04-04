@@ -273,40 +273,40 @@ class CaseSmsReport extends LitElement {
         const docDefinition = {
             content: [
                 PdfUtils.titleText(
-                    "GENOMIC REPORT", {
+                    "INFORME GENÉTICO", {
                         bold: true,
                         alignment: "center"
                     }),
                 {
                     columns: [
                         [
-                            PdfUtils.headerText("1. Patient Personal Details\n"),
+                            PdfUtils.headerText("1. Datos Personales del Paciente\n"),
                             {
                                 table: {
                                     widths: [230],
                                     body: [
-                                        [PdfUtils.fieldText("Name: ", this._reportData.patient.name)],
-                                        [PdfUtils.fieldText("Last Name: ", this._reportData.patient.lastName)],
-                                        [PdfUtils.fieldText("Birth Date: ", UtilsNew.dateFormatter(this._reportData.patient.birthDate))],
-                                        [PdfUtils.fieldText("Age: ", this._reportData.patient.age)],
-                                        [PdfUtils.fieldText("CIPA: ", this._reportData.patient.cipa)],
-                                        [PdfUtils.fieldText("Sample Type: ", this._reportData.sample.type)],
-                                        [PdfUtils.fieldText("Extration Date: ", this._reportData.sample.extractionDate)],
-                                        [PdfUtils.fieldText("Reason: ", this._reportData.sample.reason)]
+                                        [PdfUtils.fieldText("Nombre: ", this._reportData.patient.name)],
+                                        [PdfUtils.fieldText("Apellidos: ", this._reportData.patient.lastName)],
+                                        [PdfUtils.fieldText("Fecha Nacimiento: ", UtilsNew.dateFormatter(this._reportData.patient.birthDate))],
+                                        [PdfUtils.fieldText("Edad: ", this._reportData.patient.age)],
+                                        [PdfUtils.fieldText("Código Sistema Salud: ", this._reportData.patient.cipa)],
+                                        [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.sample.type)],
+                                        [PdfUtils.fieldText("Fecha de Extracción: ", this._reportData.sample.extractionDate)],
+                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.sample.reason)]
                                     ]
                                 },
                                 layout: "headerVerticalBlueLine"
                             },
                         ],
                         [
-                            PdfUtils.headerText("2. Patient Personal Details\n"),
+                            PdfUtils.headerText("2. Datos Personales del Paciente\n"),
                             {
                                 table: {
                                     widths: [230],
                                     body: [
-                                        [PdfUtils.fieldText("N. Request: ", this._reportData.request.requestNumber)],
-                                        [PdfUtils.fieldText("Request Date: ", UtilsNew.dateFormatter(this._reportData.request.requestDate))],
-                                        [PdfUtils.fieldText("Dr/Dra: ", ["Octavia Mountain\n", "Nephrology\n", "Hosp. Gen. Sample\n", "61 Washington Parkway\n", "34000\n"])],
+                                        [PdfUtils.fieldText("N. Petición: ", this._reportData.request.requestNumber)],
+                                        [PdfUtils.fieldText("Fecha de Petición: ", UtilsNew.dateFormatter(this._reportData.request.requestDate))],
+                                        [PdfUtils.fieldText("Dr/Dra: ", ["nombre_doctor\n", "Unidad\n", "Nombre del hopital\n", "direction del hopital\n", "CP del hospital\n"])],
                                     ]
                                 },
                                 layout: "headerVerticalBlueLine"
@@ -317,23 +317,23 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     stack: [
-                        PdfUtils.headerText("3. Study Description\n\n"),
+                        PdfUtils.headerText("3. Descripción del Estudio\n\n"),
                         // {
                         //     text:
                         //         "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
                         //     style: "small"
                         // },
-                        PdfUtils.fieldText("Study reason: ", this.clinicalAnalysis.description),
-                        PdfUtils.fieldText("Project: ", this._reportData.study.project),
-                        PdfUtils.fieldText("Current Analysis: ", this._reportData.study.currentAnalysis),
-                        PdfUtils.fieldText("Gene Priority: ", this._reportData.study.genePriority),
+                        PdfUtils.fieldText("Razón del Estudio: ", this.clinicalAnalysis.description),
+                        PdfUtils.fieldText("Projecto: ", this._reportData.study.project),
+                        PdfUtils.fieldText("Análisis: ", this._reportData.study.currentAnalysis),
+                        PdfUtils.fieldText("Genes Prioritarios: ", this._reportData.study.genePriority),
                     ],
                     margin: [0, 10]
                 },
                 {
                     stack: [
                         {
-                            text: "4. Methodoly used\n\n",
+                            text: "4. Metodologia Usada\n\n",
                             style: "header"
                         },
                         PdfUtils.htmlToPdf(this._reportData.methodology.description?.replaceAll("h2", "b")),
@@ -345,12 +345,12 @@ class CaseSmsReport extends LitElement {
                 {
                     stack: [
                         {
-                            text: "5. Results",
+                            text: "5. Resultados",
                             style: "header",
                             margin: [0, 10]
                         },
                         {
-                            text: "No reported variants to display (table)\n\n"
+                            text: "No se than encontrado variants para mostrar (tabla)\n\n"
                         },
                         PdfUtils.htmlToPdf(this._reportData.results)
                     ],
@@ -421,23 +421,22 @@ class CaseSmsReport extends LitElement {
                 {
                     stack: [
                         {
-                            text: "6. Interpretation results\n\n",
+                            text: "6. Interpretación de Resultados\n\n",
                             style: "header"
                         },
                         PdfUtils.htmlToPdf(this._reportData.interpretation),
                     ],
                     margin: [0, 10]
                 },
-
                 {
-                    text: "7. Notes\n\n",
+                    text: "7. Notas\n\n",
                     style: "header"
                 },
                 PdfUtils.htmlToPdf(this._reportData.notes),
                 {
                     stack: [
                         {
-                            text: "Appendix\n\n",
+                            text: "Apéndice\n\n",
                             style: "header"
                         },
                         {
@@ -466,11 +465,13 @@ class CaseSmsReport extends LitElement {
         const pdfDocument = new PdfBuilder(docDefinition);
         if (download) {
             pdfDocument.pdfBlob(blob => {
-                const file = new File([blob], "testing_pdfFileExample_1.pdf", {type: blob.type});
-                data.file = file;
-                console.log("Uploading....", data);
+                const file = new File([blob], "testing_pdfFileExample_3.pdf", {type: blob.type});
+
+                const formData = new FormData();
+                formData.append("file", file);
+                Object.keys(data).forEach(key => formData.append(key, data[key]));
                 this.opencgaSession.opencgaClient.files()
-                    .upload(data)
+                    .upload(formData)
                     .then(response => {
                         console.log("Uploaded file....", response);
                     })
