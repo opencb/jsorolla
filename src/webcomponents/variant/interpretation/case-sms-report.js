@@ -24,8 +24,10 @@ import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
+import "../../file/file-upload-beta.js";
 import PdfBuilder from "../../../core/pdf-builder.js";
 import PdfUtils from "../../commons/utils/pdf-utils.js";
+
 
 class CaseSmsReport extends LitElement {
 
@@ -259,8 +261,15 @@ class CaseSmsReport extends LitElement {
         `;
     }
 
+
+    openUploadModal() {
+        console.log("Open modal");
+        this.openModalTest = true;
+        this.requestUpdate();
+    }
+
     // pdfMake
-    onGeneratePDFMake() {
+    onGeneratePDFMake(download, data) {
         const docDefinition = {
             content: [
                 PdfUtils.titleText(
@@ -309,12 +318,12 @@ class CaseSmsReport extends LitElement {
                 {
                     stack: [
                         PdfUtils.headerText("3. Study Description\n\n"),
-                        {
-                            text:
-                                "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
-                            style: "small"
-                        },
-                        PdfUtils.fieldText("", this.clinicalAnalysis.description),
+                        // {
+                        //     text:
+                        //         "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
+                        //     style: "small"
+                        // },
+                        PdfUtils.fieldText("Study reason: ", this.clinicalAnalysis.description),
                         PdfUtils.fieldText("Project: ", this._reportData.study.project),
                         PdfUtils.fieldText("Current Analysis: ", this._reportData.study.currentAnalysis),
                         PdfUtils.fieldText("Gene Priority: ", this._reportData.study.genePriority),
@@ -327,11 +336,6 @@ class CaseSmsReport extends LitElement {
                             text: "4. Methodoly used\n\n",
                             style: "header"
                         },
-                        {
-                            text: "4.1. Study Reason \n\n",
-                            style: "subheader"
-                        },
-
                         PdfUtils.htmlToPdf(this._reportData.methodology.description?.replaceAll("h2", "b")),
                         // alignment: "justify"
 
@@ -460,7 +464,23 @@ class CaseSmsReport extends LitElement {
             ]
         };
         const pdfDocument = new PdfBuilder(docDefinition);
-        pdfDocument.open();
+        if (download) {
+            pdfDocument.pdfBlob(blob => {
+                const file = new File([blob], "testing_pdfFileExample_1.pdf", {type: blob.type});
+                data.file = file;
+                console.log("Uploading....", data);
+                this.opencgaSession.opencgaClient.files()
+                    .upload(data)
+                    .then(response => {
+                        console.log("Uploaded file....", response);
+                    })
+                    .catch(reason =>{
+                        console.log("Error:", reason);
+                    });
+            });
+        } else {
+            pdfDocument.open();
+        }
     }
 
     render() {
@@ -475,12 +495,26 @@ class CaseSmsReport extends LitElement {
                 @click="${() => this.onGeneratePDFMake()}">
                 Generate PDF (Beta)
             </button>
+            <button type="button" class="btn btn-primary"
+                @click="${() => this.openUploadModal()}">
+                Saved PDF (Beta)
+            </button>
             <data-form
                 .data="${this._reportData}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit="${e => this.onRun(e)}">
             </data-form>
+            <file-upload-beta
+                .data="${this._clinicalAnalysis}"
+                .opencgaSession="${this.opencgaSession}"
+                ?openModal="${this.openModalTest}"
+                @onUploadFile="${e => this.onGeneratePDFMake(true, e.detail.value)}"
+                @onCloseModal="${() => {
+            this.openModalTest = false;
+            this.requestUpdate();
+        }}">
+            </file-upload-beta>
         `;
     }
 
