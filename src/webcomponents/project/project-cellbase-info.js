@@ -138,9 +138,7 @@ export default class ProjectCellbaseInfo extends LitElement {
                 // active: true,
                 render: () => {
                     return html`
-                        <div class="col-md-10">
-                            ${this.#renderCellBaseInfo(project.cellbase)}
-                        </div>
+                        ${this.#renderCellBaseInfo(project.cellbase)}
                     `;
                 }
             };

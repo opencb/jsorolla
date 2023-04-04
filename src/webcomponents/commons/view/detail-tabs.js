@@ -184,6 +184,7 @@ export default class DetailTabs extends LitElement {
 
         // Allow custom tabs alignment:  "center" or "justified"
         const align = this._config?.display?.align || "";
+        const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-md-10" : "";
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
@@ -212,7 +213,7 @@ export default class DetailTabs extends LitElement {
                 ` : null}
 
                 <!-- TAB CONTENT -->
-                <div class="${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
+                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this.renderTabContent()}
                 </div>
             </div>
