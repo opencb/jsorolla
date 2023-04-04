@@ -199,8 +199,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const variantAcmg = evidencesWithHgvs.map(evidence => `<span>La variante <b>${evidence.variantId}</b> es clasificada como <b>${evidence.classification.clinicalSignificance}</b>` +
         ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
             const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");
-            const results = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", "");
-            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.results", `<p>Template (Beta)</p> <hr> ${variantAcmg} <ol>${hgvsList}</ol> </br> <hr> ${results}`);
+            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.mainResults.templateResult", `${variantAcmg} <ol>${hgvsList}</ol> </br>`);
         }
     }
 
@@ -677,10 +676,19 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         },
                         UtilsNew.titleElement("Results"),
                         {
-                            field: "interpretation.attributes.reportTest.results",
+                            field: "interpretation.attributes.reportTest.mainResults.templateResult",
                             type: "rich-text",
                             display: {
-                                disabled: false
+                                disabled: false,
+                                preview: true,
+                            }
+                        },
+                        UtilsNew.titleElement("Results Summary"),
+                        {
+                            field: "interpretation.attributes.reportTest.mainResults.summaryResult",
+                            type: "rich-text",
+                            display: {
+                                disabled: false,
                             }
                         },
                         UtilsNew.titleElement("Interpretations"),
