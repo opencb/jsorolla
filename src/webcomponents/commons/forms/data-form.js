@@ -1254,7 +1254,8 @@ export default class DataForm extends LitElement {
         const content = this.getValue(element.field, this.data, this._getDefaultValue(element));
         const config = {
             disabled: this._getBooleanValue(element.display?.disabled, false),
-            viewer: this._getBooleanValue(element.display?.preview, true)
+            preview: this._getBooleanValue(element.display?.preview, false),
+            viewer: this._getBooleanValue(element.display?.viewer, true)
         };
         // const contentCleaned = !UtilsNew.isObject(content)? content.replace(/  +/g, " ") : "";
         const _content = !UtilsNew.isObject(content)? content : "";
