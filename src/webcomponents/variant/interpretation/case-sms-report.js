@@ -122,6 +122,7 @@ class CaseSmsReport extends LitElement {
             };
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
+            console.log(this._clinicalAnalysis);
         }
     }
 
@@ -465,20 +466,57 @@ class CaseSmsReport extends LitElement {
         const pdfDocument = new PdfBuilder(docDefinition);
         if (download) {
             pdfDocument.pdfBlob(blob => {
-                const file = new File([blob], "testing_pdfFileExample_3.pdf", {type: blob.type});
-
-                const formData = new FormData();
-                formData.append("file", file);
-                Object.keys(data).forEach(key => formData.append(key, data[key]));
+                // aprroach #1
+                let status = "Start";
+                const file = new File([blob], data.name, {type: blob.type});
+                data.file = file;
+                console.log("Uploading....", data);
+                // new Approach #2 in progress
+                // const file = new File([blob], "testing_pdfFileExample_3.pdf", {type: blob.type});
+                // const formData = new FormData();
+                // formData.append("file", file);
+                // Object.keys(data).forEach(key => formData.append(key, data[key]));
                 this.opencgaSession.opencgaClient.files()
-                    .upload(formData)
+                    .upload(data)
                     .then(response => {
                         console.log("Uploaded file....", response);
+                        status = "DONE";
                     })
                     .catch(reason =>{
                         console.log("Error:", reason);
+                        status = "FAIL";
+                    })
+                    .finally(()=>{
+                        const fileUploaded = {
+                            path: "/",
+                            fileName: data.name,
+                            upload_status: status,
+                            sample: "",
+                            description: data.description,
+                            title: "",
+                            tag: "",
+                            comments: []
+                        };
+                        let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
+                        reportTestData = {
+                            ...reportTestData,
+                            report_files: reportTestData?.report_files? [...reportTestData?.report_files, fileUploaded] : [fileUploaded],
+                        };
+                        this.opencgaSession.opencgaClient.clinical()
+                            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                                {"attributes": {"reportTest": reportTestData}}, {study: this.opencgaSession.study.fqn})
+                            .then(response => {
+                                // this.postUpdate(response);
+                                console.log("Saved Attributes");
+                            })
+                            .catch(response => {
+                                console.log("Error Attributes", response);
+                            // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                                // this.notifyError(response);
+                            });
                     });
             });
+
         } else {
             pdfDocument.open();
         }

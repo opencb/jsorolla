@@ -114,13 +114,16 @@ export default class FileUploadBeta extends LitElement {
     async onSubmit(e) {
         e.stopPropagation();
         // reports/case/document.pdf
-        this.file.path = `/reports/${this.data.id}/${this.data.interpretation.id}.pdf`;
-        this.file.name = `${this.data.interpretation.id}-${Date.now()}-tmp.pdf`;
-        this.file.fileformat = "UNKNOWN";
-        this.file.bioformat = "NONE";
-        this.file.type = "FILE";
-        this.file.study = this.opencgaSession.study.fqn;
-        this.file.parents = true;
+        this.file = {
+            ...this.file,
+            path: `/reports/${this.data.id}/${this.data.interpretation.id}-${Date.now()}.pdf`,
+            name: `${this.data.interpretation.id}-${Date.now()}-tmp.pdf`,
+            fileformat: "UNKNOWN",
+            bioformat: "NONE",
+            type: "FILE",
+            study: this.opencgaSession.study.fqn,
+            parents: true
+        };
         LitUtils.dispatchCustomEvent(this, "onUploadFile", this.file);
         this.onClear();
     }
