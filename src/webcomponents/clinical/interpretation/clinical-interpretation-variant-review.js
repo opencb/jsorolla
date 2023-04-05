@@ -121,7 +121,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             <data-form
                 .data="${this._variant}"
                 .originalData="${this.variant}"
-                .updatedFields="${this.updatedFields}"
+                .updateParams="${this.updatedFields}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
