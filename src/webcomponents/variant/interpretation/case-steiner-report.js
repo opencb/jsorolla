@@ -727,17 +727,18 @@ class CaseSteinerReport extends LitElement {
                             field: "qcPlots",
                             type: "custom",
                             display: {
+                                defaultLayout: "vertical",
                                 render: qcPlots => qcPlots ? html`
                                     <div class="row">
-                                        <div class="col-md-7">
+                                        <div class="col-md-6">
                                             <file-preview
                                                 .active="${true}"
                                                 .fileId="${qcPlots.genomePlotFile}"
                                                 .opencgaSession="${this.opencgaSession}"
-                                                .config="${{showFileSize: false}}">
+                                                .config="${{showFileSize: false, showFileTitle: false}}">
                                             </file-preview>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-6">
                                             ${(qcPlots.signatures || []).some(s => s.type === "SNV") ? html`
                                                 <signature-view
                                                     .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV")}"
