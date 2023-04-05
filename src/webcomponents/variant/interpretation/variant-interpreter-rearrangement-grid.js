@@ -545,32 +545,34 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => `
-                        <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
-                                <span>Actions</span>
-                                <span class="caret" style="margin-left: 5px"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-                                    </a>
-                                </li>
-                                <li role="separator" class="divider"></li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left reviewButton" data-variant-id="${row.id} data-action="edit">
-                                        <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Remove
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>`,
+                    formatter: (value, row) => {
+                        const reviewId = `${this._prefix}${row[0].id}VariantReviewActionButton`;
+                        const reviewDisabled = (!this.checkedVariants.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                    <span>Actions</span>
+                                    <span class="caret" style="margin-left: 5px"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
+                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
+                                        </a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Fetch Variant</li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        `;
+                    },
                     align: "center",
                     events: {
                         "click a": this.onActionClick.bind(this)
@@ -625,7 +627,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click button": this.onReviewClick.bind(this)
+                        "click button": e => this.onReviewClick(e),
                     },
                     visible: this.review || this._config.showReview,
                     excludeFromExport: true // this is used in opencga-export
@@ -637,9 +639,22 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onActionClick(e, value, row) {
-        const {action} = e.target.dataset;
-        if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        const action = (e.target.dataset.action || "").toLowerCase();
+        switch (action) {
+            case "edit":
+                this.variantsReview = null;
+                if (this.checkedVariants && this.checkedVariants.has(row[0].id)) {
+                    this.variantsReview = [
+                        UtilsNew.objectClone(this.checkedVariants.get(row[0].id)),
+                        UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
+                    ];
+                    this.requestUpdate();
+                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                }
+                break;
+            case "download":
+                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
         }
     }
 
@@ -790,6 +805,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         // Set 'Edit' button as enabled/disabled
         document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`).disabled = !event.currentTarget.checked;
+        const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
+        if (event.currentTarget.checked) {
+            reviewActionButton.removeAttribute("disabled");
+        } else {
+            reviewActionButton.setAttribute("disabled", "true");
+        }
 
         // Dispatch row check event
         LitUtils.dispatchCustomEvent(this, "checkrow", null, {
@@ -800,7 +821,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onReviewClick(e) {
-        const index = parseInt(e.target.dataset.index);
+        const index = parseInt(e.currentTarget.dataset.index);
         const variants = this._rows[index];
         this.variantsReview = null;
 
