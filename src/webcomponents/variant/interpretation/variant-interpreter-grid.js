@@ -242,7 +242,6 @@ export default class VariantInterpreterGrid extends LitElement {
     renderVariants() {
         if (this._config.renderLocal) {
             // FIXME remove this ASAP
-            debugger;
             this.clinicalVariants = this.clinicalAnalysis.interpretation.primaryFindings;
         }
 
@@ -900,7 +899,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
