@@ -943,4 +943,56 @@ export default class VariantInterpreterGridFormatter {
         return "-";
     }
 
+    static reviewFormatter(row, index, disabled, prefix, config) {
+        // Prepare discussion tooltip text
+        let discussionTooltipText = "";
+        if (row.discussion?.text) {
+            discussionTooltipText = `
+                <div style="min-width:200px;">
+                    <div>${row.discussion?.text || "-"}</div>
+                    <div style="margin-top:6px;">
+                        Added by <b>${row.discussion?.author || "-"}</b> on <b>${UtilsNew.dateFormatter(row.discussion?.date)}</b>
+                    </div>
+                </div>
+            `;
+        }
+        // Prepare comments
+        const commentsTooltipText = `
+            <div style="min-width:200px;">
+                ${(row.comments || []).map(comment => `
+                    <div style="padding:4px;">
+                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                        <div>${comment.message || "-"}</div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+
+        return `
+            ${config?.showEditReview ? `
+                <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                </button>
+            `: ""}
+            ${row?.status ? `
+                <div class="help-block" style="margin: 5px 0">${row.status}</div>
+            ` : ""}
+            ${row.comments?.length > 0 || row.discussion?.text ? `
+                <div style="">
+                    ${row.discussion?.text ? `
+                    <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <i class="fas fa-comment-alt" style="margin-right:8px;"></i>
+                    </a>
+                    ` : ""}
+                    ${row.comments?.length > 0 ? `
+                    <a tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <i class="fas fa-comments" style="margin-right:2px;"></i>${row.comments.length}
+                    </a>
+                    ` : ""}
+                </div>
+            ` : ""}
+        `;
+
+    }
+
 }
