@@ -82,7 +82,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             // Check OpenCGA version
             const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
             if (compareResult >= 0) {
-                // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
                 if (typeof this.updatedFields["confidence.value"] !== "undefined") {
                     this._variant.confidence.author = this.opencgaSession.user?.id || "-";
                     this._variant.confidence.date = UtilsNew.getDatetime();
@@ -94,7 +93,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             }
         } else if (param === "discussion.text") {
             // After TASK-1472, discussion is now an object containing text, author and date
-            // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
             if (typeof this.updatedFields["discussion.text"] !== "undefined") {
                 this._variant.discussion.author = this.opencgaSession.user?.id || "-";
                 this._variant.discussion.date = UtilsNew.getDatetime();
@@ -114,12 +112,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             };
         }
 
-        // this.dispatchEvent(new CustomEvent("variantChange", {
-        //     detail: {
-        //         value: this.variant,
-        //         update: this.updatedFields
-        //     },
-        // }));
         LitUtils.dispatchCustomEvent(this, "variantChange", this._variant);
         this.requestUpdate();
     }
