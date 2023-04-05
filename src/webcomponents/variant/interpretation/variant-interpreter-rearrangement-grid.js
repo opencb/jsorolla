@@ -619,24 +619,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row, index) => {
-                        const disabled = !this.checkedVariants?.has(row[0].id) ? "disabled" : "";
-                        return `
-                            <button id="${this._prefix}VariantReviewButton${index}" class="btn btn-link" data-row-index="${index}" ${disabled}>
-                                <i class="fa fa-edit icon-padding" data-row-index="${index}"></i>
-                                Edit ...
-                            </button>
-                            ${this.checkedVariants?.has(row[0].id) ? `
-                                <div class="help-block" style="margin: 5px 0">${this.checkedVariants.get(row[0].id).status}</div>
-                            ` : ""
-                            }
-                        `;
+                        const disabled = (!this.checkedVariants?.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        const variant = this.checkedVariants.has(row[0].id) ? this.checkedVariants.get(row[0].id) : row[0];
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, disabled, this._prefix, this._config);
                     },
                     align: "center",
                     events: {
                         "click button": this.onReviewClick.bind(this)
                     },
-                    // visible: this._config.showReview
-                    visible: !!this.review,
+                    visible: this.review || this._config.showReview,
                     excludeFromExport: true // this is used in opencga-export
                 },
             ]
@@ -798,7 +789,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
 
         // Set 'Edit' button as enabled/disabled
-        document.getElementById(`${this._prefix}VariantReviewButton${index}`).disabled = !event.currentTarget.checked;
+        document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`).disabled = !event.currentTarget.checked;
 
         // Dispatch row check event
         LitUtils.dispatchCustomEvent(this, "checkrow", null, {
@@ -809,7 +800,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onReviewClick(e) {
-        const index = parseInt(e.target.dataset.rowIndex);
+        const index = parseInt(e.target.dataset.index);
         const variants = this._rows[index];
         this.variantsReview = null;
 
@@ -966,6 +957,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showSettings: true,
             detailView: true,
             showReview: true,
+            showEditReview: true,
             showSelectCheckbox: false,
             showActions: false,
             multiSelection: false,
