@@ -46,7 +46,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     }
 
     #init() {
-        this.updateParams = {};
+        this.updatedFields = {};
         this.mode = "form";
         this.variant = {};
         this._variant = {};
@@ -66,7 +66,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
         this._variant = UtilsNew.objectClone(this.variant);
-        this.updateParams = {};
+        this.updatedFields = {};
         this._config = this.getDefaultconfig();
     }
 
@@ -76,14 +76,14 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     onFieldChange(e) {
         const param = e.detail.param;
-        this.updateParams = FormUtils.getUpdatedFields(this.variant, this.updateParams, param, e.detail.value, e.detail.action);
+        this.updatedFields = FormUtils.getUpdatedFields(this.variant, this.updatedFields, param, e.detail.value, e.detail.action);
 
         if (param === "confidence.value") {
             // Check OpenCGA version
             const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
             if (compareResult >= 0) {
-                // this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
-                if (typeof this.updateParams["confidence.value"] !== "undefined") {
+                // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
+                if (typeof this.updatedFields["confidence.value"] !== "undefined") {
                     this._variant.confidence.author = this.opencgaSession.user?.id || "-";
                     this._variant.confidence.date = UtilsNew.getDatetime();
                 } else {
@@ -94,8 +94,8 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             }
         } else if (param === "discussion.text") {
             // After TASK-1472, discussion is now an object containing text, author and date
-            // this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
-            if (typeof this.updateParams["discussion.text"] !== "undefined") {
+            // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
+            if (typeof this.updatedFields["discussion.text"] !== "undefined") {
                 this._variant.discussion.author = this.opencgaSession.user?.id || "-";
                 this._variant.discussion.date = UtilsNew.getDatetime();
             } else {
@@ -117,7 +117,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         // this.dispatchEvent(new CustomEvent("variantChange", {
         //     detail: {
         //         value: this.variant,
-        //         update: this.updateParams
+        //         update: this.updatedFields
         //     },
         // }));
         LitUtils.dispatchCustomEvent(this, "variantChange", this._variant);
@@ -129,7 +129,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             <data-form
                 .data="${this._variant}"
                 .originalData="${this.variant}"
-                .updateParams="${this.updateParams}"
+                .updatedFields="${this.updatedFields}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
