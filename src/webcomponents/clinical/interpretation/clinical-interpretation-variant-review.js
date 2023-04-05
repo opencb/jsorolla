@@ -106,13 +106,20 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             const lastComment = this._variant.comments[this._variant.comments.length - 1];
             this._variant.comments[this._variant.comments.length - 1] = {
                 ...lastComment,
-                tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
+                // tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
                 author: this.opencgaSession?.user?.id || "-",
                 date: UtilsNew.getDatetime(),
             };
         }
 
-        LitUtils.dispatchCustomEvent(this, "variantChange", this._variant);
+        // We need to fix tags in comments
+        LitUtils.dispatchCustomEvent(this, "variantChange", {
+            ...this._variant,
+            comments: (this._variant?.comments || []).map(comment => ({
+                ...comment,
+                tags: UtilsNew.commaSeparatedArray(comment.tags || []),
+            })),
+        });
         this.requestUpdate();
     }
 
@@ -195,7 +202,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                                     </div>
                                     <div style="width:100%;">
                                         <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                        <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
+                                        <div class="text-muted">Tags: ${UtilsNew.commaSeparatedArray(comment.tags).join(", ") || "-"}</div>
                                     </div>
                                 </div>
                             `,
