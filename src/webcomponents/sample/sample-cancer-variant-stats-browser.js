@@ -83,6 +83,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
         this.queries = {};
         this.circosPlot = null;
+        this.circosConfig = {};
         this.signature = {};
         this.deletionAggregationStatsPlot = null;
         this._config = this.getDefaultConfig();
@@ -341,6 +342,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     onChangeCircosPlot(e) {
         this.circosPlot = e.detail.circosPlot;
+        this.circosConfig = e.detail.circosConfig;
     }
 
     onChangeDeletionAggregationStatsChart(e) {
@@ -392,7 +394,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         // Prepare circos plot image
         if (this.circosPlot) {
             const circosPlotParams = {
-                content: this.circosPlot.split(", ")?.[1],
+                content: (this.circosPlot.split(",")?.[1] || "").trim(),
                 path: "/circos/" + this.save.id + ".png",
                 type: "FILE",
                 format: "IMAGE",
@@ -434,6 +436,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 // Append circos plot
                 if (this.circosPlot) {
                     this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                    this.sample.qualityControl.variant.genomePlot.config = {
+                        title: this.circosConfig?.title,
+                        density: this.circosConfig?.density,
+                        generalQuery: this.circosConfig?.query,
+                        tracks: (this.circosConfig?.tracks || []).map(track => ({
+                            // description: track.id,
+                            type: track.type,
+                            query: track.query,
+                        })),
+                    };
                 }
 
                 // Append the deletion aggregation plot
