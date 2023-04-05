@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -27,7 +27,7 @@ export default class DetailTabs extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -45,7 +45,7 @@ export default class DetailTabs extends LitElement {
             data: {
                 type: Object
             },
-            mode: {// accepted values:  tabs, pills
+            mode: { // accepted values:  tabs, pills
                 type: String
             },
             activeTab: {
@@ -57,24 +57,22 @@ export default class DetailTabs extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = null;
         this._activeTab = null;
 
-        // mode by default, if the component no use this property
-        this.mode = this.mode || DetailTabs.TABS_MODE;
+        // Mode by default, if the component no use this property
+        this.mode = DetailTabs.TABS_MODE;
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-
         if (changedProperties.has("activeTab")) {
             this.activeTabObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -130,15 +128,14 @@ export default class DetailTabs extends LitElement {
             if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                 const isActive = this._activeTab === item.id;
                 return html`
-                        <li role="presentation"
-                            class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
-                            style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                               @click="${this.changeTab}">
-                                <span>${item.name}</span>
-                            </a>
-                        </li>
-                    `;
+                    <li role="presentation"
+                        class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                        style="${this._config.display?.tabTitleStyle}">
+                        <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this.changeTab}">
+                            <span>${item.name}</span>
+                        </a>
+                    </li>
+               `;
             }
         })}
         `;
@@ -153,33 +150,24 @@ export default class DetailTabs extends LitElement {
                     <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
                         ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
                     </div>
-                `;
+               `;
             }
         })}
         `;
     }
 
     render() {
-        // If data is undefined or null
+        // 1. Check 'data' is not undefined or null
         if (!this.data) {
-            if (this._config?.errorMessage) {
-                return html`<h3>${this._config?.errorMessage}</h3>`;
-            } else {
-                console.log("Detail Tabs: No Data");
-                return "";
-            }
+            return html`<h3>${this._config?.errorMessage || "No data found"}</h3>`;
         }
-
+        // 2. Check the 'mode' is correct
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`
-                <h3>No valid mode: '${this.mode || ""}'</h3>
-            `;
+            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
         }
-
+        // 3. Check tabs exist
         if (this._config?.items?.length === 0) {
-            return html`
-                <h3>No items provided</h3>
-            `;
+            return html`<h3>No tab items provided</h3>`;
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
@@ -194,14 +182,14 @@ export default class DetailTabs extends LitElement {
                     <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
                         ${this.renderTabTitle()}
                     </ul>
-                ` : null}
+                ` : nothing}
 
                 <!-- PILLS -->
                 ${this.mode === DetailTabs.PILLS_MODE ? html`
                     <ul class="nav nav-pills" role="tablist">
                         ${this.renderTabTitle()}
                     </ul>
-                ` : null}
+                ` : nothing}
 
                 <!-- PILLS -->
                 ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
@@ -210,7 +198,7 @@ export default class DetailTabs extends LitElement {
                             ${this.renderTabTitle()}
                         </ul>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 <!-- TAB CONTENT -->
                 <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
