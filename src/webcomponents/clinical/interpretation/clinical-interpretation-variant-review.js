@@ -188,6 +188,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             // collapsable: false,
                             // maxNumItems: 5,
+                            showAddBatchListButton: false,
                             showEditItemListButton: false,
                             showDeleteItemListButton: false,
                             view: comment => html`
