@@ -140,6 +140,7 @@ export default class CircosView extends LitElement {
                 this.circosImage = "data:image/png;base64," + restResult.getResult(0);
                 LitUtils.dispatchCustomEvent(this, "changeCircosPlot", null, {
                     circosPlot: this.circosImage,
+                    circosConfig: query,
                 });
             })
             .catch(restResponse => {
