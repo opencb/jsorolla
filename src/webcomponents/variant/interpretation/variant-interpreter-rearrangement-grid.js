@@ -622,8 +622,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) => {
                         const disabled = (!this.checkedVariants?.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        const variant = this.checkedVariants.has(row[0].id) ? this.checkedVariants.get(row[0].id) : row[0];
-                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, disabled, this._prefix, this._config);
+                        const checked = this.checkedVariants.has(row[0].id);
+                        const variant = checked ? this.checkedVariants.get(row[0].id) : row[0];
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
                     },
                     align: "center",
                     events: {

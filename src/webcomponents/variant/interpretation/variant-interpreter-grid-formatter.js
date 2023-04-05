@@ -943,7 +943,7 @@ export default class VariantInterpreterGridFormatter {
         return "-";
     }
 
-    static reviewFormatter(row, index, disabled, prefix, config) {
+    static reviewFormatter(row, index, checked, disabled, prefix, config) {
         // Prepare discussion tooltip text
         let discussionTooltipText = "";
         if (row.discussion?.text) {
@@ -974,10 +974,10 @@ export default class VariantInterpreterGridFormatter {
                     <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
                 </button>
             `: ""}
-            ${row?.status ? `
+            ${checked && row?.status ? `
                 <div class="help-block" style="margin: 5px 0">${row.status}</div>
             ` : ""}
-            ${row.comments?.length > 0 || row.discussion?.text ? `
+            ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
                 <div style="">
                     ${row.discussion?.text ? `
                     <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
