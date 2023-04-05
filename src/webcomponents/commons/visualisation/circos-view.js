@@ -117,7 +117,7 @@ export default class CircosView extends LitElement {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
                         ...this.query,
-                        ...this.queries?.["CNV"],
+                        ...this.queries?.["COPY_NUMBER"],
                         type: "COPY_NUMBER",
                     }
                 },
