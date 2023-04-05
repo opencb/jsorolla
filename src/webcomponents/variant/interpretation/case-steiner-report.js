@@ -738,10 +738,18 @@ class CaseSteinerReport extends LitElement {
                                             </file-preview>
                                         </div>
                                         <div class="col-md-5">
-                                            <signature-view
-                                                .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV") || qcPlots.signatures?.[0]}"
-                                                .active="${this.active}">
-                                            </signature-view>
+                                            ${(qcPlots.signatures || []).some(s => s.type === "SNV") ? html`
+                                                <signature-view
+                                                    .signature="${qcPlots.signatures?.find(signature => signature.type === "SNV")}"
+                                                    .mode="${"SBS"}">
+                                                </signature-view>
+                                            ` : null}
+                                            ${(qcPlots.signatures || []).some(s => s.type === "SV") ? html`
+                                                <signature-view
+                                                    .signature="${qcPlots.signatures?.find(signature => signature.type === "SV")}"
+                                                    .mode="${"SV"}">
+                                                </signature-view>
+                                            ` : null}
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>
