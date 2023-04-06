@@ -448,8 +448,8 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                             <div style="display:flex;gap:12px">
                             <h4 class="modal-title" id="myModalLabel">Variant Review Report</h4>
-                            <span class="label label-info">Status: ${this._variantReview.status}</span>
-                            <span class="label label-info">Confidence: ${this._variantReview.confidence.value}</span>
+                            <span class="label label-info">Status: ${this._variantReview?.status || "-"}</span>
+                            <span class="label label-info">Confidence: ${this._variantReview.confidence?.value || "-"}</span>
                             </div>
                         </div>
                         <div style="padding:1%; display:flex; flex-direction:column; height: 100%">
