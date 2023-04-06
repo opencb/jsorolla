@@ -991,28 +991,30 @@ export default class VariantInterpreterGridFormatter {
         `;
 
         return `
-            ${config?.showEditReview ? `
-                <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
-                    <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
-                </button>
-            `: ""}
-            ${checked && row?.status ? `
-                <div class="help-block" style="margin: 5px 0">${row.status}</div>
-            ` : ""}
-            ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
-                <div style="">
-                    ${row.discussion?.text ? `
-                    <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                        <i class="fas fa-comment-alt" style="margin-right:8px;"></i>
-                    </a>
-                    ` : ""}
-                    ${row.comments?.length > 0 ? `
-                    <a tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                        <i class="fas fa-comments" style="margin-right:2px;"></i>${row.comments.length}
-                    </a>
-                    ` : ""}
-                </div>
-            ` : ""}
+            <div>
+                ${config?.showEditReview ? `
+                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                    </button>
+                `: ""}
+                ${checked && row?.status ? `
+                    <div class="help-block" style="margin: 5px 0">${row.status}</div>
+                ` : ""}
+                ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
+                    <div style="">
+                        ${row.discussion?.text ? `
+                        <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fas fa-comment-alt" style="margin-right:8px;"></i>
+                        </a>
+                        ` : ""}
+                        ${row.comments?.length > 0 ? `
+                        <a tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fas fa-comments" style="margin-right:2px;"></i>${row.comments.length}
+                        </a>
+                        ` : ""}
+                    </div>
+                ` : ""}
+            </div>
         `;
 
     }
