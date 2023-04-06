@@ -334,12 +334,11 @@ class CaseSmsReport extends LitElement {
                 {
                     stack: [
                         {
-                            text: "4. Metodologia Usada\n\n",
+                            text: "4. Metodologia Empleada\n\n",
                             style: "header"
                         },
                         PdfUtils.htmlToPdf(this._reportData.methodology.description?.replaceAll("h2", "b")),
                         // alignment: "justify"
-
                     ],
                     margin: [0, 10]
                 },
@@ -357,68 +356,6 @@ class CaseSmsReport extends LitElement {
                     ],
                     margin: [0, 10]
                 },
-                // {
-                //     stack: [
-                //         {
-                //             text: "5. Results",
-                //             style: "header",
-                //             margin: [0, 10]
-                //         },
-                //         {
-                //             text: "No reported variants to display (table)\n\n"
-                //         },
-                //         {
-                //             text:
-                //                 "Variante Probablemente Patogénica en Heterocigosis en el gen PKD1.",
-                //             bold: true
-                //         },
-                //         {
-                //             text:
-                //                 "Variante de Significado Clínico Incierto (VSCI) en Heterocigosis en el gen REN.",
-                //             bold: true
-                //         },
-                //         {
-                //             text: "Variantes en Genes Prioritarios:",
-                //             bold: true,
-                //             margin: [0, 10]
-                //         },
-                //         {
-                //             ol: [
-                //                 {
-                //                     text: [
-                //                         {
-                //                             text:
-                //                                 "PKD1 (NM_001009944.2): c.9157G>A;p.Ala3053Thr ",
-                //                             bold: true
-                //                         },
-                //                         "(cambio pendiente de confirmación mediante secuenciación Sanger)"
-                //                     ]
-                //                 },
-                //                 {
-                //                     text: [
-                //                         {
-                //                             text:
-                //                                 "REN (NM_000537.3): C.928G>; p.Glu310Gln ",
-                //                             bold: true
-                //                         },
-                //                         "(cambio pendiente de confirmación mediante secuenciación Sanger)"
-                //                     ]
-                //                 }
-                //             ],
-                //             margin: [0, 10]
-                //         },
-                //         {
-                //             text: [
-                //                 {
-                //                     text: "Hallazgos Incidentales: ",
-                //                     style: "label"
-                //                 },
-                //                 "Value"
-                //             ]
-                //         }
-                //     ],
-                //     margin: [0, 10]
-                // },
                 {
                     stack: [
                         {
@@ -522,6 +459,200 @@ class CaseSmsReport extends LitElement {
         }
     }
 
+    onSaveJsonReport() {
+        const {
+            patient, sample, request, notes, study, interpretations, clinicalAnalysis, mainResults,
+        } = this._reportData;
+        const patientElements = {
+            name: {
+                label: "Nombre",
+                content: patient?.name
+            },
+            lastName: {
+                label: "Apellidos",
+                content: patient?.lastName
+            },
+            birth: {
+                label: "Fecha de Nacimiento",
+                content: UtilsNew.dateFormatter(patient?.birthDate)
+            },
+            age: {
+                label: "Edad",
+                content: patient?.age
+            },
+            ssn: {
+                label: "Código Sistema de Salud",
+                content: patient?.cipa
+            },
+            typeSample: {
+                label: "Tipo de Muestra",
+                content: sample?.type
+            },
+            extractionDate: {
+                label: "Fecha de Extracción",
+                content: patient?.name
+            },
+            reason: {
+                label: "Motivo",
+                content: sample.reason
+            }
+        };
+        const doctorInfo = field => `
+            <p>${field?.name?? ""}</p>
+            <p>${field?.specialization?? ""}</p>
+            <p>${field?.hospitalName?? ""}</p>
+            <p>${field?.address?? ""}</p>
+            <p>${field?.code??""}</p>
+        `;
+        const clinicalElements = {
+            requestId: {
+                label: "N. Petición",
+                content: request?.requestNumber
+            },
+            requestDate: {
+                label: "Fecha de Petición",
+                content: request?.requestDate
+            },
+            doctor: {
+                label: "Fecha de Petición",
+                content: doctorInfo(request?.requestDoctor)
+            },
+        };
+        const studyElements = {
+            reason: {
+                label: "Razón del Estudio",
+                content: this._clinicalAnalysis.description
+            },
+            project: {
+                label: "Proyecto",
+                content: study.project
+            },
+            analyst: {
+                label: "Análisis",
+                content: study.currentAnalysis
+            },
+            genePriority: {
+                label: "Genes Prioritarios",
+                content: study.genePriority
+            }
+        };
+        const methodologyHtml = this._reportData.methodology.description?.replaceAll("h2", "b");
+        const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
+
+        const variantsHtml = interpretations.variants
+            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+        const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
+        const signsElements = {
+            responsible: {
+                label: "Responsable Lab Genética Molecular",
+                content: clinicalAnalysis?.laboratory?.responsible
+            },
+            facultive: {
+                label: "Facultivos",
+                content: clinicalAnalysis?.laboratory?.facultive.join()
+            },
+            contact: {
+                label: "Responsable Lab Genética Molecular",
+                content: clinicalAnalysis?.laboratory?.email
+            },
+            validation: {
+                label: "Validado por",
+                content: clinicalAnalysis?.laboratory?.validation
+            },
+            date: {
+                label: "Fecha",
+                content: clinicalAnalysis?.laboratory?.date
+            },
+        };
+
+        const _jsonReport = {
+            "_report": {
+                "_wantedKeys": [
+                    "patient",
+                    "clinical",
+                    "study",
+                    "method",
+                    "results",
+                    "interpretation",
+                    "technicalNotes",
+                    "coverage"
+                ],
+                "_metadata": {
+                    "author": this.opencgaSession.user?.id,
+                    "date": UtilsNew.getDatetime()
+                },
+                "_header": "Informe Genetico",
+                "patient": {
+                    "_wantedElements": [Object.keys(patientElements)],
+                    "title": "Datos Personales del Paciente",
+                    "summary": "",
+                    "elements": {...patientElements},
+                },
+                "clinical": {
+                    "_wantedElements": [Object.keys(clinicalElements)],
+                    "title": "Información y detalles de la solicitud de diagnóstico",
+                    "summary": "",
+                    "elements": {...clinicalElements},
+                },
+                "study": {
+                    "_wantedElements": [Object.keys(studyElements)],
+                    "title": "Descripción del estudio",
+                    "summary": "",
+                    "elements": {...studyElements},
+                },
+                "method": {
+                    "title": "Metodología empleada",
+                    "content": methodologyHtml
+                },
+                "results": {
+                    "title": "Resultado",
+                    "content": resultsHtml
+                },
+                "interpretations": {
+                    "title": "Interpretacion",
+                    "content": interpretationsHtml
+                },
+                "technicalNotes": {
+                    "title": "Notas",
+                    "content": notes
+                },
+                "coverage": {
+                    "title": "Estadística de cobertura",
+                    "content": ""
+                },
+                "appendix": {
+                    "_wantedKeys": [],
+                    "coverageMetrics": "",
+                    "qc": "",
+                    "otherVariants": ""
+                },
+                "signs": {
+                    "_wantedElements": [Object.keys(signsElements)],
+                    "title": "Descripción del estudio",
+                    "summary": "",
+                    "elements": {...signsElements},
+                }
+            }};
+
+        this._reportData = {
+            ...this._reportData,
+            ..._jsonReport
+        };
+        console.log("Attributes:", this._reportData);
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                {"attributes": {"reportTest": this._reportData}}, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                // this.postUpdate(response);
+                console.log("Saved Attributes");
+            })
+            .catch(response => {
+                console.log("Error Attributes", response);
+                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                // this.notifyError(response);
+            });
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -537,6 +668,10 @@ class CaseSmsReport extends LitElement {
             <button type="button" class="btn btn-primary"
                 @click="${() => this.openUploadModal()}">
                 Saved PDF (Beta)
+            </button>
+            <button type="button" class="btn btn-primary"
+                @click="${() => this.onSaveJsonReport()}">
+                Save Json Report (Beta)
             </button>
             <data-form
                 .data="${this._reportData}"
