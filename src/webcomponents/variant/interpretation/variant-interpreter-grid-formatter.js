@@ -474,7 +474,7 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 // Render genotypes
-                let content;
+                let content = "";
                 switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
@@ -856,18 +856,18 @@ export default class VariantInterpreterGridFormatter {
         }
 
         // 2. Get FORMAT fields
-        const formatFields = [];
-        for (const formatFieldIndex in variant.studies[0].sampleDataKeys) {
-            // GT field is treated separately
-            let key = variant.studies[0].sampleDataKeys[formatFieldIndex];
-            key = key !== "GT" ? key : `${key} (${variant.reference || "-"}/${variant.alternate || "-"})`;
-            const value = sampleFormat[formatFieldIndex] ? sampleFormat[formatFieldIndex] : "-";
-            const html = `<div class="form-group" style="margin: 2px 2px">
-                                    <label class="col-md-5">${key}</label>
-                                    <div class="col-md-7">${value}</div>
-                                  </div>`;
-            formatFields.push(html);
-        }
+        const formatFields = (variant?.studies?.[0]?.sampleDataKeys || [])
+            .map((fieldKey, fieldIndex) => {
+                // GT field is treated separately
+                const key = fieldKey !== "GT" ? fieldKey : `${fieldKey} (${variant.reference || "-"}/${variant.alternate || "-"})`;
+                const value = sampleFormat[fieldIndex] ? sampleFormat[fieldIndex] : "-";
+                return `
+                    <div class="form-group" style="margin: 2px 2px">
+                        <label class="col-md-5">${key}</label>
+                        <div class="col-md-7">${value}</div>
+                    </div>
+                `;
+            });
 
         // 3. Get SECONDARY ALTERNATES fields
         const secondaryAlternates = [];
