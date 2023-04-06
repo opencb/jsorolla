@@ -209,7 +209,27 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                     } else {
                                         return html `No files uploaded yet!`;
                                     }
-
+                                }
+                            }
+                        },
+                        {
+                            title: "Report (Json)",
+                            field: "interpretation.attributes.reportTest._report",
+                            type: "custom",
+                            display: {
+                                render: report => {
+                                    if (report !== undefined) {
+                                        const nameFile = this.clinicalAnalysis.interpretation.id;
+                                        return html`
+                                            <div>
+                                                <span style="margin-right: 10px">${nameFile}</span>
+                                                    <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile)}">
+                                                        <i class="fas fa-download icon-padding"></i>
+                                                    </a>
+                                                </div>`;
+                                    } else {
+                                        return html `No Report Json`;
+                                    }
                                 }
                             }
                         }
