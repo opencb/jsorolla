@@ -223,7 +223,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         return html`
                                             <div>
                                                 <span style="margin-right: 10px">${nameFile}</span>
-                                                    <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile)}">
+                                                    <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile +".json")}">
                                                         <i class="fas fa-download icon-padding"></i>
                                                     </a>
                                                 </div>`;
