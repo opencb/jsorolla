@@ -27,6 +27,7 @@ import "../../file/file-preview.js";
 import "../../file/file-upload-beta.js";
 import PdfBuilder from "../../../core/pdf-builder.js";
 import PdfUtils from "../../commons/utils/pdf-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 
 class CaseSmsReport extends LitElement {
@@ -122,7 +123,6 @@ class CaseSmsReport extends LitElement {
             };
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
-            console.log(this._clinicalAnalysis);
         }
     }
 
@@ -262,6 +262,34 @@ class CaseSmsReport extends LitElement {
         `;
     }
 
+    postUpdate(response) {
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Saved successfully",
+        });
+
+        // Reset values after success update
+        this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+        this._config = this.getDefaultConfig();
+
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            id: this.clinicalAnalysis.interpretation.id, // maybe this not would be necessary
+            clinicalAnalysis: this.clinicalAnalysis
+        });
+
+        this.requestUpdate();
+    }
+
+    notifyError(response) {
+        if (typeof response == "string") {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: response
+            });
+        } else {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        }
+        console.error("An error occurred saving report: ", response);
+    }
 
     openUploadModal() {
         console.log("Open modal");
@@ -443,13 +471,13 @@ class CaseSmsReport extends LitElement {
                             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
                                 {"attributes": {"reportTest": reportTestData}}, {study: this.opencgaSession.study.fqn})
                             .then(response => {
-                                // this.postUpdate(response);
+                                this.postUpdate(response);
                                 console.log("Saved Attributes");
                             })
                             .catch(response => {
                                 console.log("Error Attributes", response);
-                            // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-                                // this.notifyError(response);
+                                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                                this.notifyError(response);
                             });
                     });
             });
@@ -542,6 +570,11 @@ class CaseSmsReport extends LitElement {
         const variantsHtml = interpretations.variants
             .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
+        const variantElements = interpretations.variants
+            .map(variant => ({
+                label: variant.title,
+                content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
+            }));
         const signsElements = {
             responsible: {
                 label: "Responsable Lab Genética Molecular",
@@ -565,8 +598,8 @@ class CaseSmsReport extends LitElement {
             },
         };
 
-        const _jsonReport = {
-            "_report": {
+        const _jsonReport =
+            [{
                 "_wantedKeys": [
                     "patient",
                     "clinical",
@@ -610,7 +643,9 @@ class CaseSmsReport extends LitElement {
                 },
                 "interpretations": {
                     "title": "Interpretacion",
-                    "content": interpretationsHtml
+                    "summary": "",
+                    "elements": variantElements,
+                    "htmlRendered": interpretationsHtml
                 },
                 "technicalNotes": {
                     "title": "Notas",
@@ -632,24 +667,25 @@ class CaseSmsReport extends LitElement {
                     "summary": "",
                     "elements": {...signsElements},
                 }
-            }};
+            }];
 
         this._reportData = {
             ...this._reportData,
-            ..._jsonReport
+            _report: [...this._reportData?._report, ..._jsonReport]
         };
         console.log("Attributes:", this._reportData);
+        // interpretations.summary,elements[{label:gen:transcripts:hgvs,content}]
         this.opencgaSession.opencgaClient.clinical()
             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
                 {"attributes": {"reportTest": this._reportData}}, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                // this.postUpdate(response);
+                this.postUpdate(response);
                 console.log("Saved Attributes");
             })
             .catch(response => {
                 console.log("Error Attributes", response);
                 // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-                // this.notifyError(response);
+                this.notifyError(response);
             });
     }
 
