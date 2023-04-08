@@ -150,17 +150,17 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                     if (panels?.length > 0) {
                                         panelHtml = html`
                                                     ${panels.map(panel => {
-                                                        if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                                                            return html`
+                                            if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                                                return html`
                                                                 <div style="margin: 5px 0px">
                                                                     <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                                                         ${panel.name} (${panel.source.project} v${panel.source.version})
                                                                     </a>
                                                                 </div>`;
-                                                        } else {
-                                                            return html`<div>${panel.id}</div>`;
-                                                        }
-                                                    })}`;
+                                            } else {
+                                                return html`<div>${panel.id}</div>`;
+                                            }
+                                        })}`;
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
@@ -217,16 +217,16 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             field: "interpretation.attributes.reportTest._report",
                             type: "custom",
                             display: {
-                                render: report => {
-                                    if (report !== undefined) {
+                                render: reports => {
+                                    if (reports?.length > 0) {
                                         const nameFile = this.clinicalAnalysis.interpretation.id;
-                                        return html`
+                                        return reports?.map(report => html`
                                             <div>
-                                                <span style="margin-right: 10px">${nameFile}</span>
-                                                    <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile +".json")}">
-                                                        <i class="fas fa-download icon-padding"></i>
-                                                    </a>
-                                                </div>`;
+                                                <span style="margin-right: 10px">${nameFile}-${report._metadata?.date}.json</span>
+                                                <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile+"-"+ report._metadata?.date +".json")}">
+                                                    <i class="fas fa-download icon-padding"></i>
+                                                </a>
+                                            </div>`);
                                     } else {
                                         return html `No Report Json`;
                                     }
