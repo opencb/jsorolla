@@ -86,6 +86,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             // Generate Result as Template
             this.generateResultsTemplate();
             this.generateMethodologyTemplate();
+            // init variant reported to attributes.
+            this.fillVariantReportAttributes();
             this.requestUpdate();
         }
     }
@@ -166,7 +168,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             variant => variant?.status === "REPORTED");
 
         // tmp function for template
-        const isHomozygosity = variant => variant.alternate === variant.reference;
+        // const isHomozygosity = variant => variant.alternate === variant.reference;
         if (UtilsNew.isNotEmptyArray(variantsReported)) {
             const evidencesWithHgvs = variantsReported
                 .map(variant => {
@@ -197,10 +199,96 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     }))
                 .filter(variant => variant); // Removed undefined
             const variantAcmg = evidencesWithHgvs.map(evidence => `<span>La variante <b>${evidence.variantId}</b> es clasificada como <b>${evidence.classification.clinicalSignificance}</b>` +
-        ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
+            ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
             const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");
             UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.mainResults.templateResult", `${variantAcmg} <ol>${hgvsList}</ol> </br>`);
         }
+    }
+
+    fillVariantReportAttributes() {
+        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+            variant => variant?.status === "REPORTED");
+        const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
+        const _variantModel = {
+            id: "",
+            genId: "",
+            hgvs: "",
+            transcriptId: "",
+            title: "",
+            variant: "",
+            evidence: "",
+            populationControl: "",
+            acmg: "",
+            classification: "",
+            diseaseAssociation: "",
+            recommendations: "",
+            others: "",
+            _metadata: {
+                opencgaInterpretation: [
+                    {
+                        idInterpretation: "",
+                        filter: {}
+                    }
+                ]
+            }
+        };
+        variantsReported.forEach(variant => {
+            // get variant evidence with hgvs
+            const evidence = this.getHgvsVariants(variant)[0];
+            const variantIndex = variants.findIndex(variant => variant.id === evidence.variantId);
+            const variantTitle = (evidence.genomicFeature.geneName || "-") + " " + evidence.hgvs;
+            const evidenceAcmg = (evidence.review?.clinicalSignificance?? "") + (evidence.review.acmg.length > 0? `(${evidence.review.acmg?.map(acmg => acmg.classification).join(",")})` : "");
+            // title: "<p><strong>PKD1 (NM_001009944.2): c.9157G&gt;A;p.Ala3053Thr, exón 25</strong></p>",
+            debugger;
+            switch (true) {
+
+                // Updated variants from attributes if exists and has differents transcript.
+                case variantIndex > -1 && (variants[variantIndex]?.transcriptId !== evidence.genomicFeature?.transcriptId):
+                    variants[variantIndex] = {
+                        ..._variantModel, // init model
+                        ...variants[variantIndex],
+                        hgvs: evidence.hgvs,
+                        genId: evidence.genomicFeature.geneName?? "",
+                        transcriptId: evidence.genomicFeature.transcriptId,
+                        title: variantTitle,
+                        acmg: evidenceAcmg,
+                    };
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    break;
+                // new variant reported if not exist on attributes report
+                case variantIndex < 0:
+                    variants.push(
+                        {
+                            ..._variantModel, // init model
+                            id: evidence.variantId,
+                            genId: evidence.genomicFeature?.geneName?? "",
+                            hgvs: evidence.hgvs,
+                            transcriptId: evidence.genomicFeature.transcriptId,
+                            title: variantTitle,
+                            acmg: evidenceAcmg,
+                        },
+                    );
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    break;
+            }
+        });
+    }
+
+    getHgvsVariants(variant) {
+        // gen (TranscriptID) hgvs
+        const selectedEvidences = variant.evidences
+            .filter(evidences => evidences.review.select);
+        const variantHgvs = variant.annotation.hgvs;
+
+        return selectedEvidences.map(evidence => {
+            const transcriptId = evidence.genomicFeature.transcriptId;
+            const hgvsFound = variantHgvs.find(hgvs => hgvs.startsWith(transcriptId));
+            return {
+                ...evidence,
+                variantId: variant.id,
+                hgvs: hgvsFound || transcriptId
+            };
+        });
     }
 
     generateMethodologyTemplate() {
@@ -404,7 +492,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 
         if (param.includes("attributes")) {
             // Copy all attributes
-            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
+            // UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
+            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this.clinicalAnalysis.interpretation.attributes);
             // Update the attribute field
             UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
         } else {
@@ -715,7 +804,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                     return html `
                                             <div style="display:flex">
                                                 <div style="font-size:20px;font-weight: bold;">
-                                                    <span>${variant.id}</span>
+                                                    <span>${variant?.title}</span>
                                                 </div>
                                                 <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px"
                                                     @click="${() => this.openModalReport(variant.id)}"
