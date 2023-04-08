@@ -27,7 +27,7 @@ import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../file/file-create.js";
-import "../variant/interpretation/variant-interpreter-grid.js";
+import "../variant/interpretation/variant-interpreter-grid-beta.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
 
 // WIP: Form BETA
@@ -123,7 +123,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
     variantReviewObserver() {
         if (UtilsNew.isNotEmpty(this._clinicalAnalysis)) {
             this._variantReview = UtilsNew.objectClone(this.variantReview);
-            debugger;
             this._reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
             this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant.id === this.variantReview.id) || {};
             UtilsNew.setObjectValue(this._variantInfo, "variant", this._variantReview?.discussion?.text || "");
@@ -162,22 +161,25 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             // reporTest.interpretations
             case hasInterpretations:
                 // TODO: Soon
-                const newVariant = {
-                    "id": "",
-                    "genId": "",
-                    "title": "",
-                    "variant": "",
-                    "evidence": "",
-                    "populationControl": "",
-                    "acmg": "",
-                    "diseaseAssociation": "",
-                    "recommendations": "",
-                    "others": "exomisers...",
-                    "_metadata": {
-                        "opencgaInterpretation": [
+                const _variantModel = {
+                    id: "",
+                    genId: "",
+                    hgvs: "",
+                    transcriptId: "",
+                    title: "",
+                    variant: "",
+                    evidence: "",
+                    populationControl: "",
+                    acmg: "",
+                    classification: "",
+                    diseaseAssociation: "",
+                    recommendations: "",
+                    others: "",
+                    _metadata: {
+                        opencgaInterpretation: [
                             {
-                                "idInterpretation": "",
-                                "filter": {}
+                                idInterpretation: "",
+                                filter: {}
                             }
                         ]
                     }
@@ -461,7 +463,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                 </data-form>
                             </div>
                             <div>
-                                <variant-interpreter-grid
+                                <variant-interpreter-grid-beta
                                     review
                                     .clinicalAnalysis=${this._clinicalAnalysis}
                                     .clinicalVariants="${[this._variantReview]}"
@@ -476,7 +478,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                             detailView: true
                                         }
                                     }>
-                                </variant-interpreter-grid>
+                                </variant-interpreter-grid-beta>
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this._clinicalAnalysis}"
@@ -579,7 +581,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "acmg",
+                            field: "classification",
                             type: "rich-text",
                             display: {
                                 preview: false,
