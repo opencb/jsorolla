@@ -144,7 +144,6 @@ export default class OpencgaGeneView extends LitElement {
                 query.ct = "missense_variant";
                 break;
             case "lof":
-                // query.ct = this.consequenceTypes.lof.join(",");
                 query.ct = this.consequenceTypes.alias
                     .find(alias => alias.name === "Loss-of-Function (LoF)")
                     .terms.join(",");
