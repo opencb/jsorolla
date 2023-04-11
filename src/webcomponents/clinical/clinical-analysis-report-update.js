@@ -577,8 +577,16 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             field: "_classificationAcmgTT",
                             type: "rich-text",
                             display: {
-                                preview: false,
-                                viewer: false
+                                preview: true,
+                                display: true,
+                            }
+                        },
+                        {
+                            field: "_classsificationDiscussionTT",
+                            type: "rich-text",
+                            display: {
+                                preview: true,
+                                display: true,
                             }
                         },
                     ]

@@ -163,6 +163,121 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
+    generateClassificationTemplate(variantEvidence) {
+        const generateIntroVariant = `Siguiendo las guías de clasificación establecidas por el ACMG la variante <b>${variantEvidence.variantId}</b> ha sido clasificada ` +
+        "de la siguiente manera:";
+        const acmgClassification = transcript => {
+            const classifications = Array.from(new Set(transcript.review.acmg.map(acmg => acmg.classification))).join(",");
+            return classifications !== "" ? `(${classifications})` : "N/A";
+        };
+        const transcriptTemplate = transcript => `Para el transcrito <b>${transcript.genomicFeature.transcriptId}</b> del gen <b>${transcript.genomicFeature.geneName}</b>` +
+        ` que cumple con los criterios de ACMG <b>${acmgClassification(transcript)}</b>` +
+        ` esta variante se clasifica como variante <b>${transcript.review.clinicalSignificance?? "N/A"}</b>`;
+        const generateTranscriptTemplate = variant => variant.clinicalEvidences.map(transcript => `<li>${transcriptTemplate(transcript)}</li>`).join("");
+        const generateDiscussion = variant => variant.clinicalEvidences
+            .map(transcript => UtilsNew.isNotEmpty(transcript.review.discussion?.text) ? `<b>${transcript.genomicFeature.transcriptId}:</b><br/>${transcript.review.discussion?.text}` : "").join("");
+
+        const content = {
+            acmgContent: `<p>${generateIntroVariant}</p><ul>${generateTranscriptTemplate(variantEvidence)}</ul>`,
+            discussionContent: generateDiscussion(variantEvidence)
+        };
+
+        return content;
+    }
+
+    fillVariantReportAttributes() {
+        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+            variant => variant?.status === "REPORTED");
+        const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
+        const _variantModel = {
+            _classificationAcmgTT: "",
+            _classsificationDiscussionTT: "",
+            _variantText: "",
+            id: "",
+            hgvs: "",
+            genId: "",
+            transcriptId: "",
+            title: "",
+            populationControlText: "",
+            bibliographyEvidenceText: "",
+            diseaseAssociationText: "",
+            recommendations: "",
+            others: "",
+            _metadata: {
+                opencgaInterpretation: [
+                    {
+                        idInterpretation: "",
+                        filter: {}
+                    }
+                ]
+            }
+        };
+
+
+        variantsReported.forEach(variant => {
+            // get variant evidence with hgvs
+            const variantEvidence = this.getHgvsVariants(variant);
+            const variantIndex = variants.findIndex(variant => variant.id === variantEvidence.variantId);
+            const variantTitle = variantEvidence.clinicalEvidences.map(evidence => evidence.genomicFeature.geneName + " " + evidence.hgvs)
+                .join(" || ");
+            const classification = this.generateClassificationTemplate(variantEvidence);
+            switch (true) {
+                // Updated variants from attributes if exists and has differents transcript.
+                // case variantIndex > -1 && (variants[variantIndex]?.transcriptId !== evidence.genomicFeature?.transcriptId):
+                case variantIndex > -1:
+                    variants[variantIndex] = {
+                        ..._variantModel, // init model
+                        ...variants[variantIndex],
+                        _classificationAcmgTT: classification.acmgContent,
+                        _classsificationDiscussionTT: classification.discussionContent,
+                        title: variantTitle,
+                        // hgvs: evidence.hgvs,
+                        // genId: evidence.genomicFeature.geneName?? "",
+                        // transcriptId: evidence.genomicFeature.transcriptId,
+                    };
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    break;
+                // new variant reported if not exist on attributes report
+                case variantIndex < 0:
+                    variants.push(
+                        {
+                            ..._variantModel, // init model
+                            id: variantEvidence.variantId,
+                            _classificationAcmgTT: classification.acmgContent,
+                            _classsificationDiscussionTT: classification.discussionContent,
+                            title: variantTitle,
+                            // genId: evidence.genomicFeature?.geneName?? "",
+                            // hgvs: evidence.hgvs,
+                            // transcriptId: evidence.genomicFeature.transcriptId,
+                        },
+                    );
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    break;
+            }
+        });
+    }
+
+    getHgvsVariants(variant) {
+        // gen (TranscriptID) hgvs
+        const selectedEvidences = variant.evidences
+            .filter(evidences => evidences.review.select);
+        const variantHgvs = variant.annotation.hgvs;
+
+        const clinicalEvidences = selectedEvidences.map(evidence => {
+            const transcriptId = evidence.genomicFeature.transcriptId;
+            const hgvsFound = variantHgvs.find(hgvs => hgvs.startsWith(transcriptId));
+            return {
+                ...evidence,
+                hgvs: hgvsFound || transcriptId
+            };
+        });
+
+        return {
+            variantId: variant.id,
+            clinicalEvidences
+        };
+    }
+
     generateResultsTemplate() {
         const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
             variant => variant?.status === "REPORTED");
@@ -203,91 +318,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");
             UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.mainResults.templateResult", `${variantAcmg} <ol>${hgvsList}</ol> </br>`);
         }
-    }
-
-    fillVariantReportAttributes() {
-        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
-            variant => variant?.status === "REPORTED");
-        const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
-        const _variantModel = {
-            _classificationAcmgTT: "",
-            _classsificationDiscussionTT: "",
-            _variantText: "",
-            id: "",
-            genId: "",
-            hgvs: "",
-            transcriptId: "",
-            title: "",
-            populationControlText: "",
-            bibliographyEvidenceText: "",
-            diseaseAssociationText: "",
-            recommendations: "",
-            others: "",
-            _metadata: {
-                opencgaInterpretation: [
-                    {
-                        idInterpretation: "",
-                        filter: {}
-                    }
-                ]
-            }
-        };
-        variantsReported.forEach(variant => {
-            // get variant evidence with hgvs
-            const evidence = this.getHgvsVariants(variant)[0];
-            const variantIndex = variants.findIndex(variant => variant.id === evidence.variantId);
-            const variantTitle = (evidence.genomicFeature.geneName || "-") + " " + evidence.hgvs;
-            const evidenceAcmg = (evidence.review?.clinicalSignificance?? "") + (evidence.review.acmg.length > 0? `(${evidence.review.acmg?.map(acmg => acmg.classification).join(",")})` : "");
-            // title: "<p><strong>PKD1 (NM_001009944.2): c.9157G&gt;A;p.Ala3053Thr, exón 25</strong></p>",
-            switch (true) {
-
-                // Updated variants from attributes if exists and has differents transcript.
-                case variantIndex > -1 && (variants[variantIndex]?.transcriptId !== evidence.genomicFeature?.transcriptId):
-                    variants[variantIndex] = {
-                        ..._variantModel, // init model
-                        ...variants[variantIndex],
-                        hgvs: evidence.hgvs,
-                        genId: evidence.genomicFeature.geneName?? "",
-                        transcriptId: evidence.genomicFeature.transcriptId,
-                        title: variantTitle,
-                        acmg: evidenceAcmg,
-                    };
-                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
-                    break;
-                // new variant reported if not exist on attributes report
-                case variantIndex < 0:
-                    variants.push(
-                        {
-                            ..._variantModel, // init model
-                            id: evidence.variantId,
-                            genId: evidence.genomicFeature?.geneName?? "",
-                            hgvs: evidence.hgvs,
-                            transcriptId: evidence.genomicFeature.transcriptId,
-                            title: variantTitle,
-                            acmg: evidenceAcmg,
-                        },
-                    );
-                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
-                    break;
-            }
-        });
-    }
-
-    getHgvsVariants(variant) {
-        // gen (TranscriptID) hgvs
-        const selectedEvidences = variant.evidences
-            .filter(evidences => evidences.review.select);
-        const variantHgvs = variant.annotation.hgvs;
-
-        return selectedEvidences.map(evidence => {
-            const transcriptId = evidence.genomicFeature.transcriptId;
-            const hgvsFound = variantHgvs.find(hgvs => hgvs.startsWith(transcriptId));
-            return {
-                ...evidence,
-                variantId: variant.id,
-                hgvs: hgvsFound || transcriptId
-            };
-        });
     }
 
     generateMethodologyTemplate() {
