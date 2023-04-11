@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/view/detail-tabs.js";
 import "./steiner-variant-interpreter-analysis-overview.js";
+import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/hrdetect-analysis.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 
@@ -43,9 +43,6 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
             clinicalAnalysisId: {
                 type: String
             },
-            settings: {
-                type: Object
-            }
         };
     }
 
@@ -54,7 +51,7 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("settings")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -112,75 +109,65 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
         const items = [];
 
         if (this.clinicalAnalysis) {
-            const visibleTabs = new Set((this.settings?.tabs || []).map(tab => tab.id));
-
-            if (visibleTabs.has("overview")) {
-                items.push({
-                    id: "overview",
-                    active: true,
-                    name: "Overview",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-8 col-md-offset-2">
-                                <tool-header title="Analysis Overview" class="bg-white"></tool-header>
-                                <variant-interpreter-custom-analysis-overview
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .settings="${this.settings}"
-                                    .active="${active}">
-                                </variant-interpreter-custom-analysis-overview>
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (visibleTabs.has("mutational-signature")) {
-                items.push({
-                    id: "mutational-signature",
-                    name: "Mutational Signature",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        const probandId = clinicalAnalysis.proband.id;
-                        const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
-                        return html`
-                            <div class="col-md-8 col-md-offset-2">
-                                <tool-header
-                                    title="Mutational Signature - ${probandId} (${somaticSample?.id})"
-                                    class="bg-white">
-                                </tool-header>
-                                <mutational-signature-analysis
-                                    .toolParams="${{query: {sample: somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .active="${active}">
-                                </mutational-signature-analysis>
-                            </div>
-                        `;
-                    },
-                });
-            }
-            if (visibleTabs.has("hrdetect")) {
-                items.push({
-                    id: "hrdetect",
-                    name: "HRDetect",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        const probandId = clinicalAnalysis.proband.id;
-                        const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
-                        return html`
-                            <div class="col-md-8 col-md-offset-2">
-                                <tool-header
-                                    title="HRDetect - ${probandId} (${somaticSample?.id})"
-                                    class="bg-white">
-                                </tool-header>
-                                <hrdetect-analysis
-                                    .toolParams="${{query: {sample: somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .active="${active}">
-                                </hrdetect-analysis>
-                            </div>
-                        `;
-                    },
-                });
-            }
+            items.push({
+                id: "overview",
+                active: true,
+                name: "Overview",
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="col-md-8 col-md-offset-2">
+                            <tool-header title="Analysis Overview" class="bg-white"></tool-header>
+                            <steiner-variant-interpreter-analysis-overview
+                                .opencgaSession="${opencgaSession}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .active="${active}">
+                            </steiner-variant-interpreter-analysis-overview>
+                        </div>
+                    `;
+                },
+            });
+            items.push({
+                id: "mutational-signature",
+                name: "Mutational Signature",
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    const probandId = clinicalAnalysis.proband.id;
+                    const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
+                    return html`
+                        <div class="col-md-8 col-md-offset-2">
+                            <tool-header
+                                title="Mutational Signature - ${probandId} (${somaticSample?.id})"
+                                class="bg-white">
+                            </tool-header>
+                            <mutational-signature-analysis
+                                .toolParams="${{query: {sample: somaticSample?.id}}}"
+                                .opencgaSession="${opencgaSession}"
+                                .active="${active}">
+                            </mutational-signature-analysis>
+                        </div>
+                    `;
+                },
+            });
+            items.push({
+                id: "hrdetect",
+                name: "HRDetect",
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    const probandId = clinicalAnalysis.proband.id;
+                    const somaticSample = clinicalAnalysis?.proband?.samples?.find(sample => sample.somatic);
+                    return html`
+                        <div class="col-md-8 col-md-offset-2">
+                            <tool-header
+                                title="HRDetect - ${probandId} (${somaticSample?.id})"
+                                class="bg-white">
+                            </tool-header>
+                            <hrdetect-analysis
+                                .toolParams="${{query: {sample: somaticSample?.id}}}"
+                                .opencgaSession="${opencgaSession}"
+                                .active="${active}">
+                            </hrdetect-analysis>
+                        </div>
+                    `;
+                },
+            });
         }
 
         return {

@@ -218,8 +218,7 @@ class VariantInterpreter extends LitElement {
             return html`
                 <steiner-variant-interpreter-analysis
                     .opencgaSession="${this.opencgaSession}"
-                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .settings="${this._config.tools.find(tool => tool.id === "custom-analysis")}">
+                    .clinicalAnalysis="${this.clinicalAnalysis}">
                 </steiner-variant-interpreter-analysis>
             `;
         }
