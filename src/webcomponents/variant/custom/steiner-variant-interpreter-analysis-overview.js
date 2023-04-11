@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
-import "./variant-interpreter-custom-analysis-signature.js";
-import "./variant-interpreter-custom-analysis-hrdetect.js";
+import "./steiner-variant-interpreter-analysis-signature.js";
+import "./steiner-variant-interpreter-analysis-hrdetect.js";
 
-class VariantInterpreterCustomAnalysisOverview extends LitElement {
+class SteinerVariantInterpreterAnalysisOverview extends LitElement {
 
     constructor() {
         super();
@@ -120,4 +120,4 @@ class VariantInterpreterCustomAnalysisOverview extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-custom-analysis-overview", VariantInterpreterCustomAnalysisOverview);
+customElements.define("steiner-variant-interpreter-analysis-overview", SteinerVariantInterpreterAnalysisOverview);
