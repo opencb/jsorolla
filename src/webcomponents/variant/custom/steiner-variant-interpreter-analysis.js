@@ -20,7 +20,7 @@ import "./steiner-variant-interpreter-analysis-overview.js";
 import "../../clinical/analysis/hrdetect-analysis.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 
-class VariantInterpreterCustomAnalysis extends LitElement {
+class SteinerVariantInterpreterAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -193,4 +193,4 @@ class VariantInterpreterCustomAnalysis extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-custom-analysis", VariantInterpreterCustomAnalysis);
+customElements.define("steiner-variant-interpreter-analysis", SteinerVariantInterpreterAnalysis);
