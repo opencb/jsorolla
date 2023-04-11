@@ -25,7 +25,7 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
-import "./variant-interpreter-custom-analysis.js";
+import "../custom/steiner-variant-interpreter-analysis.js";
 import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
@@ -210,6 +210,28 @@ class VariantInterpreter extends LitElement {
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
             this.onClinicalAnalysisUpdate();
         });
+    }
+
+    renderCustomAnalysisTab() {
+        const analysisSettings = (this.settings?.tools || []).find(tool => tool?.id === "custom-analysis");
+        if (analysisSettings?.component === "steiner-analysis") {
+            return html`
+                <steiner-variant-interpreter-analysis
+                    .opencgaSession="${this.opencgaSession}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .settings="${this._config.tools.find(tool => tool.id === "custom-analysis")}">
+                </steiner-variant-interpreter-analysis>
+            `;
+        }
+
+        // No custom anaysis content available
+        return html`
+            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                <div class="alert alert-warning" role="alert">
+                    No custom analysis available at this time.
+                </div>
+            </div>
+        `;
     }
 
     renderReportTab() {
@@ -402,11 +424,7 @@ class VariantInterpreter extends LitElement {
 
                             ${this.activeTab["custom-analysis"] ? html`
                                 <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
-                                    <variant-interpreter-custom-analysis
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .settings="${this._config.tools.find(tool => tool.id === "custom-analysis")}">
-                                    </variant-interpreter-custom-analysis>
+                                    ${this.renderCustomAnalysisTab()}
                                 </div>
                             ` : null}
 
