@@ -99,7 +99,7 @@ export default class RichTextEditor extends LitElement {
                 el: textEditorElm,
                 viewer: this.isViewer,
                 initialValue: this.data || "",
-                height: this._config.height,
+                // height: this._config.height,
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,
                 hideModeSwitch: this._config.hideModeSwitch,
@@ -128,14 +128,14 @@ export default class RichTextEditor extends LitElement {
                 el: textEditorElm,
                 viewer: this.isViewer,
                 initialValue: this.data || "",
-                height: this._config.height,
+                // height: this._config.height,
             });
         } else {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this.isViewer,
                 initialValue: this.data || "",
-                height: this._config.height,
+                // height: this._config.height,
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,
                 hideModeSwitch: this._config.hideModeSwitch,
@@ -168,7 +168,7 @@ export default class RichTextEditor extends LitElement {
             ],
             hideModeSwitch: true,
             viewer: true,
-            height: "400px",
+            // height: "400px",
             previewStyle: "vertical",
             usageStatistics: false,
             disabled: false
@@ -176,7 +176,7 @@ export default class RichTextEditor extends LitElement {
     }
 
     render() {
-        const styleContent = this.isViewer ? "overflow-y: scroll; padding:1%; height:400px; border:1px solid #dadde6": "height:400px;";
+        const styleContent = this.isViewer ? "overflow-y: scroll; padding:1%; max-height:400px; border:1px solid #dadde6": "height:400px;";
         if (this._config?.preview) {
             return html `<div id="${this.textEditorId}" style="${styleContent}"></div>`;
         }
