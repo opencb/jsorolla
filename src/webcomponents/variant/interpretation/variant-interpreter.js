@@ -212,6 +212,38 @@ class VariantInterpreter extends LitElement {
         });
     }
 
+    renderReportTab() {
+        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
+        if (settingReporter && settingReporter?.component === "steiner-report") {
+            return html`
+                <div class="col-md-10 col-md-offset-1">
+                    <tool-header
+                        class="bg-white"
+                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                    </tool-header>
+                    <steiner-report
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </steiner-report>
+                </div>
+            `;
+        } else {
+            return html`
+                <div class="col-md-10 col-md-offset-1">
+                    <tool-header
+                        class="bg-white"
+                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                    </tool-header>
+                    <clinical-analysis-review
+                        @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-review>
+                </div>
+            `;
+        }
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
@@ -221,58 +253,6 @@ class VariantInterpreter extends LitElement {
                     <h3>No project available to browse. Please login to continue</h3>
                 </div>
             `;
-        }
-
-        // Note: this a temporal
-        const configReportTabs = {
-            display: {
-                align: "center",
-            },
-            items: []
-        };
-
-        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
-        if (settingReporter && settingReporter?.component === "steiner-report") {
-            configReportTabs.items.push({
-                id: "variantReport",
-                name: "Variant Report",
-                active: false,
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <steiner-report
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </steiner-report>
-                        </div>
-                    `;
-                }
-            });
-        } else {
-            configReportTabs.items.push({
-                id: "caseReport",
-                name: "Case Observations Review",
-                active: true,
-                render: (clinicalAnalysis, active, opencgaSession) => {
-                    return html`
-                        <div class="col-md-10 col-md-offset-1">
-                            <tool-header
-                                class="bg-white"
-                                title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-analysis-review
-                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </clinical-analysis-review>
-                        </div>
-                    `;
-                }
-            });
         }
 
         return html`
@@ -472,11 +452,7 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                    <detail-tabs
-                                        .data="${this.clinicalAnalysis}"
-                                        .config="${configReportTabs}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </detail-tabs>
+                                    ${this.renderReportTab()}
                                 </div>
                             ` : null}
                         ` : null}
