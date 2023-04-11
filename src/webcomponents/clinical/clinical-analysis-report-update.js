@@ -505,10 +505,10 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         // open modal by prop/config
         return html`
             ${this.displayConfig?.buttonsVisible? html `
-                <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px"
-                    @click=${this.openModalReport}>
-                        ${this.displayConfig?.btnName? this.displayConfig.btnName : "Edit Content"}
-                </button>`: nothing}
+                <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px" @click=${this.openModalReport}>
+                    ${this.displayConfig?.btnName? this.displayConfig.btnName : "Edit Content"}
+                </button>
+                `: nothing}
 
             ${this.renderModalReport()}
         `;
@@ -532,13 +532,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                         buttonsVisible: true,
                     },
                     elements: [
-                        // {
-                        //     field: "variant",
-                        //     type: "rich-text",
-                        //     display: {
-                        //         preview: true,
-                        //     }
-                        // },
                         {
                             type: "custom",
                             display: {
@@ -567,6 +560,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
@@ -584,6 +578,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
@@ -601,6 +596,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
@@ -618,6 +614,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
@@ -635,6 +632,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
@@ -652,6 +650,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             type: "rich-text",
                             display: {
                                 preview: false,
+                                viewer: false
                             }
                         },
                     ]
