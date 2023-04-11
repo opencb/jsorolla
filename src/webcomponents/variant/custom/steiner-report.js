@@ -15,15 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import "./variant-interpreter-grid.js";
-import "./variant-interpreter-rearrangement-grid.js";
+import "../interpretation/variant-interpreter-grid.js";
+import "../interpretation/variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 import UtilsNew from "../../../core/utils-new.js";
 
-class CaseSteinerReport extends LitElement {
+class SteinerReport extends LitElement {
 
     constructor() {
         super();
@@ -1224,4 +1224,4 @@ class CaseSteinerReport extends LitElement {
 
 }
 
-customElements.define("case-steiner-report", CaseSteinerReport);
+customElements.define("steiner-report", SteinerReport);
