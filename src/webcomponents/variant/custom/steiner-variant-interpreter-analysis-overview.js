@@ -41,9 +41,6 @@ class SteinerVariantInterpreterAnalysisOverview extends LitElement {
             active: {
                 type: Boolean,
             },
-            settings: {
-                type: Object
-            }
         };
     }
 
@@ -52,7 +49,7 @@ class SteinerVariantInterpreterAnalysisOverview extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis") || changedProperties.has("settings")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -74,40 +71,34 @@ class SteinerVariantInterpreterAnalysisOverview extends LitElement {
         const items = [];
 
         if (this.clinicalAnalysis) {
-            const visibleTabs = new Set((this.settings?.tabs || []).map(tab => tab.id));
-
-            if (visibleTabs.has("mutational-signature")) {
-                items.push({
-                    id: "mutational-signature",
-                    name: "Mutational Signature",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <div class="col-md-10">
-                            <h3>Mutational Signature</h3>
-                            <variant-interpreter-custom-analysis-signature
-                                .opencgaSession=${opencgaSession}
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                ?active="${active}">
-                            </variant-interpreter-custom-analysis-signature>
-                        </div>
-                    `,
-                });
-            }
-            if (visibleTabs.has("hrdetect")) {
-                items.push({
-                    id: "hrdetect",
-                    name: "HRDetect",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <div class="col-md-10">
-                            <h3>HRDetect</h3>
-                            <variant-interpreter-custom-analysis-hrdetect
-                                .opencgaSession=${opencgaSession}
-                                .clinicalAnalysis="${clinicalAnalysis}"
-                                ?active="${active}">
-                            </variant-interpreter-custom-analysis-hrdetect>
-                        </div>
-                    `,
-                });
-            }
+            items.push({
+                id: "mutational-signature",
+                name: "Mutational Signature",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <div class="col-md-10">
+                        <h3>Mutational Signature</h3>
+                        <steiner-variant-interpreter-analysis-signature
+                            .opencgaSession=${opencgaSession}
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            ?active="${active}">
+                        </steiner-variant-interpreter-analysis-signature>
+                    </div>
+                `,
+            });
+            items.push({
+                id: "hrdetect",
+                name: "HRDetect",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <div class="col-md-10">
+                        <h3>HRDetect</h3>
+                        <steiner-variant-interpreter-analysis-hrdetect
+                            .opencgaSession=${opencgaSession}
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            ?active="${active}">
+                        </steiner-variant-interpreter-analysis-hrdetect>
+                    </div>
+                `,
+            });
         }
 
         return {
