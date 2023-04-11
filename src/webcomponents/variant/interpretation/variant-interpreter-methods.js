@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
+import "../../clinical/analysis/hrdetect-analysis.js";
 
 class VariantInterpreterMethods extends LitElement {
 
