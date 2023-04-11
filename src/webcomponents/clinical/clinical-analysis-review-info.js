@@ -210,17 +210,17 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             variant => variant?.status === "REPORTED");
         const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
         const _variantModel = {
+            _classificationAcmgTT: "",
+            _classsificationDiscussionTT: "",
+            _variantText: "",
             id: "",
             genId: "",
             hgvs: "",
             transcriptId: "",
             title: "",
-            variant: "",
-            evidence: "",
-            populationControl: "",
-            acmg: "",
-            classification: "",
-            diseaseAssociation: "",
+            populationControlText: "",
+            bibliographyEvidenceText: "",
+            diseaseAssociationText: "",
             recommendations: "",
             others: "",
             _metadata: {
@@ -303,9 +303,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             generateContent("h2", "Validation with sanger and MLPA"),
             generateContent("h2", "Limitaciones del estudio"),
         ];
-        const methodology = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.methodology.description", "");
+        const methodology = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.study.method.description", "");
         if (UtilsNew.isEmpty(methodology)) {
-            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.methodology.description", `${methodologyTemplate.join("<br>")}`);
+            UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.study.method.description", `${methodologyTemplate.join("<br>")}`);
         }
     }
 
@@ -640,7 +640,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         },
                         UtilsNew.titleElement("Methodology Used"),
                         {
-                            field: "interpretation.attributes.reportTest.methodology.description",
+                            field: "interpretation.attributes.reportTest.study.method.description",
                             type: "rich-text",
                             display: {
                                 disabled: false
@@ -773,7 +773,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         },
                         UtilsNew.titleElement("Results Summary"),
                         {
-                            field: "interpretation.attributes.reportTest.mainResults.resultsSummary",
+                            field: "interpretation.attributes.reportTest.mainResults.summaryResult",
                             type: "rich-text",
                             display: {
                                 disabled: false,

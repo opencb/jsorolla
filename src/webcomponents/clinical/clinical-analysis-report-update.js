@@ -125,7 +125,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             this._variantReview = UtilsNew.objectClone(this.variantReview);
             this._reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
             this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant.id === this.variantReview.id) || {};
-            UtilsNew.setObjectValue(this._variantInfo, "variant", this._variantReview?.discussion?.text || "");
+            UtilsNew.setObjectValue(this._variantInfo, "_variantText", this._variantReview?.discussion?.text || "");
             this._config = this.getDefaultConfig();
             this.requestUpdate();
         }
@@ -519,7 +519,6 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
             type: "tabs",
             description: "Update an variant report",
             display: {
-
                 buttonsVisible: false,
                 buttonOkText: "Save",
                 buttonClearText: ""
@@ -547,7 +546,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                     return html `
                                     <p class="text-muted"># Discussion provided from review variant (Not editable here, please use the summary tab at the bottom of the variant grid)</p>
                                         <rich-text-editor
-                                            .data="${this._variantInfo.variant}"
+                                            .data="${this._variantInfo._variantText}"
                                             .config="${{preview: true, disabled: true}}">
                                         </rich-text-editor>`;
                                 }
@@ -564,7 +563,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "evidence",
+                            field: "bibliographyEvidenceText",
                             type: "rich-text",
                             display: {
                                 preview: false,
@@ -581,7 +580,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "classification",
+                            field: "_classificationAcmgTT",
                             type: "rich-text",
                             display: {
                                 preview: false,
@@ -598,7 +597,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "populationControl",
+                            field: "populationControlText",
                             type: "rich-text",
                             display: {
                                 preview: false,
@@ -615,7 +614,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "diseaseAssociation",
+                            field: "diseaseAssociationText",
                             type: "rich-text",
                             display: {
                                 preview: false,

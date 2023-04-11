@@ -119,8 +119,8 @@ class CaseSmsReport extends LitElement {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
-                caseInterpretation: this.clinicalAnalysis?.interpretation,
             };
+            // caseInterpretation: this.clinicalAnalysis?.interpretation,
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
@@ -319,9 +319,9 @@ class CaseSmsReport extends LitElement {
                                         [PdfUtils.fieldText("Fecha Nacimiento: ", UtilsNew.dateFormatter(this._reportData.patient.birthDate))],
                                         [PdfUtils.fieldText("Edad: ", this._reportData.patient.age)],
                                         [PdfUtils.fieldText("Código Sistema Salud: ", this._reportData.patient.cipa)],
-                                        [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.sample.type)],
-                                        [PdfUtils.fieldText("Fecha de Extracción: ", this._reportData.sample.extractionDate)],
-                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.sample.reason)]
+                                        [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.clinicalAnalysis.sample.type)],
+                                        [PdfUtils.fieldText("Fecha de Extracción: ", this._reportData.clinicalAnalysis.sample.extractionDate)],
+                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.clinicalAnalysis.sample.reason)]
                                     ]
                                 },
                                 layout: "headerVerticalBlueLine"
@@ -333,8 +333,8 @@ class CaseSmsReport extends LitElement {
                                 table: {
                                     widths: [230],
                                     body: [
-                                        [PdfUtils.fieldText("N. Petición: ", this._reportData.request.requestNumber)],
-                                        [PdfUtils.fieldText("Fecha de Petición: ", UtilsNew.dateFormatter(this._reportData.request.requestDate))],
+                                        [PdfUtils.fieldText("N. Petición: ", this._reportData.clinicalAnalysis.request.id)],
+                                        [PdfUtils.fieldText("Fecha de Petición: ", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.sample.requestDate))],
                                         [PdfUtils.fieldText("Dr/Dra: ", ["nombre_doctor\n", "Unidad\n", "Nombre del hopital\n", "direction del hopital\n", "CP del hospital\n"])],
                                     ]
                                 },
@@ -347,12 +347,7 @@ class CaseSmsReport extends LitElement {
                 {
                     stack: [
                         PdfUtils.headerText("3. Descripción del Estudio\n\n"),
-                        // {
-                        //     text:
-                        //         "Clinical diagnosis of autosomal dominant polycystic kidney disease (PQRAD)\n",
-                        //     style: "small"
-                        // },
-                        PdfUtils.fieldText("Razón del Estudio: ", this.clinicalAnalysis.description),
+                        PdfUtils.fieldText("Razón del Estudio: ", this._reportData.study.reason),
                         PdfUtils.fieldText("Projecto: ", this._reportData.study.project),
                         PdfUtils.fieldText("Análisis: ", this._reportData.study.currentAnalysis),
                         PdfUtils.fieldText("Genes Prioritarios: ", this._reportData.study.genePriority),
@@ -365,8 +360,7 @@ class CaseSmsReport extends LitElement {
                             text: "4. Metodologia Empleada\n\n",
                             style: "header"
                         },
-                        PdfUtils.htmlToPdf(this._reportData.methodology.description?.replaceAll("h2", "b")),
-                        // alignment: "justify"
+                        PdfUtils.htmlToPdf(this._reportData.study.method.description?.replaceAll("h2", "b")),
                     ],
                     margin: [0, 10]
                 },
@@ -380,7 +374,7 @@ class CaseSmsReport extends LitElement {
                         {
                             text: "No se than encontrado variants para mostrar (tabla)\n\n"
                         },
-                        PdfUtils.htmlToPdf(this._reportData.results)
+                        PdfUtils.htmlToPdf(this._reportData.mainResults.templateResult + " " + this._reportData.mainResults.summaryResult)
                     ],
                     margin: [0, 10]
                 },
@@ -390,7 +384,7 @@ class CaseSmsReport extends LitElement {
                             text: "6. Interpretación de Resultados\n\n",
                             style: "header"
                         },
-                        PdfUtils.htmlToPdf(this._reportData.interpretation),
+                        PdfUtils.htmlToPdf(this._reportData.interpretation ?? ""),
                     ],
                     margin: [0, 10]
                 },
@@ -398,7 +392,7 @@ class CaseSmsReport extends LitElement {
                     text: "7. Notas\n\n",
                     style: "header"
                 },
-                PdfUtils.htmlToPdf(this._reportData.notes),
+                PdfUtils.htmlToPdf(this._reportData.notes ?? ""),
                 {
                     stack: [
                         {
@@ -406,7 +400,7 @@ class CaseSmsReport extends LitElement {
                             style: "header"
                         },
                         {
-                            ...PdfUtils.htmlToPdf(this._reportData?.appendix || ""),
+                            ...PdfUtils.htmlToPdf(this._reportData?.appendix?? ""),
                             // alignment: "justify", // if the content is empty this will crash
                         }
                     ],
@@ -415,13 +409,13 @@ class CaseSmsReport extends LitElement {
                 {
                     columns: [
                         [
-                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.laboratory.responsible),
-                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.laboratory.facultive.join()),
-                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.laboratory.email)
+                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.lab.responsible),
+                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.lab.facultative.join(",")),
+                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.lab.email)
                         ],
                         [
-                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.laboratory.validation),
-                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.laboratory.date)),
+                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.lab.validation),
+                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.lab.date)),
                         ]
                     ]
                 }
@@ -489,7 +483,7 @@ class CaseSmsReport extends LitElement {
 
     onSaveJsonReport() {
         const {
-            patient, sample, request, notes, study, interpretations, clinicalAnalysis, mainResults,
+            patient, notes, study, interpretations, clinicalAnalysis, mainResults,
         } = this._reportData;
         const patientElements = {
             name: {
@@ -514,7 +508,7 @@ class CaseSmsReport extends LitElement {
             },
             typeSample: {
                 label: "Tipo de Muestra",
-                content: sample?.type
+                content: clinicalAnalysis.sample?.type
             },
             extractionDate: {
                 label: "Fecha de Extracción",
@@ -522,7 +516,7 @@ class CaseSmsReport extends LitElement {
             },
             reason: {
                 label: "Motivo",
-                content: sample.reason
+                content: clinicalAnalysis.sample.reason
             }
         };
         const doctorInfo = field => `
@@ -535,21 +529,21 @@ class CaseSmsReport extends LitElement {
         const clinicalElements = {
             requestId: {
                 label: "N. Petición",
-                content: request?.requestNumber
+                content: clinicalAnalysis.request?.id
             },
             requestDate: {
                 label: "Fecha de Petición",
-                content: request?.requestDate
+                content: clinicalAnalysis.sample?.requestDate
             },
             doctor: {
                 label: "Fecha de Petición",
-                content: doctorInfo(request?.requestDoctor)
+                content: doctorInfo(clinicalAnalysis.request?.doctor)
             },
         };
         const studyElements = {
             reason: {
                 label: "Razón del Estudio",
-                content: this._clinicalAnalysis.description
+                content: study.description
             },
             project: {
                 label: "Proyecto",
@@ -564,7 +558,7 @@ class CaseSmsReport extends LitElement {
                 content: study.genePriority
             }
         };
-        const methodologyHtml = this._reportData.methodology.description?.replaceAll("h2", "b");
+        const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
 
         const variantsHtml = interpretations.variants
@@ -578,23 +572,23 @@ class CaseSmsReport extends LitElement {
         const signsElements = {
             responsible: {
                 label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.laboratory?.responsible
+                content: clinicalAnalysis?.lab?.responsible
             },
             facultive: {
                 label: "Facultivos",
-                content: clinicalAnalysis?.laboratory?.facultive.join()
+                content: clinicalAnalysis?.lab?.facultative.join()
             },
             contact: {
                 label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.laboratory?.email
+                content: clinicalAnalysis?.lab?.email
             },
             validation: {
                 label: "Validado por",
-                content: clinicalAnalysis?.laboratory?.validation
+                content: clinicalAnalysis?.lab?.validation
             },
             date: {
                 label: "Fecha",
-                content: clinicalAnalysis?.laboratory?.date
+                content: clinicalAnalysis?.lab?.date
             },
         };
 
@@ -935,31 +929,16 @@ class CaseSmsReport extends LitElement {
                 },
                 {
                     id: "methodology",
-                    // title: "4. Methodology used",
                     elements: [
                         titleElement("4. Methodology used"),
                         // titleElement("4.1 Study Reason", "16"),
                         {
-                            field: "methodology.description",
+                            field: "study.method.description",
                             type: "rich-text",
                             display: {
                                 disabled: false
                             }
                         },
-                        // {
-                        //     field: "methodology.description",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: description => {
-                        //             const textClean = description?.replace(/  +/g, " ");
-                        //             return html`
-                        //             <text-editor
-                        //                 .data="${textClean}">
-                        //             </text-editor>`;
-                        //         }
-                        //     },
-                        // },
-
                     ]
                 },
                 {
@@ -971,7 +950,7 @@ class CaseSmsReport extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const variantsReported = data?.caseInterpretation?.primaryFindings?.filter(
+                                    const variantsReported = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(
                                         variant => variant?.status === "REPORTED");
                                     return UtilsNew.isNotEmptyArray(variantsReported) ?
                                         html`
@@ -1196,9 +1175,9 @@ class CaseSmsReport extends LitElement {
                             display: {
                                 render: data => {
                                     return html `
-                                    <p><b>${data?.clinicalAnalysis?.laboratory?.name}</b> ${data.clinicalAnalysis?.laboratory.responsible}</p>
-                                    <p><b>Fac:</b> ${data?.clinicalAnalysis?.laboratory?.facultive?.join()}</p>
-                                    <p><b>Contacto:</b> ${data?.clinicalAnalysis?.laboratory?.email}</p>
+                                    <p><b>${data?.clinicalAnalysis?.lab?.name}</b> ${data.clinicalAnalysis?.lab.responsible}</p>
+                                    <p><b>Fac:</b> ${data?.clinicalAnalysis?.lab?.facultative?.join()}</p>
+                                    <p><b>Contacto:</b> ${data?.clinicalAnalysis?.lab?.email}</p>
                                     `;
                                 }
                             },
@@ -1213,8 +1192,8 @@ class CaseSmsReport extends LitElement {
                             display: {
                                 render: data => {
                                     return html`
-                                        <p><b>Validado por:</b> ${data?.clinicalAnalysis?.laboratory.validation}</p>
-                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.laboratory.date)}</p>
+                                        <p><b>Validado por:</b> ${data?.clinicalAnalysis?.lab.validation}</p>
+                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.lab.date)}</p>
                                         `;
                                 }
                             }
