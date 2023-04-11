@@ -994,10 +994,23 @@ class CaseSmsReport extends LitElement {
                             }
                         },
                         {
-                            field: "results",
-                            type: "rich-text",
+                            field: "mainResults",
+                            type: "custom",
                             display: {
-                                disabled: false
+                                disabled: false,
+                                preview: true,
+                                render: data => {
+                                    const resultContent = (data?.templateResult ?? "") + "" + (data?.resultsSummary ?? "");
+                                    return html`
+                                    <rich-text-editor
+                                        .data="${resultContent}"
+                                        .config="${{
+                                        disabled: false,
+                                        preview: true,
+                                    }}">
+                                    </rich-text-editor>
+                                    `;
+                                }
                             }
                         },
                     ]
@@ -1007,29 +1020,35 @@ class CaseSmsReport extends LitElement {
                     // title: "6. Interpretation results",
                     elements: [
                         titleElement("6. Interpretation results"),
+                        // {
+                        //     field: "interpretation",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         disabled: false
+                        //     }
+                        // },
                         {
-                            field: "interpretation",
-                            type: "rich-text",
+                            field: "interpretations",
+                            type: "custom",
                             display: {
-                                disabled: false
+                                disabled: false,
+                                preview: true,
+                                render: interpretations => {
+                                    const variantsHtml = interpretations.variants
+                                        .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+                                    const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
+                                    return html`
+                                    <rich-text-editor
+                                        .data="${interpretationsHtml}"
+                                        .config="${{
+                                        disabled: false,
+                                        preview: true,
+                                    }}">
+                                    </rich-text-editor>
+                                    `;
+                                }
                             }
-                        }
-                        // {
-                        //     title: "",
-                        //     display: {
-                        //         defaultLayout: "vertical",
-                        //     },
-                        //     // field: "info.project",
-                        //     defaultValue: "'Global Section'"
-                        // },
-                        // {
-                        //     title: "",
-                        //     display: {
-                        //         defaultLayout: "vertical",
-                        //     },
-                        //     // field: "info.project",
-                        //     defaultValue: "'section for each variant'"
-                        // },
+                        },
                     ]
                 },
                 {

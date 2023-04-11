@@ -239,7 +239,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const variantTitle = (evidence.genomicFeature.geneName || "-") + " " + evidence.hgvs;
             const evidenceAcmg = (evidence.review?.clinicalSignificance?? "") + (evidence.review.acmg.length > 0? `(${evidence.review.acmg?.map(acmg => acmg.classification).join(",")})` : "");
             // title: "<p><strong>PKD1 (NM_001009944.2): c.9157G&gt;A;p.Ala3053Thr, exón 25</strong></p>",
-            debugger;
             switch (true) {
 
                 // Updated variants from attributes if exists and has differents transcript.
@@ -774,7 +773,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         },
                         UtilsNew.titleElement("Results Summary"),
                         {
-                            field: "interpretation.attributes.reportTest.mainResults.summaryResult",
+                            field: "interpretation.attributes.reportTest.mainResults.resultsSummary",
                             type: "rich-text",
                             display: {
                                 disabled: false,
