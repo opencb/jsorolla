@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
-import "./variant-interpreter-custom-analysis-overview.js";
+import "./steiner-variant-interpreter-analysis-overview.js";
 import "../../clinical/analysis/hrdetect-analysis.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 
