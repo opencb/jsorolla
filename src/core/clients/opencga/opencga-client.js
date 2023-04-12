@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {RestResponse} from "../rest-response.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";
@@ -440,7 +439,7 @@ export class OpenCGAClient {
                                         //     throw new Error("Default study not found");
                                         // }
 
-                                        Fetch the Disease Panels for each Study
+                                        // Fetch the Disease Panels for each Study
                                         _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
