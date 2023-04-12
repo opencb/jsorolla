@@ -1091,19 +1091,21 @@ export default class UtilsNew {
                     "cipa": ""
                 },
                 "clinicalAnalysis": {
-                    "applicant": {
-                        "name": "",
-                        "center": "",
-                        "unit": "",
-                        "address": "",
-                        "phone": "",
-                        "email": ""
-                    },
                     "analysts": [],
-                    "laboratory": {
+                    "medicalHistoryId": "",
+                    "familyID": "",
+                    "sample": {
+                        "id": "",
+                        "type": "",
+                        "reason": "",
+                        "extractionDate": "",
+                        "requestDate": "",
+                        "receptionDate": ""
+                    },
+                    "lab": {
                         "name": "",
                         "responsible": "",
-                        "facultive": [
+                        "facultative": [
                             "",
                             "",
                             ""
@@ -1116,61 +1118,53 @@ export default class UtilsNew {
                         "validation": "",
                         "date": ""
                     },
-                    "numPetition": "",
-                    "numHistoricalClinical": ""
-                },
-                "report": {
-                    "title": "",
-                    "overview": "",
-                    "methodology": "",
-                    "result": "",
-                    "discussion": "",
-                    "notes": "",
-                    "disclaimer": "",
-                    "annex": [
-                        ""
-                    ]
-                },
-                "sample": {
-                    "type": "",
-                    "extractionDate": "",
-                    "reason": ""
-                },
-                "request": {
-                    "requestNumber": "",
-                    "requestDate": "",
-                    "requestingDoctor": {
-                        "name": "",
-                        "specialization": "",
-                        "hospitalName": "",
-                        "address": "",
-                        "city": "",
-                        "code": ""
+                    "request": {
+                        "id": "",
+                        "doctor": {
+                            "name": "",
+                            "specialization": "",
+                            "hospitalName": "",
+                            "address": "",
+                            "city": "",
+                            "code": ""
+                        }
                     }
                 },
                 "study": {
                     "reason": "",
                     "project": "",
                     "currentAnalysis": "",
-                    "genePriority": []
-                },
-                "methodology": {
-                    "description": ""
+                    "genePriority": [],
+                    "method": {
+                        "description": "",
+                        "sequencing": "",
+                        "alignment": "",
+                        "processing": "",
+                        "calling": "",
+                        "softwate": "",
+                        "cnvs": "",
+                        "references": "",
+                        "db": "",
+                        "predSilico": "",
+                        "note": ""
+                    }
                 },
                 "mainResults": {
-                    "resultsSummary": "",
+                    "summaryResult": "",
                     "variantResult": "",
                     "variantAnnotation": {},
-                    "notes": ""
+                    "notes": "",
+                    "templateResult": ""
                 },
                 "interpretations": {
-                    "intro": "",
+                    "intro": "<p>SYNNART</p>",
                     "_variantsKeys": [
-                        "variant",
-                        "evidence",
-                        "populationControl",
-                        "acmg",
-                        "diseaseAssociation",
+                        "_variantText",
+                        "bibliographyEvidenceText",
+                        "_classificationAcmgTT",
+                        "_classsificationDiscussionTT",
+                        "populationControlText",
+                        "diseaseAssociationText",
                         "recommendations",
                         "others"
                     ],
@@ -1179,7 +1173,9 @@ export default class UtilsNew {
                 "qcInfo": {},
                 "limitations": "",
                 "disclaimer": "",
-                "appendix": ""
+                "appendix": "",
+                "report_files": [],
+                "_report": []
             }
         };
     }
