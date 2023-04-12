@@ -79,6 +79,13 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+        super.update(changedProperties);
+    }
+
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
