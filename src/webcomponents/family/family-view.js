@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
-import "../commons/view/pedigree-view.js";
+import "../commons/image-viewer.js";
 import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils";
 
@@ -353,10 +353,10 @@ export default class FamilyView extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                defaultLayout: "vertical",
-                                visible: !this._config?.hiddenFields?.includes("pedigree"),
                                 render: () => html`
-                                    <pedigree-view .family="${this.family}"></pedigree-view>
+                                    <image-viewer
+                                        .data="${this.family?.pedigreeGraph?.base64}">
+                                    </image-viewer>
                                 `,
                             }
                         }
