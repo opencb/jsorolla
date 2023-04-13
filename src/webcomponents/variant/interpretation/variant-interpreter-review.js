@@ -15,11 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-review-primary.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../clinical/interpretation/clinical-interpretation-editor.js";
 import "../../commons/view/detail-tabs.js";
-import "../../clinical/clinical-analysis-review.js";
+import "../../clinical/interpretation/clinical-interpretation-summary.js";
+import "../../clinical/interpretation/clinical-interpretation-update.js";
 
 
 export default class VariantInterpreterReview extends LitElement {
@@ -67,7 +69,6 @@ export default class VariantInterpreterReview extends LitElement {
         super.update(changedProperties);
     }
 
-
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -79,6 +80,12 @@ export default class VariantInterpreterReview extends LitElement {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    onClinicalInterpretationUpdate() {
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            clinicalAnalysis: this.clinicalAnalysis,
+        });
     }
 
     render() {
@@ -114,11 +121,23 @@ export default class VariantInterpreterReview extends LitElement {
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
-                            <clinical-interpretation-editor
-                                .active="${active}"
+                            <div class="col-md-8">
+                                <clinical-interpretation-summary
+                                    .opencgaSession="${opencgaSession}"
+                                    .interpretation="${clinicalAnalysis?.interpretation}">
+                                </clinical-interpretation-summary>
+                            </div>
+                            <clinical-interpretation-update
+                                .clinicalInterpretation="${clinicalAnalysis?.interpretation}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
-                            </clinical-interpretation-editor>
+                                .opencgaSession="${opencgaSession}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                    width: 8,
+                                    buttonsWidth: 8,
+                                }}"
+                                @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
+                            </clinical-interpretation-update>
                         </div>
                     `;
                 }

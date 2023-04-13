@@ -92,11 +92,14 @@ export default class DetailTabs extends LitElement {
 
         // Set default active tab
         if (this._config?.items?.length > 0 && !this._activeTab) {
-            const activeIndex = this._config.items.findIndex(item => item.active);
+            const activeIndex = this._config.items.findIndex(item => {
+                return item.active && this.isTabVisible(item);
+            });
             if (activeIndex >= 0) {
-                this._activeTab = this._config.items?.[activeIndex].id;
+                this._activeTab = this._config.items[activeIndex].id;
             } else {
-                this._activeTab = this._config.items?.[0].id;
+                // Get the first visible tab
+                this._activeTab = this._config.items.find(item => this.isTabVisible(item)).id;
             }
         }
     }
@@ -115,6 +118,20 @@ export default class DetailTabs extends LitElement {
         this.requestUpdate();
     }
 
+    isTabVisible(tab) {
+        if (typeof tab.visible === "function") {
+            return !!tab.visible(this.data, this.opencgaSession, tab);
+        } else if (typeof tab.visible === "boolean") {
+            return tab.visible;
+        } else {
+            return true;
+        }
+    }
+
+    getVisibleTabs() {
+        return (this._config.items || []).filter(tab => this.isTabVisible(tab));
+    }
+
     renderTitle() {
         const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
         return html`
@@ -125,38 +142,30 @@ export default class DetailTabs extends LitElement {
     }
 
     renderTabTitle() {
-        return html `
-            ${this._config.items.length && this._config.items.map(item => {
-            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                const isActive = this._activeTab === item.id;
-                return html`
-                        <li role="presentation"
-                            class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
-                            style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                               @click="${this.changeTab}">
-                                <span>${item.name}</span>
-                            </a>
-                        </li>
-                    `;
-            }
-        })}
-        `;
+        return this.getVisibleTabs().map(item => {
+            const isActive = this._activeTab === item.id;
+            return html`
+                <li role="presentation"
+                    class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                    style="${this._config.display?.tabTitleStyle}">
+                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                        @click="${this.changeTab}">
+                        <span>${item.name}</span>
+                    </a>
+                </li>
+            `;
+        });
     }
 
     renderTabContent() {
-        return html `
-            ${this._config.items.length && this._config.items.map(item => {
-            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                const isActive = this._activeTab === item.id;
-                return html `
-                    <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
-                        ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
-                    </div>
-                `;
-            }
-        })}
-        `;
+        return this.getVisibleTabs().map(item => {
+            const isActive = this._activeTab === item.id;
+            return html`
+                <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                    ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
+                </div>
+            `;
+        });
     }
 
     render() {
@@ -184,31 +193,34 @@ export default class DetailTabs extends LitElement {
 
         // Allow custom tabs alignment:  "center" or "justified"
         const align = this._config?.display?.align || "";
+        const visibleTabsCount = this.getVisibleTabs().length;
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
             <div class="detail-tabs">
-                <!-- TABS -->
-                ${this.mode === DetailTabs.TABS_MODE ? html`
-                    <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
-                        ${this.renderTabTitle()}
-                    </ul>
-                ` : null}
-
-                <!-- PILLS -->
-                ${this.mode === DetailTabs.PILLS_MODE ? html`
-                    <ul class="nav nav-pills" role="tablist">
-                        ${this.renderTabTitle()}
-                    </ul>
-                ` : null}
-
-                <!-- PILLS -->
-                ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
-                    <div class="col-md-2">
-                        <ul class="nav nav-pills nav-stacked" role="tablist">
+                ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
+                    <!-- TABS -->
+                    ${this.mode === DetailTabs.TABS_MODE ? html`
+                        <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
                             ${this.renderTabTitle()}
                         </ul>
-                    </div>
+                    ` : null}
+
+                    <!-- PILLS -->
+                    ${this.mode === DetailTabs.PILLS_MODE ? html`
+                        <ul class="nav nav-pills" role="tablist">
+                            ${this.renderTabTitle()}
+                        </ul>
+                    ` : null}
+
+                    <!-- PILLS -->
+                    ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
+                        <div class="col-md-2">
+                            <ul class="nav nav-pills nav-stacked" role="tablist">
+                                ${this.renderTabTitle()}
+                            </ul>
+                        </div>
+                    ` : null}
                 ` : null}
 
                 <!-- TAB CONTENT -->
@@ -222,6 +234,7 @@ export default class DetailTabs extends LitElement {
     getDefaultConfig() {
         return {
             title: "",
+            hideTabsIfOnlyOneVisible: false, // Automatically hide tabs if only one tab is visible
             display: {
                 align: "", // "center" | "justified"
 
@@ -234,6 +247,7 @@ export default class DetailTabs extends LitElement {
                 contentClass: "",
                 contentStyle: "padding: 10px",
             },
+            items: [],
             // Example:
             // items: [
             //     {
@@ -241,6 +255,7 @@ export default class DetailTabs extends LitElement {
             //         name: "Clinical",
             //         icon: "fas fa-notes-medical",
             //         active: true,
+            //         visible: () => true,
             //         render: () => {
             //             return html`
             //                 <h3>Clinical Component</h3>`;
