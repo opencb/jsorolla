@@ -818,6 +818,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "methods",
+                    title: "Methods",
+                    rowspan: 1,
+                    colspan: 1,
+                    halign: "center",
+                },
+                {
                     id: "interpretation",
                     title: `Interpretation
                         <a class='interpretation-info-icon'
@@ -995,6 +1002,19 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
                     visible: !this._config.hideClinicalInfo,
+                },
+                // Interpretation methods column
+                {
+                    id: "exomiser",
+                    title: "Exomiser",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const variant = this.checkedVariants.get(row.id);
+                        return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
+                    },
+                    align: "center",
+                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
                 },
                 // Interpretation Column
                 {
