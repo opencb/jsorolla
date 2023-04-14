@@ -197,7 +197,7 @@ export default class IndividualQcInferredSex extends LitElement {
                         Inferred Sex data not available for individuals ${individualsWithoutInferredSex.join(", ")}.
                     </div>
                 ` : null}
-                ${individualsWithoutInferredSex.length !== this.individuals.length ? html`
+                ${individualsWithoutInferredSex.length !== this.individuals?.length ? html`
                     <div>
                         <div class="btn-group pull-right">
                             <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
