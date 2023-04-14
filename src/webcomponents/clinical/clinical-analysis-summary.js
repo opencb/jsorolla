@@ -219,11 +219,32 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 render: reports => {
                                     if (reports?.length > 0) {
-                                        const nameFile = this.clinicalAnalysis.interpretation.id;
+                                        const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.json`;
                                         return reports?.map(report => html`
                                             <div>
-                                                <span style="margin-right: 10px">${nameFile}-${report._metadata?.date}.json</span>
-                                                <a @click="${e => UtilsNew.downloadJSON(report, "report_" + nameFile+"-"+ report._metadata?.date +".json")}">
+                                                <span style="margin-right: 10px">${generateNameFile(report)}</span>
+                                                <a @click="${e => UtilsNew.downloadJSON(report, generateNameFile(report))}">
+                                                    <i class="fas fa-download icon-padding"></i>
+                                                </a>
+                                            </div>`);
+                                    } else {
+                                        return html `No Report Json`;
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            title: "Report (HTML)",
+                            field: "interpretation.attributes.reportTest._report",
+                            type: "custom",
+                            display: {
+                                render: reports => {
+                                    if (reports?.length > 0) {
+                                        const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.html`;
+                                        return reports?.filter(report => report?.htmlRendered).map(report => html`
+                                            <div>
+                                                <span style="margin-right: 10px">${generateNameFile(report)}</span>
+                                                <a @click="${e => UtilsNew.downloadHTML(report.htmlRendered, generateNameFile(report))}">
                                                     <i class="fas fa-download icon-padding"></i>
                                                 </a>
                                             </div>`);
