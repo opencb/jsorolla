@@ -45,9 +45,6 @@ export default class IndividualQcInferredSex extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
@@ -55,24 +52,15 @@ export default class IndividualQcInferredSex extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("individual")) {
             this.individuals = [this.individual];
         }
+
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        // if (changedProperties.has("individuals")) {
-        //     this.requestUpdate();
-        // }
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+
         super.update(changedProperties);
     }
 
