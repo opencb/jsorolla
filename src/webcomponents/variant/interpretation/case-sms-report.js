@@ -28,6 +28,7 @@ import "../../file/file-upload-beta.js";
 import PdfBuilder from "../../../core/pdf-builder.js";
 import PdfUtils from "../../commons/utils/pdf-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import "../../commons/html-viewer.js";
 
 
 class CaseSmsReport extends LitElement {
@@ -61,6 +62,7 @@ class CaseSmsReport extends LitElement {
     #init() {
         this._reportData = {};
         this._config = this.getDefaultConfig();
+        this._reportJson = {};
     }
 
 
@@ -78,10 +80,6 @@ class CaseSmsReport extends LitElement {
 
 
     update(changedProperties) {
-        // if (changedProperties.has("clinicalAnalysisId")) {
-        //     this.clinicalAnalysisIdObserver();
-        // }
-
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -120,7 +118,6 @@ class CaseSmsReport extends LitElement {
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
             };
-            // caseInterpretation: this.clinicalAnalysis?.interpretation,
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
@@ -291,6 +288,7 @@ class CaseSmsReport extends LitElement {
         console.error("An error occurred saving report: ", response);
     }
 
+    // It might not need to be a component.
     openUploadModal() {
         console.log("Open modal");
         this.openModalTest = true;
@@ -300,6 +298,7 @@ class CaseSmsReport extends LitElement {
     // pdfMake
     onGeneratePDFMake(download, data) {
         const docDefinition = {
+            watermark: {text: "Draft Report", color: "blue", opacity: 0.3, bold: true, italics: false},
             content: [
                 PdfUtils.titleText(
                     "INFORME GENÉTICO", {
@@ -481,10 +480,10 @@ class CaseSmsReport extends LitElement {
         }
     }
 
-    onSaveJsonReport() {
+    initGenerateJson(reportData) {
         const {
             patient, notes, study, interpretations, clinicalAnalysis, mainResults,
-        } = this._reportData;
+        } = reportData;
         const patientElements = {
             name: {
                 label: "Nombre",
@@ -540,6 +539,9 @@ class CaseSmsReport extends LitElement {
                 content: doctorInfo(clinicalAnalysis.request?.doctor)
             },
         };
+
+        const fieldTextTemplate = element => `<label><b>${element?.label ?? ""}</b></label> <span>${element?.content}</span><br/>`;
+        const boxTemplate = (id, elements, classes) => `<div class='${classes ?? ""}' id='${id}'>${Object.keys(elements).map(key => fieldTextTemplate(elements[key])).join("")}</div>`;
         const studyElements = {
             reason: {
                 label: "Razón del Estudio",
@@ -560,15 +562,16 @@ class CaseSmsReport extends LitElement {
         };
         const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
-
         const variantsHtml = interpretations.variants
             .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
         const variantElements = interpretations.variants
             .map(variant => ({
                 label: variant.title,
                 content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
             }));
+
         const signsElements = {
             responsible: {
                 label: "Responsable Lab Genética Molecular",
@@ -593,14 +596,14 @@ class CaseSmsReport extends LitElement {
         };
 
         const _jsonReport =
-            [{
+            {
                 "_wantedKeys": [
                     "patient",
                     "clinical",
                     "study",
                     "method",
                     "results",
-                    "interpretation",
+                    "interpretations",
                     "technicalNotes",
                     "coverage"
                 ],
@@ -608,32 +611,50 @@ class CaseSmsReport extends LitElement {
                     "author": this.opencgaSession.user?.id,
                     "date": UtilsNew.getDatetime()
                 },
+                "_style": `
+                    .container-grid {
+                        display:grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-gap: 10px;
+                    }
+
+                    .box-blue-line {
+                        background-color:#f3f3f3;
+                        border-left: 4px solid #0c2f4c;
+                        padding:16px;
+                    }
+                `,
                 "_header": "Informe Genetico",
                 "patient": {
-                    "_wantedElements": [Object.keys(patientElements)],
+                    "_wantedElements": Object.keys(patientElements),
                     "title": "Datos Personales del Paciente",
                     "summary": "",
                     "elements": {...patientElements},
+                    "htmlRendered": boxTemplate("patient", patientElements, "box-blue-line")
                 },
                 "clinical": {
-                    "_wantedElements": [Object.keys(clinicalElements)],
+                    "_wantedElements": Object.keys(clinicalElements),
                     "title": "Información y detalles de la solicitud de diagnóstico",
                     "summary": "",
                     "elements": {...clinicalElements},
+                    "htmlRendered": boxTemplate("clinical", clinicalElements, "box-blue-line")
                 },
                 "study": {
-                    "_wantedElements": [Object.keys(studyElements)],
+                    "_wantedElements": Object.keys(studyElements),
                     "title": "Descripción del estudio",
                     "summary": "",
                     "elements": {...studyElements},
+                    "htmlRendered": boxTemplate("study", studyElements)
                 },
                 "method": {
                     "title": "Metodología empleada",
-                    "content": methodologyHtml
+                    "content": methodologyHtml,
+                    "htmlRendered": methodologyHtml
                 },
                 "results": {
                     "title": "Resultado",
-                    "content": resultsHtml
+                    "content": resultsHtml,
+                    "htmlRendered": resultsHtml
                 },
                 "interpretations": {
                     "title": "Interpretacion",
@@ -643,7 +664,8 @@ class CaseSmsReport extends LitElement {
                 },
                 "technicalNotes": {
                     "title": "Notas",
-                    "content": notes
+                    "content": notes,
+                    "htmlRendered": notes
                 },
                 "coverage": {
                     "title": "Estadística de cobertura",
@@ -656,19 +678,40 @@ class CaseSmsReport extends LitElement {
                     "otherVariants": ""
                 },
                 "signs": {
-                    "_wantedElements": [Object.keys(signsElements)],
-                    "title": "Descripción del estudio",
+                    "_wantedElements": Object.keys(signsElements),
+                    "title": "",
                     "summary": "",
                     "elements": {...signsElements},
-                }
-            }];
+                    "htmlRendered": boxTemplate("signs", signsElements)
+                },
+            };
 
+        _jsonReport.htmlRendered = this.generateReportHtml(_jsonReport);
+        return _jsonReport;
+    }
+
+    generateReportHtml(reportJson) {
+        const sectionTemplateHtml = section => `<section><h2>${section?.title}</h2>${section?.htmlRendered?? ""}</section>`;
+        const content = `
+            <style>${reportJson._style}</style>
+                <h1 style="text-align:center">
+                    ${reportJson._header}
+                </h1>
+                <div class="container-grid">
+                ${reportJson._wantedKeys.filter(key => key == "patient" || key == "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+                </div>
+                ${reportJson._wantedKeys.filter(key => key !== "patient" && key !== "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+        `;
+        return content;
+    }
+
+    onSaveJsonReport() {
+        const _reportJson = this.initGenerateJson(this._reportData);
         this._reportData = {
             ...this._reportData,
-            _report: [...this._reportData?._report, ..._jsonReport]
+            _report: [...this._reportData?._report, _reportJson]
         };
         console.log("Attributes:", this._reportData);
-        // interpretations.summary,elements[{label:gen:transcripts:hgvs,content}]
         this.opencgaSession.opencgaClient.clinical()
             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
                 {"attributes": {"reportTest": this._reportData}}, {study: this.opencgaSession.study.fqn})
@@ -681,6 +724,89 @@ class CaseSmsReport extends LitElement {
                 // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
                 this.notifyError(response);
             });
+    }
+
+    previewHtmlReport() {
+        this._reportJson = this.initGenerateJson(this._reportData);
+        this.openNav();
+        this.requestUpdate();
+    }
+
+
+    openNav() {
+        document.getElementById("mySidenav-right").style.width = "40%";
+    }
+
+    closeNav() {
+        document.getElementById("mySidenav-right").style.width = "0";
+    }
+
+    renderSideNavReport() {
+        const sideNavStyles = html `
+            <style>
+                body {
+                    transition: background-color .5s;
+                }
+
+                .sidenav-right {
+                    height: 100%;
+                    width: 0;
+                    position: fixed;
+                    z-index: 1;
+                    top: 0;
+                    right: 0;
+                    background-color: #fff;
+                    overflow-x: hidden;
+                    transition: 0.5s;
+                    /* padding-top: 60px; */
+                    box-shadow: 5px 10px 18px #888888;
+                }
+
+                .sidenav-right a {
+                    padding: 8px 8px 8px 32px;
+                    text-decoration: none;
+                    font-size: 25px;
+                    color: #818181;
+                    display: block;
+                    transition: 0.3s;
+                }
+
+                .sidenav-right a:hover {
+                    color: #f1f1f1;
+                }
+
+                .sidenav-right .closebtn {
+                    position: absolute;
+                    top: 0;
+                    right: 25px;
+                    font-size: 36px;
+                    margin-right: 50px;
+                }
+
+                .item-center {
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap:2px;
+                }
+
+                @media screen and (max-height: 450px) {
+                    .sidenav-right {padding-top: 15px;}
+                    .sidenav-right a {font-size: 18px;}
+                }
+            </style>
+        `;
+        return html `
+            ${sideNavStyles}
+            <div id="mySidenav-right" class="sidenav-right">
+                <a href="javascript:void(0)" class="closebtn" @click="${this.closeNav}">&times;</a>
+                <div style="transform:scale(0.9)">
+                    <html-viewer
+                        .contentHtml="${this._reportJson.htmlRendered}">
+                    </html-viewer>
+                <div>
+            </div>
+        `;
     }
 
     render() {
@@ -703,6 +829,11 @@ class CaseSmsReport extends LitElement {
                 @click="${() => this.onSaveJsonReport()}">
                 Save Json Report (Beta)
             </button>
+            <button type="button" class="btn btn-primary"
+                @click="${() => this.previewHtmlReport()}">
+                Preview PDF html (Beta)
+            </button>
+            ${this.renderSideNavReport()}
             <data-form
                 .data="${this._reportData}"
                 .config="${this._config}"
