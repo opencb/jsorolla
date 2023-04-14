@@ -365,7 +365,8 @@ class VariantInterpreter extends LitElement {
                 });
                 break;
             case "sms-report":
-                configReportTabs.items.push(reportReviewConfig, caseReviewInfo, {
+                // configReportTabs.items.push(reportReviewConfig, caseReviewInfo, {
+                configReportTabs.items.push(caseReviewInfo, {
                     id: "reviewReport",
                     name: "Review",
                     active: false,
