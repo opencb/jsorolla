@@ -201,9 +201,11 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             _classsificationDiscussionTT: "",
             _variantText: "",
             id: "",
-            hgvs: "",
-            genId: "",
-            transcriptId: "",
+            transcripts: [{
+                hgvs: "",
+                geneName: "",
+                transcriptId: "",
+            }],
             title: "",
             populationControlText: "",
             bibliographyEvidenceText: "",
@@ -238,9 +240,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         _classificationAcmgTT: classification.acmgContent,
                         _classsificationDiscussionTT: classification.discussionContent,
                         title: variantTitle,
-                        // hgvs: evidence.hgvs,
-                        // genId: evidence.genomicFeature.geneName?? "",
-                        // transcriptId: evidence.genomicFeature.transcriptId,
                     };
                     UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
                     break;

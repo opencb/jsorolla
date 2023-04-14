@@ -18,6 +18,9 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
+import PdfBuilder from "../../../core/pdf-builder.js";
+import PdfUtils from "../../commons/utils/pdf-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
 import "../../commons/forms/data-form.js";
@@ -25,9 +28,7 @@ import "../../commons/simple-chart.js";
 import "../../loading-spinner.js";
 import "../../file/file-preview.js";
 import "../../file/file-upload-beta.js";
-import PdfBuilder from "../../../core/pdf-builder.js";
-import PdfUtils from "../../commons/utils/pdf-utils.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
+
 import "../../commons/html-viewer.js";
 
 
@@ -624,7 +625,7 @@ class CaseSmsReport extends LitElement {
                         padding:16px;
                     }
                 `,
-                "_header": "Informe Genetico",
+                "_header": "Informe Genético",
                 "patient": {
                     "_wantedElements": Object.keys(patientElements),
                     "title": "Datos Personales del Paciente",
@@ -697,10 +698,12 @@ class CaseSmsReport extends LitElement {
                 <h1 style="text-align:center">
                     ${reportJson._header}
                 </h1>
-                <div class="container-grid">
-                ${reportJson._wantedKeys.filter(key => key == "patient" || key == "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+                <div style="transform:scale(0.9)">
+                    <div class="container-grid">
+                    ${reportJson._wantedKeys.filter(key => key == "patient" || key == "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+                    </div>
+                    ${reportJson._wantedKeys.filter(key => key !== "patient" && key !== "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
                 </div>
-                ${reportJson._wantedKeys.filter(key => key !== "patient" && key !== "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
         `;
         return content;
     }
@@ -800,11 +803,9 @@ class CaseSmsReport extends LitElement {
             ${sideNavStyles}
             <div id="mySidenav-right" class="sidenav-right">
                 <a href="javascript:void(0)" class="closebtn" @click="${this.closeNav}">&times;</a>
-                <div style="transform:scale(0.9)">
                     <html-viewer
                         .contentHtml="${this._reportJson.htmlRendered}">
                     </html-viewer>
-                <div>
             </div>
         `;
     }
@@ -831,7 +832,7 @@ class CaseSmsReport extends LitElement {
             </button>
             <button type="button" class="btn btn-primary"
                 @click="${() => this.previewHtmlReport()}">
-                Preview PDF html (Beta)
+                Preview html (Beta)
             </button>
             ${this.renderSideNavReport()}
             <data-form
