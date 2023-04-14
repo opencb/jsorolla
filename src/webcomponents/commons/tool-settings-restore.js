@@ -258,6 +258,7 @@ export default class ToolSettingsRestore extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
+                        visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
                         descriptionClassName: "help-block",
                         // descriptionStyle: "",
                         // visible: () =>
