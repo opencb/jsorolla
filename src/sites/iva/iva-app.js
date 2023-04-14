@@ -413,7 +413,7 @@ class IvaApp extends LitElement {
         study.attributes[SETTINGS_NAME].userId = this.opencgaSession.user.id;
         study.attributes[SETTINGS_NAME].date = UtilsNew.getDatetime();
         const updateParams = {
-            ...study.attributes
+            attributes: {...study.attributes},
         };
         const params = {
             includeResult: true,
@@ -1933,7 +1933,7 @@ class IvaApp extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                 </catalog-admin>
-            </>
+            </div>
         ` : null}
 
 
