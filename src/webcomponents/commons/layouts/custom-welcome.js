@@ -104,15 +104,15 @@ export default class CustomWelcome extends LitElement {
             return html`
                 <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
                 ${featuredTools.map(item => {
-                    const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                    return html`
+                const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                return html`
                         <div class="col-md-3 com-sm-6">
                             <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
                                 <div class="panel-body" align="center" style="height:180px;">
                                     <a href="#${itemLink}" style="text-decoration:none!important;">
                                         <div align="center" class="">
                                         ${ item?.icon.includes("fas") ?
-                                            html `<i class="${item.icon}" style="font-size: 5em;"></i>` : html `
+                    html `<i class="${item.icon}" style="font-size: 5em;"></i>` : html `
                                             <img alt="${item.name}" width="100px" src="${item.icon}"/>`}
                                         </div>
                                         <h4 style="margin-bottom:0px;">
@@ -131,7 +131,7 @@ export default class CustomWelcome extends LitElement {
                             </div>
                         </div>
                     `;
-                })}
+            })}
                 </div>
             `;
         }
@@ -139,6 +139,15 @@ export default class CustomWelcome extends LitElement {
 
     render() {
         const welcomePage = this.getWelcomePageConfig();
+
+        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
+            this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>You don´t have projects or/and studies. Please contact the admin</h3>
+                </div>`;
+        }
 
         return html`
             <style>
