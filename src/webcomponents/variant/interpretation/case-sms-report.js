@@ -818,22 +818,29 @@ class CaseSmsReport extends LitElement {
         }
 
         return html`
-            <button type="button" class="btn btn-primary"
+            <div style="display:flex;gap:2px">
+                <button type="button" class="btn btn-primary"
                 @click="${() => this.onGeneratePDFMake()}">
                 Generate PDF (Beta)
-            </button>
-            <button type="button" class="btn btn-primary"
-                @click="${() => this.openUploadModal()}">
-                Saved PDF (Beta)
-            </button>
-            <button type="button" class="btn btn-primary"
-                @click="${() => this.onSaveJsonReport()}">
-                Save Json Report (Beta)
-            </button>
-            <button type="button" class="btn btn-primary"
-                @click="${() => this.previewHtmlReport()}">
-                Preview html (Beta)
-            </button>
+                </button>
+                <button type="button" class="btn btn-primary"
+                    @click="${() => this.openUploadModal()}">
+                    Saved PDF (Beta)
+                </button>
+                <button type="button" class="btn btn-primary"
+                    @click="${() => this.onSaveJsonReport()}">
+                    Save Json Report (Beta)
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Preview html (Beta)
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="cursor:pointer">
+                        <li><a @click="${() => this.previewHtmlReport()}">Plantilla B</a></li>
+                    </ul>
+                </div>
+            </div>
+
             ${this.renderSideNavReport()}
             <data-form
                 .data="${this._reportData}"
