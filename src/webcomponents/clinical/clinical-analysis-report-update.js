@@ -431,6 +431,15 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             </variant-beacon-network>`;
                     }
                 },
+                // {
+                //     id: "chomatograma-view",
+                //     name: "Chromatogram",
+                //     render: data => html `
+                //     <div style="padding:10%">
+                //         Image will be here
+                //     </div>
+                //     `,
+                // },
                 {
                     id: "json-view",
                     name: "JSON Data",
@@ -475,7 +484,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                             showActions: false,
                                             showEditReview: false,
                                             showHgvs: true,
-                                            detailView: true
+                                            detailView: false
                                         }
                                     }>
                                 </variant-interpreter-grid-beta>
