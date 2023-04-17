@@ -189,21 +189,21 @@ export default class CustomWelcome extends LitElement {
                     color: #fff
                 }
 
-                .panel-default-wrapper{
-                    display:flex;
-                    justify-content:center;
-                    flex-wrap:wrap;
-                    margin-top:2rem;
+                .panel-default-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                    margin-top: 2rem;
                 }
 
-                .panel-default-wrapper > .panel-default > .panel-body{
+                .panel-default-wrapper > .panel-default > .panel-body {
                     display: flex;
                     flex-direction: column;
-                    flex:1
+                    flex: 1
                 }
 
-                .panel-default-wrapper > .panel-default > .panel-body:last-child{
-                    flex:0
+                .panel-default-wrapper > .panel-default > .panel-body:last-child {
+                    flex: 0
                 }
 
                 .panel.panel-default {
@@ -227,8 +227,20 @@ export default class CustomWelcome extends LitElement {
                     margin: 3em 0;
                 }
 
+                #welcome-title {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 1em 0;
+                }
+
+                #welcome-title h1 {
+                    display: inline;
+                    margin: 0 0 0 1rem;
+                }
+
             </style>
-            `;
+        `;
     }
 
     render() {
@@ -254,9 +266,12 @@ export default class CustomWelcome extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
-                        ${welcomePage.title}
-                    </h1>
+                    <div id="welcome-title">
+                        <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
+                        <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
+                            ${welcomePage.title}
+                        </h1>
+                    </div>
                 `: null}
 
                 <!-- Welcome page subtitle -->
