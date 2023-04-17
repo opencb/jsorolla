@@ -349,8 +349,13 @@ class VariantInterpreter extends LitElement {
                                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
+                                        ${this.clinicalAnalysis.interpretation?.method?.name ? html`
+                                            <div style="font-size:0.875em;">
+                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                                            </div>
+                                        ` : null}
                                         <div class="text-muted">
-                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
+                                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
                                         </div>
                                     </div>
                                 ` : null}

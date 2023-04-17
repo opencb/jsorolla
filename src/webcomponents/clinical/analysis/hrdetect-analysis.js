@@ -54,7 +54,9 @@ export default class HRDetectAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "HRDetect";
         this.ANALYSIS_DESCRIPTION = "Executes a HRDetect analysis job";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            bootstrap: true,
+        };
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
         };
@@ -113,16 +115,6 @@ export default class HRDetectAnalysis extends LitElement {
                 sampleId: this.toolParams.query?.sample,
                 snvFittingId: this.toolParams.snvFittingId,
                 svFittingId: this.toolParams.svFittingId,
-                cnvQuery: JSON.stringify({
-                    sample: this.toolParams.query?.sample,
-                    type: "CNV",
-                    ...this.toolParams.cnvQuery,
-                }),
-                indelQuery: JSON.stringify({
-                    sample: this.toolParams.query?.sample,
-                    type: "INDEL",
-                    ...this.toolParams.indelQuery,
-                }),
                 snv3CustomName: this.toolParams.snv3CustomName || "",
                 snv8CustomName: this.toolParams.snv8CustomName || "",
                 sv3CustomName: this.toolParams.sv3CustomName || "",
@@ -277,6 +269,11 @@ export default class HRDetectAnalysis extends LitElement {
                             `,
                         },
                     },
+                ],
+            },
+            {
+                title: "Advanced Parameters",
+                elements: [
                     {
                         title: "SNV3 Custom Name",
                         field: "snv3CustomName",
@@ -322,28 +319,6 @@ export default class HRDetectAnalysis extends LitElement {
                         field: "bootstrap",
                         type: "checkbox",
                     },
-                ],
-            },
-            {
-                title: "CNV Query Parameters",
-                elements: [
-                    ...AnalysisUtils.getVariantQueryConfiguration(
-                        "cnvQuery.",
-                        ["type"],
-                        this.opencgaSession,
-                        this.onFieldChange.bind(this),
-                    ),
-                ],
-            },
-            {
-                title: "Indel Query Parameters",
-                elements: [
-                    ...AnalysisUtils.getVariantQueryConfiguration(
-                        "indelQuery.",
-                        ["type"],
-                        this.opencgaSession,
-                        this.onFieldChange.bind(this),
-                    ),
                 ],
             },
         ];
