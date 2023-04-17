@@ -282,7 +282,7 @@ export default class DataForm extends LitElement {
 
     _getVisibleSections() {
         return this.config.sections
-            .filter(section => section.elements[0].type !== "notification")
+            .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
             .filter(section => this._getBooleanValue(section?.display?.visible, true));
     }
 
