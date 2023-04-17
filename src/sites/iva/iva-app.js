@@ -488,19 +488,27 @@ class IvaApp extends LitElement {
                     }
                 }
                 // this forces the observer to be executed.
-                this.opencgaSession = {
-                    ..._response,
-                    ivaDefaultSettings: {
-                        version: this.version,
-                        settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
-                    }
-                };
-                this.opencgaSession.mode = this.config.mode;
-                this.#initStudiesSettings();
-                this.updateCellBaseClient();
+                if (UtilsNew.isNotEmptyArray(response.projects) && response.projects.some(p => UtilsNew.isNotEmptyArray(p.studies))) {
+                    this.opencgaSession = {
+                        ..._response,
+                        ivaDefaultSettings: {
+                            version: this.version,
+                            settings: UtilsNew.objectClone(this.DEFAULT_TOOL_SETTINGS),
+                        }
+                    };
+                    this.opencgaSession.mode = this.config.mode;
+                    this.#initStudiesSettings();
+                    this.updateCellBaseClient();
 
-                // this.config.menu = [...application.menu];
-                this.config = {...this.config};
+                    // this.config.menu = [...application.menu];
+                    this.config = {...this.config};
+                } else {
+                    this.opencgaSession = {
+                        ..._response,
+                    };
+                    this.config = {...this.config};
+                }
+
             })
             .catch(e => {
                 console.error(e);
