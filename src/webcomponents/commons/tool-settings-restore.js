@@ -175,6 +175,14 @@ export default class ToolSettingsRestore extends LitElement {
 
     // --- RENDER ---
     render() {
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`;
+        }
+
         return html `
             <data-form
                 .data="${this._study}"
