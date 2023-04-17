@@ -17,6 +17,7 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import debug from "debug";
 
 export default class ProjectCellbaseInfo extends LitElement {
 
@@ -58,6 +59,14 @@ export default class ProjectCellbaseInfo extends LitElement {
     }
 
     #renderCellBaseInfo(cellbaseConfig) {
+        const sourceData = {};
+        cellbaseConfig.sources.forEach(source => {
+            if (!sourceData[source.data]) {
+                sourceData[source.data] = [];
+            }
+            sourceData[source.data].push(source);
+        });
+
         return html`
             <div style="margin 20px 10px">
                 <div class="row" style="margin: 20px 10px">
@@ -89,23 +98,37 @@ export default class ProjectCellbaseInfo extends LitElement {
                 <div style="margin: 10px 10px">
                     <div class="col-md-12">
                         <div class="col-md-2">
-                            <label>Data Sources:</label>
+                            <label>Data Category</label>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Data Source</label>
                         </div>
                         <div class="col-md-3">
                             <label>Version / Date</label>
                         </div>
                     </div>
                     <div style="margin: 20px 10px">
-                        ${cellbaseConfig.sources.map(source => html`
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <label>${source.name}:</label>
-                                </div>
-                                <div class="col-md-3">
-                                    ${source.version || source.date}
-                                </div>
-                            </div>
-                        `)}
+                        ${Object.keys(sourceData).map(key => {
+                            const result = [];
+                            let printCategoryHeader = true;
+                            for (const source of sourceData[key]) {
+                                result.push(html`
+                                    <div class="col-md-12">
+                                        <div class="col-md-2">
+                                            <label>${printCategoryHeader ? source.data : ""}</label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>${source.name}</label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            ${source.version || source.date}
+                                        </div>
+                                    </div>
+                                `);
+                                printCategoryHeader = false;
+                            }
+                            return result;
+                        })}
                     </div>
                 </div>
             </div>
@@ -167,7 +190,7 @@ export default class ProjectCellbaseInfo extends LitElement {
             return html`<h4>No valid data found</h4>`;
         }
 
-        if (this.projects?.length === 2) {
+        if (this.projects?.length === 1) {
             return html`
                 <div>
                     <h4>Project '${this.projects[0].id}'</h4>
