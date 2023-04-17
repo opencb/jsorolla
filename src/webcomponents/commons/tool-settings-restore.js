@@ -175,6 +175,14 @@ export default class ToolSettingsRestore extends LitElement {
 
     // --- RENDER ---
     render() {
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`;
+        }
+
         return html `
             <data-form
                 .data="${this._study}"
@@ -258,11 +266,20 @@ export default class ToolSettingsRestore extends LitElement {
                     display: {
                         // titleHeader: "",
                         // titleStyle: "",
+                        // visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
                         descriptionClassName: "help-block",
                         // descriptionStyle: "",
                         // visible: () =>
                     },
                     elements: [
+                        {
+                            type: "notification",
+                            text: "No backup avaliable",
+                            display: {
+                                visible: study => !study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
+                                notificationType: "warning",
+                            },
+                        },
                         {
                             title: "Study",
                             field: "fqn",
@@ -273,12 +290,14 @@ export default class ToolSettingsRestore extends LitElement {
                             defaultValue: `${this._study.fqn}`,
                             allowedValues: this.allowedValues,
                             display: {
+                                visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
                                 placeholder: "Select study or studies..."
                             },
                         },
                         {
                             type: "custom",
                             display: {
+                                visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
                                 render: study => {
                                     return html `
                                         <tool-settings-editor
