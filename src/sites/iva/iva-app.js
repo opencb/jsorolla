@@ -97,6 +97,8 @@ import "../../webcomponents/commons/layouts/custom-navbar.js";
 import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
+import "../../webcomponents/commons/layouts/custom-landing.js";
+
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
@@ -155,6 +157,7 @@ class IvaApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            "aboutzetta",
             // "reset-password",
             "settings",
             "account",
@@ -327,7 +330,35 @@ class IvaApp extends LitElement {
             const opencgaHost = serverConf?.host || this.config.opencga.host;
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
-            // console.log(opencgaHost, opencgaVersion);
+            const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
+            const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
+
+            // Check if SSO mode is enabled
+            if (opencgaSsoActive) {
+                const currentUrl = new URL(window.location);
+                if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
+                    // Save token and session ID in cookies
+                    // eslint-disable-next-line no-undef
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie));
+                    // eslint-disable-next-line no-undef
+                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"));
+
+                    // Decode token to get user ID
+                    // eslint-disable-next-line no-undef
+                    const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
+                    // eslint-disable-next-line no-undef
+                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
+
+                    // We need to remove the params from the url
+                    Array.from(currentUrl.searchParams.keys()).forEach(key => {
+                        currentUrl.searchParams.delete(key);
+                    });
+
+                    // Stop process, as we are going to reload IVA without the token and session ID in the URL
+                    window.location = currentUrl.href;
+                    return;
+                }
+            }
 
             // Initialise clients and create the session
             // this.opencgaClientConfig.serverVersion = this.config.opencga.serverVersion;
@@ -343,6 +374,7 @@ class IvaApp extends LitElement {
                     active: true,
                     prefix: opencgaPrefix,
                 },
+                sso: opencgaSsoActive,
             });
 
             this.reactomeClient = new ReactomeClient();
@@ -578,7 +610,6 @@ class IvaApp extends LitElement {
         // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
         this._createOpenCGASession();
-
 
         if (this.tool === "#login") {
             this.tool = "#home";
@@ -1051,8 +1082,8 @@ class IvaApp extends LitElement {
                 welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
-                about: this.config.about,
-                userMenu: this.config.userMenu,
+                // about: this.config.about,
+                // userMenu: this.config.userMenu,
             };
         }
     }
@@ -1147,8 +1178,18 @@ class IvaApp extends LitElement {
     }
 
     render() {
-        // language=HTML format=false
-        return html `
+        if (!this.isLoggedIn() && !this.signingIn) {
+            return html`
+                <custom-landing
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.config}"
+                    @login="${this.onLogin}"
+                    @redirect="${this.route}">
+                </custom-landing>
+            `;
+        }
+
+        return html`
             <style>
                 .notification-nav {
                     margin-right: 0;
@@ -1216,55 +1257,63 @@ class IvaApp extends LitElement {
             <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
 
             <!-- This is where main IVA application is rendered -->
-            <div class="container-fluid">
+            <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
-            <div class="content" id="home">
-                <custom-welcome
-                    .app="${this.app}"
-                    .config="${this.config}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .version="${this.config.version}"
-                    @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
-                </custom-welcome>
-            </div>
-        ` : null}
+                    <div class="content" id="home">
+                        <custom-welcome
+                            .app="${this.app}"
+                            .config="${this.config}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .version="${this.config.version}"
+                            @changeApp="${e => this.onChangeApp(e.detail.e, false)}">
+                        </custom-welcome>
+                    </div>
+                ` : null}
 
                 <!-- Render custom page content if enabled -->
                 ${this.config.enabledComponents.customPage ? this.renderCustomPage() : null}
 
                 ${this.config.enabledComponents.terms ? html`
-            <div class="content" id="terms">
-                <terms-web version="${this.config.version}"></terms-web>
-            </div>
-        ` : null}
+                    <div class="content" id="terms">
+                        <terms-web version="${this.config.version}"></terms-web>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.contact ? html`
-            <div class="content" id="contact">
-                <contact-web version="${this.config.version}"></contact-web>
-            </div>
-        ` : null}
+                    <div class="content" id="contact">
+                        <contact-web version="${this.config.version}"></contact-web>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.faq ? html`
-            <div class="content" id="faq">
-                <faq-web version="${this.config.version}"></faq-web>
-            </div>
-        ` : null}
+                    <div class="content" id="faq">
+                        <faq-web version="${this.config.version}"></faq-web>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.gettingstarted ? html`
-            <div class="content" id="getting-started">
-                <getting-started .opencgaSession="${this.opencgaSession}" .config="${this.config}"></getting-started>
-            </div>
-        ` : null}
+                    <div class="content" id="getting-started">
+                        <getting-started .opencgaSession="${this.opencgaSession}" .config="${this.config}"></getting-started>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents?.aboutzetta ? html`
+                    <div class="content" id="faq">
+                        <custom-page
+                            .page="${this.config.aboutPage}">
+                        </custom-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.login ? html`
-            <div class="content" id="login">
-                <user-login
-                    .opencgaSession="${this.opencgaSession}"
-                    @login="${this.onLogin}"
-                    @redirect="${this.route}">
-                </user-login>
-            </div>
-        ` : null}
+                    <div class="content" id="login">
+                        <user-login
+                            .opencgaSession="${this.opencgaSession}"
+                            @login="${this.onLogin}"
+                            @redirect="${this.route}">
+                        </user-login>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.browser ? html`
             <div class="content" id="browser">
@@ -1338,27 +1387,27 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents.beacon ? html`
-            <div class="content" id="beacon">
-                <variant-beacon .opencgaSession="${this.opencgaSession}">
-                </variant-beacon>
-            </div>
-        ` : null}
+                    <div class="content" id="beacon">
+                        <variant-beacon .opencgaSession="${this.opencgaSession}">
+                        </variant-beacon>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.genomeBrowser ? html`
-            <div class="content" id="genomeBrowser">
-                Not available yet...
-            </div>
-        ` : null}
+                    <div class="content" id="genomeBrowser">
+                        Not available yet...
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.projects ? html`
-            <div class="content" id="projects">
-                <opencga-projects
-                    .opencgaSession="${this.opencgaSession}"
-                    @project="${this.updateProject}"
-                    @study="${this.updateStudy}">
-                </opencga-projects>
-            </div>
-        ` : null}
+                    <div class="content" id="projects">
+                        <opencga-projects
+                            .opencgaSession="${this.opencgaSession}"
+                            @project="${this.updateProject}"
+                            @study="${this.updateStudy}">
+                        </opencga-projects>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.sample ? html`
             <div class="content" id="sample">
@@ -1374,16 +1423,16 @@ class IvaApp extends LitElement {
 
 
                 ${this.config.enabledComponents.panel ? html`
-            <div class="content" id="panel">
-                <opencga-panel-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .opencgaClient="${this.opencgaClient}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .eventNotifyName="${this.config.notifyEventMessage}"
-                    @notifymessage="${this.onNotifyMessage}">
-                </opencga-panel-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="panel">
+                        <opencga-panel-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .eventNotifyName="${this.config.notifyEventMessage}"
+                            @notifymessage="${this.onNotifyMessage}">
+                        </opencga-panel-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.file ? html`
             <div class="content" id="file">
@@ -1411,183 +1460,183 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["diseasePanelUpdate"] ? html`
-            <div class="content" id="disease-panel">
-                <disease-panel-update
-                    .diseasePanelId="${this.diseasePanelId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .displayConfig=${
-                        {
-                            showBtnSampleBrowser: true,
-                            width: "10",
-                            style: "margin: 10px",
-                            labelWidth: 3,
-                            labelAlign: "right",
-                            defaultLayout: "horizontal",
-                            defaultValue: "",
-                            help: {
-                                mode: "block" // icon
-                            }
-                        }
-                    }>
-                </disease-panel-update>
-            </div>
-        ` : null}
+                    <div class="content" id="disease-panel">
+                        <disease-panel-update
+                            .diseasePanelId="${this.diseasePanelId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </disease-panel-update>
+                    </div>
+                ` : null}
 
                 <!--todo check-->
                 ${this.config.enabledComponents.gene ? html`
-            <div class="content" id="gene">
-                <opencga-gene-view
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .geneId="${this.gene}"
-                    .populationFrequencies="${this.config.populationFrequencies}"
-                    .consequenceTypes="${this.config.consequenceTypes}"
-                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                    .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
-                    .summary="${this.config.opencga.summary}"
-                    @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
-                </opencga-gene-view>
-            </div>
-        ` : null}
+                    <div class="content" id="gene">
+                        <opencga-gene-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .geneId="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}"
+                            .summary="${this.config.opencga.summary}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}">
+                        </opencga-gene-view>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sample-view"] ? html`
-            <div class="content" id="sample-view">
-                <opencga-sample-view
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this.config.sampleView}">
-                </opencga-sample-view>
-            </div>
-        ` : null}
+                    <div class="content" id="sample-view">
+                        <opencga-sample-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${this.config.sampleView}">
+                        </opencga-sample-view>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["fileUpdate"] ? html`
-            <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-            <div class="content" id="fileUpdate">
-                <file-update
-                    .fileId="${this.fileId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .displayConfig=${
-                        {
-                            showBtnSampleBrowser: true,
-                            width: "10",
-                            style: "margin: 10px",
-                            labelWidth: 3,
-                            labelAlign: "right",
-                            defaultLayout: "horizontal",
-                            defaultValue: "",
-                            help: {
-                                mode: "block" // icon
-                            }
-                        }
-                    }>
-                </file-update>
-            </div>
-        ` : null}
+                    <tool-header title="${`File <span class="inverse"> ${this.fileId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="fileUpdate">
+                        <file-update
+                            .fileId="${this.fileId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </file-update>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sampleUpdate"] ? html`
-            <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-            <div class="content" id="sampleUpdate">
-                <sample-update
-                    .sampleId="${this.sampleId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .displayConfig=${
-                        {
-                            showBtnSampleBrowser: true,
-                            width: "10",
-                            style: "margin: 10px",
-                            labelWidth: 3,
-                            labelAlign: "right",
-                            defaultLayout: "horizontal",
-                            defaultValue: "",
-                            help: {
-                                mode: "block" // icon
-                            }
-                        }
-                    }>
-                </sample-update>
-            </div>
-        ` : null}
+                    <tool-header title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="sampleUpdate">
+                        <sample-update
+                            .sampleId="${this.sampleId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </sample-update>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["individualUpdate"] ? html`
-            <tool-header title="${`Individual <span class="inverse"> ${this.individualId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-            <div class="content" id="individualUpdate">
-                <individual-update
-                    .individualId="${this.individualId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .displayConfig=${
-                        {
-                            showBtnSampleBrowser: true,
-                            width: "10",
-                            style: "margin: 10px",
-                            labelWidth: 3,
-                            labelAlign: "right",
-                            defaultLayout: "horizontal",
-                            defaultValue: "",
-                            help: {
-                                mode: "block" // icon
-                            }
-                        }
-                    }>
-                </individual-update>
-            </div>
-        ` : null}
+                    <tool-header title="${`Individual <span class="inverse"> ${this.individualId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="individualUpdate">
+                        <individual-update
+                            .individualId="${this.individualId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </individual-update>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["familyUpdate"] ? html`
-            <tool-header title="${`Family <span class="inverse"> ${this.familyId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
-            <div class="content" id="familyUpdate">
-                <family-update
-                    .familyId="${this.familyId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .displayConfig=${
-                        {
-                            showBtnSampleBrowser: true,
-                            width: "10",
-                            style: "margin: 10px",
-                            labelWidth: 3,
-                            labelAlign: "right",
-                            defaultLayout: "horizontal",
-                            defaultValue: "",
-                            help: {
-                                mode: "block" // icon
-                            }
-                        }
-                    }>
-                </family-update>
-            </div>
-        ` : null}
+                    <tool-header title="${`Family <span class="inverse"> ${this.familyId} </span>` }" icon="fas fa-vial icon-padding"></tool-header>
+                    <div class="content" id="familyUpdate">
+                        <family-update
+                            .familyId="${this.familyId}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig=${
+                                {
+                                    showBtnSampleBrowser: true,
+                                    width: "10",
+                                    style: "margin: 10px",
+                                    labelWidth: 3,
+                                    labelAlign: "right",
+                                    defaultLayout: "horizontal",
+                                    defaultValue: "",
+                                    help: {
+                                        mode: "block" // icon
+                                    }
+                                }
+                            }>
+                        </family-update>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.transcript ? html`
-            <div class="content feature-view" id="transcript">
-                <opencga-transcript-view
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .opencgaClient="${this.opencgaClient}"
-                    .transcript="${this.transcript}"
-                    .gene="${this.gene}"
-                    .populationFrequencies="${this.config.populationFrequencies}"
-                    .consequenceTypes="${this.config.consequenceTypes}"
-                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                    .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
-                </opencga-transcript-view>
-            </div>
-        ` : null}
+                    <div class="content feature-view" id="transcript">
+                        <opencga-transcript-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .transcript="${this.transcript}"
+                            .gene="${this.gene}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        </opencga-transcript-view>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.protein ? html`
-            <div class="content feature-view" id="protein">
-                <opencga-protein-view
-                    .opencgaSession="${this.opencgaSession}"
-                    .cellbaseClient="${this.cellbaseClient}"
-                    .opencgaClient="${this.opencgaClient}"
-                    .project="${this.opencgaSession.project}"
-                    .study="${this.opencgaSession.study}"
-                    .protein="${this.protein}"
-                    .populationFrequencies="${this.config.populationFrequencies}"
-                    .consequenceTypes="${this.config.consequenceTypes}"
-                    .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                    .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
-                </opencga-protein-view>
-            </div>
-        ` : null}
+                    <div class="content feature-view" id="protein">
+                        <opencga-protein-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .opencgaClient="${this.opencgaClient}"
+                            .project="${this.opencgaSession.project}"
+                            .study="${this.opencgaSession.study}"
+                            .protein="${this.protein}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .settings="${OPENCGA_GENE_VIEW_SETTINGS}">
+                        </opencga-protein-view>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.individual ? html`
             <div class="content" id="individual">
@@ -1650,211 +1699,211 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["cat-browser"] ? html`
-            <div class="content" id="cat-browser">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "browser")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-browser">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "browser")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-analysis"] ? html`
-            <div class="content" id="cat-analysis">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "analysis")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-analysis">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "analysis")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-clinical"] ? html`
-            <div class="content" id="cat-clinical">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "clinical")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-clinical">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "clinical")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-tools"] ? html`
-            <div class="content" id="cat-tools">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "tools")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-tools">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "tools")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-catalog"] ? html`
-            <div class="content" id="cat-catalog">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "catalog")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-catalog">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "catalog")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-alignment"] ? html`
-            <div class="content" id="cat-alignment">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "alignment")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-alignment">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "alignment")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cat-ga4gh"] ? html`
-            <div class="content" id="cat-ga4gh">
-                <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "ga4gh")}">
-                </category-page>
-            </div>
-        ` : null}
+                    <div class="content" id="cat-ga4gh">
+                        <category-page .opencgaSession="${this.opencgaSession}" .config="${this.app?.menu?.find(item => item.id === "ga4gh")}">
+                        </category-page>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sampleVariantStatsBrowser"] ? html`
-            <div class="content" id="sampleVariantStatsBrowser">
-                <sample-variant-stats-browser
-                    .opencgaSession="${this.opencgaSession}"
-                    .sampleId="${this.sampleId}"
-                    .active="${true}"
-                    .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
-                </sample-variant-stats-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="sampleVariantStatsBrowser">
+                        <sample-variant-stats-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .sampleId="${this.sampleId}"
+                            .active="${true}"
+                            .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
+                        </sample-variant-stats-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sampleCancerVariantStatsBrowser"] ? html`
-            <div class="content" id="sampleCancerVariantStatsBrowser">
-                <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
-            </div>
-        ` : null}
+                    <div class="content" id="sampleCancerVariantStatsBrowser">
+                        <sample-cancer-variant-stats-browser .opencgaSession="${this.opencgaSession}" .sampleId="${this.sampleId}" .active="${true}"></sample-cancer-variant-stats-browser>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
-                <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
-                <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
+                        <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["eligibility"] ? html`
-            <div class="content" id="opencga-variant-eligibility-analysis">
-                <opencga-variant-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-eligibility-analysis>
-            </div>
-        ` : null}
+                    <div class="content" id="opencga-variant-eligibility-analysis">
+                        <opencga-variant-eligibility-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-eligibility-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sample-eligibility"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
-                <sample-eligibility-analysis
-                    .opencgaSession="${this.opencgaSession}">
-                </sample-eligibility-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
+                        <sample-eligibility-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-eligibility-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["knockout"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
-                <knockout-analysis
-                    .opencgaSession="${this.opencgaSession}">
-                </knockout-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
+                        <knockout-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </knockout-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["inferred-sex"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
-                <inferred-sex-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .title="">
-                </inferred-sex-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
+                        <inferred-sex-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
+                        </inferred-sex-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
-                <individual-relatedness-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .title="">
-                </individual-relatedness-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
+                        <individual-relatedness-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
+                        </individual-relatedness-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["mendelian-error"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
-                <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
+                        <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
-                <sample-qc-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .title="">
-                </sample-qc-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
+                        <sample-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
+                        </sample-qc-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
-                <individual-qc-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .title="">
-                </individual-qc-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
+                        <individual-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
+                        </individual-qc-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
-                <family-qc-analysis
-                    .opencgaSession="${this.opencgaSession}"
-                    .title="">
-                </family-qc-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
+                        <family-qc-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .title="">
+                        </family-qc-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["plink"] ? html`
-            <div class="content" id="opencga-plink-analysis">
-                <opencga-plink-analysis .opencgaSession="${this.opencgaSession}"></opencga-plink-analysis>
-            </div>
-        ` : null}
+                    <div class="content" id="opencga-plink-analysis">
+                        <opencga-plink-analysis .opencgaSession="${this.opencgaSession}"></opencga-plink-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["gatk"] ? html`
-            <div class="content" id="opencga-gatk-analysis">
-                <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
-            </div>
-        ` : null}
+                    <div class="content" id="opencga-gatk-analysis">
+                        <opencga-gatk-analysis .opencgaSession="${this.opencgaSession}"></opencga-gatk-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["variant-export"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
-                <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
+                        <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["variant-stats-exporter"] ? html`
-            <div class="content" id="opencga-variant-stats-exporter-analysis">
-                <opencga-variant-stats-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-stats-exporter-analysis>
-            </div>
-        ` : null}
+                    <div class="content" id="opencga-variant-stats-exporter-analysis">
+                        <opencga-variant-stats-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-stats-exporter-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
-                <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
+                        <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
-                <gwas-analysis
-                    .opencgaSession="${this.opencgaSession}">
-                </gwas-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
+                        <gwas-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </gwas-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-            <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
-                <rd-tiering-analysis
-                    .opencgaSession="${this.opencgaSession}">
-                </rd-tiering-analysis>
-            </div>
-        ` : null}
+                    <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
+                        <rd-tiering-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </rd-tiering-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["clinical-analysis-create"] ? html`
-            <tool-header title="${"Create Case"}" icon="${"fas fa-window-restore"}"></tool-header>
-            <div class="content container" id="opencga-clinical-analysis-create">
-                <clinical-analysis-create
-                    .opencgaSession="${this.opencgaSession}"
-                    @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
-                </clinical-analysis-create>
-            </div>
-        ` : null}
+                    <tool-header title="${"Create Case"}" icon="${"fas fa-window-restore"}"></tool-header>
+                    <div class="content container" id="opencga-clinical-analysis-create">
+                        <clinical-analysis-create
+                            .opencgaSession="${this.opencgaSession}"
+                            @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
+                        </clinical-analysis-create>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.account ? html`
             <div class="content" id="account">
@@ -1866,20 +1915,17 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["file-manager"] ? html`
-            <div class="content" id="file-manager">
-                <file-manager
-                    .opencgaSession="${this.opencgaSession}">
-                </file-manager>
-            </div>
-        ` : null}
+                    <div class="content" id="file-manager">
+                        <file-manager .opencgaSession="${this.opencgaSession}"></file-manager>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents.settings ? html`
-            <div class="content" id="settings">
-                <iva-settings
-                    .opencgaSession="${this.opencgaSession}">
-                </iva-settings>
-            </div>
-        ` : null}
+                    <div class="content" id="settings">
+                        <iva-settings .opencgaSession="${this.opencgaSession}"></iva-settings>
+                    </div>
+                ` : null}
+
 
                 ${this.config.enabledComponents["interpreter"] ? html`
             <div class="content" id="interpreter">
@@ -1895,45 +1941,45 @@ class IvaApp extends LitElement {
 
                 <!-- Alignment Analysis-->
                 ${this.config.enabledComponents["alignment-index"] ? html`
-            <div id="alignment-index" class="content">
-                <opencga-alignment-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-index-analysis>
-            </div>
-        ` : null}
+                    <div id="alignment-index" class="content">
+                        <opencga-alignment-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-index-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["coverage-index"] ? html`
-            <div id="coverage-index" class="content">
-                <opencga-coverage-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-coverage-index-analysis>
-            </div>
-        ` : null}
+                    <div id="coverage-index" class="content">
+                        <opencga-coverage-index-analysis .opencgaSession="${this.opencgaSession}"></opencga-coverage-index-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["alignment-stats"] ? html`
-            <div id="alignment-stats" class="content col-md-6 col-md-offset-3">
-                <opencga-alignment-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-stats-analysis>
-            </div>
-        ` : null}
+                    <div id="alignment-stats" class="content col-md-6 col-md-offset-3">
+                        <opencga-alignment-stats-analysis .opencgaSession="${this.opencgaSession}"></opencga-alignment-stats-analysis>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["job-view"] ? html`
-            <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
-            <div id="job-view" class="content col-md-8 col-md-offset-2">
-                <job-view
-                    mode="full"
-                    .jobId="${this.jobSelected}"
-                    .opencgaSession="${this.opencgaSession}">
-                </job-view>
-            </div>
-        ` : null
-        }
+                    <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
+                    <div id="job-view" class="content col-md-8 col-md-offset-2">
+                        <job-view
+                            mode="full"
+                            .jobId="${this.jobSelected}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </job-view>
+                    </div>
+                ` : null
+                }
 
                 <!-- Admin -->
                 ${this.config.enabledComponents["projects-admin"] ? html`
-            <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
-            <div id="projects-admin" class="content col-md-10 col-md-offset-1">
-                <projects-admin
-                    .opencgaSession="${this.opencgaSession}"
-                    @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                </projects-admin>
-            </div>
-        ` : null}
+                    <tool-header title="Projects Admin" icon="${"fas fa-rocket"}"></tool-header>
+                    <div id="projects-admin" class="content col-md-10 col-md-offset-1">
+                        <projects-admin
+                            .opencgaSession="${this.opencgaSession}"
+                            @sessionUpdateRequest="${this.onSessionUpdateRequest}">
+                        </projects-admin>
+                    </div>
+                ` : null}
 
                 ${this.config.enabledComponents["catalog-admin"] ? html`
             <div class="content row" id="catalog-admin">
@@ -1988,11 +2034,11 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["rest-api"] ? html`
-            <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
-            <div class="content">
-                <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
-            </div>
-        ` : null}
+                    <tool-header title="REST API" icon="${"fas fa-rocket"}"></tool-header>
+                    <div class="content">
+                        <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
+                    </div>
+                ` : null}
             </div>
 
             <custom-footer

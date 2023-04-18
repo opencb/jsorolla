@@ -76,7 +76,7 @@ export default class CustomWelcome extends LitElement {
                             <img alt="${item.name}" src="${item.icon}"  />
                         </div>
                         <div style="margin-top:10px;">
-                            <strong>${item.name}</strong>
+                            <div>${item.name}</div>
                         </div>
                     </a>
                 `)}
@@ -102,55 +102,49 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
-                ${featuredTools.map(item => {
-                const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                return html`
-                        <div class="col-md-3 com-sm-6">
-                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
-                                <div class="panel-body" align="center" style="height:180px;">
+                <div class="panel-default-wrapper">
+                ${
+                featuredTools.map(item => {
+                    const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                    return html`
+                        <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
+                                <div class="panel-body">
                                     <a href="#${itemLink}" style="text-decoration:none!important;">
                                         <div align="center" class="">
-                                        ${ item?.icon.includes("fas") ?
-                    html `<i class="${item.icon}" style="font-size: 5em;"></i>` : html `
-                                            <img alt="${item.name}" width="100px" src="${item.icon}"/>`}
+                                            ${ item?.icon.includes("fas") ? html`
+                                                <i class="${item.icon}" style="font-size: 5em;"></i>
+                                            ` : html`
+                                                <img alt="${item.name}" width="100px" src="${item.icon}"/>
+                                            `}
                                         </div>
-                                        <h4 style="margin-bottom:0px;">
-                                            <strong>${item.name}</strong>
+                                        <h4 style="margin-bottom:0; text-align: center">
+                                            <div>${item.name}</div>
                                         </h4>
                                     </a>
                                 </div>
-                                <div class="panel-body" style="height:150px;padding-top:0px;">
+                                <div class="panel-body">
                                     ${item.description ? UtilsNew.renderHTML(item.description) : ""}
                                 </div>
                                 <div class="panel-body">
                                     <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
-                                        <strong style="color:white;">Enter</strong>
+                                        <div style="color:white;">Enter</div>
                                     </a>
                                 </div>
                             </div>
-                        </div>
                     `;
-            })}
+                })}
                 </div>
             `;
         }
     }
 
-    render() {
-        const welcomePage = this.getWelcomePageConfig();
-
-        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
-            this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>You don´t have projects or/and studies. Please contact the admin</h3>
-                </div>`;
-        }
-
+    renderStyle() {
         return html`
             <style>
+                div#home {
+                    display: flex;
+                    align-items: center;
+                }
                 .getting-started {
                     display: inline-block;
                     border: 4px var(--main-bg-color) solid;
@@ -194,9 +188,69 @@ export default class CustomWelcome extends LitElement {
                     transform: scale(1);
                     color: #fff
                 }
-            </style>
 
-            <div class="container" style="margin-top:50px;margin-bottom:50px;">
+                .panel-default-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                    margin-top: 2rem;
+                }
+
+                .panel-default-wrapper > .panel-default > .panel-body {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1
+                }
+
+                .panel-default-wrapper > .panel-default > .panel-body:last-child {
+                    flex: 0
+                }
+
+                .panel.panel-default {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    -webkit-box-shadow: 0 2px 5px #b3b4bd;
+                    border: 0;
+                    margin: 0 1rem;
+                    max-width: 20em;
+                }
+
+                .panel-body a.btn.btn-primary.btn-block.btn-lg {
+                    background-color: var(--footer-color-payne-blue);
+                    border: 0;
+                }
+
+                #bottomLogo {
+                    display: flex;
+                    justify-content: center;
+                    margin: 3em 0;
+                }
+
+                #welcome-title {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 1em 0;
+                }
+
+                #welcome-title h1 {
+                    display: inline;
+                    margin: 0 0 0 1rem;
+                }
+
+            </style>
+        `;
+    }
+
+    render() {
+        const welcomePage = this.getWelcomePageConfig();
+
+        return html`
+
+            ${this.renderStyle()}
+
+            <div class="container" style="margin: 2em 0;">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
                     <div align="center">
@@ -212,9 +266,12 @@ export default class CustomWelcome extends LitElement {
 
                 <!-- Welcome page title -->
                 ${welcomePage?.title ? html`
-                    <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
-                        ${welcomePage.title}
-                    </h1>
+                    <div id="welcome-title">
+                        <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
+                        <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
+                            ${welcomePage.title}
+                        </h1>
+                    </div>
                 `: null}
 
                 <!-- Welcome page subtitle -->
@@ -240,6 +297,26 @@ export default class CustomWelcome extends LitElement {
                         <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
                     `)}
                 </div>
+
+                <!-- Logo at the bottom of the content -->
+                ${welcomePage?.bottomLogo?.img ? html`
+                    <div id="bottomLogo">
+                        ${welcomePage.bottomLogo.link ? html `
+                            <a href="${welcomePage.bottomLogo.link}" target="blank">
+                                <img
+                                    src="${welcomePage.bottomLogo.img}"
+                                    height="${welcomePage.bottomLogo.height || "60px"}"
+                                />
+                            </a>
+                        ` : html `
+                            <img
+                                src="${welcomePage.bottomLogo.img}"
+                                height="${welcomePage.bottomLogo.height || "60px"}"
+                            />
+                        `}
+                    </div>
+                ` : null}
+
             </div>
         `;
     }

@@ -133,14 +133,9 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
-            <div class="container-fluid" style="max-width:380px;">
-                <div class="panel panel-default" style="margin-top:96px;">
+            <div class="container-fluid" style="max-width:480px;">
+                <div class="panel panel-default">
                     <div class="panel-body" style="padding:32px;">
-                        <div align="center">
-                            <h3 style="font-weight:bold;margin-top:0px;">
-                                Login
-                            </h3>
-                        </div>
                         <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
                             <label for="user" class="control-label label-login">User ID</label>
                             <div class="input-group">
