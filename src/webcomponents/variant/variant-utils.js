@@ -433,7 +433,6 @@ export default class VariantUtils {
         }).join(" ");
     }
 
-
     static getGenotypeSamples(variant, samples, nucleotideGenotype) {
         // Samples genotypes
 
