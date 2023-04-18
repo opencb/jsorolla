@@ -162,6 +162,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
             };
         }
+        // FIXME For old users
+        if (typeof this._config.filter.result.grid?.highlights === "string") {
+            this._config.filter.result.grid.highlights = this.settings.table.highlights;
+        }
 
         // Check to hide the genome browser link
         if (this.settings?.hideGenomeBrowser) {
@@ -340,8 +344,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         const newGridConfig = {...e.detail.value};
 
         // Remove highlights and copies configuration from new config
-        delete newGridConfig.highlights;
-        // delete newConfig.copies;
+        if (newGridConfig._highlights) {
+            delete newGridConfig._highlights;
+        }
 
         // Update user configuration
         try {

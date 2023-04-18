@@ -96,8 +96,9 @@ class VariantInterpreter extends LitElement {
     }
 
     settingsObserver() {
+        this._config = this.getDefaultConfig();
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
-        this._config = {...this._config};
+        // this._config = {...this._config};
         this.requestUpdate();
     }
 
@@ -120,7 +121,8 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })

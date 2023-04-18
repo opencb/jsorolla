@@ -512,6 +512,7 @@ export class OpenCGAClient {
         if (data?.IVA) {
             delete data.IVA;
         }
+        debugger
         const userIvaConfig = this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
