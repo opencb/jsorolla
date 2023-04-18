@@ -31,7 +31,7 @@ const hosts = [
     },
     {
         id: "test-reference",
-        url: "https://test.app.zettagenomics.com/iva-3799/opencga"
+        url: "https://test.app.zettagenomics.com/TASK-3799/opencga"
     },
 ];
 
@@ -172,22 +172,30 @@ const CATALOG_NAVBAR_MENU = {
 
 const SUITE = {
     id: "suite",
-    name: "Suite",
+    name: "OpenCB Suite",
     version: "",
     logo: "img/iva-white.svg",
-    // companyLogo: "",
+    companyLogo: "",
     logoAlt: "img/iva.svg",
     favicon: "img/zetta-favicon.png",
     // logoAltHeight: "",
     // footerLogo: "img/opencb-logo.png",
     mode: "development",
-    // appConfig: "opencb",
-
-    fileExplorer: {
-        visibility: "private"
-    },
-    jobMonitor: {
-        visibility: "private"
+    appConfig: "opencb",
+    about: {
+        dropdown: true,
+        links: [
+            {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
+            {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
+            {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
+            {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
+            {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
+            {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
+            {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
+            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
+            {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
+            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
+        ]
     },
     restApi: {
         visibility: "private"
@@ -241,21 +249,6 @@ const SUITE = {
             </p>
             <br>
         </div>`,
-    },
-    about: {
-        dropdown: true,
-        links: [
-            {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-            {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-            {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-            {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
-            {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
-            {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
-            {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
-            {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
-            {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"},
-        ]
     },
     aboutPage: {
         display: {

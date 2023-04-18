@@ -60,7 +60,7 @@ export default class ProjectCellbaseInfo extends LitElement {
 
     #renderCellBaseInfo(cellbaseConfig) {
         const sourceData = {};
-        cellbaseConfig.sources.forEach(source => {
+        cellbaseConfig.sources?.forEach(source => {
             if (!sourceData[source.data]) {
                 sourceData[source.data] = [];
             }

@@ -102,33 +102,34 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="" style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:32px;">
+                <div class="panel-default-wrapper">
                     ${featuredTools.map(item => {
                         const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
                         return html`
-                            <div class="col-md-3 com-sm-6">
-                                <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
-                                    <div class="panel-body" align="center" style="height:180px;">
-                                        <a href="#${itemLink}" style="text-decoration:none!important;">
-                                            <div align="center" class="">
-                                                ${ item?.icon.includes("fas") ?
-                                                    html `<i class="${item.icon}" style="font-size: 5em;"></i>` : html `
-                                                        <img alt="${item.name}" width="100px" src="${item.icon}"/>`}
-                                            </div>
-                                            <h4 style="margin-bottom:0; text-align: center">
-                                                <div>${item.name}</div>
-                                            </h4>
-                                        </a>
-                                    </div>
-                                    <div class="panel-body">
-                                        ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                                    </div>
-                                    <div class="panel-body">
-                                        <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
-                                            <div style="color:white;">Enter</div>
-                                        </a>
-                                    </div>
+                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
+                                <div class="panel-body">
+                                    <a href="#${itemLink}" style="text-decoration:none!important;">
+                                        <div align="center" class="">
+                                            ${ item?.icon.includes("fas") ? html`
+                                                <i class="${item.icon}" style="font-size: 5em;"></i>
+                                            ` : html`
+                                                <img alt="${item.name}" width="100px" src="${item.icon}"/>
+                                            `}
+                                        </div>
+                                        <h4 style="margin-bottom:0; text-align: center">
+                                            <div>${item.name}</div>
+                                        </h4>
+                                    </a>
                                 </div>
+                                <div class="panel-body">
+                                    ${item.description ? UtilsNew.renderHTML(item.description) : ""}
+                                </div>
+                                <div class="panel-body">
+                                    <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
+                                        <div style="color:white;">Enter</div>
+                                    </a>
+                                </div>
+                            </div>
                         `;
                     })}
                 </div>
