@@ -146,6 +146,7 @@ class IvaApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            "aboutzetta",
             // "reset-password",
             "settings",
             "account",
@@ -990,8 +991,8 @@ class IvaApp extends LitElement {
                 welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
-                about: this.config.about,
-                userMenu: this.config.userMenu,
+                // about: this.config.about,
+                // userMenu: this.config.userMenu,
             };
         }
     }
@@ -1158,7 +1159,7 @@ class IvaApp extends LitElement {
             <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
 
             <!-- This is where main IVA application is rendered -->
-            <div class="container-fluid">
+            <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
                         <custom-welcome
@@ -1195,6 +1196,14 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents.gettingstarted ? html`
                     <div class="content" id="getting-started">
                         <getting-started .opencgaSession="${this.opencgaSession}" .config="${this.config}"></getting-started>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents?.aboutzetta ? html`
+                    <div class="content" id="faq">
+                        <custom-page
+                            .page="${this.config.aboutPage}">
+                        </custom-page>
                     </div>
                 ` : null}
 

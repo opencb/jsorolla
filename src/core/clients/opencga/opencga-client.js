@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {RestResponse} from "../rest-response.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";

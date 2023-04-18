@@ -47,33 +47,93 @@ export default class CustomLanding extends LitElement {
     render() {
         return html`
             <style>
-                .landing {
+                .landing-wrapper {
+                    display: flex;
+                    justify-content: center;
+                    align-items: stretch;
+                    height: 100vh;
+                }
+
+                .landing-wrapper > div {
+                    flex: 1;
+                }
+
+                .landing-wrapper > .landing-company {
+                    background-color: var(--main-bg-color);
+                    display: flex;
+                    flex-direction: column;
                     align-items: center;
+                }
+
+                .landing-wrapper > .landing-company > div {
+                    flex: 1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    margin: 1em;
+                }
+
+                .landing-wrapper > .landing-company > .landing-logo {
+                    justify-content: flex-start;
+                }
+
+                .landing-wrapper .landing-title {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    font-size: 1.5em;
+                    font-weight: 100;
+                    letter-spacing: 8px;
+                    text-transform: uppercase;
+                }
+
+                .landing-wrapper > .landing-company > .landing-title {
+                    color: #f2f4f6;
+                }
+                .landing-wrapper > .landing > .landing-title {
+                    flex:0;
+                    margin: 0;
+                }
+
+                .landing {
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    min-height: calc(100vh - 70px);
-                    padding: 16px;
-                    width: 100%;
+                    align-items: center;
                 }
+
+                .landing-wrapper > .landing > div {
+                    flex: 1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    margin: 1em;
+                }
+
+                .landing-wrapper > .landing > .landing-logo {
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-end;
+                    margin-bottom: 0;
+                }
+
+
+
+                .landing-logo > img {
+                    margin: 1em;
+                }
+
                 .landing-logo {
                     height: 100px;
-                    margin-bottom: 32px;
                     width: auto;
                 }
-                .landing-title {
-                    font-size: 3.5rem;
-                    font-weight: bold;
-                    margin-bottom: 32px;
-                    max-width: 640px;
-                    text-align: center;
-                    width: 100%;
-                }
+
                 .landing-content {
-                    margin-bottom: 32px;
                     max-width: 640px;
                     width: 100%;
                 }
+
                 .landing-login-sso-helper {
                     color: #909294;
                     font-size: 12px;
@@ -82,48 +142,82 @@ export default class CustomLanding extends LitElement {
                     text-align: center;
                     width: 100%;
                 }
+
+                .landing-login button.btn.btn-primary.btn-block {
+                    background-color: hsl(222, 20%, 45%);
+                    border: 0;
+                }
+
+
             </style>
-            <div class="landing">
-                <!-- Landing logo section -->
-                ${this.config?.landingPage?.logo ? html`
-                    <div class="landing-logo ${this.config.landingPage.display?.logoClass}" style="${this.config.landingPage.display?.logoStyle}">
-                        <img height="100%" src="${this.config.landingPage.logo}" />
-                    </div>
-                ` : null}
-                <!-- Landing title -->
-                ${this.config?.landingPage?.title ? html`
-                    <div class="landing-title ${this.config.landingPage.display?.titleClass}" style="${this.config.landingPage.display?.titleStyle}">
-                        ${this.config.landingPage.title}
-                    </div>
-                ` : null}
-                <!-- Landing description -->
-                ${this.config?.landingPage?.content ? html`
-                    <div align="center" class="landing-content ${this.config.landingPage.display?.contentClass}" style="${this.config.landingPage.display?.contentStyle}">
-                        ${UtilsNew.renderHTML(this.config.landingPage.content)}
-                    </div>
-                ` : null}
-                <!-- Landing login -->
-                <div class="landing-login">
-                    ${this.opencgaSession?.opencgaClient?._config?.sso ? html `
-                        <div align="center">
-                            <a class="btn-group" role="group" href="${this.getSSOUrl()}">
-                                <button type="button" class="btn btn-primary btn-lg" style="background-color: #286090;">
-                                    <i class="fas fa-user"></i>
-                                </button>
-                                <button type="button" class="btn btn-primary btn-lg">
-                                    <strong style="color:white;">Login with SSO</strong>
-                                </button>
-                            </a>
+            <div class="landing-wrapper">
+                <div class="landing-company">
+                    <!-- Landing logo section -->
+                    ${this.config?.landingPage?.organisation?.logo?.img ? html`
+                        <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
+                             style="${this.config.landingPage?.organisation?.display?.logoStyle}">
+                            ${this.config?.landingPage?.organisation?.logo?.link ? html `
+                                <a href="${this.config?.landingPage?.organisation?.logo?.link}" target="_blank">
+                                    <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
+                                         src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                                </a>
+                            `: html `
+                                <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
+                                     src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                            `}
                         </div>
-                        <div class="landing-login-sso-helper">
-                            By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login page.
+                        <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
+                             style="${this.config.landingPage?.organisation?.display?.titleStyle}">
+                            ${this.config.landingPage?.organisation?.title}
                         </div>
-                    ` : html`
-                        <user-login
-                            .opencgaSession="${this.opencgaSession}">
-                        </user-login>
-                    `}
+                    ` : null}
                 </div>
+                <div class="landing">
+                    <!-- Landing title -->
+                    ${this.config?.landingPage?.login?.logo || this.config.landingPage?.login?.title ? html`
+                        <div class="landing-logo ${this.config.landingPage?.login?.display?.logoClass}"
+                             style="${this.config.landingPage?.login?.display?.logoStyle}">
+                            <img height="${this.config?.landingPage?.login?.logo?.height || "30px"}"
+                                 src="${this.config.landingPage?.login?.logo?.img}"/>
+                        </div>
+                        <div class="landing-title ${this.config.landingPage?.login?.display?.titleClass}"
+                             style="${this.config.landingPage?.login?.display?.titleStyle}">
+                            ${this.config.landingPage?.login?.title}
+                        </div>
+                    ` : null}
+                    <!-- Landing description -->
+                    ${this.config?.landingPage?.login?.content ? html`
+                        <div align="center"
+                             class="landing-content ${this.config.landingPage?.login?.display?.contentClass}"
+                             style="${this.config.landingPage?.login?.display?.contentStyle}">
+                            ${UtilsNew.renderHTML(this.config.landingPage?.login?.content)}
+                        </div>
+                    ` : null}
+                    <!-- Landing login -->
+                    <div class="landing-login">
+                        ${this.opencgaSession?.opencgaClient?._config?.sso ? html`
+                            <div>
+                                <a class="btn-group" role="group" href="${this.getSSOUrl()}">
+                                    <button type="button" class="btn btn-primary btn-lg" style="">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-lg">
+                                        <strong style="color:white;">Login with SSO</strong>
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="landing-login-sso-helper">
+                                By clicking on the <b>Login with SSO</b> button you will be redirected to your SSO login
+                                page.
+                            </div>
+                        ` : html`
+                            <user-login
+                                    .opencgaSession="${this.opencgaSession}">
+                            </user-login>
+                        `}
+                    </div>
+                </div>
+
             </div>
         `;
     }
