@@ -14,7 +14,7 @@ on:
         required: true
 
 env:
-  xb_version: "1.5.0"
+  xb_version: "1.6.0"
 
 jobs:
   test:
