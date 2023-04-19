@@ -547,4 +547,16 @@ export default class VariantUtils {
         }
     }
 
+    static getComplementarySequence(sequence) {
+        const nucleotides = ["A", "T", "C", "G"];
+        const complementTable = {A: "T", T: "A", C: "G", G: "C"};
+
+        if (!nucleotides.every(n => sequence.includes(n))) {
+            throw new Error("Invalid sequence");
+        }
+
+        return sequence.toUpperCase().replace(/[ATCG]/g, n => complementTable[n]);
+    }
+
+
 }

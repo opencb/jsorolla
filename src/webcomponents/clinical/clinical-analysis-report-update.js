@@ -27,8 +27,10 @@ import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../file/file-create.js";
+import "../file/file-preview.js";
 import "../variant/interpretation/variant-interpreter-grid-beta.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
+import VariantUtils from "../variant/variant-utils.js";
 
 // WIP: Form BETA
 export default class ClinicalAnalysisReportUpdate extends LitElement {
@@ -131,7 +133,31 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
         }
     }
 
-    openModalReport() {
+    getFileChromatogram() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            count: false,
+
+        };
+        const fileIds = this.opencgaSession.opencgaClient.files().search();
+    }
+
+    async openModalReport() {
+        // Get Sequence of Variant Info
+        const {chromosome, start, strand} = this._variantReview;
+        const regionVariant = `${chromosome}:${start-10}-${start+10}`;
+        this.sequence = "";
+        try {
+            const resp = await this.opencgaSession.cellbaseClient.get("genomic", "region", regionVariant, "sequence", {assembly: "grch38", strand: 1});
+            const result = await resp.response[0].result[0];
+            this.sequence = {
+                forward: result.sequence,
+                reverse: VariantUtils.getComplementarySequence(result.sequence).split("").reverse().join("")
+            };
+            console.log("sequence", this.sequence);
+        } catch (error) {
+            console.log(error);
+        }
         $(`#${this._prefix}EditReport`).modal("show");
     }
 
@@ -431,15 +457,37 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             </variant-beacon-network>`;
                     }
                 },
-                // {
-                //     id: "chomatograma-view",
-                //     name: "Chromatogram",
-                //     render: data => html `
-                //     <div style="padding:10%">
-                //         Image will be here
-                //     </div>
-                //     `,
-                // },
+                {
+                    id: "chomatograma-view",
+                    name: "Chromatogram (Beta)",
+                    render: variantInfo => {
+                        // Sample-gen file
+                        const sequenceFormat = sequence => `${sequence?.slice(0, 10)} [${variantInfo.reference}/${variantInfo.alternate}] ${sequence?.slice(11)}`;
+                        return html `
+                        <div style="display:flex; gap:2px">
+                            <div>
+                                <b>Genotype Forward</b>
+                                <br/>
+                                <span>${sequenceFormat(this.sequence.forward)}</span>
+                                <file-preview
+                                    .fileId="${"reports:single2.1:22-5479_acvrl1_ex3_m13_f_SECUENCIADOR2_230116_C11.jpg"}"
+                                    .active="${true}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </file-preview>
+                            </div>
+                            <div>
+                                <b>Genotype Reverse</b>
+                                <br/>
+                                <span>${sequenceFormat(this.sequence.reverse)}</span>
+                                <file-preview
+                                .fileId="${"reports:single2.1:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg"}"
+                                .active="${true}"
+                                .opencgaSession="${this.opencgaSession}">
+                                </file-preview>
+                            </div>
+                        </div>`;
+                    },
+                },
                 {
                     id: "json-view",
                     name: "JSON Data",
@@ -686,7 +734,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: (clinicalAnalysis, dataFormFilterChange) => html`
                                     <file-create
-                                        .data="${clinicalAnalysis}"
+                                        .data="${this.clinicalAnalysis}"
                                         .opencgaSession="${this.opencgaSession}">
                                     </file-create>`
                             },
