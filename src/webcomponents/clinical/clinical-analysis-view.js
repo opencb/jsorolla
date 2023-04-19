@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
-import "../commons/view/pedigree-view.js";
+import "../commons/image-viewer.js";
 
 
 export default class ClinicalAnalysisView extends LitElement {
@@ -369,13 +369,20 @@ export default class ClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 render: phenotypes => {
-                                    if (phenotypes) {
-                                        return [...phenotypes].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => html`
-                                            ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
-                                                html`<li>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</li>` :
-                                                html`<li>${phenotype.id} - ${phenotype.status}</li>`}`
-                                        );
-                                    }
+                                    return (phenotypes || [])
+                                        .sort(item => item?.status === "OBSERVED" ? -1 : 1)
+                                        .map(phenotype => {
+                                            if (phenotype?.source && phenotype?.source?.toUpperCase() === "HPO") {
+                                                const url = `https://hpo.jax.org/app/browse/term/${phenotype.id}`;
+                                                return html`
+                                                    <li>${phenotype.name} (<a target="_blank" href="${url}">${phenotype.id}</a>) - ${phenotype.status}</li>
+                                                `;
+                                            } else {
+                                                return html`
+                                                    <li>${phenotype.id} - ${phenotype.status}</li>
+                                                `;
+                                            }
+                                        });
                                 },
                                 defaultValue: "N/A",
                             },
@@ -471,20 +478,14 @@ export default class ClinicalAnalysisView extends LitElement {
                                 errorMessage: "No family selected",
                             },
                         },
-                        // {
-                        //     title: "Members JSON",
-                        //     field: "family.members",
-                        //     type: "json"
-                        // },
                         {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                // TODO at the moment pedigree doesn't work with families with over 2 generations
-                                visible: !this._config?.hiddenFields?.includes("pedigree"),
-                                layout: "vertical",
                                 render: clinicalAnalysis => html`
-                                    <pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>
+                                    <image-viewer
+                                        .data="${clinicalAnalysis?.family?.pedigreeGraph?.base64}">
+                                    </image-viewer>
                                 `,
                             },
                         }

@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
+import CustomActions from "./custom-actions.js";
 
 
 export default class GridCommons {
@@ -270,16 +271,21 @@ export default class GridCommons {
         }
     }
 
-    rowHighlightStyle(row, index) {
-        // If no active highlight
-        if (!this.config.highlights || !this.config.activeHighlights || this.config.activeHighlights?.length === 0) {
-            return {};
+    isColumnVisible(colName) {
+        if (this.config.columns?.length > 0) {
+            return this.config.columns.includes(colName);
+        } else {
+            // Columns are visible by default.
+            return true;
         }
+    }
 
+    rowHighlightStyle(row, index) {
         let rowStyle = {};
-        this.config.highlights.forEach(highlight => {
-            if (this.config.activeHighlights.includes(highlight.id)) {
-                if (highlight.condition && highlight.condition(row, index)) {
+        (this.config.highlights || [])
+            .filter(highlight => highlight.active)
+            .forEach(highlight => {
+                if (CustomActions.get(highlight).execute(row, highlight)) {
                     rowStyle = {
                         css: {
                             "background-color": highlight.style?.rowBackgroundColor || "",
@@ -287,10 +293,7 @@ export default class GridCommons {
                         },
                     };
                 }
-            }
-        });
-
-        // Return background color for this row
+            });
         return rowStyle;
     }
 
