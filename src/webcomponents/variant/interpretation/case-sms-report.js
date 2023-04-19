@@ -481,7 +481,7 @@ class CaseSmsReport extends LitElement {
         }
     }
 
-    initGenerateJson(reportData) {
+    initGenerateJsonA(reportData) {
         const {
             patient, notes, study, interpretations, clinicalAnalysis, mainResults,
         } = reportData;
@@ -691,7 +691,234 @@ class CaseSmsReport extends LitElement {
         return _jsonReport;
     }
 
+    initGenerateJsonB(reportData) {
+        const {
+            patient, notes, study, interpretations, clinicalAnalysis, mainResults,
+        } = reportData;
+        const patientElements = {
+            name: {
+                label: "Nombre",
+                content: patient?.name
+            },
+            lastName: {
+                label: "Apellidos",
+                content: patient?.lastName
+            },
+            birth: {
+                label: "Fecha de Nacimiento",
+                content: UtilsNew.dateFormatter(patient?.birthDate)
+            },
+            age: {
+                label: "Edad",
+                content: patient?.age
+            },
+            ssn: {
+                label: "Código Sistema de Salud",
+                content: patient?.cipa
+            },
+            typeSample: {
+                label: "Tipo de Muestra",
+                content: clinicalAnalysis.sample?.type
+            },
+            extractionDate: {
+                label: "Fecha de Extracción",
+                content: patient?.name
+            },
+            reason: {
+                label: "Motivo",
+                content: clinicalAnalysis.sample.reason
+            }
+        };
+        const doctorInfo = field => `
+            <p>${field?.name?? ""}</p>
+            <p>${field?.specialization?? ""}</p>
+            <p>${field?.hospitalName?? ""}</p>
+            <p>${field?.address?? ""}</p>
+            <p>${field?.code??""}</p>
+        `;
+        const clinicalElements = {
+            requestId: {
+                label: "N. Petición",
+                content: clinicalAnalysis.request?.id
+            },
+            requestDate: {
+                label: "Fecha de Petición",
+                content: clinicalAnalysis.sample?.requestDate
+            },
+            doctor: {
+                label: "Fecha de Petición",
+                content: doctorInfo(clinicalAnalysis.request?.doctor)
+            },
+        };
+
+        const fieldTextTemplate = element => `<label><b>${element?.label ?? ""}</b></label> <span>${element?.content}</span><br/>`;
+        const boxTemplate = (id, elements, classes) => `<div class='${classes ?? ""}' id='${id}'>${Object.keys(elements).map(key => fieldTextTemplate(elements[key])).join("")}</div>`;
+        const studyElements = {
+            reason: {
+                label: "Razón del Estudio",
+                content: study.description
+            },
+            project: {
+                label: "Proyecto",
+                content: study.project
+            },
+            analyst: {
+                label: "Análisis",
+                content: study.currentAnalysis
+            },
+            genePriority: {
+                label: "Genes Prioritarios",
+                content: study.genePriority
+            }
+        };
+        const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
+        const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
+        const variantsHtml = interpretations.variants
+            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+
+        const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
+        const variantElements = interpretations.variants
+            .map(variant => ({
+                label: variant.title,
+                content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
+            }));
+
+        const signsElements = {
+            responsible: {
+                label: "Responsable Lab Genética Molecular",
+                content: clinicalAnalysis?.lab?.responsible
+            },
+            facultive: {
+                label: "Facultivos",
+                content: clinicalAnalysis?.lab?.facultative.join()
+            },
+            contact: {
+                label: "Responsable Lab Genética Molecular",
+                content: clinicalAnalysis?.lab?.email
+            },
+            validation: {
+                label: "Validado por",
+                content: clinicalAnalysis?.lab?.validation
+            },
+            date: {
+                label: "Fecha",
+                content: clinicalAnalysis?.lab?.date
+            },
+        };
+
+        const _jsonReport =
+            {
+                "_wantedKeys": [
+                    "patient",
+                    "clinical",
+                    "study",
+                    "method",
+                    "results",
+                    "interpretations",
+                    "technicalNotes",
+                    "coverage"
+                ],
+                "_metadata": {
+                    "author": this.opencgaSession.user?.id,
+                    "date": UtilsNew.getDatetime()
+                },
+                "_style": `
+                    .container-grid {
+                        display:grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-gap: 10px;
+                    }
+
+                    .box-blue-line {
+                        background-color:#f3f3f3;
+                        border-left: 4px solid #0c2f4c;
+                        padding:16px;
+                    }
+                `,
+                "_header": "Informe Genético",
+                "patient": {
+                    "_wantedElements": Object.keys(patientElements),
+                    "title": "Datos Personales del Paciente",
+                    "summary": "",
+                    "elements": {...patientElements},
+                    "htmlRendered": boxTemplate("patient", patientElements, "box-blue-line")
+                },
+                "clinical": {
+                    "_wantedElements": Object.keys(clinicalElements),
+                    "title": "Información y detalles de la solicitud de diagnóstico",
+                    "summary": "",
+                    "elements": {...clinicalElements},
+                    "htmlRendered": boxTemplate("clinical", clinicalElements, "box-blue-line")
+                },
+                "study": {
+                    "_wantedElements": Object.keys(studyElements),
+                    "title": "Descripción del estudio",
+                    "summary": "",
+                    "elements": {...studyElements},
+                    "htmlRendered": boxTemplate("study", studyElements)
+                },
+                "method": {
+                    "title": "Metodología empleada",
+                    "content": methodologyHtml,
+                    "htmlRendered": methodologyHtml
+                },
+                "results": {
+                    "title": "Resultado",
+                    "content": resultsHtml,
+                    "htmlRendered": resultsHtml
+                },
+                "interpretations": {
+                    "title": "Interpretacion",
+                    "summary": "",
+                    "elements": variantElements,
+                    "htmlRendered": interpretationsHtml
+                },
+                "technicalNotes": {
+                    "title": "Notas",
+                    "content": notes,
+                    "htmlRendered": notes
+                },
+                "coverage": {
+                    "title": "Estadística de cobertura",
+                    "content": ""
+                },
+                "appendix": {
+                    "_wantedKeys": [],
+                    "coverageMetrics": "",
+                    "qc": "",
+                    "otherVariants": ""
+                },
+                "signs": {
+                    "_wantedElements": Object.keys(signsElements),
+                    "title": "",
+                    "summary": "",
+                    "elements": {...signsElements},
+                    "htmlRendered": boxTemplate("signs", signsElements)
+                },
+            };
+
+        _jsonReport.htmlRendered = this.generateReportHtmlB(_jsonReport);
+        return _jsonReport;
+    }
+
     generateReportHtml(reportJson) {
+        const sectionTemplateHtml = section => `<section><h2>${section?.title}</h2>${section?.htmlRendered?? ""}</section>`;
+        const content = `
+            <style>${reportJson._style}</style>
+                <h1 style="text-align:center">
+                    ${reportJson._header}
+                </h1>
+                <div style="transform:scale(0.9)">
+                    <div class="container-grid">
+                    ${reportJson._wantedKeys.filter(key => key == "patient" || key == "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+                    </div>
+                    ${reportJson._wantedKeys.filter(key => key !== "patient" && key !== "clinical").map(key => `${sectionTemplateHtml(reportJson[key])}`).join("")}
+                </div>
+        `;
+        return content;
+    }
+
+    generateReportHtmlB(reportJson) {
         const sectionTemplateHtml = section => `<section><h2>${section?.title}</h2>${section?.htmlRendered?? ""}</section>`;
         const content = `
             <style>${reportJson._style}</style>
@@ -729,8 +956,16 @@ class CaseSmsReport extends LitElement {
             });
     }
 
-    previewHtmlReport() {
-        this._reportJson = this.initGenerateJson(this._reportData);
+    previewHtmlReport(template) {
+        switch (template) {
+            case "A":
+                this._reportJson = this.initGenerateJsonA(this._reportData);
+                break;
+            case "sanger":
+                this._reportJson = this.initGenerateJsonB(this._reportData);
+                break;
+        }
+
         this.openNav();
         this.requestUpdate();
     }
@@ -836,7 +1071,8 @@ class CaseSmsReport extends LitElement {
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="cursor:pointer">
-                        <li><a @click="${() => this.previewHtmlReport()}">Plantilla B</a></li>
+                        <li><a @click="${() => this.previewHtmlReport("A")}">Plantilla A</a></li>
+                        <li><a @click="${() => this.previewHtmlReport("sanger")}">Plantilla Sanger</a></li>
                     </ul>
                 </div>
             </div>
