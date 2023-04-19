@@ -98,9 +98,13 @@ export default class ToolSettingsRestore extends LitElement {
                 const fields = [];
                 if (project.studies?.length > 0) {
                     for (const study of project.studies) {
-                        fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
+                        if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
+                            fields.push({id: study.fqn, name: study.fqn, disabled: study.fqn === this.opencgaSession.study.fqn});
+                        }
                     }
-                    this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
+                    if (fields.length > 0) {
+                        this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
+                    }
                 }
             }
         }

@@ -70,16 +70,16 @@ export default class CustomWelcome extends LitElement {
 
             return html`
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
-                ${visibleApps.map(item => html`
-                    <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
-                        <div class="hi-icon">
-                            <img alt="${item.name}" src="${item.icon}"  />
-                        </div>
-                        <div style="margin-top:10px;">
-                            <div>${item.name}</div>
-                        </div>
-                    </a>
-                `)}
+                    ${visibleApps.map(item => html`
+                        <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
+                            <div class="hi-icon">
+                                <img alt="${item.name}" src="${item.icon}"  />
+                            </div>
+                            <div style="margin-top:10px;">
+                                <div>${item.name}</div>
+                            </div>
+                        </a>
+                    `)}
                 </div>
             `;
         } else {
@@ -103,11 +103,10 @@ export default class CustomWelcome extends LitElement {
 
             return html`
                 <div class="panel-default-wrapper">
-                ${
-                featuredTools.map(item => {
-                    const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                    return html`
-                        <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
+                    ${featuredTools.map(item => {
+                        const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                        return html`
+                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
                                 <div class="panel-body">
                                     <a href="#${itemLink}" style="text-decoration:none!important;">
                                         <div align="center" class="">
@@ -131,8 +130,8 @@ export default class CustomWelcome extends LitElement {
                                     </a>
                                 </div>
                             </div>
-                    `;
-                })}
+                        `;
+                    })}
                 </div>
             `;
         }
@@ -246,8 +245,16 @@ export default class CustomWelcome extends LitElement {
     render() {
         const welcomePage = this.getWelcomePageConfig();
 
-        return html`
+        if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
+            this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>You don´t have projects or/and studies. Please contact the admin</h3>
+                </div>`;
+        }
 
+        return html`
             ${this.renderStyle()}
 
             <div class="container" style="margin: 2em 0;">
