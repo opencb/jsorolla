@@ -329,17 +329,10 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onGridConfigSave(e) {
-        const newGridConfig = {...e.detail.value};
-
-        // Remove highlights and copies configuration from new config
-        delete newGridConfig.highlights;
-        // delete newConfig.copies;
-
         // Update user configuration
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", newGridConfig);
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "variantBrowser", e.detail.value);
             this.settingsObserver();
-            this.requestUpdate();
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",

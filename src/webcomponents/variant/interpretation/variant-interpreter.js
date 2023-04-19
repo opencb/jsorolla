@@ -100,8 +100,9 @@ class VariantInterpreter extends LitElement {
     }
 
     settingsObserver() {
+        this._config = this.getDefaultConfig();
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
-        this._config = {...this._config};
+        // this._config = {...this._config};
         this.requestUpdate();
     }
 
@@ -124,7 +125,8 @@ class VariantInterpreter extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
                 })
@@ -459,8 +461,13 @@ class VariantInterpreter extends LitElement {
                                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock icon-padding"></span>` : ""}
                                             <strong>${this.clinicalAnalysis.interpretation.id}</strong>
                                         </div>
+                                        ${this.clinicalAnalysis.interpretation?.method?.name ? html`
+                                            <div style="font-size:0.875em;">
+                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                                            </div>
+                                        ` : null}
                                         <div class="text-muted">
-                                            <div>Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong></div>
+                                            Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
                                         </div>
                                     </div>
                                 ` : null}
@@ -541,7 +548,7 @@ class VariantInterpreter extends LitElement {
                                             <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
                                                href="javascript: void 0" data-view="${item.id}"
                                                @click="${this.onClickSection}">
-                                                <div class="hi-icon ${item.icon}"></div>
+                                                <div class="interpreter-hi-icon ${item.icon}"></div>
                                                 <p>${item.title}</p>
                                                 <span class="smaller"></span>
                                             </a>

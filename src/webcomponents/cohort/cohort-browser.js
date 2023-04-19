@@ -226,7 +226,6 @@ export default class CohortBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            mode: "development",
                             render: (cohort, active, opencgaSession) => {
                                 return html`
                                     <json-viewer
