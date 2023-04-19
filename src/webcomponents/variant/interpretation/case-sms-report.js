@@ -409,13 +409,13 @@ class CaseSmsReport extends LitElement {
                 {
                     columns: [
                         [
-                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.lab.responsible),
-                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.lab.facultative.join(",")),
-                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.lab.email)
+                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.lab?.responsible),
+                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.lab?.facultative.join(",")),
+                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.lab?.email)
                         ],
                         [
-                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.lab.validation),
-                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.lab.date)),
+                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.lab?.validation),
+                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.lab?.date)),
                         ]
                     ]
                 }
@@ -1550,7 +1550,7 @@ class CaseSmsReport extends LitElement {
                             display: {
                                 render: data => {
                                     return html `
-                                    <p><b>${data?.clinicalAnalysis?.lab?.name}</b> ${data.clinicalAnalysis?.lab.responsible}</p>
+                                    <p><b>${data?.clinicalAnalysis?.lab?.name}</b> ${data.clinicalAnalysis?.lab?.responsible}</p>
                                     <p><b>Fac:</b> ${data?.clinicalAnalysis?.lab?.facultative?.join()}</p>
                                     <p><b>Contacto:</b> ${data?.clinicalAnalysis?.lab?.email}</p>
                                     `;
@@ -1567,8 +1567,8 @@ class CaseSmsReport extends LitElement {
                             display: {
                                 render: data => {
                                     return html`
-                                        <p><b>Validado por:</b> ${data?.clinicalAnalysis?.lab.validation}</p>
-                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.lab.date)}</p>
+                                        <p><b>Validado por:</b> ${data?.clinicalAnalysis?.lab?.validation}</p>
+                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.lab?.date)}</p>
                                         `;
                                 }
                             }
