@@ -188,7 +188,7 @@ export default class OpencgaBrowserFilter extends LitElement {
         if (subsection.render) {
             content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
         } else {
-            const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
+            const id = subsection.id === "priority"? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
             switch (id) {
                 case "id":
                 case "name":
@@ -253,7 +253,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "lifeStatus":
                 case "format":
                 case "bioformat":
-                case "internalVariantIndexStatus":
+                case "internal.index.status.name":
                 case "internalStatus":
                 case "visited":
                 case "job_priority":

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
@@ -32,8 +32,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     constructor() {
         super();
-
-        this.#init();
+        this._init();
     }
 
     createRenderRoot() {
@@ -66,26 +65,33 @@ export default class VariantBrowserGrid extends LitElement {
         };
     }
 
-    #init() {
+    _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
 
         // Set colors
-        // eslint-disable-next-line no-undef
         this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+
+        // this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        // this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
     firstUpdated() {
         // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
+        this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -93,7 +99,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("query") || changedProperties.has("variants")) {
-            this.queryObserver();
+            this.propertyObserver();
             // update config to add new columns by filters as sample
             this.configObserver();
             this.renderVariants();
@@ -107,14 +113,11 @@ export default class VariantBrowserGrid extends LitElement {
 
     opencgaSessionObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    queryObserver() {
+    propertyObserver() {
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
         if (this.query?.sample) {
@@ -139,20 +142,17 @@ export default class VariantBrowserGrid extends LitElement {
             resource: "VARIANT",
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
-            showColumns: false,
             ...this._config.toolbar,
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
-            // gridColumns: this._getDefaultColumns() // original column structure
+            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
+            gridColumns: this._getDefaultColumns() // original column structure
         };
     }
 
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
-        this.renderVariants();
     }
 
     renderVariants() {
-        this.opencgaSession;
         if (this.variants?.length > 0) {
             this.renderFromLocal();
         } else {
@@ -164,7 +164,7 @@ export default class VariantBrowserGrid extends LitElement {
     renderRemoteVariants() {
         if (this.opencgaSession?.study) {
             this._columns = this._getDefaultColumns();
-            // debugger
+
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -567,7 +567,7 @@ export default class VariantBrowserGrid extends LitElement {
                         study: study.fqn,
                         cohorts: study.cohorts,
                         colors: this.populationFrequencies.style,
-                        populationFrequenciesConfig: this._config?.populationFrequenciesConfig,
+                        populationFrequenciesConfig: this._config.populationFrequenciesConfig,
                         context: this
                     },
                     rowspan: 1,
@@ -607,7 +607,7 @@ export default class VariantBrowserGrid extends LitElement {
                         populations: populations,
                         populationMap: populationMap,
                         colors: this.populationFrequencies.style,
-                        populationFrequenciesConfig: this._config?.populationFrequenciesConfig,
+                        populationFrequenciesConfig: this._config.populationFrequenciesConfig,
                         context: this
                     },
                     rowspan: 1,
@@ -628,8 +628,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) =>
                         VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("id")
+                    halign: "center"
                 },
                 {
                     id: "gene",
@@ -639,8 +638,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) =>
                         VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("gene")
+                    halign: "center"
                 },
                 {
                     id: "type",
@@ -649,8 +647,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    halign: "center"
                 },
                 {
                     id: "consequenceType",
@@ -659,8 +656,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query?.ct, this._config),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("consequenceType")
+                    halign: "center"
                 },
                 {
                     id: "deleteriousness",
@@ -842,8 +838,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.siftPproteinScoreFormatter.bind(this),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("SIFT")
+                    halign: "center"
                 },
                 {
                     id: "polyphen",
@@ -852,8 +847,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.polyphenProteinScoreFormatter.bind(this),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("polyphen")
+                    halign: "center"
                 },
                 {
                     id: "revel",
@@ -862,8 +856,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.revelProteinScoreFormatter.bind(this),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("revel")
+                    halign: "center"
                 },
                 {
                     id: "cadd",
@@ -873,8 +866,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("cadd")
+                    halign: "center"
                 },
                 {
                     id: "splaiceai",
@@ -884,8 +876,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("spliceai")
+                    halign: "center"
                 },
                 {
                     id: "phylop",
@@ -895,8 +886,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("phylop")
+                    halign: "center"
                 },
                 {
                     id: "phastCons",
@@ -906,8 +896,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("phastCons")
+                    halign: "center"
                 },
                 {
                     id: "gerp",
@@ -917,8 +906,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("gerp")
+                    halign: "center"
                     // visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
                 ...sampleColumns,
@@ -931,8 +919,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
-                    align: "center",
-                    visible: this.gridCommons.isColumnVisible("clinvar")
+                    align: "center"
                 },
                 {
                     id: "cosmic",
@@ -941,13 +928,12 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
-                    align: "center",
-                    visible: this.gridCommons.isColumnVisible("cosmic")
+                    align: "center"
                 },
             ]
         ];
 
-        // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;
     }
 
@@ -1046,13 +1032,12 @@ export default class VariantBrowserGrid extends LitElement {
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Table Settings</h3>
+                            <h3>Settings</h3>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
                                     .opencgaSession="${this.opencgaSession}"
-                                    .gridColumns="${this._columns}"
                                     .config="${this._config}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>

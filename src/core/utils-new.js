@@ -325,8 +325,12 @@ export default class UtilsNew {
         return "-";
     }
 
-    // Capitalizes the first letter of a string and lowercase the rest.
+
+    /*
+     * This function capitalizes the first letter of a string and lowercase the rest.
+     */
     static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
+
 
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
@@ -440,46 +444,6 @@ export default class UtilsNew {
     }
 
     /**
-     * Returns a clone of an object excluding the specified list of keys
-     * @param {Object} obj Original object
-     * @param {Array} excludedKeys Keys to be excluded
-     * @returns {any} Clone of the original object without the specified keys
-     */
-    static objectCloneExclude(obj, excludedKeys) {
-        const clone = UtilsNew.objectClone(obj);
-        // for (const key of excludedKeys) {
-        //     delete clone[key];
-        // }
-        for (const key of excludedKeys) {
-            const aKey = key.split(".");
-            aKey.reduce(
-                // eslint-disable-next-line no-param-reassign
-                (acc, cv, i) => (i === aKey.length - 1) ? delete acc[cv]: acc[cv],
-                clone
-            );
-        }
-        return clone;
-    }
-
-    /** Given a key in an object, replaces the value with a new object
-     * @param {Object} obj Original object
-     * @param {String} replaceKey Key of the value to replace
-     * @param {Object} newObj New value for the key
-     * @returns {Object} Clone of the original object after the replacement
-     */
-    static objectCloneReplace(obj, replaceKey, newObj) {
-        const clone = UtilsNew.objectClone(obj);
-        const aKey = replaceKey.split(".");
-        // Fixme, if key is undefined
-        aKey.reduce(
-            // eslint-disable-next-line no-param-reassign
-            (acc, cv, i) => (i === aKey.length - 1) ? acc[cv] = UtilsNew.objectClone(newObj) : acc[cv],
-            clone
-        );
-        return clone;
-    }
-
-    /**
      * Returns the object sorted by key in lexicographic order.
      * @param {Object} unordered Unordered object
      * @returns {Object} ordered Ordered object
@@ -513,6 +477,7 @@ export default class UtilsNew {
             return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
         });
     }
+
 
     /**
      * Sort the array by object key or prop
@@ -979,6 +944,7 @@ export default class UtilsNew {
         }
         return value.match(regex);
     }
+
 
     // Escape HTML characters from the provided string
     static escapeHtml(str) {

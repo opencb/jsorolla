@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -49,16 +49,10 @@ export default class SelectFieldFilter extends LitElement {
             value: {
                 type: String
             },
-            title: {
-                type: String
-            },
             placeholder: {
                 type: String
             },
             multiple: {
-                type: Boolean
-            },
-            all: {
                 type: Boolean
             },
             disabled: {
@@ -96,7 +90,6 @@ export default class SelectFieldFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.multiple = false;
-        this.all = false;
         this.data = [];
         this.classes = "";
         this.elm = this._prefix + "selectpicker";
@@ -139,9 +132,6 @@ export default class SelectFieldFilter extends LitElement {
                     val = this.value;
                 }
             }
-            // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
-            //  this.selectPicker.selectpicker("val", val), it is not setting the array val if val is disabled
-            //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
             this.selectPicker.selectpicker("val", val);
         }
 
@@ -156,20 +146,8 @@ export default class SelectFieldFilter extends LitElement {
         }
     }
 
-    filterChange(e) {
-        // CAUTION 20230309 Vero: bug reported where selected disabled option is not stored in val.
-        //  https://github.com/snapappointments/bootstrap-select/issues/1823#event-4943462544
-        //  Possible solution:
-        const disabled = Object.values(e.target.options).filter(data => data.disabled === true).map(data => {
-            if (data.selected) {
-                return data.value;
-            }
-        });
-        // const selection = this.selectPicker.selectpicker("val");
-        const selection = Array.isArray(this.selectPicker.selectpicker("val")) ?
-            [...this.selectPicker.selectpicker("val"), ...disabled] :
-            this.selectPicker.selectpicker("val");
-
+    filterChange() {
+        const selection = this.selectPicker.selectpicker("val");
         let val = null;
         if (selection && selection.length) {
             if (this.multiple) {
@@ -187,27 +165,6 @@ export default class SelectFieldFilter extends LitElement {
         }
 
         LitUtils.dispatchCustomEvent(this, "filterChange", val, {
-            data: this.data,
-        }, null, {bubbles: false, composed: false});
-    }
-
-    selectAll(e) {
-        if (e.currentTarget.checked) {
-            if (this.data[0].fields) {
-                this.value = this.data.map(data => data.fields).flat().map(data => data.id ?? data.name);
-            } else {
-                this.value = this.data.map(data => data.id ?? data.name);
-            }
-        } else {
-            if (this.data[0].fields) {
-                this.value = this.data.map(data => data.fields).flat().filter(data => data.disabled === true).map(data => data.id ?? data.name);
-            } else {
-                this.value = this.data.filter(data => data.disabled === true).map(data => data.id ?? data.name);
-            }
-        }
-
-        // Notify to event to allow parent components to react
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value?.length > 0 ? this.value.join(",") : "", {
             data: this.data,
         }, null, {bubbles: false, composed: false});
     }
@@ -232,43 +189,40 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
-                <div class="${this.all ? "input-group" : ""}">
-                    <select id="${this.elm}"
-                            class="${this.elm}"
-                            ?multiple="${!this.forceSelection}"
-                            ?disabled="${this.disabled}"
-                            ?required="${this.required}"
-                            title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
-                            data-live-search="${this.liveSearch ? "true" : "false"}"
-                            data-size="${this.size}"
-                            data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
-                            data-width="100%"
-                            data-title="${this.title || nothing}"
-                            data-selected-text-format="${this.title ? "static" : "values"}"
-                            data-style="btn-default ${this.classes}"
-                            @change="${this.filterChange}">
-                        ${this.data?.map(opt => html`
-                            ${opt?.separator ? html`<option data-divider="true"></option>` : html`
-                                ${opt?.fields?.length > 0 ? html`
-                                    <optgroup label="${opt.id ?? opt.name}">
-                                        ${opt.fields.map(subopt => html`
-                                            ${UtilsNew.isObject(subopt) ? this.renderOption(subopt) : html`<option>${subopt}</option>`}
-                                        `)}
-                                    </optgroup>
-                                ` : html`
-                                    ${UtilsNew.isObject(opt) ? this.renderOption(opt) : html`<option data-content="${opt}">${opt}</option>`}
-                                `}
+                <select id="${this.elm}"
+                    class="${this.elm}"
+                    ?multiple="${!this.forceSelection}"
+                    ?disabled="${this.disabled}"
+                    ?required="${this.required}"
+                    data-live-search="${this.liveSearch ? "true" : "false"}"
+                    data-size="${this.size}"
+                    title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
+                    data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
+                    @change="${this.filterChange}"
+                    data-width="100%"
+                    data-style="btn-default ${this.classes}">
+                    ${this.data?.map(opt => html`
+                        ${opt?.separator ? html`
+                            <option data-divider="true"></option>
+                        ` : html`
+                            ${opt?.fields ? html`
+                                <optgroup label="${opt.id ?? opt.name}">
+                                    ${opt.fields.map(subopt => html`
+                                        ${UtilsNew.isObject(subopt) ?
+                                            this.renderOption(subopt) :
+                                            html`<option>${subopt}</option>`
+                                        }
+                                    `)}
+                                </optgroup>
+                            ` : html`
+                                ${UtilsNew.isObject(opt) ?
+                                    this.renderOption(opt) :
+                                    html`<option data-content="${opt}">${opt}</option>`
+                                }
                             `}
-                        `)}
-                    </select>
-
-                    ${this.all ? html`
-                        <span class="input-group-addon">
-                            <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>
-                            <span style="font-weight: bold">All</span>
-                        </span>` : nothing
-                    }
-                </div>
+                        `}
+                    `)}
+                </select>
             </div>
         `;
     }

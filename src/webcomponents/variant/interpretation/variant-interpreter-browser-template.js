@@ -162,10 +162,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 ...this.opencgaSession.user.configs.IVA[this.toolId].grid,
             };
         }
-        // FIXME For old users
-        if (typeof this._config.filter.result.grid?.highlights === "string") {
-            this._config.filter.result.grid.highlights = this.settings.table.highlights;
-        }
 
         // Check to hide the genome browser link
         if (this.settings?.hideGenomeBrowser) {
@@ -218,12 +214,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
-    notifyQueryChange() {
-        LitUtils.dispatchCustomEvent(this, "queryChange", null, {
-            query: this.query,
-        });
-    }
-
     onQueryComplete() {
         this.searchActive = true;
         this.requestUpdate();
@@ -257,11 +247,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onFilterVariants(e) {
         const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         const variantIds = e.detail.variants.map(v => v.id);
-        this.query = {
-            ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
-            id: variantIds.join(","),
-        };
-        this.notifyQueryChange();
+        this.query = {...UtilsNew.filterKeys(this.executedQuery, lockedFields), id: variantIds.join(",")};
         this.requestUpdate();
     }
 
@@ -297,14 +283,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
-        this.notifyQueryChange();
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
         VariantUtils.validateQuery(e.detail);
         this.query = {...e.detail};
-        this.notifyQueryChange();
         this.requestUpdate();
     }
 
@@ -336,17 +320,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             _query.panelIntersection = true;
         }
         this.query = UtilsNew.objectClone(_query);
-        this.notifyQueryChange();
+
         this.requestUpdate();
+
     }
 
     async onGridConfigSave(e) {
         const newGridConfig = {...e.detail.value};
 
         // Remove highlights and copies configuration from new config
-        if (newGridConfig._highlights) {
-            delete newGridConfig._highlights;
-        }
+        delete newGridConfig.highlights;
+        // delete newConfig.copies;
 
         // Update user configuration
         try {

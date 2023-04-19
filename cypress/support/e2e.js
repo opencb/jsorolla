@@ -17,7 +17,6 @@
 import "./commands";
 import "./variant/variantCommands";
 import "cypress-mochawesome-reporter/register";
-import "cypress-wait-until"
 // import "@cypress/code-coverage/support";
 
 // Alternatively you can use CommonJS syntax:

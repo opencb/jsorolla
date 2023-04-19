@@ -906,41 +906,4 @@ export default class VariantInterpreterGridFormatter {
         return tooltipText;
     }
 
-    static exomiserScoresFormatter(value, row) {
-        const evidence = (row?.evidences || []).find(evidence => {
-            return !!evidence?.attributes?.exomiser;
-        });
-
-        if (evidence?.attributes?.exomiser) {
-            const scoreFields = [
-                {field: "EXOMISER_GENE_COMBINED_SCORE", title: "Gene Combined Score"},
-                {field: "EXOMISER_GENE_PHENO_SCORE", title: "Gene Phenotype Score"},
-                {field: "EXOMISER_GENE_VARIANT_SCORE", title: "Gene Variant Score"},
-                {field: "EXOMISER_VARIANT_SCORE", title: "Variant Score"},
-            ];
-            const tooltipText = `
-                <table style='width:160px;'>
-                    ${scoreFields.map(value => `
-                        <tr>
-                            <td><strong>${value.title}:</strong></td>
-                            <td>${evidence.attributes?.exomiser[value.field] || "-"}</td>
-                        </tr>
-                    `).join("")}
-                </table>
-            `;
-
-            return `
-                <div>
-                    <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
-                        <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
-                        <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
-                    </a>
-                </div>
-            `;
-        }
-
-        // No exomiser scores to display
-        return "-";
-    }
-
 }

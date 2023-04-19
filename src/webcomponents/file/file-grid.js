@@ -284,20 +284,8 @@ export default class OpencgaFileGrid extends LitElement {
             // },
             {
                 id: "index",
-                title: "Variant Index Status",
-                field: "internal.variant.index.status.id",
-                // NOTE 20230310 Vero: Formatter for displaying in the future information
-                // about annotation and secondary index in the column
-                // formatter: (value, row) => {
-                //     if (row.format === "VCF") {
-                //         return `
-                //             <div>${row.internal.variant.index?.status?.id}</div>
-                //             <div>${row.internal.variant.annotationIndex?.status?.id}</div>
-                //         `;
-                //     } else {
-                //         return `<div>NA</div>`;
-                //     }
-                // }
+                title: "Index",
+                field: "internal.index.status.name"
             },
             {
                 id: "creationDate",

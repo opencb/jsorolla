@@ -265,6 +265,7 @@ export default class FamilyBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
+                            mode: "development",
                             render: (family, active, opencgaSession) => html`
                                 <json-viewer
                                     .data="${family}"

@@ -290,6 +290,7 @@ export default class JobBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
+                            mode: "development",
                             render: (job, active) => html`
                                 <json-viewer
                                     .data="${job}"

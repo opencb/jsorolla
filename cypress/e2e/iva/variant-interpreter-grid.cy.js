@@ -19,21 +19,27 @@ import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
 
-context("Variant Interpreter Grid Germiline", () => {
-    const browserInterpreterGrid = "variant-interpreter-grid";
+context("Variant Interpreter Grid", () => {
+    const browserInterpreterGrid = "#variant-interpreter-grid-germline";
 
     beforeEach(() => {
-        // cy.intercept("#variant-interpreter-grid-germline").as("getBrowserGrid") //Not Working
-        cy.visit("#variant-interpreter-grid-germline")
-        cy.waitUntil(() => cy.get(browserInterpreterGrid).should("be.visible"))
-        // cy.wait("@getBrowserGrid") // Not working
+        cy.visit(browserInterpreterGrid)
+        cy.intercept("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-interpreter-germline.json").as("variantDataGermline")
+
     });
 
+    // before(() => {
+    //     cy.intercept("http://reports.test.zettagenomics.com/iva/tests/2.7/variant-interpreter-germline.json").as("variantDataGermline")
+    //     cy.wait("@variantDataGermline")
+    // })
+
+
     it("1.Should be render variant-interpreter-grid", () => {
+        // cy.wait("@variantDataGermline")
         cy.get(browserInterpreterGrid).should("be.visible")
     })
 
-    it("2.Change page variant-interpreter-grid", () => {
+    it.skip("2.Change page variant-interpreter-grid", () => {
         UtilsTest.changePage(browserInterpreterGrid,2)
         UtilsTest.changePage(browserInterpreterGrid,3)
     })
@@ -51,9 +57,9 @@ context("Variant Interpreter Grid Germiline", () => {
 
     it("4.Tooltip: Check gene", () => {
         BrowserTest.getColumnIndexByHeader("gene")
-        cy.get("@indexColumn").then(indexColumn => {
-            cy.get("tbody tr:first > td").eq(indexColumn).within(() => {
-                cy.get("a").eq(0).trigger("mouseover")
+        cy.get("@indexColumn").then(index => {
+            cy.get("tbody tr:first > td").eq(index).within(() => {
+                cy.get("a").trigger("mouseover")
             })
             cy.get(".qtip-content").should('be.visible')
         })
@@ -61,9 +67,9 @@ context("Variant Interpreter Grid Germiline", () => {
 
     it("5.Tooltip: Check Sample Genotype (Variant Call Information)", () => {
         BrowserTest.getColumnIndexByHeader("consequenceType")
-        cy.get("@indexColumn").then(indexColumn => {
-            cy.get("tbody tr:first > td").eq(indexColumn).within(() => {
-                cy.get("a").eq(0).trigger("mouseover")
+        cy.get("@indexColumn").then(index => {
+            cy.get("tbody tr:first > td").eq(index).within(() => {
+                cy.get("a").trigger("mouseover")
             })
             cy.get(".qtip-content").should('be.visible')
         })
@@ -121,32 +127,32 @@ context("Variant Interpreter Grid Germiline", () => {
 
     // Rows
     it("Row: Copy Variant Json", () => {
-        cy.get("tbody tr:first > td").eq(17).within(() => {
+        cy.get("tbody tr:first > td").eq(17).within(() =>{
             cy.get("button").click()
             cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                 .contains("a","Copy JSON")
                 .click()
             UtilsTest.assertValueCopiedToClipboard().then(content => {
                 const dataClipboard = JSON.parse(content);
-                expect(dataClipboard.id).eq("1:187378:A:G")
-                expect(dataClipboard.type).eq("SNV")
+                expect(dataClipboard.id).eq("1:17013775:-:AAAT")
+                expect(dataClipboard.type).eq("INDEL")
             })
         })
     })
 
     it("Row: Download Variant Json", () => {
-        cy.get("tbody tr:first > td").eq(17).within(() => {
+        cy.get("tbody tr:first > td").eq(17).within(() =>{
             cy.get("button").click()
             cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                 .contains("a","Download JSON")
                 .click()
-            cy.readFile("cypress/downloads/1_187378_A_G.json")
+            cy.readFile("cypress/downloads/1_17013775_-_AAAT.json")
                 .should("exist")
         })
     })
 
-    it.skip("Row: External Links", () => {
-        cy.get("tbody tr:first > td").eq(17).within(() => {
+    it("Row: External Links", () => {
+        y.get("tbody tr:first > td").eq(17).within(() =>{
             cy.get("button").click()
             cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                 .contains("a","Ensembl Genome Browser").click()

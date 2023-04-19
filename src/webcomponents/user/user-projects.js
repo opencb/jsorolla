@@ -134,7 +134,7 @@ export default class UserProjects extends LitElement {
                 },
                 {
                     title: "CellBase",
-                    text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"}, Data Release: ${project.cellbase?.dataRelease || "-"})`,
+                    text: `${project.cellbase?.url || "-"} (${project.cellbase?.version || "-"})`,
                     type: "text",
                     display: {
                         textStyle: "padding-left:16px;",

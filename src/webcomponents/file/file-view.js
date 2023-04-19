@@ -244,14 +244,11 @@ export default class FileView extends LitElement {
                             },
                         },
                         {
-                            // title: "Index Status",
-                            title: "Variant Index Status",
-                            field: "internal.variant.index.status",
+                            title: "Index Status",
+                            field: "internal.index.status",
                             type: "custom",
                             display: {
-                                render: field => {
-                                    return field?.id ? html`${field.id} (${UtilsNew.dateFormatter(field.date)})` : "-";
-                                }
+                                render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-",
                             },
                         },
                     ],

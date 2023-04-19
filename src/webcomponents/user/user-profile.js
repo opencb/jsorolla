@@ -41,9 +41,7 @@ export default class UserProfile extends LitElement {
 
     settingsObserver() {
         if (this.settings?.items) {
-            this.config = this.getDefaultConfig();
             this.config.items = UtilsNew.mergeConfigById(this.config.items, this.settings?.items);
-            this.requestUpdate();
         }
     }
 
@@ -54,7 +52,7 @@ export default class UserProfile extends LitElement {
             <div class="container" style="margin-top:48px;">
                 <div style="display:flex;">
                     <div class="col-md-4">
-                        <div style="position:sticky;top:0">
+                        <div style="position:sticky;top:0px">
                             <user-info
                                 .user="${this.opencgaSession?.user}">
                             </user-info>

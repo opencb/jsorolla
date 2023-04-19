@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
 
@@ -27,7 +27,7 @@ export default class DetailTabs extends LitElement {
     constructor() {
         super();
 
-        this.#init();
+        this._init();
     }
 
     createRenderRoot() {
@@ -45,7 +45,7 @@ export default class DetailTabs extends LitElement {
             data: {
                 type: Object
             },
-            mode: { // accepted values:  tabs, pills
+            mode: {// accepted values:  tabs, pills
                 type: String
             },
             activeTab: {
@@ -57,22 +57,24 @@ export default class DetailTabs extends LitElement {
         };
     }
 
-    #init() {
+    _init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = null;
         this._activeTab = null;
 
-        // Mode by default, if the component no use this property
-        this.mode = DetailTabs.TABS_MODE;
+        // mode by default, if the component no use this property
+        this.mode = this.mode || DetailTabs.TABS_MODE;
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
+
         if (changedProperties.has("activeTab")) {
             this.activeTabObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -90,14 +92,11 @@ export default class DetailTabs extends LitElement {
 
         // Set default active tab
         if (this._config?.items?.length > 0 && !this._activeTab) {
-            const activeIndex = this._config.items.findIndex(item => {
-                return item.active && this.isTabVisible(item);
-            });
+            const activeIndex = this._config.items.findIndex(item => item.active);
             if (activeIndex >= 0) {
-                this._activeTab = this._config.items[activeIndex].id;
+                this._activeTab = this._config.items?.[activeIndex].id;
             } else {
-                // Get the first visible tab
-                this._activeTab = this._config.items.find(item => this.isTabVisible(item)).id;
+                this._activeTab = this._config.items?.[0].id;
             }
         }
     }
@@ -116,20 +115,6 @@ export default class DetailTabs extends LitElement {
         this.requestUpdate();
     }
 
-    isTabVisible(tab) {
-        if (typeof tab.visible === "function") {
-            return !!tab.visible(this.data, this.opencgaSession, tab);
-        } else if (typeof tab.visible === "boolean") {
-            return tab.visible;
-        } else {
-            return true;
-        }
-    }
-
-    getVisibleTabs() {
-        return (this._config.items || []).filter(tab => this.isTabVisible(tab));
-    }
-
     renderTitle() {
         const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
         return html`
@@ -140,81 +125,95 @@ export default class DetailTabs extends LitElement {
     }
 
     renderTabTitle() {
-        return this.getVisibleTabs().map(item => {
-            const isActive = this._activeTab === item.id;
-            return html`
-                <li role="presentation"
-                    class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
-                    style="${this._config.display?.tabTitleStyle}">
-                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
-                        @click="${this.changeTab}">
-                        <span>${item.name}</span>
-                    </a>
-                </li>
-            `;
-        });
+        return html `
+            ${this._config.items.length && this._config.items.map(item => {
+            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                const isActive = this._activeTab === item.id;
+                return html`
+                        <li role="presentation"
+                            class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                            style="${this._config.display?.tabTitleStyle}">
+                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                               @click="${this.changeTab}">
+                                <span>${item.name}</span>
+                            </a>
+                        </li>
+                    `;
+            }
+        })}
+        `;
     }
 
     renderTabContent() {
-        return this.getVisibleTabs().map(item => {
-            const isActive = this._activeTab === item.id;
-            return html`
-                <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
-                    ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
-                </div>
-            `;
-        });
+        return html`
+            ${this._config.items.length && this._config.items.map(item => {
+            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                const isActive = this._activeTab === item.id;
+                return html`
+                        <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                            ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
+                        </div>
+                    `;
+            }
+        })}
+        `;
     }
 
     render() {
+
         // If data is undefined or null
         if (!this.data) {
-            return html`<h3>${this._config?.errorMessage || "No data found"}</h3>`;
+            if (this._config?.errorMessage) {
+                return html`<h3>${this._config?.errorMessage}</h3>`;
+            } else {
+                console.log("Detail Tabs: No Data");
+                return "";
+            }
         }
-        // 2. Check the 'mode' is correct
+
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
+            return html`
+                <h3>No valid mode: '${this.mode || ""}'</h3>
+            `;
         }
-        // 3. Check tabs exist
+
         if (this._config?.items?.length === 0) {
-            return html`<h3>No tab items provided</h3>`;
+            return html`
+                <h3>No items provided</h3>
+            `;
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
         const align = this._config?.display?.align || "";
-        const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-md-10" : "";
-        const visibleTabsCount = this.getVisibleTabs().length;
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
             <div class="detail-tabs">
-                ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
-                    <!-- TABS -->
-                    ${this.mode === DetailTabs.TABS_MODE ? html`
-                        <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
+                <!-- TABS -->
+                ${this.mode === DetailTabs.TABS_MODE ? html`
+                    <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
+                        ${this.renderTabTitle()}
+                    </ul>
+                ` : null}
+
+                <!-- PILLS -->
+                ${this.mode === DetailTabs.PILLS_MODE ? html`
+                    <ul class="nav nav-pills" role="tablist">
+                        ${this.renderTabTitle()}
+                    </ul>
+                ` : null}
+
+                <!-- PILLS -->
+                ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
+                    <div class="col-md-2">
+                        <ul class="nav nav-pills nav-stacked" role="tablist">
                             ${this.renderTabTitle()}
                         </ul>
-                    ` : nothing}
-
-                    <!-- PILLS -->
-                    ${this.mode === DetailTabs.PILLS_MODE ? html`
-                        <ul class="nav nav-pills" role="tablist">
-                            ${this.renderTabTitle()}
-                        </ul>
-                    ` : nothing}
-
-                    <!-- PILLS -->
-                    ${this.mode === DetailTabs.PILLS_VERTICAL_MODE ? html`
-                        <div class="col-md-2">
-                            <ul class="nav nav-pills nav-stacked" role="tablist">
-                                ${this.renderTabTitle()}
-                            </ul>
-                        </div>
-                    ` : nothing}
+                    </div>
                 ` : null}
 
                 <!-- TAB CONTENT -->
-                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
+                <div class="${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this.renderTabContent()}
                 </div>
             </div>
@@ -224,7 +223,6 @@ export default class DetailTabs extends LitElement {
     getDefaultConfig() {
         return {
             title: "",
-            hideTabsIfOnlyOneVisible: false, // Automatically hide tabs if only one tab is visible
             display: {
                 align: "", // "center" | "justified"
 
@@ -237,7 +235,6 @@ export default class DetailTabs extends LitElement {
                 contentClass: "",
                 contentStyle: "padding: 10px",
             },
-            items: [],
             // Example:
             // items: [
             //     {
@@ -245,7 +242,6 @@ export default class DetailTabs extends LitElement {
             //         name: "Clinical",
             //         icon: "fas fa-notes-medical",
             //         active: true,
-            //         visible: () => true,
             //         render: () => {
             //             return html`
             //                 <h3>Clinical Component</h3>`;

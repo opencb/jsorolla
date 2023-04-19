@@ -228,13 +228,10 @@ export default class FileBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "internalVariantIndexStatus",
-                                name: "Variant Index Status",
+                                id: "internal.index.status.name",
+                                name: "Index Status",
                                 multiple: true,
-                                // NOTE 20230310 Vero: The current internalVariantIndexStatus (internal.variant.index.status) vocabulary is:
-                                // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
-                                // But the DELETED status gets mapped in opencga to NONE (Jacobo)
-                                allowedValues: ["READY", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"],
+                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED", "NONE"],
                                 type: "category"
                             },
                             {
@@ -306,6 +303,7 @@ export default class FileBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
+                            mode: "development",
                             render: (file, active) => html`
                                 <json-viewer
                                     .data="${file}"

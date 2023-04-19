@@ -16,7 +16,6 @@
     "browser": true,
     "es6": true
   },
-  // "eslintIgnore": ["cypress.config.js"],
   // "ignorePatterns": ["cypress.config.js","cypress"],
   "rules": {
     "indent": ["error", 4, {

@@ -38,14 +38,11 @@ class VariantInterpreterGridTest extends LitElement {
 
     static get properties() {
         return {
-            testDataFile: {
+            variantData: {
                 type: String,
             },
-            testClinicalData: {
+            clinicalData: {
                 type: String,
-            },
-            testDataVersion: {
-                type: String
             },
             opencgaSession: {
                 type: Object
@@ -97,9 +94,8 @@ class VariantInterpreterGridTest extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") &&
-            changedProperties.has("testDataFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("testClinicalData")) {
+            changedProperties.has("variantData") &&
+            changedProperties.has("clinicalData")) {
             this.opencgaSessionObserver();
         }
         super.update(changedProperties);
@@ -108,8 +104,8 @@ class VariantInterpreterGridTest extends LitElement {
     opencgaSessionObserver() {
         this.#setLoading(true);
         const promises = [
-            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testDataFile}.json`),
-            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testClinicalData}.json`)
+            UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.variantData}.json`),
+            UtilsNew.importJSONFile(`http://reports.test.zettagenomics.com/iva/tests/2.7/${this.clinicalData}.json`)
         ];
 
         Promise.all(promises)

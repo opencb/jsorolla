@@ -22,7 +22,6 @@ import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../clinical/clinical-analysis-view.js";
-import "../../project/project-cellbase-info.js";
 import "../../commons/view/detail-tabs.js";
 import "../../individual/individual-view.js";
 import "../../loading-spinner.js";
@@ -179,24 +178,6 @@ class VariantInterpreterLanding extends LitElement {
                                         .individual="${clinicalAnalysis.proband}"
                                         .opencgaSession="${opencgaSession}">
                                     </individual-view>
-                                </div>
-                            </div>
-                        `;
-                    }
-                },
-                {
-                    id: "cellbase",
-                    name: "CellBase Variant Annotation",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 col-md-offset-1">
-                                <tool-header title="CellBase Info" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
-                                    <project-cellbase-info
-                                        .projects="${opencgaSession.project}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </project-cellbase-info>
                                 </div>
                             </div>
                         `;

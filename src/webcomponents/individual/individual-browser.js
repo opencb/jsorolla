@@ -313,6 +313,7 @@ export default class IndividualBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
+                            mode: "development",
                             render: (individual, active, opencgaSession) => html`
                                 <json-viewer
                                     .data="${individual}"

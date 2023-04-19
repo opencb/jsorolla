@@ -144,6 +144,7 @@ export default class DiseasePanelDetail extends LitElement {
                 {
                     id: "json-view",
                     name: "JSON Data",
+                    mode: "development",
                     render: (diseasePanel, active) => {
                         return html`
                             <json-viewer

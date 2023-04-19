@@ -433,8 +433,6 @@ export default class StudyAdmin extends LitElement {
     render() {
         const activeMenuItem = "UsersAndGroups";
         return html`
-            <!-- TOOL HEADER -->
-            <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"
@@ -448,7 +446,7 @@ export default class StudyAdmin extends LitElement {
             id: "",
             name: "Study Admin",
             logo: "",
-            icon: "fas fa-sliders-h",
+            icon: "",
             visibility: "private", // public | private | none
             // title: "Study",
             // sections: [

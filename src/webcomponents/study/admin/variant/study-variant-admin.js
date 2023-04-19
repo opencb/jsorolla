@@ -397,7 +397,6 @@ export default class StudyVariantAdmin extends LitElement {
     render() {
         const activeMenuItem = "clinical-analysis-configuration-operation";
         return html`
-            <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
             <custom-vertical-navbar
                 .study="${this.opencgaSession.study}"
                 .opencgaSession="${this.opencgaSession}"

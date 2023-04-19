@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import FormUtils from "../../commons/forms/form-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
@@ -90,14 +91,17 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     onFieldChange(e, field) {
-        const param = (field || e.detail.param);
+        const param = field || e.detail.param;
 
         switch (param) {
             case "clinicalSignificance":
+            case "tier":
                 // Fix clinical significance value --> must be in uppercase
-                this.review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
+                const value = (param === "clinicalSignificance" && e.detail.value) ? e.detail.value.toUpperCase() : e.detail.value;
+                this.updateParams = FormUtils.updateScalar(this._review, this.review, this.updateParams, param, value);
                 break;
             case "discussion.text":
+                this.updateParams = FormUtils.updateObjectParams(this._review, this.review, this.updateParams, param, e.detail.value);
                 if (typeof this.updateParams?.discussion?.text !== "undefined") {
                     this.review.discussion.author = this.opencgaSession.user?.id || "-";
                     this.review.discussion.date = UtilsNew.getDatetime();
@@ -107,7 +111,15 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     this.review.discussion.date = this._review.discussion?.date;
                 }
                 break;
-            case param.match(/^acmg/)?.input:
+            case "acmg":
+                this.updateParams = FormUtils.updateArraysObject(
+                    this._review,
+                    this.review,
+                    this.updateParams,
+                    param,
+                    e.detail.value
+                );
+
                 // Assign ACMG comment author and date (similar as implemented in TASK-1473)
                 const lastReview = this.review.acmg[this.review.acmg.length - 1];
                 this.review.acmg[this.review.acmg.length - 1] = {
@@ -122,7 +134,8 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         this.review = {...this.review};
 
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
-            value: this.review
+            value: this.review,
+            update: this.updateParams,
         });
 
         this.requestUpdate();
@@ -177,7 +190,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             // maxNumItems: 5,
                             showEditItemListButton: true,
                             showDeleteItemListButton: true,
-                            view: acmg => html `
+                            view: acmg => html`
                                 <div style="margin-bottom:1rem;">
                                     <div>
                                         <div>
@@ -187,8 +200,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                         <div>${acmg.comment || "No comment found"}</div>
                                     </div>
                                     <div class="help-block" style="margin: 5px">
-                                        Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
-                                        <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
+                                        Added by <b>${acmg.author}</b> on <b>${UtilsNew.dateFormatter(acmg.date)}</b>.
                                     </div>
                                 </div>`,
                         },

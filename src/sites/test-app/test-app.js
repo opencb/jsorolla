@@ -120,9 +120,6 @@ class TestApp extends LitElement {
         // eslint-disable-next-line no-undef
         this.version = process.env.VERSION;
 
-        const array = this.version.split(".");
-        this.testDataVersion = array[0] + "." + array[1];
-
         // Initially we load the SUIte config
         this.app = this.getActiveAppConfig();
 
@@ -661,8 +658,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-germline"
-                            testDataVersion="${this.testDataVersion}"
+                            variantData="variant-browser-germline"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-browser-grid-test>
@@ -672,8 +668,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-browser-grid-cancer"] ? html`
                     <div style="padding: 2%" class="content" id="variant-grid">
                         <variant-browser-grid-test
-                            testDataFile="variant-browser-cancer"
-                            testDataVersion="${this.testDataVersion}"
+                            variantData="variant-browser-cancer"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-browser-grid-test>
@@ -683,9 +678,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-germline"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-germline"
-                            testDataVersion="${this.testDataVersion}"
-                            testClinicalData="clinical-analysis-CA-11-platinum"
+                            variantData="variant-interpreter-germline"
+                            clinicalData="clinical-analysis-CA-11-platinum"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-interpreter-grid-test>
@@ -696,9 +690,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer"] ? html`
                     <div style="padding:2%" class="content" id="variant-interpreter-grid">
                         <variant-interpreter-grid-test
-                            testDataFile="variant-interpreter-cancer"
-                            testDataVersion="${this.testDataVersion}"
-                            testClinicalData="clinical-analysis-AN-1-test38"
+                            variantData="variant-interpreter-germline"
+                            clinicalData="clinical-analysis-AN-1-test38"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${this.config}">
                         </variant-interpreter-grid-test>
@@ -709,9 +702,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["variant-interpreter-grid-cancer-cnv"] ? html`
                 <div style="padding:2%" class="content" id="variant-interpreter-grid">
                     <variant-interpreter-grid-test
-                        testDataFile="variant-interpreter-cnv"
-                        testDataVersion="${this.testDataVersion}"
-                        testClinicalData="clinical-analysis-AN-1-test38"
+                        variantData="variant-interpreter-cnv"
+                        clinicalData="clinical-analysis-AN-1-test38"
                         .opencgaSession="${this.opencgaSession}"
                         .config="${this.config}">
                     </variant-interpreter-grid-test>

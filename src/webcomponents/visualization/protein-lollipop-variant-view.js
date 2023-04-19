@@ -47,7 +47,7 @@ export default class ProteinLollipopVariantView extends LitElement {
             this.variantObserver();
         }
 
-        if (changedProperties.has("config") || changedProperties.has("variant") || changedProperties.has("active")) {
+        if (changedProperties.has("config") || changedProperties.has("variant")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -150,7 +150,7 @@ export default class ProteinLollipopVariantView extends LitElement {
                             .query="${this.query}"
                             .tracks="${proteinTracks}"
                             .highlights="${highlights}"
-                            .active="${this.active && active}">
+                            .active="${active}">
                         </protein-lollipop>
                     `;
                 },
