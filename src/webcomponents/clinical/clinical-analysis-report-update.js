@@ -462,7 +462,11 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     name: "Chromatogram (Beta)",
                     render: variantInfo => {
                         // Sample-gen file
+                        const currentInterpretation = this._clinicalAnalysis.interpretation.id;
+                        const complementTable = {A: "T", T: "A", C: "G", G: "C"};
                         const sequenceFormat = sequence => `${sequence?.slice(0, 10)} [${variantInfo.reference}/${variantInfo.alternate}] ${sequence?.slice(11)}`;
+                        // tmp solution...
+                        const sequenceReverse = sequence => `${sequence?.slice(0, 10)} [${complementTable[variantInfo.reference]}/${complementTable[variantInfo.alternate]}] ${sequence?.slice(11)}`;
                         return html `
                         <div style="display:flex; gap:2px">
                             <div>
@@ -470,7 +474,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                                 <br/>
                                 <span>${sequenceFormat(this.sequence.forward)}</span>
                                 <file-preview
-                                    .fileId="${"reports:single2.1:22-5479_acvrl1_ex3_m13_f_SECUENCIADOR2_230116_C11.jpg"}"
+                                    .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_f_SECUENCIADOR2_230116_C11.jpg`}"
                                     .active="${true}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </file-preview>
@@ -478,9 +482,9 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             <div>
                                 <b>Genotype Reverse</b>
                                 <br/>
-                                <span>${sequenceFormat(this.sequence.reverse)}</span>
+                                <span>${sequenceReverse(this.sequence.reverse)}</span>
                                 <file-preview
-                                .fileId="${"reports:single2.1:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg"}"
+                                .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg`}"
                                 .active="${true}"
                                 .opencgaSession="${this.opencgaSession}">
                                 </file-preview>
