@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import debug from "debug";
 
 export default class ProjectCellbaseInfo extends LitElement {
 
