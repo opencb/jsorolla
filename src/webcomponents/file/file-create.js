@@ -91,10 +91,19 @@ export default class FileCreate extends LitElement {
         });
     }
 
-    //
-
     async onSubmit(e) {
         e.stopPropagation();
+        // tmp solution
+        const fileType = {
+            "PDF": {
+                format: "BINARY",
+                bioformat: "UNKNOWN"
+            },
+            "IMAGE": {
+                format: "IMAGE"
+            }
+        };
+
         const params = {
             study: this.opencgaSession.study.fqn,
             parents: true,
@@ -103,14 +112,18 @@ export default class FileCreate extends LitElement {
         this.#setLoading(true);
 
         try {
+            const typeFormat = fileType[this.file.typeFormat];
             const dataContent = await UtilsNew.toBase64(this.file.fileUpload);
             this.file.content = dataContent.split("base64,")[1].trim();
             this.file.path = `/reports/${this.data.interpretation.id}/${this.file.fileUpload.name}`;
-            this.file.format = "BINARY";
-            this.file.bioformat = "UNKNOWN";
             this.file.type = "FILE";
 
+            delete this.file.typeFormat;
             delete this.file.fileUpload;
+            this.file = {
+                ...this.file,
+                ...typeFormat,
+            };
             const response = this.opencgaSession.opencgaClient.files().create(this.file, params);
             if (response.ok) {
                 this.file = {};
@@ -145,7 +158,6 @@ export default class FileCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        // content, path, type
         return Types.dataFormConfig({
             type: "form",
             display: this.displayConfig || this.displayConfigDefault,
@@ -223,6 +235,15 @@ export default class FileCreate extends LitElement {
                                         <input type="file" id="file" @change=${e => dataFormFilterChange(e)}>
                                     </span>`
                             },
+                        },
+                        {
+                            title: "File type",
+                            field: "typeFormat",
+                            type: "select",
+                            allowedValues: ["IMAGE", "PDF"],
+                            display: {
+                                helpMessage: "select type of file"
+                            }
                         },
                     ],
                 }
