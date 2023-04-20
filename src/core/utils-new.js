@@ -1161,7 +1161,7 @@ export default class UtilsNew {
                     "templateResult": ""
                 },
                 "interpretations": {
-                    "intro": "<p>SYNNART</p>",
+                    "intro": "",
                     "_variantsKeys": [
                         "_variantText",
                         "bibliographyEvidenceText",
