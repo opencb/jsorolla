@@ -463,10 +463,11 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                     render: variantInfo => {
                         // Sample-gen file
                         const currentInterpretation = this._clinicalAnalysis.interpretation.id;
-                        const complementTable = {A: "T", T: "A", C: "G", G: "C"};
-                        const sequenceFormat = sequence => `${sequence?.slice(0, 10)} [${variantInfo.reference}/${variantInfo.alternate}] ${sequence?.slice(11)}`;
-                        // tmp solution...
-                        const sequenceReverse = sequence => `${sequence?.slice(0, 10)} [${complementTable[variantInfo.reference]}/${complementTable[variantInfo.alternate]}] ${sequence?.slice(11)}`;
+                        const sequenceFormat = (sequence, reverse=false) => {
+                            const complementTable = {A: "T", T: "A", C: "G", G: "C"};
+                            const templateSequence = (reference, alternate) => `${sequence?.slice(0, 10)} [${reference}/${alternate}] ${sequence?.slice(11)}`;
+                            return !reverse ? templateSequence(variantInfo.reference, variantInfo.alternate): templateSequence(complementTable[variantInfo.reference], complementTable[variantInfo.alternate]);
+                        };
                         return html `
                         <div style="display:flex; gap:2px">
                             <div>
@@ -482,7 +483,7 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
                             <div>
                                 <b>Genotype Reverse</b>
                                 <br/>
-                                <span>${sequenceReverse(this.sequence.reverse)}</span>
+                                <span>${sequenceFormat(this.sequence.reverse, true)}</span>
                                 <file-preview
                                 .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg`}"
                                 .active="${true}"
