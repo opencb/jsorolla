@@ -20,7 +20,7 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {construction} from "../commons/under-construction.js";
-import Types from "../commons/types";
+import Types from "../commons/types.js";
 import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
@@ -33,7 +33,7 @@ import "../variant/interpretation/variant-interpreter-detail.js";
 import VariantUtils from "../variant/variant-utils.js";
 
 // WIP: Form BETA
-export default class ClinicalAnalysisReportUpdate extends LitElement {
+export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
 
     constructor() {
         super();
@@ -775,4 +775,4 @@ export default class ClinicalAnalysisReportUpdate extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-report-update", ClinicalAnalysisReportUpdate);
+customElements.define("clinical-analysis-report-variant-update", ClinicalAnalysisReportVariantUpdate);

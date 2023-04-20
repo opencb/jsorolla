@@ -617,7 +617,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
             </data-form>
-            <clinical-analysis-report-update
+            <clinical-analysis-report-variant-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
                 .clinicalAnalysis="${this._clinicalAnalysis}"
@@ -625,7 +625,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 @onCloseModal="${e => (this.openModalTest = {flag: false})}"
                 .displayConfig="${{buttonsVisible: false}}">
-            </clinical-analysis-report-update>
+            </clinical-analysis-report-variant-update>
         `;
     }
 
@@ -834,7 +834,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 showAddItemListButton: false,
                                 showAddBatchListButton: false,
                                 view: variant => {
-                                    debugger;
                                     const variantKeys = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations._variantsKeys", []);
                                     const variantContent = `${variantKeys?.map(key => variant[key]).join(" ")}`;
                                     return html `

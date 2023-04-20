@@ -29,7 +29,7 @@ import "../../loading-spinner.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "../../clinical/clinical-analysis-report-update.js";
+import "../../clinical/clinical-analysis-report-variant-update.js";
 import "../variant-clinical-evidence-view.js";
 
 export default class VariantInterpreterGridBeta extends LitElement {
@@ -1564,7 +1564,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
-            <clinical-analysis-report-update
+            <clinical-analysis-report-variant-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
                 .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -1572,7 +1572,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 @onCloseModal="${e => (this.openModalTest = {flag: false})}"
                 .displayConfig="${{buttonsVisible: false}}">
-            </clinical-analysis-report-update>
+            </clinical-analysis-report-variant-update>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
