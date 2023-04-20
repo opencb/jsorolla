@@ -834,12 +834,13 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 showAddItemListButton: false,
                                 showAddBatchListButton: false,
                                 view: variant => {
+                                    debugger;
                                     const variantKeys = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations._variantsKeys", []);
                                     const variantContent = `${variantKeys?.map(key => variant[key]).join(" ")}`;
                                     return html `
                                             <div style="display:flex">
                                                 <div style="font-size:20px;font-weight: bold;">
-                                                    <span>${variant?.title}</span>
+                                                    <span>${variant?.title !== ""? variant?.title: variant.id}</span>
                                                 </div>
                                                 <button class="btn btn-default" style="margin-bottom:6px;margin-left:6px"
                                                     @click="${() => this.openModalReport(variant.id)}"
