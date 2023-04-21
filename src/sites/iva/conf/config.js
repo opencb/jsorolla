@@ -741,11 +741,12 @@ const SUITE = {
             welcomePage: {
                 display: {
                     titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;"
+                    subtitleStyle: "text-align:center;",
+                    logoWidth: "100px",
                 },
                 title: "Admin",
                 // subtitle: "",
-                logo: "img/Zetta_logo.png",
+                logo: "img/tools/icons/file_explorer.svg",
                 content: `
                     <p class="text-center">
                         Welcome to the OpenCB Administration Application
