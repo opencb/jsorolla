@@ -1091,7 +1091,7 @@ export default class UtilsNew {
                     "name": "",
                     "lastName": "",
                     "birthDate": "",
-                    "age": "30",
+                    "age": "",
                     "cipa": ""
                 },
                 "clinicalAnalysis": {
@@ -1145,7 +1145,7 @@ export default class UtilsNew {
                         "alignment": "",
                         "processing": "",
                         "calling": "",
-                        "softwate": "",
+                        "software": "",
                         "cnvs": "",
                         "references": "",
                         "db": "",
