@@ -1184,4 +1184,28 @@ export default class UtilsNew {
         };
     }
 
+    static initModelVariantReported() {
+        // transcripts {hgvs: "",geneName: "",transcriptId: ""}
+        return {
+            _classificationAcmgTT: "",
+            _classsificationDiscussionTT: "",
+            _variantText: "",
+            transcripts: [],
+            title: "",
+            populationControlText: "",
+            bibliographyEvidenceText: "",
+            diseaseAssociationText: "",
+            recommendations: "",
+            others: "",
+            _metadata: {
+                opencgaInterpretation: [
+                    {
+                        idInterpretation: "",
+                        filter: {}
+                    }
+                ]
+            }
+        };
+    }
+
 }

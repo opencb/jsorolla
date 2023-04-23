@@ -175,26 +175,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
         const hasVariantsKeys = hasInterpretations && (reportInfo.interpretations.variants !== undefined);
 
         // transcripts {hgvs: "",geneName: "",transcriptId: ""}
-        const _variantModel = {
-            _classificationAcmgTT: "",
-            _classsificationDiscussionTT: "",
-            _variantText: "",
-            transcripts: [],
-            title: "",
-            populationControlText: "",
-            bibliographyEvidenceText: "",
-            diseaseAssociationText: "",
-            recommendations: "",
-            others: "",
-            _metadata: {
-                opencgaInterpretation: [
-                    {
-                        idInterpretation: "",
-                        filter: {}
-                    }
-                ]
-            }
-        };
+        const _variantModel = UtilsNew.initModelVariantReported();
         switch (true) {
             // reportTest.interpretations.variants
             case hasVariantsKeys:

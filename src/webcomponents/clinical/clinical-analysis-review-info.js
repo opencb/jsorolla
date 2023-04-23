@@ -196,33 +196,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
             variant => variant?.status === "REPORTED");
         const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
-        const _variantModel = {
-            _classificationAcmgTT: "",
-            _classsificationDiscussionTT: "",
-            _variantText: "",
-            id: "",
-            transcripts: [{
-                hgvs: "",
-                geneName: "",
-                transcriptId: "",
-            }],
-            title: "",
-            populationControlText: "",
-            bibliographyEvidenceText: "",
-            diseaseAssociationText: "",
-            recommendations: "",
-            others: "",
-            _metadata: {
-                opencgaInterpretation: [
-                    {
-                        idInterpretation: "",
-                        filter: {}
-                    }
-                ]
-            }
-        };
 
-
+        // transcripts {hgvs: "",geneName: "",transcriptId: ""}
+        const _variantModel = UtilsNew.initModelVariantReported();
         variantsReported.forEach(variant => {
             // get variant evidence with hgvs
             const variantEvidence = this.getHgvsVariants(variant);
