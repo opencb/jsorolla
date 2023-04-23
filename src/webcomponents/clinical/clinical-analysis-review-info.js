@@ -195,45 +195,49 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     fillVariantReportAttributes() {
         // const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
         //     variant => variant?.status === "REPORTED");
-        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings;
-        const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
+        const primaryFindings = this._clinicalAnalysis?.interpretation?.primaryFindings;
+        const variantsReport = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
         // transcripts {hgvs: "",geneName: "",transcriptId: ""}
         const _variantModel = UtilsNew.initModelVariantReported();
-        variantsReported.forEach(variant => {
+        primaryFindings.forEach(primaryFinding => {
             // get variant evidence with hgvs
-            const variantEvidence = this.getHgvsVariants(variant);
-            const variantIndex = variants.findIndex(variant => variant.id === variantEvidence.variantId);
+            const variantEvidence = this.getHgvsVariants(primaryFinding);
+            const variantIndex = variantsReport.findIndex(variant => variant.id === variantEvidence.variantId);
             const variantTitle = variantEvidence.clinicalEvidences.map(evidence => evidence.genomicFeature.geneName + " " + evidence.hgvs)
                 .join(" || ");
             const classification = this.generateClassificationTemplate(variantEvidence);
+            const transcripts = variantEvidence.clinicalEvidences.map(evidence => ({
+                hgvs: evidence?.hgvs ?? "",
+                geneName: evidence.genomicFeature?.geneName?? "",
+                transcriptId: evidence.genomicFeature?.transcriptId
+            }));
             switch (true) {
                 // Updated variants from attributes if exists and has differents transcript.
                 // case variantIndex > -1 && (variants[variantIndex]?.transcriptId !== evidence.genomicFeature?.transcriptId):
                 case variantIndex > -1:
-                    variants[variantIndex] = {
+                    variantsReport[variantIndex] = {
                         ..._variantModel, // init model
-                        ...variants[variantIndex],
+                        ...variantsReport[variantIndex],
+                        transcripts: transcripts,
                         _classificationAcmgTT: classification.acmgContent,
                         _classsificationDiscussionTT: classification.discussionContent,
                         title: variantTitle,
                     };
-                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variantsReport);
                     break;
                 // new variant reported if not exist on attributes report
                 case variantIndex < 0:
-                    variants.push(
+                    variantsReport.push(
                         {
                             ..._variantModel, // init model
                             id: variantEvidence.variantId,
+                            transcripts: transcripts,
                             _classificationAcmgTT: classification.acmgContent,
                             _classsificationDiscussionTT: classification.discussionContent,
                             title: variantTitle,
-                            // genId: evidence.genomicFeature?.geneName?? "",
-                            // hgvs: evidence.hgvs,
-                            // transcriptId: evidence.genomicFeature.transcriptId,
                         },
                     );
-                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variants);
+                    UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", variantsReport);
                     break;
             }
         });
