@@ -1528,8 +1528,9 @@ export default class VariantInterpreterGridBeta extends LitElement {
         });
 
         // Clear evidence and variant review
-        this.variantReview = null;
+        // this.variantReview = null;
         this.evidenceReview = null;
+        this.closeNav();
     }
 
     getRightToolbar() {
@@ -1626,8 +1627,8 @@ export default class VariantInterpreterGridBeta extends LitElement {
                         </clinical-interpretation-variant-evidence-review>
                     ` : "Nothing...."}
                     <div>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                        <button type="button" class="btn btn-default" @click="${() => this.closeNav()}">Cancel</button>
+                        <button type="button" class="btn btn-primary" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
                     </div>
             </div>
         `;

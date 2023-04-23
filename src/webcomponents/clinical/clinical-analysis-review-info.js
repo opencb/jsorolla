@@ -605,6 +605,85 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
+    renderDrawerReport() {
+        const drawerStyles = html `
+            <style>
+                body {
+                    transition: background-color .5s;
+                }
+
+                .evidenceReview-right {
+                    height: 100%;
+                    width: 0;
+                    z-index: 9999;
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    background-color: #fff;
+                    overflow-x: hidden;
+                    transition: 0.5s;
+                    /* padding-top: 60px; */
+                    box-shadow: 5px 10px 18px #888888;
+                }
+
+                .evidenceReview-right a {
+                    padding: 8px 8px 8px 32px;
+                    text-decoration: none;
+                    font-size: 25px;
+                    color: #818181;
+                    display: block;
+                    transition: 0.3s;
+                }
+
+                .evidenceReview-right a:hover {
+                    color: #f1f1f1;
+                }
+
+                .evidenceReview-right .closebtn {
+                    position: absolute;
+                    top: 0;
+                    right: 25px;
+                    font-size: 36px;
+                    margin-right: 50px;
+                }
+
+                .item-center {
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap:2px;
+                }
+
+                @media screen and (max-height: 450px) {
+                    .evidenceReview-right {padding-top: 15px;}
+                    .evidenceReview-right a {font-size: 18px;}
+                }
+            </style>
+        `;
+        return html `
+            ${drawerStyles}
+            <div id="${this._prefix}evidenceReview-right" class="evidenceReview-right">
+                <a  class="closebtn" @click="${this.closeNav}">&times;</a>
+                    <div style="padding: 5px 15px">
+                        <h3>Review Variant Evidence</h3>
+                    </div>
+                    ${this.evidenceReview ? html`
+                        <clinical-interpretation-variant-evidence-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .review="${this.evidenceReview}"
+                            .mode="${"form"}"
+                            .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                        </clinical-interpretation-variant-evidence-review>
+                    ` : "Nothing...."}
+                    <div>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                    </div>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return "";
@@ -617,6 +696,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
             </data-form>
+            ${this.renderDrawerReport()}
+            <!-- Tab: Report Variants -->
             <clinical-analysis-report-variant-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
