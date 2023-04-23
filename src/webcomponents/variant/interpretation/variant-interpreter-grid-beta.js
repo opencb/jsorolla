@@ -1579,7 +1579,6 @@ export default class VariantInterpreterGridBeta extends LitElement {
                 .evidenceReview-right a {
                     padding: 8px 8px 8px 32px;
                     text-decoration: none;
-                    font-size: 25px;
                     color: #818181;
                     display: block;
                     transition: 0.3s;
@@ -1606,7 +1605,6 @@ export default class VariantInterpreterGridBeta extends LitElement {
 
                 @media screen and (max-height: 450px) {
                     .evidenceReview-right {padding-top: 15px;}
-                    .evidenceReview-right a {font-size: 18px;}
                 }
             </style>
         `;
