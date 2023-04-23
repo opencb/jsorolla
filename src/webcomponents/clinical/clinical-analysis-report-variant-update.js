@@ -173,43 +173,42 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
         // check if contains all structures
         // const hasVariants = hasInterpretations && UtilsNew.isNotEmptyArray(reportInfo.interpretations.variants);
         const hasVariantsKeys = hasInterpretations && (reportInfo.interpretations.variants !== undefined);
+
+        // transcripts {hgvs: "",geneName: "",transcriptId: ""}
+        const _variantModel = {
+            _classificationAcmgTT: "",
+            _classsificationDiscussionTT: "",
+            _variantText: "",
+            transcripts: [],
+            title: "",
+            populationControlText: "",
+            bibliographyEvidenceText: "",
+            diseaseAssociationText: "",
+            recommendations: "",
+            others: "",
+            _metadata: {
+                opencgaInterpretation: [
+                    {
+                        idInterpretation: "",
+                        filter: {}
+                    }
+                ]
+            }
+        };
         switch (true) {
             // reportTest.interpretations.variants
             case hasVariantsKeys:
                 this._variantInfo.id = this.variantReview.id;
                 const variantIndex = reportInfo.interpretations.variants?.findIndex(variant => variant.id === this._variantReview.id);
                 if (variantIndex > -1) {
-                    reportInfo.interpretations.variants[variantIndex] = {...this._variantInfo};
+                    reportInfo.interpretations.variants[variantIndex] = {..._variantModel, ...this._variantInfo};
                 } else {
-                    reportInfo.interpretations.variants.push(this._variantInfo);
+                    reportInfo.interpretations.variants.push({_variantModel, ...this._variantInfo});
                 }
                 break;
             // reporTest.interpretations
             case hasInterpretations:
                 // TODO: Soon
-                const _variantModel = {
-                    id: "",
-                    genId: "",
-                    hgvs: "",
-                    transcriptId: "",
-                    title: "",
-                    variant: "",
-                    evidence: "",
-                    populationControl: "",
-                    acmg: "",
-                    classification: "",
-                    diseaseAssociation: "",
-                    recommendations: "",
-                    others: "",
-                    _metadata: {
-                        opencgaInterpretation: [
-                            {
-                                idInterpretation: "",
-                                filter: {}
-                            }
-                        ]
-                    }
-                };
                 console.log("Missing varints");
                 break;
             // reportTest
@@ -222,7 +221,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                 reportInfo = {
                     interpretations: {
                         variants: [
-                            ...this._variantInfo
+                            {..._variantModel, ...this._variantInfo}
                         ]
                     }
                 };
@@ -473,7 +472,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                             <div>
                                 <b>Genotype Forward</b>
                                 <br/>
-                                <span>${sequenceFormat(this.sequence.forward)}</span>
+                                <span>${sequenceFormat(this.sequence?.forward)}</span>
                                 <file-preview
                                     .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_f_SECUENCIADOR2_230116_C11.jpg`}"
                                     .active="${true}"
@@ -483,7 +482,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                             <div>
                                 <b>Genotype Reverse</b>
                                 <br/>
-                                <span>${sequenceFormat(this.sequence.reverse, true)}</span>
+                                <span>${sequenceFormat(this.sequence?.reverse, true)}</span>
                                 <file-preview
                                 .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg`}"
                                 .active="${true}"
@@ -537,7 +536,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                                             showActions: false,
                                             showEditReview: false,
                                             showHgvs: true,
-                                            detailView: false
+                                            detailView: true
                                         }
                                     }>
                                 </variant-interpreter-grid-beta>
