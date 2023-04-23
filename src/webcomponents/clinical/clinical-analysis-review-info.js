@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -193,10 +193,10 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     }
 
     fillVariantReportAttributes() {
-        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
-            variant => variant?.status === "REPORTED");
+        // const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+        //     variant => variant?.status === "REPORTED");
+        const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings;
         const variants = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
-
         // transcripts {hgvs: "",geneName: "",transcriptId: ""}
         const _variantModel = UtilsNew.initModelVariantReported();
         variantsReported.forEach(variant => {
@@ -362,7 +362,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
-
     submitCaseFinalSummary() {
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
             this.opencgaSession.opencgaClient.clinical()
@@ -380,7 +379,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 });
         }
     }
-
 
     submitInterpretationsComments() {
         const clinicalAnalysisId = this.clinicalAnalysis.id;
@@ -891,7 +889,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                 view: variant => {
                                     const variantKeys = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations._variantsKeys", []);
                                     const variantContent = `${variantKeys?.map(key => variant[key]).join(" ")}`;
-                                    return html `
+                                    const variantsReported = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+                                        primaryFinding => primaryFinding?.status === "REPORTED");
+                                    return variantsReported.findIndex(variantReported => variantReported.id === variant.id) > -1 ? html `
                                             <div style="display:flex">
                                                 <div style="font-size:20px;font-weight: bold;">
                                                     <span>${variant?.title !== ""? variant?.title: variant.id}</span>
@@ -904,8 +904,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                                 .data="${variantContent}"
                                                 .config="${{preview: true}}">
                                             </rich-text-editor>
-                                    `;
-
+                                    `: html`${nothing}`;
                                 }
                             },
                             elements: []
