@@ -258,6 +258,15 @@ export default class VariantClinicalEvidenceView extends LitElement {
         }
     }
 
+    selectFormatter(value, row, index) {
+        const color = "black";
+        if (row.review?.select) {
+            return "selected";
+        } else {
+            return "-";
+        }
+    }
+
 
     renderClinicalEvidenceTable() {
         // debugger;
@@ -344,6 +353,7 @@ export default class VariantClinicalEvidenceView extends LitElement {
                     },
                     {
                         title: "Select",
+                        formatter: (value, row, index) => this.selectFormatter(value, row, index),
                         rowspan: 1,
                         colspan: 1,
                         halign: "center"
