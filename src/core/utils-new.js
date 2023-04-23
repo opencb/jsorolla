@@ -1150,7 +1150,7 @@ export default class UtilsNew {
                         "references": "",
                         "db": "",
                         "predSilico": "",
-                        "note": ""
+                        "notes": ""
                     }
                 },
                 "mainResults": {
@@ -1190,6 +1190,7 @@ export default class UtilsNew {
             _classificationAcmgTT: "",
             _classsificationDiscussionTT: "",
             _variantText: "",
+            id: "",
             transcripts: [],
             title: "",
             populationControlText: "",
