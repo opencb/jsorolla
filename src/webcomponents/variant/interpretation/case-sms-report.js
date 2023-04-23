@@ -567,7 +567,7 @@ class CaseSmsReport extends LitElement {
             primaryFinding => primaryFinding?.status === "REPORTED");
         const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
         const variantsHtml = variantsReported
-            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+            .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
         const variantElements = variantsReported
             .map(variant => ({
