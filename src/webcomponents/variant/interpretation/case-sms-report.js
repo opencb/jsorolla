@@ -475,7 +475,6 @@ class CaseSmsReport extends LitElement {
                             });
                     });
             });
-
         } else {
             pdfDocument.open();
         }
@@ -563,11 +562,14 @@ class CaseSmsReport extends LitElement {
         };
         const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
-        const variantsHtml = interpretations.variants
-            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
 
+        const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+            primaryFinding => primaryFinding?.status === "REPORTED");
+        const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
+        const variantsHtml = variantsReported
+            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
-        const variantElements = interpretations.variants
+        const variantElements = variantsReported
             .map(variant => ({
                 label: variant.title,
                 content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
@@ -773,11 +775,14 @@ class CaseSmsReport extends LitElement {
         };
         const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
-        const variantsHtml = interpretations.variants
-            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
 
+        const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+            primaryFinding => primaryFinding?.status === "REPORTED");
+        const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
+        const variantsHtml = variantsReported
+            .map(variant => `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
-        const variantElements = interpretations.variants
+        const variantElements = variantsReported
             .map(variant => ({
                 label: variant.title,
                 content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
@@ -1335,10 +1340,11 @@ class CaseSmsReport extends LitElement {
                                                 .clinicalVariants="${variantsReported}"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${{
-                                            showExport: true,
+                                            showExport: false,
                                             showSettings: false,
                                             showActions: false,
                                             showEditReview: false,
+                                            detailView: false,
                                         }
                                             }>
                                             </variant-interpreter-grid>
@@ -1388,7 +1394,10 @@ class CaseSmsReport extends LitElement {
                                 disabled: false,
                                 preview: true,
                                 render: interpretations => {
-                                    const variantsHtml = interpretations.variants
+                                    const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
+                                        primaryFinding => primaryFinding?.status === "REPORTED");
+                                    const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
+                                    const variantsHtml = variantsReported
                                         .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
                                     const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
                                     return html`
