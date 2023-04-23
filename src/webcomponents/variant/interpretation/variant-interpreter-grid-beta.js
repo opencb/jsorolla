@@ -454,7 +454,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                             // Prevent editing evidences of not selected variants
                             // eslint-disable-next-line no-param-reassign
                             element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                            element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                            element.addEventListener("click", e => this.onVariantEvidenceReviewDrawer(e));
                         }
                     });
 
@@ -535,7 +535,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                         // Prevent editing evidences of not selected variants
                         // eslint-disable-next-line no-param-reassign
                         element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                        element.addEventListener("click", e => this.onVariantEvidenceReview(e));
+                        element.addEventListener("click", e => this.onVariantEvidenceReviewDrawer(e));
                     }
                 });
 
@@ -1485,7 +1485,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
         });
     }
 
-    onVariantEvidenceReview(e) {
+    onVariantEvidenceReviewModal(e) {
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
             this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
@@ -1496,6 +1496,18 @@ export default class VariantInterpreterGridBeta extends LitElement {
             const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
             UtilsNew.draggableModal(this, modalElm);
             $(`#${this._prefix}EvidenceReviewModal`).modal("show");
+        }
+    }
+
+    onVariantEvidenceReviewDrawer(e) {
+        if (this.checkedVariants) {
+            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+
+            // Generate a clone of the evidence review to prevent changing original values
+            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
+            this.openNav();
+            this.requestUpdate();
         }
     }
 
@@ -1534,6 +1546,92 @@ export default class VariantInterpreterGridBeta extends LitElement {
         return [];
     }
 
+    openNav() {
+        document.getElementById(`${this._prefix}evidenceReview-right`).style.width = "40%";
+    }
+
+    closeNav() {
+        document.getElementById(`${this._prefix}evidenceReview-right`).style.width = "0";
+    }
+
+    renderSideNavReport() {
+        const sideNavStyles = html `
+            <style>
+                body {
+                    transition: background-color .5s;
+                }
+
+                .evidenceReview-right {
+                    height: 100%;
+                    width: 0;
+                    z-index: 9999;
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    background-color: #fff;
+                    overflow-x: hidden;
+                    transition: 0.5s;
+                    /* padding-top: 60px; */
+                    box-shadow: 5px 10px 18px #888888;
+                }
+
+                .evidenceReview-right a {
+                    padding: 8px 8px 8px 32px;
+                    text-decoration: none;
+                    font-size: 25px;
+                    color: #818181;
+                    display: block;
+                    transition: 0.3s;
+                }
+
+                .evidenceReview-right a:hover {
+                    color: #f1f1f1;
+                }
+
+                .evidenceReview-right .closebtn {
+                    position: absolute;
+                    top: 0;
+                    right: 25px;
+                    font-size: 36px;
+                    margin-right: 50px;
+                }
+
+                .item-center {
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap:2px;
+                }
+
+                @media screen and (max-height: 450px) {
+                    .evidenceReview-right {padding-top: 15px;}
+                    .evidenceReview-right a {font-size: 18px;}
+                }
+            </style>
+        `;
+        return html `
+            ${sideNavStyles}
+            <div id="${this._prefix}evidenceReview-right" class="evidenceReview-right">
+                <a  class="closebtn" @click="${this.closeNav}">&times;</a>
+                    <div style="padding: 5px 15px">
+                        <h3>Review Variant Evidence</h3>
+                    </div>
+                    ${this.evidenceReview ? html`
+                        <clinical-interpretation-variant-evidence-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .review="${this.evidenceReview}"
+                            .mode="${"form"}"
+                            .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                        </clinical-interpretation-variant-evidence-review>
+                    ` : "Nothing...."}
+                    <div>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
+                    </div>
+            </div>
+        `;
+    }
 
     render() {
         return html`
@@ -1563,7 +1661,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
-
+            ${this.renderSideNavReport()}
             <clinical-analysis-report-variant-update
                 .openModal="${this.openModalTest}"
                 .variantReview="${this.variantReview}"
