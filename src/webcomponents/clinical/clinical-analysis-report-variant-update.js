@@ -460,7 +460,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                             return !reverse ? templateSequence(variantInfo.reference, variantInfo.alternate): templateSequence(complementTable[variantInfo.reference], complementTable[variantInfo.alternate]);
                         };
                         const renderFilePreview = (file, sequence) => {
-                            const isChromatogramForward = fileId => fileId.includes("_f");
+                            const isChromatogramForward = fileId => fileId.toLowerCase().includes("_f");
                             return html `
                                 <div>
                                     <b>${isChromatogramForward(file.id)?"Genotype Forward":"Genotype Reverse"}</b>
