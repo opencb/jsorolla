@@ -92,7 +92,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             this._config = this.getDefaultConfig();
             // Generate Result as Template
             this.generateResultsTemplate();
-            this.generateMethodologyTemplate();
+            // this.generateMethodologyTemplate();
             // init variant reported to attributes.
             this.fillVariantReportAttributes();
             this.requestUpdate();

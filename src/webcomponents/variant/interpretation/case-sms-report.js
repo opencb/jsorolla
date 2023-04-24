@@ -360,7 +360,7 @@ class CaseSmsReport extends LitElement {
                             text: "4. Metodologia Empleada\n\n",
                             style: "header"
                         },
-                        PdfUtils.htmlToPdf(this._reportData.study.method.description?.replaceAll("h2", "b")),
+                        PdfUtils.htmlToPdf(this._reportData.study.method?.description?.replaceAll("h2", "b")),
                     ],
                     margin: [0, 10]
                 },
@@ -560,7 +560,7 @@ class CaseSmsReport extends LitElement {
                 content: study.genePriority
             }
         };
-        const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
+        const methodologyHtml = this._reportData.study.method?.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
 
         const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
@@ -773,7 +773,7 @@ class CaseSmsReport extends LitElement {
                 content: study.genePriority
             }
         };
-        const methodologyHtml = this._reportData.study.method.description?.replaceAll("h2", "b");
+        const methodologyHtml = this._reportData.study.method?.description?.replaceAll("h2", "b");
         const resultsHtml = `<div>${mainResults.templateResult}</div><div>${mainResults.summaryResult}</div>`;
 
         const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
