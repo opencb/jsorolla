@@ -597,6 +597,10 @@ class CaseSmsReport extends LitElement {
                 label: "Fecha",
                 content: clinicalAnalysis?.lab?.date
             },
+            sign: {
+                label: "Firma",
+                content: ""
+            },
         };
 
         const _jsonReport =
@@ -609,6 +613,7 @@ class CaseSmsReport extends LitElement {
                     "results",
                     "interpretations",
                     "technicalNotes",
+                    "coverage",
                     "appendix",
                     "signs"
                 ],
@@ -672,10 +677,10 @@ class CaseSmsReport extends LitElement {
                     "content": notes,
                     "htmlRendered": notes
                 },
-                // "coverage": {
-                //     "title": "Estadística de cobertura",
-                //     "content": ""
-                // },
+                "coverage": {
+                    "title": "Estadística de cobertura",
+                    "content": ""
+                },
                 "appendix": {
                     "_wantedKeys": [],
                     "title": "Apendices",
@@ -756,7 +761,7 @@ class CaseSmsReport extends LitElement {
             },
         };
 
-        const fieldTextTemplate = element => `<label><b>${element?.label ?? ""}</b></label> <span>${element?.content}</span><br/>`;
+        const fieldTextTemplate = element => `<label><b>${element?.label !== ""? element?.label+":" :""}</b></label> <span>${element?.content}</span><br/>`;
         const boxTemplate = (id, elements, classes) => `<div class='${classes ?? ""}' id='${id}'>${Object.keys(elements).map(key => fieldTextTemplate(elements[key])).join("")}</div>`;
         const studyElements = {
             reason: {
@@ -812,6 +817,10 @@ class CaseSmsReport extends LitElement {
                 label: "Fecha",
                 content: clinicalAnalysis?.lab?.date
             },
+            sign: {
+                label: "Firma",
+                content: ""
+            },
         };
 
         const _jsonReport =
@@ -824,7 +833,8 @@ class CaseSmsReport extends LitElement {
                     "results",
                     "interpretations",
                     "technicalNotes",
-                    "appendix"
+                    "appendix",
+                    "signs"
                 ],
                 "_metadata": {
                     "author": this.opencgaSession.user?.id,
