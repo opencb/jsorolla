@@ -133,13 +133,19 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
         }
     }
 
-    getFileChromatogram() {
+    getFileChromatogram(interpretationId) {
+        // /reports:reporttest-4.1:.*sanger_..jpg/
+        // params.id target strings
+        //   - forward:
+        //   - reverse:
         const params = {
             study: this.opencgaSession.study.fqn,
-            count: false,
-
+            // id: `~/reports:${interpretationId}:.*sanger_/`,
+            // id: `~/^reports:${interpretationId}:.*sanger_.*jpg$/i`,
+            // id: `~/^reports:${interpretationId}:.*?sanger_.+jpg$/i`
+            id: `~/^reports:${interpretationId}:.*sanger_..jpg$/i`
         };
-        const fileIds = this.opencgaSession.opencgaClient.files().search();
+        return this.opencgaSession.opencgaClient.files().search(params);
     }
 
     async openModalReport() {
@@ -147,14 +153,19 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
         const {chromosome, start, strand} = this._variantReview;
         const regionVariant = `${chromosome}:${start-10}-${start+10}`;
         this.sequence = "";
+        this.chromatogramFileIds = [];
         try {
+            // Sequence
             const resp = await this.opencgaSession.cellbaseClient.get("genomic", "region", regionVariant, "sequence", {assembly: "grch38", strand: 1});
             const result = await resp.response[0].result[0];
             this.sequence = {
                 forward: result.sequence,
                 reverse: VariantUtils.getComplementarySequence(result.sequence).split("").reverse().join("")
             };
-            console.log("sequence", this.sequence);
+
+            // chromatogram files
+            const fileResponse = await this.getFileChromatogram(this._clinicalAnalysis.interpretation.id);
+            this.chromatogramFileIds = await fileResponse.response[0].result;
         } catch (error) {
             console.log(error);
         }
@@ -448,29 +459,28 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                             const templateSequence = (reference, alternate) => `${sequence?.slice(0, 10)} [${reference}/${alternate}] ${sequence?.slice(11)}`;
                             return !reverse ? templateSequence(variantInfo.reference, variantInfo.alternate): templateSequence(complementTable[variantInfo.reference], complementTable[variantInfo.alternate]);
                         };
-                        return html `
-                        <div style="display:flex; gap:2px">
-                            <div>
-                                <b>Genotype Forward</b>
-                                <br/>
-                                <span>${sequenceFormat(this.sequence?.forward)}</span>
-                                <file-preview
-                                    .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_f_SECUENCIADOR2_230116_C11.jpg`}"
-                                    .active="${true}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </file-preview>
-                            </div>
-                            <div>
-                                <b>Genotype Reverse</b>
-                                <br/>
-                                <span>${sequenceFormat(this.sequence?.reverse, true)}</span>
-                                <file-preview
-                                .fileId="${`reports:${currentInterpretation}:22-5479_acvrl1_ex3_m13_r_SECUENCIADOR2_230116_H11.jpg`}"
-                                .active="${true}"
-                                .opencgaSession="${this.opencgaSession}">
-                                </file-preview>
-                            </div>
-                        </div>`;
+                        const renderFilePreview = (file, sequence) => {
+                            const isChromatogramForward = fileId => fileId.includes("_f");
+                            return html `
+                                <div>
+                                    <b>${isChromatogramForward(file.id)?"Genotype Forward":"Genotype Reverse"}</b>
+                                    <br/>
+                                    <span>${isChromatogramForward(file.id)?sequenceFormat(sequence?.forward):sequenceFormat(sequence?.reverse, true)}</span>
+                                    <file-preview
+                                        .fileId="${file.id}"
+                                        .active="${true}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </file-preview>
+                                </div>`;
+                        };
+                        if (this.chromatogramFileIds.length > 0) {
+                            return html `
+                            <div style="display:flex; gap:2px">
+                                ${this.chromatogramFileIds?.map(file => renderFilePreview(file, this.sequence))}
+                            </div>`;
+                        } else {
+                            return html `<b>No Chromatogram available</b>`;
+                        }
                     },
                 },
                 {
