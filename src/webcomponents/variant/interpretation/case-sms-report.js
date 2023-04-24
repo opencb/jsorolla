@@ -119,6 +119,8 @@ class CaseSmsReport extends LitElement {
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
             };
+            UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.validation", this._clinicalAnalysis.analyst?.name);
+            UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.date", UtilsNew.dateFormatter(UtilsNew.getDatetime()));
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
@@ -179,7 +181,6 @@ class CaseSmsReport extends LitElement {
                             display: {
                                 render: field => `${UtilsNew.dateFormatter(field)}`
                             }
-
                         },
                         {
                             title: "Reason", // Cause
@@ -540,7 +541,7 @@ class CaseSmsReport extends LitElement {
             },
         };
 
-        const fieldTextTemplate = element => `<label><b>${element?.label ?? ""}</b></label> <span>${element?.content}</span><br/>`;
+        const fieldTextTemplate = element => `<label><b>${element?.label !== ""? element?.label+":" :""}</b></label> <span>${element?.content}</span><br/>`;
         const boxTemplate = (id, elements, classes) => `<div class='${classes ?? ""}' id='${id}'>${Object.keys(elements).map(key => fieldTextTemplate(elements[key])).join("")}</div>`;
         const studyElements = {
             reason: {
@@ -576,18 +577,18 @@ class CaseSmsReport extends LitElement {
             }));
 
         const signsElements = {
-            responsible: {
-                label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.lab?.responsible
-            },
-            facultive: {
-                label: "Facultivos",
-                content: clinicalAnalysis?.lab?.facultative.join()
-            },
-            contact: {
-                label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.lab?.email
-            },
+            // responsible: {
+            //     label: "Responsable Lab Genética Molecular",
+            //     content: clinicalAnalysis?.lab?.responsible
+            // },
+            // facultive: {
+            //     label: "Facultivos",
+            //     content: clinicalAnalysis?.lab?.facultative.join()
+            // },
+            // contact: {
+            //     label: "Email",
+            //     content: clinicalAnalysis?.lab?.email
+            // },
             validation: {
                 label: "Validado por",
                 content: clinicalAnalysis?.lab?.validation
@@ -608,7 +609,8 @@ class CaseSmsReport extends LitElement {
                     "results",
                     "interpretations",
                     "technicalNotes",
-                    "coverage"
+                    "appendix",
+                    "signs"
                 ],
                 "_metadata": {
                     "author": this.opencgaSession.user?.id,
@@ -670,12 +672,13 @@ class CaseSmsReport extends LitElement {
                     "content": notes,
                     "htmlRendered": notes
                 },
-                "coverage": {
-                    "title": "Estadística de cobertura",
-                    "content": ""
-                },
+                // "coverage": {
+                //     "title": "Estadística de cobertura",
+                //     "content": ""
+                // },
                 "appendix": {
                     "_wantedKeys": [],
+                    "title": "Apendices",
                     "coverageMetrics": "",
                     "qc": "",
                     "otherVariants": ""
@@ -789,18 +792,18 @@ class CaseSmsReport extends LitElement {
             }));
 
         const signsElements = {
-            responsible: {
-                label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.lab?.responsible
-            },
-            facultive: {
-                label: "Facultivos",
-                content: clinicalAnalysis?.lab?.facultative.join()
-            },
-            contact: {
-                label: "Responsable Lab Genética Molecular",
-                content: clinicalAnalysis?.lab?.email
-            },
+            // responsible: {
+            //     label: "Responsable Lab Genética Molecular",
+            //     content: clinicalAnalysis?.lab?.responsible
+            // },
+            // facultive: {
+            //     label: "Facultivos",
+            //     content: clinicalAnalysis?.lab?.facultative.join()
+            // },
+            // contact: {
+            //     label: "Responsable Lab Genética Molecular",
+            //     content: clinicalAnalysis?.lab?.email
+            // },
             validation: {
                 label: "Validado por",
                 content: clinicalAnalysis?.lab?.validation
@@ -821,7 +824,7 @@ class CaseSmsReport extends LitElement {
                     "results",
                     "interpretations",
                     "technicalNotes",
-                    "coverage"
+                    "appendix"
                 ],
                 "_metadata": {
                     "author": this.opencgaSession.user?.id,
@@ -889,6 +892,7 @@ class CaseSmsReport extends LitElement {
                 },
                 "appendix": {
                     "_wantedKeys": [],
+                    "title": "Apendices",
                     "coverageMetrics": "",
                     "qc": "",
                     "otherVariants": ""
@@ -1221,10 +1225,10 @@ class CaseSmsReport extends LitElement {
                         id: "",
                         className: "row",
                         sections: [
-                            {
-                                id: "responsible-detail",
-                                className: "col-md-6"
-                            },
+                            // {
+                            //     id: "responsible-detail",
+                            //     className: "col-md-6"
+                            // },
                             {
                                 id: "validation-detail",
                                 className: "col-md-6"
@@ -1577,8 +1581,8 @@ class CaseSmsReport extends LitElement {
                                 render: data => {
                                     return html`
                                         <p><b>Validado por:</b> ${data?.clinicalAnalysis?.lab?.validation}</p>
-                                        <p><b>Fecha de:</b> ${UtilsNew.dateFormatter(data?.clinicalAnalysis?.lab?.date)}</p>
-                                        `;
+                                        <p><b>Fecha de:</b> ${data?.clinicalAnalysis?.lab?.date}</p>
+                                        <p><b>Firma:</b> </p>`;
                                 }
                             }
                         }
