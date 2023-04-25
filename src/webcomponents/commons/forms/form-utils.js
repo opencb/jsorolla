@@ -20,6 +20,9 @@ import LitUtils from "../utils/lit-utils";
 
 export default class FormUtils {
 
+    // ** IVA SETTINGS FORM UTILS **
+
+    // **  DATA FORM UTLIS ** /
     static getUpdateParams(original, updatedFields, customisations) {
         const params = {};
         const updatedFieldKeyPrefixes = Object.keys(updatedFields)
@@ -189,8 +192,8 @@ export default class FormUtils {
         return data;
     }
 
-
     //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
+    // eslint-disable-next-line valid-jsdoc
     /**
      * ! Rodiel 2022-09-27 DEPRECATED use updateObjectParams
      * TODO Before removing updateScalar change to updateObjectParams to these components
@@ -200,7 +203,6 @@ export default class FormUtils {
      * rd-tiering-analysis
      * clinical-interpretation-variant-review
      */
-    //
     static updateScalar(_original, original, updateParams, param, value) {
         // Prepare an internal object to store the updateParams.
         // NOTE: it is important to create a new object reference to force a new render()
@@ -221,13 +223,17 @@ export default class FormUtils {
         return _updateParams;
     }
 
-    /**
-     * !DEPRECATED
+    /** !DEPRECATED
      * TODO Before removing updateObject change to updateObjectParams to these components
      * Clinical-analysis-update
      * Clinical-interpretation-update
+     * @param {Object} _original Original
+     * @param {Object} original Modified
+     * @param {Object} updateParams Parameters to update in original
+     * @param {String} param    Path
+     * @param {any} value Value
+     * @returns {*} Parameters
      */
-    //
     static updateObject(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 

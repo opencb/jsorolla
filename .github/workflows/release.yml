@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+    uses: ./.github/workflows/build-jsorolla-workflow.yml
 
   test:
     uses: ./.github/workflows/test.yml
@@ -25,7 +25,7 @@ jobs:
 
   deploy:
     needs: [ build, test ]
-    uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
+    uses: ./.github/workflows/deploy-jsorolla-workflow.yml
     with:
       version: ${{ needs.build.outputs.version }}
     secrets: inherit

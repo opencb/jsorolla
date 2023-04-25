@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+    uses: ./.github/workflows/build-jsorolla-workflow.yml
 
   test:
     uses: ./.github/workflows/test.yml
