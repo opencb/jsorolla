@@ -322,7 +322,7 @@ class CaseSmsReport extends LitElement {
                                         [PdfUtils.fieldText("Código Sistema Salud: ", this._reportData.patient.cipa)],
                                         [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.clinicalAnalysis.sample.type)],
                                         [PdfUtils.fieldText("Fecha de Extracción: ", this._reportData.clinicalAnalysis.sample.extractionDate)],
-                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.clinicalAnalysis.sample.reason)]
+                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.clinicalAnalysis.sample?.reason)]
                                     ]
                                 },
                                 layout: "headerVerticalBlueLine"
@@ -516,7 +516,7 @@ class CaseSmsReport extends LitElement {
             },
             reason: {
                 label: "Motivo",
-                content: clinicalAnalysis.sample.reason
+                content: clinicalAnalysis.sample?.reason
             }
         };
         const doctorInfo = field => `
@@ -736,7 +736,7 @@ class CaseSmsReport extends LitElement {
             },
             reason: {
                 label: "Motivo",
-                content: clinicalAnalysis.sample.reason
+                content: clinicalAnalysis.sample?.reason
             }
         };
         const doctorInfo = field => `
@@ -955,7 +955,7 @@ class CaseSmsReport extends LitElement {
     }
 
     onSaveJsonReport() {
-        const _reportJson = this.initGenerateJson(this._reportData);
+        const _reportJson = this.initGenerateJsonB(this._reportData);
         this._reportData = {
             ...this._reportData,
             _report: [...this._reportData?._report, _reportJson]
