@@ -435,7 +435,7 @@ class IvaApp extends LitElement {
         }
 
         // 2. Init settings
-        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
+        this.settings = {...this.opencgaSession.study.attributes[SETTINGS_NAME].settings, ...this.opencgaSession.ivaDefaultSettings.settings};
     }
 
     /**
@@ -529,7 +529,7 @@ class IvaApp extends LitElement {
                         }
                     };
                     this.opencgaSession.mode = this.config.mode;
-                    this.#initStudiesSettings();
+                    this.#initStudiesSettings(); // This overwrites the settings
                     this.updateCellBaseClient();
 
                     // this.config.menu = [...application.menu];
