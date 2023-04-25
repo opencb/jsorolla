@@ -516,7 +516,7 @@ class CaseSmsReport extends LitElement {
             },
             reason: {
                 label: "Motivo",
-                content: clinicalAnalysis.sample.reason
+                content: clinicalAnalysis.sample?.reason
             }
         };
         const doctorInfo = field => `
@@ -736,7 +736,7 @@ class CaseSmsReport extends LitElement {
             },
             reason: {
                 label: "Motivo",
-                content: clinicalAnalysis.sample.reason
+                content: clinicalAnalysis.sample?.reason
             }
         };
         const doctorInfo = field => `
@@ -955,7 +955,7 @@ class CaseSmsReport extends LitElement {
     }
 
     onSaveJsonReport() {
-        const _reportJson = this.initGenerateJson(this._reportData);
+        const _reportJson = this.initGenerateJsonA(this._reportData);
         this._reportData = {
             ...this._reportData,
             _report: [...this._reportData?._report, _reportJson]
