@@ -7,10 +7,10 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@release-2.7.x
+    uses: ./.github/workflows/build-jsorolla-workflow.yml
 
   test:
-    uses: opencb/jsorolla/.github/workflows/test.yml@develop
+    uses: ./.github/workflows/test.yml
     needs: build
     secrets: inherit
 
