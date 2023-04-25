@@ -1109,11 +1109,7 @@ export default class UtilsNew {
                     "lab": {
                         "name": "",
                         "responsible": "",
-                        "facultative": [
-                            "",
-                            "",
-                            ""
-                        ],
+                        "facultative": [],
                         "center": "",
                         "unit": "",
                         "address": "",

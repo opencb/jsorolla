@@ -93,6 +93,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             // Generate Result as Template
             this.generateResultsTemplate();
             // this.generateMethodologyTemplate();
+
             // init variant reported to attributes.
             this.fillVariantReportAttributes();
             this.requestUpdate();
@@ -197,7 +198,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         //     variant => variant?.status === "REPORTED");
         const primaryFindings = this._clinicalAnalysis?.interpretation?.primaryFindings;
         const variantsReport = UtilsNew.getObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.interpretations.variants", []);
-        // transcripts {hgvs: "",geneName: "",transcriptId: ""}
         const _variantModel = UtilsNew.initModelVariantReported();
         primaryFindings.forEach(primaryFinding => {
             // get variant evidence with hgvs
@@ -206,6 +206,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const variantTitle = variantEvidence.clinicalEvidences.map(evidence => evidence.genomicFeature.geneName + " " + evidence.hgvs)
                 .join(" || ");
             const classification = this.generateClassificationTemplate(variantEvidence);
+            // transcripts {hgvs: "",geneName: "",transcriptId: ""}
             const transcripts = variantEvidence.clinicalEvidences.map(evidence => ({
                 hgvs: evidence?.hgvs ?? "",
                 geneName: evidence.genomicFeature?.geneName?? "",
@@ -351,7 +352,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 
     // ClinicalReport
     submitReportVariant() {
-
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
             this.opencgaSession.opencgaClient.clinical()
                 .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
