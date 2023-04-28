@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
+import "../commons/modal/modal-operation-view.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -41,6 +42,9 @@ export default class OpencbGridToolbar extends LitElement {
             },
             query: {
                 type: Object
+            },
+            operation: {
+                type: Object,
             },
             config: {
                 type: Object
@@ -111,8 +115,21 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
-    openModal() {
-        $(`#${this._prefix}export-modal`, this).modal("show");
+    openModal(e) {
+        const modal = e.currentTarget.dataset.action;
+        switch (modal) {
+            case "create":
+                // FIXME: get entity that wants to be created.
+                this.operation = {
+                    type: "sample-create",
+                    title: "Sample Create",
+                };
+                break;
+            case "export":
+                $(`#${this._prefix}export-modal`, this).modal("show");
+                break;
+        }
+
     }
 
     render() {
@@ -139,7 +156,7 @@ export default class OpencbGridToolbar extends LitElement {
                         ${this._config.showCreate &&
                         (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
                             <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
-                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New Left </span>
                             </a>
                         ` : null}
                     </div>
@@ -162,20 +179,16 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showNew ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
                                     </button>
-
-                                    <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
-                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>New</span>
-                                    </a>
                                 </div>
                             ` : null}
 
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
@@ -210,6 +223,13 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
             </div>
 
+            ${this.operation && html `
+            <modal-operation-view
+                .operation="${this.operation}"
+                .opencgaSession="${this.opencgaSession}">
+            </modal-operation-view>
+            `}
+
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -236,7 +256,7 @@ export default class OpencbGridToolbar extends LitElement {
     getDefaultConfig() {
         return {
             label: "records",
-            showNew: false,
+            showNew: true,
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             showDownload: false,
             download: ["Tab", "JSON"],

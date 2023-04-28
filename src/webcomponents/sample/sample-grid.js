@@ -60,6 +60,7 @@ export default class SampleGrid extends LitElement {
         this.gridId = this._prefix + "SampleBrowserGrid";
         this.active = true;
         this._config = {...this.getDefaultConfig()};
+        this._operation = null;
     }
 
     connectedCallback() {
@@ -255,6 +256,14 @@ export default class SampleGrid extends LitElement {
     onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "edit":
+                this.operation = {
+                    type: "sample-update",
+                    title: "Sample Update",
+                    row: row.id,
+                };
+                this.requestUpdate();
+                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -379,10 +388,16 @@ export default class SampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
+                                <!--
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
+                                -->
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
@@ -447,6 +462,7 @@ export default class SampleGrid extends LitElement {
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
+                    .operation="${this.operation}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
@@ -465,6 +481,7 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
+            showCreate: true,
             showExport: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
