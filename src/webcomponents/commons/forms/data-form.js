@@ -1781,148 +1781,15 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    render() {
-        // Check configuration
-        if (!this.config) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-exclamation fa-5x"></i>
-                    <h3>No valid configuration provided. Please check configuration:</h3>
-                    <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Global values
-        const type = this._getType(); // Get form type
-        const icon = this.config?.icon ?? "fas fa-info-circle";
-
-        // Title values
-        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
-        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
-        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
-
+    renderContentAsForm() {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
 
-        // Check for card type
-        if (type === "card") {
-            return html`
-                <div class="row">
-                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${icon} icon-padding" aria-hidden="true"></i>
-                        ${this.config.title}
-                    </button>
-                    <div class="">
-                        <div id="${this._prefix}Help" class="collapse">
-                            <div class="well">
-                                ${this.renderData()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+        const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
+        const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
+        const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
-        // Check for modal type
-        if (type === "modal") {
-            const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
-            const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
-            const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
-            const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
-
-            return html`
-                <button type="button"
-                        title="${this.config.description}"
-                        class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
-                        style="${modalBtnStyle}"
-                        data-toggle="modal"
-                        ?disabled="${isDisabled}"
-                        data-target="#${this._prefix}DataModal">
-                    <i class="${icon} icon-padding" aria-hidden="true"></i>
-                    ${this.config.title}
-                </button>
-
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog" style="width: ${modalWidth}">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title ${titleClassName}" style="${titleStyle}">${this.config.title}</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="container-fluid">
-                                    ${this.renderData()}
-                                </div>
-                            </div>
-                            ${buttonsVisible ? html`
-                                <div class="modal-footer">
-                                    ${this.renderButtons("modal")}
-                                </div>
-                            ` : null}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Check for tabs style
-        if (type === "tabs") {
-            return html`
-                <div>
-                    <ul class="nav nav-tabs">
-                        ${this._getVisibleSections()
-                            .map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                    </ul>
-                    ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
-                </div>
-                <div style="margin-top:24px;">
-                    ${this.renderData()}
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Check for pills style
-        if (type === "pills") {
-            return html`
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
-                <div class="row">
-                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                        <ul class="nav nav-pills nav-stacked">
-                            ${this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                        </ul>
-                    </div>
-                    <div class="col-md-9">
-                        ${this.renderData()}
-                    </div>
-                </div>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
-            `;
-        }
-
-        // Default form style
         return html`
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
@@ -1969,6 +1836,178 @@ export default class DataForm extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    renderContentAsTabs() {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+
+        return html`
+            <div>
+                <ul class="nav nav-tabs">
+                    ${this._getVisibleSections()
+                        .map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                </ul>
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
+            </div>
+            <div style="margin-top:24px;">
+                ${this.renderData()}
+            </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+        `;
+    }
+
+    renderContentAsPills() {
+        // Buttons values
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+        return html`
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
+            <div class="row">
+                <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
+                    <ul class="nav nav-pills nav-stacked">
+                        ${this._getVisibleSections().map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li role="presentation" class="${active ? "active" : ""}">
+                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
+                    </ul>
+                </div>
+                <div class="col-md-9">
+                    ${this.renderData()}
+                </div>
+            </div>
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
+        `;
+    }
+
+    renderContent(type) {
+        let result;
+        switch (type?.toUpperCase()) {
+            case "FORM":
+            default:
+                result = this.renderContentAsForm();
+                break;
+            case "TABS":
+                result = this.renderContentAsTabs();
+                break;
+            case "PILLS":
+                result = this.renderContentAsPills();
+                break;
+        }
+        return result;
+    }
+
+    render() {
+        // Check configuration
+        if (!this.config) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-exclamation fa-5x"></i>
+                    <h3>No valid configuration provided. Please check configuration:</h3>
+                    <div style="padding: 10px">
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // General values 'mode' and 'type' determine how the page/form is displayed and rendered.
+        // 'mode' allowed values: page (default), modal, card
+        const mode = this.config.mode || "page";
+        // 'type' allowed values: form (default), tabs, pills
+        const type = this.config.type || "form";
+
+        // 1. 'mode === page', render a normal web page.
+        if (mode === "page" || !mode) {
+            return this.renderContent(type);
+        }
+
+        // 2. Check for modal type
+        if (mode === "modal") {
+            // Parse modal parameters, all of them must start with prefix 'modal'
+            const modalWidth = this.config.display?.modalWidth || "768px";
+            const modalTitle = this.config.display?.modalTitle || "";
+            const modalTitleHeader = this.config.display?.modalTitleHeader || "h4";
+            const modalTitleClassName = this.config.display?.modalTitleClassName || "";
+            const modalTitleStyle = this.config.display?.modalTitleStyle || "";
+            const modalBtnName = this.config.display?.modalButtonName || "Open ...";
+            const modalBtnDescription = this.config.display?.modalButtonDescription || "";
+            const modalBtnClassName = this.config.display?.modalButtonClassName || "btn-primary";
+            const modalBtnStyle = this.config.display?.modalButtonStyle || "";
+            const modalBtnIcon = this.config.display?.modalButtonIcon || "";
+            const modalButtonsVisible = this._getBooleanValue(this.config.display?.modalButtonsVisible, true);
+            const modalDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
+
+            return html`
+                <button type="button"
+                        title="${modalBtnDescription}"
+                        class="btn ${modalBtnClassName}"
+                        style="${modalBtnStyle}"
+                        ?disabled="${modalDisabled}"
+                        data-toggle="modal"
+                        data-target="#${this._prefix}DataModal">
+                    ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
+                    ${modalBtnName}
+                </button>
+
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog"
+                     aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width: ${modalWidth}">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                ${this._getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    ${this.renderContent(type)}
+                                </div>
+                            </div>
+                            ${modalButtonsVisible ? html`
+                                <div class="modal-footer">
+                                    ${this.renderButtons("modal")}
+                                </div>
+                            ` : nothing}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. Check for card type
+        if (mode === "card") {
+            const icon = this.config?.icon || "fas fa-info-circle";
+            return html`
+                <div class="row">
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
+                        <i class="${icon} icon-padding" aria-hidden="true"></i>
+                        ${this.config.title}
+                    </button>
+                    <div class="">
+                        <div id="${this._prefix}Help" class="collapse">
+                            <div class="well">
+                                ${this.renderContent(type)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     }
 
 }
