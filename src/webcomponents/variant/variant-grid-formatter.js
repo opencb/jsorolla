@@ -927,7 +927,7 @@ export default class VariantGridFormatter {
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
             htmlPopFreqTable = `
-                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
                 <table style="width:${tableSize}px" class="populationFrequenciesTable">
                     <tr>
             `;
