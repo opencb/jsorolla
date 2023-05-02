@@ -61,17 +61,28 @@ export default class OpencgaBrowserGridConfig extends LitElement {
                 this.selectedColumns.push(col.id);
             }
         };
-        // Alternative just in case.
+
+        /* Rodiel NOTE: 2023-05-01
+        * Alternative just in case to know if gridColumns has 2 headers o more.
+        * One head always gets a array of object.
+        * 2 o more gets arrays of array
+        * At the moment it isn't not necessary to use this function because all grid has 2 headers.
+        */
         const isArrayOfObjects = arr => Array.isArray(arr) && arr.every(item => typeof item === "object" && item !== null && !Array.isArray(item));
 
+        // process gridcolumn data for column select
         if (this.gridColumns && Array.isArray(this.gridColumns)) {
             let lastSubColumn = 0;
+            // Check if the grid has 2 headers
+            // get a list of array
             const [columnsHead, columnsChild] = this.gridColumns.length === 2 ? this.gridColumns: [this.gridColumns, []];
             if (columnsChild.length > 0) {
                 columnsHead.forEach(column => {
                     if (column?.rowspan === 2) {
                         addColumnData(column);
                     } else {
+                        // This condition resolves one head too
+                        // but to avoid unnecesary steps it's preferable to resolve one head outside this block. line #102
                         if (column?.colspan !== undefined) {
                             const option = {id: column.id, name: column.title, fields: []};
                             for (let i = lastSubColumn; i < lastSubColumn + column.colspan; i++) {
@@ -90,6 +101,7 @@ export default class OpencgaBrowserGridConfig extends LitElement {
                     }
                 });
             } else {
+            // it just one head: get a list of object
                 columnsHead.forEach(column => {
                     addColumnData(column);
                 });
