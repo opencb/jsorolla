@@ -17,6 +17,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import {construction} from "../commons/under-construction.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
 import "./disease-panel-summary.js";
@@ -89,6 +91,31 @@ export default class DiseasePanelBrowser extends LitElement {
                 ...this.settings.table.toolbar,
             };
         }
+
+        // Apply user configuration
+        debugger;
+        if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.diseasePanelBrowserCatalog.grid,
+            };
+        }
+
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "diseasePanelBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     render() {
@@ -121,7 +148,8 @@ export default class DiseasePanelBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}">
+                            @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"
