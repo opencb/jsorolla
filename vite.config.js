@@ -15,13 +15,23 @@ const getCustomSitePath = (name, folder) => {
     return folder; // Default path configuration
 };
 
+const getExtensionsPath = name => {
+    // NOTE: at this moment, extensions are only available for IVA
+    if (env.npm_config_custom_site && name.toUpperCase() === "IVA") {
+        return `../../../extensions/build/${env.npm_config_custom_site}`;
+    }
+    return "extensions";
+};
+
 const transformHtmlContent = html => {
-    let outputHtml = html;
-    sites.forEach(name => {
-        const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        outputHtml = outputHtml.replace(regex, getCustomSitePath(name, "conf"));
-    });
-    return outputHtml;
+    return sites.reduce((prevHtml, name) => {
+        const configRegex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
+        const extensionsRegex = new RegExp(`{{ ${name.toUpperCase()}_EXTENSIONS_PATH }}`, "g");
+
+        return prevHtml
+            .replace(configRegex, getCustomSitePath(name, "conf"))
+            .replace(extensionsRegex, getExtensionsPath(name));
+    }, html);
 };
 
 const configureServer = server => {
@@ -74,3 +84,4 @@ export default defineConfig({
         },
     ],
 });
+
