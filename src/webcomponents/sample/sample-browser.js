@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -73,6 +75,29 @@ export default class SampleBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid) {
+            this.config.filter.result.grid = {
+                ...this.config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
+            };
+        }
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     render() {
@@ -106,7 +131,8 @@ export default class SampleBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "sample")}">
+                            @selectrow="${e => params.onClickRow(e, "sample")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </sample-grid>
                         <sample-detail
                             .opencgaSession="${params.opencgaSession}"

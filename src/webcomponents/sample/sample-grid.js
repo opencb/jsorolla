@@ -22,6 +22,9 @@ import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/opencga-browser-grid-config.js";
+
 
 export default class SampleGrid extends LitElement {
 
@@ -62,15 +65,24 @@ export default class SampleGrid extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig()};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
 
-        this._config = {...this.getDefaultConfig()};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -79,6 +91,7 @@ export default class SampleGrid extends LitElement {
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -98,7 +111,6 @@ export default class SampleGrid extends LitElement {
         }
         this.requestUpdate();
     }
-
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
@@ -106,11 +118,11 @@ export default class SampleGrid extends LitElement {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
-
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -268,51 +280,59 @@ export default class SampleGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Sample ID",
-                field: "id"
+                field: "id",
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "individualId",
                 title: "Individual ID",
                 field: "individualId",
-                formatter: (value, row) => row?.individualId ?? "-"
+                formatter: (value, row) => row?.individualId ?? "-",
+                visible: this.gridCommons.isColumnVisible("individualId")
             },
             {
                 id: "fileIds",
                 title: "Files (VCF, BAM)",
                 field: "fileIds",
-                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
+                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"]),
+                visible: this.gridCommons.isColumnVisible("fileIds")
             },
             {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession)
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                visible: this.gridCommons.isColumnVisible("attributes.OPENCGA_CLINICAL_ANALYSIS")
             },
             {
                 id: "collection.method",
                 title: "Collection Method",
-                field: "collection.method"
+                field: "collection.method",
+                visible: this.gridCommons.isColumnVisible("collection.method")
             },
             {
                 id: "processing.preparationMethod",
                 title: "Preparation Method",
-                field: "processing.preparationMethod"
+                field: "processing.preparationMethod",
+                visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
             {
                 id: "cellLine",
                 title: "Cell Line",
                 field: "cellLine",
-                formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
+                formatter: (value, row) => row.somatic ? "Somatic" : "Germline",
+                visible: this.gridCommons.isColumnVisible("cellLine")
             },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter
+                formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 id: "state",
@@ -325,7 +345,7 @@ export default class SampleGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -399,8 +419,8 @@ export default class SampleGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -441,6 +461,30 @@ export default class SampleGrid extends LitElement {
             });
     }
 
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    onConfigClick(e) {
+        $(`#${this._prefix}ConfigModal`).modal("show");
+    }
+
+    onGridConfigSave() {
+        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                    </button>`
+            }
+        ];
+    }
+
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -448,6 +492,7 @@ export default class SampleGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
@@ -457,8 +502,35 @@ export default class SampleGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Table Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <opencga-browser-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .gridColumns="${this._columns}"
+                                    .config="${this._config}"
+                                    @configChange="${this.onGridConfigChange}">
+                                </opencga-browser-grid-config>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     }
+
 
     getDefaultConfig() {
         return {
