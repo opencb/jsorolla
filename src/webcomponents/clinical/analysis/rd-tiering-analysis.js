@@ -189,9 +189,8 @@ export default class RdTieringAnalysis extends LitElement {
                                         .panel="${this.diseasePanelIds}"
                                         .showExtendedFilters="${false}"
                                         .showSelectedPanels="${false}"
-                                        .classes=""
                                         .disabled="${casePanelLock}"
-                                        @filterChange="${e => this.onFieldChange(e, "panels.id")}">
+                                        @filterChange="${e => this.onFieldChange(e, "panels")}">
                                     </disease-panel-filter>
                                 `;
                             },
