@@ -146,7 +146,7 @@ export default class FileManager extends LitElement {
                 ${children.map(node => {
                     if (node.file.type.toUpperCase() === "DIRECTORY") {
                         return html`${this.folder(node)}`;
-                    } else if (node.file.type.toUpperCase() === "FILE") {
+                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
                         return html`${this.file(node)}`;
                     } else {
                         throw new Error("Type not recognized " + node.file.type);
@@ -174,7 +174,7 @@ export default class FileManager extends LitElement {
                                 <!-- <span class="badge">\${node.children.length}</span>-->
                                 ${this.renderTree(node)}
                             </li>`;
-                    } else if (node.file.type.toUpperCase() === "FILE") {
+                    } else if (["FILE", "VIRTUAL"].includes(node.file.type.toUpperCase())) {
                         return html`
                             <p class="file ${this.fileId === node.file.id ? "active" : ""}" @click="${() => this.onClickFile(node.file.id)}">
                                 ${this.icon(node.file.format)} ${node.file.name}
