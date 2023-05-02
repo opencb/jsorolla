@@ -54,21 +54,36 @@ const getCustomSitePath = (name, from, folder) => {
     return folder; // Default path configuration
 };
 
-const transformHtmlContent = html => {
+const getExtensionsPath = name => {
+    // NOTE: extensions are only enabled at this moment for IVA
+    if (env.npm_config_custom_site && name.toUpperCase() === "IVA") {
+        // We need to make sure that the extensions file exists for this custom site
+        // eslint-disable-next-line no-undef
+        const extensionsPath = path.join(__dirname, "extensions", "build", env.npm_config_custom_site, "extensions.js");
+        if (fs.existsSync(extensionsPath)) {
+            return `../../../extensions/build/${env.npm_config_custom_site}`;
+        }
+    }
+    return "extensions";
+};
+
+const transformHtmlContent = (html, name) => {
     const annihilator = /<!-- build:delete -->[\s\S]*?<!-- \/build -->/mg;
-    let newHtml = html.replace("[build-signature]", revision()).replace(annihilator, "");
-    sites.forEach(name => {
-        const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        newHtml = newHtml.replace(regex, getCustomSitePath(name, "../../../", "conf")).replace(annihilator, "");
-    });
-    return newHtml;
+    const configRegex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
+    const extensionsRegex = new RegExp(`{{ ${name.toUpperCase()}_EXTENSIONS_PATH }}`, "g");
+
+    return html
+        .replace("[build-signature]", revision())
+        .replace(annihilator, "")
+        .replace(configRegex, getCustomSitePath(name, "../../../", "conf"))
+        .replace(extensionsRegex, getExtensionsPath(name));
 };
 
 const getSiteContent = name => {
     const content = fs.readFileSync(path.join(sitesPath, name, "index.html"), "utf8");
     return {
         name: "index.html",
-        html: transformHtmlContent(content),
+        html: transformHtmlContent(content, name),
     };
 };
 
@@ -189,6 +204,10 @@ export default sites.map(site => ({
 
             if (isInternalCss(assetInfo.name)) {
                 return "css/[name]-[hash][extname]";
+            }
+
+            if (assetInfo.name.includes("extensions")) {
+                return "extensions/[name][extname]";
             }
 
             if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
