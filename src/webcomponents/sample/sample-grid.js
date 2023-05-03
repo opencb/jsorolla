@@ -22,6 +22,8 @@ import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import ModalUtils from "../commons/modal-utils";
+import {update} from "lodash";
 
 export default class SampleGrid extends LitElement {
 
@@ -257,12 +259,14 @@ export default class SampleGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "edit":
-                this.operation = {
-                    type: "sample-update",
-                    title: "Sample Update",
-                    row: row.id,
-                };
+                // this.operation = {
+                //     type: "sample-update",
+                //     title: "Sample Update",
+                //     row: row.id,
+                // };
+                this.selectedSampleId = row.id;
                 this.requestUpdate();
+                ModalUtils.show(this._prefix + "EditModal");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
@@ -472,6 +476,20 @@ export default class SampleGrid extends LitElement {
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
+            </div>
+
+            <div>
+                ${ModalUtils.create(${this._prefix}EditModal, {
+                    width: "",
+                    render(this.opencgaSession): {
+                        return html`
+                            <sample-update
+                                .sampleId="${this.selectedSampleId}"
+                                .displayConfig="${mode: "page", type: "tabs"}"
+                            ></sample-update>
+                        `
+                    }
+                })}
             </div>
         `;
     }
