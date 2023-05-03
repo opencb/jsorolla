@@ -124,28 +124,33 @@ export default class VariantInterpreterGridFormatter {
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 const acmgItems = (re.classification?.acmg || []).map(acmg => acmg.classification);
                 clinicalSignificanceHtml = `
-                    <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
+                        ${clinicalSignificance}
+                    </div>
                     <div class="help-block">${acmgItems.join(", ") || "-"}</div>
                 `;
-                clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
-                                                        <form class='form-horizontal'>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${acmgItems.join(", ") || "-"}</div>
-                                                            </div>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG Tier</label>
-                                                                <div class='col-md-7'>${re.classification.tier}</div>
-                                                            </div>
-                                                        </form>
-                                                   </div>`;
+                clinicalSignificanceTooltipText = `
+                    <div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
+                        <form class='form-horizontal'>
+                            <div class='form-group' style='margin: 0px 2px'>
+                                <label class='col-md-5'>ACMG</label>
+                                <div class='col-md-7'>${acmgItems.join(", ") || "-"}</div>
+                            </div>
+                            <div class='form-group' style='margin: 0px 2px'>
+                                <label class='col-md-5'>ACMG Tier</label>
+                                <div class='col-md-7'>${re.classification.tier}</div>
+                            </div>
+                        </form>
+                    </div>
+                `;
             }
         }
-        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
-                    ${clinicalSignificanceHtml}
-                </a>`;
+        return `
+            <a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
+                ${clinicalSignificanceHtml}
+            </a>
+        `;
     }
-
 
     /*
     * File attributes formatters
