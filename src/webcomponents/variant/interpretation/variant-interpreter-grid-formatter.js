@@ -56,8 +56,7 @@ export default class VariantInterpreterGridFormatter {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                // cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-                cohortMap.set(s, study.stats);
+                cohortMap.set(s, (study.stats || []).find(stats => stats?.cohortId === "ALL"));
             });
             return VariantGridFormatter.renderPopulationFrequencies(
                 cohorts,
