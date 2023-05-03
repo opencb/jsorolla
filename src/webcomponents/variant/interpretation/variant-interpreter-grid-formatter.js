@@ -122,15 +122,16 @@ export default class VariantInterpreterGridFormatter {
             if (CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
                 clinicalSignificanceCode = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].code;
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
+                const acmgItems = (re.classification?.acmg || []).map(acmg => acmg.classification);
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
+                    <div class="help-block">${acmgItems.join(", ") || "-"}</div>
                 `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
                                                             <div class='form-group' style='margin: 0px 2px'>
                                                                 <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${re.classification.acmg.join(", ")}</div>
+                                                                <div class='col-md-7'>${acmgItems.join(", ") || "-"}</div>
                                                             </div>
                                                             <div class='form-group' style='margin: 0px 2px'>
                                                                 <label class='col-md-5'>ACMG Tier</label>
