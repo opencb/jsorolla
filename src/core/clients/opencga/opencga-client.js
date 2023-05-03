@@ -275,8 +275,8 @@ export class OpenCGAClient {
 
     setCookies(userId, token) {
         if (userId && token) {
-            Cookies.set(this._config.cookies.prefix + "_userId", userId);
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token);
+            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
         } else {
             Cookies.expire(this._config.cookies.prefix + "_userId");
             Cookies.expire(this._config.cookies.prefix + "_sid");
