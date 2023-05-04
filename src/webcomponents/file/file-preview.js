@@ -114,7 +114,7 @@ export default class FilePreview extends LitElement {
         }
     }
 
-    async filesObserver() {
+    filesObserver() {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
