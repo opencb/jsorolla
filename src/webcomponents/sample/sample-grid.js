@@ -22,6 +22,8 @@ import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "./sample-update.js";
+import ModalUtils from "../commons/modal/modal-ultils.js";
 
 export default class SampleGrid extends LitElement {
 
@@ -253,16 +255,32 @@ export default class SampleGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "edit":
-                this.operation = {
-                    type: "sample-update",
-                    title: "Sample Update",
-                    row: row.id,
+                // Render modal
+                this._operation = {
+                    type: "update",
+                    modalId: `${this._prefix}EditModal`,
+                    config: {
+                        display: {
+                            modalTitle: `Sample Update: ${row.id}`,
+                        },
+                        render: () => {
+                            return html `
+                                <sample-update
+                                    .sampleId="${row.id}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-update>
+                            `;
+                        }
+                    },
                 };
                 this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(this._operation.modalId);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
@@ -389,7 +407,7 @@ export default class SampleGrid extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li>
                                 <!--
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                <a data-action="edit" class="btn force-text-left $OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
@@ -462,7 +480,7 @@ export default class SampleGrid extends LitElement {
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
-                    .operation="${this.operation}"
+                    .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
