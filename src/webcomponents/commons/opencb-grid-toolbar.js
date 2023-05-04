@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
-import "../commons/modal/modal-operation-view.js";
+import ModalUtils from "./modal/modal-ultils";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -223,12 +223,7 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
             </div>
 
-            ${this.operation && html `
-            <modal-operation-view
-                .operation="${this.operation}"
-                .opencgaSession="${this.opencgaSession}">
-            </modal-operation-view>
-            `}
+            ${this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)}
 
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
