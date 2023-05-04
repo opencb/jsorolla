@@ -82,6 +82,13 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     update(changedProperties) {
+        // CAUTION: solution 1 to edit two or more consecutive times the same component in grid: sample, individual, etc.
+        /*
+        if (changedProperties.has("componentId") || (this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId))) {
+            console.log(changedProperties.has("componentId"), this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId));
+            this.componentIdObserver();
+        }
+        */
         if (changedProperties.has("component")) {
             this.componentObserver();
         }

@@ -19,7 +19,8 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
-import ModalUtils from "./modal/modal-ultils";
+import ModalUtils from "./modal/modal-ultils.js";
+import "./modal/modal-popup.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -115,14 +116,32 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
+    // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
+    onCloseModal() {
+        this.operation = null;
+    }
+
     openModal(e) {
         const modal = e.currentTarget.dataset.action;
         switch (modal) {
             case "create":
                 // FIXME: get entity that wants to be created.
                 this.operation = {
-                    type: "sample-create",
-                    title: "Sample Create",
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Sample Create",
+                        },
+                        render: () => {
+                            return html `
+                                <sample-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-create>
+                            `;
+                        }
+                    },
                 };
                 break;
             case "export":
@@ -223,7 +242,15 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
             </div>
 
-            ${this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)}
+            <!-- // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
+            <!-- $this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)} -->
+            ${ this.operation && html `
+                <modal-popup
+                    .modalId="${this.operation.modalId}"
+                    .config="${this.operation.config}"
+                    @closeModal="${this.onCloseModal}">
+                </modal-popup>
+            `}
 
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
