@@ -131,7 +131,6 @@ export default class SampleCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
