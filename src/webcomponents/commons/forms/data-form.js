@@ -174,7 +174,7 @@ export default class DataForm extends LitElement {
     // FIXME To be removed when deprecating old config.buttons.top property
     _getButtonsLayout() {
         const layout = this.config.display?.buttonsLayout || "";
-        if (!layout || (layout !== "bottom" && layout !== "top")) {
+        if (!layout || (layout !== "bottom" && layout !== "top" && layout !== "upper")) {
             return this.config?.buttons?.top ? "top" : "bottom";
         }
 
@@ -368,7 +368,9 @@ export default class DataForm extends LitElement {
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
-        if (this.config.type === "tabs" || this.config.type === "pills") {
+        // if (this.config.type === "tabs" || this.config.type === "pills") {
+        if (this.config.type === "tabs" || this.config.display.type === "tabs" ||
+             this.config.type === "pills" || this.config.display.type === "pills") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
@@ -1842,8 +1844,13 @@ export default class DataForm extends LitElement {
         // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
-
+        // NOTE: the buttons can be rendered at three different positions:
+        // UPPER (above tabs) | TOP (below tabs) | BOTTOM (below data)
         return html`
+            <!-- Render buttons UPPER, above the tabs -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(null, this.activeSection) : null}
+
+            <!-- Render tabs -->
             <div>
                 <ul class="nav nav-tabs">
                     ${this._getVisibleSections()
@@ -1858,11 +1865,16 @@ export default class DataForm extends LitElement {
                             `;
                         })}
                 </ul>
-                ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
             </div>
+            <!-- Render buttons at the TOP -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
+
+            <!-- Render data form -->
             <div style="margin-top:24px;">
                 ${this.renderData()}
             </div>
+
+            <!-- Render buttons at the BOTTOM -->
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
         `;
     }
@@ -1929,9 +1941,9 @@ export default class DataForm extends LitElement {
 
         // General values 'mode' and 'type' determine how the page/form is displayed and rendered.
         // 'mode' allowed values: page (default), modal, card
-        const mode = this.config.mode || "page";
+        const mode = this.config.mode || this.config.display.mode || "page";
         // 'type' allowed values: form (default), tabs, pills
-        const type = this.config.type || "form";
+        const type = this.config.type || this.config.display.type || "form";
 
         // 1. 'mode === page', render a normal web page.
         if (mode === "page" || !mode) {
@@ -1941,6 +1953,8 @@ export default class DataForm extends LitElement {
         // 2. Check for modal type
         if (mode === "modal") {
             // Parse modal parameters, all of them must start with prefix 'modal'
+            const showModalButton = this.config.display?.showModalButton || true;
+            const modalId = this.config.display?.modalId || `${this._prefix}DataModal`;
             const modalWidth = this.config.display?.modalWidth || "768px";
             const modalTitle = this.config.display?.modalTitle || "";
             const modalTitleHeader = this.config.display?.modalTitleHeader || "h4";
@@ -1948,29 +1962,32 @@ export default class DataForm extends LitElement {
             const modalTitleStyle = this.config.display?.modalTitleStyle || "";
             const modalBtnName = this.config.display?.modalButtonName || "Open ...";
             const modalBtnDescription = this.config.display?.modalButtonDescription || "";
-            const modalBtnClassName = this.config.display?.modalButtonClassName || "btn-primary";
+            const modalBtnClassName = this.config.display?.modalButtonClassName || "btn-link btn-lg";
             const modalBtnStyle = this.config.display?.modalButtonStyle || "";
             const modalBtnIcon = this.config.display?.modalButtonIcon || "";
             const modalButtonsVisible = this._getBooleanValue(this.config.display?.modalButtonsVisible, true);
             const modalDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
 
-            return html`
-                <button type="button"
-                        title="${modalBtnDescription}"
-                        class="btn ${modalBtnClassName}"
-                        style="${modalBtnStyle}"
-                        ?disabled="${modalDisabled}"
-                        data-toggle="modal"
-                        data-target="#${this._prefix}DataModal">
-                    ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
-                    ${modalBtnName}
-                </button>
-
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog"
+            return html `
+                ${showModalButton ? html `
+                    <button type="button"
+                            title="${modalBtnDescription}"
+                            class="btn ${modalBtnClassName}"
+                            style="${modalBtnStyle}"
+                            ?disabled="${modalDisabled}"
+                            data-toggle="modal"
+                            data-target="${`#${modalId}`}">
+                        ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
+                        ${modalBtnName}
+                    </button>
+                ` : nothing
+                }
+                <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog"
                      aria-labelledby="${this._prefix}DataModalLabel" aria-hidden="true">
                     <div class="modal-dialog" style="width: ${modalWidth}">
                         <div class="modal-content">
                             <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                 ${this._getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
                             </div>
                             <div class="modal-body">
