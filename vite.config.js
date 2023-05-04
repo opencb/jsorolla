@@ -17,8 +17,8 @@ const getCustomSitePath = (name, folder) => {
 
 const getExtensionsPath = name => {
     // NOTE: at this moment, extensions are only available for IVA
-    if (env.npm_config_custom_site && name.toUpperCase() === "IVA") {
-        return `../../../extensions/build/${env.npm_config_custom_site}`;
+    if (env.npm_extensions && name.toUpperCase() === "IVA") {
+        return "../../../extensions/build";
     }
     return "extensions";
 };
