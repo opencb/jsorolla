@@ -272,7 +272,7 @@ export default class SampleGrid extends LitElement {
                             return html `
                                 <sample-update
                                     .sampleId="${row.id}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </sample-update>
                             `;
@@ -280,8 +280,8 @@ export default class SampleGrid extends LitElement {
                     },
                 };
                 this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(this._operation.modalId);
+                // await this.updateComplete;
+                // ModalUtils.show(this._operation.modalId);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));

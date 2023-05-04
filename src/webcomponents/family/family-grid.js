@@ -371,7 +371,7 @@ export default class FamilyGrid extends LitElement {
                             return html `
                                 <family-update
                                     .familyId="${row.id}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </family-update>
                             `;

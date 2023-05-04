@@ -390,7 +390,7 @@ export default class IndividualGrid extends LitElement {
                             return html `
                                 <individual-update
                                     .individualId="${row.id}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "top"}}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </individual-update>
                             `;
