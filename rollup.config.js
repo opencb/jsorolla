@@ -56,12 +56,12 @@ const getCustomSitePath = (name, from, folder) => {
 
 const getExtensionsPath = name => {
     // NOTE: extensions are only enabled at this moment for IVA
-    if (env.npm_config_custom_site && name.toUpperCase() === "IVA") {
-        // We need to make sure that the extensions file exists for this custom site
+    if (env.npm_extensions && name.toUpperCase() === "IVA") {
+        // We need to make sure that the extensions file exists
         // eslint-disable-next-line no-undef
-        const extensionsPath = path.join(__dirname, "extensions", "build", env.npm_config_custom_site, "extensions.js");
+        const extensionsPath = path.join(__dirname, "extensions", "build", "extensions.js");
         if (fs.existsSync(extensionsPath)) {
-            return `../../../extensions/build/${env.npm_config_custom_site}`;
+            return "../../../extensions/build";
         }
     }
     return "extensions";
