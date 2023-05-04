@@ -23,6 +23,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import "./clinical-interpretation-summary.js";
 import "./clinical-interpretation-create.js";
 import "./clinical-interpretation-update.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class ClinicalInterpretationManager extends LitElement {
 
@@ -128,8 +129,8 @@ export default class ClinicalInterpretationManager extends LitElement {
 
     renderInterpretation(interpretation, primary) {
         const interpretationLockAction = interpretation.locked ?
-            this.renderItemAction(interpretation.id, "unlock", "fa-unlock", "Unlock") :
-            this.renderItemAction(interpretation.id, "lock", "fa-lock", "Lock");
+            this.renderItemAction(interpretation, "unlock", "fa-unlock", "Unlock") :
+            this.renderItemAction(interpretation, "lock", "fa-lock", "Lock");
         const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
@@ -152,7 +153,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                                     buttonClearText: "Cancel",
                                     buttonOkText: "Update",
                                     modalButtonClassName: "btn-default btn-sm",
-                                    modalDisabled: this.clinicalAnalysis.locked
+                                    modalDisabled: this.clinicalAnalysis.locked || interpretation.locked
                                 }
                             }"
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
@@ -169,6 +170,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                                         class="btn disabled force-text-left"
                                         data-action="restorePrevious"
                                         data-interpretation-id="${interpretation.id}"
+                                        data-islocked="${interpretation.locked}"
                                         @click="${this.onActionClick}">
                                         <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i>
                                         Restore previous version
@@ -177,14 +179,14 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 <!-- Action Lock/Unlock -->
                                 ${interpretationLockAction}
                                 <li role="separator" class="divider"></li>
-                                ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
+                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
                             ` : html`
-                                ${this.renderItemAction(interpretation.id, "setAsPrimary", "fa-map-marker", "Set as primary")}
+                                ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
                                 <!-- Action Lock/Unlock -->
                                 ${interpretationLockAction}
                                 <li role="separator" class="divider"></li>
-                                ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
-                                ${this.renderItemAction(interpretation.id, "delete", "fa-trash", "Delete")}
+                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
+                                ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
                             `}
                         </ul>
                     </div>
@@ -216,13 +218,15 @@ export default class ClinicalInterpretationManager extends LitElement {
         });
     }
 
-    renderItemAction(interpretationId, action, icon, name) {
+    renderItemAction(interpretation, action, icon, name) {
         return html`
             <li>
                 <a
                     class="btn force-text-left"
+                    ?disabled="${interpretation.locked && action !== "unlock"}"
                     data-action="${action}"
-                    data-interpretation-id="${interpretationId}"
+                    data-interpretation-id="${interpretation.id}"
+                    data-islocked="${interpretation.locked}"
                     @click="${this.onActionClick}">
                     <i class="fas ${icon} icon-padding" aria-hidden="true"></i> ${name}
                 </a>
@@ -274,27 +278,34 @@ export default class ClinicalInterpretationManager extends LitElement {
     }
 
     onActionClick(e) {
-        const {action, interpretationId} = e.currentTarget.dataset;
+        const {action, interpretationId, islocked} = e.currentTarget.dataset;
         const interpretationCallback = () => {
             this.onClinicalInterpretationUpdate();
         };
 
-        switch (action) {
-            case "setAsPrimary":
-                this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
-                break;
-            case "clear":
-                this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
-                break;
-            case "delete":
-                this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
-                break;
-            case "lock":
-                this.clinicalAnalysisManager.lockInterpretation(interpretationId, interpretationCallback);
-                break;
-            case "unlock":
-                this.clinicalAnalysisManager.unLockInterpretation(interpretationId, interpretationCallback);
-                break;
+        // islock is a strring
+        if (islocked === "true" && (action !== "unlock")) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                message: `${interpretationId} is locked!`,
+            });
+        } else {
+            switch (action) {
+                case "setAsPrimary":
+                    this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
+                    break;
+                case "clear":
+                    this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
+                    break;
+                case "delete":
+                    this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
+                    break;
+                case "lock":
+                    this.clinicalAnalysisManager.lockInterpretation(interpretationId, interpretationCallback);
+                    break;
+                case "unlock":
+                    this.clinicalAnalysisManager.unLockInterpretation(interpretationId, interpretationCallback);
+                    break;
+            }
         }
     }
 
