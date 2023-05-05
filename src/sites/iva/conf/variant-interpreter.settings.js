@@ -36,6 +36,9 @@ const VARIANT_INTERPRETER_SETTINGS = {
         },
         {
             id: "report"
-        }
+        },
+        {
+            id: "pharmacogenomics",
+        },
     ]
 };
