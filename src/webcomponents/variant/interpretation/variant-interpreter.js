@@ -26,6 +26,7 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
+import "./variant-interpreter-pharmacogenomics-browser.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -259,7 +260,13 @@ class VariantInterpreter extends LitElement {
                     description: "",
                     // disabled: true,
                     icon: "fa fa-file-alt"
-                }
+                },
+                {
+                    id: "pharmacogenomics",
+                    title: "Pharmacogenomics",
+                    description: "",
+                    icon: "fa fa-file-alt",
+                },
             ]
         };
     }
@@ -514,6 +521,15 @@ class VariantInterpreter extends LitElement {
                                         .config="${configReportTabs}"
                                         .opencgaSession="${this.opencgaSession}">
                                     </detail-tabs>
+                                </div>
+                            ` : null}
+
+                            ${this.activeTab["pharmacogenomics"] ? html`
+                                <div id="${this._prefix}pharmacogenomics" >
+                                    <variant-interpreter-pharmacogenomics-browser
+                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </variant-interpreter-pharmacogenomics-browser>
                                 </div>
                             ` : null}
                         ` : null}
