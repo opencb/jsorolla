@@ -45,6 +45,10 @@ export default class ModalPopup extends LitElement {
 
     updated() {
         this.showModal();
+
+        $(`#${this.modalId}`).on("hide.bs.modal", e => {
+            LitUtils.dispatchCustomEvent(this, "closeModal");
+        });
     }
 
     async showModal() {
