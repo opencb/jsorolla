@@ -257,10 +257,29 @@ export default class SampleGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Sample Create",
+                        },
+                        render: () => {
+                            return html `
+                                <sample-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
             case "edit":
-                // Render modal
                 this._operation = {
                     type: "update",
                     modalId: `${this._prefix}EditModal`,
@@ -485,7 +504,8 @@ export default class SampleGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 

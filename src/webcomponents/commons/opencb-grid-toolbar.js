@@ -121,28 +121,15 @@ export default class OpencbGridToolbar extends LitElement {
         this.operation = null;
     }
 
-    openModal(e) {
-        const modal = e.currentTarget.dataset.action;
-        switch (modal) {
+    onActionClick(e) {
+        const action = e.currentTarget.dataset.action;
+        switch (action) {
             case "create":
-                // FIXME: get entity that wants to be created.
-                this.operation = {
-                    type: "create",
-                    modalId: `${this._prefix}CreateModal`,
-                    config: {
-                        display: {
-                            modalTitle: "Sample Create",
-                        },
-                        render: () => {
-                            return html `
-                                <sample-create
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </sample-create>
-                            `;
-                        }
-                    },
-                };
+                this.dispatchEvent(new CustomEvent("actionClick", {
+                    detail: {
+                        action: action,
+                    }
+                }));
                 break;
             case "export":
                 $(`#${this._prefix}export-modal`, this).modal("show");
@@ -158,7 +145,6 @@ export default class OpencbGridToolbar extends LitElement {
                 rightButtons.push(rightButton.render());
             }
         }
-
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -198,7 +184,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showNew ? html`
                                 <div class="btn-group">
-                                    <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
                                     </button>
@@ -207,7 +193,7 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
-                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
