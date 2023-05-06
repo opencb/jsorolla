@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import "./variant-interpreter-pharmacogenomics-grid.js";
 import UtilsNew from "../../../core/utils-new.js";
+import "./variant-interpreter-pharmacogenomics-grid.js";
+import "./variant-interpreter-pharmacogenomics-detail.js";
 
 class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
 
@@ -77,6 +78,7 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
             },
         ];
 
+        this._detail = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -106,6 +108,14 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
         // TODO
     }
 
+    onClickRow(e, resource) {
+        this._detail = {
+            ...this.detail,
+            [resource]: e.detail.row,
+        };
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <div class="col-md-10 col-md-offset-1">
@@ -113,14 +123,41 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
                     .clinicalVariants="${this.exampleVariants}"
-                    .config="${this._config}">
+                    .config="${this._config?.grid}"
+                    @selectrow="${e => this.onClickRow(e, "variant")}">
                 </variant-interpreter-pharmacogenomics-grid>
+                <variant-interpreter-pharmacogenomics-detail
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config?.detail}"
+                    .variant="${this._detail?.variant}">
+                </variant-interpreter-pharmacogenomics-detail>
             </div>
         `;
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            grid: {},
+            detail: {
+                title: "Pharmacogenomics",
+                showTitle: true,
+                items: [
+                    {
+                        id: "json-view",
+                        name: "JSON Data",
+                        mode: "development",
+                        render: (variant, active, opencgaSession) => {
+                            return html`
+                                <json-viewer
+                                    .data="${variant}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `;
+                        }
+                    }
+                ]
+            }
+        };
     }
 
 }
