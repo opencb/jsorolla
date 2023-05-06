@@ -184,6 +184,11 @@ export default class VariantInterpreterPharmacogenomicsGrid extends LitElement {
                 field: "id",
             },
             {
+                id: "genotype",
+                title: "Genotype",
+                field: "genotype",
+            },
+            {
                 id: "gene",
                 title: "Gene",
                 field: "gene",
