@@ -209,9 +209,10 @@ export default class VariantInterpreterPharmacogenomicsGrid extends LitElement {
     }
 
     detailFormatter(value, row) {
+        const genotype = row.genotypes?.filter(gt => gt.genotype === row.genotype?.replace("/", ""));
         return `
             <div style='padding:20px;'>
-                ${row.sentence}
+                ${genotype.length > 0 ? genotype[0].annotationText: ""}
             </div>
         `;
     }
