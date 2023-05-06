@@ -57,6 +57,7 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
             {
                 id: "rs578776",
                 gene: "CHRNA3",
+                genotype: "A/A",
                 drugs: ["nicotine"],
                 pmid: "26010901",
                 phenotypeCategory: "Metabolism/PK",
@@ -64,10 +65,25 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
                 start: 78596058,
                 end: 78596058,
                 sentence: "Allele A is not associated with dose of nicotine in people with Tobacco Use Disorder as compared to allele G.",
+                genotypes: [
+                    {
+                        genotype: "AA",
+                        annotationText: "Patients with the rs578776 AA genotype may have a decreased risk for nicotine dependence as compared to patients with the GG genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence risk for nicotine dependence and cotinine levels.",
+                    },
+                    {
+                        genotype: "AG",
+                        annotationText: "Patients with the rs578776 AG genotype may have a decreased risk for nicotine dependence as compared to patients with the GG genotype, or an increased risk as compared to patients with the AA genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence risk for nicotine dependence and cotinine levels.",
+                    },
+                    {
+                        genotype: "GG",
+                        annotationText: "Patients with the rs578776 GG genotype may have an increased risk for nicotine dependence as compared to patients with the AA or AG genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence risk for nicotine dependence and cotinine levels."
+                    }
+                ],
             },
             {
                 id: "rs4444903",
                 gene: "EGF",
+                genotype: "A/G",
                 drugs: ["cetuximab", "panitumumab"],
                 pmid: "27897268",
                 phenotypeCategory: "Efficacy",
@@ -75,6 +91,18 @@ class VariantInterpreterPharmacogenomicsBrowser extends LitElement {
                 start: 109912954,
                 end: 109912954,
                 sentence: "Allele G is not associated with response to cetuximab or panitumumab in people with Colorectal Neoplasms as compared to allele A.",
+                genotypes: [{
+                    genotype: "AA",
+                    annotationText: "Patients with the rs4444903 AA genotype may have a poorer response to cetuximab as compared to patients with the GG genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence a patient's response to cetuximab treatment."
+                },
+                {
+                    genotype: "AG",
+                    annotationText: "Patients with the rs4444903 AG genotype may have a poorer response to cetuximab as compared to patients with the GG genotype or may have a better response as compared to patients with the AA genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence a patient's response to cetuximab treatment."
+                },
+                {
+                    genotype: "GG",
+                    annotationText: "Patients with the rs4444903 GG genotype may have a better response to cetuximab as compared to patients with the AA genotype. However, conflicting evidence has been reported. Other genetic and clinical factors may also influence a patient's response to cetuximab treatment."
+                }],
             },
         ];
 
