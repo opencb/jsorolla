@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -246,6 +246,12 @@ class VariantInterpreter extends LitElement {
                     acronym: "VB",
                     description: "",
                     icon: "fa fa-search"
+                },
+                {
+                    id: "pharmacogenomics",
+                    title: "Pharmacogenomics",
+                    description: "",
+                    icon: "fas fa-pills",
                 },
                 {
                     id: "review",
@@ -495,6 +501,12 @@ class VariantInterpreter extends LitElement {
                                     </variant-interpreter-browser>
                                 </div>
                             ` : null}
+
+                            ${this.activeTab["pharmacogenomics"] ? html`
+                                <div id="${this._prefix}pharmacogenomics" >
+                                    <div align="center"><b>WIP</b></div>
+                                </div>
+                            ` : nothing}
 
                             ${this.activeTab["review"] ? html`
                                 <div id="${this._prefix}review" class="clinical-portal-content">
