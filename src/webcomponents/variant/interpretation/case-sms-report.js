@@ -483,6 +483,11 @@ class CaseSmsReport extends LitElement {
         }
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     initGenerateJsonA(reportData) {
         const {
             patient, notes, study, interpretations, clinicalAnalysis, mainResults,
@@ -1067,6 +1072,135 @@ class CaseSmsReport extends LitElement {
         `;
     }
 
+    createReportFile(format) {
+        let fileCreate = {};
+        const fileType = {
+            "PDF": {
+                format: "BINARY",
+                bioformat: "UNKNOWN"
+            },
+            "IMAGE": {
+                format: "IMAGE"
+            },
+            "JSON": {
+                format: "JSON",
+            },
+            "HTML": {
+                format: "PLAIN",
+            }
+        };
+        const interpretationId = this._clinicalAnalysis.interpretation.id.replace(".", "_");
+        const studyName = this.opencgaSession.study.fqn.replace(/[@:]/g, "_");
+        const fileName = `${studyName}-${interpretationId}-report-${UtilsNew.getDatetime()}.${format.toLowerCase()}`;
+        const path = `${studyName}/reports/${interpretationId}/${fileName}`;
+        const dataContent = this.selectTemplate === "Plantilla A" ? this.initGenerateJsonA(this._reportData) : this.initGenerateJsonB(this._reportData);
+        // name template: <study>--<interpretation_id>--report-<number>--<date>.
+        fileCreate.content = JSON.stringify(dataContent);
+        // path: study/reports/<interpretation_id>/
+        fileCreate.path = `${path}`;
+        fileCreate.type = "FILE";
+        fileCreate = {
+            ...fileCreate,
+            ...fileType[format],
+        };
+
+        return this.createFile;
+    }
+
+    async onUploadFileReport() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            parents: true,
+        };
+        const fileType = {
+            "PDF": {
+                format: "BINARY",
+                bioformat: "UNKNOWN"
+            },
+            "IMAGE": {
+                format: "IMAGE"
+            },
+            "JSON": {
+                format: "JSON",
+            },
+            "HTML": {
+                format: "PLAIN",
+            }
+        };
+        const status = "START";
+        const interpretationId = this._clinicalAnalysis.interpretation.id.replace(".", "_");
+        const studyName = this.opencgaSession.study.fqn.replace(/[@:]/g, "_");
+        const fileName = `${studyName}-${interpretationId}-report-${UtilsNew.getDatetime()}`;
+        const path = `${studyName}/reports/${interpretationId}/${fileName}`;
+        const dataContent = this.selectTemplate === "Plantilla A" ? this.initGenerateJsonA(this._reportData) : this.initGenerateJsonB(this._reportData);
+        const fileCreates = [
+            {
+                ...fileType["JSON"],
+                path: `${path}.json`,
+                content: JSON.stringify(dataContent),
+                type: "FILE",
+            },
+            {
+                ...fileType["HTML"],
+                path: `${path}.html`,
+                content: dataContent?.htmlRendered,
+                type: "FILE",
+            }
+        ];
+        const fileStatus = [];
+
+        const fileUpload = fileCreates.map(file => this.opencgaSession.opencgaClient
+            .files().create(file, params)
+            .then(res => fileStatus.push({
+                fileName: file.path.split("/").at(-1),
+                path: file.path,
+                status: "DONE"
+            }))
+            .catch(err => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                fileStatus.push({
+                    fileName: file.path.split("/").at(-1),
+                    path: file.path,
+                    status: "FAILED"
+                });
+            }));
+        await Promise.all(fileUpload);
+
+        try {
+            await this.saveReportFile(fileStatus);
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        } finally {
+            this.postUpdate();
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                title: "File Create",
+                message: "File created correctly"
+            });
+
+        }
+    }
+
+    async saveReportFile(fileStatus) {
+        const fileUploaded = fileStatus.map(file => ({
+            path: file.path,
+            fileName: file.fileName,
+            upload_status: file.status,
+            template: this.selectTemplate,
+            sample: "",
+            description: "",
+            title: "",
+            tag: "",
+            comments: []}));
+        let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
+        reportTestData = {
+            ...reportTestData,
+            report_files: reportTestData?.report_files ? [...reportTestData?.report_files, ...fileUploaded] : fileUploaded,
+        };
+        return this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                {"attributes": {"reportTest": reportTestData}}, {study: this.opencgaSession.study.fqn});
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -1095,18 +1229,13 @@ class CaseSmsReport extends LitElement {
                     Saved PDF (Beta)
                 </button>
                 <button type="button" class="btn btn-primary"
-                    @click="${() => this.onSaveJsonReport()}">
-                    Save Json Report (Beta)
+                    @click="${() => this.onUploadFileReport()}">
+                    Save Report (Beta)
                 </button>
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Preview html (Beta)
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" style="cursor:pointer">
-                        <li><a @click="${() => this.previewHtmlReport("A")}">Plantilla A</a></li>
-                        <li><a @click="${() => this.previewHtmlReport("sanger")}">Plantilla Sanger</a></li>
-                    </ul>
-                </div>
+                <button type="button" class="btn btn-primary"
+                    @click="${() => this.previewHtmlReport(this.selectTemplate)}">
+                    Preview html (Beta)
+                </button>
             </div>
 
             ${this.renderSideNavReport()}
