@@ -64,6 +64,7 @@ class CaseSmsReport extends LitElement {
         this._reportData = {};
         this._config = this.getDefaultConfig();
         this._reportJson = {};
+        this.selectTemplate = "Plantilla A";
     }
 
 
@@ -90,8 +91,9 @@ class CaseSmsReport extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        console.log("onChange", param);
-
+        if (param === "template") {
+            this.selectTemplate = e.detail.value;
+        }
     }
 
     clinicalAnalysisIdObserver() {
@@ -916,7 +918,7 @@ class CaseSmsReport extends LitElement {
                 },
             };
 
-        _jsonReport.htmlRendered = this.generateReportHtmlB(_jsonReport);
+        _jsonReport.htmlRendered = this.selectTemplate === "Plantilla A" ? this.generateReportHtml(_jsonReport): this.generateReportHtmlB(_jsonReport);
         return _jsonReport;
     }
 
@@ -960,6 +962,7 @@ class CaseSmsReport extends LitElement {
             ...this._reportData,
             _report: [...this._reportData?._report, _reportJson]
         };
+        // Replace interpretation.attributes to case.attributes
         console.log("Attributes:", this._reportData);
         this.opencgaSession.opencgaClient.clinical()
             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
@@ -977,10 +980,10 @@ class CaseSmsReport extends LitElement {
 
     previewHtmlReport(template) {
         switch (template) {
-            case "A":
+            case "Plantilla A":
                 this._reportJson = this.initGenerateJsonA(this._reportData);
                 break;
-            case "sanger":
+            case "Plantilla Sanger":
                 this._reportJson = this.initGenerateJsonB(this._reportData);
                 break;
         }
@@ -1072,6 +1075,16 @@ class CaseSmsReport extends LitElement {
         }
 
         return html`
+            <div class="row" style="padding-bottom:6px">
+                <div class="col-md-6">
+                    <label>Select a template:</label>
+                        <select-field-filter
+                            .data=${["Plantilla A", "Plantilla Sanger"]}
+                            .value=${this.selectTemplate}
+                            @filterChange="${e => this.onFieldChange(e, "template")}">
+                        </select-field-filter>
+                    </div>
+                </div>
             <div style="display:flex;gap:2px">
                 <button type="button" class="btn btn-primary"
                 @click="${() => this.onGeneratePDFMake()}">
