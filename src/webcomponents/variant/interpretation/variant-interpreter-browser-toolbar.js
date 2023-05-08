@@ -23,8 +23,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -58,16 +56,15 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.write = false;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
     }
 
