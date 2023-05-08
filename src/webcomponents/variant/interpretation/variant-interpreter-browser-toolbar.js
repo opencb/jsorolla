@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
@@ -174,6 +174,15 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         return html`
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0 5px 20px 0">
                 <div class="pull-right" role="group">
+                    ${this._config?.showPharmacogenomicsFilter ? html`
+                        <div class="btn-group" style="margin-right: 2px">
+                            <button type="button" class="btn btn-primary" title="Pharmacogenomics Variants">
+                                <i class="fas fa-pills icon-padding" aria-hidden="true"></i>
+                                <strong>Pharmacogenomics Variants</strong>
+                            </button>
+                        </div>
+                    ` : nothing}
+
                     <div class="btn-group" style="margin-right: 2px">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false" title="Show inclusion list of variants">
@@ -350,7 +359,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            showPharmacogenomicsFilter: true,
+        };
     }
 
 }
