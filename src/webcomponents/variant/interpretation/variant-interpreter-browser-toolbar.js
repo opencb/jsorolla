@@ -68,6 +68,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         }
     }
 
+    onFilterPharmacogenomicsVariants() {
+        LitUtils.dispatchCustomEvent(this, "filterPharmacogenomicsVariants", null);
+    }
+
     onFilterInclusionVariants() {
         const variants = [];
         this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
@@ -173,7 +177,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                 <div class="pull-right" role="group">
                     ${this._config?.showPharmacogenomicsFilter ? html`
                         <div class="btn-group" style="margin-right: 2px">
-                            <button type="button" class="btn btn-primary" title="Pharmacogenomics Variants">
+                            <button type="button" class="btn btn-primary" @click="${this.onFilterPharmacogenomicsVariants}">
                                 <i class="fas fa-pills icon-padding" aria-hidden="true"></i>
                                 <strong>Pharmacogenomics Variants</strong>
                             </button>
