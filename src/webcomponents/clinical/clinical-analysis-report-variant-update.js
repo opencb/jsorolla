@@ -473,7 +473,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                                     </file-preview>
                                 </div>`;
                         };
-                        if (this.chromatogramFileIds.length > 0) {
+                        if (this.chromatogramFileIds?.length > 0) {
                             return html `
                             <div style="display:flex; gap:2px">
                                 ${this.chromatogramFileIds?.map(file => renderFilePreview(file, this.sequence))}
