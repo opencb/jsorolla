@@ -548,19 +548,19 @@ class CaseSmsReport extends LitElement {
         const studyElements = {
             reason: {
                 label: "Razón del Estudio",
-                content: study.description
+                content: study?.description
             },
             project: {
                 label: "Proyecto",
-                content: study.project
+                content: study?.project
             },
             analyst: {
                 label: "Análisis",
-                content: study.currentAnalysis
+                content: study?.currentAnalysis
             },
             genePriority: {
                 label: "Genes Prioritarios",
-                content: study.genePriority
+                content: study?.genePriority
             }
         };
         const methodologyHtml = this._reportData.study.method?.description?.replaceAll("h2", "b");
@@ -768,19 +768,19 @@ class CaseSmsReport extends LitElement {
         const studyElements = {
             reason: {
                 label: "Razón del Estudio",
-                content: study.description
+                content: study?.description
             },
             project: {
                 label: "Proyecto",
-                content: study.project
+                content: study?.project
             },
             analyst: {
                 label: "Análisis",
-                content: study.currentAnalysis
+                content: study?.currentAnalysis
             },
             genePriority: {
                 label: "Genes Prioritarios",
-                content: study.genePriority
+                content: study?.genePriority
             }
         };
         const methodologyHtml = this._reportData.study.method?.description?.replaceAll("h2", "b");
