@@ -362,6 +362,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
+    onFilterPharmacogenomicsVariants() {
+        // TODO
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession?.study) {
@@ -459,6 +463,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .variantInclusionState="${this.variantInclusionState}"
                             .write="${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")}"
                             @filterVariants="${this.onFilterVariants}"
+                            @filterPharmacogenomicsVariants="${this.onFilterPharmacogenomicsVariants}"
                             @resetVariants="${this.onResetVariants}"
                             @saveInterpretation="${this.onSaveVariants}">
                         </variant-interpreter-browser-toolbar>
