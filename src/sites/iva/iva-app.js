@@ -131,6 +131,8 @@ class IvaApp extends LitElement {
      */
     _init() {
         // Create the 'config' , this objects contains all the different configuration
+        debugger
+        // this.settings = {};
         const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
@@ -382,6 +384,7 @@ class IvaApp extends LitElement {
             if (sid) {
                 this.checkSessionActive();
                 this.intervalCheckSession = setInterval(this.checkSessionActive.bind(this), this.config.session.checkTime);
+                debugger
                 this._createOpenCGASession();
             } else {
                 this._createOpencgaSessionFromConfig();
@@ -471,10 +474,12 @@ class IvaApp extends LitElement {
             return;
         }
         this.signingIn = "Creating session..";
+        console.log("Init creating opencgasession");
         this.requestUpdate();
         await this.updateComplete;
         this.opencgaClient.createSession()
             .then(response => {
+                console.log("Session created, init opencgaSession");
                 const _response = response;
                 console.log("_createOpenCGASession", response);
 
@@ -529,6 +534,7 @@ class IvaApp extends LitElement {
                         }
                     };
                     this.opencgaSession.mode = this.config.mode;
+                    console.log("Init study settings");
                     this.#initStudiesSettings();
                     this.updateCellBaseClient();
 
@@ -609,6 +615,7 @@ class IvaApp extends LitElement {
 
         // console.log("iva-app: roger I'm in", credentials);
         this.opencgaClient._config.token = credentials.detail.token;
+        debugger
         this._createOpenCGASession();
 
         if (this.tool === "#login") {
@@ -788,11 +795,13 @@ class IvaApp extends LitElement {
     hashFragmentListener(ctx) {
         console.log("hashFragmentListener - DEBUG", this.tool);
         // Hide all elements
+        console.log("Hide all enabled elements");
         for (const element in this.config.enabledComponents) {
             if (UtilsNew.isNotUndefined(this.config.enabledComponents[element])) {
                 this.config.enabledComponents[element] = false;
             }
         }
+        console.log("All enabled elements hidden");
 
         let arr = window.location.hash.split("/");
 
@@ -891,7 +900,7 @@ class IvaApp extends LitElement {
             // If the component does not exist, mark as custom page
             this.config.enabledComponents["customPage"] = true;
         }
-
+        console.log("Force update in hasFragmentListener");
         this.config = {...this.config};
 
         // TODO quickfix to avoid hash browser scroll
@@ -1105,6 +1114,7 @@ class IvaApp extends LitElement {
     }
 
     onSessionUpdateRequest() {
+        debugger
         this._createOpenCGASession();
     }
 
@@ -1129,6 +1139,7 @@ class IvaApp extends LitElement {
                 title: `Refresh Session`,
                 message: `Session updated correctly`,
             });
+            debugger
             this._createOpenCGASession();
 
             // this.opencgaSession.opencgaClient.studies()
@@ -1178,6 +1189,8 @@ class IvaApp extends LitElement {
     }
 
     render() {
+        console.log("isLoggedIn", !!this.isLoggedIn());
+        console.log("signingIn", !!this.signingIn);
         if (!this.isLoggedIn() && !this.signingIn) {
             return html`
                 <custom-landing
@@ -1257,6 +1270,7 @@ class IvaApp extends LitElement {
             <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
 
             <!-- This is where main IVA application is rendered -->
+            ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
             <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
