@@ -17,9 +17,6 @@ export default class PharmacogenomicsReport extends LitElement {
             sampleId: {
                 type: String,
             },
-            sample: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
