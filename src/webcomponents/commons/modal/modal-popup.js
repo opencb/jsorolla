@@ -45,10 +45,10 @@ export default class ModalPopup extends LitElement {
 
     updated() {
         this.showModal();
-
-        $(`#${this.modalId}`).on("hide.bs.modal", e => {
-            LitUtils.dispatchCustomEvent(this, "closeModal");
-        });
+        // Todo: meet rodiel to discuss
+        // $(`#${this.modalId}`).on("hide.bs.modal", e => {
+        //     LitUtils.dispatchCustomEvent(this, "closeModal");
+        // });
     }
 
     async showModal() {
@@ -57,7 +57,7 @@ export default class ModalPopup extends LitElement {
     }
 
     #onCloseModal() {
-        LitUtils.dispatchCustomEvent(this, "closeModal", null);
+        // LitUtils.dispatchCustomEvent(this, "closeModal", null);
     }
 
     #getTitleHeader(header, title, classes, style) {
