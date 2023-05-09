@@ -26,6 +26,7 @@ import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
+import "../../clinical/pharmacogenomics/pharmacogenomics-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
@@ -504,7 +505,11 @@ class VariantInterpreter extends LitElement {
 
                             ${this.activeTab["pharmacogenomics"] ? html`
                                 <div id="${this._prefix}pharmacogenomics" >
-                                    <div align="center"><b>WIP</b></div>
+                                    <pharmacogenomics-report
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .sampleId="${(this.clinicalAnalysis?.proband?.samples || [])[0]?.id || ""}"
+                                        >
+                                    </pharmacogenomics-report>
                                 </div>
                             ` : nothing}
 
