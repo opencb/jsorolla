@@ -50,7 +50,7 @@ export default class SampleUpdate extends LitElement {
     }
 
     #init() {
-        this.sample = {};
+        this._sample = {};
         this.sampleId = "";
         this.displayConfig = {};
 
@@ -63,6 +63,10 @@ export default class SampleUpdate extends LitElement {
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
+    }
+
+    onSampleIdObserver(e) {
+        this._sample = UtilsNew.objectClone(e.detail.value);
     }
 
     // This observer fetches the object fetched from the server.
@@ -81,9 +85,9 @@ export default class SampleUpdate extends LitElement {
         return html `
             <opencga-update
                 .resource="${"SAMPLE"}"
-                .component="${this.sample}"
                 .componentId="${this.sampleId}"
                 .opencgaSession="${this.opencgaSession}"
+                @componentIdObserver="${e => this.onSampleIdObserver(e)}"
                 .config="${this._config}">
             </opencga-update>
         `;
@@ -102,7 +106,7 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.sample.creationDate ? "Created on " + UtilsNew.dateFormatter(this.sample.creationDate) : "No creation date",
+                                helpMessage: this._sample.creationDate ? "Created on " + UtilsNew.dateFormatter(this._sample.creationDate) : "No creation date",
                                 disabled: true,
                             },
                         },
