@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
@@ -131,7 +131,7 @@ class IvaApp extends LitElement {
      */
     _init() {
         // Create the 'config' , this objects contains all the different configuration
-        this.settings = {};
+        // this.settings = {};
         const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
