@@ -34,5 +34,5 @@ jobs:
     needs: [build, test]
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
     with:
-      artifact: jsorolla-release
+      artifact: build-folder
       file: iva-${{ needs.build.outputs.version }}.tar.gz
