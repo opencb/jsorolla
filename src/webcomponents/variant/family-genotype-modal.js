@@ -59,6 +59,8 @@ export default class FamilyGenotypeModal extends LitElement {
     }
 
     showModal() {
+        const modalElm = document.querySelector(`#${this._prefix}SampleGenotypeFilterModal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
     }
 
