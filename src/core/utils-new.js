@@ -188,7 +188,7 @@ export default class UtilsNew {
         }
     }
 
-    static draggableModal(self, modalElm) {
+    static draggableModal(modalElm) {
         let offset = [0, 0];
         let isDown = false;
         const modalDialog = modalElm.querySelector(".modal-dialog");
@@ -200,6 +200,7 @@ export default class UtilsNew {
             modalDialog.style.left = (window.innerWidth * 0.30) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
+
         modalHeader.addEventListener("mousedown", e => {
             isDown = true;
             offset = [
@@ -208,11 +209,12 @@ export default class UtilsNew {
             ];
         }, true);
 
-        self.addEventListener("mouseup", () => {
+        modalHeader.addEventListener("mouseup", e => {
+            e.preventDefault();
             isDown = false;
         }, true);
 
-        self.addEventListener("mousemove", e => {
+        modalHeader.addEventListener("mousemove", e => {
             e.preventDefault();
             if (isDown) {
                 modalDialog.style.left = (e.clientX + offset[0]) + "px";
