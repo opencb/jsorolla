@@ -35,11 +35,11 @@ export default class IndividualUpdate extends LitElement {
 
     static get properties() {
         return {
-            individual: {
-                type: Object
-            },
             individualId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -51,7 +51,7 @@ export default class IndividualUpdate extends LitElement {
     }
 
     #init() {
-        this.individual = {};
+        this._individual = {};
         this.individualId = "";
         this.displayConfig = {};
 
@@ -66,14 +66,21 @@ export default class IndividualUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onComponentIdObserver(e) {
+        this._individual = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <opencga-update
                 .resource="${"INDIVIDUAL"}"
-                .component="${this.individual}"
                 .componentId="${this.individualId}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
@@ -92,7 +99,7 @@ export default class IndividualUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this.individual.creationDate)}` : "No creation date",
+                                helpMessage: this._individual.creationDate ? `Created on ${UtilsNew.dateFormatter(this._individual.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Short individual ID for..."
                                 },

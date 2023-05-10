@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ModalUtils from "../commons/modal/modal-ultils";
 
 
 export default class IndividualGrid extends LitElement {
@@ -374,9 +375,53 @@ export default class IndividualGrid extends LitElement {
         }
     }
 
-    onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    async onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Individual Create",
+                        },
+                        render: () => {
+                            return html `
+                                <individual-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </individual-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
+            case "edit":
+                this._operation = {
+                    type: "update",
+                    modalId: `${this._prefix}EditModal`,
+                    config: {
+                        display: {
+                            modalTitle: `Individual Update: ${row.id}`,
+                        },
+                        render: active => {
+                            return html `
+                                <individual-update
+                                    .individualId="${row.id}"
+                                    .active="${active}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </individual-update>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(this._operation.modalId);
+                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -527,8 +572,13 @@ export default class IndividualGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
+                            <!--
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#individualUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+                                -->
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -597,10 +647,12 @@ export default class IndividualGrid extends LitElement {
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
+                    .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 

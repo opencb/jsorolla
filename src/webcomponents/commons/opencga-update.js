@@ -45,6 +45,9 @@ export default class OpencgaUpdate extends LitElement {
             componentId: {
                 type: String,
             },
+            active: {
+                type: Boolean,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -58,6 +61,7 @@ export default class OpencgaUpdate extends LitElement {
         this.resource = "";
         this.component = {};
         this.componentId = "";
+        this.active = true;
         this.params = {};
         this.updateCustomisation = [];
 
@@ -82,10 +86,17 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     update(changedProperties) {
+        // CAUTION: solution 1 to edit two or more consecutive times the same component in grid: sample, individual, etc.
+        /*
+        if (changedProperties.has("componentId") || (this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId))) {
+            console.log(changedProperties.has("componentId"), this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId));
+            this.componentIdObserver();
+        }
+        */
         if (changedProperties.has("component")) {
             this.componentObserver();
         }
-        if (changedProperties.has("componentId")) {
+        if (changedProperties.has("componentId") || (changedProperties.has("active") && this.active)) {
             this.componentIdObserver();
         }
         if (changedProperties.has("resource")) {
@@ -107,7 +118,7 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     componentIdObserver() {
-        if (this.componentId && this.opencgaSession) {
+        if (this.componentId && this.opencgaSession && this.active) {
             this.#initComponent();
 
             const params = {
@@ -445,7 +456,7 @@ export default class OpencgaUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
-            type: this._config?.type || "form",
+            type: this._config?.display?.type || "tabs",
             buttons: {
                 // previewText: "Preview",
                 clearText: "Discard Changes",

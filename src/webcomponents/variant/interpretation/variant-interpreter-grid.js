@@ -1610,7 +1610,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             <clinical-interpretation-variant-evidence-review
                                 .opencgaSession="${this.opencgaSession}"
                                 .review="${this.evidenceReview}"
-                                .mode="${"form"}"
+                                .mode="${"page"}"
                                 .somatic="${this.clinicalAnalysis.type === "CANCER"}"
                                 @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                             </clinical-interpretation-variant-evidence-review>

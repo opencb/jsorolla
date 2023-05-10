@@ -22,9 +22,9 @@ import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/opencga-browser-grid-config.js";
-
+import "./sample-update.js";
+import ModalUtils from "../commons/modal/modal-ultils.js";
+import {update} from "lodash";
 
 export default class SampleGrid extends LitElement {
 
@@ -63,6 +63,7 @@ export default class SampleGrid extends LitElement {
         this.gridId = this._prefix + "SampleBrowserGrid";
         this.active = true;
         this._config = {...this.getDefaultConfig()};
+        this._operation = null;
     }
 
     // connectedCallback() {
@@ -264,9 +265,53 @@ export default class SampleGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    async onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Sample Create",
+                        },
+                        render: () => {
+                            return html `
+                                <sample-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
+            case "edit":
+                this._operation = {
+                    type: "update",
+                    modalId: `${this._prefix}EditModal`,
+                    config: {
+                        display: {
+                            modalTitle: `Sample Update: ${row.id}`,
+                        },
+                        render: active => {
+                            return html `
+                                <sample-update
+                                    .sampleId="${row.id}"
+                                    .active="${active}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </sample-update>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                // await this.updateComplete;
+                // ModalUtils.show(this._operation.modalId);
+                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -399,10 +444,16 @@ export default class SampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
+                                <!--
+                                <a data-action="edit" class="btn force-text-left $OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
+                                -->
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
@@ -491,11 +542,13 @@ export default class SampleGrid extends LitElement {
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
+                    .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
                     .rightToolbar="${this.getRightToolbar()}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 
@@ -537,6 +590,7 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
+            showCreate: true,
             showExport: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter

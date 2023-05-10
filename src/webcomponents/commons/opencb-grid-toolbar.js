@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
+import ModalUtils from "./modal/modal-ultils.js";
+import "./modal/modal-popup.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -41,6 +43,9 @@ export default class OpencbGridToolbar extends LitElement {
             },
             query: {
                 type: Object
+            },
+            operation: {
+                type: Object,
             },
             config: {
                 type: Object
@@ -111,8 +116,26 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
-    openModal() {
-        $(`#${this._prefix}export-modal`, this).modal("show");
+    // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
+    onCloseModal() {
+        this.operation = null;
+    }
+
+    onActionClick(e) {
+        const action = e.currentTarget.dataset.action;
+        switch (action) {
+            case "create":
+                this.dispatchEvent(new CustomEvent("actionClick", {
+                    detail: {
+                        action: action,
+                    }
+                }));
+                break;
+            case "export":
+                $(`#${this._prefix}export-modal`, this).modal("show");
+                break;
+        }
+
     }
 
     render() {
@@ -122,7 +145,6 @@ export default class OpencbGridToolbar extends LitElement {
                 rightButtons.push(rightButton.render());
             }
         }
-
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -139,7 +161,7 @@ export default class OpencbGridToolbar extends LitElement {
                         ${this._config.showCreate &&
                         (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
                             <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
-                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New Left </span>
                             </a>
                         ` : null}
                     </div>
@@ -162,20 +184,16 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._config.showNew ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
                                     </button>
-
-                                    <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
-                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>New</span>
-                                    </a>
                                 </div>
                             ` : null}
 
                             ${this._config.showExport ? html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm" @click="${this.openModal}">
+                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
@@ -210,6 +228,16 @@ export default class OpencbGridToolbar extends LitElement {
                 </div>
             </div>
 
+            <!-- // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
+            <!-- $this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)} -->
+            ${ this.operation && html `
+                <modal-popup
+                    .modalId="${this.operation.modalId}"
+                    .config="${this.operation.config}"
+                    @closeModal="${this.onCloseModal}">
+                </modal-popup>
+            `}
+
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -236,7 +264,7 @@ export default class OpencbGridToolbar extends LitElement {
     getDefaultConfig() {
         return {
             label: "records",
-            showNew: false,
+            showNew: true,
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             showDownload: false,
             download: ["Tab", "JSON"],
