@@ -287,10 +287,11 @@ export default class SampleGrid extends LitElement {
                         display: {
                             modalTitle: `Sample Update: ${row.id}`,
                         },
-                        render: () => {
+                        render: active => {
                             return html `
                                 <sample-update
                                     .sampleId="${row.id}"
+                                    .active="${active}"
                                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </sample-update>

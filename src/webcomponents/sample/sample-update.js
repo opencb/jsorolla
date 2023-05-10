@@ -34,11 +34,11 @@ export default class SampleUpdate extends LitElement {
 
     static get properties() {
         return {
-            sample: {
-                type: Object
-            },
             sampleId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -65,16 +65,13 @@ export default class SampleUpdate extends LitElement {
         super.update(changedProperties);
     }
 
-    onSampleIdObserver(e) {
-        this._sample = UtilsNew.objectClone(e.detail.value);
-    }
-
     // This observer fetches the object fetched from the server.
     // Uncomment when using 'onComponentFieldChange' to post-process data-from manipulation.
-    // onComponentIdObserver(e) {
-    //     this.sample = e.detail.value;
-    //     this._config = this.getDefaultConfig();
-    // }
+    onComponentIdObserver(e) {
+        this._sample = UtilsNew.objectClone(e.detail.value);
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
 
     // Uncomment to post-process data-from manipulation
     // onComponentFieldChange(e) {
@@ -87,8 +84,9 @@ export default class SampleUpdate extends LitElement {
                 .resource="${"SAMPLE"}"
                 .componentId="${this.sampleId}"
                 .opencgaSession="${this.opencgaSession}"
-                @componentIdObserver="${e => this.onSampleIdObserver(e)}"
-                .config="${this._config}">
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }

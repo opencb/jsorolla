@@ -22,6 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ModalUtils from "../commons/modal/modal-ultils";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -234,9 +235,55 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            /*
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "File Create",
+                        },
+                        render: () => {
+                            return html `
+                                <file-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </file-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
+            case "edit":
+                this._operation = {
+                    type: "update",
+                    modalId: `${this._prefix}EditModal`,
+                    config: {
+                        display: {
+                            modalTitle: `File Update: ${row.id}`,
+                        },
+                        render: active => {
+                            return html `
+                                <file-update
+                                    .familyId="${row.id}"
+                                    .active="${active}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </file-update>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(this._operation.modalId);
+                break;
+             */
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;

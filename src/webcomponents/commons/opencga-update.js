@@ -45,6 +45,9 @@ export default class OpencgaUpdate extends LitElement {
             componentId: {
                 type: String,
             },
+            active: {
+                type: Boolean,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -58,6 +61,7 @@ export default class OpencgaUpdate extends LitElement {
         this.resource = "";
         this.component = {};
         this.componentId = "";
+        this.active = true;
         this.params = {};
         this.updateCustomisation = [];
 
@@ -92,7 +96,7 @@ export default class OpencgaUpdate extends LitElement {
         if (changedProperties.has("component")) {
             this.componentObserver();
         }
-        if (changedProperties.has("componentId")) {
+        if (changedProperties.has("componentId") || (changedProperties.has("active") && this.active)) {
             this.componentIdObserver();
         }
         if (changedProperties.has("resource")) {
@@ -114,7 +118,7 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     componentIdObserver() {
-        if (this.componentId && this.opencgaSession) {
+        if (this.componentId && this.opencgaSession && this.active) {
             this.#initComponent();
 
             const params = {

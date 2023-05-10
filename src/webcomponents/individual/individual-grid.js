@@ -398,7 +398,6 @@ export default class IndividualGrid extends LitElement {
                 };
                 this.requestUpdate();
                 break;
-
             case "edit":
                 this._operation = {
                     type: "update",
@@ -407,10 +406,11 @@ export default class IndividualGrid extends LitElement {
                         display: {
                             modalTitle: `Individual Update: ${row.id}`,
                         },
-                        render: () => {
+                        render: active => {
                             return html `
                                 <individual-update
                                     .individualId="${row.id}"
+                                    .active="${active}"
                                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </individual-update>

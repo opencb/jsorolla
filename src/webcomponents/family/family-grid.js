@@ -359,6 +359,26 @@ export default class FamilyGrid extends LitElement {
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Family Create",
+                        },
+                        render: () => {
+                            return html `
+                                <family-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </family-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
             case "edit":
                 this._operation = {
                     type: "update",
@@ -367,10 +387,11 @@ export default class FamilyGrid extends LitElement {
                         display: {
                             modalTitle: `Family Update: ${row.id}`,
                         },
-                        render: () => {
+                        render: active => {
                             return html `
                                 <family-update
                                     .familyId="${row.id}"
+                                    .active="${active}"
                                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
                                 </family-update>
@@ -382,7 +403,6 @@ export default class FamilyGrid extends LitElement {
                 await this.updateComplete;
                 ModalUtils.show(this._operation.modalId);
                 break;
-
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
