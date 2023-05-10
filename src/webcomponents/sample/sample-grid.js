@@ -24,7 +24,6 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
 import ModalUtils from "../commons/modal/modal-ultils.js";
-import {update} from "lodash";
 
 export default class SampleGrid extends LitElement {
 
