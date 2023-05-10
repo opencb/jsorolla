@@ -20,6 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -362,8 +363,54 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
-    onFilterPharmacogenomicsVariants() {
-        // TODO
+    async onFilterPharmacogenomicsVariants() {
+        // 0. Initialize Cellbase client instance
+        const cellbaseClient = new CellBaseClient({
+            // host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.5-SNAPSHOT",
+            species: "hsapiens",
+        });
+
+        // 1. Import all PGx variants from Cellbase
+        const pgxVariantsResponse = cellbaseClient.get("clinical", "pharmacogenomics", null, "distinct", {
+            field: "location",
+            assembly: "grch38",
+            dataRelease: "4",
+        });
+
+        // 2. Get the list of variants available in OpenCGA
+        const pgxVariants = pgxVariantsResponse.responses[0].results;
+        const chunkSize = 1000;
+        const promises = [];
+        for (let i = 0; i < pgxVariants.length; i = i + chunkSize) {
+            const chunk = pgxVariants.slice(i, i + chunkSize);
+            const query = {
+                region: chunk.join(","),
+                sample: this.clinicalAnalysis.proband.samples[0].id,
+                include: "id",
+                study: this.opencgaSession.study.fqn,
+            };
+            promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
+        }
+        const variantsResponses = await Promise.all(promises);
+
+        // 3. Generate the list of unique variants to filter
+        const variantIds = new Set();
+        variantsResponses.forEach(variantResponse => {
+            variantResponse.responses[0].results.forEach(variant => {
+                variantIds.add(variant.id);
+            });
+        });
+
+        // 4. Update the query
+        // const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
+        this.query = {
+            // ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
+            id: Array.from(variantIds).join(","),
+        };
+        this.notifyQueryChange();
+        this.requestUpdate();
     }
 
     render() {
