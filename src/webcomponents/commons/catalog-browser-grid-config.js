@@ -19,7 +19,7 @@ import LitUtils from "./utils/lit-utils.js";
 import "./forms/data-form.js";
 
 
-export default class OpencgaBrowserGridConfig extends LitElement {
+export default class CatalogBrowserGridConfig extends LitElement {
 
     constructor() {
         super();
@@ -222,36 +222,6 @@ export default class OpencgaBrowserGridConfig extends LitElement {
                     ],
                 },
                 {
-                    title: "Population Frequencies",
-                    // description: "Select which transcripts and consequence types are displayed in the variant grid",
-                    display: {
-                        titleHeader: "h4",
-                        titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
-                        descriptionStyle: "margin: 0px 10px",
-                        visible: () => !!this.config?.populationFrequenciesConfig
-                    },
-                    elements: [
-                        {
-                            type: "text",
-                            text: "Select the display mode of the population frequencies",
-                            display: {
-                                containerStyle: "margin: 5px 5px 5px 0px"
-                            }
-                        },
-                        {
-                            // title: "Select the display mode of the population frequencies",
-                            field: "populationFrequenciesConfig.displayMode",
-                            type: "select",
-                            multiple: false,
-                            allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
-                            display: {
-                                containerStyle: "margin: 5px 5px 5px 0px"
-                            },
-                        },
-                    ]
-                },
-                {
                     title: "Highlight",
                     display: {
                         titleHeader: "h4",
@@ -287,4 +257,4 @@ export default class OpencgaBrowserGridConfig extends LitElement {
 
 }
 
-customElements.define("opencga-browser-grid-config", OpencgaBrowserGridConfig);
+customElements.define("catalog-browser-grid-config", CatalogBrowserGridConfig);
