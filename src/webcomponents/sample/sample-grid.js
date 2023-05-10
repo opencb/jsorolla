@@ -23,7 +23,7 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
-import ModalUtils from "../commons/modal/modal-ultils.js";
+
 
 export default class SampleGrid extends LitElement {
 
@@ -111,6 +111,7 @@ export default class SampleGrid extends LitElement {
         }
         this.requestUpdate();
     }
+
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             // const filters = {...this.query};
@@ -511,18 +512,6 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    onConfigClick(e) {
-        $(`#${this._prefix}ConfigModal`).modal("show");
-    }
-
-    onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
-    }
-
     getRightToolbar() {
         return [
             {
@@ -533,7 +522,6 @@ export default class SampleGrid extends LitElement {
             }
         ];
     }
-
 
     render() {
         return html`
@@ -553,32 +541,6 @@ export default class SampleGrid extends LitElement {
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Table Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <opencga-browser-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .gridColumns="${this._columns}"
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </opencga-browser-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         `;
     }
