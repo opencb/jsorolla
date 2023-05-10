@@ -381,7 +381,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // 2. Get the list of variants available in OpenCGA
         const pgxVariants = pgxVariantsResponse.responses[0].results;
-        const chunkSize = 100;
+        const chunkSize = 200;
         const promises = [];
         for (let i = 0; i < pgxVariants.length; i = i + chunkSize) {
             const chunk = pgxVariants.slice(i, i + chunkSize);
