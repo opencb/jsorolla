@@ -806,12 +806,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 this.checkedVariants.get(variants[1].id)
             ];
             this.requestUpdate();
-
+            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+            UtilsNew.draggableModal(this, modalElm);
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
         }
     }
 
     onConfigClick(e) {
+        const modalElm = document.querySelector(`#${this._prefix}ConfigModal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "ConfigModal").modal("show");
     }
 

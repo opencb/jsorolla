@@ -174,6 +174,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
 
     onViewInterpretation() {
+        const modalElm = document.querySelector(`#${this._prefix}PreviewModal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "PreviewModal").modal("show");
     }
 
