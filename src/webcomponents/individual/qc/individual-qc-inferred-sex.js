@@ -45,9 +45,6 @@ export default class IndividualQcInferredSex extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // config: {
-            //     type: Object
-            // }
         };
     }
 
@@ -55,24 +52,15 @@ export default class IndividualQcInferredSex extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("individual")) {
             this.individuals = [this.individual];
         }
+
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        // if (changedProperties.has("individuals")) {
-        //     this.requestUpdate();
-        // }
-        // if (changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+
         super.update(changedProperties);
     }
 
@@ -134,84 +122,99 @@ export default class IndividualQcInferredSex extends LitElement {
         }
     }
 
+    renderTableRow(individual) {
+        const inferredSex = individual?.qualityControl?.inferredSexReports[0];
+        const hasSameSex = individual.karyotypicSex === inferredSex?.inferredKaryotypicSex;
+        return html`
+            <tr>
+                <td>${individual.id}</td>
+                <td>${inferredSex?.sampleId ?? "N/A"}</td>
+                <td>${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex}</td>
+                <td>
+                    <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">
+                        ${individual.karyotypicSex}
+                    </span>
+                </td>
+                <td>${inferredSex.values.ratioX.toFixed(4)}</td>
+                <td>${inferredSex.values.ratioY.toFixed(4)}</td>
+                <td>
+                    <span style="color: ${hasSameSex ? "black" : "red"}">
+                        ${inferredSex.inferredKaryotypicSex || "-"}
+                    </span>
+                </td>
+                <td>${inferredSex.method}</td>
+            </tr>
+        `;
+    }
+
     renderTable() {
         if (this.individuals && Array.isArray(this.individuals)) {
+            const individualsWithInferredSex = this.individuals.filter(individual => {
+                return (individual?.qualityControl?.inferredSexReports || []).length > 0;
+            });
+
             return html`
                 <table class="table table-hover table-no-bordered text-center">
                     <thead>
-                    <tr>
-                        <th>Individual ID</th>
-                        <th>Sample ID</th>
-                        <th>Reported Phenotypic Sex</th>
-                        <th>Reported Karyotypic Sex</th>
-                        <th>Ratio (avg. chrX/auto)</th>
-                        <th>Ratio (avg. chrY/auto)</th>
-                        <th>Inferred Karyotypic Sex</th>
-                        <th>Method</th>
-                        <!-- <th>Status</th> -->
-                    </tr>
+                        <tr>
+                            <th>Individual ID</th>
+                            <th>Sample ID</th>
+                            <th>Reported Phenotypic Sex</th>
+                            <th>Reported Karyotypic Sex</th>
+                            <th>Ratio (avg. chrX/auto)</th>
+                            <th>Ratio (avg. chrY/auto)</th>
+                            <th>Inferred Karyotypic Sex</th>
+                            <th>Method</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    ${this.individuals.map(individual => {
-                            const inferredSex = individual?.qualityControl?.inferredSexReports[0];
-                            const hasSameSex = individual.karyotypicSex === inferredSex?.inferredKaryotypicSex;
-                            return html`
-                                <tr>
-                                    <td>
-                                        <label>${individual.id}</label>
-                                    </td>
-                                    <td>${inferredSex?.sampleId ?? "N/A"}</td>
-                                    <td>${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex}</td>
-                                    <td>
-                                    <span style="color: ${!inferredSex || hasSameSex ? "black" : "red"}">
-                                        ${individual.karyotypicSex}
-                                    </span>
-                                    </td>
-                                    ${inferredSex ? html`
-                                        <td>${inferredSex.values.ratioX.toFixed(4)}</td>
-                                        <td>${inferredSex.values.ratioY.toFixed(4)}</td>
-                                        <td>
-                                        <span style="color: ${hasSameSex ? "black" : "red"}">
-                                            ${inferredSex.inferredKaryotypicSex || "-"}
-                                        </span>
-                                        </td>
-                                        <td>${inferredSex.method}</td>
-                                    ` : html`
-                                        <td colspan="4">
-                                            <div class="alert-warning text-center"><i class="fas fa-info-circle align-middle"></i> Inferred Sex data not available.</div>
-                                        </td>
-                                    `}
-                                </tr>
-                            `;
-                        }
-                    )}
+                        ${individualsWithInferredSex.map(individual => this.renderTableRow(individual))}
                     </tbody>
-                </table>`;
+                </table>
+            `;
         }
+
+        return null;
     }
 
     render() {
         if (!this.individual?.qualityControl && !this.individuals?.length) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+            return html`
+                <div class="alert alert-warning">
+                    No QC data are available yet.
+                </div>
+            `;
         }
+
+        const individualsWithoutInferredSex = (this.individuals || [])
+            .filter(individual => (individual?.qualityControl?.inferredSexReports || []).length === 0)
+            .map(individual => individual.id);
 
         return html`
             <div>
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu btn-sm">
-                        ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
-                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
-                        `) : null}
-                    </ul>
-                </div>
-
-                <div>
-                    ${this.renderTable()}
-                </div>
+                ${individualsWithoutInferredSex.length > 0 ? html`
+                    <div class="alert alert-warning">
+                        Inferred Sex data not available for individuals ${individualsWithoutInferredSex.join(", ")}.
+                    </div>
+                ` : null}
+                ${individualsWithoutInferredSex.length !== this.individuals?.length ? html`
+                    <div>
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu btn-sm">
+                                ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
+                                    <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                                `) : null}
+                            </ul>
+                        </div>
+                        <div>
+                            ${this.renderTable()}
+                        </div>
+                    </div>
+                ` : null}
             </div>
         `;
     }
