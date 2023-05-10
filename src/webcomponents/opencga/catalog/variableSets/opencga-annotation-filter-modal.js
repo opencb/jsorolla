@@ -382,6 +382,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     showModal() {
+        const modalElm = document.querySelector(`#${this._prefix}annotation-modal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "annotation-modal").modal("show");
         UtilsNew.initTooltip(this);
     }
