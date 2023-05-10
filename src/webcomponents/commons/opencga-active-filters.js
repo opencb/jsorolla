@@ -366,6 +366,8 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     launchModal() {
+        const modalElm = document.querySelector(`#${this._prefix}SaveModal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "SaveModal").modal("show");
     }
 
