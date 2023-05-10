@@ -69,20 +69,38 @@ export default class SampleBrowser extends LitElement {
         if (this.settings?.menu) {
             this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
+        // }
+
+        UtilsNew.setObjectValue(this.config, "filter.result.grid", {
+            ...this.config.filter.result.grid,
+            ...this.settings.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
+
+        UtilsNew.setObjectValue(this.config, "filter.result.grid.toolbar", {
+            ...this.config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid) {
-            this.config.filter.result.grid = {
-                ...this.config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
-            };
-        }
+        // if (this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid) {
+        //     this.config.filter.result.grid = {
+        //         ...this.config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
+        //     };
+        // }
+
+        UtilsNew.setObjectValue(this.config, "filter.result.grid", {
+            ...this.config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid
+        });
+
         this.requestUpdate();
     }
 
