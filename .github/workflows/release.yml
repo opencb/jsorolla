@@ -13,9 +13,12 @@ jobs:
     uses: ./.github/workflows/test.yml
     needs: build
     secrets: inherit
+    with:
+      test_profile: runShortTests
+      report_context: development
 
   deploy-docker:
-    uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
+    uses: ./.github/workflows/deploy-docker-jsorolla.yml
     needs: [ build, test ]
     with:
       repository: opencb/jsorolla
@@ -32,7 +35,7 @@ jobs:
 
   release:
     needs: [build, test]
-    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
+    uses: ./.github/workflows/release-github-workflow.yml
     with:
       artifact: jsorolla-release
       file: iva-${{ needs.build.outputs.version }}.tar.gz

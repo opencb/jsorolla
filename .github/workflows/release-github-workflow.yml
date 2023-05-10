@@ -1,0 +1,29 @@
+name: Reusable workflow to release in GitHub
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        type: string
+        required: false
+      file:
+        type: string
+        required: false
+
+jobs:
+  release-workflow:
+    name: Create GitHub Release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        if: ${{ inputs.artifact }}
+        with:
+          name: ${{ inputs.artifact }}
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          generate_release_notes: true
+          files: ${{ inputs.file }}
