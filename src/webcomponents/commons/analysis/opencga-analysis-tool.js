@@ -62,6 +62,8 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     openModal(e) {
+        const modalElm = document.querySelector(`#${this._prefix}analysis_description_modal`);
+        UtilsNew.draggableModal(this, modalElm);
         $(`#${this._prefix}analysis_description_modal`, this).modal("show");
     }
 
