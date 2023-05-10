@@ -49,6 +49,9 @@ export default class OpencbGridToolbar extends LitElement {
             },
             config: {
                 type: Object
+            },
+            catalogConfig: {
+                type: Object,
             }
         };
     }
@@ -134,8 +137,34 @@ export default class OpencbGridToolbar extends LitElement {
             case "export":
                 $(`#${this._prefix}export-modal`, this).modal("show");
                 break;
+            case "settings":
+                ModalUtils.show(`${this.prefix}SettingModal`);
+                break;
         }
 
+    }
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
+    getCatalogGridConfig() {
+        return {
+            display: {
+                modalTitle: "Table Settings",
+                modalbtnsVisible: true,
+            },
+            save: () => {
+                LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
+            },
+            render: () => html `
+                <catalog-browser-grid-config
+                    .opencgaSession="${this.opencgaSession}"
+                    .gridColumns="${this.catalogConfig?.gridColumns}"
+                    .config="${this.catalogConfig?.configGrid}"
+                    @configChange="${this.onGridConfigChange}">
+                </catalog-browser-grid-config>`
+        };
     }
 
     render() {
@@ -218,6 +247,12 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null}
 
+                            <div class="btn-group">
+                                <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                    <i class="fas fa-cog icon-padding"></i> Settings (Beta)
+                                </button>
+                            </div>
+
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
                                     ${rightButton}
@@ -237,6 +272,9 @@ export default class OpencbGridToolbar extends LitElement {
                     @closeModal="${this.onCloseModal}">
                 </modal-popup>
             `}
+
+
+            ${this.catalogConfig !== undefined ? ModalUtils.create(`${this.prefix}SettingModal`, this.getCatalogGridConfig()) : nothing}
 
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
