@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import "./getting-started.js";
 import "./iva-settings.js";
 
@@ -131,6 +131,7 @@ class IvaApp extends LitElement {
      */
     _init() {
         // Create the 'config' , this objects contains all the different configuration
+        this.settings = {};
         const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
@@ -304,7 +305,7 @@ class IvaApp extends LitElement {
         // keeps track of status and version of the hosts (opencga and cellbase)
         this.host = {};
         globalThis.addEventListener("signingIn", e => {
-            this.signingIn = e.detail.value;
+            this.isCreatingSession = e.detail.value;
             this.requestUpdate();
         }, false);
 
@@ -470,7 +471,8 @@ class IvaApp extends LitElement {
         if (!this.opencgaClient._config.token) {
             return;
         }
-        this.signingIn = "Creating session..";
+        this.isCreatingSession = true;
+        console.log("Init creating opencgasession");
         this.requestUpdate();
         await this.updateComplete;
         this.opencgaClient.createSession()
@@ -529,7 +531,8 @@ class IvaApp extends LitElement {
                         }
                     };
                     this.opencgaSession.mode = this.config.mode;
-                    this.#initStudiesSettings(); // This overwrites the settings
+                    console.log("Init study settings");
+                    this.#initStudiesSettings();
                     this.updateCellBaseClient();
 
                     // this.config.menu = [...application.menu];
@@ -547,7 +550,7 @@ class IvaApp extends LitElement {
                 this.notificationManager.error("Error creating session", e.message);
             })
             .finally(() => {
-                this.signingIn = false;
+                this.isCreatingSession = false;
                 this.requestUpdate();
                 // this.updateComplete;
             });
@@ -788,11 +791,13 @@ class IvaApp extends LitElement {
     hashFragmentListener(ctx) {
         console.log("hashFragmentListener - DEBUG", this.tool);
         // Hide all elements
+        console.log("Hide all enabled elements");
         for (const element in this.config.enabledComponents) {
             if (UtilsNew.isNotUndefined(this.config.enabledComponents[element])) {
                 this.config.enabledComponents[element] = false;
             }
         }
+        console.log("All enabled elements hidden");
 
         let arr = window.location.hash.split("/");
 
@@ -891,7 +896,7 @@ class IvaApp extends LitElement {
             // If the component does not exist, mark as custom page
             this.config.enabledComponents["customPage"] = true;
         }
-
+        console.log("Force update in hasFragmentListener");
         this.config = {...this.config};
 
         // TODO quickfix to avoid hash browser scroll
@@ -1178,7 +1183,7 @@ class IvaApp extends LitElement {
     }
 
     render() {
-        if (!this.isLoggedIn() && !this.signingIn) {
+        if (!this.isLoggedIn() && !this.isCreatingSession) {
             return html`
                 <custom-landing
                     .opencgaSession="${this.opencgaSession}"
@@ -1218,8 +1223,6 @@ class IvaApp extends LitElement {
                 }
             </style>
 
-            <!-- <loading-bar></loading-bar> -->
-
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             <custom-sidebar
                 .config="${this.config}"
@@ -1244,19 +1247,17 @@ class IvaApp extends LitElement {
                 @route="${this.route}">
             </custom-navbar>
 
-
-            <!-- End of navigation bar -->
-
-            ${this.signingIn ? html`
+            ${ this.isCreatingSession ? html `
             <div class="login-overlay">
                 <loading-spinner
-                    .description="${this.signingIn}">
+                        .description="${"Creating session..."}">
                 </loading-spinner>
             </div>
-        ` : null}
-            <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
+            ` : nothing
+            }
 
             <!-- This is where main IVA application is rendered -->
+            ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
             <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
