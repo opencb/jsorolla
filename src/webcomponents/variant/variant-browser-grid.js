@@ -357,6 +357,8 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onConfigClick(e) {
+        const modalElm = document.querySelector(`#${this._prefix}ConfigModal`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "ConfigModal").modal("show");
     }
 
