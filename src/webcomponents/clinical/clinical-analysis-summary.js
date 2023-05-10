@@ -52,6 +52,10 @@ export default class ClinicalAnalysisSummary extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+        if (changedProperties.has("clinicalAnalysis")) {
+            console.log("Updating component!!!!");
+            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+        }
         super.update(changedProperties);
     }
 
@@ -72,7 +76,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     render() {
         return html`
             <data-form
-                .data="${this.clinicalAnalysis}"
+                .data="${this._clinicalAnalysis}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -186,7 +190,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             }
                         },
                         {
-                            title: "Report",
+                            title: "Report (PDF)",
                             field: "interpretation.attributes.reportTest",
                             type: "custom",
                             display: {
@@ -197,8 +201,9 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
                                         };
                                     };
-                                    if (report?.report_files && report?.report_files.length > 0) {
-                                        const urlPdfs = report.report_files.map(report => generateUrl(report.fileName));
+                                    const reportPdf = report?.report_files.filter(report => report.fileName.includes(".pdf"));
+                                    if (reportPdf && reportPdf.length > 0) {
+                                        const urlPdfs = reportPdf.map(report => generateUrl(report.fileName));
                                         return urlPdfs.map(report => html`
                                             <div>
                                                 <span style="margin-right: 10px">${report.name}</span>
@@ -214,46 +219,102 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         },
                         {
                             title: "Report (Json)",
-                            field: "interpretation.attributes.reportTest._report",
+                            field: "interpretation.attributes.reportTest",
                             type: "custom",
                             display: {
-                                render: reports => {
-                                    if (reports?.length > 0) {
-                                        const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.json`;
-                                        return reports?.map(report => html`
+                                render: report => {
+                                    const generateUrl = file => {
+                                        return {
+                                            name: file,
+                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
+                                        };
+                                    };
+                                    const reportJson = report?.report_files.filter(report => report.fileName.includes(".json"));
+                                    if (reportJson && reportJson.length > 0) {
+                                        const urlPdfs = reportJson.map(report => generateUrl(report.fileName));
+                                        return urlPdfs.map(report => html`
                                             <div>
-                                                <span style="margin-right: 10px">${generateNameFile(report)}</span>
-                                                <a @click="${e => UtilsNew.downloadJSON(report, generateNameFile(report))}">
-                                                    <i class="fas fa-download icon-padding"></i>
-                                                </a>
-                                            </div>`);
+                                                <span style="margin-right: 10px">${report.name}</span>
+                                                    <a href="${report.url}" >
+                                                        <i class="fas fa-download icon-padding"></i>
+                                                    </a>
+                                                </div>`);
                                     } else {
-                                        return html `No Report Json`;
+                                        return html `No files uploaded yet!`;
                                     }
                                 }
                             }
                         },
                         {
-                            title: "Report (HTML)",
-                            field: "interpretation.attributes.reportTest._report",
+                            title: "Report (Html)",
+                            field: "interpretation.attributes.reportTest",
                             type: "custom",
                             display: {
-                                render: reports => {
-                                    if (reports?.length > 0) {
-                                        const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.html`;
-                                        return reports?.filter(report => report?.htmlRendered).map(report => html`
+                                render: report => {
+                                    const generateUrl = file => {
+                                        return {
+                                            name: file,
+                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
+                                        };
+                                    };
+                                    const reportHtml = report?.report_files.filter(report => report.fileName.includes(".html"));
+                                    if (reportHtml && reportHtml.length > 0) {
+                                        const urlPdfs = reportHtml.map(report => generateUrl(report.fileName));
+                                        return urlPdfs.map(report => html`
                                             <div>
-                                                <span style="margin-right: 10px">${generateNameFile(report)}</span>
-                                                <a @click="${e => UtilsNew.downloadHTML(report.htmlRendered, generateNameFile(report))}">
-                                                    <i class="fas fa-download icon-padding"></i>
-                                                </a>
-                                            </div>`);
+                                                <span style="margin-right: 10px">${report.name}</span>
+                                                    <a href="${report.url}" >
+                                                        <i class="fas fa-download icon-padding"></i>
+                                                    </a>
+                                                </div>`);
                                     } else {
-                                        return html `No Report Json`;
+                                        return html `No files uploaded yet!`;
                                     }
                                 }
                             }
-                        }
+                        },
+                        // {
+                        //     title: "Report (Json)",
+                        //     field: "interpretation.attributes.reportTest._report",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: reports => {
+                        //             if (reports?.length > 0) {
+                        //                 const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.json`;
+                        //                 return reports?.map(report => html`
+                        //                     <div>
+                        //                         <span style="margin-right: 10px">${generateNameFile(report)}</span>
+                        //                         <a @click="${e => UtilsNew.downloadJSON(report, generateNameFile(report))}">
+                        //                             <i class="fas fa-download icon-padding"></i>
+                        //                         </a>
+                        //                     </div>`);
+                        //             } else {
+                        //                 return html `No Report Json`;
+                        //             }
+                        //         }
+                        //     }
+                        // },
+                        // {
+                        //     title: "Report (HTML)",
+                        //     field: "interpretation.attributes.reportTest._report",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: reports => {
+                        //             if (reports?.length > 0) {
+                        //                 const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.html`;
+                        //                 return reports?.filter(report => report?.htmlRendered).map(report => html`
+                        //                     <div>
+                        //                         <span style="margin-right: 10px">${generateNameFile(report)}</span>
+                        //                         <a @click="${e => UtilsNew.downloadHTML(report.htmlRendered, generateNameFile(report))}">
+                        //                             <i class="fas fa-download icon-padding"></i>
+                        //                         </a>
+                        //                     </div>`);
+                        //             } else {
+                        //                 return html `No Report Json`;
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     ]
                 },
             ]
