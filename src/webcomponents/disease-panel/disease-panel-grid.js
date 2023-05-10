@@ -22,7 +22,7 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/opencga-browser-grid-config.js";
+import "../commons/catalog-browser-grid-config.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -602,12 +602,12 @@ export default class DiseasePanelGrid extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <opencga-browser-grid-config
+                                <catalog-browser-grid-config
                                     .opencgaSession="${this.opencgaSession}"
                                     .gridColumns="${this._columns}"
                                     .config="${this._config}"
                                     @configChange="${this.onGridConfigChange}">
-                                </opencga-browser-grid-config>
+                                </catalog-browser-grid-config>
                             </div>
                         </div>
                         <div class="modal-footer">
