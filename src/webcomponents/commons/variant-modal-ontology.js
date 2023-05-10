@@ -96,7 +96,8 @@ export default class VariantModalOntology extends LitElement {
             sort: "name",
             order: "ASCENDING",
             skip: !isParent? 0:skip,
-            limit: 50
+            limit: 50,
+            assembly: "GRCh38",
         };
         return this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
     }
@@ -203,8 +204,12 @@ export default class VariantModalOntology extends LitElement {
                                 ${isExpanded(!node.state.expanded)}
                             </span>
                             ${node.name} ${childrenSize} ${isLoading(node.state.loading)}
-                        </span>`:
-                        html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.name}</span>`}
+                        </span>
+                    `: html`
+                        <span class="leaf" style="margin-left: ${node.depth}em;">
+                            ${node.name}
+                        </span>
+                    `}
                 </div>
                 ${node.has_children ? html`
                     <div class="panel-collapse collapse ${isCollapsed(node.state.expanded)}" role="tabpanel" >
@@ -212,7 +217,8 @@ export default class VariantModalOntology extends LitElement {
                     </div>
                 ` : ""}
                 ${this.renderShowMore(showMore, index, lastIndex, node, parent)}
-            </div>`;
+            </div>
+        `;
     }
 
     render() {
