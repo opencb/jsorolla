@@ -112,6 +112,8 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     openModal() {
+        const modalElm = document.querySelector(`#${this._prefix}export-modal`);
+        UtilsNew.draggableModal(this, modalElm);
         $(`#${this._prefix}export-modal`, this).modal("show");
     }
 
