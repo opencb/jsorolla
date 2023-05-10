@@ -57,7 +57,7 @@ export default class ModalPopup extends LitElement {
     }
 
     #onCloseModal() {
-        // LitUtils.dispatchCustomEvent(this, "closeModal", null);
+        LitUtils.dispatchCustomEvent(this, "closeModal", null);
     }
 
     #getTitleHeader(header, title, classes, style) {
@@ -96,7 +96,7 @@ export default class ModalPopup extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                ${this.config?.render()}
+                                ${this.config?.render(true)}
                             </div>
                         </div>
                     </div>
