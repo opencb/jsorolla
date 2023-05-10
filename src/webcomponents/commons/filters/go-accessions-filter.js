@@ -84,6 +84,8 @@ export default class GoAccessionsFilter extends LitElement {
     }
 
     openModal() {
+        const modalElm = document.querySelector("#GO_ontologyModal");
+        UtilsNew.draggableModal(this, modalElm);
         $("#GO_ontologyModal").modal("show");
     }
 
