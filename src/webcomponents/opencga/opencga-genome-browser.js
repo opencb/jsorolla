@@ -127,8 +127,9 @@ export default class OpencgaGenomeBrowser extends LitElement {
 
     showSampleBrowser(e) {
         e.preventDefault();
-
         this.sampleBrowserModal = UtilsNew.isUndefined(this.sampleBrowserModal) ? true : !this.sampleBrowserModal;
+        const modalElm = document.querySelector(`#${this._prefix}SampleBrowser`);
+        UtilsNew.draggableModal(this, modalElm);
         $("#" + this._prefix + "SampleBrowser").modal("show");
     }
 
