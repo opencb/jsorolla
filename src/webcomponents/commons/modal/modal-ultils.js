@@ -1,4 +1,4 @@
-import {html} from "lit";
+import {html, nothing} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 
@@ -29,11 +29,12 @@ export default class ModalUtils {
         const modalTitleHeader = config.display?.modalTitleHeader || "h4";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
+        const btnsVisible = config.display?.modalbtnsVisible;
 
         return html `
             <div class="modal fade" id="${id}"
-                 tabindex="-1" role="dialog"
-                 aria-labelledby="DataModalLabel" aria-hidden="true">
+                tabindex="-1" role="dialog"
+                aria-labelledby="DataModalLabel" aria-hidden="true">
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -42,9 +43,14 @@ export default class ModalUtils {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                ${config.render()}
+                                ${config?.render()}
                             </div>
                         </div>
+                        ${btnsVisible? html`
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => config?.save()}">Save</button>
+                                </div>`: nothing}
                     </div>
                 </div>
             </div>
