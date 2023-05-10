@@ -22,7 +22,7 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row) {
+    static roleInCancerFormatter(value, row, index) {
         if (value) {
             const roles = new Set();
             for (const evidence of value) {
@@ -41,8 +41,30 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
             }
-            if (roles.size > 0) {
-                return Array.from(roles.keys()).join("<br>");
+            const rolesList = Array.from(roles.keys());
+            if (rolesList.length > 0) {
+                // Do not display more than 'maxDisplayedRoles' roles
+                const maxDisplayedRoles = 8;
+                if (rolesList.length <= maxDisplayedRoles) {
+                    return Array.from(roles.keys()).join("<br>");
+                } else {
+                    return `
+                        <div data-role="roles-list" data-variant-index="${index}">
+                            ${rolesList.slice(0, maxDisplayedRoles).join("<br>")}
+                            <span data-role="roles-list-extra" style="display:none">
+                                ${rolesList.slice(maxDisplayedRoles).join("<br>")}
+                            </span>
+                            <div style="margin-top:8px;">
+                                <a data-role="roles-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                    ... show more (${(rolesList.length - maxDisplayedRoles)})
+                                </a>
+                                <a data-role="roles-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                    show less
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
         return "-";
@@ -56,8 +78,7 @@ export default class VariantInterpreterGridFormatter {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                // cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-                cohortMap.set(s, study.stats);
+                cohortMap.set(s, (study.stats || []).find(stats => stats?.cohortId === "ALL"));
             });
             return VariantGridFormatter.renderPopulationFrequencies(
                 cohorts,
