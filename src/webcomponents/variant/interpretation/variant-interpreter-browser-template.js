@@ -368,20 +368,20 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         const cellbaseClient = new CellBaseClient({
             // host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
             host: "https://ws.zettagenomics.com/cellbase",
-            version: "v5.5-SNAPSHOT",
+            version: "v5.5",
             species: "hsapiens",
         });
 
         // 1. Import all PGx variants from Cellbase
-        const pgxVariantsResponse = cellbaseClient.get("clinical", "pharmacogenomics", null, "distinct", {
-            field: "location",
+        const pgxVariantsResponse = await cellbaseClient.get("clinical", "pharmacogenomics", null, "distinct", {
+            field: "variants.location",
             assembly: "grch38",
-            dataRelease: "4",
+            dataRelease: "5",
         });
 
         // 2. Get the list of variants available in OpenCGA
         const pgxVariants = pgxVariantsResponse.responses[0].results;
-        const chunkSize = 1000;
+        const chunkSize = 100;
         const promises = [];
         for (let i = 0; i < pgxVariants.length; i = i + chunkSize) {
             const chunk = pgxVariants.slice(i, i + chunkSize);
@@ -404,9 +404,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // 4. Update the query
-        // const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
+        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         this.query = {
-            // ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
+            ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
             id: Array.from(variantIds).join(","),
         };
         this.notifyQueryChange();
