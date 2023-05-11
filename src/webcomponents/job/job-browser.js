@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -84,6 +86,29 @@ export default class JobBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.jobBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.jobBrowserCatalog.grid,
+            };
+        }
+
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "jobBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
     }
 
     render() {
@@ -126,7 +151,8 @@ export default class JobBrowser extends LitElement {
                             .search="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
-                            @selectrow="${e => params.onClickRow(e, "job")}">
+                            @selectrow="${e => params.onClickRow(e, "job")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </job-grid>
                         <job-detail
                             .opencgaSession="${params.opencgaSession}"
