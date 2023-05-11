@@ -40,11 +40,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
 
     static get properties() {
         return {
-            clinicalAnalysis: {
-                type: Object,
-            },
             clinicalAnalysisId: {
                 type: String,
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object,
@@ -56,7 +56,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     }
 
     #init() {
-        this.clinicalAnalysis = {};
+        this._clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
 
         this.displayConfig = {
@@ -79,47 +79,51 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
         super.update(changedProperties);
     }
 
-    clinicalAnalysisObserver() {
-        this.disordersAllowedValues = (this.clinicalAnalysis?.proband?.disorders?.length > 0) ?
-            this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id) :
-            [];
-    }
 
-    clinicalAnalysisIdObserver(e) {
-        this.clinicalAnalysis = e.detail.value;
-    /*
-        // Fixme: discuss what to do with:
-        //  (a) the custom event received.
-        //  (b) event.status error and message (notified to the user  in opencga-update catch)
-
-        LitUtils.dispatchCustomEvent(
-            this,
-            "clinicalAnalysisUpdate",
-            e.detail.value,
-            e.detail,
-            null);
-    */
-    }
+    // clinicalAnalysisIdObserver(e) {
+    //     this.clinicalAnalysis = e.detail.value;
+    // /*
+    //     // Fixme: discuss what to do with:
+    //     //  (a) the custom event received.
+    //     //  (b) event.status error and message (notified to the user  in opencga-update catch)
+    //
+    //     LitUtils.dispatchCustomEvent(
+    //         this,
+    //         "clinicalAnalysisUpdate",
+    //         e.detail.value,
+    //         e.detail,
+    //         null);
+    // */
+    // }
 
     opencgaSessionObserver() {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
+    }
+
+    _getDisorderAllowedValues() {
+        this.disordersAllowedValues = (this._clinicalAnalysis?.proband?.disorders?.length > 0) ?
+            this._clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id) :
+            [];
+    }
+    onComponentIdObserver(e) {
+        this._clinicalAnalysis = UtilsNew.objectClone(e.detail.value);
+        this._getDisorderAllowedValues();
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <opencga-update
                 .resource="${"CLINICAL_ANALYSIS"}"
-                .component="${this.clinicalAnalysis}"
                 .componentId="${this.clinicalAnalysisId}"
+                .active="${this.active}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                @componentIdObserver="${this.clinicalAnalysisIdObserver}">
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
