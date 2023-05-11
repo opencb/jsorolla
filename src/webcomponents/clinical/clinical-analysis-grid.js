@@ -375,7 +375,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    onActionClick(e, _, row) {
+    onClinicalAnalysisUpdate() {
+        this.renderRemoteTable();
+    }
+
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
             case "create":
@@ -471,7 +475,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     .then(restResponse => this.download(restResponse))
                     .catch(error => console.error(error));
                 break;
-            case "statusChange":
+            case "statuschange":
                 const {status} = e.currentTarget.dataset;
                 this.opencgaSession.opencgaClient.clinical()
                     .update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
@@ -491,7 +495,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
                 break;
-            case "priorityChange":
+            case "prioritychange":
                 const {priority} = e.currentTarget.dataset;
                 this.opencgaSession.opencgaClient.clinical()
                     .update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
@@ -761,7 +765,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
