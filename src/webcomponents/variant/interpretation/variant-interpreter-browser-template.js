@@ -404,11 +404,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // 4. Update the query
-        // const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
+        const joinedVariantIds = Array.from(variantIds).join(",");
         this.query = {
             ...this.query,
-            // ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
-            id: Array.from(variantIds).join(","),
+            id: this.query.id ? [this.query.id, joinedVariantIds].join(",") : joinedVariantIds,
         };
         this.notifyQueryChange();
         this.requestUpdate();
