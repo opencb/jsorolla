@@ -404,10 +404,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // 4. Update the query
-        const joinedVariantIds = Array.from(variantIds).join(",");
         this.query = {
             ...this.query,
-            id: this.query.id ? [this.query.id, joinedVariantIds].join(",") : joinedVariantIds,
+            id: Array.from(variantIds).join(","),
         };
         this.notifyQueryChange();
         this.requestUpdate();
