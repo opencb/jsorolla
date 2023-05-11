@@ -19,10 +19,9 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-ultils";
-
+import "../commons/opencb-grid-toolbar.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -63,11 +62,19 @@ export default class IndividualGrid extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -80,6 +87,7 @@ export default class IndividualGrid extends LitElement {
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -91,7 +99,7 @@ export default class IndividualGrid extends LitElement {
 
     renderTable() {
         // If this.individuals is provided as property we render the array directly
-        if (this.individuals?.length > 0) {
+        if (this.individuals && this.individuals?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -107,6 +115,7 @@ export default class IndividualGrid extends LitElement {
                 return;
             }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -435,34 +444,38 @@ export default class IndividualGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Individual",
                 field: "id",
                 sortable: true,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "samples",
                 title: "Samples",
                 field: "samples",
                 formatter: this.samplesFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("samples")
             },
             {
                 id: "father",
                 title: "Father",
                 field: "father.id",
                 formatter: this.fatherFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("father")
             },
             {
                 id: "mother",
                 title: "Mother",
                 field: "mother.id",
                 formatter: this.motherFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("mother")
             },
             {
                 id: "disorders",
@@ -472,35 +485,40 @@ export default class IndividualGrid extends LitElement {
                     const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>");
                     return result ? result : "-";
                 },
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("attributes.OPENCGA_CLINICAL_ANALYSIS")
             },
             {
                 id: "sex",
                 title: "Sex (Karyotypic Sex)",
                 field: "sex",
                 formatter: this.sexFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("sex")
             },
             {
                 id: "ethnicity",
                 title: "Ethnicity",
                 field: "ethnicity",
                 formatter: this.ethnicityFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("ethnicity")
             },
             {
                 id: "dateOfBirth",
@@ -508,7 +526,8 @@ export default class IndividualGrid extends LitElement {
                 field: "dateOfBirth",
                 sortable: true,
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("dateOfBirth")
             },
             {
                 id: "creationDate",
@@ -516,7 +535,8 @@ export default class IndividualGrid extends LitElement {
                 field: "creationDate",
                 sortable: true,
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 id: "state",
@@ -524,12 +544,12 @@ export default class IndividualGrid extends LitElement {
                 checkbox: true,
                 class: "cursor-pointer",
                 eligible: false,
-                visible: this._config.showSelectCheckbox
+                visible: this._config.showSelectCheckbox,
             }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -597,8 +617,8 @@ export default class IndividualGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -649,6 +669,10 @@ export default class IndividualGrid extends LitElement {
                     .query="${this.query}"
                     .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
+                    .catalogConfig="${{
+                        gridColumns: this._columns,
+                        configGrid: this._config
+                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
