@@ -59,11 +59,19 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -79,12 +87,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config
         };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this._config.toolbar,
+            ...this._config?.toolbar,
             newButtonLink: "#clinical-analysis-create/",
             showCreate: false,
-            columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
+            // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
         this.renderRemoteTable();
         this.requestUpdate();
@@ -97,11 +106,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
-
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -475,7 +484,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "caseId",
                 title: "Case",
@@ -483,6 +492,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "probandId",
@@ -491,6 +501,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("probandId")
             },
             {
                 id: "disorderId",
@@ -505,6 +516,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         <div style="margin: 5px 0">${panelHtml}</div>
                     `;
                 },
+                visible: this.gridCommons.isColumnVisible("disorderId")
             },
             {
                 id: "interpretation",
@@ -513,6 +525,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.interpretationFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("interpretation")
             },
             {
                 id: "status",
@@ -524,7 +537,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.status
+                // visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.status
+                visible: this.gridCommons.isColumnVisible("status")
             },
             {
                 id: "priority",
@@ -537,7 +551,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.priorities
+                // visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.priorities
+                visible: this.gridCommons.isColumnVisible("priority")
             },
             {
                 id: "Analyst",
@@ -545,7 +560,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "analyst.id",
                 align: "center",
                 halign: this._config.header.horizontalAlign,
-                valign: "middle"
+                valign: "middle",
+                visible: this.gridCommons.isColumnVisible("Analyst")
             },
             {
                 id: "dates",
@@ -565,7 +581,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         <div style="${dueDateStyle}">${dueDateString}</div>
                         <div class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
                     `;
-                }
+                },
+                visible: this.gridCommons.isColumnVisible("dates")
                 // visible: !this._config.columns.hidden.includes("dueDate")
             },
             {
@@ -579,7 +596,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -644,8 +661,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -709,6 +726,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.toolbarConfig}"
+                    .catalogConfig="${{
+                        gridColumns: this._columns,
+                        configGrid: this._config
+                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
