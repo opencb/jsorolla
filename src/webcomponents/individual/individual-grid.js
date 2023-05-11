@@ -419,8 +419,6 @@ export default class IndividualGrid extends LitElement {
                     },
                 };
                 this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(this._operation.modalId);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
