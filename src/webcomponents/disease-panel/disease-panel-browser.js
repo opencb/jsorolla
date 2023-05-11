@@ -93,7 +93,6 @@ export default class DiseasePanelBrowser extends LitElement {
         }
 
         // Apply user configuration
-        debugger;
         if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowserCatalog?.grid) {
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
