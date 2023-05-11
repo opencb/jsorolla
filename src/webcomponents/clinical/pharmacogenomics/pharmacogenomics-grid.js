@@ -31,8 +31,6 @@ export default class PharmacogenomicsGrid extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this._rows = [];
-        this._columns = this.getDefaultColumns();
         this._config = this.getDefaultConfig();
     }
 
@@ -50,16 +48,20 @@ export default class PharmacogenomicsGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("variants") || changedProperties.has("config") || changedProperties.has("opencgaSession")) {
-            this.renderVariants();
+            this.renderTable();
         }
     }
 
-    renderVariants() {
+    renderTable() {
+        return this.renderLocalTable();
+    }
+
+    renderLocalTable() {
         this.table = $(`#${this._prefix}PgxTable`);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: this.variants,
-            columns: this._columns,
+            columns: this.getDefaultColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -67,10 +69,8 @@ export default class PharmacogenomicsGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            paginationVAlign: "both",
-            formatShowingRows: this.gridCommons.formatShowingRows,
             detailView: this._config.detailView,
-            detailFormatter: (value, row) => this.detailFormatter(value, row),
+            detailFormatter: this.detailFormatter,
             // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 if (this._config.detailView) {
@@ -86,7 +86,6 @@ export default class PharmacogenomicsGrid extends LitElement {
             // },
             onPostBody: data => {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-                this._rows = data;
             },
         });
     }
