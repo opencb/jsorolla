@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
+import "./pharmacogenomics-grid.js";
 import "../../commons/tool-header.js";
 import "../../loading-spinner.js";
 
@@ -126,6 +127,10 @@ export default class PharmacogenomicsReport extends LitElement {
             <div class="col-md-10 col-md-offset-1">
                 ${this.config.showToolTitle ? html`
                     <tool-header class="bg-white" title="${`Pharmacogenomics ${this.sampleId || ""}`}"></tool-header>
+                    <pharmacogenomics-grid
+                        .variants="${this.variants}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </pharmacogenomics-grid>
                 ` : nothing}
             </div>
         `;
