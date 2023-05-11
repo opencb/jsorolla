@@ -227,7 +227,7 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
             case "create":
                 this._operation = {
@@ -239,17 +239,17 @@ export default class DiseasePanelGrid extends LitElement {
                         },
                         render: () => {
                             return html `
-                                <disease-panel-crerate
+                                <disease-panel-create
                                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                     .opencgaSession="${this.opencgaSession}">
-                                </disease-panel-crerate>
+                                </disease-panel-create>
                             `;
                         }
                     },
                 };
                 this.requestUpdate();
                 break;
-            case "update":
+            case "edit":
                 this._operation = {
                     type: "update",
                     modalId: `${this._prefix}EditModal`,

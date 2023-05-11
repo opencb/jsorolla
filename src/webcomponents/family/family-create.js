@@ -127,7 +127,7 @@ export default class FamilyCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
+            // type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {

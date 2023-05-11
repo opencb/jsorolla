@@ -149,7 +149,7 @@ export default class DiseasePanelCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
+            // type: "form",
             display: {
                 buttonsVisible: true,
                 buttonOkText: "Create",

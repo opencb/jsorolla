@@ -51,7 +51,7 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     #init() {
-        this.diseasePanel = {};
+        this._diseasePanel = {};
         this.diseasePanelId = "";
         this.annotatedGenes = {};
         this.displayConfig = {
@@ -76,8 +76,9 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     onComponentIdObserver(e) {
-        this.diseasePanel = e.detail.value;
+        this._diseasePanel = UtilsNew.objectClone(e.detail.value);
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onComponentFieldChange(e) {
@@ -149,7 +150,7 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
+                                helpMessage: this._diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this._diseasePanel.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Add a disease panel ID"
                                 }

@@ -357,7 +357,7 @@ export default class FamilyGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
             case "create":
                 this._operation = {
@@ -603,7 +603,8 @@ export default class FamilyGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 
