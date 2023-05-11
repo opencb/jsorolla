@@ -183,7 +183,6 @@ export default class RdTieringAnalysis extends LitElement {
                                         .panel="${this.diseasePanelIds}"
                                         .showExtendedFilters="${false}"
                                         .showSelectedPanels="${false}"
-                                        .classes=""
                                         .disabled="${casePanelLock}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </disease-panel-filter>

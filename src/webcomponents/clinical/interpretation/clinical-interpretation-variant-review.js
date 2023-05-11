@@ -46,7 +46,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     }
 
     #init() {
-        this.updateParams = {};
+        this.updatedFields = {};
         this.mode = "form";
         this.variant = {};
         this._variant = {};
@@ -66,7 +66,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     variantObserver() {
         this.variant = this.variant || {}; // Prevent undefined variant review
         this._variant = UtilsNew.objectClone(this.variant);
-        this.updateParams = {};
+        this.updatedFields = {};
         this._config = this.getDefaultconfig();
     }
 
@@ -76,73 +76,60 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
 
     onFieldChange(e) {
         const param = e.detail.param;
-        switch (param) {
-            case "status":
-                this.updateParams = FormUtils.updateScalar(this._variant, this.variant, this.updateParams, param, e.detail.value);
-                break;
-            case "confidence.value":
-                // Check OpenCGA version
-                const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
-                if (compareResult >= 0) {
-                    this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
-                    if (typeof this.updateParams?.confidence?.value !== "undefined") {
-                        this.variant.confidence.author = this.opencgaSession.user?.id || "-";
-                        this.variant.confidence.date = UtilsNew.getDatetime();
-                    } else {
-                        // We need to reset discussion author and date
-                        this.variant.confidence.author = this._variant.confidence?.author;
-                        this.variant.confidence.date = this._variant.confidence?.date;
-                    }
-                }
-                break;
-            case "discussion.text":
-                // After TASK-1472, discussion is now an object containing text, author and date
-                this.updateParams = FormUtils.updateObjectParams(this._variant, this.variant, this.updateParams, param, e.detail.value);
-                if (typeof this.updateParams?.discussion?.text !== "undefined") {
-                    this.variant.discussion.author = this.opencgaSession.user?.id || "-";
-                    this.variant.discussion.date = UtilsNew.getDatetime();
+        this.updatedFields = FormUtils.getUpdatedFields(this.variant, this.updatedFields, param, e.detail.value, e.detail.action);
+
+        if (param === "confidence.value") {
+            // Check OpenCGA version
+            const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
+            if (compareResult >= 0) {
+                // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
+                if (typeof this.updatedFields["confidence.value"] !== "undefined") {
+                    this._variant.confidence.author = this.opencgaSession.user?.id || "-";
+                    this._variant.confidence.date = UtilsNew.getDatetime();
                 } else {
                     // We need to reset discussion author and date
-                    this.variant.discussion.author = this._variant.discussion?.author;
-                    this.variant.discussion.date = this._variant.discussion?.date;
+                    this._variant.confidence.author = this.variant.confidence?.author;
+                    this._variant.confidence.date = this.variant.confidence?.date;
                 }
-                break;
-            case "comments":
-                this.updateParams = FormUtils.updateArraysObject(
-                    this._variant,
-                    this.variant,
-                    this.updateParams,
-                    e.detail.param,
-                    e.detail.value
-                );
-
-                // Assign comment author and date (TASK-1473)
-                const lastComment = this.variant.comments[this.variant.comments.length - 1];
-                this.variant.comments[this.variant.comments.length - 1] = {
-                    ...lastComment,
-                    tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
-                    author: this.opencgaSession?.user?.id || "-",
-                    date: UtilsNew.getDatetime(),
-                };
-                break;
+            }
+        } else if (param === "discussion.text") {
+            // After TASK-1472, discussion is now an object containing text, author and date
+            // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
+            if (typeof this.updatedFields["discussion.text"] !== "undefined") {
+                this._variant.discussion.author = this.opencgaSession.user?.id || "-";
+                this._variant.discussion.date = UtilsNew.getDatetime();
+            } else {
+                // We need to reset discussion author and date
+                this._variant.discussion.author = this.variant.discussion?.author;
+                this._variant.discussion.date = this.variant.discussion?.date;
+            }
+        } else if (param.startsWith("comments")) {
+            // Assign comment author and date (TASK-1473)
+            const lastComment = this._variant.comments[this._variant.comments.length - 1];
+            this._variant.comments[this._variant.comments.length - 1] = {
+                ...lastComment,
+                author: this.opencgaSession?.user?.id || "-",
+                date: UtilsNew.getDatetime(),
+            };
         }
 
-        // this.dispatchEvent(new CustomEvent("variantChange", {
-        //     detail: {
-        //         value: this.variant,
-        //         update: this.updateParams
-        //     },
-        // }));
-        LitUtils.dispatchCustomEvent(this, "variantChange", this.variant, {update: this.updateParams});
-
+        // We need to fix tags in comments
+        LitUtils.dispatchCustomEvent(this, "variantChange", {
+            ...this._variant,
+            comments: (this._variant?.comments || []).map(comment => ({
+                ...comment,
+                tags: UtilsNew.commaSeparatedArray(comment.tags || []),
+            })),
+        });
         this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.variant}"
-                .updateParams="${this.updateParams}"
+                .data="${this._variant}"
+                .originalData="${this.variant}"
+                .updateParams="${this.updatedFields}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
@@ -201,24 +188,30 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                             // collapsable: false,
                             // maxNumItems: 5,
+                            showAddBatchListButton: false,
                             showEditItemListButton: false,
                             showDeleteItemListButton: false,
-                            view: comment => html`
-                                <div style="margin-bottom:1rem;">
-                                    <div style="display:flex;margin-bottom:0.5rem;">
-                                        <div style="padding-right:1rem;">
-                                            <i class="fas fa-comment-dots"></i>
+                            view: comment => {
+                                const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                    .join(", ") || "-";
+
+                                return html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
                                         </div>
-                                        <div style="font-weight:bold">
-                                            ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${tags}</div>
                                         </div>
                                     </div>
-                                    <div style="width:100%;">
-                                        <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                        <div class="text-muted">Tags: ${(comment.tags || []).join(" ") || "-"}</div>
-                                    </div>
-                                </div>
-                            `,
+                                `;
+                            }
                         },
                         elements: [
                             {

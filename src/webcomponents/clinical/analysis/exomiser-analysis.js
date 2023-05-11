@@ -99,15 +99,14 @@ export default class ExomiserAnalysis extends LitElement {
     check() {
         // Proband MUST have at least one phenotype or disorder
         if (this.clinicalAnalysisObj) {
-            if (this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0) {
+            if (!(this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0)) {
                 return {
-                    // status: this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0,
                     message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
                 };
             }
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     onFieldChange(e, field) {

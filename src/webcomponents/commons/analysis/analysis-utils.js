@@ -1,7 +1,7 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
-
+import "../../commons/filters/feature-filter.js";
 
 export default class AnalysisUtils {
 
@@ -42,9 +42,16 @@ export default class AnalysisUtils {
             {
                 title: "Gene",
                 field: prefix + "gene",
-                type: "input-text",
+                type: "custom",
                 display: {
-                    visible: !ignoreList?.includes("gene")
+                    render: (genes, dataFormFilterChange) => html`
+                        <feature-filter
+                            .cellbaseClient="${opencgaSession.cellbaseClient}"
+                            .query=${{gene: genes}}
+                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                        </feature-filter>
+                    `,
+                    visible: !ignoreList?.includes("gene"),
                 },
             },
             {

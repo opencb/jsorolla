@@ -24,8 +24,7 @@ export default class FamilyGenotypeFilter extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -49,21 +48,11 @@ export default class FamilyGenotypeFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.modeOfInheritance = null;
         this.modeOfInheritanceList = MODE_OF_INHERITANCE;
-
-        this.modeSelectData = [
-            {id: "CUSTOM", name: "Custom", selected: true},
-            {separator: true},
-            ...this.modeOfInheritanceList,
-            {separator: true},
-            {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
-            {id: "DE_NOVO", name: "De Novo"},
-            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM_REF)"},
-            {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
-        ];
+        this.modeSelectData = [];
 
         this.depths = [
             {id: "5", name: "5x"}, // , selected: true
@@ -84,17 +73,10 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.noGtSamples = [];
         // this.depthAll = true;
         this.errorState = false;
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("genotype")) {
             this.genotypeObserver();
         }
@@ -108,6 +90,8 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ...this.config,
             };
         }
+
+        super.update(changedProperties);
     }
 
     firstUpdated() {
@@ -160,7 +144,18 @@ export default class FamilyGenotypeFilter extends LitElement {
             // No individuals have been found
             this.tableData = [];
         }
-        this.requestUpdate();
+
+        // Generate mode of inheritance list
+        this.modeSelectData = [
+            {id: "CUSTOM", name: "Custom", selected: true},
+            {separator: true},
+            ...this.modeOfInheritanceList.map(item => ({...item, disabled: !this.clinicalAnalysis?.disorder?.id})),
+            {separator: true},
+            {id: "COMPOUND_HETEROZYGOUS", name: "Compound Heterozygous"},
+            {id: "DE_NOVO", name: "De Novo"},
+            {id: "DE_NOVO_STRICT", name: "De Novo Strict (both parents must be HOM_REF)"},
+            {id: "MENDELIAN_ERROR", name: "Mendelian Error"}
+        ];
     }
 
     // Parses this.genotype and update state
@@ -176,9 +171,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                     genotypes: gt ? gt.split(",") : []
                 };
             });
-
         }
-        this.requestUpdate();
     }
 
     // Builds `sample` query param and emits `filterChange` event
