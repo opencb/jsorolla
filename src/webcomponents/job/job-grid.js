@@ -68,11 +68,19 @@ export default class JobGrid extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -85,12 +93,15 @@ export default class JobGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "JOB",
-            columns: this._getDefaultColumns().filter(col => col.field)
+            columns: this._getDefaultColumns()
+            // columns: this._getDefaultColumns().filter(col => col.field)
         };
         this.renderRemoteTable();
+        this.requestUpdate();
     }
 
     renderRemoteTable() {
@@ -110,10 +121,11 @@ export default class JobGrid extends LitElement {
             //     this._jobs = [];
             // }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
@@ -300,27 +312,31 @@ export default class JobGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Job ID",
-                field: "id"
+                field: "id",
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "toolId",
                 title: "Analysis Tool ID",
-                field: "tool.id"
+                field: "tool.id",
+                visible: this.gridCommons.isColumnVisible("toolId")
             },
             {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status)
+                formatter: status => UtilsNew.jobStatusFormatter(status),
+                visible: this.gridCommons.isColumnVisible("status")
             },
             {
                 id: "priority",
                 title: "Priority",
-                field: "priority"
+                field: "priority",
+                visible: this.gridCommons.isColumnVisible("priority")
             },
             {
                 id: "dependsOn",
@@ -331,7 +347,8 @@ export default class JobGrid extends LitElement {
                         <a tooltip-title="Dependencies" tooltip-text="${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}">
                             ${dependsOn.length} job${dependsOn.length > 1 ? "s" : ""}
                         </a>
-                    </div>` : "-"
+                    </div>` : "-",
+                visible: this.gridCommons.isColumnVisible("dependsOn")
             },
             {
                 id: "output",
@@ -344,10 +361,11 @@ export default class JobGrid extends LitElement {
                     } else {
                         return "-";
                     }
-                }
+                },
+                visible: this.gridCommons.isColumnVisible("output")
             },
             {
-                id: "execution",
+                id: "executionR",
                 title: "Runtime",
                 field: "execution",
                 formatter: execution => {
@@ -356,21 +374,24 @@ export default class JobGrid extends LitElement {
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
                         return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
-                }
+                },
+                visible: this.gridCommons.isColumnVisible("executionR")
             },
             {
-                id: "execution",
+                id: "executionD",
                 title: "Start/End Date",
                 field: "execution",
                 formatter: execution => execution?.start ?
                     moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-"
+                    "-",
+                visible: this.gridCommons.isColumnVisible("executionD")
             },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 id: "state",
@@ -383,7 +404,7 @@ export default class JobGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -427,8 +448,8 @@ export default class JobGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -488,7 +509,10 @@ export default class JobGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
-                    .rightToolbar="${this.getRightToolbar()}"
+                    .catalogConfig="${{
+                        gridColumns: this._columns,
+                        configGrid: this._config
+                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
