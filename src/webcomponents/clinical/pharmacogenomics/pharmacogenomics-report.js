@@ -116,7 +116,9 @@ export default class PharmacogenomicsReport extends LitElement {
     render() {
         if (this.isLoading) {
             return html`
-                <loading-spinner></loading-spinner>
+                <div style="padding-top:32px">
+                    <loading-spinner></loading-spinner>
+                </div>
             `;
         }
 
