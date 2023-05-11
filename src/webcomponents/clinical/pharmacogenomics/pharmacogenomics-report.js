@@ -78,20 +78,25 @@ export default class PharmacogenomicsReport extends LitElement {
             const variantIds = new Set();
             variantsResponses.forEach(variantResponse => {
                 variantResponse.responses[0].results.forEach(variant => {
-                    variantIds.add(variant.id);
+                    variantIds.add(variant.id.split(":").slice(0, 2).join(":"));
                 });
             });
 
             // 4. Import variants info from CellBase
-            // const variantsInfoResponse = await cellbaseClient.get("clinical", "pharmacogenomics", null, "search", {
-            const variantIdsStr = Array.from(variantIds).join(",");
-            const variantsInfoResponse = await cellbaseClient.get("genomic", "variant", variantIdsStr, "annotation", {
+            const variantsInfoResponse = await cellbaseClient.get("clinical", "pharmacogenomics", null, "search", {
+                location: Array.from(variantIds).join(","),
                 assembly: "grch38",
                 dataRelease: "5",
             });
 
             // 5. Save variants and request update
-            this.variants = variantsInfoResponse.responses.map(response => response.results[0]);
+            this.variants = variantsInfoResponse.responses[0].results.map(result => {
+                return {
+                    ...result,
+                    variants: result.variants.filter(v => variantIds.has(v.location)),
+                };
+            });
+            console.log(this.variants);
             this.requestUpdate();
         }
     }
@@ -100,7 +105,7 @@ export default class PharmacogenomicsReport extends LitElement {
         return html`
             <div class="col-md-10 col-md-offset-1">
                 ${this.config.showToolTitle ? html`
-                    <tool-header class="bg-white" title="${"Pharmacogenomics"}"></tool-header>
+                    <tool-header class="bg-white" title="${`Pharmacogenomics ${this.sampleId || ""}`}"></tool-header>
                 ` : nothing}
             </div>
         `;
