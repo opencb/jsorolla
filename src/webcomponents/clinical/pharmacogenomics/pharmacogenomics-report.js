@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 import "../../commons/tool-header.js";
+import "../../loading-spinner.js";
 
 export default class PharmacogenomicsReport extends LitElement {
 
@@ -29,6 +30,7 @@ export default class PharmacogenomicsReport extends LitElement {
 
     #init() {
         this.active = true;
+        this.isLoading = false;
         this.variants = [];
         this.config = this.getDefaultConfig();
     }
@@ -43,6 +45,8 @@ export default class PharmacogenomicsReport extends LitElement {
     async sampleIdObserver() {
         this.variants = [];
         if (this.opencgaSession && this.sampleId && this.active) {
+            this.isLoading = true;
+            this.requestUpdate();
             // 0. Initialize Cellbase client instance
             const cellbaseClient = new CellBaseClient({
                 // host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
@@ -104,11 +108,18 @@ export default class PharmacogenomicsReport extends LitElement {
                 });
             });
             console.log(this.variants);
+            this.isLoading = false;
             this.requestUpdate();
         }
     }
 
     render() {
+        if (this.isLoading) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
+        }
+
         return html`
             <div class="col-md-10 col-md-offset-1">
                 ${this.config.showToolTitle ? html`
