@@ -351,7 +351,7 @@ export default class SampleGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
-                visible: this.gridCommons.isColumnVisible("attributes.OPENCGA_CLINICAL_ANALYSIS")
+                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "collection.method",
