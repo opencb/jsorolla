@@ -94,7 +94,7 @@ export default class PharmacogenomicsGrid extends LitElement {
     detailFormatter(value, row) {
         return `
             <div style='padding:20px;'>
-                ${row.sentence}
+                -
             </div>
         `;
     }
@@ -108,7 +108,41 @@ export default class PharmacogenomicsGrid extends LitElement {
     }
 
     getDefaultColumns() {
-        return [];
+        return [
+            {
+                id: "position",
+                title: "Chr:Pos",
+                field: "chromosome",
+                formatter: (value, row) => `${row.chromosome}:${row.start}`,
+            },
+            {
+                id: "id",
+                title: "Variant",
+                formatter: () => "-",
+            },
+            {
+                id: "genotype",
+                title: "Genotype",
+                formatter: (value, row) => {
+                    return `${row.reference}/${row.alternate}`;
+                },
+            },
+            {
+                id: "gene",
+                title: "Gene",
+                formatter: () => "-",
+            },
+            {
+                id: "drugs",
+                title: "Drugs",
+                formatter: () => "-",
+            },
+            {
+                id: "phenotypeCategory",
+                title: "Phenotype Category",
+                formatter: () => "-",
+            },
+        ];
     }
 
     getDefaultConfig() {
