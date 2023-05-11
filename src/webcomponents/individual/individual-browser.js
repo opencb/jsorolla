@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
@@ -63,17 +65,9 @@ export default class IndividualBrowser extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -92,6 +86,30 @@ export default class IndividualBrowser extends LitElement {
         }
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.diseasePanelBrowserCatalog.grid,
+            };
+        }
+
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "diseasePanelBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -122,7 +140,8 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "individual")}">
+                            @selectrow="${e => params.onClickRow(e, "individual")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </individual-grid>
                         <individual-detail
                             .opencgaSession="${params.opencgaSession}"
