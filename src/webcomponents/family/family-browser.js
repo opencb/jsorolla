@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
@@ -57,6 +59,7 @@ export default class FamilyBrowser extends LitElement {
 
     _init() {
         this._prefix = "fb" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
 
         // These are for making the queries to server
         /* this.facetFields = [];
@@ -72,14 +75,10 @@ export default class FamilyBrowser extends LitElement {
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
         this.errorState = false;*/
-
-        this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
-        if (changedProperties.has("settings")) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
 
@@ -93,17 +92,43 @@ export default class FamilyBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
+
         if (this.settings?.table) {
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
                 ...this.settings.table,
             };
         }
+
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {
                 ...this._config.filter.result.grid.toolbar,
                 ...this.settings.table.toolbar,
             };
+        }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.familyBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.familyBrowserCatalog.grid,
+            };
+        }
+
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "familyBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -135,7 +160,8 @@ export default class FamilyBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "family")}">
+                            @selectrow="${e => params.onClickRow(e, "family")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </family-grid>
                         <family-detail
                             .opencgaSession="${params.opencgaSession}"
