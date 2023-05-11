@@ -247,11 +247,13 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null}
 
+                            <!-- it'll be showSettings -->
+                            ${this.catalogConfig !== undefined ? html`
                             <div class="btn-group">
                                 <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                     <i class="fas fa-cog icon-padding"></i> Settings (Beta)
                                 </button>
-                            </div>
+                            </div>` : nothing}
 
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
