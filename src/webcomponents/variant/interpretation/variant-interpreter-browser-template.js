@@ -404,9 +404,10 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         });
 
         // 4. Update the query
-        const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
+        // const lockedFields = [...this._config?.filter?.activeFilters?.lockedFields.map(key => key.id), "study"];
         this.query = {
-            ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
+            ...this.query,
+            // ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
             id: Array.from(variantIds).join(","),
         };
         this.notifyQueryChange();
