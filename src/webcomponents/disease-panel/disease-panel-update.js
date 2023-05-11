@@ -35,11 +35,11 @@ export default class DiseasePanelUpdate extends LitElement {
 
     static get properties() {
         return {
-            diseasePanel: {
-                type: Object
-            },
             diseasePanelId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -123,8 +123,8 @@ export default class DiseasePanelUpdate extends LitElement {
         return html`
             <opencga-update
                 .resource="${"DISEASE_PANEL"}"
-                .component="${this.diseasePanel}"
                 .componentId="${this.diseasePanelId}"
+                .active="${this.active}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
                 @componentIdObserver = ${this.onComponentIdObserver}
