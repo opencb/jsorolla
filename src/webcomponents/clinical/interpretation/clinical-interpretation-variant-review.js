@@ -82,6 +82,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             // Check OpenCGA version
             const compareResult = UtilsNew.compareVersions("2.4.6", this.opencgaSession.about.Version);
             if (compareResult >= 0) {
+                // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
                 if (typeof this.updatedFields["confidence.value"] !== "undefined") {
                     this._variant.confidence.author = this.opencgaSession.user?.id || "-";
                     this._variant.confidence.date = UtilsNew.getDatetime();
@@ -93,6 +94,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             }
         } else if (param === "discussion.text") {
             // After TASK-1472, discussion is now an object containing text, author and date
+            // this.updatedFields = FormUtils.updateObjectParams(this._variant, this.variant, this.updatedFields, param, e.detail.value);
             if (typeof this.updatedFields["discussion.text"] !== "undefined") {
                 this._variant.discussion.author = this.opencgaSession.user?.id || "-";
                 this._variant.discussion.date = UtilsNew.getDatetime();
@@ -106,7 +108,6 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
             const lastComment = this._variant.comments[this._variant.comments.length - 1];
             this._variant.comments[this._variant.comments.length - 1] = {
                 ...lastComment,
-                // tags: Array.isArray(lastComment.tags) ? lastComment.tags : (lastComment.tags || "").split(" "),
                 author: this.opencgaSession?.user?.id || "-",
                 date: UtilsNew.getDatetime(),
             };
@@ -190,22 +191,27 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             showAddBatchListButton: false,
                             showEditItemListButton: false,
                             showDeleteItemListButton: false,
-                            view: comment => html`
-                                <div style="margin-bottom:1rem;">
-                                    <div style="display:flex;margin-bottom:0.5rem;">
-                                        <div style="padding-right:1rem;">
-                                            <i class="fas fa-comment-dots"></i>
+                            view: comment => {
+                                const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                    .join(", ") || "-";
+
+                                return html`
+                                    <div style="margin-bottom:1rem;">
+                                        <div style="display:flex;margin-bottom:0.5rem;">
+                                            <div style="padding-right:1rem;">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </div>
+                                            <div style="font-weight:bold">
+                                                ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                            </div>
                                         </div>
-                                        <div style="font-weight:bold">
-                                            ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                        <div style="width:100%;">
+                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                            <div class="text-muted">Tags: ${tags}</div>
                                         </div>
                                     </div>
-                                    <div style="width:100%;">
-                                        <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                        <div class="text-muted">Tags: ${UtilsNew.commaSeparatedArray(comment.tags).join(", ") || "-"}</div>
-                                    </div>
-                                </div>
-                            `,
+                                `;
+                            }
                         },
                         elements: [
                             {
