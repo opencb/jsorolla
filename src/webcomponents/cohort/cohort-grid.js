@@ -55,12 +55,21 @@ export default class CohortGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "CohortBrowserGrid";
         this.active = true;
+        this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -71,12 +80,12 @@ export default class CohortGrid extends LitElement {
             this.active) {
             this.propertyObserver();
         }
-        // super.update(changedProperties);
     }
 
     propertyObserver() {
         // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -103,10 +112,11 @@ export default class CohortGrid extends LitElement {
                 this._cohorts = [];
             }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -188,37 +198,41 @@ export default class CohortGrid extends LitElement {
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Cohort",
                 field: "id",
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "numSamples",
                 title: "#Samples",
                 field: "numSamples",
                 // formatter: (value, row) => row.numSamples ?? 0,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
                 id: "creationDate",
                 title: "Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 id: "type",
                 title: "Type",
                 field: "type",
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("type")
             }
         ];
 
         if (this._config.multiSelection) {
-            _columns.unshift({
+            this._columns.unshift({
                 field: "state",
                 checkbox: true,
                 class: "cursor-pointer",
@@ -226,9 +240,9 @@ export default class CohortGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
 
-        return _columns;
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -289,6 +303,10 @@ export default class CohortGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .catalogConfig="${{
+                        gridColumns: this._columns,
+                        configGrid: this._config
+                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
