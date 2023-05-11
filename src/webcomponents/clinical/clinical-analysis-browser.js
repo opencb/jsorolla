@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -56,8 +58,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
-    // is executed twice in case there is external settings
     update(changedProperties) {
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
@@ -87,6 +87,30 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     ...(this.settings.table.toolbar || {}),
                 },
             };
+        }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
+            };
+        }
+
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "clinicalAnalysisBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -124,7 +148,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
-                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}">
+                            @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
+                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
                             .opencgaSession="${params.opencgaSession}"
