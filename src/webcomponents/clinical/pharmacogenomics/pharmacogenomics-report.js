@@ -78,23 +78,30 @@ export default class PharmacogenomicsReport extends LitElement {
             const variantIds = new Set();
             variantsResponses.forEach(variantResponse => {
                 variantResponse.responses[0].results.forEach(variant => {
-                    variantIds.add(variant.id.split(":").slice(0, 2).join(":"));
+                    variantIds.add(variant.id);
                 });
             });
 
             // 4. Import variants info from CellBase
-            const variantsInfoResponse = await cellbaseClient.get("clinical", "pharmacogenomics", null, "search", {
-                location: Array.from(variantIds).join(","),
-                assembly: "grch38",
-                dataRelease: "5",
-            });
+            const ids = Array.from(variantIds);
+            const variantsPromises = [];
+            for (let i = 0; i < ids.length; i = i + 50) {
+                const chunk = ids.slice(i, i + 50);
+                const query = {
+                    assembly: "grch38",
+                    dataRelease: "5",
+                    include: "pharmacogenomics",
+                };
+                variantsPromises.push(cellbaseClient.get("genomic", "variant", chunk.join(","), "annotation", query));
+            }
+            const variantsInfoResponse = await Promise.all(variantsPromises);
 
             // 5. Save variants and request update
-            this.variants = variantsInfoResponse.responses[0].results.map(result => {
-                return {
-                    ...result,
-                    variants: result.variants.filter(v => variantIds.has(v.location)),
-                };
+            this.variants = [];
+            variantsInfoResponse.forEach(response => {
+                response.responses.forEach(res => {
+                    this.variants.push(res.results[0]);
+                });
             });
             console.log(this.variants);
             this.requestUpdate();
