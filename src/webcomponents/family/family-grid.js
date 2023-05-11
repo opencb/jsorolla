@@ -19,10 +19,9 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-ultils";
-
+import "../commons/opencb-grid-toolbar.js";
 
 export default class FamilyGrid extends LitElement {
 
@@ -63,11 +62,19 @@ export default class FamilyGrid extends LitElement {
         this._config = {...this.getDefaultConfig()};
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    // connectedCallback() {
+    //     super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    // }
+
+    firstUpdated() {
+        this.table = this.querySelector("#" + this.gridId);
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     updated(changedProperties) {
@@ -80,6 +87,7 @@ export default class FamilyGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -90,8 +98,7 @@ export default class FamilyGrid extends LitElement {
     }
 
     renderTable() {
-        // If this.individuals is provided as property we render the array directly
-        if (this.families?.length > 0) {
+        if (this.families && this.families?.length > 0) {
             this.renderLocalTable();
         } else {
             this.renderRemoteTable();
@@ -107,10 +114,11 @@ export default class FamilyGrid extends LitElement {
                 return;
             }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -420,41 +428,46 @@ export default class FamilyGrid extends LitElement {
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        let _columns = [
+        this._columns = [
             {
                 id: "id",
                 title: "Family",
                 field: "id",
                 sortable: true,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "members",
                 title: "Members",
                 field: "members",
                 formatter: this.membersFormatter.bind(this),
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("members")
             },
             {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => disorders.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "customAnnotation",
@@ -462,7 +475,8 @@ export default class FamilyGrid extends LitElement {
                 field: "customAnnotation",
                 formatter: this.customAnnotationFormatter,
                 visible: customAnnotationVisible,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                // visible: this.gridCommons.isColumnVisible("customAnnotation")
             },
             {
                 id: "creationDate",
@@ -471,6 +485,7 @@ export default class FamilyGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
                 id: "state",
@@ -483,7 +498,7 @@ export default class FamilyGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -551,8 +566,8 @@ export default class FamilyGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -601,6 +616,10 @@ export default class FamilyGrid extends LitElement {
                     .query="${this.query}"
                     .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
+                    .catalogConfig="${{
+                        gridColumns: this._columns,
+                        configGrid: this._config
+                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
