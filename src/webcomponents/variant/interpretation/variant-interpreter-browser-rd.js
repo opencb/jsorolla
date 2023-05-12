@@ -20,7 +20,6 @@ import "./variant-interpreter-browser-template.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../variant-samples.js";
 import "../../visualization/protein-lollipop-variant-view.js";
-import "../../clinical/pharmacogenomics/pharmacogenomics-summary.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -688,17 +687,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                     .variant="${variant}"
                                     .active="${active}">
                                 </variant-interpreter-exomiser-view>
-                            `,
-                        },
-                        {
-                            id: "pharmacogenomics",
-                            name: "Pharmacogenomics",
-                            render: (variant, active, opencgaSession) => html`
-                                <pharmacogenomics-summary
-                                    .variant="${variant.id}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </pharmacogenomics-summary>
                             `,
                         },
                         {
