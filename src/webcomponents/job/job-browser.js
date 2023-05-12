@@ -152,7 +152,7 @@ export default class JobBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
                             @selectrow="${e => params.onClickRow(e, "job")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </job-grid>
                         <job-detail
                             .opencgaSession="${params.opencgaSession}"
