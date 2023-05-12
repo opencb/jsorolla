@@ -62,7 +62,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
             buttonsAlign: "right",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
-            titleVisible: false,
+            titleVisible: true,
+            modalTitle: "Create Clinical Interpretation",
             titleWidth: 4,
             defaultLayout: "horizontal"
         };
@@ -175,7 +176,8 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: this.mode,
+            mode: this.mode,
+            type: this._config?.display?.type || "tabs",
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
             display: this.displayConfig || this.displayConfigDefault,
