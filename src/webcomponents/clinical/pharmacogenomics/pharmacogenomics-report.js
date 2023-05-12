@@ -72,24 +72,25 @@ export default class PharmacogenomicsReport extends LitElement {
                 const query = {
                     region: chunk.join(","),
                     sample: this.sampleId,
-                    include: "id",
+                    // include: "id",
                     study: this.opencgaSession.study.fqn,
+                    includeSampleId: true,
                 };
                 promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
             }
             const variantsResponses = await Promise.all(promises);
 
-            // 3. Generate the list of unique variants to filter
-            const variantIds = new Set();
+            // 3. Generate the list of variants
+            const variants = new Map();
             variantsResponses.forEach(variantResponse => {
                 variantResponse.responses[0].results.forEach(variant => {
-                    variantIds.add(variant.id);
+                    variants.set(variant.id, variant);
                 });
             });
 
-            // 4. Import variants info from CellBase
-            const ids = Array.from(variantIds);
-            const variantsPromises = [];
+            // 4. Import pharmacogenomics annotation from cellbase
+            const ids = Array.from(variants.keys());
+            const pgxAnnotationPromises = [];
             for (let i = 0; i < ids.length; i = i + 50) {
                 const chunk = ids.slice(i, i + 50);
                 const query = {
@@ -97,17 +98,21 @@ export default class PharmacogenomicsReport extends LitElement {
                     dataRelease: "5",
                     include: "pharmacogenomics",
                 };
-                variantsPromises.push(cellbaseClient.get("genomic", "variant", chunk.join(","), "annotation", query));
+                pgxAnnotationPromises.push(cellbaseClient.get("genomic", "variant", chunk.join(","), "annotation", query));
             }
-            const variantsInfoResponse = await Promise.all(variantsPromises);
+            const pgxAnnotationResponses = await Promise.all(pgxAnnotationPromises);
 
-            // 5. Save variants and request update
-            this.variants = [];
-            variantsInfoResponse.forEach(response => {
-                response.responses.forEach(res => {
-                    this.variants.push(res.results[0]);
+            // 5. Merge pgx annotation with variants
+            pgxAnnotationResponses.forEach(pgxAnnotationResponse => {
+                pgxAnnotationResponse.responses.forEach(response => {
+                    if (variants.has(response.id)) {
+                        variants.get(response.id).annotation.pharmacogenomics = response.results[0].pharmacogenomics;
+                    }
                 });
             });
+
+            // 5. Save variants and request update
+            this.variants = Array.from(variants.values());
             console.log(this.variants);
             this.isLoading = false;
             this.requestUpdate();
@@ -128,6 +133,7 @@ export default class PharmacogenomicsReport extends LitElement {
                 ${this.config.showToolTitle ? html`
                     <tool-header class="bg-white" title="${`Pharmacogenomics ${this.sampleId || ""}`}"></tool-header>
                     <pharmacogenomics-grid
+                        .sampleId="${this.sampleId}"
                         .variants="${this.variants}"
                         .opencgaSession="${this.opencgaSession}">
                     </pharmacogenomics-grid>
