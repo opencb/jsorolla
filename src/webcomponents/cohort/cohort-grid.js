@@ -20,6 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
 
 export default class CohortGrid extends LitElement {
@@ -184,6 +185,56 @@ export default class CohortGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
+    async onActionClick(e, _, row) {
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        switch (action) {
+            case "create":
+                this._operation = {
+                    type: "create",
+                    modalId: `${this._prefix}CreateModal`,
+                    config: {
+                        display: {
+                            modalTitle: "Cohort Create",
+                        },
+                        render: () => {
+                            return html `
+                                <cohort-create
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </cohort-create>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                break;
+            case "edit":
+                this._operation = {
+                    type: "update",
+                    modalId: `${this._prefix}EditModal`,
+                    config: {
+                        display: {
+                            modalTitle: `Cohort Update: ${row.id}`,
+                        },
+                        render: active => {
+                            return html `
+                                <cohort-update
+                                    .cohortId="${row.id}"
+                                    .active="${active}"
+                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                                    .opencgaSession="${this.opencgaSession}">
+                                </cohort-update>
+                            `;
+                        }
+                    },
+                };
+                this.requestUpdate();
+                // await this.updateComplete;
+                // ModalUtils.show(this._operation.modalId);
+                break;
+        }
+    }
+
     _getDefaultColumns() {
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
@@ -216,6 +267,42 @@ export default class CohortGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             }
         ];
+
+        if (this.opencgaSession && this._config.showActions) {
+            _columns.push({
+                id: "actions",
+                title: "Actions",
+                field: "actions",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <span>Actions</span>
+                            <span class="caret" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                </a>
+
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
+            });
+        }
+
 
         if (this._config.multiSelection) {
             _columns.unshift({
@@ -288,10 +375,12 @@ export default class CohortGrid extends LitElement {
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
+                    .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>
             ` : ""}
 
@@ -307,10 +396,11 @@ export default class CohortGrid extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
+            showToolbar: true,
+            showActions: true,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showToolbar: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"

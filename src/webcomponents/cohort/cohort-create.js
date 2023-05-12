@@ -77,8 +77,7 @@ export default class CohortCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
+    onFieldChange() {
         this.cohort = {...this.cohort};
         this.requestUpdate();
     }
@@ -140,7 +139,6 @@ export default class CohortCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
