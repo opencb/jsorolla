@@ -141,7 +141,7 @@ export default class IndividualBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "individual")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </individual-grid>
                         <individual-detail
                             .opencgaSession="${params.opencgaSession}"

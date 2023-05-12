@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-ultils";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 
 export default class IndividualGrid extends LitElement {
@@ -88,11 +89,32 @@ export default class IndividualGrid extends LitElement {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        // settings for the grid toolbar
+        this.toolbarSetting = {
+            ...this._config.toolbar,
+            buttons: ["columns", "download"],
+        };
+
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
             resource: "INDIVIDUAL",
-            columns: this._getDefaultColumns()
+            gridSettings: {
+                display: {
+                    modalTitle: "Table Settings",
+                    modalbtnsVisible: true,
+                },
+                save: self => {
+                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+                },
+                render: self => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._columns}"
+                        .config="${this._config}"
+                        @configChange="${self.onGridConfigChange}">
+                    </catalog-browser-grid-config>`
+            }
         };
         this.renderTable();
     }
@@ -119,7 +141,7 @@ export default class IndividualGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -666,13 +688,10 @@ export default class IndividualGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
-                    .catalogConfig="${{
-                        gridColumns: this._columns,
-                        configGrid: this._config
-                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
