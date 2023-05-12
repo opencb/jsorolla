@@ -22,7 +22,7 @@ export default class ModalUtils {
         }
     }
 
-    static create(id, config) {
+    static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "768px";
         const modalTitle = config.display?.modalTitle || "";
@@ -43,14 +43,14 @@ export default class ModalUtils {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                ${config?.render()}
+                                ${config?.render(self)}
                             </div>
                         </div>
                         ${btnsVisible? html`
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => config?.save()}">Save</button>
-                                </div>`: nothing}
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => config?.save(self)}">Save</button>
+                            </div>`: nothing}
                     </div>
                 </div>
             </div>
