@@ -88,12 +88,34 @@ export default class ClinicalAnalysisGrid extends LitElement {
             ...this.config
         };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // Config for the grid toolbar
-        this.toolbarConfig = {
+
+        // Settings for the grid toolbar
+        this.toolbarSetting = {
             ...this._config?.toolbar,
             newButtonLink: "#clinical-analysis-create/",
             showCreate: false,
             // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
+        };
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            gridSettings: {
+                display: {
+                    modalTitle: "Table Settings",
+                    modalbtnsVisible: true,
+                },
+                save: self => {
+                    // console.log(self, "save", self.__config.columns);
+                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+                },
+                render: self => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._columns}"
+                        .config="${this._config}"
+                        @configChange="${self.onGridConfigChange}">
+                    </catalog-browser-grid-config>`
+            }
         };
         this.renderRemoteTable();
         this.requestUpdate();
@@ -585,14 +607,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("dates")
                 // visible: !this._config.columns.hidden.includes("dueDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            }
+            // {
+            //     id: "state",
+            //     field: "state",
+            //     checkbox: true,
+            //     class: "cursor-pointer",
+            //     eligible: false,
+            //     visible: this._config.showSelectCheckbox
+            // }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
@@ -726,10 +748,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.toolbarConfig}"
-                    .catalogConfig="${{
-                        gridColumns: this._columns,
-                        configGrid: this._config
-                    }}"
+                    .settings="${this.toolbarSetting}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">

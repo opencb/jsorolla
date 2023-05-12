@@ -149,7 +149,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
                             .opencgaSession="${params.opencgaSession}"
