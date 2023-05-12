@@ -407,30 +407,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
-
-                    // Add events for displaying genes list
-                    const gridElement = document.querySelector(`#${this.gridId}`);
-                    if (gridElement) {
-                        Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
-                            const genesList = el.querySelector("span[data-role='genes-list-extra']");
-                            const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
-                            const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
-
-                            // Click on show more genes link
-                            genesShowLink.addEventListener("click", () => {
-                                genesShowLink.style.display = "none";
-                                genesHideLink.style.display = "block";
-                                genesList.style.display = "inline-block";
-                            });
-
-                            // Click on show less genes link
-                            genesHideLink.addEventListener("click", () => {
-                                genesHideLink.style.display = "none";
-                                genesShowLink.style.display = "block";
-                                genesList.style.display = "none";
-                            });
-                        });
-                    }
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row) => {
@@ -559,30 +535,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
                 this._rows = data;
-
-                // Add events for displaying genes list
-                const gridElement = document.querySelector(`#${this.gridId}`);
-                if (gridElement) {
-                    Array.from(gridElement.querySelectorAll("div[data-role='genes-list']")).forEach(el => {
-                        const genesList = el.querySelector("span[data-role='genes-list-extra']");
-                        const genesShowLink = el.querySelector("a[data-role='genes-list-show']");
-                        const genesHideLink = el.querySelector("a[data-role='genes-list-hide']");
-
-                        // Click on show more genes link
-                        genesShowLink.addEventListener("click", () => {
-                            genesShowLink.style.display = "none";
-                            genesHideLink.style.display = "block";
-                            genesList.style.display = "inline-block";
-                        });
-
-                        // Click on show less genes link
-                        genesHideLink.addEventListener("click", () => {
-                            genesHideLink.style.display = "none";
-                            genesShowLink.style.display = "block";
-                            genesList.style.display = "none";
-                        });
-                    });
-                }
             },
             rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
