@@ -497,7 +497,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
-                                        @gridconfigsave="${this.onGridConfigSave}">
+                                        @gridConfigSave="${this.onGridConfigSave}">
                                     </variant-interpreter-grid>` : html`
                                     <variant-interpreter-rearrangement-grid
                                         .opencgaSession="${this.opencgaSession}"
