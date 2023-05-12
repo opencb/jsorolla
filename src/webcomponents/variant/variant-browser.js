@@ -837,7 +837,7 @@ export default class VariantBrowser extends LitElement {
                                     .config="${this._config.filter.result.grid}"
                                     @queryComplete="${this.onQueryComplete}"
                                     @selectrow="${this.onSelectVariant}"
-                                    @gridconfigsave="${this.onGridConfigSave}">
+                                    @gridConfigSave="${this.onGridConfigSave}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
