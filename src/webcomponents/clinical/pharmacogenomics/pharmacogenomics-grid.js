@@ -75,7 +75,7 @@ export default class PharmacogenomicsGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            detailFormatter: (value, row) => this.detailFormatter(value, row),
 
             // This has been added to make the grid properties in all bootstrap table formatters, as some grid formattes needs them
             variantGrid: this,
@@ -100,10 +100,50 @@ export default class PharmacogenomicsGrid extends LitElement {
     }
 
     detailFormatter(value, row) {
+        let result = "<div style='padding-bottom:24px'>";
+        let detailHtml = "";
+        if (row?.annotation?.pharmacogenomics) {
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Drugs</h4></div>";
+            detailHtml += "<div style='padding: 5px 40px'>";
+            detailHtml += this.drugsTableFormatter(row);
+            detailHtml += "</div>";
+        }
+        result += detailHtml + "</div>";
+        return result;
+    }
+
+    drugsTableFormatter(variant) {
+        const drugsRows = variant.annotation.pharmacogenomics
+            // .filter(item => item.types.includes("Drug"))
+            .map(item => {
+                const phenotypes = item.annotations.map(annotation => `<div>${annotation.phenotypes.join(", ")}</div>`);
+                const phenotypeTypes = item.annotations.map(annotation => `<div>${annotation.phenotypeType}</div>`);
+                return `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.name || "-"}</td>
+                        <td>${item.source || "-"}</td>
+                        <td>${phenotypes.join("")}</td>
+                        <td>${phenotypeTypes.join("")}</td>
+                    </tr>
+                `;
+            });
+
         return `
-            <div style='padding:20px;'>
-                -
-            </div>
+            <table id="DrugsTable" class="table table-hover table-no-bordered">
+                <thead>
+                    <tr>
+                        <th style="padding:8px;">ID</th>
+                        <th style="padding:8px;">Name</th>
+                        <th style="padding:8px;">Source</th>
+                        <th style="padding:8px;">Phenotypes</th>
+                        <th style="padding:8px;">Phenotype Types</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${drugsRows.join("")}
+                </tbody>
+            </table>
         `;
     }
 
