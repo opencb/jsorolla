@@ -1,6 +1,8 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 
@@ -19,6 +21,9 @@ export default class PharmacogenomicsGrid extends LitElement {
         return {
             opencgaSession: {
                 type: Object,
+            },
+            sampleId: {
+                type: String,
             },
             variants: {
                 type: Array,
@@ -71,6 +76,10 @@ export default class PharmacogenomicsGrid extends LitElement {
             pageList: this._config.pageList,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
+
+            // This has been added to make the grid properties in all bootstrap table formatters, as some grid formattes needs them
+            variantGrid: this,
+
             // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 if (this._config.detailView) {
@@ -108,39 +117,93 @@ export default class PharmacogenomicsGrid extends LitElement {
 
     getDefaultColumns() {
         return [
-            {
-                id: "position",
-                title: "Chr:Pos",
-                field: "chromosome",
-                formatter: (value, row) => `${row.chromosome}:${row.start}`,
-            },
-            {
-                id: "id",
-                title: "Variant",
-                formatter: () => "-",
-            },
-            {
-                id: "genotype",
-                title: "Genotype",
-                formatter: (value, row) => {
-                    return `${row.reference}/${row.alternate}`;
+            [
+                {
+                    id: "id",
+                    title: "Variant",
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => {
+                        return VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config);
+                    },
                 },
-            },
-            {
-                id: "gene",
-                title: "Gene",
-                formatter: () => "-",
-            },
-            {
-                id: "drugs",
-                title: "Drugs",
-                formatter: () => "-",
-            },
-            {
-                id: "phenotypeCategory",
-                title: "Phenotype Category",
-                formatter: () => "-",
-            },
+                {
+                    id: "genotype",
+                    title: "Genotype",
+                    rowspan: 2,
+                    colspan: 1,
+                    field: {
+                        sampleId: this.sampleId,
+                        quality: this._config.quality,
+                        config: this._config,
+                    },
+                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    align: "center",
+                    nucleotideGenotype: true,
+                    visible: !!this.sampleId,
+                },
+                {
+                    id: "gene",
+                    title: "Gene",
+                    field: "gene",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, {}, this.opencgaSession, this._config),
+                },
+                {
+                    id: "consequenceType",
+                    title: "Consequence Type",
+                    field: "consequenceType",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, null, this._config),
+                },
+                {
+                    id: "populationFrequencies",
+                    title: "Reference Population Frequencies",
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this),
+                },
+                {
+                    id: "clinicalInfo",
+                    title: "Clinical Info",
+                    rowspan: 1,
+                    colspan: 3,
+                    align: "center"
+                },
+            ],
+            [
+                {
+                    id: "clinvar",
+                    title: "ClinVar",
+                    field: "clinvar",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                },
+                {
+                    id: "cosmic",
+                    title: "Cosmic",
+                    field: "cosmic",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    align: "center",
+                },
+                {
+                    id: "hotspots",
+                    title: "Cancer <br> Hotspots",
+                    field: "hotspots",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    align: "center",
+                },
+            ],
         ];
     }
 
@@ -150,6 +213,38 @@ export default class PharmacogenomicsGrid extends LitElement {
             pageSize: 10,
             pageList: [5, 10, 25],
             detailView: true,
+            quality: {
+                qual: 30,
+                dp: 20
+            },
+            populationFrequencies: [
+                "1000G:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "GNOMAD_EXOMES:ALL",
+            ],
+            populationFrequenciesConfig: {
+                displayMode: "FREQUENCY_BOX"
+            },
+            genotype: {
+                type: "ALLELES"
+            },
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                // all: false,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
         };
     }
 
