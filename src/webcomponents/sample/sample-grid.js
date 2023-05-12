@@ -23,6 +23,7 @@ import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class SampleGrid extends LitElement {
@@ -92,12 +93,32 @@ export default class SampleGrid extends LitElement {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
         // Config for the grid toolbar
-        this.toolbarConfig = {
-            ...this.config.toolbar,
-            resource: "SAMPLE",
+        this.toolbarSetting = {
+            ...this._config.toolbar,
             buttons: ["columns", "download"],
-            columns: this._getDefaultColumns()
+        };
+
+        this.toolbarConfig = {
+            resource: "SAMPLE",
+            gridSettings: {
+                display: {
+                    modalTitle: "Table Settings",
+                    modalbtnsVisible: true,
+                },
+                save: self => {
+                    // console.log(self, "save", self.__config.columns);
+                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+                },
+                render: self => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._columns}"
+                        .config="${this._config}"
+                        @configChange="${self.onGridConfigChange}">
+                    </catalog-browser-grid-config>`
+            }
         };
         this.renderTable();
     }
@@ -528,13 +549,10 @@ export default class SampleGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
-                    .catalogConfig="${{
-                        gridColumns: this._columns,
-                        configGrid: this._config
-                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"

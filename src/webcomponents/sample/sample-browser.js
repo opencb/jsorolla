@@ -52,7 +52,7 @@ export default class SampleBrowser extends LitElement {
     }
 
     _init() {
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
     }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
@@ -65,16 +65,16 @@ export default class SampleBrowser extends LitElement {
     }
 
     settingsObserver() {
-        this.config = {...this.getDefaultConfig()};
+        this._config = {...this.getDefaultConfig()};
         if (this.settings?.menu) {
-            this.config.filter = UtilsNew.mergeFiltersAndDetails(this.config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         // if (this.settings?.table) {
         //     this.config.filter.result.grid = {...this.config.filter.result.grid, ...this.settings.table};
         // }
 
-        UtilsNew.setObjectValue(this.config, "filter.result.grid", {
-            ...this.config.filter.result.grid,
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter.result.grid,
             ...this.settings.table
         });
 
@@ -82,8 +82,8 @@ export default class SampleBrowser extends LitElement {
         //     this.config.filter.result.grid.toolbar = {...this.config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         // }
 
-        UtilsNew.setObjectValue(this.config, "filter.result.grid.toolbar", {
-            ...this.config.filter?.result?.grid?.toolbar,
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
             ...this.settings.table?.toolbar
         });
 
@@ -95,9 +95,8 @@ export default class SampleBrowser extends LitElement {
         //         ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
         //     };
         // }
-
-        UtilsNew.setObjectValue(this.config, "filter.result.grid", {
-            ...this.config.filter?.result?.grid,
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid
         });
 
@@ -106,6 +105,7 @@ export default class SampleBrowser extends LitElement {
 
     async onGridConfigSave(e) {
         // Update user configuration
+        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
         try {
             await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
             this.settingsObserver();
@@ -128,7 +128,7 @@ export default class SampleBrowser extends LitElement {
                 resource="SAMPLE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this.config}">
+                .config="${this._config}">
             </opencga-browser>
         `;
     }
@@ -150,7 +150,7 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "sample")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </sample-grid>
                         <sample-detail
                             .opencgaSession="${params.opencgaSession}"
