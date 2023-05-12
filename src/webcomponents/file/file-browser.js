@@ -17,6 +17,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
@@ -79,10 +81,10 @@ export default class FileBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
     // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
     // is executed twice in case there is external settings
@@ -104,6 +106,29 @@ export default class FileBrowser extends LitElement {
         }
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+
+        // Apply user configuration
+        if (this.opencgaSession.user?.configs?.IVA?.fileBrowserCatalog?.grid) {
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.opencgaSession.user.configs?.IVA?.fileBrowserCatalog.grid,
+            };
+        }
+        this.requestUpdate();
+    }
+
+    async onGridConfigSave(e) {
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "fileBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         }
     }
 
@@ -139,7 +164,8 @@ export default class FileBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e, "file")}">
+                            @selectrow="${e => params.onClickRow(e, "file")}"
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </file-grid>
                         <file-detail
                             .opencgaSession="${params.opencgaSession}"
