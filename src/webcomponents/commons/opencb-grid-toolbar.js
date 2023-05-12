@@ -148,25 +148,6 @@ export default class OpencbGridToolbar extends LitElement {
         this.__config = e.detail.value;
     }
 
-    getCatalogGridConfig() {
-        return {
-            display: {
-                modalTitle: "Table Settings",
-                modalbtnsVisible: true,
-            },
-            save: () => {
-                LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
-            },
-            render: () => html `
-                <catalog-browser-grid-config
-                    .opencgaSession="${this.opencgaSession}"
-                    .gridColumns="${this.catalogConfig?.gridColumns}"
-                    .config="${this.catalogConfig?.configGrid}"
-                    @configChange="${this.onGridConfigChange}">
-                </catalog-browser-grid-config>`
-        };
-    }
-
     render() {
         const rightButtons = [];
         if (this.rightToolbar && this.rightToolbar.length > 0) {
