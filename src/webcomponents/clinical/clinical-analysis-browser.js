@@ -90,12 +90,18 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         }
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.[this._config.componentId]?.grid,
+        });
+
+
+        // if (this.opencgaSession.user?.configs?.IVA?.clinicalAnalysisBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.clinicalAnalysisBrowserCatalog.grid,
+        //     };
+        // }
 
         this.requestUpdate();
     }

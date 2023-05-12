@@ -120,7 +120,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${this.settings}"
-                            .config="${{showHeader: false}}">
+                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
                         </clinical-analysis-browser>
                     `,
                 },
