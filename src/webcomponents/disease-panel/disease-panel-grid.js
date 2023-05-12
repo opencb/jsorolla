@@ -88,12 +88,31 @@ export default class DiseasePanelGrid extends LitElement {
     propertyObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.toolbarConfig = {
+        this.toolbarSetting = {
             ...this.config?.toolbar,
-            resource: "DISEASE_PANEL",
             buttons: ["columns", "download"],
-            columns: this._getDefaultColumns()
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+        };
+
+        this.toolbarConfig = {
+            resource: "DISEASE_PANEL",
+            gridSettings: {
+                display: {
+                    modalTitle: "Table Settings",
+                    modalbtnsVisible: true,
+                },
+                save: self => {
+                    // console.log(self, "save", self.__config.columns);
+                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+                },
+                render: self => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._columns}"
+                        .config="${this._config}"
+                        @configChange="${self.onGridConfigChange}">
+                    </catalog-browser-grid-config>`
+            }
         };
         this.renderTable();
     }
@@ -533,28 +552,14 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
-    getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
-            }
-        ];
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
-                    .catalogConfig="${{
-                        gridColumns: this._columns,
-                        configGrid: this._config
-                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">

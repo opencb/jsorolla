@@ -148,7 +148,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"
