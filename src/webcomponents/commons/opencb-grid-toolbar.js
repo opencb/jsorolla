@@ -58,16 +58,16 @@ export default class OpencbGridToolbar extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._config = this.getDefaultConfig();
+        this._settings = this.getDefaultSettings();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
 
     update(changedProperties) {
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") ||
+            changedProperties.has("settings")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this._settings = {...this.getDefaultSettings(), ...this.settings};
         }
         super.update(changedProperties);
     }
