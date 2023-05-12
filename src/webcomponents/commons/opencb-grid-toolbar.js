@@ -50,9 +50,9 @@ export default class OpencbGridToolbar extends LitElement {
             config: {
                 type: Object
             },
-            catalogConfig: {
-                type: Object,
-            }
+            settings: {
+                type: Object
+            },
         };
     }
 
@@ -180,62 +180,62 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 .opencb-grid-toolbar {
-                    margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
+                    margin-bottom: ${~this._settings?.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
 
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${this._config.showCreate &&
+                        ${this._settings.showCreate &&
                         (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
-                            <a type="button" class="btn btn-default btn-sm text-black" href="${this._config.newButtonLink}">
+                            <a type="button" class="btn btn-default btn-sm text-black" href="${this._settings.newButtonLink}">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New Left </span>
                             </a>
                         ` : null}
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
-                            ${this._config.showDownload ? html`
+                            ${this._settings.showDownload ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                        ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
-                                        ${this._config.download.length ? this._config.download.map(item => html`
+                                        ${this._settings.download.length ? this._settings.download.map(item => html`
                                             <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
                                         `) : null}
                                     </ul>
                                 </div>
                             ` : null}
 
-                            ${this._config.showNew ? html`
+                            ${this._settings.showNew ? html`
                                 <div class="btn-group">
                                     <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
                                     </button>
                                 </div>
                             ` : null}
 
-                            ${this._config.showExport ? html`
+                            ${this._settings.showExport ? html`
                                 <div class="btn-group">
                                     <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        ${this._config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
                             ` : null}
 
-                            ${this._config.showColumns && this._config.columns.length ? html`
+                            ${this._settings?.showColumns && this._settings.columns.length ? html`
                                 <div class="btn-group columns-toggle-wrapper">
                                     <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>Columns <span class="caret" style="margin-left: 2px"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm checkbox-container">
-                                        ${(this._config?.columns || []).filter(item => item.eligible ?? true).map(item => html`
+                                        ${(this._settings?.columns || []).filter(item => item.eligible ?? true).map(item => html`
                                             <li>
                                                 <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                     <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
@@ -248,7 +248,7 @@ export default class OpencbGridToolbar extends LitElement {
                             ` : null}
 
                             <!-- it'll be showSettings -->
-                            ${this.catalogConfig !== undefined ? html`
+                            ${this._settings?.showSettings && this._config?.gridSettings !== undefined ? html`
                             <div class="btn-group">
                                 <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                     <i class="fas fa-cog icon-padding"></i> Settings (Beta)
@@ -276,12 +276,12 @@ export default class OpencbGridToolbar extends LitElement {
             `}
 
 
-            ${this.catalogConfig !== undefined ? ModalUtils.create(`${this.prefix}SettingModal`, this.getCatalogGridConfig()) : nothing}
+            ${this._settings?.showSettings && this._config?.gridSettings !== undefined ? ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.gridSettings) : nothing}
 
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        ${this._config.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
+                        ${this._settings.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">Export</h4>
@@ -301,7 +301,7 @@ export default class OpencbGridToolbar extends LitElement {
         `;
     }
 
-    getDefaultConfig() {
+    getDefaultSettings() {
         return {
             label: "records",
             showNew: true,
@@ -313,6 +313,10 @@ export default class OpencbGridToolbar extends LitElement {
                 // render
             }
         };
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
