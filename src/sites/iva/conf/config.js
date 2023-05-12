@@ -29,17 +29,13 @@ const hosts = [
         id: "eglh",
         url: "https://eglh.app.zettagenomics.com/opencga"
     },
-    {
-        id: "test-reference",
-        url: "https://test.app.zettagenomics.com/TASK-3799/opencga"
-    },
 ];
 
 const opencga = {
-    host: hosts[3].url,
+    host: hosts[1].url,
     version: "v2",
     cookie: {
-        prefix: "iva-" + hosts[3].id
+        prefix: "iva-" + hosts[1].id
     },
     sso: {
         active: false,
