@@ -129,15 +129,15 @@ export default class PharmacogenomicsReport extends LitElement {
         }
 
         return html`
-            <div class="col-md-10 col-md-offset-1">
+            <div class="col-md-10 col-md-offset-1" style="padding-bottom:32px;">
                 ${this.config.showToolTitle ? html`
                     <tool-header class="bg-white" title="${`Pharmacogenomics ${this.sampleId || ""}`}"></tool-header>
-                    <pharmacogenomics-grid
-                        .sampleId="${this.sampleId}"
-                        .variants="${this.variants}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </pharmacogenomics-grid>
                 ` : nothing}
+                <pharmacogenomics-grid
+                    .sampleId="${this.sampleId}"
+                    .variants="${this.variants}"
+                    .opencgaSession="${this.opencgaSession}">
+                </pharmacogenomics-grid>
             </div>
         `;
     }
