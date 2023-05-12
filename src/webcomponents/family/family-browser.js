@@ -161,7 +161,7 @@ export default class FamilyBrowser extends LitElement {
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "family")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </family-grid>
                         <family-detail
                             .opencgaSession="${params.opencgaSession}"
