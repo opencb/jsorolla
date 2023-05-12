@@ -20,6 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class CohortGrid extends LitElement {
@@ -86,13 +87,34 @@ export default class CohortGrid extends LitElement {
         // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        // Config for the grid toolbar
-        this.toolbarConfig = {
-            ...this.config.toolbar,
-            resource: "COHORT",
-            columns: this._getDefaultColumns()
+
+        // Settings for the grid toolbar
+        this.toolbarSetting = {
+            ...this._config.toolbar,
+            buttons: ["columns", "download"],
         };
 
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            resource: "COHORT",
+            gridSettings: {
+                display: {
+                    modalTitle: "Table Settings",
+                    modalbtnsVisible: true,
+                },
+                save: self => {
+                    // console.log(self, "save", self.__config.columns);
+                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+                },
+                render: self => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._columns}"
+                        .config="${this._config}"
+                        @configChange="${self.onGridConfigChange}">
+                    </catalog-browser-grid-config>`
+            }
+        };
         this.renderTable(this.active);
     }
 
@@ -195,8 +217,10 @@ export default class CohortGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
-            UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
+        // const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
+        //     UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
+
+        const customAnnotationsVisible = this._config?.customAnnotations && this._config?.customAnnotations?.fields.length > 0;
 
         this._columns = [
             {
@@ -301,12 +325,9 @@ export default class CohortGrid extends LitElement {
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
-                    .catalogConfig="${{
-                        gridColumns: this._columns,
-                        configGrid: this._config
-                    }}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">

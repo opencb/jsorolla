@@ -133,7 +133,7 @@ export default class CohortBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "cohort")}"
-                            @gridconfigsave="${e => this.onGridConfigSave(e)}">
+                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </cohort-grid>
                         <cohort-detail
                             .opencgaSession="${params.opencgaSession}"
