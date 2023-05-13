@@ -141,6 +141,7 @@ class VariantInterpreter extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+            //  TODO: replace interpretation attributes to case attributes
             if (UtilsNew.isEmpty(this.clinicalAnalysis?.interpretation?.attributes?.reportTest)) {
                 this.opencgaSession.opencgaClient.clinical()
                     .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
@@ -177,6 +178,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisUpdate() {
+        console.log("onClinicalAnalysisUpdate called");
         return this.opencgaSession.opencgaClient.clinical()
             .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
@@ -381,7 +383,8 @@ class VariantInterpreter extends LitElement {
                             </tool-header>
                             <case-sms-report
                                 .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
+                                .opencgaSession="${opencgaSession}"
+                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
                             </case-sms-report>
 
                         </div>
@@ -463,7 +466,7 @@ class VariantInterpreter extends LitElement {
                                         </div>
                                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
                                             <div style="font-size:0.875em;">
-                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                                             </div>
                                         ` : null}
                                         <div class="text-muted">
