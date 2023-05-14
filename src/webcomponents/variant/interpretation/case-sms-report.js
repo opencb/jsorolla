@@ -1313,7 +1313,7 @@ class CaseSmsReport extends LitElement {
 
         return Types.dataFormConfig({
             id: "clinical-analysis",
-            title: "AcademicGenome.SNZ.v4 CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
+            title: "CONFIDENTIAL FOR RESEARCH PURPOSES ONLY",
             logo: "img/opencb-logo.png",
             icon: "fas fa-user-md",
             buttons: {
