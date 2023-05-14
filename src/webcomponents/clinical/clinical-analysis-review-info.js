@@ -90,6 +90,8 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
             this._config = this.getDefaultConfig();
+
+            // TODO: replace interpretation.attributes to case.attributes
             // Generate Result as Template
             this.generateResultsTemplate();
             // this.generateMethodologyTemplate();
@@ -193,6 +195,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         return content;
     }
 
+    // TODO: replace interpretation.attributtes to case.attributes
     fillVariantReportAttributes() {
         // const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
         //     variant => variant?.status === "REPORTED");
@@ -265,6 +268,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         };
     }
 
+    // TODO: replace interpretation.attributes to case.attributes
     generateResultsTemplate() {
         const variantsReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
             variant => variant?.status === "REPORTED");
@@ -307,6 +311,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
+    // TODO: replace interpretation.attributes to case.attributes
     generateMethodologyTemplate() {
         const generateContent = (tag, content) => `<${tag}>${content}</${tag}><p style="color:red">Content here...</p>`;
         const methodologyTemplate = [
@@ -351,6 +356,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     }
 
     // ClinicalReport
+    // TODO: interpretation.attributes to case.attributes
     submitReportVariant() {
         if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
             this.opencgaSession.opencgaClient.clinical()
@@ -459,6 +465,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    // !DEPRECATED
     onFieldChangeOld(e, field) {
         const param = field || e.detail.param;
         if (param.includes("attributes")) {
@@ -500,6 +507,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         this.requestUpdate();
     }
 
+    // TODO: replace interpretation.attributes to case.attributes
     onFieldChange(e, field) {
         const param = field || e.detail.param;
 
@@ -686,6 +694,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         `;
     }
 
+    // TODO: replace interpretation.attributes to case.attributes
     getDefaultConfig() {
         const discussion = this.clinicalAnalysis?.report?.discussion || {};
         return Types.dataFormConfig({
@@ -847,6 +856,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                                         showSettings: false,
                                                         showActions: false,
                                                         showEditReview: false,
+                                                        detailView: false,
                                                     }
                                                 }>
                                             </variant-interpreter-grid>
