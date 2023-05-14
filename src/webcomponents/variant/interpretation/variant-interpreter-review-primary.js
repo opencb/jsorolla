@@ -23,7 +23,7 @@ import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-u
 import NotificationUtils from "../../commons/utils/notification-utils";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager";
 import LitUtils from "../../commons/utils/lit-utils";
-
+import "../../commons/json-editor.js";
 
 export default class VariantInterpreterReviewPrimary extends LitElement {
 
@@ -299,7 +299,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid" style="max-height:75vh;overflow-y:auto;">
-                                <json-viewer .data="${this.clinicalAnalysis?.interpretation}"></json-viewer>
+                                <!-- <json-viewer .data="\${this.clinicalAnalysis?.interpretation}"></json-viewer> -->
+                                <json-editor .data="${this.clinicalAnalysis?.interpretation}" .config="${{mode: "tree", readOnly: true}}"></json-editor>
                             </div>
                         </div>
                         <div class="modal-footer">
