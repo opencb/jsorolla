@@ -189,135 +189,43 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             }
                         },
                         {
-                            title: "Report (PDF)",
+                            title: "Report",
                             field: "interpretation.attributes.reportTest",
                             type: "custom",
                             display: {
                                 render: report => {
-                                    const generateUrl = file => {
-                                        return {
-                                            name: file,
-                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
-                                        };
-                                    };
+                                    const generateUrl = file => `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`;
                                     const files = report?.reportFiles?.flatMap(report => report.files);
-                                    const reportPdf = files?.filter(report => report.fileName.includes(".pdf"));
-                                    if (reportPdf && reportPdf.length > 0) {
-                                        const urlPdfs = reportPdf.map(report => generateUrl(report.fileName));
-                                        return urlPdfs.map(report => html`
+                                    if (files && files?.length > 0) {
+                                        const colorExtension = {
+                                            "json": "label-default",
+                                            "html": "label-warning",
+                                            "pdf": "label-danger"
+                                        };
+                                        const reports = {};
+                                        files?.forEach(file => {
+                                            const [filename, format] = file.fileName.split(".");
+                                            if (!reports[filename]) {
+                                                reports[filename] = [format];
+                                            } else {
+                                                reports[filename].push(format);
+                                            }
+                                        });
+                                        return Object.keys(reports)?.map(report => html`
                                             <div>
-                                                <span style="margin-right: 10px">${report.name}</span>
-                                                    <a href="${report.url}" >
-                                                        <i class="fas fa-download icon-padding"></i>
-                                                    </a>
-                                                </div>`);
+                                                <span style="margin-right: 10px">${report}</span>
+                                                ${reports[report]?.sort()?.map(extension => html`
+                                                <a href="${generateUrl(`${report}.${extension}`)}" >
+                                                    <span class="label ${colorExtension[extension]}">${extension?.toUpperCase()}</span>
+                                                </a>
+                                                `)}
+                                            </div>`);
                                     } else {
                                         return html `No files uploaded yet!`;
                                     }
                                 }
                             }
                         },
-                        {
-                            title: "Report (Json)",
-                            field: "interpretation.attributes.reportTest",
-                            type: "custom",
-                            display: {
-                                render: report => {
-                                    const generateUrl = file => {
-                                        return {
-                                            name: file,
-                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
-                                        };
-                                    };
-                                    const files = report?.reportFiles?.flatMap(report => report.files);
-                                    const reportJson = files?.filter(report => report.fileName.includes(".json"));
-                                    if (reportJson && reportJson.length > 0) {
-                                        const urlPdfs = reportJson.map(report => generateUrl(report.fileName));
-                                        return urlPdfs.map(report => html`
-                                            <div>
-                                                <span style="margin-right: 10px">${report.name}</span>
-                                                    <a href="${report.url}" >
-                                                        <i class="fas fa-download icon-padding"></i>
-                                                    </a>
-                                                </div>`);
-                                    } else {
-                                        return html `No files uploaded yet!`;
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            title: "Report (Html)",
-                            field: "interpretation.attributes.reportTest",
-                            type: "custom",
-                            display: {
-                                render: report => {
-                                    const generateUrl = file => {
-                                        return {
-                                            name: file,
-                                            url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
-                                        };
-                                    };
-
-                                    const files = report?.reportFiles?.flatMap(report => report.files);
-                                    const reportHtml = files?.filter(report => report.fileName.includes(".html"));
-                                    if (reportHtml && reportHtml.length > 0) {
-                                        const urlPdfs = reportHtml.map(report => generateUrl(report.fileName));
-                                        return urlPdfs.map(report => html`
-                                            <div>
-                                                <span style="margin-right: 10px">${report.name}</span>
-                                                    <a href="${report.url}" >
-                                                        <i class="fas fa-download icon-padding"></i>
-                                                    </a>
-                                                </div>`);
-                                    } else {
-                                        return html `No files uploaded yet!`;
-                                    }
-                                }
-                            }
-                        },
-                        // {
-                        //     title: "Report (Json)",
-                        //     field: "interpretation.attributes.reportTest._report",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: reports => {
-                        //             if (reports?.length > 0) {
-                        //                 const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.json`;
-                        //                 return reports?.map(report => html`
-                        //                     <div>
-                        //                         <span style="margin-right: 10px">${generateNameFile(report)}</span>
-                        //                         <a @click="${e => UtilsNew.downloadJSON(report, generateNameFile(report))}">
-                        //                             <i class="fas fa-download icon-padding"></i>
-                        //                         </a>
-                        //                     </div>`);
-                        //             } else {
-                        //                 return html `No Report Json`;
-                        //             }
-                        //         }
-                        //     }
-                        // },
-                        // {
-                        //     title: "Report (HTML)",
-                        //     field: "interpretation.attributes.reportTest._report",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: reports => {
-                        //             if (reports?.length > 0) {
-                        //                 const generateNameFile = report => `report_${this.clinicalAnalysis.interpretation.id}-${report._metadata?.date}.html`;
-                        //                 return reports?.filter(report => report?.htmlRendered).map(report => html`
-                        //                     <div>
-                        //                         <span style="margin-right: 10px">${generateNameFile(report)}</span>
-                        //                         <a @click="${e => UtilsNew.downloadHTML(report.htmlRendered, generateNameFile(report))}">
-                        //                             <i class="fas fa-download icon-padding"></i>
-                        //                         </a>
-                        //                     </div>`);
-                        //             } else {
-                        //                 return html `No Report Json`;
-                        //             }
-                        //         }
-                        //     }
-                        // }
                     ]
                 },
             ]
