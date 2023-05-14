@@ -1120,7 +1120,7 @@ export default class UtilsNew {
     static initClinicalAnalysisReport() {
         return {
             "reportTest": {
-                "case_id_match": "",
+                "caseIdMatch": "",
                 "patient": {
                     "name": "",
                     "lastName": "",
@@ -1208,7 +1208,7 @@ export default class UtilsNew {
                 "limitations": "",
                 "disclaimer": "",
                 "appendix": "",
-                "report_files": [],
+                "reportFiles": [],
                 "_report": []
             }
         };

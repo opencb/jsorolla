@@ -53,7 +53,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
         if (changedProperties.has("clinicalAnalysis")) {
-            console.log("Updating component!!!!");
             this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
         }
         super.update(changedProperties);
@@ -201,7 +200,8 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
                                         };
                                     };
-                                    const reportPdf = report?.report_files?.filter(report => report.fileName.includes(".pdf"));
+                                    const files = report?.reportFiles?.flatMap(report => report.files);
+                                    const reportPdf = files?.filter(report => report.fileName.includes(".pdf"));
                                     if (reportPdf && reportPdf.length > 0) {
                                         const urlPdfs = reportPdf.map(report => generateUrl(report.fileName));
                                         return urlPdfs.map(report => html`
@@ -229,7 +229,8 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
                                         };
                                     };
-                                    const reportJson = report?.report_files?.filter(report => report.fileName.includes(".json"));
+                                    const files = report?.reportFiles?.flatMap(report => report.files);
+                                    const reportJson = files?.filter(report => report.fileName.includes(".json"));
                                     if (reportJson && reportJson.length > 0) {
                                         const urlPdfs = reportJson.map(report => generateUrl(report.fileName));
                                         return urlPdfs.map(report => html`
@@ -257,7 +258,9 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             url: `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`
                                         };
                                     };
-                                    const reportHtml = report?.report_files?.filter(report => report.fileName.includes(".html"));
+
+                                    const files = report?.reportFiles?.flatMap(report => report.files);
+                                    const reportHtml = files?.filter(report => report.fileName.includes(".html"));
                                     if (reportHtml && reportHtml.length > 0) {
                                         const urlPdfs = reportHtml.map(report => generateUrl(report.fileName));
                                         return urlPdfs.map(report => html`
