@@ -462,7 +462,7 @@ class CaseSmsReport extends LitElement {
                         let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
                         reportTestData = {
                             ...reportTestData,
-                            report_files: reportTestData?.report_files? [...reportTestData?.report_files, fileUploaded] : [fileUploaded],
+                            reportFiles: reportTestData?.reportFiles? [...reportTestData?.reportFiles, fileUploaded] : [fileUploaded],
                         };
                         this.opencgaSession.opencgaClient.clinical()
                             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
@@ -1130,6 +1130,7 @@ class CaseSmsReport extends LitElement {
         const status = "START";
         const interpretationId = this._clinicalAnalysis.interpretation.id.replace(".", "_");
         const studyName = this.opencgaSession.study.fqn.replace(/[@:]/g, "_");
+        const dateTimeCreated = UtilsNew.getDatetime();
         const fileName = `${studyName}-${interpretationId}-report-${UtilsNew.getDatetime()}`;
         const path = `${studyName}/reports/${interpretationId}/${fileName}`;
         const dataContent = this.selectTemplate === "Plantilla A" ? this.initGenerateJsonA(this._reportData) : this.initGenerateJsonB(this._reportData);
@@ -1167,7 +1168,7 @@ class CaseSmsReport extends LitElement {
         await Promise.all(fileUpload);
 
         try {
-            await this.saveReportFile(fileStatus);
+            await this.saveReportFile(dateTimeCreated, fileStatus);
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
@@ -1180,21 +1181,38 @@ class CaseSmsReport extends LitElement {
         }
     }
 
-    async saveReportFile(fileStatus) {
-        const fileUploaded = fileStatus.map(file => ({
-            path: file.path,
-            fileName: file.fileName,
-            upload_status: file.status,
-            template: this.selectTemplate,
-            sample: "",
-            description: "",
-            title: "",
-            tag: "",
-            comments: []}));
+    async saveReportFile(dateTime, fileStatus) {
+        // const fileUploaded = fileStatus.map(file => ({
+        //     path: file.path,
+        //     fileName: file.fileName,
+        //     upload_status: file.status,
+        //     template: this.selectTemplate,
+        //     sample: "",
+        //     description: "",
+        //     title: "",
+        //     tag: "",
+        //     comments: []}));
+
+        const reportFiles = {
+            _metadata: {
+                cellbaseDbVersions: Array.isArray(this.opencgaSession?.project) ? this.opencgaSession?.project?.map(project => project?.cellbase): [{...this.opencgaSession?.project?.cellbase}],
+                date: dateTime,
+                analyst: this._clinicalAnalysis?.analyst?.name,
+            },
+            files: fileStatus,
+            data: {
+                template: this.selectTemplate,
+                sample: "",
+                description: "",
+                title: "",
+                tag: "",
+                comments: []
+            }
+        };
         let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
         reportTestData = {
             ...reportTestData,
-            report_files: reportTestData?.report_files ? [...reportTestData?.report_files, ...fileUploaded] : fileUploaded,
+            reportFiles: reportTestData?.reportFiles ? [...reportTestData?.reportFiles, reportFiles] : [reportFiles],
         };
         return this.opencgaSession.opencgaClient.clinical()
             .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
