@@ -39,6 +39,9 @@ export default class CatalogBrowserGridConfig extends LitElement {
             gridColumns: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
             config: {
                 type: Object
             }
@@ -135,7 +138,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
         // Update user configuration
         // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
         try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.config.toolId, this.config);
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, this.config);
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {

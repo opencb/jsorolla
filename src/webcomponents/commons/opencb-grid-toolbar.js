@@ -166,6 +166,10 @@ export default class OpencbGridToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, toolbar + action);
     }
 
+    onCloseSetting() {
+        ModalUtils.close(`${this.prefix}SettingModal`);
+    }
+
     render() {
         const rightButtons = [];
         if (this.rightToolbar?.length > 0) {
@@ -293,8 +297,9 @@ export default class OpencbGridToolbar extends LitElement {
                     <catalog-browser-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
+                        .toolId="${this._config?.toolId}"
                         .config="${this._settings}"
-                        @modalOk="${this.onConfigSave}">
+                        @settingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>`
             }
         };
