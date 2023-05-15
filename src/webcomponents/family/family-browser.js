@@ -118,18 +118,8 @@ export default class FamilyBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "familyBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -161,7 +151,7 @@ export default class FamilyBrowser extends LitElement {
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "family")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
                         <family-detail
                             .opencgaSession="${params.opencgaSession}"
