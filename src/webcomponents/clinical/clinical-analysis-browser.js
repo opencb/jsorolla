@@ -236,7 +236,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     grid: {
                         readOnlyMode: false,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: false,
                         multiSelection: false,
                         showActions: true,

@@ -89,9 +89,8 @@ export default class DiseasePanelGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.toolbarSetting = {
-            ...this.config?.toolbar,
             buttons: ["columns", "download"],
-            // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+            ...this._config,
         };
 
         // Config for the grid toolbar
@@ -573,7 +572,7 @@ export default class DiseasePanelGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter

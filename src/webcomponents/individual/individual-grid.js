@@ -92,8 +92,8 @@ export default class IndividualGrid extends LitElement {
 
         // settings for the grid toolbar
         this.toolbarSetting = {
-            ...this._config.toolbar,
             buttons: ["columns", "download"],
+            ...this._config,
         };
 
         // Config for the grid toolbar
@@ -731,7 +731,7 @@ export default class IndividualGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter, // function with the detail formatter

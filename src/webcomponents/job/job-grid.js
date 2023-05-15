@@ -97,7 +97,7 @@ export default class JobGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
-            ...this.config?.toolbar,
+            ...this.config,
             // columns: this._getDefaultColumns().filter(col => col.field)
         };
 
@@ -533,7 +533,7 @@ export default class JobGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,

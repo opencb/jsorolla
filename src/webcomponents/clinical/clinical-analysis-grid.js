@@ -91,7 +91,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            ...this._config?.toolbar,
+            ...this._config,
             newButtonLink: "#clinical-analysis-create/",
             showCreate: false,
             // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
@@ -763,7 +763,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             readOnlyMode: false, // it hides priority and status selectors even if the user has permissions
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             showReviewCase: true,
             showInterpretation: true,

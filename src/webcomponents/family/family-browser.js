@@ -245,7 +245,7 @@ export default class FamilyBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: true,
                         multiSelection: false,
                         showSelectCheckbox: false
