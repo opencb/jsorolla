@@ -139,8 +139,7 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "sample")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </sample-grid>
                         <sample-detail
                             .opencgaSession="${params.opencgaSession}"

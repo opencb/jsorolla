@@ -98,12 +98,12 @@ export default class SampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            toolId: "sampleBrowserCatalog",
             buttons: ["columns", "download"],
             ...this._config,
         };
 
         this.toolbarConfig = {
+            toolId: "sampleBrowserCatalog",
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
             create: {
@@ -145,10 +145,6 @@ export default class SampleGrid extends LitElement {
             // }
         };
         this.renderTable();
-    }
-
-    onGridConfigChange(e) {
-        // ...
     }
 
     renderTable() {
@@ -529,11 +525,11 @@ export default class SampleGrid extends LitElement {
                 <opencb-grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
                     @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
