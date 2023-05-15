@@ -94,30 +94,16 @@ export default class OpencgaFileGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            ...this.config?.toolbar,
             buttons: ["download"],
+            ...this._config,
         };
 
         this.toolbarConfig = {
+            toolId: "fileBrowserCatalog",
             resource: "FILE",
-            gridSettings: {
-                display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
-                },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <catalog-browser-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </catalog-browser-grid-config>`
-            }
+            columns: this._getDefaultColumns()
         };
+
         this.renderTable();
     }
 
@@ -513,10 +499,10 @@ export default class OpencgaFileGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
@@ -533,7 +519,7 @@ export default class OpencgaFileGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter

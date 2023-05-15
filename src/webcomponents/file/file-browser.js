@@ -118,18 +118,8 @@ export default class FileBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "fileBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -165,7 +155,7 @@ export default class FileBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "file")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </file-grid>
                         <file-detail
                             .opencgaSession="${params.opencgaSession}"
