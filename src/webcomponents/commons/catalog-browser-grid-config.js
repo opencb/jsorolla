@@ -136,7 +136,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
         // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
         try {
             await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.config.toolId, this.config);
-            LitUtils.dispatchCustomEvent(this, "settingsRefresh");
+            LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Configuration saved",

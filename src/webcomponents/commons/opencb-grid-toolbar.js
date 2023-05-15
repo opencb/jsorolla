@@ -119,10 +119,6 @@ export default class OpencbGridToolbar extends LitElement {
         this.operation = null;
     }
 
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
     onConfigSave(e) {
         // Update user configuration
         // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
@@ -298,7 +294,6 @@ export default class OpencbGridToolbar extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .config="${this._settings}"
-                        @configChange="${this.onGridConfigChange}"
                         @modalOk="${this.onConfigSave}">
                     </catalog-browser-grid-config>`
             }

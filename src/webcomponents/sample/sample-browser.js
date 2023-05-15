@@ -103,6 +103,9 @@ export default class SampleBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
 
     render() {
         if (!this.opencgaSession) {
@@ -136,7 +139,7 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "sample")}"
-                            @settingsRefresh="${this.settingsObserver}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}"
                             @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </sample-grid>
                         <sample-detail
