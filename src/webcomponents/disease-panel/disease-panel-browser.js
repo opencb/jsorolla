@@ -103,18 +103,8 @@ export default class DiseasePanelBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "diseasePanelBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -148,7 +138,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         <disease-panel-detail
                             .opencgaSession="${params.opencgaSession}"

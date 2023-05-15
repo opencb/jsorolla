@@ -94,26 +94,24 @@ export default class DiseasePanelGrid extends LitElement {
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
         };
 
+        // Config for the grid toolbar
         this.toolbarConfig = {
+            toolId: "diseasePanelBrowserCatalog",
             resource: "DISEASE_PANEL",
-            gridSettings: {
+            columns: this._getDefaultColumns(),
+            create: {
                 display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
+                    modalTitle: "Disease Panel Create",
                 },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <catalog-browser-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </catalog-browser-grid-config>`
+                render: () => html `
+                    <disease-panel-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </disease-panel-create>
+                `
             }
         };
+
         this.renderTable();
     }
 
@@ -556,15 +554,14 @@ export default class DiseasePanelGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
