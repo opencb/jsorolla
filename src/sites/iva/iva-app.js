@@ -436,7 +436,7 @@ class IvaApp extends LitElement {
         }
 
         // 2. Init settings
-        this.settings = {...this.opencgaSession.study.attributes[SETTINGS_NAME].settings, ...this.opencgaSession.ivaDefaultSettings.settings};
+        this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
     }
 
     /**
@@ -457,7 +457,7 @@ class IvaApp extends LitElement {
             .then(response => {
                 // study = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Study Settings Update`,
+                    title: "Study Settings Update",
                     message: `${study.id} settings updated correctly`,
                 });
             })
@@ -1131,8 +1131,8 @@ class IvaApp extends LitElement {
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: `Refresh Session`,
-                message: `Session updated correctly`,
+                title: "Refresh Session",
+                message: "Session updated correctly",
             });
             this._createOpenCGASession();
 
