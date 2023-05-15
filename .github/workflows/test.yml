@@ -1,4 +1,5 @@
-name: Build and test the project
+name: "Build and test the project"
+
 on:
   workflow_call:
     inputs:
@@ -25,7 +26,7 @@ env:
 
 jobs:
   test:
-    name: Test and push Sonar analysis
+    name: "Test and push Sonar analysis"
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
@@ -34,8 +35,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
-          cache: npm
-          cache-dependency-path: 'package.json'
+          cache: "npm"
+          cache-dependency-path: "package.json"
       - run: npm install
       - run: npm run test:prepare
       - uses: cypress-io/github-action@v5

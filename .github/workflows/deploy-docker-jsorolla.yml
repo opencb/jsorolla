@@ -6,12 +6,6 @@ on:
       cli:
         type: string
         required: true
-      repository:
-        type: string
-        required: false
-      branch:
-        type: string
-        required: false
     secrets:
       DOCKER_HUB_USER:
         required: true
@@ -23,17 +17,13 @@ jobs:
     name: Push Docker image
     runs-on: ubuntu-22.04
     steps:
-      - name: "Checkout optional repo"
+      - name: "Checkout Jsorolla"
         uses: actions/checkout@v3
-        if: inputs.repository != '' && inputs.branch != ''
-        with:
-          repository: ${{ inputs.repository }}
-          ref: ${{ inputs.branch }}
       - uses: actions/download-artifact@v3
         with:
           name: build-folder
           path: build
-      - name: Chmod
+      - name: Add execution permission to .sh files
         run: "find build -regex '.*sh' | while read file ; do chmod u+x $file ; done"
       - uses: docker/login-action@v2
         with:

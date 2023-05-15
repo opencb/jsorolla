@@ -20,16 +20,14 @@ jobs:
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
-    needs: [ build, test ]
+    needs: test
     with:
-      repository: opencb/jsorolla
-      branch: ${{ github.ref_name }}
-      cli: python3 ./docker/docker-build.py push --tag ${{ needs.build.outputs.version }}
+      cli: python3 ./docker/docker-build.py push
     secrets: inherit
 
-  deploy:
+  deploy-web:
+    uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
     needs: [ build, test ]
-    uses: ./.github/workflows/deploy-jsorolla-workflow.yml
     with:
       version: ${{ needs.build.outputs.version }}
     secrets: inherit
