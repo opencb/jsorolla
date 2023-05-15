@@ -113,7 +113,6 @@ export default class PharmacogenomicsReport extends LitElement {
 
             // 5. Save variants and request update
             this.variants = Array.from(variants.values());
-            console.log(this.variants);
             this.isLoading = false;
             this.requestUpdate();
         }
