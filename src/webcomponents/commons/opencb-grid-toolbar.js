@@ -120,14 +120,12 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     onGridConfigChange(e) {
-        debugger
         this.__config = e.detail.value;
     }
 
     onConfigSave(e) {
         // Update user configuration
         // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
-        debugger
         try {
             OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
             this.settingsObserver();
@@ -293,7 +291,7 @@ export default class OpencbGridToolbar extends LitElement {
             settings: {
                 display: {
                     modalTitle: this.config?.resource + " Settings",
-                    modalbtnsVisible: true
+                    modalbtnsVisible: false
                 },
                 render: () => html `
                     <catalog-browser-grid-config

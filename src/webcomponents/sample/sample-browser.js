@@ -74,7 +74,7 @@ export default class SampleBrowser extends LitElement {
         // }
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
-            ...this._config.filter.result.grid,
+            ...this._config?.filter?.result.grid,
             ...this.settings.table
         });
 
@@ -102,7 +102,6 @@ export default class SampleBrowser extends LitElement {
 
         this.requestUpdate();
     }
-
 
 
     render() {
@@ -137,6 +136,7 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "sample")}"
+                            @settingsRefresh="${this.settingsObserver}"
                             @gridConfigSave="${e => this.onGridConfigSave(e)}">
                         </sample-grid>
                         <sample-detail

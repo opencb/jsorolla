@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "./utils/lit-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
 
 
@@ -129,12 +131,28 @@ export default class CatalogBrowserGridConfig extends LitElement {
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
+    async onSubmit() {
+        // Update user configuration
+        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.config.toolId, this.config);
+            LitUtils.dispatchCustomEvent(this, "settingsRefresh");
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
+    }
+
     render() {
         return html`
             <data-form
                 .data="${this.config}"
                 .config="${this.getConfigForm()}"
-                @fieldChange="${e => this.onFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
     }
@@ -151,7 +169,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                 titleAlign: "left",
                 titleWidth: 4,
                 defaultLayout: "vertical",
-                buttonsVisible: false
+                buttonsVisible: true
             },
             sections: [
                 {

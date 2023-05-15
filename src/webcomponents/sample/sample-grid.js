@@ -98,6 +98,7 @@ export default class SampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
+            toolId: "sampleBrowserCatalog",
             buttons: ["columns", "download"],
             ...this._config,
         };
