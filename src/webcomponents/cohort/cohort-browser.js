@@ -54,11 +54,6 @@ export default class CohortBrowser extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
@@ -90,18 +85,8 @@ export default class CohortBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "cohortBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -133,7 +118,7 @@ export default class CohortBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "cohort")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
                         <cohort-detail
                             .opencgaSession="${params.opencgaSession}"

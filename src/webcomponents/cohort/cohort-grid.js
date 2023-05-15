@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -96,23 +96,19 @@ export default class CohortGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            toolId: "cohortBrowserCatalog",
             resource: "COHORT",
-            gridSettings: {
+            columns: this._getDefaultColumns(),
+            create: {
                 display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
+                    modalTitle: "Cohort Create",
                 },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <catalog-browser-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </catalog-browser-grid-config>`
+                render: () => html `
+                    <cohort-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-create>
+                `
             }
         };
         this.renderTable(this.active);
@@ -324,15 +320,16 @@ export default class CohortGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
-                </opencb-grid-toolbar>
-            ` : ""}
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
+                </opencb-grid-toolbar>` : nothing
+            }
 
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}CohortBrowserGrid"></table>
