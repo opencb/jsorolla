@@ -45,6 +45,9 @@ export default class VariantInterpreterGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -155,33 +158,42 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             // ...this._config,
-            ...this._config.toolbar, // it comes from external settings
+            // it comes from external settings
             showColumns: false,
             showSettings: true,
+            ...this._config,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
         };
 
         this.toolbarConfig = {
+            toolId: this.toolId,
             resource: "CLINICAL_VARIANT",
-            gridSettings: {
-                display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
-                },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <variant-interpreter-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </variant-interpreter-grid-config>`
-            }
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
         };
+
+        // this.toolbarConfig = {
+        //     toolId: "Clinical Variant",
+        //     resource: "CLINICAL_VARIANT",
+        //     gridSettings: {
+        //         display: {
+        //             modalTitle: "Table Settings",
+        //             modalbtnsVisible: true,
+        //         },
+        //         save: self => {
+        //             // console.log(self, "save", self.__config.columns);
+        //             LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
+        //         },
+        //         render: self => html `
+        //             <variant-interpreter-grid-config
+        //                 .opencgaSession="${this.opencgaSession}"
+        //                 .gridColumns="${this._columns}"
+        //                 .config="${this._config}"
+        //                 @configChange="${self.onGridConfigChange}">
+        //             </variant-interpreter-grid-config>`
+        //     }
+        // };
     }
 
     onColumnChange(e) {
@@ -1538,7 +1550,7 @@ export default class VariantInterpreterGrid extends LitElement {
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
-                .query="${this.query}"
+                .query="${this.filters}"
                 .opencgaSession="${this.opencgaSession}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"

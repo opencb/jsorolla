@@ -139,31 +139,18 @@ export default class VariantBrowserGrid extends LitElement {
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             showColumns: false,
-            ...this._config.toolbar,
+            ...this._config,
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
 
         this.toolbarConfig = {
+            toolId: "variantBrowser",
             resource: "VARIANT",
-            gridSettings: {
-                display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
-                },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <variant-interpreter-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </variant-interpreter-grid-config>`
-            }
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
         };
+
     }
 
     onColumnChange(e) {
@@ -1022,10 +1009,10 @@ export default class VariantBrowserGrid extends LitElement {
         return html`
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"

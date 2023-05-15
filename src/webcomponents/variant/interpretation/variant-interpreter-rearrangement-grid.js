@@ -41,6 +41,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -112,11 +115,19 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...this.config,
             };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            this.toolbarConfig = {
+
+            this.toolbarSetting = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
-                resource: "CLINICAL_VARIANT",
             };
+
+            this.toolbarConfig = {
+                toolId: this.toolId,
+                resource: "CLINICAL_VARIANT",
+                showInterpreterConfig: true,
+                columns: this._createDefaultColumns()
+            };
+
             this.requestUpdate();
             this.renderVariants();
         }
@@ -209,7 +220,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._createDefaultColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -292,7 +303,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: variants,
-            columns: this._createDefaultColumns(),
+            columns: this._getDefaultColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -406,7 +417,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         `;
     }
 
-    _createDefaultColumns() {
+    _getDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         const vcfDataColumns = {
@@ -430,6 +441,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         vcfDataColumnNames.push(variantCaller.id);
                     }
                     (variantCaller.columns || []).forEach(column => {
+                        const columnId = column.replace("EXT_", "");
                         ["vcf1", "vcf2"].forEach((name, index) => {
                             const field = {
                                 key: column,
@@ -437,13 +449,14 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 variantCaller: variantCaller,
                             };
                             vcfDataColumns[name].push({
-                                id: column.replace("EXT_", ""),
-                                title: column.replace("EXT_", ""),
+                                id: columnId,
+                                title: columnId,
                                 field: field,
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
                                 halign: "center",
+                                visible: this.gridCommons.isColumnVisible(columnId),
                             });
                         });
                     });
@@ -468,7 +481,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
                     title: "Variant 2",
@@ -477,7 +491,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
                     title: "Gene",
@@ -485,7 +500,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[0], index, this.query, this.opencgaSession),
-                    halign: "center"
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("gene"),
                 },
                 // {
                 //     title: "Gene",
@@ -501,7 +517,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
-                    halign: "center"
+                    halign: "center",
+                    visible: !this._config.hideType && this.gridCommons.isColumnVisible("type"),
                 },
                 {
                     title: "VCF Data 1",
@@ -575,7 +592,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: this.gridCommons.isColumnVisible("cohort"),
+                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
                 },
                 {
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
@@ -763,15 +781,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
-    }
-
     onRowCheck(event) {
         const index = parseInt(event.target.dataset.rowIndex);
 
@@ -851,21 +860,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         // this._variantChanged = null;
     }
 
-    getRightToolbar() {
-        if (this._config?.showSettings) {
-            return [
-                {
-                    render: () => html`
-                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog icon-padding"></i> Settings ...
-                        </button>
-                    `,
-                }
-            ];
-        }
-        return [];
-    }
-
     render() {
         return html`
             <style>
@@ -883,7 +877,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                .rightToolbar="${this.getRightToolbar()}"
+                .settings="${this.toolbarSetting}"
+                .opencgaSession="${this.opencgaSession}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"
@@ -912,30 +907,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>
