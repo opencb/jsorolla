@@ -24,6 +24,8 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import ModalUtils from "../commons/modal/modal-ultils";
+import debug from "debug";
 
 
 export default class SampleGrid extends LitElement {
@@ -96,31 +98,56 @@ export default class SampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            ...this._config.toolbar,
             buttons: ["columns", "download"],
+            ...this._config,
         };
 
         this.toolbarConfig = {
             resource: "SAMPLE",
-            gridSettings: {
+            columns: this._getDefaultColumns(),
+            create: {
                 display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
+                    modalTitle: "Sample Create",
                 },
-                save: self => {
-                    // console.log(self, "save", self.__config.columns);
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <catalog-browser-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </catalog-browser-grid-config>`
-            }
+                render: () => html `
+                    <sample-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </sample-create>
+                `
+            },
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Sample Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Sample Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
         };
         this.renderTable();
+    }
+
+    onGridConfigChange(e) {
+        // ...
     }
 
     renderTable() {
@@ -289,49 +316,11 @@ export default class SampleGrid extends LitElement {
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
-            case "create":
-                this._operation = {
-                    type: "create",
-                    modalId: `${this._prefix}CreateModal`,
-                    config: {
-                        display: {
-                            modalTitle: "Sample Create",
-                        },
-                        render: () => {
-                            return html `
-                                <sample-create
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </sample-create>
-                            `;
-                        }
-                    },
-                };
-                this.requestUpdate();
-                break;
             case "edit":
-                this._operation = {
-                    type: "update",
-                    modalId: `${this._prefix}EditModal`,
-                    config: {
-                        display: {
-                            modalTitle: `Sample Update: ${row.id}`,
-                        },
-                        render: active => {
-                            return html `
-                                <sample-update
-                                    .sampleId="${row.id}"
-                                    .active="${active}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </sample-update>
-                            `;
-                        }
-                    },
-                };
+                this.sampleUpdateId = row.id;
                 this.requestUpdate();
-                // await this.updateComplete;
-                // ModalUtils.show(this._operation.modalId);
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
@@ -533,29 +522,17 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                        <i class="fas fa-cog icon-padding"></i> Settings ...
-                    </button>`
-            }
-        ];
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
-                    .query="${this.query}"
-                    .operation="${this._operation}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
@@ -563,6 +540,22 @@ export default class SampleGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: "Sample Update",
+                },
+                render: active => {
+                    return html `
+                        <sample-update
+                            .sampleId="${this.sampleUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-update>
+                    `;
+                }
+            })}
         `;
     }
 
@@ -571,14 +564,15 @@ export default class SampleGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
+            showToolbar: true,
             showCreate: true,
-            showExport: false,
+            showExport: true,
+            showSettings: true,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
-            showToolbar: true,
             showActions: true
         };
     }

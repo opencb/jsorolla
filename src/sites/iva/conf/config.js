@@ -26,8 +26,8 @@ const hosts = [
         url: "https://ws.opencb.org/opencga-test"
     },
     {
-        id: "eglh",
-        url: "https://eglh.app.zettagenomics.com/opencga"
+        id: "testteam",
+        url: "https://test.app.zettagenomics.com/testteam/opencga"
     },
 ];
 

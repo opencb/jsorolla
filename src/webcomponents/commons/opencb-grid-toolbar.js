@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "./opencga-export.js";
 import LitUtils from "./utils/lit-utils";
 import ModalUtils from "./modal/modal-ultils.js";
+import "./opencga-export.js";
 import "./modal/modal-popup.js";
+import debug from "debug";
+import NotificationUtils from "./utils/notification-utils";
 
 export default class OpencbGridToolbar extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,114 +50,136 @@ export default class OpencbGridToolbar extends LitElement {
             operation: {
                 type: Object,
             },
-            config: {
-                type: Object
-            },
             settings: {
                 type: Object
             },
+            config: {
+                type: Object
+            }
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this._config = this.getDefaultConfig();
+
         this._settings = this.getDefaultSettings();
+        this._config = this.getDefaultConfig();
     }
 
-
     update(changedProperties) {
-        if (changedProperties.has("config") ||
-            changedProperties.has("settings")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("settings")) {
             this._settings = {...this.getDefaultSettings(), ...this.settings};
+        }
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         super.update(changedProperties);
     }
 
-    onDownloadFile(e) {
-        this.dispatchEvent(new CustomEvent("download", {
-            detail: {
-                option: e.target.dataset.downloadOption
-            }
-        }));
-    }
+    // onDownloadFile(e) {
+    //     this.dispatchEvent(new CustomEvent("download", {
+    //         detail: {
+    //             option: e.target.dataset.downloadOption
+    //         }
+    //     }));
+    // }
 
     // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
-    onChangeExportField(e) {
-        // simply forwarding from opencga-export to grid components
-        LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
-    }
+    // onChangeExportField(e) {
+    //     // simply forwarding from opencga-export to grid components
+    //     LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
+    // }
 
-    onExport(e) {
-        // simply forwarding from opencga-export to grid components
-        this.dispatchEvent(new CustomEvent("export", {
-            detail: {
-                ...e.detail
-            }
-        }));
-    }
+    // checkboxToggle(e) {
+    //     // We undo the checkbox action. We will toggle it on a different event
+    //     e.currentTarget.checked = !e.currentTarget.checked;
+    // }
 
-    checkboxToggle(e) {
-        // We undo the checkbox action. We will toggle it on a different event
-        e.currentTarget.checked = !e.currentTarget.checked;
-    }
+    // onColumnClick(e) {
+    //     // We do this call to avoid the dropdown to be closed after the click
+    //     e.stopPropagation();
+    //
+    //     // Toggle the checkbox
+    //     e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
+    //     this.dispatchEvent(new CustomEvent("columnChange", {
+    //         detail: {
+    //             id: e.currentTarget.dataset.columnId,
+    //             selected: e.currentTarget.firstElementChild.checked
+    //         }, bubbles: true, composed: true
+    //     }));
+    //
+    // }
 
-    onColumnClick(e) {
-        // We do this call to avoid the dropdown to be closed after the click
-        e.stopPropagation();
-
-        // Toggle the checkbox
-        e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
-        this.dispatchEvent(new CustomEvent("columnChange", {
-            detail: {
-                id: e.currentTarget.dataset.columnId,
-                selected: e.currentTarget.firstElementChild.checked
-            }, bubbles: true, composed: true
-        }));
-
-    }
-
-    isTrue(value) {
-        return UtilsNew.isUndefinedOrNull(value) || value;
-    }
+    // isTrue(value) {
+    //     return UtilsNew.isUndefinedOrNull(value) || value;
+    // }
 
     // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
     onCloseModal() {
         this.operation = null;
     }
 
+    onGridConfigChange(e) {
+        debugger
+        this.__config = e.detail.value;
+    }
+
+    onConfigSave(e) {
+        // Update user configuration
+        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
+        debugger
+        try {
+            OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
+            this.settingsObserver();
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
+    }
+
+    onExport(e) {
+        // Simply forwarding from opencga-export to grid components
+        LitUtils.dispatchCustomEvent(this, "export", {}, e.detail);
+    }
+
     onActionClick(e) {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "create":
-                this.dispatchEvent(new CustomEvent("actionClick", {
-                    detail: {
-                        action: action,
-                    }
-                }));
+                // this.dispatchEvent(new CustomEvent("actionClick", {
+                //     detail: {
+                //         action: action,
+                //     }
+                // }));
+                // this.dispatchEvent(new CustomEvent("toolbarNewClick", {
+                //     detail: {
+                //         action: action,
+                //     }
+                // }));
+                ModalUtils.show(`${this.prefix}CreateModal`);
                 break;
             case "export":
-                $(`#${this._prefix}export-modal`, this).modal("show");
+                // $(`#${this._prefix}export-modal`, this).modal("show");
+                ModalUtils.show(`${this.prefix}ExportModal`);
                 break;
             case "settings":
                 ModalUtils.show(`${this.prefix}SettingModal`);
                 break;
         }
-
-    }
-
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
+        LitUtils.dispatchCustomEvent(this, toolbar + action);
     }
 
     render() {
         const rightButtons = [];
-        if (this.rightToolbar && this.rightToolbar.length > 0) {
+        if (this.rightToolbar?.length > 0) {
             for (const rightButton of this.rightToolbar) {
                 rightButtons.push(rightButton.render());
             }
         }
+
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -168,126 +193,80 @@ export default class OpencbGridToolbar extends LitElement {
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${this._settings.showCreate &&
-                        (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
-                            <a type="button" class="btn btn-default btn-sm text-black" href="${this._settings.newButtonLink}">
-                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New Left </span>
-                            </a>
-                        ` : null}
+                        <!-- Display components on the LEFT -->
                     </div>
-                    <div id="${this._prefix}toolbar" class="col-md-6">
-                        <div class="form-inline text-right pull-right">
-                            ${this._settings.showDownload ? html`
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu btn-sm">
-                                        ${this._settings.download.length ? this._settings.download.map(item => html`
-                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-                                        `) : null}
-                                    </ul>
-                                </div>
-                            ` : null}
 
-                            ${this._settings.showNew ? html`
+                    <div id="${this._prefix}toolbar" class="col-md-6">
+                        <!-- Display components on the RIGHT -->
+                        <div class="form-inline text-right pull-right">
+                            <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
+                            ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
+                                <div class="btn-group">
+                                    ${rightButton}
+                                </div>
+                            `) : nothing}
+
+                            <!-- Second, display elements configured -->
+                            ${(this._settings.showCreate || this._settings.showNew) &&
+                            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ? html`
                                 <div class="btn-group">
                                     <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> New ...
+                                        <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                     </button>
                                 </div>
-                            ` : null}
+                            ` : nothing}
 
                             ${this._settings.showExport ? html`
                                 <div class="btn-group">
                                     <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export ...
+                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
-                            ` : null}
+                            ` : nothing}
 
-                            ${this._settings?.showColumns && this._settings.columns.length ? html`
-                                <div class="btn-group columns-toggle-wrapper">
-                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i>Columns <span class="caret" style="margin-left: 2px"></span>
-                                    </button>
-                                    <ul class="dropdown-menu btn-sm checkbox-container">
-                                        ${(this._settings?.columns || []).filter(item => item.eligible ?? true).map(item => html`
-                                            <li>
-                                                <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                    <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                    <label class="checkmark-label">${item.columnTitle || item.title}</label>
-                                                </a>
-                                            </li>
-                                        `)}
-                                    </ul>
-                                </div>
-                            ` : null}
-
-                            <!-- it'll be showSettings -->
-                            ${this._settings?.showSettings && this._config?.gridSettings !== undefined ? html`
-                            <div class="btn-group">
-                                <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                    <i class="fas fa-cog icon-padding"></i> Settings (Beta)
-                                </button>
-                            </div>` : nothing}
-
-                            ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
+                            <!-- && this._config? !== undefined-->
+                            ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
-                                    ${rightButton}
-                                </div>
-                            `) : null}
+                                    <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                                    </button>
+                                </div>` : nothing}
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Add modals-->
+            ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
+                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
+            }
+
+            ${this._settings?.showExport && this._config?.export ?
+                ModalUtils.create(this, `${this.prefix}ExportModal`, this._config.export) : nothing}
+
+            ${this._settings?.showSettings && this._config?.settings ?
+                ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
+
             <!-- // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
             <!-- $this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)} -->
-            ${ this.operation && html `
+            ${ false && html `
                 <modal-popup
                     .modalId="${this.operation.modalId}"
                     .config="${this.operation.config}"
                     @closeModal="${this.onCloseModal}">
                 </modal-popup>
             `}
-
-
-            ${this._settings?.showSettings && this._config?.gridSettings !== undefined ? ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.gridSettings) : nothing}
-
-            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        ${this._settings.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Export</h4>
-                        </div>
-                        <div class="modal-body">
-                            <opencga-export
-                                .config="${this._config}"
-                                .query=${this.query}
-                                .opencgaSession="${this.opencgaSession}"
-                                @export="${this.onExport}"
-                                @changeExportField="${this.onChangeExportField}">
-                            </opencga-export>
-                        </div>
-                    </div>
-                </div>
-            </div>
         `;
     }
 
     getDefaultSettings() {
         return {
             label: "records",
-            showNew: true,
-            columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
-            showDownload: false,
+            showCreate: true,
+            showDownload: true,
+            showSettings: true,
             download: ["Tab", "JSON"],
             buttons: ["columns", "download"],
             rightToolbar: {
@@ -297,7 +276,35 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            export: {
+                display: {
+                    modalTitle: this.config?.resource + " Export",
+                },
+                render: () => html`
+                    <opencga-export
+                        .config="${this._config}"
+                        .query=${this.query}
+                        .opencgaSession="${this.opencgaSession}"
+                        @export="${this.onExport}"
+                        @changeExportField="${this.onChangeExportField}">
+                    </opencga-export>`
+            },
+            settings: {
+                display: {
+                    modalTitle: this.config?.resource + " Settings",
+                    modalbtnsVisible: true
+                },
+                render: () => html `
+                    <catalog-browser-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._config.columns}"
+                        .config="${this._settings}"
+                        @configChange="${this.onGridConfigChange}"
+                        @modalOk="${this.onConfigSave}">
+                    </catalog-browser-grid-config>`
+            }
+        };
     }
 
 }

@@ -103,20 +103,7 @@ export default class SampleBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
-            this.settingsObserver();
 
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
-    }
 
     render() {
         if (!this.opencgaSession) {
@@ -228,14 +215,14 @@ export default class SampleBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         multiSelection: false,
                         showSelectCheckbox: false,
                         toolbar: {
-                            showNew: true,
-                            showColumns: true,
-                            showDownload: false,
+                            showToolbar: true,
+                            showCreate: true,
                             showExport: true,
+                            showSettings: true,
                             exportTabs: ["download", "link", "code"]
                             // columns list for the dropdown will be added in grid components based on settings.table.columns
                         },
@@ -295,7 +282,7 @@ export default class SampleBrowser extends LitElement {
                                 <file-grid
                                     .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
                                     .active="${active}"
-                                    .config="${{downloadFile: this.config.downloadFile}}"
+                                    .config="${{downloadFile: this.config?.downloadFile}}"
                                     .opencgaSession="${opencgaSession}">
                                 </file-grid>
                             `,

@@ -145,11 +145,6 @@ export default class CatalogBrowserGridConfig extends LitElement {
             title: "",
             icon: "fas fa-user-md",
             type: "pills",
-            validation: {
-                validate: data => {
-                    return data.geneSet?.ensembl || data.geneSet?.refseq;
-                }
-            },
             display: {
                 width: 10,
                 titleVisible: false,
@@ -222,7 +217,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
                     ],
                 },
                 {
-                    title: "Highlight",
+                    title: "Highlights",
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
