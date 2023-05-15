@@ -19,9 +19,9 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils";
 import ModalUtils from "./modal/modal-ultils.js";
+import "../variant/interpretation/variant-interpreter-grid-config.js";
 import "./opencga-export.js";
 import "./modal/modal-popup.js";
-import debug from "debug";
 import NotificationUtils from "./utils/notification-utils";
 
 export default class OpencbGridToolbar extends LitElement {
@@ -117,21 +117,6 @@ export default class OpencbGridToolbar extends LitElement {
     // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
     onCloseModal() {
         this.operation = null;
-    }
-
-    onConfigSave(e) {
-        // Update user configuration
-        // console.log("onGridConfigSave", this, "values", e.detail.value.columns);
-        try {
-            OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "sampleBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
     }
 
     onExport(e) {
@@ -238,18 +223,18 @@ export default class OpencbGridToolbar extends LitElement {
 
             <!-- Add modals-->
             ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
-                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
+                                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
             }
 
             ${this._settings?.showExport && this._config?.export ?
                 ModalUtils.create(this, `${this.prefix}ExportModal`, this._config.export) : nothing}
 
             ${this._settings?.showSettings && this._config?.settings ?
-                ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
+                    ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
 
             <!-- // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
             <!-- $this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)} -->
-            ${ false && html `
+            ${ nothing ?? html `
                 <modal-popup
                     .modalId="${this.operation.modalId}"
                     .config="${this.operation.config}"
@@ -293,14 +278,21 @@ export default class OpencbGridToolbar extends LitElement {
                     modalTitle: this.config?.resource + " Settings",
                     modalbtnsVisible: false
                 },
-                render: () => html `
+                render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .toolId="${this._config?.toolId}"
                         .config="${this._settings}"
                         @settingsUpdate="${this.onCloseSetting}">
-                    </catalog-browser-grid-config>`
+                    </catalog-browser-grid-config>` : html `
+                    <variant-interpreter-grid-config
+                        .opencgaSession="${this.opencgaSession}"
+                        .gridColumns="${this._config.columns}"
+                        .config="${this._settings}"
+                        .toolId="${this._config?.toolId}"
+                        @settingsUpdate="${this.onCloseSetting}">
+                    </variant-interpreter-grid-config>`
             }
         };
     }
