@@ -106,18 +106,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "clinicalAnalysisBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -148,6 +138,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                     active: true,
                     render: params => html `
                         <clinical-analysis-grid
+                            .componentId="${this._config.componentId}"
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
@@ -155,7 +146,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail
                             .opencgaSession="${params.opencgaSession}"
