@@ -8,6 +8,10 @@ export default class ModalUtils {
         $(`#${id}`).modal("show");
     }
 
+    static close(id) {
+        $(`#${id}`).modal("hide");
+    }
+
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "768px";
