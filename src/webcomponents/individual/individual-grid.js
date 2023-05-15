@@ -98,23 +98,46 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            toolId: "individualBrowserCatalog",
             resource: "INDIVIDUAL",
-            gridSettings: {
+            columns: this._getDefaultColumns(),
+            create: {
                 display: {
-                    modalTitle: "Table Settings",
-                    modalbtnsVisible: true,
+                    modalTitle: "Individual Create",
                 },
-                save: self => {
-                    LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-                },
-                render: self => html `
-                    <catalog-browser-grid-config
-                        .opencgaSession="${this.opencgaSession}"
-                        .gridColumns="${this._columns}"
-                        .config="${this._config}"
-                        @configChange="${self.onGridConfigChange}">
-                    </catalog-browser-grid-config>`
-            }
+                render: () => html `
+                    <individual-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-create>
+                `
+            },
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Sample Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Sample Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
         };
         this.renderTable();
     }
@@ -687,11 +710,10 @@ export default class IndividualGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .settings="${this.toolbarSetting}"
                     .query="${this.query}"
-                    .operation="${this._operation}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"

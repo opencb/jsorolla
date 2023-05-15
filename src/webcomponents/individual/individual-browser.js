@@ -89,28 +89,18 @@ export default class IndividualBrowser extends LitElement {
         }
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.diseasePanelBrowserCatalog?.grid) {
+        if (this.opencgaSession.user?.configs?.IVA?.individualBrowserCatalog?.grid) {
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.diseasePanelBrowserCatalog.grid,
+                ...this.opencgaSession.user.configs.IVA.individualBrowserCatalog.grid,
             };
         }
 
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, "diseasePanelBrowserCatalog", e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {
@@ -141,7 +131,7 @@ export default class IndividualBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "individual")}"
-                            @gridConfigSave="${e => this.onGridConfigSave(e)}">
+                            @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
                         <individual-detail
                             .opencgaSession="${params.opencgaSession}"
@@ -265,7 +255,7 @@ export default class IndividualBrowser extends LitElement {
                 result: {
                     grid: {
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         detailView: true,
                         multiSelection: false,
                         showSelectCheckbox: false
