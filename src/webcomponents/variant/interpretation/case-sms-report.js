@@ -121,6 +121,7 @@ class CaseSmsReport extends LitElement {
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
             };
+            UtilsNew.setObjectValue(this._reportData, "reportDiscussion", this._clinicalAnalysis?.report);
             UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.validation", this._clinicalAnalysis.analyst?.name);
             UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.date", UtilsNew.dateFormatter(UtilsNew.getDatetime()));
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -392,7 +393,17 @@ class CaseSmsReport extends LitElement {
                     margin: [0, 10]
                 },
                 {
-                    text: "7. Notas\n\n",
+                    stack: [
+                        {
+                            text: "7. Discusión del Informe\n\n",
+                            style: "header"
+                        },
+                        PdfUtils.htmlToPdf(this._reportData?.reportDiscussion?.discussion?.text ?? ""),
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    text: "8. Notas\n\n",
                     style: "header"
                 },
                 PdfUtils.htmlToPdf(this._reportData.notes ?? ""),
@@ -548,6 +559,8 @@ class CaseSmsReport extends LitElement {
             },
         };
 
+        const reportDiscussion = reportData?.reportDiscussion?.discussion?.text;
+
         const fieldTextTemplate = element => `<label><b>${element?.label !== ""? element?.label+":" :""}</b></label> <span>${element?.content}</span><br/>`;
         const boxTemplate = (id, elements, classes) => `<div class='${classes ?? ""}' id='${id}'>${Object.keys(elements).map(key => fieldTextTemplate(elements[key])).join("")}</div>`;
         const studyElements = {
@@ -619,6 +632,7 @@ class CaseSmsReport extends LitElement {
                     "method",
                     "results",
                     "interpretations",
+                    "reportDiscussion",
                     "technicalNotes",
                     "coverage",
                     "appendix",
@@ -678,6 +692,11 @@ class CaseSmsReport extends LitElement {
                     "summary": "",
                     "elements": variantElements,
                     "htmlRendered": interpretationsHtml
+                },
+                "reportDiscussion": {
+                    "title": "Report Discussion",
+                    "content": reportDiscussion,
+                    "htmlRendered": reportDiscussion
                 },
                 "technicalNotes": {
                     "title": "Notas",
@@ -1392,12 +1411,16 @@ class CaseSmsReport extends LitElement {
                     {
                         id: "interpretation",
                     },
+                    {
+                        id: "reportDiscussion",
+                    },
                     // {
                     //     id: "variant-detail-annotation-description",
                     // },
                     {
                         id: "notes",
                     },
+
                     // {
                     //     id: "qc-info",
                     // },
@@ -1605,10 +1628,43 @@ class CaseSmsReport extends LitElement {
                     ]
                 },
                 {
+                    id: "reportDiscussion",
+                    // title: "6. Interpretation results",
+                    elements: [
+                        titleElement("7. Report Discussion"),
+                        // {
+                        //     field: "interpretation",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         disabled: false
+                        //     }
+                        // },
+                        {
+                            field: "reportDiscussion",
+                            type: "custom",
+                            display: {
+                                disabled: false,
+                                preview: true,
+                                render: report => {
+                                    return html`
+                                    <rich-text-editor
+                                        .data="${report?.discussion?.text}"
+                                        .config="${{
+                                        disabled: false,
+                                        preview: true,
+                                    }}">
+                                    </rich-text-editor>
+                                    `;
+                                }
+                            }
+                        },
+                    ]
+                },
+                {
                     id: "variant-detail-annotation-description",
                     // title: "7. Detailed variant annotation description",
                     elements: [
-                        titleElement("7. Detailed variant annotation description"),
+                        titleElement("8. Detailed variant annotation description"),
                         {
                             title: "",
                             display: {
@@ -1647,7 +1703,7 @@ class CaseSmsReport extends LitElement {
                     id: "notes",
                     // title: "8. Notes",
                     elements: [
-                        titleElement("7. Notes"),
+                        titleElement("8. Notes"),
                         {
                             field: "notes",
                             type: "rich-text",
@@ -1670,7 +1726,7 @@ class CaseSmsReport extends LitElement {
                     id: "qc-info",
                     // title: "9. QC info",
                     elements: [
-                        titleElement("9. QC info"),
+                        titleElement("10. QC info"),
                         {
                             title: "",
                             display: {
@@ -1709,7 +1765,7 @@ class CaseSmsReport extends LitElement {
                     id: "disclaimer",
                     // title: "10. Disclaimer",
                     elements: [
-                        titleElement("10. Disclaimer"),
+                        titleElement("11. Disclaimer"),
                         {
                             title: "",
                             // field: "info.project",
