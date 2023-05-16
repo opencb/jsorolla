@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
@@ -87,14 +85,13 @@ export default class SampleBrowser extends LitElement {
             ...this.settings.table?.toolbar
         });
 
-
-        // Apply user configuration
         // if (this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid) {
         //     this.config.filter.result.grid = {
         //         ...this.config.filter.result.grid,
         //         ...this.opencgaSession.user.configs.IVA.sampleBrowserCatalog.grid,
         //     };
         // }
+        // Apply user configuration
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.sampleBrowser?.grid
