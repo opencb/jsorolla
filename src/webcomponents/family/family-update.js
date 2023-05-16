@@ -33,11 +33,11 @@ export default class FamilyUpdate extends LitElement {
 
     static get properties() {
         return {
-            active: {
-                type: Boolean,
-            },
             familyId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
