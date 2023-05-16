@@ -25,7 +25,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import ModalUtils from "../commons/modal/modal-utils";
-import debug from "debug";
 
 
 export default class SampleGrid extends LitElement {
@@ -65,7 +64,6 @@ export default class SampleGrid extends LitElement {
         this.gridId = this._prefix + "SampleBrowserGrid";
         this.active = true;
         this._config = {...this.getDefaultConfig()};
-        this._operation = null;
     }
 
     // connectedCallback() {
@@ -103,7 +101,7 @@ export default class SampleGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "sampleBrowserCatalog",
+            toolId: "sampleBrowser",
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
             create: {
@@ -114,8 +112,7 @@ export default class SampleGrid extends LitElement {
                     <sample-create
                         .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                         .opencgaSession="${this.opencgaSession}">
-                    </sample-create>
-                `
+                    </sample-create>`
             },
             // Uncomment in case we need to change defaults
             // export: {
@@ -451,16 +448,9 @@ export default class SampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <!--
-                                <a data-action="edit" class="btn force-text-left $OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
-                                </a>
-                                -->
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
-
                             </li>
                             <li>
                                 <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
@@ -469,7 +459,6 @@ export default class SampleGrid extends LitElement {
                             </li>
                         </ul>
                     </div>`,
-                // valign: "middle",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -555,7 +544,6 @@ export default class SampleGrid extends LitElement {
             })}
         `;
     }
-
 
     getDefaultConfig() {
         return {

@@ -97,7 +97,7 @@ export default class SampleBrowser extends LitElement {
         // }
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config.filter?.result?.grid,
-            ...this.opencgaSession.user?.configs?.IVA?.sampleBrowserCatalog?.grid
+            ...this.opencgaSession.user?.configs?.IVA?.sampleBrowser?.grid
         });
 
         this.requestUpdate();

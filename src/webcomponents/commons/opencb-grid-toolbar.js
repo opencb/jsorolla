@@ -19,10 +19,8 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils";
 import ModalUtils from "./modal/modal-utils.js";
-import "../variant/interpretation/variant-interpreter-grid-config.js";
 import "./opencga-export.js";
-import "./modal/modal-popup.js";
-import NotificationUtils from "./utils/notification-utils";
+import "../variant/interpretation/variant-interpreter-grid-config.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -46,9 +44,6 @@ export default class OpencbGridToolbar extends LitElement {
             },
             query: {
                 type: Object
-            },
-            operation: {
-                type: Object,
             },
             settings: {
                 type: Object
@@ -110,13 +105,8 @@ export default class OpencbGridToolbar extends LitElement {
     //
     // }
 
-    // isTrue(value) {
-    //     return UtilsNew.isUndefinedOrNull(value) || value;
-    // }
-
-    // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
-    onCloseModal() {
-        this.operation = null;
+    onCloseSetting() {
+        ModalUtils.close(`${this.prefix}SettingModal`);
     }
 
     onExport(e) {
@@ -128,31 +118,16 @@ export default class OpencbGridToolbar extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "create":
-                // this.dispatchEvent(new CustomEvent("actionClick", {
-                //     detail: {
-                //         action: action,
-                //     }
-                // }));
-                // this.dispatchEvent(new CustomEvent("toolbarNewClick", {
-                //     detail: {
-                //         action: action,
-                //     }
-                // }));
                 ModalUtils.show(`${this.prefix}CreateModal`);
                 break;
             case "export":
-                // $(`#${this._prefix}export-modal`, this).modal("show");
                 ModalUtils.show(`${this.prefix}ExportModal`);
                 break;
             case "settings":
                 ModalUtils.show(`${this.prefix}SettingModal`);
                 break;
         }
-        LitUtils.dispatchCustomEvent(this, toolbar + action);
-    }
-
-    onCloseSetting() {
-        ModalUtils.close(`${this.prefix}SettingModal`);
+        LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
     }
 
     render() {
@@ -165,11 +140,8 @@ export default class OpencbGridToolbar extends LitElement {
 
         return html`
             <style>
-                .opencb-grid-toolbar .checkbox-container label:before {
-                    margin-top: 5px;
-                }
                 .opencb-grid-toolbar {
-                    margin-bottom: ${~this._settings?.buttons.indexOf("new") ? 10 : 5}px;
+                    margin: 0;
                 }
             </style>
 
@@ -223,38 +195,25 @@ export default class OpencbGridToolbar extends LitElement {
 
             <!-- Add modals-->
             ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
-                                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
+                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
             }
 
             ${this._settings?.showExport && this._config?.export ?
                 ModalUtils.create(this, `${this.prefix}ExportModal`, this._config.export) : nothing}
 
             ${this._settings?.showSettings && this._config?.settings ?
-                    ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
-
-            <!-- // CAUTION: solution 2 to edit two or more consecutive times the same component in grid: sample, individual, etc. -->
-            <!-- $this.operation && ModalUtils.create(this.operation.modalId, this.operation.config)} -->
-            ${ nothing ?? html `
-                <modal-popup
-                    .modalId="${this.operation.modalId}"
-                    .config="${this.operation.config}"
-                    @closeModal="${this.onCloseModal}">
-                </modal-popup>
-            `}
+                ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
         `;
     }
 
     getDefaultSettings() {
         return {
-            label: "records",
+            // label: "records",
             showCreate: true,
             showDownload: true,
             showSettings: true,
             download: ["Tab", "JSON"],
             buttons: ["columns", "download"],
-            rightToolbar: {
-                // render
-            }
         };
     }
 
@@ -276,7 +235,6 @@ export default class OpencbGridToolbar extends LitElement {
             settings: {
                 display: {
                     modalTitle: this.config?.resource + " Settings",
-                    modalbtnsVisible: false
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config
