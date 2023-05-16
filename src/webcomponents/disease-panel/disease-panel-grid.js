@@ -23,6 +23,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -65,7 +66,6 @@ export default class DiseasePanelGrid extends LitElement {
 
     // connectedCallback() {
     //     super.connectedCallback();
-
     //     this._config = {...this.getDefaultConfig()};
     //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
     // }
@@ -79,7 +79,9 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -95,7 +97,7 @@ export default class DiseasePanelGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "diseasePanelBrowserCatalog",
+            toolId: "diseasePanelBrowser",
             resource: "DISEASE_PANEL",
             columns: this._getDefaultColumns(),
             create: {
@@ -109,6 +111,32 @@ export default class DiseasePanelGrid extends LitElement {
                     </disease-panel-create>
                 `
             }
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Disease Panel Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Disease Panel Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
         };
 
         this.renderTable();
@@ -211,7 +239,8 @@ export default class DiseasePanelGrid extends LitElement {
 
     async fetchDiseasePanels(query) {
         try {
-            return await this.opencgaSession.opencgaClient.panels().search(query);
+            return await this.opencgaSession.opencgaClient.panels()
+                .search(query);
         } catch (e) {
             console.error(e);
             await Promise.reject(e);
@@ -254,9 +283,16 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "edit":
+                this.diseasePanelUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -489,8 +525,7 @@ export default class DiseasePanelGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -553,18 +588,36 @@ export default class DiseasePanelGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : nothing}
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
+                </opencb-grid-toolbar>` : nothing
+            }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: "Disease Panel Update",
+                },
+                render: active => {
+                    return html `
+                        <disease-panel-update
+                            .sampleId="${this.sampleUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </disease-panel-update>
+                    `;
+                }
+            })}
         `;
     }
 
@@ -573,12 +626,14 @@ export default class DiseasePanelGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showToolbar: true,
-            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
