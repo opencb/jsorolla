@@ -93,27 +93,43 @@ export default class FamilyBrowser extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.settings.table,
-            };
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.settings.table,
+        //     };
+        // }
 
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {
-                ...this._config.filter.result.grid.toolbar,
-                ...this.settings.table.toolbar,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {
+        //         ...this._config.filter.result.grid.toolbar,
+        //         ...this.settings.table.toolbar,
+        //     };
+        // }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.familyBrowserCatalog?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.familyBrowserCatalog.grid,
-            };
-        }
+        // if (this.opencgaSession.user?.configs?.IVA?.familyBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.familyBrowserCatalog.grid,
+        //     };
+        // }
+
+        // Apply user configuration
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.familyBrowser?.grid
+        });
 
         this.requestUpdate();
     }
@@ -123,6 +139,10 @@ export default class FamilyBrowser extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
+        }
+
         return html`
             <opencga-browser
                 resource="FAMILY"
