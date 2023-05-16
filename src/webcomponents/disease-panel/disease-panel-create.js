@@ -74,8 +74,6 @@ export default class DiseasePanelCreate extends LitElement {
             style: "margin: 10px",
             buttonOkText: "Create",
             titleWidth: 3,
-            width: "8",
-            defaultValue: "",
             defaultLayout: "horizontal",
         };
         this._config = this.getDefaultConfig();
