@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
 import "../clinical/clinical-analysis-grid.js";
@@ -335,7 +333,7 @@ export default class IndividualBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            render: (individual, active, opencgaSession) => html`
+                            render: (individual, active) => html`
                                 <json-viewer
                                     .data="${individual}"
                                     .active="${active}">
