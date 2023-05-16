@@ -21,7 +21,6 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import ModalUtils from "../commons/modal/modal-utils";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 
 export default class IndividualGrid extends LitElement {
@@ -65,7 +64,6 @@ export default class IndividualGrid extends LitElement {
 
     // connectedCallback() {
     //     super.connectedCallback();
-
     //     this._config = {...this.getDefaultConfig(), ...this.config};
     //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
     // }
@@ -79,7 +77,9 @@ export default class IndividualGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -98,7 +98,7 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "individualBrowserCatalog",
+            toolId: "individualBrowser",
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns(),
             create: {
@@ -115,7 +115,7 @@ export default class IndividualGrid extends LitElement {
             // Uncomment in case we need to change defaults
             // export: {
             //     display: {
-            //         modalTitle: "Sample Export",
+            //         modalTitle: "Individual Export",
             //     },
             //     render: () => html`
             //         <opencga-export
@@ -128,7 +128,7 @@ export default class IndividualGrid extends LitElement {
             // },
             // settings: {
             //     display: {
-            //         modalTitle: "Sample Settings",
+            //         modalTitle: "Individual Settings",
             //     },
             //     render: () => html `
             //         <catalog-browser-grid-config
@@ -204,8 +204,8 @@ export default class IndividualGrid extends LitElement {
                             // Fetch Clinical Analysis ID per individual in 1 single query
                             const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                             if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical().search(
-                                    {
+                                this.opencgaSession.opencgaClient.clinical()
+                                    .search({
                                         individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
                                         include: "id,proband.id,family.members"
@@ -432,49 +432,11 @@ export default class IndividualGrid extends LitElement {
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
-            case "create":
-                this._operation = {
-                    type: "create",
-                    modalId: `${this._prefix}CreateModal`,
-                    config: {
-                        display: {
-                            modalTitle: "Individual Create",
-                        },
-                        render: () => {
-                            return html `
-                                <individual-create
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </individual-create>
-                            `;
-                        }
-                    },
-                };
-                this.requestUpdate();
-                break;
             case "edit":
-                this._operation = {
-                    type: "update",
-                    modalId: `${this._prefix}EditModal`,
-                    config: {
-                        display: {
-                            modalTitle: `Individual Update: ${row.id}`,
-                        },
-                        render: active => {
-                            return html `
-                                <individual-update
-                                    .individualId="${row.id}"
-                                    .active="${active}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </individual-update>
-                            `;
-                        }
-                    },
-                };
+                this.individualUpdateId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
-                ModalUtils.show(this._operation.modalId);
+                ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
@@ -637,12 +599,6 @@ export default class IndividualGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                            <!--
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#individualUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
-                                </a>
-                                -->
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
@@ -654,7 +610,6 @@ export default class IndividualGrid extends LitElement {
                             </li>
                         </ul>
                     </div>`,
-                // valign: "middle",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -710,7 +665,7 @@ export default class IndividualGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
@@ -724,6 +679,22 @@ export default class IndividualGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: "Individual Update",
+                },
+                render: active => {
+                    return html `
+                        <individual-update
+                            .individualId="${this.individualUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-update>
+                    `;
+                }
+            })}
         `;
     }
 
@@ -732,13 +703,15 @@ export default class IndividualGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
+            showSelectCheckbox: true,
             detailView: true,
             detailFormatter: this.detailFormatter, // function with the detail formatter
             multiSelection: false,
-            showSelectCheckbox: true,
-            showToolbar: true,
-            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
