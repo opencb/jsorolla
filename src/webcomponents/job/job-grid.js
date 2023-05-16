@@ -22,7 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import LitUtils from "../commons/utils/lit-utils.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class JobGrid extends LitElement {
 
@@ -71,7 +71,6 @@ export default class JobGrid extends LitElement {
 
     // connectedCallback() {
     //     super.connectedCallback();
-
     //     this._config = {...this.getDefaultConfig(), ...this.config};
     //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
     // }
@@ -85,7 +84,9 @@ export default class JobGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -103,9 +104,46 @@ export default class JobGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: "jobBrowserCatalog",
+            toolId: "jobBrowser",
             resource: "JOB",
             columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "Job Create",
+                },
+                render: () => html `
+                    <job-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </job-create>`
+            },
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Job Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Job Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
+
         };
         this.renderRemoteTable();
         this.requestUpdate();
@@ -306,9 +344,15 @@ export default class JobGrid extends LitElement {
         return result;
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "edit":
+                this.jobUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -435,8 +479,7 @@ export default class JobGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -513,19 +556,37 @@ export default class JobGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : nothing}
-
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
+                </opencb-grid-toolbar>` : nothing
+            }
 
             <div>
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: "Job Update",
+                },
+                render: active => {
+                    return html `
+                        <job-update
+                            .jobId="${this.jobUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </job-update>
+                    `;
+                }
+            })}
+
         `;
     }
 
@@ -534,15 +595,17 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 15,
-            showToolbar: true,
-            showActions: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
