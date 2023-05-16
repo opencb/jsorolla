@@ -22,6 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -37,6 +38,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     static get properties() {
         return {
+            componentId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -93,7 +97,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.toolbarSetting = {
             ...this._config,
             newButtonLink: "#clinical-analysis-create/",
-            showCreate: false,
+            showCreate: true,
             // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
 
@@ -403,102 +407,212 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    onActionClick(e, _, row) {
-        const {action} = e.currentTarget.dataset;
-        if (action === "delete") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                title: `Delete case '${row.id}'`,
-                message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
-                display: {
-                    okButtonText: "Yes, delete it",
-                },
-                ok: () => {
-                    const clinicalAnalysisId = row.id;
-                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
-                        study: this.opencgaSession.study.fqn,
-                        force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
-                    }).then(response => {
-                        if (response.getResultEvents("ERROR").length) {
-                            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+    async onActionClick(e, _, row) {
+        // const {action} = e.currentTarget.dataset;
+
+        // if (action === "edit") {
+        //     this.clinicalAnalysisUpdateId = row.id;
+        //     this.requestUpdate();
+        //     await this.updateComplete;
+        //     ModalUtils.show(`${this._prefix}UpdateModal`);
+        // }
+        //
+        // if (action === "delete") {
+        //     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+        //         title: `Delete case '${row.id}'`,
+        //         message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
+        //         display: {
+        //             okButtonText: "Yes, delete it",
+        //         },
+        //         ok: () => {
+        //             const clinicalAnalysisId = row.id;
+        //             this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
+        //                 study: this.opencgaSession.study.fqn,
+        //                 force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
+        //             }).then(response => {
+        //                 if (response.getResultEvents("ERROR").length) {
+        //                     return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //                 }
+        //                 // Display confirmation message and update the table
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //                     message: `Case '${clinicalAnalysisId}' has been deleted.`,
+        //                 });
+        //                 LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+        //                 this.removeRowTable(clinicalAnalysisId);
+        //             }).catch(response => {
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //             });
+        //         },
+        //     });
+        // }
+        //
+        // // Lock or unlock the case
+        // if (action === "lock") {
+        //     const updateParams = {
+        //         locked: !row.locked,
+        //     };
+        //
+        //     return this.opencgaSession.opencgaClient.clinical().update(row.id, updateParams, {
+        //         study: this.opencgaSession.study.fqn,
+        //     })
+        //         .then(() => {
+        //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //                 message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
+        //             });
+        //             LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+        //             this.renderRemoteTable();
+        //         })
+        //         .catch(response => {
+        //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //         });
+        // }
+        //
+        // if (action === "download") {
+        //     this.fetchData({id: row.id, study: this.opencgaSession.study.fqn})
+        //         .then(restResponse => this.download(restResponse))
+        //         .catch(error => console.error(error));
+        // }
+        //
+        // if (action === "statusChange") {
+        //     const {status} = e.currentTarget.dataset;
+        //     this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
+        //         .then(response => {
+        //             if (!response.getResultEvents("ERROR").length) {
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //                     message: `Status of case '${row.id}' has been changed to '${status}'.`,
+        //                 });
+        //                 LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+        //                 this.renderRemoteTable();
+        //             } else {
+        //                 // console.error(response);
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //             }
+        //         })
+        //         .catch(response => {
+        //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //         });
+        // }
+        //
+        // if (action === "priorityChange") {
+        //     const {priority} = e.currentTarget.dataset;
+        //     this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
+        //         .then(response => {
+        //             if (!response.getResultEvents("ERROR").length) {
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //                     message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
+        //                 });
+        //                 LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+        //                 this.renderRemoteTable();
+        //             } else {
+        //                 // console.error(response);
+        //                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //             }
+        //         })
+        //         .catch(response => {
+        //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //         });
+        // }
+
+        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        switch (action) {
+            case "edit":
+                this.clinicalAnalysisUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete case '${row.id}'`,
+                    message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
+                    display: {
+                        okButtonText: "Yes, delete it",
+                    },
+                    ok: () => {
+                        const clinicalAnalysisId = row.id;
+                        this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
+                            study: this.opencgaSession.study.fqn,
+                            force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
+                        }).then(response => {
+                            if (response.getResultEvents("ERROR").length) {
+                                return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                            }
+                            // Display confirmation message and update the table
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Case '${clinicalAnalysisId}' has been deleted.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.removeRowTable(clinicalAnalysisId);
+                        }).catch(response => {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                        });
+                    },
+                });
+                break;
+            case "lock": // Lock or unlock de case
+                const updateParams = {
+                    locked: !row.locked,
+                };
+                return this.opencgaSession.opencgaClient.clinical()
+                    .update(row.id, updateParams, {
+                        study: this.opencgaSession.study.fqn
+                    })
+                    .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
+                        });
+                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                        this.renderRemoteTable();
+                    })
+                    .catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    });
+            case "download":
+                this.fetchData({id: row.id, study: this.opencgaSession.study.fqn})
+                    .then(restResponse => this.download(restResponse))
+                    .catch(error => console.error(error));
+                break;
+            case "statuschange":
+                const {status} = e.currentTarget.dataset;
+                this.opencgaSession.opencgaClient.clinical()
+                    .update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        if (!response.getResultEvents("ERROR").length) {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Status of case '${row.id}' has been changed to '${status}'.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderRemoteTable();
+                        } else {
+                            // console.error(response);
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         }
-                        // Display confirmation message and update the table
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${clinicalAnalysisId}' has been deleted.`,
-                        });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.removeRowTable(clinicalAnalysisId);
-                    }).catch(response => {
+                    })
+                    .catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
-                },
-            });
-        }
-
-        // Lock or unlock the case
-        if (action === "lock") {
-            const updateParams = {
-                locked: !row.locked,
-            };
-
-            return this.opencgaSession.opencgaClient.clinical().update(row.id, updateParams, {
-                study: this.opencgaSession.study.fqn,
-            })
-                .then(() => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
+                break;
+            case "prioritychange":
+                const {priority} = e.currentTarget.dataset;
+                this.opencgaSession.opencgaClient.clinical()
+                    .update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        if (!response.getResultEvents("ERROR").length) {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
+                            });
+                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                            this.renderRemoteTable();
+                        } else {
+                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                        }
+                    })
+                    .catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                     });
-                    LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                    this.renderRemoteTable();
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                });
-        }
-
-        if (action === "download") {
-            this.fetchData({id: row.id, study: this.opencgaSession.study.fqn})
-                .then(restResponse => this.download(restResponse))
-                .catch(error => console.error(error));
-        }
-
-        if (action === "statusChange") {
-            const {status} = e.currentTarget.dataset;
-            this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (!response.getResultEvents("ERROR").length) {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Status of case '${row.id}' has been changed to '${status}'.`,
-                        });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderRemoteTable();
-                    } else {
-                        // console.error(response);
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    }
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                });
-        }
-
-        if (action === "priorityChange") {
-            const {priority} = e.currentTarget.dataset;
-            this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (!response.getResultEvents("ERROR").length) {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
-                        });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderRemoteTable();
-                    } else {
-                        // console.error(response);
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    }
-                })
-                .catch(response => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                });
+                break;
+            default:
+                break;
         }
     }
 
@@ -625,7 +739,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const session = this.opencgaSession;
                     const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
                     const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
-
+                    const hasAdminAccess = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled";
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
 
@@ -659,6 +773,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     <li>
                                         <a class="btn force-text-left" data-action="lock">
                                             <i class="fas ${lockActionIcon} icon-padding" aria-hidden="true"></i> ${lockActionText}
+                                        </a>
+                                    </li>
+                                    <!-- Edit the case -->
+                                    <li>
+                                        <a data-action="edit" class="btn force-text-left ${hasAdminAccess}">
+                                            <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
@@ -739,6 +859,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    onComponentUpdate() {
+        this.renderRemoteTable();
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -748,13 +872,31 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: `Clinical Analysis Update: ${this.clinicalAnalysisUpdateId}`,
+                },
+                render: active => {
+                    return html `
+                        <clinical-analysis-update
+                            .clinicalAnalysisId="${this.clinicalAnalysisUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </clinical-analysis-update>
+                    `;
+                }
+            })}
+
         `;
     }
 
@@ -764,15 +906,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            showToolbar: true,
+            showCreate: true,
             showExport: false,
             showReviewCase: true,
             showInterpretation: true,
             showReport: true,
+            showSettings: true,
+            showActions: true,
             detailView: false,
             // detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
-            showActions: true,
-            showToolbar: true,
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
