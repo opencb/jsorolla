@@ -1219,6 +1219,21 @@ class CaseSmsReport extends LitElement {
                 {"attributes": {"reportTest": reportTestData}}, {study: this.opencgaSession.study.fqn});
     }
 
+    onSubmit() {
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
+                {"attributes": {"reportTest": this._reportData}}, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                this.postUpdate(response);
+                console.log("Saved Preview");
+            })
+            .catch(response => {
+                console.log("Error Saving Preview", response);
+                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                this.notifyError(response);
+            });
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -1261,8 +1276,9 @@ class CaseSmsReport extends LitElement {
                 .data="${this._reportData}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @submit="${e => this.onRun(e)}">
+                @submit="${e => this.onSubmit(e)}">
             </data-form>
+            <!-- This will be removed -->
             <file-upload-beta
                 .data="${this._clinicalAnalysis}"
                 .opencgaSession="${this.opencgaSession}"
@@ -1336,7 +1352,7 @@ class CaseSmsReport extends LitElement {
             icon: "fas fa-user-md",
             buttons: {
                 clearText: "Cancel",
-                okText: "Save Report",
+                okText: "Save Preview",
             },
             display: {
                 width: 12,
