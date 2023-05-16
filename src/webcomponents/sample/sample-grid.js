@@ -18,12 +18,10 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import ModalUtils from "../commons/modal/modal-utils";
 
 
@@ -554,11 +552,11 @@ export default class SampleGrid extends LitElement {
             showCreate: true,
             showExport: true,
             showSettings: true,
+            showActions: true,
+            showSelectCheckbox: true,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showSelectCheckbox: true,
-            showActions: true
         };
     }
 
