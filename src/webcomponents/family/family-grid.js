@@ -630,7 +630,7 @@ export default class FamilyGrid extends LitElement {
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
-                    modalTitle: "Family Update",
+                    modalTitle: `Family Update: ${this.familyUpdateId}`,
                 },
                 render: active => {
                     return html `

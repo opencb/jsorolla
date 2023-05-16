@@ -605,7 +605,7 @@ export default class DiseasePanelGrid extends LitElement {
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
-                    modalTitle: "Disease Panel Update",
+                    modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
                 },
                 render: active => {
                     return html `

@@ -406,7 +406,7 @@ export default class CohortGrid extends LitElement {
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
-                    modalTitle: "Cohort Update",
+                    modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
                 },
                 render: active => {
                     return html `

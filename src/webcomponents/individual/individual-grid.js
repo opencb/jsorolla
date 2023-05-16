@@ -682,7 +682,7 @@ export default class IndividualGrid extends LitElement {
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
-                    modalTitle: "Individual Update",
+                    modalTitle: `Individual Update: ${this.individualUpdateId}`,
                 },
                 render: active => {
                     return html `

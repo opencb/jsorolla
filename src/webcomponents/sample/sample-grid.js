@@ -527,7 +527,7 @@ export default class SampleGrid extends LitElement {
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
-                    modalTitle: "Sample Update",
+                    modalTitle: `Sample Update: ${this.sampleUpdateId}`,
                 },
                 render: active => {
                     return html `
