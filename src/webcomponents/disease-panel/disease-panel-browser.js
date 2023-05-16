@@ -87,7 +87,7 @@ export default class DiseasePanelBrowser extends LitElement {
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid", {
             ...this._config?.filter?.result.grid,
-            ...this.settings.table
+            ...this.settings?.table
         });
 
         // if (this.settings?.table?.toolbar) {
@@ -99,7 +99,7 @@ export default class DiseasePanelBrowser extends LitElement {
 
         UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
             ...this._config.filter?.result?.grid?.toolbar,
-            ...this.settings.table?.toolbar
+            ...this.settings?.table?.toolbar
         });
 
 
