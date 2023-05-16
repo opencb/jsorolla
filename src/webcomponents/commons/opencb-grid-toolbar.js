@@ -162,12 +162,15 @@ export default class OpencbGridToolbar extends LitElement {
                             `) : nothing}
 
                             <!-- Second, display elements configured -->
-                            ${(this._settings.showCreate || this._settings.showNew) &&
-                            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ? html`
+                            ${(this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
-                                    <button data-action="create" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                    <button data-action="create" type="button"
+                                        class="btn btn-default btn-sm
+                                            ${(OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id,
+                                                `WRITE_${this._config.resource}`) &&
+                                                !this._config?.disableCreate) || "disabled" }" @click="${this.onActionClick}">
+                                            ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                            <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                     </button>
                                 </div>
                             ` : nothing}
