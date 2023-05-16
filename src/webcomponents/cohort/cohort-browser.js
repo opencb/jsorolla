@@ -17,8 +17,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
 import "./cohort-detail.js";
@@ -67,20 +65,33 @@ export default class CohortBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
 
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // if (this.opencgaSession.user?.configs?.IVA?.cohortBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.cohortBrowserCatalog.grid,
+        //     };
+        // }
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.cohortBrowserCatalog?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.cohortBrowserCatalog.grid,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.cohortBrowser?.grid
+        });
 
         this.requestUpdate();
     }
