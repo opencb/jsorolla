@@ -635,7 +635,7 @@ export default class FamilyGrid extends LitElement {
                 render: active => {
                     return html `
                         <family-update
-                            .sampleId="${this.familyUpdateId}"
+                            .familyId="${this.familyUpdateId}"
                             .active="${active}"
                             .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                             .opencgaSession="${this.opencgaSession}">
