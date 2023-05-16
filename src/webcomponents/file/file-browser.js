@@ -101,20 +101,35 @@ export default class FileBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
+
+        // if (this.opencgaSession.user?.configs?.IVA?.fileBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs?.IVA?.fileBrowserCatalog.grid,
+        //     };
+        // }
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.fileBrowserCatalog?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs?.IVA?.fileBrowserCatalog.grid,
-            };
-        }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.fileBrowser?.grid
+        });
+
         this.requestUpdate();
     }
 
@@ -151,8 +166,8 @@ export default class FileBrowser extends LitElement {
                     render: params => html`
                         <file-grid
                             .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.result.grid}"
                             .query="${params.executedQuery}"
+                            .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "file")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
