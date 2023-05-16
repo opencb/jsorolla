@@ -51,12 +51,6 @@ export default class IndividualBrowser extends LitElement {
             query: {
                 type: Object
             },
-            /* facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },*/
             settings: {
                 type: Object
             }
@@ -81,20 +75,34 @@ export default class IndividualBrowser extends LitElement {
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
-        if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
-        }
-        if (this.settings?.table?.toolbar) {
-            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
-        }
+        // if (this.settings?.table) {
+        //     this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        // }
 
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config?.filter?.result.grid,
+            ...this.settings.table
+        });
+
+        // if (this.settings?.table?.toolbar) {
+        //     this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        // }
+
+        UtilsNew.setObjectValue(this._config, "filter.result.grid.toolbar", {
+            ...this._config.filter?.result?.grid?.toolbar,
+            ...this.settings.table?.toolbar
+        });
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.individualBrowserCatalog?.grid) {
-            this._config.filter.result.grid = {
-                ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.individualBrowserCatalog.grid,
-            };
-        }
+        // if (this.opencgaSession.user?.configs?.IVA?.individualBrowserCatalog?.grid) {
+        //     this._config.filter.result.grid = {
+        //         ...this._config.filter.result.grid,
+        //         ...this.opencgaSession.user.configs.IVA.individualBrowserCatalog.grid,
+        //     };
+        // }
+        UtilsNew.setObjectValue(this._config, "filter.result.grid", {
+            ...this._config.filter?.result?.grid,
+            ...this.opencgaSession.user?.configs?.IVA?.individualBrowser?.grid
+        });
 
         this.requestUpdate();
     }
@@ -104,13 +112,18 @@ export default class IndividualBrowser extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
+        if (!this.opencgaSession) {
+            return html`<div>Not valid session</div>`;
+        }
+
+        return html`
             <opencga-browser
                 resource="INDIVIDUAL"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}">
-            </opencga-browser>` : "";
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
