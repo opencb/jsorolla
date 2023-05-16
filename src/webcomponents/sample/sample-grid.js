@@ -24,7 +24,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import ModalUtils from "../commons/modal/modal-ultils";
+import ModalUtils from "../commons/modal/modal-utils";
 import debug from "debug";
 
 

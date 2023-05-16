@@ -22,7 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-ultils";
+import ModalUtils from "../commons/modal/modal-utils";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 

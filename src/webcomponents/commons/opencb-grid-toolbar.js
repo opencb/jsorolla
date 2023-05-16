@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils";
-import ModalUtils from "./modal/modal-ultils.js";
+import ModalUtils from "./modal/modal-utils.js";
 import "../variant/interpretation/variant-interpreter-grid-config.js";
 import "./opencga-export.js";
 import "./modal/modal-popup.js";
