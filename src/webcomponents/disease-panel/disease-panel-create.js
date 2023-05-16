@@ -41,7 +41,10 @@ export default class DiseasePanelCreate extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            displayConfig: {
+                type: Object
+            },
         };
     }
 
@@ -65,9 +68,25 @@ export default class DiseasePanelCreate extends LitElement {
             //     }
             // ]
         };
+        this.isLoading = false;
         this.annotatedGenes = {};
-
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonOkText: "Create",
+            titleWidth: 3,
+            width: "8",
+            defaultValue: "",
+            defaultLayout: "horizontal",
+        };
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e) {
@@ -111,9 +130,18 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     onClear() {
-        this.diseasePanel = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.diseasePanel = {};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear disease panel",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.diseasePanel = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
     }
 
     onSubmit(e) {
@@ -136,6 +164,10 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html`
             <data-form
                 .data="${this.diseasePanel}"
@@ -150,14 +182,7 @@ export default class DiseasePanelCreate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             // type: "form",
-            display: {
-                buttonsVisible: true,
-                buttonOkText: "Create",
-                titleWidth: 3,
-                width: "8",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
