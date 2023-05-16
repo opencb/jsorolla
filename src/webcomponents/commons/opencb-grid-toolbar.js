@@ -106,7 +106,7 @@ export default class OpencbGridToolbar extends LitElement {
     // }
 
     onCloseSetting() {
-        ModalUtils.close(`${this.prefix}SettingModal`);
+        ModalUtils.close(`${this._prefix}SettingModal`);
     }
 
     onExport(e) {
@@ -118,13 +118,13 @@ export default class OpencbGridToolbar extends LitElement {
         const action = e.currentTarget.dataset.action;
         switch (action) {
             case "create":
-                ModalUtils.show(`${this.prefix}CreateModal`);
+                ModalUtils.show(`${this._prefix}CreateModal`);
                 break;
             case "export":
-                ModalUtils.show(`${this.prefix}ExportModal`);
+                ModalUtils.show(`${this._prefix}ExportModal`);
                 break;
             case "settings":
-                ModalUtils.show(`${this.prefix}SettingModal`);
+                ModalUtils.show(`${this._prefix}SettingModal`);
                 break;
         }
         LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
@@ -198,14 +198,14 @@ export default class OpencbGridToolbar extends LitElement {
 
             <!-- Add modals-->
             ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
-                ModalUtils.create(this, `${this.prefix}CreateModal`, this._config.create) : nothing
+                ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) : nothing
             }
 
             ${this._settings?.showExport && this._config?.export ?
-                ModalUtils.create(this, `${this.prefix}ExportModal`, this._config.export) : nothing}
+                ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
             ${this._settings?.showSettings && this._config?.settings ?
-                ModalUtils.create(this, `${this.prefix}SettingModal`, this._config.settings) : nothing}
+                ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
         `;
     }
 
