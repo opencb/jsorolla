@@ -22,8 +22,6 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-import ModalUtils from "../commons/modal/modal-utils";
-import LitUtils from "../commons/utils/lit-utils.js";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -67,7 +65,6 @@ export default class OpencgaFileGrid extends LitElement {
 
     // connectedCallback() {
     //     super.connectedCallback();
-
     //     this._config = {...this.getDefaultConfig()};
     //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
     // }
@@ -81,7 +78,9 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -99,7 +98,7 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: "fileBrowserCatalog",
+            toolId: "fileBrowser",
             resource: "FILE",
             columns: this._getDefaultColumns()
         };
@@ -255,49 +254,11 @@ export default class OpencgaFileGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             /*
-            case "create":
-                this._operation = {
-                    type: "create",
-                    modalId: `${this._prefix}CreateModal`,
-                    config: {
-                        display: {
-                            modalTitle: "File Create",
-                        },
-                        render: () => {
-                            return html `
-                                <file-create
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </file-create>
-                            `;
-                        }
-                    },
-                };
-                this.requestUpdate();
-                break;
             case "edit":
-                this._operation = {
-                    type: "update",
-                    modalId: `${this._prefix}EditModal`,
-                    config: {
-                        display: {
-                            modalTitle: `File Update: ${row.id}`,
-                        },
-                        render: active => {
-                            return html `
-                                <file-update
-                                    .familyId="${row.id}"
-                                    .active="${active}"
-                                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </file-update>
-                            `;
-                        }
-                    },
-                };
+                this.fileUpdateId = row.id;
                 this.requestUpdate();
                 await this.updateComplete;
-                ModalUtils.show(this._operation.modalId);
+                ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
              */
             case "copy-json":
@@ -434,8 +395,7 @@ export default class OpencgaFileGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#fileUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -505,7 +465,8 @@ export default class OpencgaFileGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}">
                 </opencb-grid-toolbar>` : nothing
             }
 
@@ -520,13 +481,15 @@ export default class OpencgaFileGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showExport: false,
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
+            showSelectCheckbox: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showSelectCheckbox: false,
-            showToolbar: true,
-            showActions: true,
         };
     }
 
