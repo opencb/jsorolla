@@ -610,7 +610,7 @@ export default class DiseasePanelGrid extends LitElement {
                 render: active => {
                     return html `
                         <disease-panel-update
-                            .sampleId="${this.sampleUpdateId}"
+                            .diseasePanelId="${this.diseasePanelId}"
                             .active="${active}"
                             .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                             .opencgaSession="${this.opencgaSession}">
