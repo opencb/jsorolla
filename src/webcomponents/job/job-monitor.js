@@ -217,7 +217,6 @@ export class JobMonitor extends LitElement {
                         ${
                             this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    // eslint-disable-next-line max-len
                                     <a href="javascript: void 0"
                                        @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ?
                                             `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
