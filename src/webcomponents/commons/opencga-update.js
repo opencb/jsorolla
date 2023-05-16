@@ -227,6 +227,7 @@ export default class OpencgaUpdate extends LitElement {
                 case "COHORT":
                     this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                     this.resourceInfoParams = {};
+                    this.updateCustomisation = ["status.date"];
                     this.resourceUpdateParams = {
                         samplesAction: "SET",
                         annotationSetsAction: "SET",
