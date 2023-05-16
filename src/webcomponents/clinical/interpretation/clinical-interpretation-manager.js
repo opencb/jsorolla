@@ -223,7 +223,7 @@ export default class ClinicalInterpretationManager extends LitElement {
             <li>
                 <a
                     class="btn force-text-left"
-                    ?disabled="${interpretation.locked && action !== "unlock"}"
+                    ?disabled="${interpretation.locked && ((action !== "unlock") && (action !== "setAsPrimary"))}"
                     data-action="${action}"
                     data-interpretation-id="${interpretation.id}"
                     data-islocked="${interpretation.locked}"
@@ -284,7 +284,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         };
 
         // islock is a strring
-        if (islocked === "true" && (action !== "unlock")) {
+        if (islocked === "true" && ((action !== "unlock") && (action !== "setAsPrimary"))) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
                 message: `${interpretationId} is locked!`,
             });
@@ -335,10 +335,10 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .opencgaSession="${this.opencgaSession}"
                                 .mode="${"modal"}"
                                 .displayConfig="${{
-                                    modalButtonClassName: "btn-primary",
-                                    buttonClearText: "Cancel",
-                                    modalDisabled: this.clinicalAnalysis.locked
-                                }}">
+            modalButtonClassName: "btn-primary",
+            buttonClearText: "Cancel",
+            modalDisabled: this.clinicalAnalysis.locked
+        }}">
                             </clinical-interpretation-create>
                         </div>
                     </div>
