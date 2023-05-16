@@ -147,6 +147,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {
             toolId: "variantBrowser",
             resource: "VARIANT",
+            disableCreate: true,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
