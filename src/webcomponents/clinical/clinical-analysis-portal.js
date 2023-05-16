@@ -165,6 +165,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         <div class="content container">
                             ${this.renderViewTitle("New Disease Panel")}
                             <disease-panel-create
+                                .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                 .opencgaSession="${this.opencgaSession}">
                             </disease-panel-create>
                         </div>
