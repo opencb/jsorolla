@@ -673,7 +673,7 @@ export default class IndividualGrid extends LitElement {
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
+                    @individualCreate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
