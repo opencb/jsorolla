@@ -104,6 +104,7 @@ export default class FamilyGrid extends LitElement {
             create: {
                 display: {
                     modalTitle: "Family Create",
+                    modalDraggable: true,
                 },
                 render: () => html `
                     <family-create
@@ -631,6 +632,7 @@ export default class FamilyGrid extends LitElement {
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
                     modalTitle: `Family Update: ${this.familyUpdateId}`,
+                    modalDraggable: true,
                 },
                 render: active => {
                     return html `

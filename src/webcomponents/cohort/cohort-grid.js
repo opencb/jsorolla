@@ -102,6 +102,7 @@ export default class CohortGrid extends LitElement {
             create: {
                 display: {
                     modalTitle: "Cohort Create",
+                    modalDraggable: true,
                 },
                 render: () => html `
                     <cohort-create
@@ -407,6 +408,7 @@ export default class CohortGrid extends LitElement {
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
                     modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
+                    modalDraggable: true,
                 },
                 render: active => {
                     return html `

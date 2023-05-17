@@ -111,6 +111,7 @@ export default class JobGrid extends LitElement {
             create: {
                 display: {
                     modalTitle: "Job Create",
+                    modalDraggable: true,
                 },
                 render: () => html `
                     <job-create
@@ -575,6 +576,7 @@ export default class JobGrid extends LitElement {
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
                     modalTitle: "Job Update",
+                    modalDraggable: true,
                 },
                 render: active => {
                     return html `
