@@ -258,7 +258,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderView() {
-        debugger
         if (!this._config.views) {
             return html`No view has been configured`;
         }
