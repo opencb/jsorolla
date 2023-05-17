@@ -929,7 +929,7 @@ export default class VariantGridFormatter {
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
             htmlPopFreqTable = `
-                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
                 <table style="width:${tableSize}px" class="populationFrequenciesTable">
                     <tr>
             `;
@@ -1111,29 +1111,31 @@ export default class VariantGridFormatter {
                     // Prepare the tooltip links
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
+                        if (!cosmicMap.has(trait.id)) {
+                            cosmicMap.set(trait.id, new Set());
+                        }
                         if (trait?.somaticInformation?.primaryHistology) {
-                            if (!cosmicMap.has(trait.id)) {
-                                cosmicMap.set(trait.id, new Set());
-                            }
                             cosmicMap.get(trait.id).add(trait.somaticInformation.primaryHistology);
                         }
                     });
 
-                    for (const [traitId, histologies] of cosmicMap.entries()) {
+                    Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
+                        const histologiesItems = Array.from(histologies.values())
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("");
+
                         tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
                                 </div>
                                 <div>
-                                    ${histologies?.size > 0 && Array.from(histologies.values())
-                            .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                            .join("")
-                        }
+                                    ${histologiesItems}
                                 </div>
-                            </div>`;
-                    }
+                            </div>
+                        `;
+                    });
 
                     return `
                         <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">

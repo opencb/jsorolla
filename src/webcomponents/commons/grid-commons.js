@@ -179,6 +179,28 @@ export default class GridCommons {
                     }
                 }));
             }
+
+            // Add events for displaying genes and roles list
+            // const gridElement = document.querySelector(`#${this.gridId}`);
+            ["genes", "roles"].forEach(key => {
+                Array.from(document.querySelectorAll(`#${this.gridId} div[data-role="${key}-list"]`)).forEach(el => {
+                    const extraList = el.querySelector(`span[data-role="${key}-list-extra"]`);
+                    const showLink = el.querySelector(`a[data-role="${key}-list-show"]`);
+                    const hideLink = el.querySelector(`a[data-role="${key}-list-hide"]`);
+
+                    showLink.addEventListener("click", () => {
+                        showLink.style.display = "none";
+                        hideLink.style.display = "block";
+                        extraList.style.display = "inline-block";
+                    });
+
+                    hideLink.addEventListener("click", () => {
+                        hideLink.style.display = "none";
+                        showLink.style.display = "block";
+                        extraList.style.display = "none";
+                    });
+                });
+            });
         } else {
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
