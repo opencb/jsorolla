@@ -100,10 +100,6 @@ export default class SampleBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onSettingsUpdate() {
-        this.settingsObserver();
-    }
-
     render() {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
@@ -129,20 +125,23 @@ export default class SampleBrowser extends LitElement {
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html`
-                        <sample-grid
-                            .opencgaSession="${params.opencgaSession}"
-                            .query="${params.executedQuery}"
-                            .config="${params.config.filter.result.grid}"
-                            .active="${true}"
-                            @selectrow="${e => params.onClickRow(e, "sample")}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
-                        </sample-grid>
-                        <sample-detail
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}"
-                            .sampleId="${params.detail.sample?.id}">
-                        </sample-detail>`
+                    render: params => {
+                        return html`
+                            <sample-grid
+                                .opencgaSession="${params.opencgaSession}"
+                                .query="${params.executedQuery}"
+                                .config="${params.config.filter.result.grid}"
+                                .active="${true}"
+                                @selectrow="${e => params.onClickRow(e, "sample")}"
+                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}">
+                            </sample-grid>
+                            <sample-detail
+                                .opencgaSession="${params.opencgaSession}"
+                                .config="${params.config.filter.detail}"
+                                .sampleId="${params.detail.sample?.id}">
+                            </sample-detail>
+                        `;
+                    }
                 },
                 {
                     id: "facet-tab",

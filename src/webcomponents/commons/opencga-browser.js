@@ -252,6 +252,11 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onComponentUpdate(e, resource) {
+        this._config.filter = UtilsNew.objectClone(this._config.filter);
+        this.requestUpdate();
+    }
+
     renderView() {
         if (!this._config.views) {
             return html`No view has been configured`;
@@ -270,6 +275,7 @@ export default class OpencgaBrowser extends LitElement {
                     eventNotifyName: this.eventNotifyName,
                     active: this.activeView === view.id,
                     onClickRow: (e, eventName) => this.onClickRow(e, eventName),
+                    onComponentUpdate: (e, eventName) => this.onComponentUpdate(e, eventName),
                 })}
             </div>
         `);
