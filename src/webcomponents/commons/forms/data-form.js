@@ -98,6 +98,18 @@ export default class DataForm extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        // const modalId = this.config.display?.modalId || `${this._prefix}DataModal`;
+        // const modalDraggable = this._getBooleanValue(this.config.display?.modalDraggable, true);
+        // const mode = this.config.mode || this.config.display.mode || "page";
+        // const modalElm = document.querySelector(`#${modalId}`);
+
+        // if (mode === "modal" & modalDraggable && ((modalElm !== null) && (modalElm !== undefined))) {
+        //     ModalUtils.draggableModal(modalElm);
+        // }
+
+    }
+
     dataObserver() {
         this.data = this.data ?? {};
     }
