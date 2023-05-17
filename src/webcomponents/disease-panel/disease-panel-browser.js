@@ -122,6 +122,9 @@ export default class DiseasePanelBrowser extends LitElement {
     onSettingsUpdate() {
         this.settingsObserver();
     }
+    onDiseasePanelUpdate() {
+        this.settingsObserver();
+    }
 
     render() {
         return html `
@@ -130,7 +133,8 @@ export default class DiseasePanelBrowser extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @diseasePanelUpdate="${this.onDiseasePanelUpdate}">
             </opencga-browser>
         `;
     }
@@ -154,6 +158,7 @@ export default class DiseasePanelBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "diseasePanel")}"
+                            @diseasePanelUpdate="${e => params.onComponentUpdate(e, "diseasePanel")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
                         <disease-panel-detail

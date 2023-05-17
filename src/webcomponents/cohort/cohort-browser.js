@@ -100,13 +100,18 @@ export default class CohortBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onCohortUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         return this.opencgaSession && this._config ? html`
             <opencga-browser
                 resource="COHORT"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @cohortUpdate="${this.onCohortUpdate}">
             </opencga-browser>` : "";
     }
 
@@ -129,6 +134,7 @@ export default class CohortBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "cohort")}"
+                            @cohortUpdate="${e => params.onComponentUpdate(e, "cohort")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
                         <cohort-detail

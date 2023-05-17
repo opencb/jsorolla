@@ -252,12 +252,13 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onComponentUpdate(e, resource) {
-        this._config.filter = UtilsNew.objectClone(this._config.filter);
+    onComponentUpdate() {
+        this.detail = {};
         this.requestUpdate();
     }
 
     renderView() {
+        debugger
         if (!this._config.views) {
             return html`No view has been configured`;
         }

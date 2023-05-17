@@ -117,6 +117,10 @@ export default class JobBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onJobUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         // No openCGA session available
         if (!this.opencgaSession) {
@@ -133,7 +137,8 @@ export default class JobBrowser extends LitElement {
                 resource="JOB"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @jobUpdate="${this.onJobUpdate}">
             </opencga-browser>
         `;
     }
@@ -158,6 +163,7 @@ export default class JobBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
                             @selectrow="${e => params.onClickRow(e, "job")}"
+                            @jobUpdate="${e => params.onComponentUpdate(e, "job")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </job-grid>
                         <job-detail

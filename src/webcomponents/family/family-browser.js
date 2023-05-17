@@ -138,6 +138,10 @@ export default class FamilyBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onFamilyUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
@@ -148,7 +152,8 @@ export default class FamilyBrowser extends LitElement {
                 resource="FAMILY"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @familyUpdate="${this.onFamilyUpdate}">
             </opencga-browser>
         `;
     }
@@ -171,6 +176,7 @@ export default class FamilyBrowser extends LitElement {
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "family")}"
+                            @familyUpdate="${e => params.onComponentUpdate(e, "family")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
                         <family-detail

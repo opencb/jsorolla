@@ -137,6 +137,9 @@ export default class FileBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onFileUpdate() {
+        this.settingsObserver();
+    }
     render() {
         if (!this.opencgaSession || !this._config) {
             return "";
@@ -147,7 +150,8 @@ export default class FileBrowser extends LitElement {
                 resource="FILE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @fileUpdate="${this.onFileUpdate}">
             </opencga-browser>
         `;
     }
@@ -170,6 +174,7 @@ export default class FileBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @selectrow="${e => params.onClickRow(e, "file")}"
+                            @fileUpdate="${e => params.onComponentUpdate(e, "file")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </file-grid>
                         <file-detail

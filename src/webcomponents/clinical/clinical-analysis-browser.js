@@ -110,6 +110,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onClinicalAnalysisUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         if (!this._config) {
             return null;
@@ -120,7 +124,8 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 resource="CLINICAL_ANALYSIS"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
             </opencga-browser>
         `;
     }
@@ -146,6 +151,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .active="${params.active}"
                             @selectanalysis="${params.onSelectClinicalAnalysis}"
                             @selectrow="${e => params.onClickRow(e, "clinicalAnalysis")}"
+                            @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e, "clinicalAnalysis")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
                         <clinical-analysis-detail

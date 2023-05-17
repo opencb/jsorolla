@@ -109,6 +109,10 @@ export default class IndividualBrowser extends LitElement {
         this.settingsObserver();
     }
 
+    onIndividualUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
@@ -119,7 +123,8 @@ export default class IndividualBrowser extends LitElement {
                 resource="INDIVIDUAL"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @individualUpdate="${this.onIndividualUpdate}">
             </opencga-browser>
         `;
     }
@@ -142,6 +147,7 @@ export default class IndividualBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${true}"
                             @selectrow="${e => params.onClickRow(e, "individual")}"
+                            @individualUpdate="${e => params.onComponentUpdate(e, "individual")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
                         <individual-detail

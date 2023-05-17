@@ -100,6 +100,10 @@ export default class SampleBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onSampleUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         if (!this.opencgaSession) {
             return html`<div>Not valid session</div>`;
@@ -110,7 +114,8 @@ export default class SampleBrowser extends LitElement {
                 resource="SAMPLE"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @sampleUpdate="${this.onSampleUpdate}">
             </opencga-browser>
         `;
     }
@@ -133,7 +138,8 @@ export default class SampleBrowser extends LitElement {
                                 .config="${params.config.filter.result.grid}"
                                 .active="${true}"
                                 @selectrow="${e => params.onClickRow(e, "sample")}"
-                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}">
+                                @sampleUpdate="${e => params.onComponentUpdate(e, "sample")}"
+                                @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </sample-grid>
                             <sample-detail
                                 .opencgaSession="${params.opencgaSession}"
