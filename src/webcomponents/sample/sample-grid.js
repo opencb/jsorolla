@@ -507,6 +507,10 @@ export default class SampleGrid extends LitElement {
             });
     }
 
+    onSampleCreate() {
+
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -518,7 +522,8 @@ export default class SampleGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @sampleCreate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 

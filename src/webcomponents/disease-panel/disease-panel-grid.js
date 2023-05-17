@@ -586,6 +586,7 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     render() {
+        // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
@@ -596,7 +597,8 @@ export default class DiseasePanelGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @sessionPanelUpdate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 

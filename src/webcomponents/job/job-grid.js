@@ -555,6 +555,8 @@ export default class JobGrid extends LitElement {
     }
 
     render() {
+        // CAUTION 20230517 Vero: I leave the code prepared for creating a new job from the Browser. However,
+        //  the method renderTable does not exist here, only renderRemoteTable.
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
@@ -565,7 +567,8 @@ export default class JobGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @jobCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
