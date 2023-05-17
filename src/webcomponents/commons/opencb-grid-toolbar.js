@@ -249,7 +249,7 @@ export default class OpencbGridToolbar extends LitElement {
         return {
             export: {
                 display: {
-                    // modalDraggable: true,
+                    modalDraggable: true,
                     modalTitle: this.config?.resource + " Export",
                 },
                 render: () => html`
@@ -263,7 +263,7 @@ export default class OpencbGridToolbar extends LitElement {
             },
             settings: {
                 display: {
-                    // modalDraggable: true,
+                    modalDraggable: true,
                     modalTitle: this.config?.resource + " Settings",
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `

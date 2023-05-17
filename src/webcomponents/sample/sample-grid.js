@@ -104,6 +104,7 @@ export default class SampleGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
+                    modalDraggable: true,
                     modalTitle: "Sample Create",
                 },
                 render: () => html `
@@ -533,6 +534,7 @@ export default class SampleGrid extends LitElement {
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
                     modalTitle: `Sample Update: ${this.sampleUpdateId}`,
+                    modalDraggable: true,
                 },
                 render: active => {
                     return html `

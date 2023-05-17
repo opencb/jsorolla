@@ -104,6 +104,7 @@ export default class IndividualGrid extends LitElement {
             create: {
                 display: {
                     modalTitle: "Individual Create",
+                    modalDraggable: true,
                 },
                 render: () => html `
                     <individual-create
@@ -684,6 +685,7 @@ export default class IndividualGrid extends LitElement {
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {
                     modalTitle: `Individual Update: ${this.individualUpdateId}`,
+                    modalDraggable: true,
                 },
                 render: active => {
                     return html `

@@ -6,9 +6,10 @@ import UtilsNew from "../../../core/utils-new";
 export default class ModalUtils {
 
     static show(id) {
-        // id & config.display.draggable
         const modalElm = document.querySelector(`#${id}`);
-        ModalUtils.draggableModal(modalElm);
+        if (modalElm.dataset?.draggable === "true") {
+            ModalUtils.draggableModal(modalElm);
+        }
         $(`#${id}`).modal("show");
     }
 
@@ -24,9 +25,10 @@ export default class ModalUtils {
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
         const btnsVisible = config.display?.modalbtnsVisible;
+        const modalDraggable = config.display?.modalDraggable || false;
 
         return html `
-            <div class="modal fade" id="${id}"
+            <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
                 tabindex="-1" role="dialog"
                 aria-labelledby="DataModalLabel" aria-hidden="true">
                 <div class="modal-dialog" style="width: ${modalWidth}">
@@ -74,8 +76,7 @@ export default class ModalUtils {
     }
 
     static draggableModal(modalElm) {
-        let offset = [0, 0];
-        let isDown = false;
+        const offset = [0, 0, 0, 0];
         const modalDialog = modalElm.querySelector(".modal-dialog");
         const modalHeader = modalElm.querySelector(".modal-header");
         modalHeader.style.cursor = "move";
@@ -85,25 +86,41 @@ export default class ModalUtils {
             modalDialog.style.left = (window.innerWidth * 0.30) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
-        modalHeader.addEventListener("mousedown", e => {
-            isDown = true;
-            offset = [
-                modalDialog.offsetLeft - e.clientX,
-                modalDialog.offsetTop - e.clientY
-            ];
-        }, true);
 
-        modalHeader.addEventListener("mouseup", () => {
-            isDown = false;
-        }, true);
-
-        modalHeader.addEventListener("mousemove", e => {
+        const elementDrag = e => {
             e.preventDefault();
-            if (isDown) {
-                modalDialog.style.left = (e.clientX + offset[0]) + "px";
-                modalDialog.style.top = (e.clientY + offset[1]) + "px";
-            }
-        }, true);
+
+            // calculate the new cursor position:
+            offset[0] = offset[2] - e.clientX;
+            offset[1] = offset[3] - e.clientY;
+            offset[2] = e.clientX;
+            offset[3] = e.clientY;
+
+            // set the element's new position:
+            modalDialog.style.top = (modalDialog.offsetTop - offset[1]) + "px";
+            modalDialog.style.left = (modalDialog.offsetLeft - offset[0]) + "px";
+        };
+
+        const closeDragElement = () => {
+            // stop moving when mouse button is released:
+            document.onmouseup = null;
+            document.onmousemove = null;
+        };
+
+        const dragMouseDown = e => {
+            e.preventDefault();
+
+            // get the mouse cursor position at startup:
+            offset[2] = e.clientX;
+            offset[3] = e.clientY;
+            document.onmouseup = closeDragElement;
+
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        };
+
+        modalDialog.onmousedown = dragMouseDown;
     }
+
 
 }
