@@ -138,8 +138,10 @@ export default class OpencbGridToolbar extends LitElement {
             }
         }
 
-        const isDisabled = (!OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id,
-            `WRITE_${this._config.resource}`) || this._config?.disableCreate) || false;
+        const hasPermissions = OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id,
+            `WRITE_${this._config.resource}`);
+
+        const isDisabled = (!hasPermissions || this._config?.disableCreate) || false;
 
         return html`
             <style>
@@ -167,11 +169,21 @@ export default class OpencbGridToolbar extends LitElement {
                             <!-- Second, display elements configured -->
                             ${(this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
-                                    <button data-action="create" type="button" class="btn btn-default btn-sm"
-                                            ?disabled="${isDisabled}" @click="${this.onActionClick}">
+                                    <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
+                                    As a workaround, the tooltip will be displayed from a wrapper -->
+                                    ${this._config?.disableCreate ? html `
+                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="The implementation of this functionality is in progress. Thanks for your patience :)">
+                                            <button data-action="create" type="button" class="btn btn-default btn-sm" disabled>
+                                                <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                            </button>
+                                        </span>
+                                    ` : html `
+                                        <button data-action="create" type="button" class="btn btn-default btn-sm"
+                                                ?disabled="${isDisabled}" @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                             <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
-                                    </button>
+                                        </button>
+                                    `}
                                 </div>
                             ` : nothing}
 
