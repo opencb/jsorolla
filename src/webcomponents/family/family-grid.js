@@ -620,7 +620,8 @@ export default class FamilyGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @familyCreate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 

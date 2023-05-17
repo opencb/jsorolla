@@ -859,10 +859,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    onComponentUpdate() {
-        this.renderRemoteTable();
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -873,7 +869,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @clinicalAnalysisCreate="${this.renderRemoteTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 

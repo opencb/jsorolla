@@ -396,7 +396,8 @@ export default class CohortGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @cohortCreate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
