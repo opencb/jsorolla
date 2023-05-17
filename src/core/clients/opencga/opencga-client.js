@@ -465,7 +465,7 @@ export class OpenCGAClient {
                                                 dataReleaseSources = cellbaseSourcesResponses[i].responses[0].results
                                                     .find(source => source.active);
                                             }
-                                            session.projects[indexesMap[i]].cellbase.sources = dataReleaseSources.sources;
+                                            session.projects[indexesMap[i]].cellbase.sources = dataReleaseSources?.sources || [];
                                         }
 
                                         // Fetch the Disease Panels for each Study
