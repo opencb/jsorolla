@@ -71,6 +71,18 @@ export default class OpencbGridToolbar extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        // firstUpdated is not working because this prefix change each update.
+        // Approach #1
+        // const modalIds = ["CreateModal", "ExportModal", "SettingModal"];
+        // modalIds.forEach(modalId => {
+        //     const modalElm = document.querySelector(`#${this._prefix+modalId}`);
+        //     if ((modalElm !== null) && (modalElm !== undefined)) {
+        //         ModalUtils.draggableModal(modalElm);
+        //     }
+        // });
+    }
+
     // onDownloadFile(e) {
     //     this.dispatchEvent(new CustomEvent("download", {
     //         detail: {
@@ -209,8 +221,7 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${(this._settings.showCreate || this._settings.showNew) && this._config?.create &&
-            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
+            ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
                 ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) : nothing
             }
 
@@ -238,6 +249,7 @@ export default class OpencbGridToolbar extends LitElement {
         return {
             export: {
                 display: {
+                    // modalDraggable: true,
                     modalTitle: this.config?.resource + " Export",
                 },
                 render: () => html`
@@ -251,6 +263,7 @@ export default class OpencbGridToolbar extends LitElement {
             },
             settings: {
                 display: {
+                    // modalDraggable: true,
                     modalTitle: this.config?.resource + " Settings",
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `

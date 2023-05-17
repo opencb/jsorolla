@@ -1,10 +1,14 @@
 import {html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils";
+import UtilsNew from "../../../core/utils-new";
 
 
 export default class ModalUtils {
 
     static show(id) {
+        // id & config.display.draggable
+        const modalElm = document.querySelector(`#${id}`);
+        ModalUtils.draggableModal(modalElm);
         $(`#${id}`).modal("show");
     }
 
@@ -23,8 +27,8 @@ export default class ModalUtils {
 
         return html `
             <div class="modal fade" id="${id}"
-                 tabindex="-1" role="dialog"
-                 aria-labelledby="DataModalLabel" aria-hidden="true">
+                tabindex="-1" role="dialog"
+                aria-labelledby="DataModalLabel" aria-hidden="true">
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -67,6 +71,39 @@ export default class ModalUtils {
             case "h6":
                 return html`<h6 class="${classes}" style="${style}">${title}</h6>`;
         }
+    }
+
+    static draggableModal(modalElm) {
+        let offset = [0, 0];
+        let isDown = false;
+        const modalDialog = modalElm.querySelector(".modal-dialog");
+        const modalHeader = modalElm.querySelector(".modal-header");
+        modalHeader.style.cursor = "move";
+
+        if (modalDialog) {
+            modalDialog.style.margin = "0";
+            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.top = (window.innerHeight * 0.05) + "px";
+        }
+        modalHeader.addEventListener("mousedown", e => {
+            isDown = true;
+            offset = [
+                modalDialog.offsetLeft - e.clientX,
+                modalDialog.offsetTop - e.clientY
+            ];
+        }, true);
+
+        modalHeader.addEventListener("mouseup", () => {
+            isDown = false;
+        }, true);
+
+        modalHeader.addEventListener("mousemove", e => {
+            e.preventDefault();
+            if (isDown) {
+                modalDialog.style.left = (e.clientX + offset[0]) + "px";
+                modalDialog.style.top = (e.clientY + offset[1]) + "px";
+            }
+        }, true);
     }
 
 }

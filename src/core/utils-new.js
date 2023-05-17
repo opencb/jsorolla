@@ -208,11 +208,11 @@ export default class UtilsNew {
             ];
         }, true);
 
-        self.addEventListener("mouseup", () => {
+        modalHeader.addEventListener("mouseup", () => {
             isDown = false;
         }, true);
 
-        self.addEventListener("mousemove", e => {
+        modalHeader.addEventListener("mousemove", e => {
             e.preventDefault();
             if (isDown) {
                 modalDialog.style.left = (e.clientX + offset[0]) + "px";
