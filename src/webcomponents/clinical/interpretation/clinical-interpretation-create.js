@@ -175,7 +175,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: this.mode,
+            mode: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
             display: this.displayConfig || this.displayConfigDefault,
