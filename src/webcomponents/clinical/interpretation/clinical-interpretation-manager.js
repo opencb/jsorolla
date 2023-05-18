@@ -159,6 +159,9 @@ export default class ClinicalInterpretationManager extends LitElement {
                                     modalDisabled: this.clinicalAnalysis.locked,
                                     modalButtonName: "Edit Interpretation",
                                     modalButtonIcon: "fas fa-solid fa-file-medical",
+                                    modalButtonsVisible: false,
+                                    type: "tabs",
+                                    buttonsLayout: "upper",
                                 }
                             }"
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
@@ -332,9 +335,12 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .displayConfig="${{
                                     modalButtonClassName: "btn-primary",
                                     modalButtonName: "Create Interpretation",
+                                    modalTitle: "Create Interpretation",
                                     modalButtonIcon: "fas fa-solid fa-file-medical",
                                     buttonClearText: "Cancel",
-                                    modalDisabled: this.clinicalAnalysis.locked
+                                    modalDisabled: this.clinicalAnalysis.locked,
+                                    modalButtonsVisible: false,
+                                    type: "tabs", buttonsLayout: "upper"
                                 }}">
                             </clinical-interpretation-create>
                         </div>
