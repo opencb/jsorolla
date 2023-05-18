@@ -45,6 +45,9 @@ export default class VariantFileInfoFilter extends LitElement {
             fileData: {
                 type: String
             },
+            visibleCallers: {
+                type: Array,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -60,6 +63,8 @@ export default class VariantFileInfoFilter extends LitElement {
         };
 
         this.fileDataSeparator = ",";
+        this.callers = [];
+        this.visibleCallers = null;
     }
 
     update(changedProperties) {
@@ -297,7 +302,7 @@ export default class VariantFileInfoFilter extends LitElement {
     //
     #splitFilters(filtersString) {
         // 1. Find the key/values: ["FILTER=PASS", "CLPM<=0.5", "ASMD>=1,400"]
-        const re = /(?<file>[\w]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.]+)/g;
+        const re = /(?<file>[\w]+)(?<op>[=<>]+)(?<field>[a-zA-Z0-9,.-]+)/g;
         const match1 = filtersString.match(re);
         // 2. Get the indexes: [0, 16, 26]
         const filters = [];
@@ -422,7 +427,14 @@ export default class VariantFileInfoFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        const _sections = this.callers?.map(caller => {
+        let callers = this.callers || [];
+
+        // Check if we have provided a list of specific callers to display
+        if (this.visibleCallers && Array.isArray(this.visibleCallers)) {
+            callers = this.callers.filter(caller => this.visibleCallers.includes(caller.id));
+        }
+
+        const _sections = callers?.map(caller => {
             // Generate the caller section
             return {
                 title: caller.id,

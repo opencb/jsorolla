@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../clinical/analysis/hrdetect-view.js";
 
-class VariantInterpreterQcHrDetect extends LitElement {
+class SteinerVariantInterpreterAnalysisHrDetect extends LitElement {
 
     constructor() {
         super();
@@ -139,4 +139,4 @@ class VariantInterpreterQcHrDetect extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-hrdetect", VariantInterpreterQcHrDetect);
+customElements.define("steiner-variant-interpreter-analysis-hrdetect", SteinerVariantInterpreterAnalysisHrDetect);
