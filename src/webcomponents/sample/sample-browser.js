@@ -100,6 +100,10 @@ export default class SampleBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
     onSampleUpdate() {
         this.settingsObserver();
     }
