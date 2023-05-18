@@ -62,7 +62,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             buttonsAlign: "right",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
-            titleVisible: false,
+            titleVisible: true,
             titleWidth: 4,
             defaultLayout: "horizontal"
         };
