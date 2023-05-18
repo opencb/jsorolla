@@ -133,6 +133,9 @@ export default class ClinicalInterpretationManager extends LitElement {
         const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
+
+        const editInterpretationTitle = `Edit interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
+
         return html`
             <div style="display:flex;padding-bottom:4px;">
                 <div style="margin-right:auto;">
@@ -149,10 +152,13 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .mode="${"modal"}"
                             .displayConfig="${
                                 {
+                                    modalTitle: editInterpretationTitle,
                                     buttonClearText: "Cancel",
                                     buttonOkText: "Update",
                                     modalButtonClassName: "btn-default btn-sm",
-                                    modalDisabled: this.clinicalAnalysis.locked
+                                    modalDisabled: this.clinicalAnalysis.locked,
+                                    modalButtonName: "Edit Interpretation",
+                                    modalButtonIcon: "fas fa-solid fa-file-medical",
                                 }
                             }"
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
@@ -325,6 +331,8 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .mode="${"modal"}"
                                 .displayConfig="${{
                                     modalButtonClassName: "btn-primary",
+                                    modalButtonName: "Create Interpretation",
+                                    modalButtonIcon: "fas fa-solid fa-file-medical",
                                     buttonClearText: "Cancel",
                                     modalDisabled: this.clinicalAnalysis.locked
                                 }}">
