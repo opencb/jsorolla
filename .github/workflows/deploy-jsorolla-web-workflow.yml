@@ -1,4 +1,4 @@
-name: "Reusable workflow to deploy JSorolla application"
+name: "Reusable workflow to deploy JSorolla Web Application"
 
 on:
   workflow_call:
@@ -18,7 +18,7 @@ on:
 
 jobs:
   publish-test:
-    name: Publish test results
+    name: Deploy IVA Web Application
     runs-on: ubuntu-22.04
     steps:
       - name: Download 'build' dir

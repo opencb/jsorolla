@@ -23,8 +23,7 @@ export default class FileQcAscatMetrics extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +47,7 @@ export default class FileQcAscatMetrics extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.ascatMetrics = null;
         this.config = this.getDefaultConfig();
     }
@@ -64,31 +63,36 @@ export default class FileQcAscatMetrics extends LitElement {
     }
 
     fileObserver() {
-        this.ascatMetrics = this.file.qualityControl.variant.ascatMetrics;
-        this.ascatMetrics.file = this.file.name;
+        this.ascatMetrics = {
+            ...this.file.qualityControl.variant.ascatMetrics,
+            file: this.file?.name || "-",
+        };
     }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.files().search({
+            const searchParams = {
                 format: "VCF",
                 sampleIds: this.sampleId,
                 softwareName: "ascat",
                 study: this.opencgaSession.study.fqn,
-            }).then(response => {
-                this.file = response.responses[0].results[0];
-            }).catch(error => {
-                console.error(error);
-            });
+            };
+            this.opencgaSession.opencgaClient.files()
+                .search(searchParams)
+                .then(response => {
+                    this.file = response.responses[0].results[0];
+                })
+                .catch(error => console.error(error));
         }
     }
 
     render() {
         if (!this.ascatMetrics) {
-            return html`<div>No Ascat metrics provided.</div>`;
+            return html`
+                <div>No Ascat metrics provided.</div>
+            `;
         }
 
-        // Display ASCAT Stats and Plots
         return html`
             <div class="container" style="margin: 20px 10px">
                 <h3>ASCAT Metrics</h3>
@@ -96,14 +100,18 @@ export default class FileQcAscatMetrics extends LitElement {
                     .config="${this.config}"
                     .data="${{ascat: [this.ascatMetrics]}}">
                 </data-form>
-
                 ${this.ascatMetrics?.files?.length > 0 ? html`
                     <h3>ASCAT QC Plots</h3>
-                    <file-preview
-                        .fileIds=${this.ascatMetrics.files}
-                        .active="${true}"
-                        .opencgaSession=${this.opencgaSession}>
-                    </file-preview>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <file-preview
+                                .fileIds=${this.ascatMetrics.files}
+                                .active="${true}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${{showFileSize: false}}">
+                            </file-preview>
+                        </div>
+                    </div>
                 ` : null
                 }
             </div>

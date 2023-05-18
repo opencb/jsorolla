@@ -24,7 +24,7 @@ export default class FilePreview extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -57,18 +57,12 @@ export default class FilePreview extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.file = {};
         this.files = [];
         this.filesWithContent = [];
 
         this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -85,7 +79,10 @@ export default class FilePreview extends LitElement {
             this.fileIdsObserver();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
@@ -117,7 +114,7 @@ export default class FilePreview extends LitElement {
         }
     }
 
-    async filesObserver() {
+    filesObserver() {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
@@ -220,8 +217,10 @@ export default class FilePreview extends LitElement {
                         ${this._config.showFileTitle ? html `
                             <div style="margin: 25px 0 5px 0">
                                 <label>
-                                    <span>${fileWithContent.name}</span>
-                                    <span style="padding-left: 20px">${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                    <span style="padding-right:20px;">${fileWithContent.name}</span>
+                                    ${this._config.showFileSize ? html`
+                                        <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
+                                    ` : null}
                                 </label>
                             </div>
                         ` : null}
@@ -251,6 +250,7 @@ export default class FilePreview extends LitElement {
     getDefaultConfig() {
         return {
             showFileTitle: true,
+            showFileSize: true,
         };
     }
 
