@@ -115,6 +115,13 @@ export default class VariantInterpreterReview extends LitElement {
                 name: "General Info",
                 active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
+                    const displayConfig = {
+                        titleVisible: false,
+                        width: 8,
+                        modalButtonClassName: "btn-default btn-sm",
+                        buttonsLayout: "top",
+                    };
+
                     return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
@@ -131,12 +138,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 .clinicalInterpretation="${clinicalAnalysis?.interpretation}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}"
-                                .displayConfig="${{
-                                    titleVisible: false,
-                                    width: 8,
-                                    modalButtonClassName: "btn-default btn-sm",
-                                    buttonsLayout: "top",
-                                }}"
+                                .displayConfig="${displayConfig}"
                                 @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                             </clinical-interpretation-update>
                         </div>
