@@ -152,6 +152,7 @@ export default class ClinicalAnalysisGroup extends LitElement {
 
     getDefaultConfig() {
         return {
+            showToolbar: false,
             groups: [
                 {
                     id: "analyst",
