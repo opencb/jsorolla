@@ -138,39 +138,39 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         </disease-panel-browser>
                     `,
                 },
-                {
-                    id: "case-create",
-                    name: "New Case",
-                    icon: "fa-plus",
-                    display: {
-                        titleVisible: false,
-                    },
-                    render: () => html`
-                        <div class="content container">
-                            ${this.renderViewTitle("New Case")}
-                            <clinical-analysis-create
-                                .opencgaSession="${this.opencgaSession}">
-                            </clinical-analysis-create>
-                        </div>
-                    `,
-                },
-                {
-                    id: "disease-panel-create",
-                    name: "New Disease Panel",
-                    icon: "fa-plus",
-                    display: {
-                        titleVisible: false,
-                    },
-                    render: () => html`
-                        <div class="content container">
-                            ${this.renderViewTitle("New Disease Panel")}
-                            <disease-panel-create
-                                .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </disease-panel-create>
-                        </div>
-                    `,
-                },
+                // {
+                //     id: "case-create",
+                //     name: "New Case",
+                //     icon: "fa-plus",
+                //     display: {
+                //         titleVisible: false,
+                //     },
+                //     render: () => html`
+                //         <div class="content container">
+                //             ${this.renderViewTitle("New Case")}
+                //             <clinical-analysis-create
+                //                 .opencgaSession="${this.opencgaSession}">
+                //             </clinical-analysis-create>
+                //         </div>
+                //     `,
+                // },
+                // {
+                //     id: "disease-panel-create",
+                //     name: "New Disease Panel",
+                //     icon: "fa-plus",
+                //     display: {
+                //         titleVisible: false,
+                //     },
+                //     render: () => html`
+                //         <div class="content container">
+                //             ${this.renderViewTitle("New Disease Panel")}
+                //             <disease-panel-create
+                //                 .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                //                 .opencgaSession="${this.opencgaSession}">
+                //             </disease-panel-create>
+                //         </div>
+                //     `,
+                // },
             ],
         };
     }
