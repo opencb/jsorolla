@@ -79,7 +79,6 @@ export default class ModalUtils {
         const offset = [0, 0, 0, 0];
         const modalDialog = modalElm.querySelector(".modal-dialog");
         const modalHeader = modalElm.querySelector(".modal-header");
-        modalHeader.style.cursor = "move";
 
         if (modalDialog) {
             modalDialog.style.margin = "0";
@@ -101,7 +100,8 @@ export default class ModalUtils {
             modalDialog.style.left = (modalDialog.offsetLeft - offset[0]) + "px";
         };
 
-        const closeDragElement = () => {
+        const closeDragElement = e => {
+            e.preventDefault();
             // stop moving when mouse button is released:
             document.onmouseup = null;
             document.onmousemove = null;
@@ -119,7 +119,8 @@ export default class ModalUtils {
             document.onmousemove = elementDrag;
         };
 
-        modalDialog.onmousedown = dragMouseDown;
+        modalHeader.onmousedown = dragMouseDown;
+        modalHeader.style.cursor = "move";
     }
 
 
