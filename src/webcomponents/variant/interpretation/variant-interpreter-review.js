@@ -135,8 +135,6 @@ export default class VariantInterpreterReview extends LitElement {
                                     titleVisible: false,
                                     width: 8,
                                     modalButtonClassName: "btn-default btn-sm",
-                                    type: "page",
-                                    // mode: "modal",
                                     buttonsLayout: "top",
                                 }}"
                                 @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">

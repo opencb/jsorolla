@@ -457,7 +457,7 @@ export default class OpencgaUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             icon: "fas fa-edit",
-            type: this._config?.display?.type || "tabs",
+            // type: this._config?.display?.type || "form",
             buttons: {
                 // previewText: "Preview",
                 clearText: "Discard Changes",
