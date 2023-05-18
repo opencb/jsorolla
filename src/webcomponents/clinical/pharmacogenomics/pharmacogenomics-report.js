@@ -68,10 +68,10 @@ export default class PharmacogenomicsReport extends LitElement {
 
                 // 2. Get the list of variants available in OpenCGA
                 const pgxVariants = pgxVariantsResponse.responses[0].results;
-                const chunkSize = 200;
-                const promises = [];
-                for (let i = 0; i < pgxVariants.length; i = i + chunkSize) {
-                    const chunk = pgxVariants.slice(i, i + chunkSize);
+                const variantsChunkSize = 200;
+                const variantsPromises = [];
+                for (let i = 0; i < pgxVariants.length; i = i + variantsChunkSize) {
+                    const chunk = pgxVariants.slice(i, i + variantsChunkSize);
                     const query = {
                         region: chunk.join(","),
                         sample: this.sampleId,
@@ -79,9 +79,9 @@ export default class PharmacogenomicsReport extends LitElement {
                         study: this.opencgaSession.study.fqn,
                         includeSampleId: true,
                     };
-                    promises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
+                    variantsPromises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
                 }
-                const variantsResponses = await Promise.all(promises);
+                const variantsResponses = await Promise.all(variantsPromises);
 
                 // 3. Generate the list of variants
                 const variants = new Map();
@@ -93,26 +93,29 @@ export default class PharmacogenomicsReport extends LitElement {
 
                 // 4. Import pharmacogenomics annotation from cellbase
                 const ids = Array.from(variants.keys());
-                const pgxAnnotationPromises = [];
-                for (let i = 0; i < ids.length; i = i + 50) {
-                    const chunk = ids.slice(i, i + 50);
-                    const query = {
-                        assembly: "grch38",
-                        dataRelease: "5",
-                        include: "pharmacogenomics",
-                    };
-                    pgxAnnotationPromises.push(cellbaseClient.get("genomic", "variant", chunk.join(","), "annotation", query));
-                }
-                const pgxAnnotationResponses = await Promise.all(pgxAnnotationPromises);
-
-                // 5. Merge pgx annotation with variants
-                pgxAnnotationResponses.forEach(pgxAnnotationResponse => {
-                    pgxAnnotationResponse.responses.forEach(response => {
-                        if (variants.has(response.id)) {
-                            variants.get(response.id).annotation.pharmacogenomics = response.results[0].pharmacogenomics;
-                        }
+                const batchSize = 200;
+                for (let i = 0; i < ids.length; i = i + batchSize) {
+                    const idsBatch = ids.slice(i, i + batchSize);
+                    const promises = [];
+                    const chunkSize = 50;
+                    for (let j = 0; j < idsBatch.length; j = j + chunkSize) {
+                        const chunk = idsBatch.slice(j, j + chunkSize);
+                        const query = {
+                            assembly: "grch38",
+                            dataRelease: "5",
+                            include: "pharmacogenomics",
+                        };
+                        promises.push(cellbaseClient.get("genomic", "variant", chunk.join(","), "annotation", query));
+                    }
+                    const responses = await Promise.all(promises);
+                    responses.forEach(pgxAnnotationResponse => {
+                        pgxAnnotationResponse.responses.forEach(response => {
+                            if (variants.has(response.id)) {
+                                variants.get(response.id).annotation.pharmacogenomics = response.results[0].pharmacogenomics;
+                            }
+                        });
                     });
-                });
+                }
 
                 // 5. Save variants and request update
                 this.variants = Array.from(variants.values());
