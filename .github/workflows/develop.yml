@@ -14,19 +14,20 @@ jobs:
     uses: ./.github/workflows/test.yml
     needs: build
     secrets: inherit
+    with:
+      test_profile: runShortTests
+      report_context: development
 
   deploy-docker:
-    uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
-    needs: [ build, test ]
+    uses: ./.github/workflows/deploy-docker-jsorolla.yml
+    needs: test
     with:
-      repository: opencb/jsorolla
-      branch: ${{ github.ref_name }}
-      cli: python3 ./docker/docker-build.py push --tag ${{ needs.build.outputs.version }}
+      cli: python3 ./docker/docker-build.py push
     secrets: inherit
 
-  deploy:
+  deploy-web:
+    uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
     needs: [ build, test ]
-    uses: ./.github/workflows/deploy-jsorolla-workflow.yml
     with:
       version: ${{ needs.build.outputs.version }}
     secrets: inherit
