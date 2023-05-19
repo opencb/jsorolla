@@ -228,7 +228,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                         display: {
                                             render: data => html`
                                                 <div>${data.avgInsertSize}</div>
-                                            ,`
+                                            `,
                                         }
                                     },
                                     {
