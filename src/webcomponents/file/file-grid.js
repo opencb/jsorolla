@@ -99,9 +99,21 @@ export default class OpencgaFileGrid extends LitElement {
 
         this.toolbarConfig = {
             toolId: "fileBrowser",
-            disableCreate: true,
             resource: "FILE",
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "File Create",
+                    modalDraggable: true,
+                    disabled: true,
+                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
+                },
+                render: () => html `
+                    <file-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-create>`
+            },
         };
 
         this.renderTable();

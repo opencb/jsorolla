@@ -105,13 +105,14 @@ export default class JobGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: "jobBrowser",
-            disableCreate: true,
             resource: "JOB",
             columns: this._getDefaultColumns(),
             create: {
                 display: {
                     modalTitle: "Job Create",
                     modalDraggable: true,
+                    disabled: true,
+                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
                 },
                 render: () => html `
                     <job-create
