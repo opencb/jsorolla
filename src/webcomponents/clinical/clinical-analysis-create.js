@@ -376,14 +376,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
-                                notificationType: "warning",
-                            }
-                        },
-                        {
                             title: "Case ID",
                             field: "id",
                             type: "input-text",

@@ -140,14 +140,6 @@ export default class IndividualCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.individual).length > 0,
-                                notificationType: "warning",
-                            },
-                        },
-                        {
                             title: "Individual ID",
                             field: "id",
                             type: "input-text",

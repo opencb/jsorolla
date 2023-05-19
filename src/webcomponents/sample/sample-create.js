@@ -137,14 +137,6 @@ export default class SampleCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.sample).length > 0,
-                                notificationType: "warning",
-                            },
-                        },
-                        {
                             title: "Sample ID",
                             field: "id",
                             type: "input-text",

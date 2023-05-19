@@ -186,14 +186,6 @@ export default class DiseasePanelCreate extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.diseasePanel).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
-                        {
                             title: "Disease Panel ID",
                             field: "id",
                             type: "input-text",
