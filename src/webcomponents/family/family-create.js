@@ -164,6 +164,7 @@ export default class FamilyCreate extends LitElement {
                             title: "Members",
                             field: "members",
                             type: "custom",
+                            required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 helpMessage: "Individual Ids",
