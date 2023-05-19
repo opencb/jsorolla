@@ -104,8 +104,10 @@ export default class SampleGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalDraggable: true,
                     modalTitle: "Sample Create",
+                    modalDraggable: true,
+                    // disabled: true,
+                    // disabledTooltip: "...",
                 },
                 render: () => html `
                     <sample-create

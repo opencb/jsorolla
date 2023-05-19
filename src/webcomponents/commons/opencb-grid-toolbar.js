@@ -71,18 +71,6 @@ export default class OpencbGridToolbar extends LitElement {
         super.update(changedProperties);
     }
 
-    updated() {
-        // firstUpdated is not working because this prefix change each update.
-        // Approach #1
-        // const modalIds = ["CreateModal", "ExportModal", "SettingModal"];
-        // modalIds.forEach(modalId => {
-        //     const modalElm = document.querySelector(`#${this._prefix+modalId}`);
-        //     if ((modalElm !== null) && (modalElm !== undefined)) {
-        //         ModalUtils.draggableModal(modalElm);
-        //     }
-        // });
-    }
-
     // onDownloadFile(e) {
     //     this.dispatchEvent(new CustomEvent("download", {
     //         detail: {
@@ -150,10 +138,20 @@ export default class OpencbGridToolbar extends LitElement {
             }
         }
 
-        const hasPermissions = OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id,
-            `WRITE_${this._config.resource}`);
-
-        const isDisabled = (!hasPermissions || this._config?.disableCreate) || false;
+        // Check 'Create' permissions
+        let isCreateDisabled = false;
+        let isCreateDisabledTooltip = "";
+        if (this._config?.create?.display?.disabled) {
+            isCreateDisabled = true;
+            isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
+        } else {
+            const hasPermissions = OpencgaCatalogUtils
+                .checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`);
+            if (!hasPermissions) {
+                isCreateDisabled = true;
+                isCreateDisabledTooltip = "No permission!";
+            }
+        }
 
         return html`
             <style>
@@ -179,19 +177,19 @@ export default class OpencbGridToolbar extends LitElement {
                             `) : nothing}
 
                             <!-- Second, display elements configured -->
-                            ${(this._settings.showCreate || this._settings.showNew) ? html`
+                            ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
                                 <div class="btn-group">
                                     <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
                                     As a workaround, the tooltip will be displayed from a wrapper -->
-                                    ${this._config?.disableCreate ? html `
-                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="The implementation of this functionality is in progress. Thanks for your patience :)">
+                                    ${isCreateDisabled ? html `
+                                        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="${isCreateDisabledTooltip}">
                                             <button data-action="create" type="button" class="btn btn-default btn-sm" disabled>
                                                 <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                             </button>
                                         </span>
                                     ` : html `
                                         <button data-action="create" type="button" class="btn btn-default btn-sm"
-                                                ?disabled="${isDisabled}" @click="${this.onActionClick}">
+                                                @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                             <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
                                         </button>
@@ -221,7 +219,7 @@ export default class OpencbGridToolbar extends LitElement {
             </div>
 
             <!-- Add modals-->
-            ${(this._settings.showCreate || this._settings.showNew) && this._config?.create && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
+            ${this._config?.create && (this._settings.showCreate || this._settings.showNew) && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
                 ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) : nothing
             }
 
