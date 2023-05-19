@@ -509,10 +509,6 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    onSampleCreate() {
-
-    }
-
     render() {
         return html`
             ${this._config.showToolbar ? html`
