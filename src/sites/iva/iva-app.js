@@ -230,7 +230,7 @@ class IvaApp extends LitElement {
             // Admin
             "study-admin",
             "study-admin-iva",
-            "catalog-admin",
+            // "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
