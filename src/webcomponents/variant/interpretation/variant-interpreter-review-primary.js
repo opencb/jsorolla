@@ -146,6 +146,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 }
             });
         }
+        this.requestUpdate();
     }
 
     onSelectVariant(e) {
@@ -215,6 +216,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         }
     }
 
+    onSettingsUpdate() {
+        this.settingsObserver();
+    }
+
     render() {
         // No primary findings in interpretation --> display message
         if (!this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
@@ -250,17 +255,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         ${this.clinicalAnalysis?.interpretation ? html`
                             ${this._config.result?.grid?.isRearrangement ? html`
                                 <variant-interpreter-rearrangement-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .clinicalVariants="${this.clinicalVariants}"
-                                    .review="${true}"
-                                    .config="${this._config.result.grid}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @updaterow="${this.onUpdateVariant}"
-                                    @checkrow="${this.onCheckVariant}">
-                                </variant-interpreter-rearrangement-grid>
-                            ` : html`
-                                <variant-interpreter-grid
+                                    .toolId="${this.toolId}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
@@ -269,7 +264,20 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
-                                    @gridconfigsave="${this.onGridConfigSave}">
+                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                </variant-interpreter-rearrangement-grid>
+                            ` : html`
+                                <variant-interpreter-grid
+                                    .toolId="${this.toolId}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .clinicalVariants="${this.clinicalVariants}"
+                                    .review="${true}"
+                                    .config="${this._config.result.grid}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @updaterow="${this.onUpdateVariant}"
+                                    @checkrow="${this.onCheckVariant}"
+                                    @settingsUpdate="${this.onSettingsUpdate}">
                                 </variant-interpreter-grid>
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"

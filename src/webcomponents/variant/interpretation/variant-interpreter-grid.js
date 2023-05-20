@@ -172,28 +172,6 @@ export default class VariantInterpreterGrid extends LitElement {
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
-
-        // this.toolbarConfig = {
-        //     toolId: "Clinical Variant",
-        //     resource: "CLINICAL_VARIANT",
-        //     gridSettings: {
-        //         display: {
-        //             modalTitle: "Table Settings",
-        //             modalbtnsVisible: true,
-        //         },
-        //         save: self => {
-        //             // console.log(self, "save", self.__config.columns);
-        //             LitUtils.dispatchCustomEvent(self, "gridConfigSave", self.__config || {});
-        //         },
-        //         render: self => html `
-        //             <variant-interpreter-grid-config
-        //                 .opencgaSession="${this.opencgaSession}"
-        //                 .gridColumns="${this._columns}"
-        //                 .config="${this._config}"
-        //                 @configChange="${self.onGridConfigChange}">
-        //             </variant-interpreter-grid-config>`
-        //     }
-        // };
     }
 
     onColumnChange(e) {
@@ -885,7 +863,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
