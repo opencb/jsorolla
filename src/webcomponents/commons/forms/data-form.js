@@ -1213,12 +1213,12 @@ export default class DataForm extends LitElement {
     _createRichTextElement(element) {
         const content = this.getValue(element.field, this.data, this._getDefaultValue(element));
         const config = {
-            disabled: this._getBooleanValue(element.display?.disabled, false),
-            preview: this._getBooleanValue(element.display?.preview, false),
-            viewer: this._getBooleanValue(element.display?.viewer, true)
+            disabled: this._getBooleanValue(element?.display?.disabled, false),
+            preview: this._getBooleanValue(element?.display?.preview, false),
+            showEditBtn: this._getBooleanValue(element?.display?.showEditBtn, false),
         };
         // const contentCleaned = !UtilsNew.isObject(content)? content.replace(/  +/g, " ") : "";
-        const _content = !UtilsNew.isObject(content)? content : "";
+        const _content = !UtilsNew.isObject(content)? content : " ";
         return html`
                 <rich-text-editor
                     .data="${_content}"

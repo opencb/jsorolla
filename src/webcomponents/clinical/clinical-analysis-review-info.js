@@ -785,7 +785,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     title: "Interpretation Info",
                     display: {
                         titleStyle: "display:none",
-                        buttonsVisible: true,
+                        buttonsVisible: false,
                     },
                     elements: [
                         {
@@ -821,7 +821,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         @updaterow="${e => this.onUpdateVariant(e)}"
                                         @commentChange="${e => this.onInterpretationCommentChange(e)}">
-                                        </clinical-interpretation-view>
+                                    </clinical-interpretation-view>
                                 `;
                                 }
                             }
@@ -870,7 +870,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             field: "interpretation.attributes.reportTest.mainResults.templateResult",
                             type: "rich-text",
                             display: {
-                                disabled: false,
                                 preview: true,
                             }
                         },
@@ -878,18 +877,12 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                         {
                             field: "interpretation.attributes.reportTest.mainResults.summaryResult",
                             type: "rich-text",
-                            display: {
-                                disabled: false,
-                            }
                         },
                         UtilsNew.titleElement("Interpretations"),
                         UtilsNew.titleElement("Intro"),
                         {
                             field: "interpretation.attributes.reportTest.interpretations.intro",
                             type: "rich-text",
-                            display: {
-                                disabled: false
-                            }
                         },
                         UtilsNew.titleElement("Variants"),
                         {

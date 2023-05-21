@@ -19,7 +19,6 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import {construction} from "../commons/under-construction.js";
 import Types from "../commons/types.js";
 import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
@@ -173,7 +172,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
     }
 
     submitReportVariant() {
-
         // * tmp solution until clinicalAnalysis attr works.
         let reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
 
@@ -591,8 +589,8 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                                     return html `
                                     <p class="text-muted"># Discussion provided from review variant (Not editable here, please use the summary tab at the bottom of the variant grid)</p>
                                         <rich-text-editor
-                                            .data="${this._variantInfo._variantText}"
-                                            .config="${{preview: true, disabled: true}}">
+                                            .data="${this._variantInfo?._variantText}"
+                                            .config="${{preview: true}}">
                                         </rich-text-editor>`;
                                 }
                             }
@@ -610,10 +608,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                         {
                             field: "bibliographyEvidenceText",
                             type: "rich-text",
-                            display: {
-                                preview: false,
-                                viewer: false
-                            }
                         },
                     ]
                 },
@@ -626,21 +620,32 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                     },
                     elements: [
                         {
-                            field: "_classificationAcmgTT",
-                            type: "rich-text",
+                            type: "custom",
                             display: {
-                                preview: true,
-                                display: true,
+                                render: () => {
+                                    const classificationContent = `${this._variantInfo?._classificationAcmgTT} ${this._variantInfo?._classsificationDiscussionTT}`;
+                                    return html `
+                                        <rich-text-editor
+                                            .data="${classificationContent}"
+                                            .config="${{preview: true}}">
+                                        </rich-text-editor>`;
+                                }
                             }
-                        },
-                        {
-                            field: "_classsificationDiscussionTT",
-                            type: "rich-text",
-                            display: {
-                                preview: true,
-                                display: true,
-                            }
-                        },
+                        }
+                        // {
+                        //     field: "_classificationAcmgTT",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         preview: true,
+                        //     }
+                        // },
+                        // {
+                        //     field: "_classsificationDiscussionTT",
+                        //     type: "rich-text",
+                        //     display: {
+                        //         preview: true,
+                        //     }
+                        // },
                     ]
                 },
                 {
@@ -654,10 +659,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                         {
                             field: "populationControlText",
                             type: "rich-text",
-                            display: {
-                                preview: false,
-                                viewer: false
-                            }
                         },
                     ]
                 },
@@ -672,10 +673,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                         {
                             field: "diseaseAssociationText",
                             type: "rich-text",
-                            display: {
-                                preview: false,
-                                viewer: false
-                            }
                         },
                     ]
                 },
@@ -690,10 +687,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                         {
                             field: "recommendations",
                             type: "rich-text",
-                            display: {
-                                preview: false,
-                                viewer: false
-                            }
                         },
                     ]
                 },
@@ -708,10 +701,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                         {
                             field: "others",
                             type: "rich-text",
-                            display: {
-                                preview: false,
-                                viewer: false
-                            }
                         },
                     ]
                 },
@@ -741,7 +730,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                     title: "Preview",
                     display: {
                         titleStyle: "display:none",
-                        buttonsVisible: false,
+                        buttonsVisible: true,
                     },
                     elements: [
                         {

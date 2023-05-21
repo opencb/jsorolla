@@ -1529,7 +1529,8 @@ class CaseSmsReport extends LitElement {
                             field: "study.method.description",
                             type: "rich-text",
                             display: {
-                                disabled: false
+                                showEditBtn: true,
+                                preview: true
                             }
                         },
                     ]
@@ -1609,7 +1610,7 @@ class CaseSmsReport extends LitElement {
                                 render: interpretations => {
                                     const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
                                         primaryFinding => primaryFinding?.status === "REPORTED");
-                                    const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
+                                    const variantsReported = interpretations?.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
                                     const variantsHtml = variantsReported
                                         .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
                                     const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
@@ -1643,14 +1644,12 @@ class CaseSmsReport extends LitElement {
                             field: "reportDiscussion",
                             type: "custom",
                             display: {
-                                disabled: false,
-                                preview: true,
                                 render: report => {
                                     return html`
                                     <rich-text-editor
+                                        id=${"reportDiscussion"}
                                         .data="${report?.discussion?.text}"
                                         .config="${{
-                                        disabled: false,
                                         preview: true,
                                     }}">
                                     </rich-text-editor>
@@ -1708,7 +1707,8 @@ class CaseSmsReport extends LitElement {
                             field: "notes",
                             type: "rich-text",
                             display: {
-                                disabled: false
+                                showEditBtn: true,
+                                preview: true,
                             }
                             // display: {
                             //     render: data => {
@@ -1792,7 +1792,8 @@ class CaseSmsReport extends LitElement {
                             field: "appendix",
                             type: "rich-text",
                             display: {
-                                disabled: false
+                                showEditBtn: true,
+                                preview: true
                             }
                         }
                     ]

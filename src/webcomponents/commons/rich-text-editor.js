@@ -53,20 +53,24 @@ export default class RichTextEditor extends LitElement {
         this._config = this.getDefaultConfig();
         this.btnName = "Edit";
         this.updateContent = "";
-
+        this.isViewer = false;
     }
 
     firstUpdated(changedProperties) {
         if (changedProperties.has("data") && changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.isViewer = this._config.viewer;
+            this.isViewer = this._config?.preview;
             this.initTextEditor();
         }
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
+            this.isViewer = this._config?.preview;
         }
         super.update(changedProperties);
     }
@@ -74,14 +78,12 @@ export default class RichTextEditor extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("data")) {
             // Check if exist the element and not the textEditor Object
-            if (this.data && document.getElementById(this.textEditorId) && !this.textEditor) {
+            if (document.getElementById(this.textEditorId) && !this.textEditor) {
                 this.initTextEditor();
-
-                // this.textEditor.initialValue = this.data;
             }
 
-            // Check if exist the element and data
-            if (this.data && document.getElementById(this.textEditorId)) {
+            // Check if exist the element
+            if (document.getElementById(this.textEditorId)) {
                 this.textEditorObserver();
             }
         }
@@ -89,7 +91,11 @@ export default class RichTextEditor extends LitElement {
 
     fieldChange() {
         this.updateContent = this.textEditor.getHTML();
-        LitUtils.dispatchCustomEvent(this, "contentChange", this.updateContent, null, null, {bubbles: false, composed: true});
+        LitUtils.dispatchCustomEvent(this, "contentChange",
+            this.updateContent, null, null, {
+                bubbles: false,
+                composed: true
+            });
     }
 
     textEditorObserver() {
@@ -98,14 +104,12 @@ export default class RichTextEditor extends LitElement {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this.isViewer,
-                initialValue: this.data || "",
-                // height: this._config.height,
+                initialValue: this.data || " ",
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,
                 hideModeSwitch: this._config.hideModeSwitch,
                 previewStyle: this._config.previewStyle,
             });
-            this.textEditor.on("change", e => this.fieldChange());
         }
     }
 
@@ -123,19 +127,19 @@ export default class RichTextEditor extends LitElement {
     initTextEditor() {
         // TODO: add some improvements
         const textEditorElm = document.getElementById(this.textEditorId);
+        // Viewer
         if (this.isViewer || this._config.disabled) {
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this.isViewer,
-                initialValue: this.data || "",
-                // height: this._config.height,
+                initialValue: this.data || " ",
             });
         } else {
+        // Editable
             this.textEditor = Editor.factory({
                 el: textEditorElm,
                 viewer: this.isViewer,
-                initialValue: this.data || "",
-                // height: this._config.height,
+                initialValue: this.data || " ",
                 initialEditType: this._config.editMode, // "wysiwyg or markdown",
                 toolbarItems: this._config.toolbarItems,
                 hideModeSwitch: this._config.hideModeSwitch,
@@ -146,7 +150,6 @@ export default class RichTextEditor extends LitElement {
     }
 
     // Allow to show or hide
-
     onChangeMode() {
         this.isViewer = !this.textEditor.isViewer();
         this.btnName = this.isViewer ? "Edit" : "Preview";
@@ -167,24 +170,27 @@ export default class RichTextEditor extends LitElement {
                 ["ul", "ol", "indent", "outdent"],
             ],
             hideModeSwitch: true,
-            viewer: true,
-            // height: "400px",
+            // viewer: true,
             previewStyle: "vertical",
             usageStatistics: false,
-            disabled: false
+            disabled: false,
+            showEditBtn: false,
+            preview: false,
         };
     }
 
     render() {
-        const styleContent = this.isViewer ? "overflow-y: scroll; padding:1%; max-height:400px; border:1px solid #dadde6": "height:400px;";
-        if (this._config?.preview) {
-            return html `<div id="${this.textEditorId}" style="${styleContent}"></div>`;
-        }
-
+        // preview, mode:edit o viewer
+        const styleContent = this.isViewer ?
+            "overflow-y: scroll; padding:1%; max-height:400px; border:1px solid #dadde6": "height:400px";
         return html`
-            ${this._config?.viewer ? html`
-                <button class="btn btn-default" style="margin-bottom:8px" ?disabled="${this._config.disabled}" @click="${e => this.onChangeMode()}">
-                    <i class="fa fa-edit" aria-hidden="true"></i> ${this.btnName}
+            ${this._config?.showEditBtn ? html`
+                <button class="btn btn-default"
+                    style="margin-bottom:8px"
+                    ?disabled="${this._config?.disabled}"
+                    @click="${e => this.onChangeMode()}">
+                    <i class="fa fa-edit" aria-hidden="true"></i>
+                    ${this.btnName}
                 </button>` : nothing }
             <div id="${this.textEditorId}" style="${styleContent}"></div>`;
     }
