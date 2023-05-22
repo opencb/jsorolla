@@ -361,7 +361,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     getDefaultConfig() {
         return {
-            showPharmacogenomicsFilter: true,
+            showPharmacogenomicsFilter: false,
         };
     }
 
