@@ -68,38 +68,36 @@ export default class PharmacogenomicsReport extends LitElement {
 
                 // 2. Get the list of variants available in OpenCGA
                 const pgxVariants = pgxVariantsResponse.responses[0].results;
-                const variantsChunkSize = 200;
-                const variantsPromises = [];
-                for (let i = 0; i < pgxVariants.length; i = i + variantsChunkSize) {
-                    const chunk = pgxVariants.slice(i, i + variantsChunkSize);
-                    const query = {
-                        region: chunk.join(","),
-                        sample: this.sampleId,
-                        // include: "id",
-                        study: this.opencgaSession.study.fqn,
-                        includeSampleId: true,
-                    };
-                    variantsPromises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
-                }
-                const variantsResponses = await Promise.all(variantsPromises);
-
-                // 3. Generate the list of variants
                 const variants = new Map();
-                variantsResponses.forEach(variantResponse => {
-                    variantResponse.responses[0].results.forEach(variant => {
-                        variants.set(variant.id, variant);
+                for (let i = 0; i < pgxVariants.length; i = i + 200) {
+                    const variantsPromises = [];
+                    const variantsBatch = pgxVariants.slice(i, i + 200);
+                    for (let j = 0; j < variantsBatch.length; j = j + 50) {
+                        const chunk = variantsBatch.slice(j, j + 50);
+                        const query = {
+                            region: chunk.join(","),
+                            sample: this.sampleId,
+                            // include: "id",
+                            study: this.opencgaSession.study.fqn,
+                            includeSampleId: true,
+                        };
+                        variantsPromises.push(this.opencgaSession.opencgaClient.clinical().queryVariant(query));
+                    }
+                    const variantsResponses = await Promise.all(variantsPromises);
+                    variantsResponses.forEach(variantResponse => {
+                        variantResponse.responses[0].results.forEach(variant => {
+                            variants.set(variant.id, variant);
+                        });
                     });
-                });
+                }
 
                 // 4. Import pharmacogenomics annotation from cellbase
                 const ids = Array.from(variants.keys());
-                const batchSize = 200;
-                for (let i = 0; i < ids.length; i = i + batchSize) {
-                    const idsBatch = ids.slice(i, i + batchSize);
+                for (let i = 0; i < ids.length; i = i + 200) {
+                    const idsBatch = ids.slice(i, i + 200);
                     const promises = [];
-                    const chunkSize = 50;
-                    for (let j = 0; j < idsBatch.length; j = j + chunkSize) {
-                        const chunk = idsBatch.slice(j, j + chunkSize);
+                    for (let j = 0; j < idsBatch.length; j = j + 50) {
+                        const chunk = idsBatch.slice(j, j + 50);
                         const query = {
                             assembly: "grch38",
                             dataRelease: "5",
