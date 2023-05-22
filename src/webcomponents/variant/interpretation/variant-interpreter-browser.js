@@ -456,7 +456,7 @@ class VariantInterpreterBrowser extends LitElement {
             }
 
             // Append pharmacogenomics tab
-            if (this.settings?.hidePharmacogenomics === false) {
+            if (this.settings?.showPharmacogenomicsTab) {
                 items.push({
                     id: "pharmacogenomics",
                     name: "Pharmacogenomics",
