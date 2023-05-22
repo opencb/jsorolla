@@ -455,20 +455,22 @@ class VariantInterpreterBrowser extends LitElement {
                 }
             }
 
-            // TODO: we would need to check if pharmacogenomics tab is enabled or not
-            items.push({
-                id: "pharmacogenomics",
-                name: "Pharmacogenomics",
-                render: (clinicalAnalysis, active, opencgaSession) => html`
-                    <div>
-                        <pharmacogenomics-report
-                            .sampleId="${clinicalAnalysis?.proband?.samples?.[0]?.id || ""}"
-                            .active="${active}"
-                            .opencgaSession="${opencgaSession}">
-                        </pharmacogenomics-report>
-                    </div>
-                `,
-            });
+            // Append pharmacogenomics tab
+            if (this.settings?.hidePharmacogenomics === false) {
+                items.push({
+                    id: "pharmacogenomics",
+                    name: "Pharmacogenomics",
+                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <div>
+                            <pharmacogenomics-report
+                                .sampleId="${clinicalAnalysis?.proband?.samples?.[0]?.id || ""}"
+                                .active="${active}"
+                                .opencgaSession="${opencgaSession}">
+                            </pharmacogenomics-report>
+                        </div>
+                    `,
+                });
+            }
 
             // Append genome browser
             if (this.settings.hideGenomeBrowser === undefined || this.settings.hideGenomeBrowser === false) {
