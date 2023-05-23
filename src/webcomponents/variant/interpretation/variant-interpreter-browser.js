@@ -23,6 +23,7 @@ import "./variant-interpreter-browser-cnv.js";
 import "./variant-interpreter-browser-rearrangement.js";
 import "../../visualization/genome-browser.js";
 import "../../commons/view/detail-tabs.js";
+import "../../clinical/pharmacogenomics/pharmacogenomics-report.js";
 
 class VariantInterpreterBrowser extends LitElement {
 
@@ -453,6 +454,21 @@ class VariantInterpreterBrowser extends LitElement {
                     }
                 }
             }
+
+            // Append pharmacogenomics tab
+            items.push({
+                id: "pharmacogenomics",
+                name: "Pharmacogenomics",
+                render: (clinicalAnalysis, active, opencgaSession) => html`
+                    <div>
+                        <pharmacogenomics-report
+                            .sampleId="${clinicalAnalysis?.proband?.samples?.[0]?.id || ""}"
+                            .active="${active}"
+                            .opencgaSession="${opencgaSession}">
+                        </pharmacogenomics-report>
+                    </div>
+                `,
+            });
 
             // Append genome browser
             if (this.settings.hideGenomeBrowser === undefined || this.settings.hideGenomeBrowser === false) {
