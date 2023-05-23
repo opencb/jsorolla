@@ -53,6 +53,7 @@ export default class SampleUpdate extends LitElement {
         this._sample = {};
         this.sampleId = "";
         this.displayConfig = {};
+        this.updatedFields = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -74,9 +75,10 @@ export default class SampleUpdate extends LitElement {
     }
 
     // Uncomment to post-process data-from manipulation
-    // onComponentFieldChange(e) {
-    //     // e.detail?.component
-    // }
+    onComponentFieldChange(e) {
+        this.updatedFields = e.detail?.updatedFields || {};
+        // this.requestUpdate();
+    }
 
     render() {
         return html `
@@ -86,7 +88,8 @@ export default class SampleUpdate extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .active="${this.active}"
                 .config="${this._config}"
-                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}"
+                @componentFieldChange="${this.onComponentFieldChange}">
             </opencga-update>
         `;
     }
@@ -94,6 +97,15 @@ export default class SampleUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             display: this.displayConfig,
+            notification: {
+                title: "Sample ID",
+                text: "Sample updated ... ",
+                type: "notification",
+                display: {
+                    visible: () => UtilsNew.isNotEmpty(this.updatedFields),
+                    notificationType: "warning",
+                },
+            },
             sections: [
                 {
                     title: "General Information",
@@ -103,8 +115,10 @@ export default class SampleUpdate extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a short ID...",
-                                helpMessage: this._sample.creationDate ? "Created on " + UtilsNew.dateFormatter(this._sample.creationDate) : "No creation date",
+                                placeholder: "Add a sample ID...",
+                                helpMessage: (fieldValue, sample) => {
+                                    return sample.creationDate ? "Created on " + UtilsNew.dateFormatter(sample.creationDate) : "No creation date";
+                                },
                                 disabled: true,
                             },
                         },

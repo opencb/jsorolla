@@ -45,8 +45,8 @@ export default class SampleCreate extends LitElement {
 
     #init() {
         this.sample = {};
-        this.collection = {from: []};
-        this.annotationSet = {};
+        // this.collection = {from: []};
+        // this.annotationSet = {};
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",

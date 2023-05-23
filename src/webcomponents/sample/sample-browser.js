@@ -165,11 +165,7 @@ export default class SampleBrowser extends LitElement {
                             .query="${params.facetQuery}"
                             .data="${params.facetResults}">
                         </opencb-facet-results>`
-                }/*
-                {
-                    id: "comparator-tab",
-                    name: "Comparator"
-                }*/
+                }
             ],
             filter: {
                 searchButton: false,
