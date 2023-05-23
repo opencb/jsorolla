@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
@@ -345,6 +344,7 @@ export default class JobView extends LitElement {
                         },
                     ],
                 },
+                /*
                 {
                     title: "Results",
                     display: {
@@ -360,6 +360,7 @@ export default class JobView extends LitElement {
                         },
                     ],
                 },
+                 */
                 {
                     title: "Job Dependencies",
                     display: {
