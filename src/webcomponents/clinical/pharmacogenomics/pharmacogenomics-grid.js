@@ -103,7 +103,7 @@ export default class PharmacogenomicsGrid extends LitElement {
         let result = "<div style='padding-bottom:24px'>";
         let detailHtml = "";
         if (row?.annotation?.pharmacogenomics) {
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Drugs</h4></div>";
+            // detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Drugs</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += this.drugsTableFormatter(row);
             detailHtml += "</div>";
@@ -113,38 +113,86 @@ export default class PharmacogenomicsGrid extends LitElement {
     }
 
     drugsTableFormatter(variant) {
+        const allele = this.getAlleles(variant).join("");
         const drugsRows = variant.annotation.pharmacogenomics
             // .filter(item => item.types.includes("Drug"))
             .map(item => {
-                const phenotypes = item.annotations.map(annotation => `<div>${annotation.phenotypes.join(", ")}</div>`);
-                const phenotypeTypes = item.annotations.map(annotation => `<div>${annotation.phenotypeType}</div>`);
-                return `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.name || "-"}</td>
-                        <td>${item.source || "-"}</td>
-                        <td>${phenotypes.join("")}</td>
-                        <td>${phenotypeTypes.join("")}</td>
-                    </tr>
-                `;
+                return item.annotations.map(annotation => {
+                    return `
+                        <tr>
+                            <td>
+                                <div style="font-weight:bold;">${item.name}</div>
+                                <div style="font-size:12px;color:#737373;width:120px;">
+                                    ${(annotation.phenotypes || []).join(", ")}
+                                </div>
+                            </td>
+                            <td>${annotation.geneName || "-"}</td>
+                            <td>${annotation.alleles.find(a => a.allele === allele)?.annotation || "-"}</td>
+                        </tr>
+                    `;
+                });
             });
 
         return `
             <table id="DrugsTable" class="table table-hover table-no-bordered">
                 <thead>
                     <tr>
-                        <th style="padding:8px;">ID</th>
-                        <th style="padding:8px;">Name</th>
-                        <th style="padding:8px;">Source</th>
-                        <th style="padding:8px;">Phenotypes</th>
-                        <th style="padding:8px;">Phenotype Types</th>
+                        <th style="padding:8px;">Drug</th>
+                        <th style="padding:8px;">Gene</th>
+                        <th style="padding:8px;">Annotation</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${drugsRows.join("")}
+                    ${drugsRows.flat().join("")}
                 </tbody>
             </table>
         `;
+    }
+
+    getAlleles(variant) {
+        if (variant && variant.studies?.length > 0 && variant.studies[0].samples?.length > 0) {
+            const sample = variant.studies[0].samples.find(s => s.sampleId === this.sampleId);
+            if (!sample || sample?.data?.length === 0) {
+                return [];
+            }
+            // Check if there are any DISCREPANCY issue for this sample and add it to the calls to be displayed
+            // if (row.studies[0]?.issues?.length > 0) {
+            //     const sampleIssues = row.studies[0].issues.filter(e => e.sample.sampleId === sampleId && e.type === "DISCREPANCY");
+            //     sampleEntries = sampleEntries.concat(sampleIssues.map(e => e.sample));
+            // }
+
+            const genotypeIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "GT");
+            const genotype = sample.data[genotypeIndex];
+
+            // Check special cases
+            if (genotype === "NA" || genotype === "./." || genotype === ".|.") {
+                return [];
+            }
+
+            const alleles = [];
+            const allelesArray = genotype.split(new RegExp("[/|]"));
+            for (const allele of allelesArray) {
+                switch (allele) {
+                    case ".":
+                        alleles.push(".");
+                        break;
+                    case "0":
+                        alleles.push(variant.reference ? variant.reference : "-");
+                        break;
+                    case "1":
+                        alleles.push(variant.alternate ? variant.alternate : "-");
+                        break;
+                    case "2":
+                        alleles.push("*");
+                        break;
+                    case "?":
+                        alleles.push(variant.reference ? variant.reference : "-");
+                        break;
+                }
+            }
+            return alleles;
+        }
+        return [];
     }
 
     render() {
@@ -190,6 +238,32 @@ export default class PharmacogenomicsGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, {}, this.opencgaSession, this._config),
+                },
+                {
+                    id: "drugs",
+                    title: "Drugs",
+                    field: "annotation",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return row.annotation.pharmacogenomics.map(item => item.name).join(", ") || "-";
+                    },
+                },
+                {
+                    id: "phenotypes",
+                    title: "Phenotypes",
+                    field: "annotation",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const phenotypes = new Set();
+                        row.annotation.pharmacogenomics.forEach(item => {
+                            item.annotations.forEach(annotation => {
+                                annotation.phenotypes.forEach(phenotype => phenotypes.add(phenotype));
+                            });
+                        });
+                        return Array.from(phenotypes);
+                    },
                 },
                 {
                     id: "consequenceType",
