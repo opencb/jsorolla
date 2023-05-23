@@ -532,7 +532,7 @@ export default class RestEndpoint extends LitElement {
 
         // check if QUERY is required and it is not exist in the data
         this.endpoint.parameters
-            .filter(parameter => (parameter.name === "query" && parameter.required) && this.data.param[parameter.name] === undefined)
+            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data.param[parameter.name] === "undefined")
             .forEach(parameter => {
                 url += `&${parameter.name}=${parameter.defaultValue}`;
             });
