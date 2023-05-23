@@ -892,6 +892,7 @@ export default class DataForm extends LitElement {
 
             // Check if data field contains a value
             defaultValue = this.getValue(element.field);
+            debugger
             // Check if a defaultValue is set in element config
             if (!defaultValue && element.defaultValue) {
                 defaultValue = element.defaultValue;

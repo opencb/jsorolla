@@ -504,7 +504,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {id: disorder.name, name: `${disorder.name} (${disorder.id})`};
+                                },
                                 errorMessage: "No disorders available",
                             }
                         },
@@ -583,7 +585,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {id: disorder.name, name: `${disorder.name} (${disorder.id})`};
+                                },
                                 errorMessage: "No disorders available",
                             },
                         },
