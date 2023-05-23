@@ -108,7 +108,7 @@ export default class RestEndpoint extends LitElement {
         this.result = "";
         const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
         const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
-        const isListString = dataParameter => dataParameter.complex && (dataParameter.type === "List") && (dataParameter["data"] === undefined);
+        const isListString = dataParameter => dataParameter.complex && (dataParameter.type === "List") && (typeof dataParameter["data"] === "undefined");
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
         this.configFormEndpoint = {};
         if (this.endpoint?.parameters?.length > 0) {
@@ -158,10 +158,8 @@ export default class RestEndpoint extends LitElement {
 
                         // Pass Object element.
                         if (isListString(dataParameter)) {
-                            console.log("render list<string> input");
                             bodyElements.push(this.buildListString(dataParameter));
                         }
-
                     }
                 } else { // Parameter IS NOT body,
                     //  Path and Query Params
@@ -338,7 +336,6 @@ export default class RestEndpoint extends LitElement {
                 helpMessage: dataParameter.description
             }
         };
-
     }
 
     // generateObjectOrlistInput
