@@ -89,6 +89,9 @@ export default class RestEndpoint extends LitElement {
 
         this.restClient = new RestClient();
         this.isLoading = false;
+
+        // get value from list<string>
+        this.valuesTolist = {};
     }
 
     update(changedProperties) {
@@ -105,6 +108,7 @@ export default class RestEndpoint extends LitElement {
         this.result = "";
         const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
         const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
+        const isListString = dataParameter => dataParameter.complex && (dataParameter.type === "List") && (dataParameter["data"] === undefined);
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
         this.configFormEndpoint = {};
         if (this.endpoint?.parameters?.length > 0) {
@@ -151,6 +155,13 @@ export default class RestEndpoint extends LitElement {
                         if (isObject(dataParameter)) {
                             bodyElements.push(this.buildObjectOrListForm(dataParameter));
                         }
+
+                        // Pass Object element.
+                        if (isListString(dataParameter)) {
+                            console.log("render list<string> input");
+                            bodyElements.push(this.buildListString(dataParameter));
+                        }
+
                     }
                 } else { // Parameter IS NOT body,
                     //  Path and Query Params
@@ -267,6 +278,7 @@ export default class RestEndpoint extends LitElement {
             // 6. Get data.body to JSON.
             this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
 
+            // Copy Original Data
             this._data = UtilsNew.objectClone(this.data);
         } else {
             // If parameters no found
@@ -310,6 +322,26 @@ export default class RestEndpoint extends LitElement {
         return parameter?.defaultValue ?? "";
     }
 
+    // generateListInput
+    buildListString(dataParameter) {
+        const fieldName = dataParameter.parentName !== "" ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
+        return {
+            title: fieldName,
+            field: "body." + fieldName,
+            type: "input-text",
+            save: value => {
+                // stringToList
+                UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
+                return value;
+            },
+            display: {
+                helpMessage: dataParameter.description
+            }
+        };
+
+    }
+
+    // generateObjectOrlistInput
     buildObjectOrListForm(dataParameter) {
 
         // Create List or Object
@@ -461,17 +493,6 @@ export default class RestEndpoint extends LitElement {
         e.stopPropagation();
         const param = field || e.detail.param;
         this.data = {...e.detail.data};
-        // If it contains more than a dot or If the form has nested object
-        // ex. body.field.prop -> sample: body.source.name
-        // if ((param.match(/\./g) || []).length > 1) {
-        //     // For param type Object
-        //     const paramBody = param.replace("body.", "");
-        //     this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
-        //     this.dataForm.body = {...FormUtils.createObject(this.dataForm.body, paramBody, e.detail.value)};
-        // } else {
-        //     this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
-        //     this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
-        // }
         this.requestUpdate();
     }
 
@@ -479,6 +500,7 @@ export default class RestEndpoint extends LitElement {
         e.stopPropagation();
         this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
         this.data = UtilsNew.objectClone(this._data);
+        this.valuesTolist = {};
         this.requestUpdate();
     }
 
@@ -534,7 +556,7 @@ export default class RestEndpoint extends LitElement {
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: isForm ? this.data?.body : JSON.parse(this.dataJson?.body),
+                data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
                 method: "POST"
             };
 
@@ -571,6 +593,15 @@ export default class RestEndpoint extends LitElement {
             console.error(e);
         }
 
+    }
+
+    formatBody(data) {
+        if (UtilsNew.isNotEmpty(this.valuesTolist)) {
+            Object.keys(this.valuesTolist).forEach(key => {
+                UtilsNew.setObjectValue(data, key, this.valuesTolist[key]);
+            });
+        }
+        return data;
     }
 
     onSubmitJson(e) {
@@ -800,11 +831,11 @@ export default class RestEndpoint extends LitElement {
                     return html`
                         <!-- Body Forms -->
                         <data-form
-                                .data="${this.data}"
-                                .config="${configFormTab}"
-                                @fieldChange="${e => this.onChangeFormField(e)}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${this.onSubmitForm}">
+                            .data="${this.data}"
+                            .config="${configFormTab}"
+                            @fieldChange="${e => this.onChangeFormField(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
                 }
