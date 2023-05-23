@@ -86,7 +86,6 @@ export default class RestEndpoint extends LitElement {
         // Type not support by the moment
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
-
         this.restClient = new RestClient();
         this.isLoading = false;
 
