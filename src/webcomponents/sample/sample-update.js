@@ -77,7 +77,7 @@ export default class SampleUpdate extends LitElement {
     // Uncomment to post-process data-from manipulation
     onComponentFieldChange(e) {
         this.updatedFields = e.detail?.updatedFields || {};
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     render() {
@@ -99,7 +99,7 @@ export default class SampleUpdate extends LitElement {
             display: this.displayConfig,
             notification: {
                 title: "Sample ID",
-                text: "Sample updated ... ",
+                text: () => "Sample updated ... " + Object.keys(this.updatedFields).join(", "),
                 type: "notification",
                 display: {
                     visible: () => UtilsNew.isNotEmpty(this.updatedFields),
