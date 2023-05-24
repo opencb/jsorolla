@@ -66,6 +66,32 @@ export default class ClinicalInterpretationSummary extends LitElement {
         }
     }
 
+    renderPrimaryFindingsStats(stats) {
+        const fields = [
+            {title: "Tier", field: "tierCount"},
+            {title: "Gene", field: "geneCount"},
+            {title: "Status", field: "statusCount"},
+            {title: "Status", field: "variantStatusCount"},
+        ];
+
+        return fields
+            .filter(value => stats?.primaryFindings?.[value.field])
+            .map(value => {
+                const items = Object.entries(stats?.primaryFindings?.[value.field])
+                    .filter(([, value]) => value > 0)
+                    .map(([gene, numVariants]) => `${gene} (${numVariants})`);
+
+                return html`
+                    <div style="margin-left: 10px">
+                        <span style="width: 120px; display: inline-block;">${value.title}: </span>
+                        <span style="margin-left: 20px">
+                            ${items.join(", ")}
+                        </span>
+                    </div>
+                `;
+            });
+    }
+
     render() {
         return html`
             <data-form
@@ -98,19 +124,25 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             display: {
                                 render: interpretation => html`
                                     <div class="row" style="padding-left: 5px">
-                                        <div class="col-md-6">
-                                            <span style="font-size: 1.2em">${interpretation.id}</span>
-
-                                            <span style="color: grey; margin-left: 10px">version ${interpretation.version}</span>
+                                        <div class="col-md-7" style="display:flex;">
+                                            <div style="margin-right:16px;">
+                                                <div class="label ${interpretation.status?.id ? "label-primary" : "label-default"}" style="display:block;font-size:1em;">
+                                                    <strong>${interpretation.status.id || "NO_STATUS"}</strong>
+                                                </div>
+                                            </div>
+                                            <div style="">
+                                                <span style="font-size:1.2em;">${interpretation.id}</span>
+                                                <span style="color:grey;margin-left:8px;">version ${interpretation.version}</span>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-5" style="display:flex;justify-content:end;">
                                             <span title="Analysed by">
                                                 <i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>
                                                 Assigned to <label>${interpretation?.analyst?.name ?? "-"}</label>
                                             </span>
-                                            <span style="margin-left: 25px" title="Created on">
+                                            <span style="margin-left: 16px" title="Created on">
                                                 <i class="far fa-calendar-alt"></i>
-                                                <label>Creation Date:</label> ${UtilsNew.dateFormatter(interpretation?.creationDate)}
+                                                Created on <label>${UtilsNew.dateFormatter(interpretation?.creationDate)}</label>
                                             </span>
                                         </div>
                                     </div>
@@ -124,11 +156,6 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             defaultValue: "No description available",
                         },
                         {
-                            title: "Status",
-                            field: "status.id",
-                            type: "basic",
-                        },
-                        {
                             title: "Disease Panels",
                             field: "panels",
                             type: "custom",
@@ -136,23 +163,45 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 render: panels => {
                                     let panelHtml = "-";
                                     if (panels?.length > 0) {
-                                        panelHtml = html`
-                                            ${panels.map(panel => {
-                                                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                                                    return html`
-                                                        <div style="margin: 5px 0">
-                                                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                                                ${panel.name} (${panel.source.project} v${panel.source.version})
-                                                            </a>
-                                                        </div>`;
-                                                } else {
-                                                    return html`<div style="margin: 5px 0px">${panel.id}</div>`;
-                                                }
-                                            })}`;
+                                        panelHtml = panels.map(panel => {
+                                            if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                                                return html`
+                                                    <div style="margin: 5px 0">
+                                                        <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                                                            ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                        </a>
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return html`<div style="margin: 5px 0px">${panel.id}</div>`;
+                                            }
+                                        });
                                     }
                                     return html`<div>${panelHtml}</div>`;
                                 }
                             }
+                        },
+                        {
+                            title: "Method",
+                            field: "method",
+                            type: "custom",
+                            display: {
+                                visible: interpretation => !!interpretation.method?.name && !!interpretation.method?.version,
+                                render: method => html`
+                                    <div>
+                                        <strong>Name</strong>: ${method.name}
+                                    </div>
+                                    <div>
+                                        <strong>Version</strong>: ${method.version}
+                                    </div>
+                                    <div>
+                                        <strong>Dependencies</strong>: 
+                                        ${(method.dependencies || []).map(item => html`
+                                            <span class="label label-primary">${item.name} (${item.version})</span>
+                                        `)}
+                                    </div>
+                                `,
+                            },
                         },
                         {
                             title: "Primary Findings",
@@ -161,30 +210,17 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 render: interpretation => html`
                                     ${interpretation?.primaryFindings?.length > 0 ? html`
                                         <div>
-                                            <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
+                                            <div>
+                                                <span style="">${interpretation?.primaryFindings?.length} variants selected, variant stats:</span>
+                                            </div>
+                                            ${this.renderPrimaryFindingsStats(interpretation?.stats)}
                                         </div>
-                                        ${[{title: "Tier", field: "tierCount"}, {title: "Gene", field: "geneCount"}, {title: "Status", field: "statusCount"}, {title: "Status", field: "variantStatusCount"}]
-                                            .filter(value => interpretation?.stats?.primaryFindings?.[value.field])
-                                            .map(value => html`
-                                                <div style="margin-left: 10px">
-                                                    <span style="width: 120px; display: inline-block;">${value.title}: </span>
-                                                    <span style="margin-left: 20px">
-                                                        ${Object.entries(interpretation?.stats?.primaryFindings?.[value.field])
-                                                            .filter(([, value]) => value > 0)
-                                                            .map(([gene, numVariants]) => {
-                                                                return `${gene} (${numVariants})`;
-                                                            })
-                                                            .join(", ")
-                                                        }
-                                                    </span>
-                                                </div>
-                                            `)
-                                        }` : html`
+                                    ` : html`
                                         <div>
                                             <span style="">No variants selected</span>
-                                        </div>`
-                                    }
-                                `
+                                        </div>
+                                    `}
+                                `,
                             }
                         },
                         {
@@ -196,6 +232,7 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                 // collapsable: false,
                                 // maxNumItems: 5,
                                 showAddItemListButton: false,
+                                showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => html`

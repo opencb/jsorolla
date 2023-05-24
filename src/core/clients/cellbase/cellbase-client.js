@@ -93,9 +93,16 @@ export class CellBaseClient {
     getMeta(param, options = {}) {
         const host = options.host || this._config.host;
         const version = options.version || this._config.version;
-        let url = `${host}/webservices/rest/${version}/` + "meta" + `/${param}`;
 
-        // By default we assume https protocol instead of http
+        let url;
+        if (param === "dataReleases") {
+            // We need to add the species
+            url = `${host}/webservices/rest/${version}/meta/${this._config.species}/${param}`;
+        } else {
+            url = `${host}/webservices/rest/${version}/meta/${param}`;
+        }
+
+        // By default, we assume https protocol instead of http
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = `http://${url}`;
         }

@@ -199,6 +199,7 @@ export default class JobBrowser extends LitElement {
                                 name: "Status",
                                 placeholder: "Status",
                                 allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
+                                multiple: true,
                                 defaultValue: "",
                                 description: "",
                             },
@@ -207,6 +208,7 @@ export default class JobBrowser extends LitElement {
                                 name: "Priority",
                                 placeholder: "Priority",
                                 allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+                                multiple: true,
                                 defaultValue: "",
                                 description: "",
                             },
@@ -290,7 +292,6 @@ export default class JobBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            mode: "development",
                             render: (job, active) => html`
                                 <json-viewer
                                     .data="${job}"

@@ -168,6 +168,72 @@ export default class UtilsNew {
         return o != null && o.constructor.name === "Object";
     }
 
+    // example: getObjectValue(sample,"processing.product.id","")
+    static getObjectValue(obj, props, defaultValue) {
+        return props.split(".").reduce((o, p) => o?.[p] ?? defaultValue, obj);
+    }
+
+    // example: setObjectValue(sample,'processing.product.id',value)
+    static setObjectValue(obj, props, value) {
+        props.split(".").reduce((o, p, i) => o[p] = props.split(".").length === ++i ? value : o[p] || {}, obj);
+    }
+
+    // 1st approach remove value (recursive way)
+    static deleteObjectValue(obj, props) {
+        const [head, ...params] = props.split(".");
+        if (!params.length) {
+            delete obj[head];
+        } else {
+            UtilsNew.deleteObjectValue(obj[head], params.join("."));
+        }
+    }
+
+    static draggableModal(self, modalElm) {
+        let offset = [0, 0];
+        let isDown = false;
+        const modalDialog = modalElm.querySelector(".modal-dialog");
+        const modalHeader = modalElm.querySelector(".modal-header");
+        modalHeader.style.cursor = "move";
+
+        if (modalDialog) {
+            modalDialog.style.margin = "0";
+            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.top = (window.innerHeight * 0.05) + "px";
+        }
+        modalHeader.addEventListener("mousedown", e => {
+            isDown = true;
+            offset = [
+                modalDialog.offsetLeft - e.clientX,
+                modalDialog.offsetTop - e.clientY
+            ];
+        }, true);
+
+        self.addEventListener("mouseup", () => {
+            isDown = false;
+        }, true);
+
+        self.addEventListener("mousemove", e => {
+            e.preventDefault();
+            if (isDown) {
+                modalDialog.style.left = (e.clientX + offset[0]) + "px";
+                modalDialog.style.top = (e.clientY + offset[1]) + "px";
+            }
+        }, true);
+    }
+
+    // 2nd approach remove value (loop way)
+    static deleteObjectValue2(obj, props) {
+        const parts = props.split(".");
+        const last = parts.pop();
+        for (const part of parts) {
+            obj = obj[part];
+            if (!obj) {
+                return;
+            }
+        }
+        delete obj[last];
+    }
+
     static getDiskUsage(bytes, numDecimals = 2) {
         if (bytes === 0) {
             return "0 Byte";
@@ -256,6 +322,8 @@ export default class UtilsNew {
         return "-";
     }
 
+    // Capitalizes the first letter of a string and lowercase the rest.
+    static capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("").toLowerCase();
 
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
@@ -365,6 +433,46 @@ export default class UtilsNew {
     }
 
     /**
+     * Returns a clone of an object excluding the specified list of keys
+     * @param {Object} obj Original object
+     * @param {Array} excludedKeys Keys to be excluded
+     * @returns {any} Clone of the original object without the specified keys
+     */
+    static objectCloneExclude(obj, excludedKeys) {
+        const clone = UtilsNew.objectClone(obj);
+        // for (const key of excludedKeys) {
+        //     delete clone[key];
+        // }
+        for (const key of excludedKeys) {
+            const aKey = key.split(".");
+            aKey.reduce(
+                // eslint-disable-next-line no-param-reassign
+                (acc, cv, i) => (i === aKey.length - 1) ? delete acc[cv]: acc[cv],
+                clone
+            );
+        }
+        return clone;
+    }
+
+    /** Given a key in an object, replaces the value with a new object
+     * @param {Object} obj Original object
+     * @param {String} replaceKey Key of the value to replace
+     * @param {Object} newObj New value for the key
+     * @returns {Object} Clone of the original object after the replacement
+     */
+    static objectCloneReplace(obj, replaceKey, newObj) {
+        const clone = UtilsNew.objectClone(obj);
+        const aKey = replaceKey.split(".");
+        // Fixme, if key is undefined
+        aKey.reduce(
+            // eslint-disable-next-line no-param-reassign
+            (acc, cv, i) => (i === aKey.length - 1) ? acc[cv] = UtilsNew.objectClone(newObj) : acc[cv],
+            clone
+        );
+        return clone;
+    }
+
+    /**
      * Returns the object sorted by key in lexicographic order.
      * @param {Object} unordered Unordered object
      * @returns {Object} ordered Ordered object
@@ -378,30 +486,26 @@ export default class UtilsNew {
      * Compares the objects by key and value (nested object are not supported yet)
      * @param {Object} a First object
      * @param {Object} b Second object
-     * @returns {boolean} true if the oject are equals
+     * @returns {boolean} true if the objects are equals
      */
     static objectCompare(a, b) {
         if (a && b) {
-            const _a = UtilsNew.objectSort(a);
-            const _b = UtilsNew.objectSort(b);
-            return JSON.stringify(_a) === JSON.stringify(_b);
+            const _a = JSON.stringify(UtilsNew.objectSort(a));
+            const _b = JSON.stringify(UtilsNew.objectSort(b));
+            return _a === _b;
         } else {
             return false;
         }
     }
 
     static isObjectValuesEmpty(obj) {
-
         return Object.values(obj).every(val => {
-
             if (val !== null && (typeof val === "object" || Array.isArray(val))) {
                 return UtilsNew.isObjectValuesEmpty(val);
             }
-
             return val === null || UtilsNew.objectCompare(val, {}) || UtilsNew.objectCompare(val, []);
         });
     }
-
 
     /**
      * Sort the array by object key or prop
@@ -828,6 +932,14 @@ export default class UtilsNew {
         }
     }
 
+    static hasVisibleItems(aItems, session) {
+        return aItems.some(item => UtilsNew.isAppVisible(item, session));
+    }
+
+    static getVisibleItems(aItems, session) {
+        return aItems.filter(subItem => UtilsNew.isAppVisible(subItem, session));
+    }
+
     static sort(stringArray) {
         if (stringArray.length > 0) {
             return stringArray.sort((a, b) => {
@@ -861,7 +973,6 @@ export default class UtilsNew {
         return value.match(regex);
     }
 
-
     // Escape HTML characters from the provided string
     static escapeHtml(str) {
         return str
@@ -883,6 +994,14 @@ export default class UtilsNew {
     // Import a JSON file from the specified url
     static importJSONFile(url) {
         return UtilsNew.importFile(url).then(content => content && JSON.parse(content) || null);
+    }
+
+    // Import file from the specified URL
+    // NOTE: in case that the file does not exist, a `null` value will be returned instead of rejecting the promise
+    static importBinaryFile(url) {
+        return window.fetch(url)
+            .then(response => response.ok && response.arrayBuffer() || null)
+            .catch(() => null);
     }
 
     // Convert an SVG to PNG
@@ -907,15 +1026,16 @@ export default class UtilsNew {
     // This function returns a positive number when version 2 is bigger
     static compareVersions(version1, version2) {
         // Get the three numbers and remove any version tag
-        const [major1, minor1, patch1] = version1.split("-")[0].split(".");
-        const [major2, minor2, patch2] = version2.split("-")[0].split(".");
+        const [major1, minor1, patch1] = version1.split("-")[0].replace("v", "").split(".");
+        const [major2, minor2, patch2] = version2.split("-")[0].replace("v", "").split(".");
 
-        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + Number.parseInt(patch1);
-        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + Number.parseInt(patch2);
+        const versionNumber1 = Number.parseInt(major1) * 1000 + Number.parseInt(minor1) * 100 + (Number.parseInt(patch1) || 0);
+        const versionNumber2 = Number.parseInt(major2) * 1000 + Number.parseInt(minor2) * 100 + (Number.parseInt(patch2) || 0);
         return versionNumber2 - versionNumber1;
     }
 
-    static getObjectValue(obj, props, defaultValue, results) {
+    // It always returns an array
+    static getObjectValues(obj, props, defaultValue, results) {
         if (!results) {
             // eslint-disable-next-line no-param-reassign
             results = [];
@@ -958,6 +1078,15 @@ export default class UtilsNew {
                 return copied;
             }
         });
+    }
+
+    static commaSeparatedArray(strOrArray) {
+        return Array.isArray(strOrArray) ?
+            strOrArray :
+            (strOrArray || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(item => !!item);
     }
 
 }

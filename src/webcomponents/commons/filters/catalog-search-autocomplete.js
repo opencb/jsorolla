@@ -73,6 +73,29 @@ export default class CatalogSearchAutocomplete extends LitElement {
 
     opencgaSessionObserver() {
         this.RESOURCES = {
+            "PROJECT": {
+                searchField: "id",
+                placeholder: "project...",
+                client: this.opencgaSession.opencgaClient.projects(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    include: "id,name"
+                }
+            },
+            "STUDY": {
+                searchField: "id",
+                placeholder: "study...",
+                client: this.opencgaSession.opencgaClient.studies(),
+                fields: item => ({
+                    "name": item.id,
+                }),
+                query: {
+                    project: this.opencgaSession.project.id,
+                    include: "id,name"
+                }
+            },
             "SAMPLE": {
                 searchField: "id",
                 placeholder: "HG01879, HG01880, HG01881...",
@@ -227,10 +250,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 this.RESOURCES[this.resource].client.search(filters)
                     .then(response => success(response))
                     .catch(error => failure(error));
-
             },
             preprocessResults(results) {
-                // if results come with null, emtpy or undefined it'll removed.
+                // if results come with null, empty or undefined it'll be removed.
                 let resultsCleaned = results.filter(r => r);
                 if (this.searchField && this.searchField !== "id") {
                     resultsCleaned = resultsCleaned.map(item => {
