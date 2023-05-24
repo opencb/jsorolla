@@ -75,10 +75,11 @@ export default class SampleUpdate extends LitElement {
     }
 
     // Uncomment to post-process data-from manipulation
-    onComponentFieldChange(e) {
-        this.updatedFields = e.detail?.updatedFields || {};
-        this.requestUpdate();
-    }
+    // onComponentFieldChange(e) {
+    //     debugger
+    //     this.updatedFields = e.detail?.updatedFields || {};
+    //     this.requestUpdate();
+    // }
 
     render() {
         return html `
@@ -88,8 +89,7 @@ export default class SampleUpdate extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .active="${this.active}"
                 .config="${this._config}"
-                @componentIdObserver="${e => this.onComponentIdObserver(e)}"
-                @componentFieldChange="${this.onComponentFieldChange}">
+                @componentIdObserver="${e => this.onComponentIdObserver(e)}">
             </opencga-update>
         `;
     }
@@ -97,15 +97,6 @@ export default class SampleUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             display: this.displayConfig,
-            notification: {
-                title: "Sample ID",
-                text: () => "Sample updated ... " + Object.keys(this.updatedFields).join(", "),
-                type: "notification",
-                display: {
-                    visible: () => UtilsNew.isNotEmpty(this.updatedFields),
-                    notificationType: "warning",
-                },
-            },
             sections: [
                 {
                     title: "General Information",

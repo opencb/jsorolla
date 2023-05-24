@@ -162,8 +162,24 @@ export default class OpencgaUpdate extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+        const resourceLabel = this.#getResourceName("label");
+
+        if (!this._config?.notification) {
+            this._config.notification = {
+                title: "",
+                text: () => {
+                    return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
+                },
+                type: "notification",
+                display: {
+                    visible: () => UtilsNew.isNotEmpty(this.updatedFields),
+                    notificationType: "warning",
+                },
+            };
+        }
 
         // We add, only once, one new section on the top to notify a pending update.
+        /*
         if (this._config.sections) {
             if (this._config.sections[0]?.elements[0]?.type !== "notification") {
                 this._config.sections.unshift({
@@ -180,6 +196,7 @@ export default class OpencgaUpdate extends LitElement {
                 });
             }
         }
+        */
     }
 
     initOriginalObjects() {
@@ -341,6 +358,7 @@ export default class OpencgaUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
+
         this.updatedFields = FormUtils.getUpdatedFields(
             this.component,
             this.updatedFields,
