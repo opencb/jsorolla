@@ -197,35 +197,58 @@
     <script type="module" src="./iva-app.js"></script>
     <!-- /build -->
 
+    <style>
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            line-height: 46px;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            z-index: 9999;
+        }
+
+        .back-to-top:hover {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 
 <body>
-    <script type="module">
-        $(function(){
-            document.title = SUITE.name;
-            // Back to top button
-            $(window).scroll(function () {
-                if ($(this).scrollTop() > 100) {
-                    $('#back-to-top').fadeIn();
-                } else {
-                    $('#back-to-top').fadeOut();
-                }
-            });
-            // scroll body to 0px on click
-            $('#back-to-top').click(function () {
-                $('body,html').animate({
-                    scrollTop: 0
-                }, 500);
-                return false;
+    <script>
+        // Show or hide the back-to-top button based on scroll position
+        window.addEventListener('scroll', function () {
+            if (window.pageYOffset > 100) {
+                document.getElementById('back-to-top').style.opacity = '1';
+            } else {
+                document.getElementById('back-to-top').style.opacity = '0';
+            }
+        });
+
+        // Smooth scroll to top when the button is clicked
+        document.getElementById('back-to-top').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         });
-        $.fn.select2.defaults.set( "theme", "bootstrap" );
-
     </script>
 
 <iva-app></iva-app>
 
-<a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button" data-placement="left"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+    <!-- Back to Top button -->
+    <a href="#" class="back-to-top" id="back-to-top">
+        <i class="fa fa-chevron-up"></i>
+    </a>
 
 </body>
 </html>
