@@ -94,17 +94,17 @@ export default class FormUtils {
                         let [arrayFieldName, removedIndex] = param.split("[].");
                         removedIndex = Number.parseInt(removedIndex);
 
-                        // 1. Create 'delete' arrays if it does not exist
-                        if (!_updatedFields[arrayFieldName + "[].deleted"]) {
-                            _updatedFields[arrayFieldName + "[].deleted"] = [];
-                        }
-
-                        // 2. Check if we are deleting a new added item, if yes, we DO NOT save it as deleted
+                        // 1. Check if we are deleting a new added item, if yes, we DO NOT save it as deleted
                         if (!_updatedFields[param]) {
+                            // 1.1 Create 'delete' arrays if it does not exist
+                            if (!_updatedFields[arrayFieldName + "[].deleted"]) {
+                                _updatedFields[arrayFieldName + "[].deleted"] = [];
+                            }
+                            // 1.2 Save existing object as deleted
                             _updatedFields[arrayFieldName + "[].deleted"].push(value);
                         }
 
-                        // 3. Remove from updatedFields any key starting with the param
+                        // 2. Remove from updatedFields any key starting with the param
                         const deletedKeys = Object.keys(_updatedFields).filter(key => key.startsWith(param));
                         if (deletedKeys.length > 0) {
                             for (const deletedKey of deletedKeys) {
@@ -112,7 +112,7 @@ export default class FormUtils {
                             }
                         }
 
-                        // 4. Rename (decrease) the index key of all elements
+                        // 3. Rename (decrease) the index key of all elements
                         const keys = Object.keys(_updatedFields).filter(key => key.startsWith(arrayFieldName + "[]."));
                         for (const key of keys) {
                             const right = key.split("[].")[1];
