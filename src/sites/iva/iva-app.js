@@ -105,7 +105,6 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import "../../../styles/scss/custom.scss";
 import * as bootstrap from "bootstrap";
 
-
 class IvaApp extends LitElement {
 
     constructor() {
