@@ -167,9 +167,12 @@ export default class OpencgaUpdate extends LitElement {
         if (!this._config?.notification) {
             this._config.notification = {
                 title: "",
-                text: () => {
-                    return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
-                },
+                // Todo Vero 20230525: Discuss with bioinfo/webteam how to display changes.
+                //  I leave the previous message for now
+                // text: () => {
+                //     return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
+                // },
+                text: "Some changes have been done in the form. Not saved, changes will be lost",
                 type: "notification",
                 display: {
                     visible: () => UtilsNew.isNotEmpty(this.updatedFields),
