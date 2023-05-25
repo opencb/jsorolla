@@ -112,10 +112,11 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    if ((evidences[0].modeOfInheritances || []).length === 0) {
+                                    const modeOfInheritances = evidences[0].modeOfInheritances || [];
+                                    if (modeOfInheritances.length === 0) {
                                         return "-";
                                     }
-                                    return evidences[0].modeOfInheritances.map(mode => html`
+                                    return modeOfInheritances.map(mode => html`
                                         <span class="badge badge-default" style="text-transform:uppercase;">
                                             <b>${mode || "-"}</b>
                                         </span>
