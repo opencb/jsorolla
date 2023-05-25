@@ -102,6 +102,10 @@ import "../../webcomponents/commons/layouts/custom-landing.js";
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 
+import "../../../styles/scss/custom.scss";
+import * as bootstrap from "bootstrap";
+
+
 class IvaApp extends LitElement {
 
     constructor() {
