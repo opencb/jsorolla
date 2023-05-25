@@ -1,0 +1,7 @@
+// Include any default variable overrides here (though functions won't be available)
+// $font-family-base: 'Lato', Helvetica, Arial, sans-serif;
+$font-size-base: 0.875rem; // 14px
+$main-bg-color: #17224D;
+
+// Option A: Include all of Bootstrap
+@import "../node_modules/bootstrap/scss/bootstrap";
