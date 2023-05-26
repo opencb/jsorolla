@@ -106,6 +106,18 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete this.clinicalAnalysis["family"];
         }
 
+        // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
+        // We have to add also the disorders list to 'proband.disorders'.
+        if (e.detail.param === "proband.id" && this.clinicalAnalysis.type === "FAMILY") {
+            if (this.clinicalAnalysis.proband?.id) {
+                const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
+                this.clinicalAnalysis.proband.disorders = proband?.disorders || [];
+            } else if (this.clinicalAnalysis.proband?.disorders) {
+                // If we have remove the 'proband.id', we have to remove also the 'proband.disorders' field
+                delete this.clinicalAnalysis.proband.disorders;
+            }
+        }
+
         this.requestUpdate();
     }
 
