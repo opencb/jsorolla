@@ -273,7 +273,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance?.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
                                         <div class="help-block">${gene.coordinates?.[0]?.location}</div>
                                     </div>
                                 `,
@@ -343,7 +343,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: region => html `
-                                    <div>${region.id} - ${region?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>${region.id} - ${region?.modesOfInheritance?.join(", ") || "-"}</div>
                                 `,
                             },
                             elements: [
@@ -390,7 +390,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: variant => html`
-                                    <div>${variant.id} - ${variant?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>${variant.id} - ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
                                 `,
                             },
                             elements: [
