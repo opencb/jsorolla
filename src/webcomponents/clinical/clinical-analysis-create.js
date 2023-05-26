@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -505,7 +506,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             allowedValues: "proband.disorders",
                             display: {
                                 apply: disorder => {
-                                    return {id: disorder.name, name: `${disorder.name} (${disorder.id})`};
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
                                 },
                                 errorMessage: "No disorders available",
                             }
@@ -586,7 +590,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             allowedValues: "proband.disorders",
                             display: {
                                 apply: disorder => {
-                                    return {id: disorder.name, name: `${disorder.name} (${disorder.id})`};
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
                                 },
                                 errorMessage: "No disorders available",
                             },
@@ -694,7 +701,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
+                                },
                                 errorMessage: "No disorders available",
                             }
                         },
