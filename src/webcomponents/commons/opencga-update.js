@@ -180,26 +180,6 @@ export default class OpencgaUpdate extends LitElement {
                 },
             };
         }
-
-        // We add, only once, one new section on the top to notify a pending update.
-        /*
-        if (this._config.sections) {
-            if (this._config.sections[0]?.elements[0]?.type !== "notification") {
-                this._config.sections.unshift({
-                    elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.isObjectValuesEmpty(this.updatedFields),
-                                notificationType: "warning",
-                            }
-                        }
-                    ]
-                });
-            }
-        }
-        */
     }
 
     initOriginalObjects() {
