@@ -252,21 +252,16 @@ export default class CustomNavBar extends LitElement {
                 }
             </style>
 
-            <nav class="navbar navbar-inverse main-navbar">
-                <div>
+            <nav class="navbar navbar-expand-lg navbar-inverse p-0">
+                <div class="container-fluid">
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                        <ul class="nav navbar-nav">
-                            <li>
-                                <a href="#" @click="${this.onSideBarToggle}" id="waffle-icon-wrapper">
-                                    <div id="waffle-icon"></div>
-                                </a>
-                            </li>
-                        </ul>
+                            <a class="navbar-brand text-white" href="#" @click="${this.onSideBarToggle}">
+                                <div id="waffle-icon"></div>
+                            </a>
                     ` : null}
 
                     <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
                         <a href="#home" class="navbar-brand suite-logo" @click="${this.onChangeTool}">
                             <!-- Fixed logo -->
                             ${this.config?.logo ? html`
@@ -283,47 +278,45 @@ export default class CustomNavBar extends LitElement {
                             <div class="navbar-brand app-logo">
                                 <!-- Application logo provided -->
                                 ${this.app?.logo ? html`
-                                    <img src="${this.app?.logo}" alt="App logo" style="color: white">
+                                    <img src="${this.app?.logo}" alt="App logo">
                                 ` : null}
                                 <!-- No application logo provided -->
                                 ${!this.app?.logo && this.app?.name ? html`
-                                    <span style="color:white;font-size:24px;margin-right:4px;">
+                                    <span class="text-white" style="font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
                                 ` : null}
                             </div>
                         ` : null}
-                    </div>
 
                     <!-- Collect the nav links, form, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <!-- Controls aligned to the LEFT -->
-                        <ul class="nav navbar-nav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
                             ${this.app?.menu?.filter?.(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 ${item.submenu && item.submenu.some(sm => UtilsNew.isAppVisible(sm, this.opencgaSession)) ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                           aria-haspopup="true" aria-expanded="false">
-                                            ${item.name} <span class="caret"></span>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button"
+                                        aria-haspopup="true" aria-expanded="false">
+                                        ${item.name}
                                         </a>
                                         <ul class="dropdown-menu">
                                             ${item.submenu
                                                 .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
                                                 .map(subItem => subItem.category ? html`
-                                                    <li>
-                                                        <a class="nav-item-category"
-                                                           style="background-color:white!important;cursor:auto!important;">
-                                                            <strong>${subItem.name}</strong>
-                                                        </a>
-                                                    </li>
+                                                        <li>
+                                                            <a class="dropdown-item">
+                                                                <strong>${subItem.name}</strong>
+                                                            </a>
+                                                        </li>
                                                 ` : subItem.separator ? html`
-                                                    <li role="separator" class="divider"></li>
+                                                    <li><hr class="dropdown-divider"></li>
                                                 ` : html`
                                                     <li>
-                                                        <a href="#${subItem.id}" @click="${this.onChangeTool}"
-                                                           data-id="${subItem.id}">${subItem.name}</a>
+                                                        <a class="dropdown-item" href="#${subItem.id}" @click="${this.onChangeTool}"
+                                                        data-id="${subItem.id}">${subItem.name}</a>
                                                     </li>
                                                 `)
                                             }
@@ -331,8 +324,9 @@ export default class CustomNavBar extends LitElement {
                                     </li>
                                 ` : html`
                                     <!-- If there is no submenu we just display a button -->
-                                    <li>
-                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
+                                    <!-- TODO: add active if this is current page -->
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }
                             `)}
@@ -351,7 +345,6 @@ export default class CustomNavBar extends LitElement {
                                             <div class="project-name">${this.opencgaSession.project?.name}:</div>
                                             <div class="study-id">${this.opencgaSession.study.name}</div>
                                         </div>
-                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.opencgaSession.projects.filter(project => project?.studies.length > 0).map(project => html`
@@ -415,7 +408,6 @@ export default class CustomNavBar extends LitElement {
                                             <i class="fas fa-question-circle"></i>
                                         </div>
                                         <div class="dropdown-button-text">About</div>
-                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.config.about?.links && this.config.about?.links.map(link => html`
@@ -449,12 +441,11 @@ export default class CustomNavBar extends LitElement {
                                         <div class="dropdown-button-text" >
                                             ${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id}
                                         </div>
-                                        <div class="caret"></div>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.config?.userMenu?.length ? this.config.userMenu
-                                            .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
-                                            .map(item => html`
+                                    .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
+                                    .map(item => html`
                                                 <li>
                                                     <a href="${item.url}" data-user-menu="${item.id}">
                                                         <i class="${item.icon} icon-padding" aria-hidden="true"></i>${item.name}

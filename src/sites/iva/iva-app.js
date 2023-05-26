@@ -460,7 +460,7 @@ class IvaApp extends LitElement {
             .then(response => {
                 // study = response.responses[0].results[0];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `Study Settings Update`,
+                    title: "Study Settings Update",
                     message: `${study.id} settings updated correctly`,
                 });
             })
@@ -737,10 +737,10 @@ class IvaApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li", this).removeClass("active");
-        $(target).parent("li").addClass("active");
+        $(".navbar-inverse ul > li > a", this).removeClass("active");
+        $(target).addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
-            $(target).closest("ul").closest("li").addClass("active");
+            $(target).closest("ul").closest("li > a").addClass("active");
         }
 
         if (UtilsNew.isNotUndefined(e)) {
@@ -1134,8 +1134,8 @@ class IvaApp extends LitElement {
     onStudyUpdateRequest(e) {
         if (e.detail.value) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: `Refresh Session`,
-                message: `Session updated correctly`,
+                title: "Refresh Session",
+                message: "Session updated correctly",
             });
             this._createOpenCGASession();
 
