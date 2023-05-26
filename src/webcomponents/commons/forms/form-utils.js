@@ -192,37 +192,6 @@ export default class FormUtils {
         return data;
     }
 
-    //  Rodiel 2022-05-16 DEPRECATED use updateObjectParams
-    // eslint-disable-next-line valid-jsdoc
-    /**
-     * ! Rodiel 2022-09-27 DEPRECATED use updateObjectParams
-     * TODO Before removing updateScalar change to updateObjectParams to these components
-     * Clinical-analysis-update
-     * Clinical-interpretation-update
-     * exomiser-analysis
-     * rd-tiering-analysis
-     * clinical-interpretation-variant-review
-     */
-    static updateScalar(_original, original, updateParams, param, value) {
-        // Prepare an internal object to store the updateParams.
-        // NOTE: it is important to create a new object reference to force a new render()
-        const _updateParams = {
-            ...updateParams
-        };
-
-        if (_original?.[param] !== value && value !== null) {
-            original[param] = value; // This the problem
-            _updateParams[param] = value;
-        } else {
-            // We need to restore the original value in our copy
-            original[param] = _original[param];
-            delete _updateParams[param];
-        }
-
-        // We need to create a new 'updateParams' reference to force an update
-        return _updateParams;
-    }
-
     static updateObjectParams(_original, original, updateParams, param, value) {
         const [field, prop] = param.split(".");
 

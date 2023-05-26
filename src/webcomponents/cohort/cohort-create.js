@@ -237,11 +237,7 @@ export default class CohortCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: cohort => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${cohort?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                //                     </annotation-set-update>
+
                 //                 `
                 //             }
                 //         }
