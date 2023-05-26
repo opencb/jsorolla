@@ -1,0 +1,19 @@
+name: "Pull Request Merge Workflow"
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+      - "release-*"
+    types:
+      - closed
+  workflow_dispatch:
+
+jobs:
+  docker-delete:
+    name: Delete TASK docker image
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "Checkout JSorolla"
+        uses: actions/checkout@v2
+      - run: ./docker/docker-build.py delete --image app --tag ${{ github.head_ref }} --username ${{ secrets.DOCKER_HUB_USER }} --password ${{ secrets.DOCKER_HUB_PASSWORD }}
