@@ -162,8 +162,8 @@ export default class OpencgaUpdate extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
-        const resourceLabel = this.#getResourceName("label");
 
+        // const resourceLabel = this.#getResourceName("label");
         if (!this._config?.notification) {
             this._config.notification = {
                 title: "",
