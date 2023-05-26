@@ -621,11 +621,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         },
                                     },
                                     {
-                                        title: "Sample",
+                                        title: "Samples",
                                         field: "samples",
                                         type: "custom",
                                         display: {
-                                            render: samples => html`${samples[0].id}`,
+                                            render: samples => {
+                                                if (!samples || samples.length === 0) {
+                                                    return "-";
+                                                }
+                                                return samples.map(sample => html`<div>${sample.id}</div>`);
+                                            },
                                         },
                                     },
                                     {
