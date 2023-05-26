@@ -131,6 +131,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     onIndividualChange(e) {
+        // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "SINGLE";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -150,17 +154,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Single Analyisis Configuration
-            // Empty disorder and samples field when remove item from proband field.
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
-            // refresh the form
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
 
     onFamilyChange(e) {
+        // Empty proband, disorder and family fields when a family is changed or removed.
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+        delete this.clinicalAnalysis["family"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "FAMILY";
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -190,16 +194,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Empty family fields
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
-            delete this.clinicalAnalysis["family"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
 
     onCancerChange(e) {
+        // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -225,9 +229,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Empty disorder and samples field when remove item from proband field.
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
