@@ -107,51 +107,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         this.requestUpdate();
-        // switch (param) {
-        //     case "type":
-        //         this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
-        //         break;
-        //     case "proband.id":
-        //         this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
-        //         if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-        //             this.clinicalAnalysis.disorder = {
-        //                 id: this.clinicalAnalysis.proband.disorders[0].id
-        //             };
-        //         }
-        //         break;
-        //     case "disorder.id":
-        //         if (e.detail.value) {
-        //             if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-        //                 const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
-        //                 this.clinicalAnalysis.disorder = {
-        //                     id: disorder.id
-        //                 };
-        //             }
-        //         } else {
-        //             delete this.clinicalAnalysis.disorder;
-        //         }
-        //         break;
-        //     case "analyst.id":
-        //         this.clinicalAnalysis.analyst = {
-        //             id: e.detail.value
-        //         };
-        //         break;
-        //     case "panels.id":
-        //     case "flags.id":
-        //         const [field, prop] = param.split(".");
-        //         if (e.detail.value) {
-        //             this.clinicalAnalysis[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
-        //         } else {
-        //             delete this.clinicalAnalysis[field];
-        //         }
-        //         break;
-        //     case "panelLock":
-        //         this.clinicalAnalysis.panelLock = e.detail.value;
-        //         break;
-        //     default:
-        //         this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
-        //         break;
-        // }
     }
 
     onCustomFieldChange(field, e) {
