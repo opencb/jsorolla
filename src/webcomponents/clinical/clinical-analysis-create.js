@@ -96,9 +96,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
         };
     }
 
-    onFieldChange(e, field) {
-        // const param = field || e.detail.param;
+    onFieldChange(e) {
         this.clinicalAnalysis = {...this.clinicalAnalysis};
+
+        // If we have changed the type field, we have to reset the 'proband', 'disorder' and ' family' fields of the clinical analysis object
+        if (e.detail.param === "type") {
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            delete this.clinicalAnalysis["family"];
+        }
+
         this.requestUpdate();
         // switch (param) {
         //     case "type":
