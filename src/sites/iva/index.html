@@ -17,6 +17,7 @@
   -->
 
 <html lang="en">
+
 <head>
 
     <!--
@@ -184,8 +185,8 @@
     <!-- Load IVA CSS styles -->
     <!-- build:css[assets/css/styles.css] -->
     <!-- Old bootstrap 3 -->
-    <link rel="stylesheet" href="../../../styles/css/global.css">
-    <link rel="stylesheet" href="../../../styles/css/style.css">
+    <!-- <link rel="stylesheet" href="../../../styles/css/global.css"> -->
+    <!-- <link rel="stylesheet" href="../../../styles/css/style.css"> -->
     <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
     <link rel="stylesheet" href="../../../styles/css/magic-check.css">
     <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
@@ -223,32 +224,33 @@
 </head>
 
 <body>
-    <script>
-        // Show or hide the back-to-top button based on scroll position
-        window.addEventListener('scroll', function () {
-            if (window.pageYOffset > 100) {
-                document.getElementById('back-to-top').style.opacity = '1';
-            } else {
-                document.getElementById('back-to-top').style.opacity = '0';
-            }
-        });
-
-        // Smooth scroll to top when the button is clicked
-        document.getElementById('back-to-top').addEventListener('click', function (e) {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    </script>
-
-<iva-app></iva-app>
-
+    <iva-app></iva-app>
     <!-- Back to Top button -->
     <a href="#" class="back-to-top" id="back-to-top">
         <i class="fa fa-chevron-up"></i>
     </a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Show or hide the back-to-top button based on scroll position
+            window.addEventListener('scroll', function () {
+                if (window.pageYOffset > 100) {
+                    document.getElementById('back-to-top').style.opacity = '1';
+                } else {
+                    document.getElementById('back-to-top').style.opacity = '0';
+                }
+            });
+
+            // Smooth scroll to top when the button is clicked
+            document.getElementById('back-to-top').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 
 </body>
 </html>
