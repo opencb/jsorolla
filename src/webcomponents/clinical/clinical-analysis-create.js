@@ -356,10 +356,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
             requires: "2.0.0",
             description: "Sample Variant Stats description",
             display: {
-                buttonsWidth: 8,
+                buttonsWidth: 10,
                 buttonClearText: "Clear",
                 buttonOkText: "Create Clinical Analysis",
-                width: 8,
+                width: 10,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
@@ -609,7 +609,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorClassName: "",
                                 columns: [
                                     {
-                                        title: "Individual",
+                                        title: "Individual ID",
                                         type: "custom",
                                         display: {
                                             render: individual => html`
@@ -619,6 +619,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                                 </div>
                                             `,
                                         },
+                                    },
+                                    {
+                                        title: "Individual Name",
+                                        field: "name",
                                     },
                                     {
                                         title: "Samples",
