@@ -62,6 +62,14 @@ export default class VariantFileInfoFilter extends LitElement {
         this.fileDataSeparator = ",";
     }
 
+    #encodeCallerId(name) {
+        return name.replaceAll(".", "___");
+    }
+
+    #decodeCallerId(name) {
+        return name.replaceAll("___", ".");
+    }
+
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
@@ -93,7 +101,7 @@ export default class VariantFileInfoFilter extends LitElement {
         this.fileNameToCallerId = {};
         for (const file of this.files) {
             // If software.name does not exist then we use file.name
-            const softwareName = file.software?.name ? file.software.name.toLowerCase() : file.name;
+            const softwareName = this.#encodeCallerId(file.software?.name ? file.software.name.toLowerCase() : file.name);
             this.callerIdToFile[softwareName] = file;
             this.fileNameToCallerId[file.name] = softwareName;
         }
@@ -425,7 +433,7 @@ export default class VariantFileInfoFilter extends LitElement {
         const _sections = this.callers?.map(caller => {
             // Generate the caller section
             return {
-                title: caller.id,
+                title: this.#decodeCallerId(caller.id),
                 display: {
                     titleHeader: "h4",
                     titleStyle: "margin: 5px 0",

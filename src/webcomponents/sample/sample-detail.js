@@ -129,9 +129,12 @@ export default class SampleDetail extends LitElement {
                 {
                     id: "file-view",
                     name: "Files",
-                    render: (sample, active, opencgaSession) => {
-                        return html`<file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></file-grid>`;
-                    }
+                    render: (sample, active, opencgaSession) => html`
+                        <file-grid
+                            .opencgaSession="${opencgaSession}"
+                            .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}">
+                        </file-grid>
+                    `,
                 }
             ]
         };
