@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
 import "./pharmacogenomics-grid.js";
+import "./pharmacogenomics-detail.js";
 import "../../commons/tool-header.js";
 import "../../loading-spinner.js";
 
@@ -34,6 +35,7 @@ export default class PharmacogenomicsReport extends LitElement {
         this.loading = false;
         this.error = false;
         this.variants = [];
+        this.selectedVariant = null;
         this.config = this.getDefaultConfig();
     }
 
@@ -46,6 +48,7 @@ export default class PharmacogenomicsReport extends LitElement {
 
     async sampleIdObserver() {
         this.variants = [];
+        this.selectedVariant = null;
         if (this.opencgaSession && this.sampleId && this.active) {
             this.error = false;
             this.loading = true;
@@ -117,6 +120,7 @@ export default class PharmacogenomicsReport extends LitElement {
 
                 // 5. Save variants and request update
                 this.variants = Array.from(variants.values());
+                this.selectedVariant = this.variants[0];
             } catch (error) {
                 console.error(error);
                 this.error = true;
@@ -124,6 +128,11 @@ export default class PharmacogenomicsReport extends LitElement {
             this.loading = false;
             this.requestUpdate();
         }
+    }
+
+    onSelectRow(e) {
+        this.selectedVariant = e.detail.row;
+        this.requestUpdate();
     }
 
     render() {
@@ -152,8 +161,13 @@ export default class PharmacogenomicsReport extends LitElement {
                 <pharmacogenomics-grid
                     .sampleId="${this.sampleId}"
                     .variants="${this.variants}"
-                    .opencgaSession="${this.opencgaSession}">
+                    .opencgaSession="${this.opencgaSession}"
+                    @selectrow="${e => this.onSelectRow(e)}">
                 </pharmacogenomics-grid>
+                <pharmacogenomics-detail
+                    .opencgaSession="${this.opencgaSession}"
+                    .variant="${this.selectedVariant}">
+                </pharmacogenomics-detail>
             </div>
         `;
     }

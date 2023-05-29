@@ -80,7 +80,7 @@ export default class PharmacogenomicsGrid extends LitElement {
             // This has been added to make the grid properties in all bootstrap table formatters, as some grid formattes needs them
             variantGrid: this,
 
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 if (this._config.detailView) {
                     if (element[0].innerHTML.includes("fa-plus")) {
@@ -90,9 +90,9 @@ export default class PharmacogenomicsGrid extends LitElement {
                     }
                 }
             },
-            // onExpandRow: (index, row) => {
-            //     this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
-            // },
+            onExpandRow: (index, row) => {
+                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
+            },
             onPostBody: data => {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             },
