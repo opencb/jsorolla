@@ -72,10 +72,10 @@ export default class CustomNavBar extends LitElement {
         const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
         if (link.url) {
             return html`
-                <a data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}" target="${link.tab ? "_blank" : "_self"}">${iconHtml} ${link.name}</a>`;
         } else {
             return html`
-                <a data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" data-cy="${link.id}" href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
         }
     }
 
@@ -83,8 +83,8 @@ export default class CustomNavBar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "logout");
     }
 
-    render() {
-        return html `
+    renderStyle() {
+        return html`
             <style>
                 .navbar-inverse {
                     background-color: var(--main-bg-color);
@@ -173,34 +173,11 @@ export default class CustomNavBar extends LitElement {
                     margin-left: 2em;
                 }
 
-                .center {
-                    margin: auto;
-                    text-align: justify;
-                    width: 60%;
-                    font-size: 18px;
-                    color: #797979;
-                }
-
                 .feature-view {
                     margin: auto;
                     text-align: justify;
                     width: 90%;
                 }
-
-                .app-logo {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .suite-logo {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .suite-logo > img {
-                    height: 20px;
-                }
-
 
                 ul.nav.navbar-nav.navbar-right {
                     display: flex;
@@ -227,9 +204,6 @@ export default class CustomNavBar extends LitElement {
                 .dropdown-button-icon {
                     margin-right: 5px;
                 }
-                .caret {
-                    margin-left: 5px;
-                }
 
                 #aboutButton {
                     margin-right: 5px;
@@ -252,8 +226,15 @@ export default class CustomNavBar extends LitElement {
                 }
             </style>
 
+        `;
+    }
+
+    render() {
+        return html `
+                ${this.renderStyle()}
+
             <nav class="navbar navbar-expand-lg navbar-inverse p-0">
-                <div class="container-fluid">
+                <div class="container-fluid p-1">
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
                             <a class="navbar-brand text-white" href="#" @click="${this.onSideBarToggle}">
@@ -262,10 +243,10 @@ export default class CustomNavBar extends LitElement {
                     ` : null}
 
                     <!-- Brand and toggle get grouped for better mobile display -->
-                        <a href="#home" class="navbar-brand suite-logo" @click="${this.onChangeTool}">
+                        <div href="#home" class="navbar-brand d-flex justify-content-center" style="height: 2.0rem;" @click="${this.onChangeTool}">
                             <!-- Fixed logo -->
                             ${this.config?.logo ? html`
-                                <img src="${this.config?.logo}" alt="logo">
+                                <img  class="d-inline-block" src="${this.config?.logo}" alt="logo">
                             ` : null}
                             <!-- No application logo provided -->
                             ${!this.config?.logo && this.config?.name ? html`
@@ -273,12 +254,12 @@ export default class CustomNavBar extends LitElement {
                                     <strong>${this.config.name}</strong>
                                 </span>
                             ` : null}
-                        </a>
+                        </div>
                         ${this.app?.id !== "suite" ? html `
-                            <div class="navbar-brand app-logo">
+                            <div class="navbar-brand d-flex justify-content-center me-n1" style="height: 2.5rem;">
                                 <!-- Application logo provided -->
                                 ${this.app?.logo ? html`
-                                    <img src="${this.app?.logo}" alt="App logo">
+                                    <img class="d-inline-block" src="${this.app?.logo}" alt="App logo">
                                 ` : null}
                                 <!-- No application logo provided -->
                                 ${!this.app?.logo && this.app?.name ? html`
@@ -300,12 +281,10 @@ export default class CustomNavBar extends LitElement {
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button"
                                         aria-haspopup="true" aria-expanded="false">
-                                        ${item.name}
+                                            ${item.name}
                                         </a>
                                         <ul class="dropdown-menu">
-                                            ${item.submenu
-                                                .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
-                                                .map(subItem => subItem.category ? html`
+                                            ${item.submenu.filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession)).map(subItem => subItem.category ? html`
                                                         <li>
                                                             <a class="dropdown-item">
                                                                 <strong>${subItem.name}</strong>
@@ -332,14 +311,16 @@ export default class CustomNavBar extends LitElement {
                             `)}
                         </ul>
                         <!-- Controls aligned to the RIGHT: settings and about-->
-                        <ul class="nav navbar-nav navbar-right">
+                        <ul class="navbar-nav justify-content-end">
                             <!-- Studies dropdown -->
                             ${this.opencgaSession?.projects?.length ? html`
-                                <li class="dropdown"  title="Projects and Studies">
+                                <li class="nav-item dropdown"  title="Projects and Studies">
                                     <a id="projects-button" href="#"
-                                       class="dropdown-toggle study-switcher dropdown-button-wrapper"
-                                       data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
-                                       data-cy="active-study">
+                                        class="nav-link dropdown-toggle study-switcher dropdown-button-wrapper"
+                                        data-bs-toggle="dropdown"
+                                        role="button"
+                                        aria-haspopup="true" aria-expanded="false"
+                                        data-cy="active-study">
                                         <!-- <div class="dropdown-button-icon"><i class="fa fa-database fa-lg"></i></div>-->
                                         <div class="dropdown-button-text" id="study-wrapper">
                                             <div class="project-name">${this.opencgaSession.project?.name}:</div>
@@ -349,20 +330,21 @@ export default class CustomNavBar extends LitElement {
                                     <ul class="dropdown-menu">
                                         ${this.opencgaSession.projects.filter(project => project?.studies.length > 0).map(project => html`
                                             <li>
-                                                <a title="${project.fqn}">
+                                                <a class="dropdown-item" title="${project.fqn}">
                                                     <b>${project.name} [${project.fqn.split("@")[0]}]</b>
                                                 </a>
                                             </li>
                                             ${project.studies && project.studies.length && project.studies.map(study => html`
                                                 <li>
-                                                    <a href="javascript: void 0"
-                                                       data-cy-fqn="${study.fqn}"
-                                                       data-study="${study.id}"
-                                                       data-project="${project.id}"
-                                                       data-project-name="${project.name}"
-                                                       data-study-name="${study.name}"
-                                                       title="${study.fqn}"
-                                                       @click="${e => this.onStudySelect(e, study)}">
+                                                    <a  class="dropdown-item"
+                                                        href="javascript: void 0"
+                                                        data-cy-fqn="${study.fqn}"
+                                                        data-study="${study.id}"
+                                                        data-project="${project.id}"
+                                                        data-project-name="${project.name}"
+                                                        data-study-name="${study.name}"
+                                                        title="${study.fqn}"
+                                                        @click="${e => this.onStudySelect(e, study)}">
                                                         ${study.name}
                                                     </a>
                                                 </li>
@@ -370,7 +352,7 @@ export default class CustomNavBar extends LitElement {
                                         `)}
                                     </ul>
                                 </li>
-                                <li class="separator"></li>
+                                <li class="border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
                             ` : null}
 
                             <!-- Jobs -->
@@ -396,14 +378,15 @@ export default class CustomNavBar extends LitElement {
                                         <div class="dropdown-button-icon"><i class="fas fa-code"></i></div>
                                     </a>
                                 </li>
-                                <li class="separator"></li>
+                                <li class="border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
                             ` : null}
 
                             <!-- About dropdown menu-->
                             ${this.config?.about.dropdown ? html`
-                                <li class="dropdown">
-                                    <a id="aboutButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
-                                       role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown">
+                                    <a id="aboutButton" href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
+                                        data-bs-toggle="dropdown"
+                                        role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-question-circle"></i>
                                         </div>
@@ -414,9 +397,10 @@ export default class CustomNavBar extends LitElement {
                                             <li>${this.createAboutLink(link, false)}</li>
                                         `)}
                                         ${this.config?.aboutPage ? html `
-                                            <li role="separator" class="divider"></li>
+                                            <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a data-cy="about-zetta" href="#aboutzetta" role="button" id="about-zetta">
+                                                <a id="about-zetta" class="dropdown-item" href="#aboutzetta"
+                                                    data-cy="about-zetta" role="button" >
                                                     <img height="16px" src="${this.config.aboutPage.favicon}">
                                                     <div style="margin-left:10px">
                                                         ${this.config.aboutPage.linkTitle || html `About Zetta Genomics`}
@@ -432,9 +416,10 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- User -->
                             ${this.loggedIn ? html`
-                                <li class="dropdown" data-cy="user-menu">
-                                    <a id="userButton" href="#" class="dropdown-toggle dropdown-button-wrapper" data-toggle="dropdown"
-                                       role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown" data-cy="user-menu">
+                                    <a id="userButton" class="nav-link dropdown-toggle dropdown-button-wrapper"
+                                        href="#" data-bs-toggle="dropdown"
+                                        role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
                                             <i class="fas fa-user-circle"></i>
                                         </div>
@@ -447,15 +432,17 @@ export default class CustomNavBar extends LitElement {
                                     .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
                                     .map(item => html`
                                                 <li>
-                                                    <a href="${item.url}" data-user-menu="${item.id}">
+                                                    <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
                                                         <i class="${item.icon} icon-padding" aria-hidden="true"></i>${item.name}
                                                     </a>
                                                 </li>
                                             `) : null}
-                                        <li role="separator" class="divider"></li>
+                                            <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <a data-user-menu="logout" role="button" style="color: var(--zetta-color-secondary-orange)"
-                                               @click="${this.logout}">
+                                            <a  class="dropdown-item"
+                                                data-user-menu="logout" role="button"
+                                                style="color: var(--zetta-color-secondary-orange)"
+                                                @click="${this.logout}">
                                                 <i class="fa fa-sign-out-alt icon-padding" aria-hidden="true"></i>Log out
                                             </a>
                                         </li>
