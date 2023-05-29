@@ -117,6 +117,35 @@ export default class DiseasePanelUpdate extends LitElement {
                 }
             }
         }
+
+        // Set the region coordinates if needed: location, assembly, and source
+        if (e.detail?.component?.regions?.length > 0) {
+            for (const region of e.detail.component.regions) {
+                if (!region?.coordinates?.location) {
+                    region.coordinates = [
+                        {
+                            location: region.id,
+                            assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                            // source: region.source || "",
+                        }
+                    ];
+                }
+            }
+        }
+
+        if (e.detail?.component?.variants?.length > 0) {
+            for (const variant of e.detail.component.variants) {
+                if (!variant?.coordinates?.location) {
+                    variant.coordinates = [
+                        {
+                            location: variant.id,
+                            assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                            // source: region.source || "",
+                        }
+                    ];
+                }
+            }
+        }
     }
 
     render() {
@@ -342,7 +371,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: region => html `
-                                    <div>${region.id} - ${region?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>
+                                        <div>${region?.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${region?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${region?.confidence || "NA"})</div>
+                                    </div>
                                 `,
                             },
                             elements: [
@@ -351,7 +383,7 @@ export default class DiseasePanelUpdate extends LitElement {
                                     field: "regions[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add region...",
+                                        placeholder: "Add a region location (e.g. 1:134545:2324234) ...",
                                     }
                                 },
                                 {
@@ -389,7 +421,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
                                 view: variant => html`
-                                    <div>${variant.id} - ${variant?.modesOfInheritance.join(", ") || "-"}</div>
+                                    <div>
+                                        <div>${variant.id}</div>
+                                        <div style="margin: 5px 0">MoI: ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
+                                    </div>
                                 `,
                             },
                             elements: [
