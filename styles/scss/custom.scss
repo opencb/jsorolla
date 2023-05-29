@@ -3,6 +3,7 @@
 $font-family-base: 'Lato', Helvetica, Arial, sans-serif;
 $font-size-base: 0.875rem; // 14px
 $main-bg-color: #17224D;
+$enable-negative-margins: true;
 
 // migrate global.css to global.scss (temporal)
 @import "./global.scss";
