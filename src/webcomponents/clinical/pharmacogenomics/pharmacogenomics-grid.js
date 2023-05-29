@@ -250,6 +250,22 @@ export default class PharmacogenomicsGrid extends LitElement {
                     },
                 },
                 {
+                    id: "phenotypeType",
+                    title: "Phenotype Type",
+                    field: "annotation",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const phenotypeTypes = new Set();
+                        row.annotation.pharmacogenomics.forEach(item => {
+                            item.annotations.forEach(annotation => {
+                                phenotypeTypes.add(annotation.phenotypeType);
+                            });
+                        });
+                        return Array.from(phenotypeTypes).join(", ") || "-";
+                    },
+                },
+                {
                     id: "phenotypes",
                     title: "Phenotypes",
                     field: "annotation",
@@ -262,7 +278,7 @@ export default class PharmacogenomicsGrid extends LitElement {
                                 annotation.phenotypes.forEach(phenotype => phenotypes.add(phenotype));
                             });
                         });
-                        return Array.from(phenotypes);
+                        return Array.from(phenotypes).join(", ") || "-";
                     },
                 },
                 {
