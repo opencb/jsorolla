@@ -126,6 +126,7 @@ export default class PharmacogenomicsGrid extends LitElement {
                                     ${(annotation.phenotypes || []).join(", ")}
                                 </div>
                             </td>
+                            <td>${annotation.phenotypeType || "-"}</td>
                             <td>${annotation.geneName || "-"}</td>
                             <td>${annotation.alleles.find(a => a.allele === allele)?.annotation || "-"}</td>
                         </tr>
@@ -138,6 +139,7 @@ export default class PharmacogenomicsGrid extends LitElement {
                 <thead>
                     <tr>
                         <th style="padding:8px;">Drug</th>
+                        <th style="padding:8px;">Phenotype Type</th>
                         <th style="padding:8px;">Gene</th>
                         <th style="padding:8px;">Annotation</th>
                     </tr>
