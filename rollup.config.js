@@ -139,7 +139,7 @@ export default sites.map(site => ({
             plugins: [
                 "@babel/plugin-proposal-export-default-from",
                 "@babel/plugin-proposal-nullish-coalescing-operator",
-                "@babel/transform-runtime",
+                "@babel/plugin-transform-runtime",
                 ["@babel/plugin-proposal-class-properties", {"loose": false}]
             ]
         }),
