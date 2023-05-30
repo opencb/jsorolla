@@ -26,6 +26,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import ExtensionsManager from "../extensions-manager.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -752,6 +753,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 2,
                     align: "center"
                 },
+                ...ExtensionsManager.getColumns("variant-browser-grid"),
                 {
                     title: "Select",
                     rowspan: 2,

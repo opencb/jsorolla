@@ -4,6 +4,7 @@ export default {
     TYPES: {
         DETAIL_TAB: "detail_tab",
         TOOL: "tool",
+        COLUMN: "column",
     },
 
     // Allows to get a list with all extensions of the specified type
@@ -38,6 +39,26 @@ export default {
                 name: extension.name,
                 render: opencgaSession => {
                     return extension.render(html, opencgaSession);
+                },
+            }));
+    },
+
+    // Returns a list of custom columns for the specified component
+    // @param {string} componentId - ID of the component whenre this new column will be injected
+    // @return {array} columns - a list of columns configurations
+    getColumns(componentId) {
+        return this.getByType(this.TYPES.COLUMN)
+            .filter(extension => (extension.components || []).includes(componentId))
+            .map(extension => ({
+                id: extension.id,
+                title: extension.columnTitle ?? extension.name ?? "",
+                field: extension.columnField ?? "",
+                rowspan: extension.columnRowspan ?? 1,
+                colspan: extension.columnColspan ?? 1,
+                halign: extension.columnHalign ?? "center",
+                // visible: extension.columnVisible ?? true,
+                formatter: (value, row, index) => {
+                    return extension.columnFormatter?.(value, row, index) || "-";
                 },
             }));
     },
