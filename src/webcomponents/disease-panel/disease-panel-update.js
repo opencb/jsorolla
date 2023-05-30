@@ -121,28 +121,40 @@ export default class DiseasePanelUpdate extends LitElement {
         // Set the region coordinates if needed: location, assembly, and source
         if (e.detail?.component?.regions?.length > 0) {
             for (const region of e.detail.component.regions) {
-                if (!region?.coordinates?.location) {
-                    region.coordinates = [
-                        {
-                            location: region.id,
-                            assembly: this.opencgaSession?.project?.organism?.assembly || "",
-                            // source: region.source || "",
-                        }
-                    ];
+                if (region.id) {
+                    if (region.id !== region.coordinates?.[0]?.location) {
+                        region.coordinates = [
+                            {
+                                location: region.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (region.coordinates) {
+                        region.coordinates = null;
+                    }
                 }
             }
         }
 
         if (e.detail?.component?.variants?.length > 0) {
             for (const variant of e.detail.component.variants) {
-                if (!variant?.coordinates?.location) {
-                    variant.coordinates = [
-                        {
-                            location: variant.id,
-                            assembly: this.opencgaSession?.project?.organism?.assembly || "",
-                            // source: region.source || "",
-                        }
-                    ];
+                if (variant.id) {
+                    if (variant.id !== variant.coordinates?.[0]?.location) {
+                        variant.coordinates = [
+                            {
+                                location: variant.id,
+                                assembly: this.opencgaSession?.project?.organism?.assembly || "",
+                                // source: region.source || "",
+                            }
+                        ];
+                    }
+                } else {
+                    if (variant.coordinates) {
+                        variant.coordinates = null;
+                    }
                 }
             }
         }
@@ -302,7 +314,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
                                         <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
-                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
+                                        <div class="help-block">
+                                            Location: ${gene.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${gene.coordinates?.[0]?.assembly || "-"},
+                                        </div>
                                     </div>
                                 `,
                             },
@@ -374,6 +389,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${region?.id}</div>
                                         <div style="margin: 5px 0">MoI: ${region?.modesOfInheritance?.join(", ") || "-"} (Confidence: ${region?.confidence || "NA"})</div>
+                                        <div class="help-block">
+                                            Location: ${region.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${region.coordinates?.[0]?.assembly || "-"},
+                                        </div>
                                     </div>
                                 `,
                             },
@@ -424,6 +443,10 @@ export default class DiseasePanelUpdate extends LitElement {
                                     <div>
                                         <div>${variant.id}</div>
                                         <div style="margin: 5px 0">MoI: ${variant?.modesOfInheritance?.join(", ") || "-"}</div>
+                                        <div class="help-block">
+                                            Location: ${variant.coordinates?.[0]?.location || "-"},
+                                            Assembly: ${variant.coordinates?.[0]?.assembly || "-"},
+                                        </div>
                                     </div>
                                 `,
                             },
