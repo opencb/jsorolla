@@ -131,11 +131,6 @@ export default class DiseasePanelRegionView extends LitElement {
                     formatter: (value, row) => `${row.id}`,
                     halign: this._config.header.horizontalAlign,
                 },
-                // {
-                //     id: "modeOfInheritance",
-                //     title: "Mode of Inheritance",
-                //     field: "modeOfInheritance",
-                // },
                 {
                     id: "modesOfInheritance",
                     title: "Mode of Inheritance",
