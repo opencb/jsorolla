@@ -20,5 +20,19 @@ window.IVA_EXTENSIONS = {
                 </div>
             `,
         },
+        {
+            id: "custom-column",
+            name: "New Column",
+            description: "Example column",
+            type: "column",
+            components: [
+                "variant-browser-grid",
+            ],
+            columnTitle: "New Column",
+            columnRowspan: 2,
+            columnFormatter: (value, row, index) => {
+                return `Row ${index}`;
+            },
+        },
     ],
 };
