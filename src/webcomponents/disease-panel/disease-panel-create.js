@@ -107,7 +107,6 @@ export default class DiseasePanelCreate extends LitElement {
                 }
             }
         }
-        debugger
         // Set the region coordinates if needed: location, assembly, and source
         if (e.detail?.data?.regions?.length > 0) {
             for (const region of e.detail.data.regions) {
