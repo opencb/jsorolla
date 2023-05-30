@@ -113,11 +113,17 @@ export default class PharmacogenomicsGrid extends LitElement {
     }
 
     drugsTableFormatter(variant) {
-        const allele = this.getAlleles(variant).join("");
+        const allelesList = this.getAlleles(variant);
+        const allele = allelesList.join("");
+        const alleleRev = [...allelesList].reverse().join("");
         const drugsRows = variant.annotation.pharmacogenomics
             // .filter(item => item.types.includes("Drug"))
             .map(item => {
                 return item.annotations.map(annotation => {
+                    let alleleItem = annotation.alleles.find(a => a.allele === allele);
+                    if (!alleleItem) {
+                        alleleItem = annotation.alleles.find(a => a.allele === alleleRev);
+                    }
                     return `
                         <tr>
                             <td>
@@ -128,7 +134,7 @@ export default class PharmacogenomicsGrid extends LitElement {
                             </td>
                             <td>${annotation.phenotypeType || "-"}</td>
                             <td>${annotation.geneName || "-"}</td>
-                            <td>${annotation.alleles.find(a => a.allele === allele)?.annotation || "-"}</td>
+                            <td>${alleleItem?.annotation || "-"}</td>
                         </tr>
                     `;
                 });
