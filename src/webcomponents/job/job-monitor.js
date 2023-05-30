@@ -196,7 +196,7 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <ul id="job-monitor" class="navbar-nav me-1">
+            <ul id="job-monitor" class="navbar-nav">
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
                     title="Job Monitor" data-bs-toggle="dropdown" role="button"

@@ -196,34 +196,35 @@ export default class CustomNavBar extends LitElement {
                     align-items: center;
                 }
                 .dropdown-button-wrapper {
+                    margin-right: 0.25em;
                     padding: 8px 12px!important;
                     border-radius: 4px;
                     background-color: var(--footer-color-deflt-blue);
                 }
 
-                .dropdown-button-icon {
+                /* .dropdown-button-icon {
                     margin-right: 5px;
-                }
+                } */
 
-                #aboutButton {
+                /* #aboutButton {
                     margin-right: 5px;
-                }
+                } */
                 #logoutButton{
                     margin-right: 8px;
                     background-color: var(--zetta-color-secondary-orange);
                 }
-                #job-monitor,
+                /* #job-monitor,
                 #fileButton {
                     margin-right: 5px;
-                }
-                #logoutButton > .dropdown-button-icon {
+                } */
+                /* #logoutButton > .dropdown-button-icon {
                     margin-right: 0;
-                }
+                } */
 
-                #about-zetta{
+                /* #about-zetta{
                     display: flex;
                     align-items: center;
-                }
+                } */
             </style>
 
         `;
@@ -352,7 +353,7 @@ export default class CustomNavBar extends LitElement {
                                         `)}
                                     </ul>
                                 </li>
-                                <li class="border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
+                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
                             ` : null}
 
                             <!-- Jobs -->
@@ -363,9 +364,9 @@ export default class CustomNavBar extends LitElement {
                             ` : null}
 
                             ${UtilsNew.isAppVisible(this.config?.fileExplorer, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
-                                <li id="fileButton">
+                                <li id="fileButton" >
                                     <a href="#file-manager" class="dropdown-button-wrapper"
-                                       title="File Manager" role="button" @click="${this.onChangeTool}">
+                                        title="File Manager" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-folder-open"></i></div>
                                     </a>
                                 </li>
@@ -374,17 +375,17 @@ export default class CustomNavBar extends LitElement {
                             ${UtilsNew.isAppVisible(this.config?.restApi, this.opencgaSession) || UtilsNew.isAppVisible(this.app?.restApi, this.opencgaSession) ? html`
                                 <li id="restButton">
                                     <a href="#rest-api" class="dropdown-button-wrapper"
-                                       title="RESTful API tool" role="button" @click="${this.onChangeTool}">
+                                        title="RESTful API tool" role="button" @click="${this.onChangeTool}">
                                         <div class="dropdown-button-icon"><i class="fas fa-code"></i></div>
                                     </a>
                                 </li>
-                                <li class="border-end mx-1 my-1" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
+                                <li class="border-end mx-1 my-1 ms-0" style="--bs-border-color: rgba(255, 255, 255, 0.3);"></li>
                             ` : null}
 
                             <!-- About dropdown menu-->
                             ${this.config?.about.dropdown ? html`
                                 <li class="nav-item dropdown">
-                                    <a id="aboutButton" href="#" class="nav-link dropdown-toggle dropdown-button-wrapper"
+                                    <a id="aboutButton" href="#" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
                                         data-bs-toggle="dropdown"
                                         role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
@@ -399,12 +400,12 @@ export default class CustomNavBar extends LitElement {
                                         ${this.config?.aboutPage ? html `
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a id="about-zetta" class="dropdown-item" href="#aboutzetta"
+                                                <a id="about-zetta" class="dropdown-item gap-1" href="#aboutzetta"
                                                     data-cy="about-zetta" role="button" >
                                                     <img height="16px" src="${this.config.aboutPage.favicon}">
-                                                    <div style="margin-left:10px">
+                                                    <span>
                                                         ${this.config.aboutPage.linkTitle || html `About Zetta Genomics`}
-                                                    </div>
+                                                    </span>
                                                 </a>
                                             </li>
                                         `: null}
@@ -417,7 +418,7 @@ export default class CustomNavBar extends LitElement {
                             <!-- User -->
                             ${this.loggedIn ? html`
                                 <li class="nav-item dropdown" data-cy="user-menu">
-                                    <a id="userButton" class="nav-link dropdown-toggle dropdown-button-wrapper"
+                                    <a id="userButton" class="nav-link dropdown-toggle dropdown-button-wrapper gap-1"
                                         href="#" data-bs-toggle="dropdown"
                                         role="button" aria-haspopup="true" aria-expanded="false">
                                         <div class="dropdown-button-icon">
@@ -433,7 +434,7 @@ export default class CustomNavBar extends LitElement {
                                     .map(item => html`
                                                 <li>
                                                     <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
-                                                        <i class="${item.icon} icon-padding" aria-hidden="true"></i>${item.name}
+                                                        <i class="${item.icon} me-1" aria-hidden="true"></i>${item.name}
                                                     </a>
                                                 </li>
                                             `) : null}
@@ -443,7 +444,7 @@ export default class CustomNavBar extends LitElement {
                                                 data-user-menu="logout" role="button"
                                                 style="color: var(--zetta-color-secondary-orange)"
                                                 @click="${this.logout}">
-                                                <i class="fa fa-sign-out-alt icon-padding" aria-hidden="true"></i>Log out
+                                                <i class="fa fa-sign-out-alt me-1" aria-hidden="true"></i>Log out
                                             </a>
                                         </li>
                                     </ul>
