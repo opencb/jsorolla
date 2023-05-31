@@ -321,7 +321,7 @@ export default class SampleCreate extends LitElement {
                         },
                         {
                             title: "Lab Sample ID",
-                            field: "processing.labSambpleId",
+                            field: "processing.labSampleId",
                             type: "input-text",
                             display: {
                                 placeholder: "Add the lab sample ID...",
@@ -369,7 +369,7 @@ export default class SampleCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "collection.from[].name",
                                     type: "input-text",
                                     display: {
