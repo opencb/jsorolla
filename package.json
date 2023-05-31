@@ -1,6 +1,6 @@
 {
   "name": "jsorolla",
-  "version": "2.9.0-dev",
+  "version": "2.10.0-dev",
   "description": "JSorolla is a JavaScript bioinformatic library for data analysis and genomic visualization",
   "repository": {
     "type": "git",
@@ -83,10 +83,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.9.6",
-    "@babel/polyfill": "^7.8.3",
     "@babel/preset-env": "^7.15.4",
     "@babel/runtime": "^7.15.4",
     "@rollup/plugin-babel": "^5.3.0",
