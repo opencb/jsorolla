@@ -753,7 +753,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 2,
                     align: "center"
                 },
-                ...ExtensionsManager.getColumns("variant-browser-grid"),
+                // ...ExtensionsManager.getColumns("variant-browser-grid"),
                 {
                     title: "Select",
                     rowspan: 2,
@@ -948,6 +948,9 @@ export default class VariantBrowserGrid extends LitElement {
                 },
             ]
         ];
+
+        // Inject columns for extensions
+        this._columns = ExtensionsManager.injectColumns(this._columns, "variant-browser-grid");
 
         // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;
