@@ -65,9 +65,7 @@ export default class NotificationManager {
                 </div>
                 ${options.display?.showCloseButton ? `
                     <div style="margin-left:16px;">
-                        <button type="button" class="close" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 ` : ""}
             </div>
@@ -97,7 +95,7 @@ export default class NotificationManager {
 
         // Register event to remove the notification when the close button is clicked
         if (options.display?.showCloseButton) {
-            element.querySelector("button.close").addEventListener("click", () => {
+            element.querySelector("button.btn-close").addEventListener("click", () => {
                 return removeNotification();
             });
         }
