@@ -102,36 +102,30 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="panel-default-wrapper">
+                <div class="d-flex justify-content-center mt-2 gap-2">
                     ${featuredTools.map(item => {
-                        const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                        return html`
-                            <div class="panel panel-default" data-cy-welcome-card-id="${item.id}">
-                                <div class="panel-body">
-                                    <a href="#${itemLink}" style="text-decoration:none!important;">
-                                        <div align="center" class="">
-                                            ${ item?.icon.includes("fas") ? html`
-                                                <i class="${item.icon}" style="font-size: 5em;"></i>
-                                            ` : html`
-                                                <img alt="${item.name}" width="100px" src="${item.icon}"/>
-                                            `}
-                                        </div>
-                                        <h4 style="margin-bottom:0; text-align: center">
-                                            <div>${item.name}</div>
-                                        </h4>
-                                    </a>
+                            const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                            return html`
+                                <div class="card w-50" data-cy-welcome-card-id="${item.id}">
+                                    <div class="card-body d-flex flex-column">
+                                        <a href="#${itemLink}" style="text-decoration:none!important;">
+                                            <div class="text-center">
+                                                ${ item?.icon.includes("fas") ? html`
+                                                    <i class="${item.icon}" style="font-size: 5em;"></i>
+                                                ` : html`
+                                                    <img alt="${item.name}" width="100px" src="${item.icon}"/>
+                                                `}
+                                            </div>
+                                            <h4 class="card-title text-center">${item.name}</h4>
+                                        </a>
+                                        ${item.description ? UtilsNew.renderHTML(item.description) : ""}
+                                            <a class="btn btn-primary mt-auto" href="#${itemLink}">
+                                                <div style="color:white;">Enter</div>
+                                            </a>
+                                    </div>
                                 </div>
-                                <div class="panel-body">
-                                    ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                                </div>
-                                <div class="panel-body">
-                                    <a class="btn btn-primary btn-block btn-lg" href="#${itemLink}">
-                                        <div style="color:white;">Enter</div>
-                                    </a>
-                                </div>
-                            </div>
                         `;
-                    })}
+                        })}
                 </div>
             `;
         }
@@ -140,10 +134,6 @@ export default class CustomWelcome extends LitElement {
     renderStyle() {
         return html`
             <style>
-                div#home {
-                    display: flex;
-                    align-items: center;
-                }
                 .getting-started {
                     display: inline-block;
                     border: 4px var(--main-bg-color) solid;
@@ -260,7 +250,7 @@ export default class CustomWelcome extends LitElement {
             <div class="container" style="margin: 2em 0;">
                 <!-- Welcome page logo -->
                 ${welcomePage?.logo ? html`
-                    <div align="center">
+                    <div class="text-center">
                         <img
                             alt="${welcomePage.display?.logoAlt || "logo"}"
                             class="${welcomePage.display?.logoClass}"
