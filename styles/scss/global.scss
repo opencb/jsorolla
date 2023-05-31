@@ -40,8 +40,6 @@
     --footer-color-cool-blue: hsl(223, 22%, 57%);
     --footer-color-powder-blue: hsl(223, 34%, 73%);
     --footer-color-highlight: hsl(223, 36%, 75%);
-
-
 }
 
 body {
@@ -66,5 +64,9 @@ a#waffle-icon-wrapper {
     background-size: cover;
     width: 2rem;
     height: 2rem;
+}
+
+a:link, a:visited {
+    color: var(--main-bg-color);
 }
 
