@@ -163,33 +163,34 @@ export default class OpencgaUpdate extends LitElement {
             ...this.config,
         };
 
-        // const resourceLabel = this.#getResourceName("label");
         if (!this._config?.notification) {
-            this._config.notification = {
-                title: "",
-                // Todo Vero 20230525: Discuss with bioinfo/webteam how to display changes.
-                //  I leave the previous message for now
-                // text: () => {
-                //     return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
-                // },
-                text: "Some changes have been done in the form. Not saved, changes will be lost",
-                type: "notification",
-                display: {
-                    visible: () => UtilsNew.isNotEmpty(this.updatedFields),
-                    notificationType: "warning",
-                },
-            };
+            this.#initConfigNotification();
         }
+    }
+
+    #initConfigNotification() {
+        // const resourceLabel = this.#getResourceName("label");
+        this._config.notification = {
+            title: "",
+            // Todo Vero 20230525: Discuss with bioinfo/webteam how to display changes.
+            //  I leave the previous message for now
+            // text: () => {
+            //     return `${resourceLabel} updated: ` + Object.keys(this.updatedFields).join(", ");
+            // },
+            text: "Some changes have been done in the form. Not saved, changes will be lost",
+            type: "notification",
+            display: {
+                visible: () => UtilsNew.isNotEmpty(this.updatedFields),
+                notificationType: "warning",
+            },
+        };
     }
 
     initOriginalObjects() {
         this._component = UtilsNew.objectClone(this.component);
         this.updatedFields = {};
         // this.componentId = "";
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this.configObserver();
     }
 
     #initComponent() {
