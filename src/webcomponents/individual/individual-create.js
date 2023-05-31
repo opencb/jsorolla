@@ -524,11 +524,6 @@ export default class IndividualCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: individual => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${individual?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
-                //                     </annotation-set-update>
                 //                 `
                 //             }
                 //         }

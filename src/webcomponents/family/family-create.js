@@ -236,11 +236,6 @@ export default class FamilyCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: family => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${family?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationSets")}">
-                //                     </annotation-set-update>
                 //                 `
                 //             }
                 //         }

@@ -22,7 +22,6 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import "../../variant/interpretation/variant-interpreter-grid.js";
 import "../../disease-panel/disease-panel-grid.js";
-import "./clinical-interpretation-view.js";
 import "./clinical-interpretation-summary.js";
 
 export default class ClinicalInterpretationView extends LitElement {
