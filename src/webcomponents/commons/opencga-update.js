@@ -86,13 +86,6 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     update(changedProperties) {
-        // CAUTION: solution 1 to edit two or more consecutive times the same component in grid: sample, individual, etc.
-        /*
-        if (changedProperties.has("componentId") || (this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId))) {
-            console.log(changedProperties.has("componentId"), this.componentId && changedProperties.has("component") && (!this.component || this.component.id !== this.componentId));
-            this.componentIdObserver();
-        }
-        */
         if (changedProperties.has("component")) {
             this.componentObserver();
         }
@@ -371,6 +364,8 @@ export default class OpencgaUpdate extends LitElement {
     }
 
     // Display a button to back sample browser.
+    // CAUTION Note 20230531 Vero: if the Catalog Management from the Admin App gets definitely disabled and deprecated,
+    //  this code should be removed.
     onShowBtnSampleBrowser() {
         const query = {
             xref: this.sampleId
@@ -445,7 +440,7 @@ export default class OpencgaUpdate extends LitElement {
                 </div>
             `;
         }
-        // FIXME 20221222 Vero: To enable a generic window.location.hash for component
+
         return html `
             <!-- $this._config?.display?.showBtnSampleBrowser ? this.onShowBtnSampleBrowser() : nothing} -->
             <data-form
