@@ -1175,7 +1175,7 @@ class IvaApp extends LitElement {
 
         if (page) {
             return html`
-                <div class="content" id="page">
+                <div class="d-flex justify-content-center align-items-center vh-100" id="page">
                     <custom-page .page="${page}"></custom-page>
                 </div>
             `;
@@ -1199,18 +1199,6 @@ class IvaApp extends LitElement {
 
         return html`
             <style>
-                .notification-nav {
-                    margin-right: 0;
-                }
-
-                .notification-nav > li > a .badge  {
-                    position: relative;
-                    z-index: 10;
-                    bottom: -7px;
-                    left: 11px;
-                    background-color: #41a7ff;
-                }
-
                 .center {
                     margin: auto;
                     text-align: justify;
@@ -1261,9 +1249,9 @@ class IvaApp extends LitElement {
 
             <!-- This is where main IVA application is rendered -->
             ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
-            <div class="container-fluid" style="min-height:calc(100vh - 100px);">
+            <div class="container-fluid" style="min-height:calc(100vh - 101px);">
                 ${this.config.enabledComponents.home ? html`
-                    <div class="content" id="home">
+                    <div class="d-flex justify-content-center" id="home">
                         <custom-welcome
                             .app="${this.app}"
                             .config="${this.config}"
