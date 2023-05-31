@@ -222,7 +222,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "disorders[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add variant ID...",
+                                        placeholder: "Add disorder ID...",
                                     }
                                 },
                                 {
