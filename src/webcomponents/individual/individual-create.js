@@ -414,7 +414,7 @@ export default class IndividualCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "phenotypes[].name",
                                     type: "input-text",
                                     display: {
@@ -484,7 +484,7 @@ export default class IndividualCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "disorders[].name",
                                     type: "input-text",
                                     display: {
