@@ -153,8 +153,6 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .displayConfig="${
                                 {
                                     modalTitle: editInterpretationTitle,
-                                    buttonClearText: "Cancel",
-                                    buttonOkText: "Update",
                                     modalButtonClassName: "btn-default btn-sm",
                                     modalDisabled: this.clinicalAnalysis.locked,
                                     modalButtonName: "Edit Interpretation",
