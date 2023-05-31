@@ -339,7 +339,7 @@ export default class SampleUpdate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "collection.from[].name",
                                     type: "input-text",
                                     display: {
