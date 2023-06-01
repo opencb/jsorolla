@@ -737,7 +737,7 @@ class IvaApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li > a", this).removeClass("active");
+        $(".navbar-zetta ul > li > a", this).removeClass("active");
         $(target).addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
             $(target).closest("ul").closest("li > a").addClass("active");
