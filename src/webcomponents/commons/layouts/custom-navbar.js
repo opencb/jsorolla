@@ -86,17 +86,11 @@ export default class CustomNavBar extends LitElement {
     renderStyle() {
         return html`
             <style>
-                .navbar-inverse {
+                .navbar-zetta {
                     background-color: var(--main-bg-color);
                 }
 
-                nav.navbar.navbar-inverse.main-navbar > div {
-                    display: flex;
-                    align-items: center;
-                    flex-wrap: wrap;
-                }
-
-                div#bs-example-navbar-collapse-1 {
+                /* div#bs-example-navbar-collapse-1 {
                     display: flex!important;
                     flex-wrap: wrap;
                     flex: 1;
@@ -106,28 +100,33 @@ export default class CustomNavBar extends LitElement {
                     flex-wrap: wrap;
                     flex: 1 1 auto;
                     padding: 0 10px;
+                } */
+
+                .navbar-zetta .navbar-nav .nav-link.active,
+                .navbar-nav .nav-link.show {
+                    color: #fff;
                 }
 
-                .navbar-inverse .navbar-nav > .open > a,
-                .navbar-inverse .navbar-nav > .open > a:focus,
-                .navbar-inverse .navbar-nav > .open > a:hover {
+                .navbar-zetta .navbar-nav > .show > a,
+                .navbar-zetta .navbar-nav > .show > a:focus,
+                .navbar-zetta .navbar-nav > .show > a:hover {
                     background-color: var(--main-bg-color-darker);
                     /*filter: brightness(0.8); this involves text as well..*/
                 }
 
-                .navbar-inverse .navbar-nav > .active > a,
-                .navbar-inverse .navbar-nav > .active > a:focus,
-                .navbar-inverse .navbar-nav > .active > a:hover {
+                .navbar-zetta .navbar-nav > .active > a,
+                .navbar-zetta .navbar-nav > .active > a:focus,
+                .navbar-zetta .navbar-nav > .active > a:hover {
                     background-color: var(--main-bg-color-darker);
                 }
 
-                .navbar-inverse .navbar-nav > li > a {
+                .navbar-zetta .navbar-nav > li > a {
                     color: #d2d2d2;
                 }
 
-                .navbar-inverse .dropdown-menu > .active > a,
-                .navbar-inverse .dropdown-menu > .active > a:focus,
-                .navbar-inverse .dropdown-menu > .active > a:hover {
+                .navbar-zetta .dropdown-menu > .active > a,
+                .navbar-zetta .dropdown-menu > .active > a:focus,
+                .navbar-zetta .dropdown-menu > .active > a:hover {
                     background-color: var(--main-bg-color);
                 }
 
@@ -164,15 +163,6 @@ export default class CustomNavBar extends LitElement {
                     background-color: #41a7ff;
                 }
 
-                #refresh-job {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex: 1;
-                    max-width: 6px;
-                    margin-left: 2em;
-                }
-
                 .feature-view {
                     margin: auto;
                     text-align: justify;
@@ -192,39 +182,31 @@ export default class CustomNavBar extends LitElement {
 
                 .dropdown-button-wrapper,
                 .dropdown-button-text {
-                    display: flex!important;
+                    display: flex;
                     align-items: center;
                 }
                 .dropdown-button-wrapper {
                     margin-right: 0.25em;
-                    padding: 8px 12px!important;
+                    padding: 8px 12px !important;
                     border-radius: 4px;
                     background-color: var(--footer-color-deflt-blue);
                 }
 
-                /* .dropdown-button-icon {
-                    margin-right: 5px;
-                } */
 
-                /* #aboutButton {
-                    margin-right: 5px;
-                } */
+                #refresh-job {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 1;
+                    max-width: 6px;
+                    margin-left: 2em;
+                }
+
                 #logoutButton{
                     margin-right: 8px;
                     background-color: var(--zetta-color-secondary-orange);
                 }
-                /* #job-monitor,
-                #fileButton {
-                    margin-right: 5px;
-                } */
-                /* #logoutButton > .dropdown-button-icon {
-                    margin-right: 0;
-                } */
 
-                /* #about-zetta{
-                    display: flex;
-                    align-items: center;
-                } */
             </style>
 
         `;
@@ -234,15 +216,15 @@ export default class CustomNavBar extends LitElement {
         return html `
                 ${this.renderStyle()}
 
-            <nav class="navbar navbar-expand-lg navbar-inverse p-0">
+            <nav class="navbar navbar-zetta navbar-expand-lg p-0">
                 <div class="container-fluid p-1">
+
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
                             <a class="navbar-brand text-white" href="#" @click="${this.onSideBarToggle}">
                                 <div id="waffle-icon"></div>
                             </a>
                     ` : null}
-
                     <!-- Brand and toggle get grouped for better mobile display -->
                         <div href="#home" class="navbar-brand d-flex justify-content-center" style="height: 2.0rem;" @click="${this.onChangeTool}">
                             <!-- Fixed logo -->
@@ -272,7 +254,10 @@ export default class CustomNavBar extends LitElement {
                         ` : null}
 
                     <!-- Collect the nav links, form, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="fas fa-bars text-white"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <!-- Controls aligned to the LEFT -->
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
