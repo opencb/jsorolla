@@ -69,16 +69,17 @@ export default class CustomWelcome extends LitElement {
             });
 
             return html`
-                <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
+            <!-- row hi-icon-wrap hi-icon-effect-9 hi-icon-animation -->
+                <div class="d-flex justify-content-around gap-2">
                     ${visibleApps.map(item => html`
-                        <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
-                            <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.icon}"/>
-                            </div>
-                            <div style="margin-top:10px;">
-                                <span style="font-weight:bold;">${item.name}</span>
-                            </div>
-                        </a>
+                        <div class="w-50 shadow p-3 mb-5 bg-body rounded-5 text-center zetta-animation-pulse">
+                            <a class="text-decoration-none" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
+                                    <div class="hi-icon">
+                                        <img alt="${item.name}" src="${item.icon}"/>
+                                    </div>
+                                    <b class="text-decoration-none">${item.name}</b>
+                                </a>
+                        </div>
                     `)}
                 </div>
             `;
@@ -104,8 +105,8 @@ export default class CustomWelcome extends LitElement {
             return html`
                 <div class="d-flex justify-content-center mt-2 gap-2">
                     ${featuredTools.map(item => {
-                            const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                            return html`
+                        const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                        return html`
                                 <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
                                     <div class="card-body d-flex flex-column">
                                         <a href="#${itemLink}" style="text-decoration:none!important;">
@@ -119,12 +120,12 @@ export default class CustomWelcome extends LitElement {
                                             <h4 class="card-title text-center">${item.name}</h4>
                                         </a>
                                         ${item.description ? UtilsNew.renderHTML(item.description) : ""}
-                                            <a class="btn btn-primary btn-lg mt-auto" href="#${itemLink}">
-                                                <div style="color:white;">Enter</div>
+                                            <a class="btn btn-primary btn-lg mt-auto text-white" href="#${itemLink}">
+                                                Enter
                                             </a>
                                     </div>
                                 </div>
-                        `;
+                            `;
                         })}
                 </div>
             `;
