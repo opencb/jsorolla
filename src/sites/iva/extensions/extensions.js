@@ -10,7 +10,7 @@ window.IVA_EXTENSIONS = {
             name: "Custom Tool",
             description: "Example Tool extension",
             type: "tool", // {tool | detail_tab | view}
-            tools: [],
+            components: [],
             maintainer: "",
             version: "",
             compatibleWith: "",
