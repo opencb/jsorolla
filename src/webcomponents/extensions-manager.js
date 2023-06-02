@@ -48,13 +48,16 @@ export default {
     // @param {string} componentId - ID of the component where this new column will be injected
     // @return {array} columns - a list of columns configurations
     injectColumns(columns, componentId) {
+        // We need to check if we are in a single or multiple row levels
+        const isMultipleLevel = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
         this.getByType(this.TYPES.COLUMN)
             .filter(extension => (extension.components || []).includes(componentId))
             .forEach(extension => {
-                (extension.columns || []).forEach((newColumns, level) => {
+                (extension.columns || []).forEach((newColumns, levelIndex) => {
                     [newColumns].flat().forEach(newColumn => {
-                        const position = newColumn.position ?? columns[level].length;
-                        columns[level].splice(position, 0, newColumn.config);
+                        const level = isMultipleLevel ? columns[levelIndex] : columns;
+                        const position = newColumn.position ?? level.length;
+                        level.splice(position, 0, newColumn.config);
                     });
                 });
             });
