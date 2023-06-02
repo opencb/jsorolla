@@ -346,9 +346,10 @@ export class OpenCGAClient {
             // check that a session exists
             // TODO should we check the session has not expired?
             if (_this._config.token) {
-                _this._notifySessionEvent("signingIn", "Fetching User data");
+                // _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
+                        console.log("Creating session");
                         const session = {
                             about: this.about?.responses[0]?.results[0]
                         };
@@ -362,7 +363,7 @@ export class OpenCGAClient {
                                 // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
-                            _this._notifySessionEvent("signingIn", "Updating User config");
+                            // _this._notifySessionEvent("signingIn", "Updating User config");
                             const userConfig = await this.updateUserConfigs({
                                 ...session.user.configs.IVA,
                                 lastAccess: new Date().getTime()
@@ -377,7 +378,8 @@ export class OpenCGAClient {
 
 
                         // Fetch authorised Projects and Studies
-                        _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
+                        console.log("Fetching projects and studies");
+                        // _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects()
                             .search({limit: 100})
                             .then(async function (response) {
@@ -395,7 +397,8 @@ export class OpenCGAClient {
                                             if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission for the all the studies fetched
-                                                    _this._notifySessionEvent("signingIn", "Fetching User permissions");
+                                                    console.log("Fetching user permissions");
+                                                    // _this._notifySessionEvent("signingIn", "Fetching User permissions");
 
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
@@ -407,7 +410,8 @@ export class OpenCGAClient {
                                                     study.acl = acl.getResult(0)?.acl || [];
 
                                                     // Fetch all the cohort
-                                                    _this._notifySessionEvent("signingIn", "Fetching Cohorts");
+                                                    console.log("Fetching cohorts");
+                                                    // _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
                                                         .search({study: study.fqn, exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
@@ -467,9 +471,10 @@ export class OpenCGAClient {
                                             }
                                             session.projects[indexesMap[i]].cellbase.sources = dataReleaseSources.sources;
                                         }
-                                        
+
                                         // Fetch the Disease Panels for each Study
-                                        _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
+                                        console.log("Fetching disease panels");
+                                        // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
                                             const promise = _this.panels().search({
