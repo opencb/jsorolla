@@ -61,7 +61,7 @@ class VariantInterpreterExomiserView extends LitElement {
         if (this.variant && this.variant?.evidences?.length > 0) {
             const uniqueGenesList = new Set();
             this.variant.evidences.forEach(evidence => {
-                if (evidence?.genomicFeature?.geneName) {
+                if (evidence?.interpretationMethodName === "interpretation-exomiser" && evidence?.genomicFeature?.geneName) {
                     uniqueGenesList.add(evidence.genomicFeature.geneName);
                 }
             });
@@ -100,7 +100,7 @@ class VariantInterpreterExomiserView extends LitElement {
             },
             sections: this.genes.map(geneName => {
                 const evidences = this.variant?.evidences.filter(evidence => {
-                    return evidence?.genomicFeature?.geneName === geneName;
+                    return evidence?.interpretationMethodName === "interpretation-exomiser" && evidence?.genomicFeature?.geneName === geneName;
                 });
 
                 return {
@@ -111,11 +111,17 @@ class VariantInterpreterExomiserView extends LitElement {
                             title: "Mode of Inheritances",
                             type: "custom",
                             display: {
-                                render: () => evidences[0].modeOfInheritances.map(mode => html`
-                                    <span class="badge badge-default" style="text-transform:uppercase;">
-                                        <b>${mode || "-"}</b>
-                                    </span>
-                                `),
+                                render: () => {
+                                    const modeOfInheritances = evidences[0].modeOfInheritances || [];
+                                    if (modeOfInheritances.length === 0) {
+                                        return "-";
+                                    }
+                                    return modeOfInheritances.map(mode => html`
+                                        <span class="badge badge-default" style="text-transform:uppercase;">
+                                            <b>${mode || "-"}</b>
+                                        </span>
+                                    `);
+                                },
                             },
                         },
                         {
