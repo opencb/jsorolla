@@ -22,6 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ExtensionsManager from "../extensions-manager.js";
 
 
 export default class OpencgaFileGrid extends LitElement {
@@ -57,6 +58,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT = "file-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "FileBrowserGrid";
         this.active = true;
@@ -384,6 +386,7 @@ export default class OpencgaFileGrid extends LitElement {
             });
         }
 
+        _columns = ExtensionsManager.injectColumns(_columns, this.COMPONENT);
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return _columns;
     }

@@ -17,6 +17,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./file-preview.js";
 import "./file-view.js";
 import "../commons/opencga-browser.js";
@@ -59,6 +60,7 @@ export default class FileBrowser extends LitElement {
     }
 
     _init() {
+        this.COMPONENT = "file-browser";
         this._prefix = "fb" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
@@ -312,7 +314,8 @@ export default class FileBrowser extends LitElement {
                                     .active="${active}">
                                 </json-viewer>
                             `,
-                        }
+                        },
+                        ...ExtensionsManager.getDetailTabs(this.COMPONENT),
                     ]
                 }
             },
