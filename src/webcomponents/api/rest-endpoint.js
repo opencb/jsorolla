@@ -525,9 +525,16 @@ export default class RestEndpoint extends LitElement {
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data.param[parameter.name])
+            .filter(parameter => (parameter.param === "query" && parameter.name !== "study") && this.data.param[parameter.name])
             .forEach(parameter => {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
+            });
+
+        // check if QUERY is required and it is not exist in the data
+        this.endpoint.parameters
+            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data.param[parameter.name] === "undefined")
+            .forEach(parameter => {
+                url += `&${parameter.name}=${parameter.defaultValue}`;
             });
 
         try {
@@ -689,11 +696,11 @@ export default class RestEndpoint extends LitElement {
                         <h3 style="display:inline-block;">Input Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
-                                    .data="${this.data}"
-                                    .config="${this.configFormEndpoint}"
-                                    @fieldChange="${e => this.onChangeFormField(e)}"
-                                    @clear="${this.onClear}"
-                                    @submit="${this.onSubmit}">
+                                .data="${this.data}"
+                                .config="${this.configFormEndpoint}"
+                                @fieldChange="${e => this.onChangeFormField(e)}"
+                                @clear="${this.onClear}"
+                                @submit="${this.onSubmit}">
                             </data-form>
                         </div>
                     </div>
