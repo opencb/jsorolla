@@ -492,7 +492,7 @@ export default class RestEndpoint extends LitElement {
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .filter(parameter => parameter.param === "query" && this.data.param[parameter.name])
             .forEach(parameter => {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
