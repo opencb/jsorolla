@@ -10,7 +10,6 @@ import {babel} from "@rollup/plugin-babel";
 import {terser} from "rollup-plugin-terser";
 import {execSync} from "child_process";
 import pkg from "./package.json";
-import postcss from "rollup-plugin-postcss";
 
 // eslint-disable-next-line no-undef
 const env = process.env || {};
@@ -120,7 +119,6 @@ export default sites.map(site => ({
             rootDir: `${sitesPath}/${site}/`,
             input: getSiteContent(site),
         }),
-        postcss(),
         resolve(),
         minifyHTML(),
         babel({
