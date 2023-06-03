@@ -106,6 +106,7 @@ export default class SelectFieldFilter extends LitElement {
 
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
+        $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this.selectPicker.selectpicker({
             iconBase: "fas",
             tickIcon: "fa-check",
@@ -151,7 +152,7 @@ export default class SelectFieldFilter extends LitElement {
             } else {
                 // if classes os removed then we need to removed the old assigned classes
                 this.selectPicker.selectpicker("setStyle", changedProperties.get("classes"), "remove");
-                this.selectPicker.selectpicker("setStyle", "btn-default", "add");
+                this.selectPicker.selectpicker("setStyle", "border rounded border-secondary-subtle", "add");
             }
         }
     }
@@ -245,7 +246,7 @@ export default class SelectFieldFilter extends LitElement {
                             data-width="100%"
                             data-title="${this.title || nothing}"
                             data-selected-text-format="${this.title ? "static" : "values"}"
-                            data-style="btn-default ${this.classes}"
+                            data-style="${this.classes}"
                             @change="${this.filterChange}">
                         ${this.data?.map(opt => html`
                             ${opt?.separator ? html`<option data-divider="true"></option>` : html`
@@ -263,9 +264,9 @@ export default class SelectFieldFilter extends LitElement {
                     </select>
 
                     ${this.all ? html`
-                        <span class="input-group-addon">
-                            <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.selectAll}>
-                            <span style="font-weight: bold">All</span>
+                        <span class="input-group-text">
+                            <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                            <span class="fw-bold">All</span>
                         </span>` : nothing
                     }
                 </div>

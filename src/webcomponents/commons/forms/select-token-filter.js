@@ -55,6 +55,7 @@ export default class SelectTokenFilter extends LitElement {
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
+            theme: "bootstrap-5",
             separator: this._config.separator ?? [","],
             tags: this._config.freeTag ?? true,
             multiple: this._config.multiple ?? true,
@@ -204,9 +205,9 @@ export default class SelectTokenFilter extends LitElement {
 
     renderShowSelectAll() {
         return html`
-            <span class="input-group-addon">
-                <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
-                <span style="font-weight: bold">All</span>
+            <span class="input-group-text">
+                <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.toggleDisabled}>
+                <span class="fw-bold">All</span>
             </span>`;
     }
 
@@ -215,9 +216,9 @@ export default class SelectTokenFilter extends LitElement {
             return html`
                 <form>
                     <div id="${this._prefix}-select-wrapper">
-                        <div class="input-group">
+                        <div class="mb-3">
                             <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
-                            <span class="input-group-addon file-upload-toggle" @click="${this.toggleFileUpload}">
+                            <span class="input-group-text file-upload-toggle" @click="${this.toggleFileUpload}">
                                 <i class="fas fa-upload"></i>
                             </span>
                         </div>
@@ -227,16 +228,14 @@ export default class SelectTokenFilter extends LitElement {
             `;
         } else {
             return html`
-                <div>
-                    <div class="input-group">
-                        <select
-                            class="form-control"
-                            id="${this._prefix}"
-                            ?disabled="${this._config.disabled}"
-                            @change="${this.filterChange}">
-                        </select>
-                        ${this._config.showSelectAll ? this.renderShowSelectAll() : nothing}
-                    </div>
+                <div class="mb-3">
+                    <select
+                        class="form-control"
+                        id="${this._prefix}"
+                        ?disabled="${this._config.disabled}"
+                        @change="${this.filterChange}">
+                    </select>
+                    ${this._config.showSelectAll ? this.renderShowSelectAll() : nothing}
                 </div>
             `;
         }
