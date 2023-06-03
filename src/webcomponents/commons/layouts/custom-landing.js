@@ -44,7 +44,7 @@ export default class CustomLanding extends LitElement {
         }
     }
 
-    render() {
+    renderStyle() {
         return html`
             <style>
                 .landing-wrapper {
@@ -118,8 +118,6 @@ export default class CustomLanding extends LitElement {
                     margin-bottom: 0;
                 }
 
-
-
                 .landing-logo > img {
                     margin: 1em;
                 }
@@ -147,27 +145,31 @@ export default class CustomLanding extends LitElement {
                     background-color: hsl(222, 20%, 45%);
                     border: 0;
                 }
-
-
             </style>
+        `;
+    }
+
+    render() {
+        return html`
+            ${this.renderStyle()}
             <div class="landing-wrapper">
                 <div class="landing-company">
                     <!-- Landing logo section -->
                     ${this.config?.landingPage?.organisation?.logo?.img ? html`
                         <div class="landing-logo ${this.config.landingPage?.organisation?.display?.logoClass}"
-                             style="${this.config.landingPage?.organisation?.display?.logoStyle}">
+                            style="${this.config.landingPage?.organisation?.display?.logoStyle}">
                             ${this.config?.landingPage?.organisation?.logo?.link ? html `
                                 <a href="${this.config?.landingPage?.organisation?.logo?.link}" target="_blank">
                                     <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                         src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                                        src="${this.config.landingPage?.organisation?.logo?.img}"/>
                                 </a>
                             `: html `
                                 <img height="${this.config?.landingPage?.organisation?.logo?.height || "30px"}"
-                                     src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                                    src="${this.config.landingPage?.organisation?.logo?.img}"/>
                             `}
                         </div>
                         <div class="landing-title ${this.config.landingPage?.organisation?.display?.titleClass}"
-                             style="${this.config.landingPage?.organisation?.display?.titleStyle}">
+                            style="${this.config.landingPage?.organisation?.display?.titleStyle}">
                             ${this.config.landingPage?.organisation?.title}
                         </div>
                     ` : null}
@@ -176,20 +178,19 @@ export default class CustomLanding extends LitElement {
                     <!-- Landing title -->
                     ${this.config?.landingPage?.login?.logo || this.config.landingPage?.login?.title ? html`
                         <div class="landing-logo ${this.config.landingPage?.login?.display?.logoClass}"
-                             style="${this.config.landingPage?.login?.display?.logoStyle}">
+                            style="${this.config.landingPage?.login?.display?.logoStyle}">
                             <img height="${this.config?.landingPage?.login?.logo?.height || "30px"}"
-                                 src="${this.config.landingPage?.login?.logo?.img}"/>
+                                src="${this.config.landingPage?.login?.logo?.img}"/>
                         </div>
                         <div class="landing-title ${this.config.landingPage?.login?.display?.titleClass}"
-                             style="${this.config.landingPage?.login?.display?.titleStyle}">
+                            style="${this.config.landingPage?.login?.display?.titleStyle}">
                             ${this.config.landingPage?.login?.title}
                         </div>
                     ` : null}
                     <!-- Landing description -->
                     ${this.config?.landingPage?.login?.content ? html`
-                        <div align="center"
-                             class="landing-content ${this.config.landingPage?.login?.display?.contentClass}"
-                             style="${this.config.landingPage?.login?.display?.contentStyle}">
+                        <div class="text-center landing-content ${this.config.landingPage?.login?.display?.contentClass}"
+                            style="${this.config.landingPage?.login?.display?.contentStyle}">
                             ${UtilsNew.renderHTML(this.config.landingPage?.login?.content)}
                         </div>
                     ` : null}
@@ -212,7 +213,7 @@ export default class CustomLanding extends LitElement {
                             </div>
                         ` : html`
                             <user-login
-                                    .opencgaSession="${this.opencgaSession}">
+                                .opencgaSession="${this.opencgaSession}">
                             </user-login>
                         `}
                     </div>
