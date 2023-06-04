@@ -143,10 +143,13 @@ export default class DetailTabs extends LitElement {
         return this.getVisibleTabs().map(item => {
             const isActive = this._activeTab === item.id;
             return html`
-                <li role="presentation"
-                    class="${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                <li role="tablist"
+                    class="nav-item"
                     style="${this._config.display?.tabTitleStyle}">
-                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
+                    <a class="nav-link ${this._config.display?.tabTitleClass} ${isActive ? "active" : ""}"
+                        href="#${this._prefix}${item.id}"
+                        role="tab"
+                        data-bs-toggle="tab" data-id="${item.id}"
                         @click="${this.changeTab}">
                         <span>${item.name}</span>
                     </a>
