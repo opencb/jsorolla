@@ -279,7 +279,7 @@ export default class OpencgaBrowser extends LitElement {
         if (this._config.filter.render) {
             // TODO can this be deleted?
             return html`
-                <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                <div class="tab-pane fade show active" id="filters_tab" role="tabpanel" >
                     ${this._config.filter.render({
                         opencgaSession: this.opencgaSession,
                         config: this._config,
@@ -291,7 +291,7 @@ export default class OpencgaBrowser extends LitElement {
             `;
         } else {
             return html`
-                <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                <div class="tab-pane active" id="filters_tab" role="tabpanel" >
                     <opencga-browser-filter
                         .query="${this.query}"
                         .resource="${this.resource}"
@@ -357,20 +357,38 @@ export default class OpencgaBrowser extends LitElement {
                 </tool-header>
             ` : null}
             <div class="row">
-                <div class="col-md-2">
-                    <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
+                <div class="col-2">
+                    <div class="d-grid gap-2 pb-1">
+                        <button type="button" class="btn btn-primary" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="filter" role="tab" data-toggle="tab">Filters</a>
+                    <ul class="nav nav-tabs mb-3" id="filterTab" role="tablist">
+                        <li role="nav-item">
+                            <button class="nav-link active fw-bold"
+                                href="#filters_tab"
+                                aria-controls="filters_tab"
+                                aria-current="page"
+                                aria-selected="true"
+                                role="tab"
+                                type="button"
+                                data-bs-target="#filters_tab"
+                                data-bs-toggle="tab">Filters
+                            </button>
                         </li>
                         ${this._config.aggregation ? html`
-                            <li role="presentation">
-                                <a href="#facet_tab" aria-controls="aggregation" role="tab" data-toggle="tab">Aggregation</a>
+                            <li role="nav-item">
+                                <button class="nav-link fw-bold"
+                                    href="#facet_tab"
+                                    aria-controls="facet_tab"
+                                    aria-current="facet_tab"
+                                    aria-selected="facet_tab"
+                                    role="tab"
+                                    type="button"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#facet_tab">Aggregation
+                                </button>
                             </li>
                         ` : null}
                     </ul>
@@ -379,7 +397,7 @@ export default class OpencgaBrowser extends LitElement {
                         ${this.renderAggregation()}
                     </div>
                 </div>
-                <div class="col-md-10">
+                <div class="col-10">
                     ${this.renderButtonViews()}
                     <div>
                         <opencga-active-filters
