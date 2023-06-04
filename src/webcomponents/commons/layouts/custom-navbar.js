@@ -216,12 +216,12 @@ export default class CustomNavBar extends LitElement {
         return html `
                 ${this.renderStyle()}
 
-            <nav class="navbar navbar-zetta navbar-expand-lg p-0">
+            <nav class="navbar navbar-zetta navbar-expand-lg p-1">
                 <div class="container-fluid p-1">
 
                     <!-- Left Sidebar Icon -->
                     ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
-                            <a class="navbar-brand text-white" href="#" @click="${this.onSideBarToggle}">
+                            <a class="navbar-brand " href="#" @click="${this.onSideBarToggle}">
                                 <div id="waffle-icon"></div>
                             </a>
                     ` : null}
@@ -246,7 +246,7 @@ export default class CustomNavBar extends LitElement {
                                 ` : null}
                                 <!-- No application logo provided -->
                                 ${!this.app?.logo && this.app?.name ? html`
-                                    <span class="text-white" style="font-size:24px;margin-right:4px;">
+                                    <span class="" style="font-size:24px;margin-right:4px;">
                                     <strong>${this.app.name}</strong>
                                 </span>
                                 ` : null}
@@ -255,7 +255,7 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Collect the nav links, form, and other content for toggling -->
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="fas fa-bars text-white"></span>
+                        <span class="fas fa-bars "></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <!-- Controls aligned to the LEFT -->
