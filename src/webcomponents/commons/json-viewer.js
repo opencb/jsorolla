@@ -80,10 +80,10 @@ export default class JsonViewer extends LitElement {
 
         return html`
             ${this.showDownloadButton ? html`
-                <div class="text-right">
+                <div class="d-flex justify-content-end">
                     <download-button
                         .json="${this.data}"
-                        class="btn-sm">
+                        class="btn btn-light btn-sm">
                     </download-button>
                 </div>
             ` : null
