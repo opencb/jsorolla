@@ -120,7 +120,10 @@ export default class SelectFieldFilter extends LitElement {
         if (changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
             this.data = this.data ?? [];
-            this.selectPicker.selectpicker("refresh");
+            // 20230604 rodiel: The latest version of bootstrap-select is causing a duplication issue with the list.
+            // To prevent this, it's necessary to disable refresh.
+            // Further investigation is necessary to ensure a solution
+            // this.selectPicker.selectpicker("refresh");
         }
 
         if (changedProperties.has("disabled")) {
