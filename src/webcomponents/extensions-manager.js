@@ -25,7 +25,12 @@ export default {
                 name: extension.name,
                 active: false,
                 render: (data, active, opencgaSession) => {
-                    return extension.render(html, data, active, opencgaSession);
+                    return extension.render({
+                        html: html,
+                        opencgaSession: opencgaSession,
+                        tabData: data,
+                        tabActive: active,
+                    });
                 },
             }));
     },
@@ -38,7 +43,10 @@ export default {
                 id: extension.id,
                 name: extension.name,
                 render: opencgaSession => {
-                    return extension.render(html, opencgaSession);
+                    return extension.render({
+                        html: html,
+                        opencgaSession: opencgaSession,
+                    });
                 },
             }));
     },
