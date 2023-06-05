@@ -14,9 +14,9 @@ window.IVA_EXTENSIONS = {
             maintainer: "",
             version: "",
             compatibleWith: "",
-            render: (html, opencgaSession) => html`
+            render: params => params.html`
                 <div>
-                    <h1>Hello ${opencgaSession.user.name}</h1>
+                    <h1>Hello ${params.opencgaSession.user.name}</h1>
                 </div>
             `,
         },
