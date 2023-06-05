@@ -87,5 +87,29 @@ window.IVA_EXTENSIONS = {
                 ],
             ],
         },
+        {
+            id: "custom-columns-file-browser",
+            name: "Custom columns",
+            description: "Example columns for File Browser",
+            type: "column",
+            components: [
+                "file-grid",
+            ],
+            maintainer: "",
+            version: "",
+            compatibleWith: "",
+            columns: [
+                {
+                    position: -4,
+                    config: {
+                        id: "new-column-1",
+                        title: "Extra column",
+                        field: "",
+                        align: "center",
+                        formatter: (value, row, index) => `Row ${index}`,
+                    },
+                },
+            ],
+        },
     ],
 };
