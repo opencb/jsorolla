@@ -461,18 +461,34 @@ const client = new OpenCGAClient({
     render() {
         return html`
             <div>
-                <ul class="nav nav-tabs">
-                    ${~this.tabs.indexOf("download") ? html`<li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>` : nothing}
-                    ${~this.tabs.indexOf("export") ? html`<li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>` : nothing}
-                    ${~this.tabs.indexOf("link") ? html`<li><a data-toggle="tab" href="#link">Link</a></li>` : nothing}
-                    ${~this.tabs.indexOf("code") ? html`<li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>` : nothing}
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    ${~this.tabs.indexOf("download") ? html`
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" role="tab" href="#${this._prefix}download">Download Table</a>
+                        </li>` : nothing
+                    }
+                    ${~this.tabs.indexOf("export") ? html`
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#${this._prefix}export">Export Query</a>
+                        </li>` : nothing
+                    }
+                    ${~this.tabs.indexOf("link") ? html`
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#link">Link</a>
+                        </li>` : nothing
+                    }
+                    ${~this.tabs.indexOf("code") ? html`
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#code">Opencga Script Code</a>
+                        </li>` : nothing
+                    }
                 </ul>
             </div>
 
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <form class="form-horizontal">
-                        <div class="form-group" style="margin-top: 10px">
+                        <div class="form-group">
                             <div class="col-md-12">
                                 <div class="alert alert-warning" style="margin-bottom: 10px">
                                     <i class="fas fa-exclamation-triangle"></i>
@@ -487,11 +503,11 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                <button type="button" class="btn btn-light btn-lg ${classMap({active: this.format === "tab"})}" data-bs-toggle="button" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <span class="export-buttons-text">TSV</span>
                                 </button>
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                <button type="button" class="btn btn-light btn-lg ${classMap({active: this.format === "json"})}" data-bs-toggle="button" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
                                 </button>
