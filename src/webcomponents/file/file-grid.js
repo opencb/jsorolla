@@ -458,6 +458,7 @@ export default class OpencgaFileGrid extends LitElement {
             showSelectCheckbox: false,
             showToolbar: true,
             showActions: true,
+            skipExtensions: false,
         };
     }
 
