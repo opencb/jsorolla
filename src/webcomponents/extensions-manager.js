@@ -15,11 +15,11 @@ export default {
     },
 
     // Gets a list of detail tabs generated from the extensions for the specified component
-    // @param {string} toolId - ID of the tool where the new detail tabs will be injected
+    // @param {string} componentId - ID of the component where the new detail tabs will be injected
     // @return {array} tabs - a list of detail tabs configuration
-    getDetailTabs(toolId) {
+    getDetailTabs(componentId) {
         return this.getByType(this.TYPES.DETAIL_TAB)
-            .filter(extension => (extension.tools || []).includes(toolId))
+            .filter(extension => (extension.components || []).includes(componentId))
             .map(extension => ({
                 id: extension.id,
                 name: extension.name,
