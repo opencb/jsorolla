@@ -137,10 +137,7 @@ export default sites.map(site => ({
             babelHelpers: "runtime",
             presets: ["@babel/preset-env"],
             plugins: [
-                "@babel/plugin-proposal-export-default-from",
-                "@babel/plugin-proposal-nullish-coalescing-operator",
                 "@babel/plugin-transform-runtime",
-                ["@babel/plugin-proposal-class-properties", {"loose": false}]
             ]
         }),
         terser({

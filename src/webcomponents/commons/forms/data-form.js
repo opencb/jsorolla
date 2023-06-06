@@ -901,9 +901,9 @@ export default class DataForm extends LitElement {
                 defaultValue = element.defaultValue;
             }
             // Check if 'apply' must be executed
-            if (defaultValue && element.display?.apply) {
-                defaultValue = element.display.apply(defaultValue);
-            }
+            // if (defaultValue && element.display?.apply) {
+            //     defaultValue = element.display.apply(defaultValue);
+            // }
         }
 
         // Default values
