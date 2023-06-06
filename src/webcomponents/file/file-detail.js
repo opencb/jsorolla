@@ -59,7 +59,10 @@ export default class OpencgaFileDetail extends LitElement {
             this.fileIdObserver();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
             this.#updateDetailTabs();
         }
         super.update(changedProperties);
