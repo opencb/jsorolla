@@ -88,12 +88,12 @@ window.IVA_EXTENSIONS = {
             ],
         },
         {
-            id: "custom-columns-file-browser",
+            id: "custom-columns-file-grid",
             name: "Custom columns",
-            description: "Example columns for File Browser",
+            description: "Example columns for File Grid",
             type: "column",
             components: [
-                "file-grid",
+                "fileGrid",
             ],
             maintainer: "",
             version: "",
@@ -110,6 +110,23 @@ window.IVA_EXTENSIONS = {
                     },
                 },
             ],
+        },
+        {
+            id: "custom-tabs-file-detail",
+            name: "Custom Tab",
+            description: "Example detail tab for File Detail",
+            type: "detail_tab",
+            components: [
+                "fileDetail",
+            ],
+            maintainer: "",
+            version: "",
+            compatibleWith: "",
+            render: params => {
+                return params.html`
+                    <div>Hello world</div>
+                `;
+            },
         },
     ],
 };
