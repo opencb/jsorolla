@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import "./file-view.js";
 import "./file-preview.js";
+import ExtensionsManager from "../extensions-manager.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
@@ -50,6 +51,7 @@ export default class OpencgaFileDetail extends LitElement {
     #init() {
         this.file = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -58,6 +60,7 @@ export default class OpencgaFileDetail extends LitElement {
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.#updateDetailTabs();
         }
         super.update(changedProperties);
     }
@@ -75,6 +78,13 @@ export default class OpencgaFileDetail extends LitElement {
         } else {
             this.file = null;
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs("fileDetail"),
+        ];
     }
 
     render() {
