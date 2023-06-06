@@ -27,6 +27,8 @@ import "./variant-interpreter-review.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../commons/tool-header.js";
+import "../custom/steiner-variant-interpreter-analysis.js";
+import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../clinical/clinical-analysis-review.js";
 import "../../clinical/clinical-analysis-review-info.js";
@@ -230,57 +232,57 @@ class VariantInterpreter extends LitElement {
         });
     }
 
-    getDefaultConfig() {
-        return {
-            title: "Case Interpreter",
-            icon: "fas fa-user-md",
-            active: false,
-            tools: [
-                {
-                    id: "select",
-                    title: "Case Info",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-folder-open"
-                },
-                {
-                    id: "qc",
-                    title: "Quality Control",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-chart-bar"
-                },
-                {
-                    id: "methods",
-                    title: "Interpretation Methods",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-sync"
-                },
-                {
-                    id: "variant-browser",
-                    title: "Sample Variant Browser",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-search"
-                },
-                {
-                    id: "review",
-                    title: "Interpretation Review",
-                    acronym: "VB",
-                    description: "",
-                    icon: "fa fa-edit"
-                },
-                {
-                    id: "report",
-                    title: "Observations",
-                    acronym: "VB",
-                    description: "",
-                    // disabled: true,
-                    icon: "fa fa-file-alt"
-                }
-            ]
-        };
+    renderCustomAnalysisTab() {
+        const analysisSettings = (this.settings?.tools || []).find(tool => tool?.id === "custom-analysis");
+        if (analysisSettings?.component === "steiner-analysis") {
+            return html`
+                <steiner-variant-interpreter-analysis
+                    .opencgaSession="${this.opencgaSession}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                </steiner-variant-interpreter-analysis>
+            `;
+        }
+
+        // No custom anaysis content available
+        return html`
+            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                <div class="alert alert-warning" role="alert">
+                    No custom analysis available at this time.
+                </div>
+            </div>
+        `;
+    }
+
+    renderReportTab() {
+        const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
+        if (settingReporter && settingReporter?.component === "steiner-report") {
+            return html`
+                <div class="col-md-10 col-md-offset-1">
+                    <tool-header
+                        class="bg-white"
+                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                    </tool-header>
+                    <steiner-report
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </steiner-report>
+                </div>
+            `;
+        } else {
+            return html`
+                <div class="col-md-10 col-md-offset-1">
+                    <tool-header
+                        class="bg-white"
+                        title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
+                    </tool-header>
+                    <clinical-analysis-review
+                        @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-review>
+                </div>
+            `;
+        }
     }
 
     render() {
@@ -589,6 +591,12 @@ class VariantInterpreter extends LitElement {
                                 </div>
                             ` : null}
 
+                            ${this.activeTab["custom-analysis"] ? html`
+                                <div id="${this._prefix}customAnalysis" class="clinical-portal-content">
+                                    ${this.renderCustomAnalysisTab()}
+                                </div>
+                            ` : null}
+
                             ${this.activeTab["methods"] ? html`
                                 <div id="${this._prefix}methods" class="clinical-portal-content">
                                     <variant-interpreter-methods
@@ -631,11 +639,7 @@ class VariantInterpreter extends LitElement {
                             ${this.activeTab["report"] ? html`
                                 <!-- class="col-md-10 col-md-offset-1 clinical-portal-content" -->
                                 <div id="${this._prefix}report" >
-                                    <detail-tabs
-                                        .data="${this.clinicalAnalysis}"
-                                        .config="${configReportTabs}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </detail-tabs>
+                                    ${this.renderReportTab()}
                                 </div>
                             ` : null}
                         ` : null}
@@ -645,6 +649,66 @@ class VariantInterpreter extends LitElement {
 
             <div class="v-space"></div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Case Interpreter",
+            icon: "fas fa-user-md",
+            active: false,
+            tools: [
+                {
+                    id: "select",
+                    title: "Case Info",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-folder-open"
+                },
+                {
+                    id: "qc",
+                    title: "Quality Control",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-chart-bar"
+                },
+                {
+                    id: "custom-analysis",
+                    title: "Custom Analysis",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-sync",
+                },
+                {
+                    id: "methods",
+                    title: "Interpretation Methods",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-sync"
+                },
+                {
+                    id: "variant-browser",
+                    title: "Sample Variant Browser",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-search"
+                },
+                {
+                    id: "review",
+                    title: "Interpretation Review",
+                    acronym: "VB",
+                    description: "",
+                    icon: "fa fa-edit"
+                },
+                {
+                    id: "report",
+                    title: "Observations",
+                    acronym: "VB",
+                    description: "",
+                    // disabled: true,
+                    icon: "fa fa-file-alt"
+                }
+            ]
+        };
     }
 
 }

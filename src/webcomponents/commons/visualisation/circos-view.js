@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 import "../../loading-spinner.js";
 
 export default class CircosView extends LitElement {
@@ -23,7 +23,7 @@ export default class CircosView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -50,15 +50,14 @@ export default class CircosView extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         // if ((changedProperties.has("query") || changedProperties.has("active")) && this.active) {
         //     this.queryObserver();
         // }
@@ -68,23 +67,25 @@ export default class CircosView extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
+        super.update(changedProperties);
     }
 
     queryObserver() {
         // Show loading gif and message
-        document.getElementById(this._prefix + "CircosMessage").style["display"] = "inline";
         this.circosImage = null;
         this.requestUpdate();
 
-        let query = {
-            title: "no.delete.Circos",
+        const query = {
+            title: this.sampleId,
             density: "MEDIUM",
             query: {
                 sample: this.sampleId,
-                // ...this.query,
-                // filter: "PASS"
             },
             tracks: [
                 {
@@ -93,9 +94,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
+                        ...this.query,
+                        ...this.queries?.["SNV"],
                         type: "SNV",
-                        // filter: "PASS",
-                        ...this.queries?.["SNV"]
                     }
                 },
                 {
@@ -104,10 +105,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
+                        ...this.query,
+                        ...this.queries?.["INDEL"],
                         type: "INDEL,INSERTION,DELETION",
-                        // filter: "PASS",
-                        ...this.queries?.["INDEL"]
-                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
                     }
                 },
                 {
@@ -116,7 +116,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        type: "INSERTION",
+                        ...this.query,
+                        ...this.queries?.["COPY_NUMBER"],
+                        type: "COPY_NUMBER",
                     }
                 },
                 {
@@ -125,25 +127,21 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        // type: "DELETION",
-                        // file: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz"
-                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+                        ...this.query,
+                        ...this.queries?.["BREAKEND"],
+                        type: "SV",
                     }
                 }
-            ]
+            ],
         };
 
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then(restResult => {
-                document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
-                this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
-                this.dispatchEvent(new CustomEvent("changeCircosPlot", {
-                    detail: {
-                        circosPlot: this.circosImage
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
+                this.circosImage = "data:image/png;base64," + restResult.getResult(0);
+                LitUtils.dispatchCustomEvent(this, "changeCircosPlot", null, {
+                    circosPlot: this.circosImage,
+                    circosConfig: query,
+                });
             })
             .catch(restResponse => {
                 console.error(restResponse);
@@ -153,21 +151,20 @@ export default class CircosView extends LitElement {
             });
     }
 
-    getDefaultConfig() {
-        return {
-        }
-    }
-
     render() {
         return html`
             <div>
-                <span id="${this._prefix}CircosMessage" style="display: inline"></span>
-                ${this.circosImage
-                    ? html`
-                        <img class="img-responsive" src="${this.circosImage}">`
-                    : html`<loading-spinner description="Fetching image data, this can take few seconds..."></loading-spinner>`
-                }
-            </div>`
+                ${this.circosImage ? html`
+                    <img class="img-responsive" src="${this.circosImage}">
+                ` : html`
+                    <loading-spinner description="Fetching image data, this can take few seconds..."></loading-spinner>
+                `}
+            </div>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
