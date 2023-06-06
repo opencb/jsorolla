@@ -313,50 +313,50 @@ export default class StudyClinicalConfig extends LitElement {
                 defaultValue: "",
             },
             sections: [
-                {
-                    title: "Clinical Status",
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                contentLayout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: clinical => html`
-                                    <config-list-update
-                                        key="status"
-                                        .items="${clinical.status}"
-                                        .config=${this.configClinical("clinical", {title: "id", subtitle: "description"}, true)}
-                                        @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
-                                    </config-list-update>`
-                            }
-                        },
-                    ]
-                },
-                {
-                    title: "Interpretation Status",
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                contentLayout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: clinical => html`
-                                    <config-list-update
-                                        key="interpretation"
-                                        .items="${clinical.interpretation.status}"
-                                        .config=${this.configClinical("interpretation", {title: "id", subtitle: "description"}, true)}
-                                        @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
-                                    </config-list-update>`
-                            }
-                        },
-                    ]
-                },
+                // {
+                //     title: "Clinical Status",
+                //     elements: [
+                //         {
+                //             type: "custom",
+                //             display: {
+                //                 contentLayout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: clinical => html`
+                //                     <config-list-update
+                //                         key="status"
+                //                         .items="${clinical.status}"
+                //                         .config=${this.configClinical("clinical", {title: "id", subtitle: "description"}, true)}
+                //                         @changeItem=${e => this.onSyncItem(e)}
+                //                         @removeItem=${e => this.onSyncRemoveItem(e)}>
+                //                     </config-list-update>`
+                //             }
+                //         },
+                //     ]
+                // },
+                // {
+                //     title: "Interpretation Status",
+                //     elements: [
+                //         {
+                //             type: "custom",
+                //             display: {
+                //                 contentLayout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: clinical => html`
+                //                     <config-list-update
+                //                         key="interpretation"
+                //                         .items="${clinical.interpretation.status}"
+                //                         .config=${this.configClinical("interpretation", {title: "id", subtitle: "description"}, true)}
+                //                         @changeItem=${e => this.onSyncItem(e)}
+                //                         @removeItem=${e => this.onSyncRemoveItem(e)}>
+                //                     </config-list-update>`
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "Priorities",
                     elements: [
@@ -379,28 +379,28 @@ export default class StudyClinicalConfig extends LitElement {
                         },
                     ]
                 },
-                {
-                    title: "flags",
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                contentLayout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: clinical => html`
-                                    <config-list-update
-                                        key="flags"
-                                        .items="${clinical.flags}"
-                                        .config=${this.configClinical("flags", {title: "id", subtitle: "description"}, true)}
-                                        @changeItem=${e => this.onSyncItem(e)}
-                                        @removeItem=${e => this.onSyncRemoveItem(e)}>
-                                    </config-list-update>`
-                            }
-                        },
-                    ]
-                },
+                // {
+                //     title: "flags",
+                //     elements: [
+                //         {
+                //             type: "custom",
+                //             display: {
+                //                 contentLayout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: clinical => html`
+                //                     <config-list-update
+                //                         key="flags"
+                //                         .items="${clinical.flags}"
+                //                         .config=${this.configClinical("flags", {title: "id", subtitle: "description"}, true)}
+                //                         @changeItem=${e => this.onSyncItem(e)}
+                //                         @removeItem=${e => this.onSyncRemoveItem(e)}>
+                //                     </config-list-update>`
+                //             }
+                //         },
+                //     ]
+                // },
                 {
                     title: "consent",
                     elements: [

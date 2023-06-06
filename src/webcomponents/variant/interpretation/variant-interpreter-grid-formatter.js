@@ -22,7 +22,7 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row) {
+    static roleInCancerFormatter(value, row, index) {
         if (value) {
             const roles = new Set();
             for (const evidence of value) {
@@ -41,8 +41,30 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
             }
-            if (roles.size > 0) {
-                return Array.from(roles.keys()).join("<br>");
+            const rolesList = Array.from(roles.keys());
+            if (rolesList.length > 0) {
+                // Do not display more than 'maxDisplayedRoles' roles
+                const maxDisplayedRoles = 8;
+                if (rolesList.length <= maxDisplayedRoles) {
+                    return Array.from(roles.keys()).join("<br>");
+                } else {
+                    return `
+                        <div data-role="roles-list" data-variant-index="${index}">
+                            ${rolesList.slice(0, maxDisplayedRoles).join("<br>")}
+                            <span data-role="roles-list-extra" style="display:none">
+                                ${rolesList.slice(maxDisplayedRoles).join("<br>")}
+                            </span>
+                            <div style="margin-top:8px;">
+                                <a data-role="roles-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                    ... show more (${(rolesList.length - maxDisplayedRoles)})
+                                </a>
+                                <a data-role="roles-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                    show less
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
         return "-";
@@ -52,27 +74,35 @@ export default class VariantInterpreterGridFormatter {
         if (row?.studies) {
             const cohorts = [];
             const cohortMap = new Map();
-            for (const study of row.studies) {
+            row.studies.forEach(study => {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-            }
-            return VariantGridFormatter.renderPopulationFrequencies(cohorts, cohortMap, POPULATION_FREQUENCIES?.style, this._config.populationFrequenciesConfig);
+                cohortMap.set(s, (study.stats || []).find(stats => stats?.cohortId === "ALL"));
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                cohorts,
+                cohortMap,
+                POPULATION_FREQUENCIES?.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
     }
 
     static clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row?.annotation) {
+        if (row?.annotation?.populationFrequencies?.length > 0) {
             const popFreqMap = new Map();
-            if (row.annotation.populationFrequencies?.length > 0) {
-                for (const popFreq of row.annotation.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
-                }
-            }
-            return VariantGridFormatter.renderPopulationFrequencies(this._config.populationFrequencies, popFreqMap, POPULATION_FREQUENCIES.style, this._config.populationFrequenciesConfig);
+            row.annotation.populationFrequencies.forEach(popFreq => {
+                popFreqMap.set(popFreq.study + ":" + popFreq.population, popFreq);
+            });
+            return VariantGridFormatter.renderPopulationFrequencies(
+                this._config.populationFrequencies,
+                popFreqMap,
+                POPULATION_FREQUENCIES.style,
+                this._config.populationFrequenciesConfig,
+            );
         } else {
             return "-";
         }
@@ -289,8 +319,8 @@ export default class VariantInterpreterGridFormatter {
                                         <div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            ${gene.modeOfInheritance ? `
-                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            ${gene.modesOfInheritance ? `
+                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
                             }
                             ${gene.confidence ? `
@@ -304,8 +334,11 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let roleInCancer = "-";
-                if (re.roleInCancer) {
-                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
+                if (re.rolesInCancer) {
+                    roleInCancer = re.rolesInCancer
+                        .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
+                        .join(", ");
+
                 }
 
                 let acmgPrediction = "-";
@@ -892,6 +925,43 @@ export default class VariantInterpreterGridFormatter {
                                 </form>
                              </div>`;
         return tooltipText;
+    }
+
+    static exomiserScoresFormatter(value, row) {
+        const evidence = (row?.evidences || []).find(evidence => {
+            return !!evidence?.attributes?.exomiser;
+        });
+
+        if (evidence?.attributes?.exomiser) {
+            const scoreFields = [
+                {field: "EXOMISER_GENE_COMBINED_SCORE", title: "Gene Combined Score"},
+                {field: "EXOMISER_GENE_PHENO_SCORE", title: "Gene Phenotype Score"},
+                {field: "EXOMISER_GENE_VARIANT_SCORE", title: "Gene Variant Score"},
+                {field: "EXOMISER_VARIANT_SCORE", title: "Variant Score"},
+            ];
+            const tooltipText = `
+                <table style='width:160px;'>
+                    ${scoreFields.map(value => `
+                        <tr>
+                            <td><strong>${value.title}:</strong></td>
+                            <td>${evidence.attributes?.exomiser[value.field] || "-"}</td>
+                        </tr>
+                    `).join("")}
+                </table>
+            `;
+
+            return `
+                <div>
+                    <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
+                        <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
+                        <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
+                    </a>
+                </div>
+            `;
+        }
+
+        // No exomiser scores to display
+        return "-";
     }
 
 }

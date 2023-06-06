@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {RestResponse} from "../rest-response.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";
@@ -32,6 +31,7 @@ import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
+import {CellBaseClient} from "../cellbase/cellbase-client";
 
 
 export class OpenCGAClient {
@@ -56,7 +56,8 @@ export class OpenCGAClient {
                 active: true,
                 prefix: ""
                 // expirationTime: ""
-            }
+            },
+            sso: false,
         };
     }
 
@@ -77,8 +78,12 @@ export class OpenCGAClient {
             }
         } catch (e) {
             console.error(e);
-            globalEvent("signingInError", {value: "Opencga host not available."});
-            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            // Josemi NOTE 20230324 Terrible hack to prevent displaying OpenCGA host not available error
+            // when iva starts, as the /meta/about is restricted when SSO is enabled
+            if (!this._config.sso) {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
         }
     }
 
@@ -270,10 +275,14 @@ export class OpenCGAClient {
 
     setCookies(userId, token) {
         if (userId && token) {
-            Cookies.set(this._config.cookies.prefix + "_userId", userId);
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token);
+            // eslint-disable-next-line no-undef
+            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            // eslint-disable-next-line no-undef
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
         } else {
+            // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_userId");
+            // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_sid");
         }
     }
@@ -308,9 +317,7 @@ export class OpenCGAClient {
         return Promise.resolve();
     }
 
-    /**
-     * Creates and return an anonymous session object, it is a sync function.
-     */
+    // Creates and return an anonymous session object, it is a sync function.
     createAnonymousSession() {
         const opencgaSession = {};
         opencgaSession.user = {
@@ -339,9 +346,10 @@ export class OpenCGAClient {
             // check that a session exists
             // TODO should we check the session has not expired?
             if (_this._config.token) {
-                _this._notifySessionEvent("signingIn", "Fetching User data");
+                // _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
+                        console.log("Creating session");
                         const session = {
                             about: this.about?.responses[0]?.results[0]
                         };
@@ -355,7 +363,7 @@ export class OpenCGAClient {
                                 // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
-                            _this._notifySessionEvent("signingIn", "Updating User config");
+                            // _this._notifySessionEvent("signingIn", "Updating User config");
                             const userConfig = await this.updateUserConfigs({
                                 ...session.user.configs.IVA,
                                 lastAccess: new Date().getTime()
@@ -370,8 +378,10 @@ export class OpenCGAClient {
 
 
                         // Fetch authorised Projects and Studies
-                        _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
-                        _this.projects().search({limit: 100})
+                        console.log("Fetching projects and studies");
+                        // _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
+                        _this.projects()
+                            .search({limit: 100})
                             .then(async function (response) {
                                 try {
                                     // session.projects = response.responses[0].results;
@@ -381,14 +391,14 @@ export class OpenCGAClient {
                                             session.projects.push(project);
                                         }
                                     }
-                                    if (session.projects?.length) { // && session?.projects[0]?.studies.length
+                                    if (session.projects?.length > 0) {
                                         const studies = [];
                                         for (const project of session.projects) {
-                                            // project.alias = project.alias || project.fqn || null;
                                             if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission for the all the studies fetched
-                                                    _this._notifySessionEvent("signingIn", "Fetching User permissions");
+                                                    console.log("Fetching user permissions");
+                                                    // _this._notifySessionEvent("signingIn", "Fetching User permissions");
 
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
@@ -400,7 +410,8 @@ export class OpenCGAClient {
                                                     study.acl = acl.getResult(0)?.acl || [];
 
                                                     // Fetch all the cohort
-                                                    _this._notifySessionEvent("signingIn", "Fetching Cohorts");
+                                                    console.log("Fetching cohorts");
+                                                    // _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
                                                         .search({study: study.fqn, exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
@@ -420,25 +431,50 @@ export class OpenCGAClient {
                                             }
                                         }
 
-                                        /** if the user doesn't have his own Default study in User config then there the fallback is:
-                                         *  first study of the first project
-                                         */
-                                        // We select the first project and study as default
+                                        // If the user doesn't have his own default study then we select the first project and study as default
                                         if (!session.project && !session.study) {
                                             for (const project of session.projects) {
                                                 if (project.studies?.length > 0) {
                                                     session.project = project;
                                                     session.study = project.studies[0];
+                                                    break;
                                                 }
                                             }
                                         }
 
-                                        // if (!session.project || !session.study) {
-                                        //     throw new Error("Default study not found");
-                                        // }
+                                        // Fetch the CellBase sources for each Project
+                                        const cellbaseSourcesPromises = [];
+                                        const indexesMap = [];
+                                        for (let i = 0; i < session.projects?.length > 0; i++) {
+                                            const project = session.projects[i];
+                                            if (project.cellbase?.url && project.cellbase.version !== "v5" && project.cellbase.version !== "v4") {
+                                                const cellbaseClient = new CellBaseClient({
+                                                    host: project.cellbase.url,
+                                                    version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
+                                                    species: "hsapiens",
+                                                });
+                                                // https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
+                                                const promise = cellbaseClient.getMeta("dataReleases");
+                                                cellbaseSourcesPromises.push(promise);
+                                                indexesMap.push(i);
+                                            }
+                                        }
+                                        const cellbaseSourcesResponses = await Promise.all(cellbaseSourcesPromises);
+                                        for (let i = 0; i < indexesMap.length > 0; i++) {
+                                            let dataReleaseSources;
+                                            if (session.projects[indexesMap[i]].cellbase.dataRelease) {
+                                                dataReleaseSources = cellbaseSourcesResponses[i].responses[0].results
+                                                    .find(source => source.release === Number.parseInt(session.projects[indexesMap[i]].cellbase.dataRelease));
+                                            } else {
+                                                dataReleaseSources = cellbaseSourcesResponses[i].responses[0].results
+                                                    .find(source => source.active);
+                                            }
+                                            session.projects[indexesMap[i]].cellbase.sources = dataReleaseSources.sources;
+                                        }
 
                                         // Fetch the Disease Panels for each Study
-                                        _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
+                                        console.log("Fetching disease panels");
+                                        // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
                                             const promise = _this.panels().search({
@@ -477,6 +513,19 @@ export class OpenCGAClient {
             }
         });
     }
+
+    // async _fetchCellBaseSources(project) {
+    //     if (project.cellbase?.url && project.cellbase.version !== "v5" && project.cellbase.version !== "v4") {
+    //         const cellbaseClient = new CellBaseClient({
+    //             host: project.cellbase.url,
+    //             version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
+    //             species: "hsapiens",
+    //         });
+    //         console.log(project.cellbase)
+    //         // https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
+    //         return cellbaseClient.getMeta("dataReleases");
+    //     }
+    // }
 
     _notifySessionEvent(id, message) {
         globalThis.dispatchEvent(new CustomEvent(id,

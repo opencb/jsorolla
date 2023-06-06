@@ -22,7 +22,9 @@ import "../annotation/variant-annotation-clinical-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 import "../variant-samples.js";
+import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../../commons/view/detail-tabs.js";
+import "../../visualization/protein-lollipop-variant-view.js";
 
 export default class VariantInterpreterDetail extends LitElement {
 
@@ -203,6 +205,17 @@ export default class VariantInterpreterDetail extends LitElement {
                     `,
                 },
                 {
+                    id: "protein",
+                    name: "Protein",
+                    render: (variant, active, opencgaSession) => html`
+                        <protein-lollipop-variant-view
+                            .opencgaSession="${opencgaSession}"
+                            .variant="${variant}"
+                            .active="${active}">
+                        </protein-lollipop-variant-view>
+                    `,
+                },
+                {
                     id: "beacon",
                     name: "Beacon",
                     render: (variant, active, opencgaSession) => html`
@@ -212,6 +225,19 @@ export default class VariantInterpreterDetail extends LitElement {
                             .config="${this.beaconConfig}"
                             .active="${active}">
                         </variant-beacon-network>
+                    `,
+                },
+                {
+                    id: "exomiser",
+                    name: "Exomiser",
+                    visible: () => {
+                        return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
+                    },
+                    render: (variant, active) => html`
+                        <variant-interpreter-exomiser-view
+                            .variant="${variant}"
+                            .active="${active}">
+                        </variant-interpreter-exomiser-view>
                     `,
                 },
                 {

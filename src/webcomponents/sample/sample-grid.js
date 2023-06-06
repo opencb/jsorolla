@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -58,7 +57,6 @@ export default class SampleGrid extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "SampleBrowserGrid";
-        this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
         this._config = {...this.getDefaultConfig()};
     }
@@ -71,11 +69,8 @@ export default class SampleGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") ||
-                changedProperties.has("query") ||
-                changedProperties.has("config") ||
-                changedProperties.has("active")) &&
-            this.active) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+            changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -104,10 +99,9 @@ export default class SampleGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
-            const filters = {...this.query};
-            // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+        if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
+            // const filters = {...this.query};
+            if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
                 // Abort destroying and creating again the grid. The filters have not changed
                 return;
             }
@@ -138,9 +132,10 @@ export default class SampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "qualityControl",
-                        ...filters
+                        // exclude: "qualityControl",
+                        ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.samples()
@@ -242,6 +237,7 @@ export default class SampleGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
+            gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
@@ -259,7 +255,7 @@ export default class SampleGrid extends LitElement {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
@@ -369,18 +365,16 @@ export default class SampleGrid extends LitElement {
                                     <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
+                            <li role="separator" class="divider"></li>
                             <li>
-                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ?
-                    row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter (${clinicalAnalysis.id})
+                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                                    <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
+                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                            <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
                                         </a>
-                                    `).join("") :
-                    `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
-                                    </a>`
-                }
+                                    `).join("") : `<a data-action="interpreter" class="btn force-text-left disabled" href="#">
+                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> No cases found
+                                    </a>`}
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
@@ -438,7 +432,6 @@ export default class SampleGrid extends LitElement {
                 }
             })
             .catch(response => {
-                // console.log(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
@@ -457,11 +450,11 @@ export default class SampleGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : ""
+                </opencb-grid-toolbar>` : nothing
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}SampleBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }

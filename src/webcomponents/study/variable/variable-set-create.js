@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import FormUtils from "../../../webcomponents/commons/forms/form-utils.js";
+import {html, LitElement} from "lit";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
-import "../variable/variable-create.js";
-import "../variable/variable-update.js";
+import "../../commons/forms/select-token-filter-static.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+
 
 export default class VariableSetCreate extends LitElement {
 
     constructor() {
         super();
-        this._init();
+
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,75 +44,24 @@ export default class VariableSetCreate extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.variableSet = {
             variables: [],
             unique: true
         };
-        this.variable = {};
         this._config = this.getDefaultConfig();
     }
 
-    refreshForm() {
-        // When using data-form we need to update config object and render again
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #setLoading(value) {
+        this.isLoading = value;
         this.requestUpdate();
     }
 
     onFieldChange(e, field) {
-        e.stopPropagation();
         const param = field || e.detail.param;
-        switch (param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        e.detail.value
-                    )
-                };
-                break;
-            case "entities":
-                const entities = e.detail.value ? e.detail.value.split(",") : [];
-                this.variableSet = {
-                    ...FormUtils.createObject(
-                        this.variableSet,
-                        param,
-                        entities
-                    )
-                };
-                break;
-            // case "variables":
-            //     this.variableSet = {...this.variableSet, variables: e.detail.value};
-            //     break;
-        }
+        this.variableSet = {...this.variableSet};
+        this.requestUpdate();
     }
-
-    // Option2 : Event for valiations ... this dispatch when user out the input field.
-    // onBlurChange(e) {
-    //     e.stopPropagation();
-    //     const field = e.detail.param;
-    //     console.log("VariableSet Data", field, e.detail.value);
-    //     switch (e.detail.param) {
-    //         case "id":
-    //         case "name":
-    //         case "unique":
-    //         case "confidential":
-    //         case "description":
-    //         case "entities":
-    //             console.log("Blur Event:", e.detail.value);
-    //             if (field === "id") {
-    //                 this.refreshForm();
-    //             }
-    //             console.log("VariableSet Data", this.variableSet);
-    //             this.requestUpdate();
-    //     }
-    // }
-
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
@@ -120,8 +69,8 @@ export default class VariableSetCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this.variableSet = {};
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
-
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "The fields has been cleaned.",
                 });
@@ -129,66 +78,35 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    async saveData() {
-        // TODO: review requestUpdate();
-        try {
-            this.requestUpdate();
-            await this.updateComplete;
-            const res = await this.opencgaSession.opencgaClient.studies()
-                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
-            this.variableSet = {
-                variables: [],
-                unique: true
-            };
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                title: "New VariableSet",
-                message: "VariableSet created correctly"
-            });
-            // FormUtils.showAlert(
-            //     "New VariableSet",
-            //     "VariableSet save correctly",
-            //     "success"
-            // );
-        } catch (err) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-            // FormUtils.showAlert(
-            //     "New VariableSet",
-            //     `Could not save variableSet ${err}`,
-            //     "error"
-            // );
-        } finally {
-            this.requestUpdate();
-            await this.updateComplete;
-        }
-    }
 
     onSubmit() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Create new variable set",
-            message: "Are you sure to create?",
-            dispatch: {
-                okButtonText: "Yes, save it!",
-            },
-            ok: () => {
-                this.saveData();
-            },
-        });
+        const params = {
+            action: "ADD"
+        };
+        let error;
+        this.#setLoading(true);
+        this.opencgaSession.opencgaClient.studies()
+            .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, params)
+            .then(() => {
+                this.variableSet = {
+                    variables: [],
+                    unique: true
+                };
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "New VariableSet",
+                    message: "VariableSet created correctly"
+                });
+            })
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(()=> {
+                LitUtils.dispatchCustomEvent(this, "variableSetCreate", this.variableSet, {}, error);
+                this.#setLoading(false);
+            });
     }
 
-    onAddOrUpdateItem(e) {
-        const param = e.detail.param;
-        const value = e.detail.value;
-        if (UtilsNew.isNotEmpty(value)) {
-            this.variableSet = {...this.variableSet, variables: value};
-        } else {
-            this.variableSet = {
-                ...this.variableSet,
-                [param]: []
-            };
-            delete this.variableSet[param];
-        }
-        this.requestUpdate();
-    }
 
     render() {
         return html `
@@ -196,12 +114,10 @@ export default class VariableSetCreate extends LitElement {
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @addOrUpdateItem="${e => this.onAddOrUpdateItem(e)}"
-                @clear="${e => this.onClear(e)}"
-                @submit="${e => this.onSubmit(e)}">
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>`;
     }
-
 
     getDefaultConfig() {
         return Types.dataFormConfig({
@@ -226,7 +142,7 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "ID",
+                            title: "ID",
                             field: "id",
                             type: "input-text",
                             required: "required",
@@ -244,7 +160,7 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Name",
+                            title: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
@@ -255,28 +171,31 @@ export default class VariableSetCreate extends LitElement {
                             }
                         },
                         {
-                            name: "Entities",
+                            title: "Entities",
                             field: "entities",
                             type: "select",
-                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
+                            save: (value, variableSet, variable) => {
+                                return value?.split(",");
+                            },
+                            allowedValues: ["SAMPLE", "INDIVIDUAL", "FAMILY", "FILE", "COHORT"],
                             multiple: true,
                             display: {
                                 placeholder: "select a entity..."
                             }
                         },
+                        // {
+                        //     title: "Unique",
+                        //     field: "unique",
+                        //     type: "checkbox",
+                        // },
+                        // {
+                        //     title: "Confidential",
+                        //     field: "confidential",
+                        //     type: "checkbox",
+                        //     checked: false
+                        // },
                         {
-                            name: "Unique",
-                            field: "unique",
-                            type: "checkbox",
-                        },
-                        {
-                            name: "Confidential",
-                            field: "confidential",
-                            type: "checkbox",
-                            checked: false
-                        },
-                        {
-                            name: "Description",
+                            title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
@@ -292,55 +211,227 @@ export default class VariableSetCreate extends LitElement {
                         {
                             title: "Variables",
                             field: "variables",
-                            type: "custom-list",
+                            type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: true,
-                                renderUpdate: (variable, callback) => html `
-                                    <variable-update
-                                        .variable="${variable}"
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Save",
-                                            buttonClearText: "",
-                                        }}"
-                                        @updateItem="${callback}">
-                                    </variable-update>
-                                `,
-                                renderCreate: (variable, callback) => html`
-                                    <label>Create new item</label>
-                                    <variable-create
-                                        .displayConfig="${{
-                                            defaultLayout: "vertical",
-                                            buttonOkText: "Add",
-                                            buttonClearText: "",
-                                        }}"
-                                        @addItem="${callback}">
-                                    </variable-create>`
-                            }
+                                view: variable => html`<div>${variable.id}</div>`,
+                            },
+                            elements: [
+                                {
+                                    title: "Variable ID",
+                                    field: "variables[].id",
+                                    type: "input-text",
+                                    required: true,
+                                    display: {
+                                        placeholder: "Add variable ID...",
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "variables[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add a name...",
+                                    },
+                                },
+                                {
+                                    title: "Required",
+                                    field: "variables[].required",
+                                    type: "checkbox",
+                                },
+                                {
+                                    title: "Internal",
+                                    field: "variables[].internal",
+                                    type: "checkbox",
+                                },
+                                {
+                                    title: "Multivalue",
+                                    field: "variables[].multivalue",
+                                    type: "checkbox",
+                                    display: {
+                                        // disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
+                                    },
+                                },
+                                {
+                                    title: "Type",
+                                    field: "variables[].type",
+                                    type: "select",
+                                    allowedValues: ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING"],
+                                    display: {
+                                        placeholder: "select a variable type..."
+                                    },
+                                },
+                                // {
+                                //     title: "Allowed Values 2",
+                                //     field: "variables[].allowedValues",
+                                //     type: "input-text",
+                                //     save: (value, variableSet, variable) => {
+                                //         return [value];
+                                //     },
+                                //     display: {
+                                //         visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                //         placeholder: "Add a name...",
+                                //     },
+                                // },
+                                {
+                                    title: "Allowed Values",
+                                    field: "variables[].allowedValues",
+                                    type: "custom",
+                                    validation: {
+                                        validate: (value, variableSet, variable) => {
+                                            const allowedValues = variable?.allowedValues;
+                                            if (allowedValues) {
+                                                const validateIntegerFormat = values => values.match(/\[\d+:\d+\]/g);
+                                                const validateDoubleFormat = values => values.match(/\[\d+\.?\d*:\d+\.?\d*\]/g);
+                                                const reSquareBrackets = /[\[\]]/g;
+                                                const validateRangeNumber = variableType => allowedValues
+                                                    .map(rangeNumber => rangeNumber.replace(reSquareBrackets, "")) // Remove square brackets
+                                                    .every(rangeValue => {
+                                                        const [minValue, maxValue] = rangeValue
+                                                            .split(":") // divide by [min,max]
+                                                            .map(numberValue => variableType === "INTEGER" ? Number.parseInt(numberValue) : Number.parseFloat(numberValue));
+                                                        return minValue < maxValue; // verify it's correct min:max
+                                                    });
+
+                                                // Validate that the format of the ranges are correct.
+                                                if (allowedValues?.every(variable?.type === "INTEGER" ? validateIntegerFormat : validateDoubleFormat)) {
+                                                    // Validate that the number is min & max
+                                                    return validateRangeNumber(variable?.type);
+                                                }
+                                            }
+                                        },
+                                        message: "It should contains the format [0:1]",
+                                    },
+                                    display: {
+                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                        render: (variableSet, variable) => {
+                                            const selectConfig = {
+                                                placeholder: "[50:100]"
+                                            };
+                                            const handleVariableFilterChange = e => {
+                                                variable(e.detail.value ? e.detail.value?.split(",") :[]);
+                                            };
+                                            return html`
+                                                <select-token-filter-static
+                                                    .values="${variable?.allowedValues}"
+                                                    .config="${selectConfig}"
+                                                    @filterChange=${e => handleVariableFilterChange(e)}>
+                                                </select-token-filter-static>
+                                            `;
+                                        },
+                                        helpMessage: "Follow one of this format valid for the number range: 0:1, -10:100",
+                                    }
+                                },
+                                {
+                                    title: "Allowed Values",
+                                    field: "variables[].allowedValues",
+                                    type: "custom",
+                                    display: {
+                                        visible: (variableSet, variable) => variable?.type === "CATEGORICAL",
+                                        render: (fieldValue, dataFormFilterChange, updateFields, variableSet, variable) => {
+                                            const handleVariableFilterChange = e => {
+                                                dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
+                                            };
+                                            return html`
+                                                <select-token-filter-static
+                                                    .values="${variable?.allowedValues}"
+                                                    @filterChange=${e => handleVariableFilterChange(e)}>
+                                                </select-token-filter-static>
+                                            `;
+                                        }
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "checkbox",
+                                    display: {
+                                        visible: (variableSet, variable) => variable?.type === "BOOLEAN",
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "input-text",
+                                    parseValue: (value, variableSet, variable) => {
+                                        return variable?.type === "INTEGER" ? Number.parseInt(value) : Number.parseFloat(value);
+                                    },
+                                    validation: {
+                                        validate: (value, variableSet, variable) => {
+                                            const allowedValues = variable?.allowedValues;
+                                            if (allowedValues && value) {
+                                                const currentValue = variable?.type === "INTEGER" ? Number.parseInt(value) : Number.parseFloat(value);
+                                                const reSquareBrackets = /[\[\]]/g;
+
+                                                // Just check if the value is within one of the defined ranges.
+                                                const isRange = (variableType, currentValue) => allowedValues
+                                                    .map(rangeNumber => rangeNumber.replace(reSquareBrackets, "")) // Remove square brackets
+                                                    .some(rangeValue => {
+                                                        const [minValue, maxValue] = rangeValue
+                                                            .split(":") // divide
+                                                            .map(numberValue => variableType === "INTEGER" ? Number.parseInt(numberValue) : Number.parseFloat(numberValue));
+                                                        return currentValue >= minValue && currentValue <= maxValue; // validate if the number is in range
+                                                    });
+                                                return isRange(variable?.type, currentValue);
+                                            }
+                                            return true;
+                                        },
+                                        message: "It must be one of those allowed values",
+                                    },
+                                    display: {
+                                        visible: (variableSet, variable) => ["DOUBLE", "INTEGER"].includes(variable?.type),
+                                    }
+                                },
+                                {
+                                    title: "Default Value",
+                                    field: "variables[].defaultValue",
+                                    type: "select",
+                                    allowedValues: (variableSet, variable) => variable?.allowedValues,
+                                    display: {
+                                        visible: (variableSet, variable) => variable?.type === "CATEGORICAL",
+                                    }
+                                },
+                                {
+                                    title: "Depends On",
+                                    field: "variables[].dependsOn",
+                                    type: "select",
+                                    allowedValues: (variableSet, currentVariable) => variableSet?.variables?.filter(variable => !!variable.id && variable.id !== currentVariable?.id).map(variable => variable.id),
+                                    multiple: false,
+                                    display: {
+                                        disabled: variableSet => !variableSet?.variables?.length > 0,
+                                        placeholder: "select an allow key or values..."
+                                    }
+                                },
+                                {
+                                    title: "Category",
+                                    field: "variables[].category",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Name ..."
+                                    }
+                                },
+                                {
+                                    title: "Rank",
+                                    field: "variables[].rank",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "select a variable type..."
+                                    }
+                                },
+                                {
+                                    title: "Description",
+                                    field: "variables[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "VariableSet description..."
+                                    }
+                                }
+                            ],
                         },
-                    ]
+                    ],
                 },
-                // {
-                //     title: "Variables",
-                //     elements: [
-                //         {
-                //             field: "variables",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <variable-list-update
-                //                         .variables="${this.variableSet?.variables}"
-                //                         @changeVariables="${e => this.onFieldChange(e, "variables")}">
-                //                     </variable-list-update>`
-                //             }
-                //         },
-                //     ]
-                // }
             ]
         });
     }

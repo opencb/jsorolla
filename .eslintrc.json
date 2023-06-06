@@ -16,6 +16,8 @@
     "browser": true,
     "es6": true
   },
+  // "eslintIgnore": ["cypress.config.js"],
+  // "ignorePatterns": ["cypress.config.js","cypress"],
   "rules": {
     "indent": ["error", 4, {
       "SwitchCase": 1,
@@ -49,7 +51,6 @@
     "one-var":  ["error", { "initialized": "never", "uninitialized": "always" }]
   },
   "plugins": [
-    "cypress",
     "lit"
   ],
   "overrides": [

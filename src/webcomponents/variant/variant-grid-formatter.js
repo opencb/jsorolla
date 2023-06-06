@@ -16,6 +16,7 @@
 
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
+import CustomActions from "../commons/custom-actions.js";
 
 
 export default class VariantGridFormatter {
@@ -111,17 +112,18 @@ export default class VariantGridFormatter {
 
         // Add highlight icons
         let iconHighlights = [];
-        if (config?.highlights && config.activeHighlights) {
-            iconHighlights = config.activeHighlights.map(id => {
-                const highlight = config.highlights.find(item => item.id === id);
-                if (highlight.condition(row, index) && highlight.style?.icon) {
-                    const description = highlight.description || highlight.name || "";
-                    const icon = highlight.style.icon;
-                    const color = highlight.style.iconColor || "";
+        if (config?.highlights?.length > 0) {
+            iconHighlights = config.highlights
+                .filter(h => h.active)
+                .map(highlight => {
+                    if (CustomActions.get(highlight).execute(row, highlight) && highlight.style?.icon) {
+                        const description = highlight.description || highlight.name || "";
+                        const icon = highlight.style.icon;
+                        const color = highlight.style.iconColor || "";
 
-                    return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
-                }
-            });
+                        return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
+                    }
+                });
         }
 
         return `
@@ -267,7 +269,7 @@ export default class VariantGridFormatter {
                     </div>
                 `;
             }
-            return resultHtml;
+            return resultHtml || "-";
         } else {
             return "-";
         }
@@ -879,49 +881,63 @@ export default class VariantGridFormatter {
 
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        // This is used by the tooltip function below to display all population frequencies
-        const popFreqsArray = [];
-        for (const population of populations) {
-            const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
-            popFreqsArray.push(population + "::" + freq);
-        }
-        const popFreqsTooltip = popFreqsArray.join(",");
+        const tooltipRows = (populations || []).map(population => {
+            const popFreq = populationFrequenciesMap.get(population) || null;
+            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+            const altCount = popFreq?.altAlleleCount || 0;
+            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
+            const homAltCount = popFreq?.altHomGenotypeCount || 0;
+            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            let altFreqText = "";
+            let homAltFreqText = "";
 
-        let tooltip = "";
-        for (const popFreq of popFreqsArray) {
-            const arr = popFreq.split("::");
-            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            let freq;
-            if (arr[1] !== 0 && arr[1] !== "0") {
-                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            // ALT freq tell us if the VARIANT has been OBSERVED.
+            if (altFreq > 0) {
+                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
             } else {
-                freq = "<span style='font-style: italic'>Not Observed</span>";
+                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
             }
-            tooltip += `
-                <div>
-                    <span>
+
+            return `
+                <tr style='border-top:1px solid #ededed;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
                         <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                        <label style='padding-left: 5px; width: 140px'>${arr[0]}:</label>
-                    </span>
-                    <span style='font-weight: bold'>${freq}</span>
-                </div>
+                        <label style='padding-left: 5px;'>${population}</label>
+                    </td>
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+                </td>
             `;
-        }
+        });
+        const tooltip = `
+            <table class='population-freq-tooltip'>
+                <thead>
+                    <tr>
+                        <th style='padding:0 8px 8px 0;'>Population</th>
+                        <th style='min-width:100px;padding:0 8px 8px 0;'>Allele ALT<br>(freq/count)</th>
+                        <th style='min-width:100px;padding:0 0 8px 0;'>Genotype HOM_ALT<br>(freq/count)</th>
+                    </tr>
+                </thead>
+                <tbody>${tooltipRows.join("")}</tbody>
+            </table>
+        `;
 
         // Create the table (with the tooltip info)
         let htmlPopFreqTable;
         if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
             const tableSize = populations.length * 15;
             htmlPopFreqTable = `
-                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
-                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
+                <table style="width:${tableSize}px" class="populationFrequenciesTable">
                     <tr>
             `;
             for (const population of populations) {
                 // This array contains "study:population"
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
                 }
                 htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
@@ -933,7 +949,7 @@ export default class VariantGridFormatter {
             for (const population of populations) {
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population);
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
                     const percentage = (Number(freq) * 100).toPrecision(4);
                     // Only color the significant ones
                     if (freq <= 0.005) {
@@ -1021,28 +1037,28 @@ export default class VariantGridFormatter {
                         let tooltip = "";
                         switch (clinicalSignificance.toUpperCase()) {
                             case "BENIGN":
-                                code = "B";
+                                code = CLINICAL_SIGNIFICANCE_SETTINGS.BENIGN.id;
                                 color = "green";
                                 tooltip = "Classified as benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "LIKELY_BENIGN":
-                                code = "LB";
+                                code = CLINICAL_SIGNIFICANCE_SETTINGS.LIKELY_BENIGN.id;
                                 color = "darkgreen";
                                 tooltip = "Classified as likely benign following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "VUS":
                             case "UNCERTAIN_SIGNIFICANCE":
-                                code = "US";
+                                code = CLINICAL_SIGNIFICANCE_SETTINGS.UNCERTAIN_SIGNIFICANCE.id;
                                 color = "darkorange";
                                 tooltip = "Classified as of uncertain significance following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "LIKELY_PATHOGENIC":
-                                code = "LP";
+                                code = CLINICAL_SIGNIFICANCE_SETTINGS.LIKELY_PATHOGENIC.id;
                                 color = "darkred";
                                 tooltip = "Classified as likely pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
                             case "PATHOGENIC":
-                                code = "P";
+                                code = CLINICAL_SIGNIFICANCE_SETTINGS.PATHOGENIC.id;
                                 color = "red";
                                 tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                                 break;
@@ -1095,29 +1111,31 @@ export default class VariantGridFormatter {
                     // Prepare the tooltip links
                     const cosmicMap = new Map();
                     traits.forEach(trait => {
+                        if (!cosmicMap.has(trait.id)) {
+                            cosmicMap.set(trait.id, new Set());
+                        }
                         if (trait?.somaticInformation?.primaryHistology) {
-                            if (!cosmicMap.has(trait.id)) {
-                                cosmicMap.set(trait.id, new Set());
-                            }
                             cosmicMap.get(trait.id).add(trait.somaticInformation.primaryHistology);
                         }
                     });
 
-                    for (const [traitId, histologies] of cosmicMap.entries()) {
+                    Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
+                        const histologiesItems = Array.from(histologies.values())
+                            .filter(histology => histology && histology !== "null")
+                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                            .join("");
+
                         tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
                                 </div>
                                 <div>
-                                    ${histologies?.size > 0 && Array.from(histologies.values())
-                            .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
-                            .join("")
-                        }
+                                    ${histologiesItems}
                                 </div>
-                            </div>`;
-                    }
+                            </div>
+                        `;
+                    });
 
                     return `
                         <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
@@ -1150,9 +1168,14 @@ export default class VariantGridFormatter {
                             <div style="">Cancer Type: ${hotspot.cancerType} - ${hotspot.variants.length} ${hotspot.variants.length === 1 ? "mutation" : "mutations"}</div>
                         </div>
                         <div>
-                            ${hotspot.variants
-                    .map(variant => `<span class="help-block" style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)</span>`)
-                    .join("")
+                            ${
+                    hotspot.variants
+                        .map(variant => `
+                                    <span
+                                        class="help-block"
+                                        style="margin: 5px 1px">${AMINOACID_CODE[hotspot.aminoacidReference]}${hotspot.aminoacidPosition}${AMINOACID_CODE[variant.aminoacidAlternate]}: ${variant.count} sample(s)
+                                    </span>`)
+                        .join("")
                 }
                         </div>
                     </div>`;

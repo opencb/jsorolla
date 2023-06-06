@@ -198,8 +198,12 @@ export class JobMonitor extends LitElement {
         return html`
             <ul id="job-monitor" class="nav navbar-nav notification-nav">
                 <li class="notification">
-                    <a href="#" class="dropdown-toggle" title="Job Monitor" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
-                        <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
+                    <a href="#" class="dropdown-toggle dropdown-button-wrapper" title="Job Monitor" data-toggle="dropdown" role="button"
+                       aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+                        <div class="dropdown-button-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
@@ -207,12 +211,15 @@ export class JobMonitor extends LitElement {
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh" id="#refresh-job"><i class="fas fa-sync-alt"></i></button>
 
                         </li>
-                        ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
+                        ${
+                            this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="javascript: void 0" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
+                                    <a href="javascript: void 0"
+                                       @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ?
+                                            `updated status-${job?.internal?.status?.id || job?.internal?.status?.name}` : ""}">
                                         <div class="media">
                                             <div class="media-left rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>
@@ -226,12 +233,12 @@ export class JobMonitor extends LitElement {
                                             </div>
                                         </div>
                                      </a>
-                                </li>`) :
-                            html`
-                                <li>
-                                    <a> No jobs </a>
-                                </li>`
-                            }
+                                </li>
+                            `) : html`
+                                    <li>
+                                        <a> No jobs </a>
+                                    </li>`
+                        }
                     </ul>
                 </li>
             </ul>

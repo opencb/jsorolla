@@ -466,7 +466,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 id: "variant-file-sample-filter",
                                 title: "File Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters",
-                                // showDepth: application.appConfig === "opencb"
                             },
                             {
                                 id: "region",

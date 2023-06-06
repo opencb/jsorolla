@@ -288,9 +288,7 @@ export default class VariantUtils {
 
             // prediction
             if (v.evidences) {
-                v.evidences.forEach(e => {
-                    prediction = e.classification.clinicalSignificance + (e.classification.acmg.length ? ("(" + e.classification.acmg.map(acmg => acmg.classification).join(",") + ")") : "");
-                });
+                prediction = this.getClassificationByClinicalSignificance(v);
             }
 
             // ID
@@ -428,6 +426,20 @@ export default class VariantUtils {
         }
 
         return rows;
+    }
+
+    static getClassificationByClinicalSignificance(variant) {
+        const clinicalSignificanceMap = {};
+        variant.evidences.forEach(({classification}) => {
+            const {clinicalSignificance} = classification;
+            const acmg = clinicalSignificanceMap[clinicalSignificance] || [];
+            const nextAcmg = classification.acmg?.map(acmg => acmg.classification);
+            clinicalSignificanceMap[clinicalSignificance] = Array.from(new Set([...acmg, ...nextAcmg]));
+        });
+        return Object.keys(clinicalSignificanceMap).map(key => {
+            const getAcmglistByKey = key => clinicalSignificanceMap[key].length > 0 ? `(${clinicalSignificanceMap[key].join(",")})` : "";
+            return `${key} ${getAcmglistByKey(key)}`;
+        }).join(" ");
     }
 
     static getGenotypeSamples(variant, samples, nucleotideGenotype) {

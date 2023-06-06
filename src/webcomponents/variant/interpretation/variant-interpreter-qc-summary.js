@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 
 class VariantInterpreterQcSummary extends LitElement {
 
@@ -181,18 +182,8 @@ class VariantInterpreterQcSummary extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = `<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    if (disorder.name) {
-                                        return `${disorder.name} (${id})`;
-                                    } else {
-                                        return `${id}`;
-                                    }
-                                }
-                            }
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder)),
+                            },
                         },
                         {
                             title: "Analysis Type",

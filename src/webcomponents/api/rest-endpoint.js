@@ -17,12 +17,12 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import RestClient from "../../core/clients/rest-client.js";
-import FormUtils from "../commons/forms/form-utils";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
+import "../commons/json-editor.js";
 
 
 export default class RestEndpoint extends LitElement {
@@ -53,8 +53,10 @@ export default class RestEndpoint extends LitElement {
         this.data = {};
         this._data = {};
         this.dataJson = {};
-        this.dataForm = {body: {}};
-        this.form = {};
+        // Data Structure for Json
+        this.dataModel = {};
+        // Config for data-form endpoint
+        this.configFormEndpoint = {};
         this.methodColor = {
             "GET": "blue",
             "POST": "darkorange",
@@ -66,8 +68,8 @@ export default class RestEndpoint extends LitElement {
             "int": "input-text",
             "boolean": "checkbox",
             "enum": "select",
-            "object": "input-text",
         };
+
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
         this.specialTypeKeys = inputType => {
             const passwordKeys = ["password", "newPassword"];
@@ -84,9 +86,11 @@ export default class RestEndpoint extends LitElement {
         // Type not support by the moment
         // Format, BioFormat, List, software, Map
         // ResourceType, Resource, Query, QueryOptions
-
         this.restClient = new RestClient();
         this.isLoading = false;
+
+        // get value from list<string>
+        this.valuesTolist = {};
     }
 
     update(changedProperties) {
@@ -101,30 +105,30 @@ export default class RestEndpoint extends LitElement {
 
     endpointObserver() {
         this.result = "";
-
         const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
-        const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data) && dataParameter.type !== "List";
+        const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
+        const isListString = dataParameter => dataParameter.complex && (dataParameter.type === "List") && (typeof dataParameter["data"] === "undefined");
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-
+        this.configFormEndpoint = {};
         if (this.endpoint?.parameters?.length > 0) {
+            // this will clean up when the endpoint is changed.
             const queryElements = [];
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
+            this.dataModel = {};
 
+            this.data = {};
             // 1. Split params in body and query/path params
             for (const parameter of this.endpoint.parameters) {
-                this.data = {
-                    body: {}
-                };
 
                 if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
 
                     for (const dataParameter of parameter.data) {
                         const paramType = dataParameter.type?.toLowerCase();
 
-                        // Prepare data, Use for sync between form and json
-                        this.data.body = {...this.data.body, ...this.#setDataBody(this.data?.body, dataParameter)};
+                        // Prepare data for json
+                        this.dataModel = this.#setDataBody(this.dataModel, dataParameter);
 
                         // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
                         // Format, BioFormat, software, Map,ResourceType, Resource, Query, QueryOptions, etc..
@@ -148,32 +152,19 @@ export default class RestEndpoint extends LitElement {
 
                         // Pass Object element.
                         if (isObject(dataParameter)) {
-                            for (const param of dataParameter.data) {
-                                // primitive or scalar Type Elements
-                                if (this.paramsTypeToHtml[param?.type?.toLowerCase()]) {
-                                    bodyElements.push(
-                                        {
-                                            name: `${param.parentName}.${param.name}`,
-                                            field: `body.${param.parentName}.${param.name}`,
-                                            type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
-                                            allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
-                                            defaultValue: this.getDefaultValue(param),
-                                            required: !!param.required,
-                                            display: {
-                                                helpMessage: param.description
-                                            }
-                                        }
-                                    );
-                                }
-                            }
+                            bodyElements.push(this.buildObjectOrListForm(dataParameter));
+                        }
+
+                        // Pass Object element.
+                        if (isListString(dataParameter)) {
+                            bodyElements.push(this.buildListString(dataParameter));
                         }
                     }
                 } else { // Parameter IS NOT body,
                     //  Path and Query Params
-                    this.data[parameter.name] = this.getDefaultValue(parameter) || "";
                     const element = {
                         name: parameter.name,
-                        field: parameter.name,
+                        field: "param." + parameter.name,
                         type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type],
                         allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
                         defaultValue: this.getDefaultValue(parameter),
@@ -206,7 +197,7 @@ export default class RestEndpoint extends LitElement {
             const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator() ? elements : this.disabledElements(elements);
 
             // 3. Init Form
-            this.form = {
+            this.configFormEndpoint = {
                 type: "form",
                 display: {
                     width: "12",
@@ -223,7 +214,7 @@ export default class RestEndpoint extends LitElement {
             if (fieldElements.length > 0) {
                 // Check if there are 'notes' to display
                 if (this.endpoint?.notes) {
-                    this.form.sections.push({
+                    this.configFormEndpoint.sections.push({
                         elements: [
                             {
                                 type: "notification",
@@ -236,7 +227,7 @@ export default class RestEndpoint extends LitElement {
                     });
                 }
 
-                this.form.sections.push(
+                this.configFormEndpoint.sections.push(
                     {
                         title: "Path and Query Params",
                         display: {
@@ -252,7 +243,7 @@ export default class RestEndpoint extends LitElement {
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
                 const bodyElementsForm = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
-                this.form.sections.push({
+                this.configFormEndpoint.sections.push({
                     title: "Body",
                     display: {
                         titleHeader: "h4",
@@ -277,16 +268,18 @@ export default class RestEndpoint extends LitElement {
 
             // 5. If the user is logged in, it will show the current study.
             if (hasStudyField(fieldElements)) {
-                this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
+                // this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
+                this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
             }
 
             // 6. Get data.body to JSON.
-            this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
+            this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
 
+            // Copy Original Data
             this._data = UtilsNew.objectClone(this.data);
         } else {
             // If parameters no found
-            this.form = Types.dataFormConfig({
+            this.configFormEndpoint = Types.dataFormConfig({
                 type: "form",
                 display: {
                     buttonClearText: "",
@@ -314,16 +307,84 @@ export default class RestEndpoint extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession?.study && this.data?.study) {
-            this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
+        if (this.opencgaSession?.study && this.data?.param?.study) {
+            this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
         }
     }
 
     getDefaultValue(parameter) {
         if (parameter.type === "boolean") {
-            return parameter.defaultValue === "true" || parameter.defaultValue === true;
+            return parameter?.defaultValue === "true" || parameter?.defaultValue === true;
         }
-        return parameter.defaultValue;
+        return parameter?.defaultValue ?? "";
+    }
+
+    // generateListInput
+    buildListString(dataParameter) {
+        const fieldName = dataParameter.parentName !== "" ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
+        return {
+            title: fieldName,
+            field: "body." + fieldName,
+            type: "input-text",
+            save: value => {
+                // stringToList
+                UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
+                return value;
+            },
+            display: {
+                helpMessage: dataParameter.description
+            }
+        };
+    }
+
+    // generateObjectOrlistInput
+    buildObjectOrListForm(dataParameter) {
+
+        // Create List or Object
+        // 1. Field Name for the Object or list
+        const fieldName = dataParameter.parentName ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
+        const childElm = {
+            title: dataParameter.name,
+            field: "body." + fieldName,
+            type: dataParameter.type === "List" ? "object-list": "object",
+            display: dataParameter.type === "List" ? {
+                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                collapsedUpdate: true,
+                view: data => html`
+                    <div>${data.id} - ${data?.name}</div>
+            `,
+            } : {helpMessage: dataParameter?.description},
+            elements: [],
+        };
+
+        // 2. Add Elements for the object or list
+        for (const param of dataParameter.data) {
+
+            // primitive or scalar Type Elements
+            if (this.paramsTypeToHtml[param?.type?.toLowerCase()]) {
+                const parentElm = dataParameter.type === "List" ?
+                `${fieldName}[].${param.name}`:
+                `${fieldName}.${param.name}`;
+
+                childElm.elements = [...childElm?.elements, {
+                    title: param.name,
+                    field: "body." + parentElm,
+                    type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
+                    allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
+                    defaultValue: this.getDefaultValue(param),
+                    required: !!param.required,
+                    display: {
+                        helpMessage: param.description
+                    }
+                }];
+            }
+
+            // Object or List
+            if (param.complex && UtilsNew.isNotEmptyArray(param?.data)) {
+                childElm.elements = [...childElm?.elements, this.buildObjectOrListForm(param)];
+            }
+        }
+        return childElm;
     }
 
     isAdministrator() {
@@ -367,7 +428,8 @@ export default class RestEndpoint extends LitElement {
     }
 
     #setDataBody(body, params) {
-        const _body = body;
+
+        let _body = {...body};
         const paramValueByType = {
             map: {},
             list: [],
@@ -375,11 +437,13 @@ export default class RestEndpoint extends LitElement {
 
         // Basic Type
         if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
-            _body[params.name] = params.value || "";
+            // _body[params.name] = params.value || "";
+            _body = {..._body, [params.name]: params.value || ""};
         }
 
         if (params.type === "List") {
-            _body[params.name] = [];
+            // _body[params.name] = [];
+            _body = {..._body, [params.name]: []};
         }
 
         // Support object nested as 2nd Level
@@ -402,7 +466,8 @@ export default class RestEndpoint extends LitElement {
                     [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
                 };
             });
-            _body[params.name] = [paramData];
+            // _body[params.name] = [paramData];
+            _body = {..._body, [params.name]: [paramData]};
         }
 
         return _body;
@@ -412,44 +477,26 @@ export default class RestEndpoint extends LitElement {
         e.stopPropagation();
         const param = field || e.detail.param;
         // For Json input: param is called body
+
         if (param === "body") {
-            this.dataJson = {...this.dataJson, body: e.detail.value};
-            try {
-                const dataObject = JSON.parse(e.detail.value);
-                // Object.keys(dataObject).forEach(key => {
-                //     if (key in this.data.body) {
-                //         this.data = {...this.data, body: {...this.data.body, [key]: dataObject[key]}};
-                //     }
-                // });
-            } catch (error) {
-                // json parse errors may arise at the time of writing to the json field.
-                return false;
-            }
+            // pass json as text
+            const jsonAsText = e.detail.value?.text ? e.detail.value.text : JSON.stringify(e.detail.value.json, undefined, 4);
+            this.dataJson = {...this.dataJson, body: jsonAsText};
         }
     }
 
-    onFormFieldChange(e, field) {
+    onChangeFormField(e, field) {
         e.stopPropagation();
         const param = field || e.detail.param;
-        // If it contains more than a dot or If the form has nested object
-        // ex. body.field.prop -> sample: body.source.name
-        if ((param.match(/\./g) || []).length > 1) {
-            // For param type Object
-            const paramBody = param.replace("body.", "");
-            this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
-            this.dataForm.body = {...FormUtils.createObject(this.dataForm.body, paramBody, e.detail.value)};
-        } else {
-            this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
-            this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
-        }
+        this.data = {...e.detail.data};
         this.requestUpdate();
     }
 
     onClear(e) {
         e.stopPropagation();
-        this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
-        this.dataForm = {};
+        this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
         this.data = UtilsNew.objectClone(this._data);
+        this.valuesTolist = {};
         this.requestUpdate();
     }
 
@@ -458,14 +505,14 @@ export default class RestEndpoint extends LitElement {
         this.endpoint.parameters
             .filter(parameter => parameter.param === "path")
             .forEach(parameter => {
-                url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+                url = url.replace(`{${parameter.name}}`, this.data.param[parameter.name]);
             });
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .filter(parameter => parameter.param === "query" && this.data.param[parameter.name])
             .forEach(parameter => {
-                url += `&${parameter.name}=${this.data[parameter.name]}`;
+                url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
 
         this.isLoading = true;
@@ -491,21 +538,28 @@ export default class RestEndpoint extends LitElement {
         this.endpoint.parameters
             .filter(parameter => parameter.param === "path")
             .forEach(parameter => {
-                url = url.replace(`{${parameter.name}}`, this.data[parameter.name]);
+                url = url.replace(`{${parameter.name}}`, this.data.param[parameter.name]);
             });
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .filter(parameter => (parameter.param === "query" && parameter.name !== "study") && this.data.param[parameter.name])
             .forEach(parameter => {
-                url += `&${parameter.name}=${this.data[parameter.name]}`;
+                url += `&${parameter.name}=${this.data.param[parameter.name]}`;
+            });
+
+        // check if QUERY is required and it is not exist in the data
+        this.endpoint.parameters
+            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data.param[parameter.name] === "undefined")
+            .forEach(parameter => {
+                url += `&${parameter.name}=${parameter.defaultValue}`;
             });
 
         try {
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: isForm ? this.dataForm?.body : JSON.parse(this.dataJson.body),
+                data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
                 method: "POST"
             };
 
@@ -513,8 +567,7 @@ export default class RestEndpoint extends LitElement {
             this.requestUpdate();
             this.restClient.call(url, _options)
                 .then(() => {
-                    this.dataJson = {body: JSON.stringify(this._data?.body, undefined, 4)};
-                    this.dataForm = {};
+                    this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
                     this.data = UtilsNew.objectClone(this._data);
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                         message: "Endpoint successfully executed"
@@ -543,6 +596,15 @@ export default class RestEndpoint extends LitElement {
             console.error(e);
         }
 
+    }
+
+    formatBody(data) {
+        if (UtilsNew.isNotEmpty(this.valuesTolist)) {
+            Object.keys(this.valuesTolist).forEach(key => {
+                UtilsNew.setObjectValue(data, key, this.valuesTolist[key]);
+            });
+        }
+        return data;
     }
 
     onSubmitJson(e) {
@@ -625,7 +687,6 @@ export default class RestEndpoint extends LitElement {
     onViewModel() {
         this.dataJson = {body: JSON.stringify(this.data?.body, undefined, 4)};
         this.requestUpdate();
-        console.log("data", this.dataJson);
     }
 
     render() {
@@ -662,11 +723,11 @@ export default class RestEndpoint extends LitElement {
                         <h3 style="display:inline-block;">Input Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
-                                    .data="${this.data}"
-                                    .config="${this.form}"
-                                    @fieldChange="${e => this.onFormFieldChange(e)}"
-                                    @clear="${this.onClear}"
-                                    @submit="${this.onSubmit}">
+                                .data="${this.data}"
+                                .config="${this.configFormEndpoint}"
+                                @fieldChange="${e => this.onChangeFormField(e)}"
+                                @clear="${this.onClear}"
+                                @submit="${this.onSubmit}">
                             </data-form>
                         </div>
                     </div>
@@ -678,10 +739,10 @@ export default class RestEndpoint extends LitElement {
                             ${this.isLoading ? html`
                                 <loading-spinner></loading-spinner>
                             ` : html`
-                                <json-viewer
-                                        .data="${this.result}"
-                                        .config="${this.form}">
-                                </json-viewer>
+                                <json-editor
+                                    .data="${this.result}"
+                                    .config="${{readOnly: true}}">
+                                </json-editor>
                             `}
                         </div>
                     </div>
@@ -721,7 +782,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     getTabsConfig(elements) {
-        const configForm = {
+        const configFormTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
                 buttonClearText: "Clear",
@@ -735,7 +796,7 @@ export default class RestEndpoint extends LitElement {
             }]
         };
 
-        const configJson = {
+        const configJsonTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
                 buttonClearText: "Clear",
@@ -747,19 +808,16 @@ export default class RestEndpoint extends LitElement {
                 },
                 elements: [
                     {
-                        title: "Body",
                         field: "body",
-                        type: "input-text",
-                        required: true,
+                        type: "json-editor",
                         display: {
-                            placeholder: "Data Json...",
-                            disabled: !(this.isNotEndPointAdmin() || this.isAdministrator()),
-                            rows: 10,
+                            placeholder: "write json",
+                            readOnly: !(this.isNotEndPointAdmin() || this.isAdministrator()),
                             help: {
                                 text: "Must be a valid json, please remove empty fields if you don't need them."
                             }
                         }
-                    }
+                    },
                 ]
             }]
         };
@@ -776,11 +834,11 @@ export default class RestEndpoint extends LitElement {
                     return html`
                         <!-- Body Forms -->
                         <data-form
-                                .data="${this.dataForm}"
-                                .config="${configForm}"
-                                @fieldChange="${e => this.onFormFieldChange(e)}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${this.onSubmitForm}">
+                            .data="${this.data}"
+                            .config="${configFormTab}"
+                            @fieldChange="${e => this.onChangeFormField(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
                 }
@@ -796,11 +854,11 @@ export default class RestEndpoint extends LitElement {
                     return html`
                         <!-- Body Json text area -->
                         <data-form
-                                .data="${this.dataJson}"
-                                .config="${configJson}"
-                                @fieldChange="${e => this.onChangeJsonField(e)}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${this.onSubmitJson}">
+                            .data="${this.dataJson}"
+                            .config="${configJsonTab}"
+                            @fieldChange="${e => this.onChangeJsonField(e, "body")}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${this.onSubmitJson}">
                         </data-form>
                     `;
                 }
