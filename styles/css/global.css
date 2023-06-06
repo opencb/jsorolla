@@ -85,6 +85,12 @@ a:visited {
     transition: .3s;
 }
 
+.code-wrapper {
+    background: rgb(24, 48, 85);
+    color: white;
+    font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
+}
+
 /* Animations */
 @keyframes pulse {
     0% {
