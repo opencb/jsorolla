@@ -300,7 +300,7 @@ export default class GridCommons {
 
     addColumns(columns, componentId) {
         if (!this.context?._config?.skipExtensions) {
-            return ExtensionsManager.injectColumns(columns, this.context?.COMPONENT_ID || componentId);
+            return ExtensionsManager.injectColumns(columns, componentId || this.context?.COMPONENT_ID);
         }
         // No extensions to inject, just return the original columns list
         return columns;
