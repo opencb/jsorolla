@@ -57,9 +57,9 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "fileGrid";
+        this.COMPONENT_ID = "file-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "FileBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = {...this.getDefaultConfig()};
     }

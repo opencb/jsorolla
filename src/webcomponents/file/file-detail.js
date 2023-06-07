@@ -49,6 +49,7 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "file-detail";
         this.file = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
@@ -86,7 +87,7 @@ export default class OpencgaFileDetail extends LitElement {
     #updateDetailTabs() {
         this._config.items = [
             ...this._config.items,
-            ...ExtensionsManager.getDetailTabs("fileDetail"),
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
         ];
     }
 
