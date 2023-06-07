@@ -69,7 +69,7 @@ export default {
                         // check if we have provided a function to check if column is visible
                         // This function will be called only when we do NOT have row groups or when the rowspan value is 1
                         if (typeof checkColumnVisible === "function") {
-                            if (!hasGroupedRows || config.rowspan === 1) {
+                            if (!hasGroupedRows || config.colspan === 1) {
                                 config.visible = checkColumnVisible(config.id, config);
                             }
                         }
