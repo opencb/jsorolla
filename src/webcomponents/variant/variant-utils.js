@@ -75,6 +75,7 @@ export default class VariantUtils {
                 "deleteriousness.polyphen",
                 "deleteriousness.revel",
                 "deleteriousness.cadd",
+                "deleteriousness.spliceai",
                 "conservation.phylop",
                 "conservation.phastCons",
                 "conservation.gerp",
