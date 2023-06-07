@@ -93,7 +93,7 @@ window.IVA_EXTENSIONS = {
             description: "Example columns for File Grid",
             type: "column",
             components: [
-                "fileGrid",
+                "file-grid",
             ],
             maintainer: "",
             version: "",
@@ -117,7 +117,7 @@ window.IVA_EXTENSIONS = {
             description: "Example detail tab for File Detail",
             type: "detail_tab",
             components: [
-                "fileDetail",
+                "file-detail",
             ],
             maintainer: "",
             version: "",
