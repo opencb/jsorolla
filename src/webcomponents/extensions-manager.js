@@ -55,17 +55,25 @@ export default {
     // @param {array} columns - An array of columns where new columns will be injected
     // @param {string} componentId - ID of the component where this new column will be injected
     // @return {array} columns - a list of columns configurations
-    injectColumns(columns, componentId) {
+    injectColumns(columns, componentId, checkColumnVisible) {
         // We need to check if we are in a single or multiple row levels
-        const isMultipleLevel = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
+        const hasGroupedRows = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
         this.getByType(this.TYPES.COLUMN)
             .filter(extension => (extension.components || []).includes(componentId))
             .forEach(extension => {
-                (extension.columns || []).forEach((newColumns, levelIndex) => {
+                (extension.columns || []).forEach((newColumns, index) => {
                     [newColumns].flat().forEach(newColumn => {
-                        const level = isMultipleLevel ? columns[levelIndex] : columns;
-                        const position = newColumn.position ?? level.length;
-                        level.splice(position, 0, newColumn.config);
+                        const group = hasGroupedRows ? columns[index] : columns;
+                        const position = newColumn.position ?? group.length;
+                        const config = {...newColumn.config};
+                        // check if we have provided a function to check if column is visible
+                        // This function will be called only when we do NOT have row groups or when the rowspan value is 1
+                        if (typeof checkColumnVisible === "function") {
+                            if (!hasGroupedRows || config.rowspan === 1) {
+                                config.visible = checkColumnVisible(config.id, config);
+                            }
+                        }
+                        group.splice(position, 0, config);
                     });
                 });
             });
