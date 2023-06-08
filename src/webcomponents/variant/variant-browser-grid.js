@@ -549,7 +549,8 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    nucleotideGenotype: true
+                    nucleotideGenotype: true,
+                    visible: this.gridCommons.isColumnVisible(this.samples[i].id),
                 });
             }
         }
