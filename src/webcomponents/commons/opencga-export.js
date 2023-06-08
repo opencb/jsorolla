@@ -167,6 +167,7 @@ export default class OpencgaExport extends LitElement {
         });
     }
 
+    // ! Deprecated method dont use
     _changeTab(e) {
         const {viewId, tabId} = e.currentTarget.dataset;
         $(`#${viewId} > .content-pills`, this).removeClass("active");

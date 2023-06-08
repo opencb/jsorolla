@@ -127,6 +127,16 @@ a:visited {
 
 }
 
+/*********** main view tabs *****************/
+.main-view .content-tab {
+    display: none;
+}
+
+.main-view .content-tab.active {
+    display: block;
+}
+
+
 /* Animations */
 @keyframes pulse {
     0% {

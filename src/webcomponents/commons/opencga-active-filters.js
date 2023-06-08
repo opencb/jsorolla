@@ -681,14 +681,18 @@ export default class OpencgaActiveFilters extends LitElement {
 
     renderFilterItem(item) {
         if (item.separator) {
-            return html`<li role="separator" class="divider"></li>`;
+            return html`<li><hr class="dropdown-divider"></li>`;
         } else {
             if (item.category) {
-                return html`<li class="dropdown-header">${item.name}</li>`;
+                return html`<li>
+                        <small class="dropdown-header form-text m-0 py-0">
+                        ${item.name}
+                        </small>
+                    </li>`;
             } else {
                 return html`
                     <!-- Render the filter option -->
-                    <li>
+                    <li class="dropdown-item">
                         <a data-filter-id="${item.id}" class="filtersLink"
                            style="cursor: pointer;color: ${item.active ? "green" : "black"}"
                            @click="${this.onFilterChange}">
@@ -720,9 +724,13 @@ export default class OpencgaActiveFilters extends LitElement {
         const filterTooltip = filterParams.map(key => `<b>${key}</b> = ${item.query[key]}`).join("<br>");
 
         return html`
-            <a class="filtersLink" style="cursor: pointer" @click="${e => this.onFilterChange(e, item.query)}">
-                <div class="id-filter-button">${filterTitle} ${item.latest ? " (latest)" : ""}</div>
-                <div class="help-block" style="font-size:12px;margin-bottom:5px;">
+            <a class="dropdown-item" @click="${e => this.onFilterChange(e, item.query)}">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="id-filter-button mt-0 text-truncate">
+                        ${filterTitle} ${item.latest ? " (latest)" : ""}
+                    </div>
+                    <div class="form-text">
                     ${filterParams?.length > 0 ? html`
                         ${filterParams.slice(0, 2).map(key => html`
                             <div style="margin: 0 15px" title="${item.query[key]}">
@@ -730,14 +738,16 @@ export default class OpencgaActiveFilters extends LitElement {
                             </div>
                         `)}
                     ` : html`
-                        <div style="margin: 0 15px">Empty query.</div>
+                        Empty query.
                     `}
-                    <span class="action-buttons">
-                        <span tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
-                            <i class="fas fa-eye" data-action="view-filter"></i>
-                        </span>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 text-secondary mb-auto">
+                    <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                        <i class="fas fa-eye" data-action="view-filter"></i>
                     </span>
                 </div>
+            </div>
             </a>
         `;
     }
@@ -754,32 +764,40 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div>
             `}
 
-            <div class="panel panel-default">
-                <div class="panel-body" style="padding: 8px 10px">
+            <div class="card mb-3">
+                <!-- padding: 8px 10px -->
+                <div class="card-body py-2 px-2 ">
                     <!-- Render dropdown menu with all filters and history -->
-                    <div style="display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center;">
-                        <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
-                            <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
-                                <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                    <!-- display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center; -->
+                    <div class="d-flex flex-wrap column-gap-1 row-gap-1 align-items-center">
+                        <div class="dropdown me-1">
+                            <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                                    role="button" aria-expanded="false" data-cy="filter-button">
+                                <i class="fa fa-filter" aria-hidden="true"></i> Filters
                             </button>
-                            <ul class="dropdown-menu saved-filter-wrapper">
+                            <ul class="dropdown-menu">
                                 <!-- Render FILTERS options -->
                                 <li>
-                                    <a><i class="fas fa-filter icon-padding"></i> <label>Filters</label></a>
+                                    <h6 class="dropdown-header fw-bold text-dark">
+                                        <i class="fas fa-filter"></i>
+                                        Filters
+                                    </h6>
                                 </li>
                                 ${this._filters?.length > 0 ? html`
                                     ${this._filters.map(item => this.renderFilterItem(item))}
                                 ` : html`
-                                    <div class="help-block" style="margin: 0 30px">
+                                    <!-- style="margin: 0 30px" -->
+                                    <div class="form-text">
                                         No filters found.
                                     </div>
                                 `}
-                                <li role="separator" class="divider"></li>
-
+                                <li><hr class="dropdown-divider"></li>
                                 <!-- Render HISTORY filters -->
                                 <li>
-                                    <a><i class="fas fa-history icon-padding"></i> <label>History</label></a>
+                                    <h6 class="dropdown-header fw-bold text-dark">
+                                    <i class="fas fa-history"></i>
+                                        History
+                                    </h6>
                                 </li>
                                 ${this.history?.length > 0 ? html`
                                     ${this.history.map(item => html`
@@ -788,22 +806,24 @@ export default class OpencgaActiveFilters extends LitElement {
                                         </li>
                                     `)}
                                 ` : html`
-                                    <div class="help-block" style="margin: 0 30px">
+                                    <div class="form-text">
                                         Empty history.
                                     </div>
                                 `}
-                                <li role="separator" class="divider"></li>
+                                <li><hr class="dropdown-divider"></li>
 
                                 <!-- Add CLEAR and SAVE buttons -->
                                 <li>
-                                    <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <label>Clear</label>
+                                    <a class="dropdown-item" href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
+                                        <i class="fa fa-eraser " aria-hidden="true"></i>
+                                        <label>Clear</label>
                                     </a>
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save icon-padding"></i> <label>Save current filter</label>
+                                        <a class="dropdown-item" style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
+                                            <i class="fas fa-save icon-padding"></i>
+                                            <label>Save current filter</label>
                                         </a>
                                     </li>
                                 ` : null}
@@ -874,7 +894,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <!-- aggregation stat section -->
                     ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
-                            <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
+                            <div class="dropdown" style="margin-right: 5px">
                                 <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                     <i class="fas fa-project-diagram rotate-180"></i> Aggregation fields <span class="caret"></span>
                                 </button>

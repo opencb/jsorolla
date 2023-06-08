@@ -129,7 +129,7 @@ export default class FileBrowser extends LitElement {
             description: "",
             views: [
                 {
-                    id: "table-tab",
+                    id: "table-tab-file",
                     name: "Table result",
                     icon: "fa fa-table",
                     active: true,
@@ -148,7 +148,7 @@ export default class FileBrowser extends LitElement {
                         </file-detail>`
                 },
                 {
-                    id: "facet-tab",
+                    id: "facet-tab-file",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
