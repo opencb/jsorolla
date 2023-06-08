@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
@@ -39,6 +40,9 @@ export default class VariantBrowserDetail extends LitElement {
             variantId: {
                 type: String
             },
+            variant: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object
             },
@@ -52,7 +56,9 @@ export default class VariantBrowserDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "variant-browser-detail";
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -65,6 +71,7 @@ export default class VariantBrowserDetail extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
@@ -78,12 +85,17 @@ export default class VariantBrowserDetail extends LitElement {
                         id: this.variantId,
                         annotation: response.responses[0].results[0],
                     };
-                    this.requestUpdate();
                 });
         } else {
             this.variant = null;
-            this.requestUpdate();
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
@@ -102,7 +114,7 @@ export default class VariantBrowserDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            // detail-tab configuration in variant-browser
+            items: [],
         };
     }
 
