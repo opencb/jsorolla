@@ -459,6 +459,7 @@ const client = new OpenCGAClient({
     }
 
     render() {
+        // TODO: Refactor this code
         return html`
             <div>
                 <ul class="nav nav-tabs mb-3" role="tablist">
@@ -552,8 +553,8 @@ const client = new OpenCGAClient({
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <span>
-                                    <span style="font-weight: bold">Note: </span>This option will launch an
-                                    <span style="font-weight: bold">async job</span> in the server to export all records, note that no limit is applied.
+                                    <span class="fw-bold">Note: </span>This option will launch an
+                                    <span class="fw-bold">async job</span> in the server to export all records, note that no limit is applied.
                                     This might take few minutes depending on the data size and cluster load.
                                 </span>
                             </div>
@@ -590,7 +591,7 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" @click="${this.launchJob}">Launch job</button>
                     </div>
                 </div>
@@ -621,7 +622,7 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}url" class="tab-pane active" role="tabpanel">
                             <div class="code-wrapper rounded p-2">
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                    <div class="code language-url text-white mx-3" contentEditable="true">
+                                    <div class="code language-url" contentEditable="true">
                                         ${this.generateCode("url")}
                                     </div>
                             </div>
@@ -644,7 +645,7 @@ const client = new OpenCGAClient({
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -684,7 +685,7 @@ const client = new OpenCGAClient({
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-cli" @click="${this.clipboard}">
                                     <i class="far fa-copy"></i>
                                 </div>
-                                <div class="code language-cli text-white mx-3" contentEditable="true">
+                                <div class="code language-cli" contentEditable="true">
                                     ${this.generateCode("cli")}
                                 </div>
                             </div>
@@ -694,7 +695,7 @@ const client = new OpenCGAClient({
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-python" @click="${this.clipboard}">
                                     <i class="far fa-copy"></i>
                                 </div>
-                                <div class="code language-python text-white mx-3" contentEditable="true">
+                                <div class="code language-python" contentEditable="true">
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
@@ -704,7 +705,7 @@ const client = new OpenCGAClient({
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-r" @click="${this.clipboard}">
                                     <i class="far fa-copy"></i>
                                 </div>
-                                <div class="code language-r text-white mx-3" contentEditable="true">
+                                <div class="code language-r" contentEditable="true">
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
@@ -714,7 +715,7 @@ const client = new OpenCGAClient({
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-javascript" @click="${this.clipboard}">
                                     <i class="far fa-copy"></i>
                                 </div>
-                                <div class="code language-javascript text-white mx-3" style="white-space:pre-wrap;counter-increment: line 1;" contentEditable="true">
+                                <div class="code language-javascript" contentEditable="true">
                                     ${this.generateCode("js")}
                                 </div>
                             </div>

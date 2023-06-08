@@ -85,10 +85,46 @@ a:visited {
     transition: .3s;
 }
 
+/* TODO: Review code-wrapper, if all this is really necessary */
 .code-wrapper {
     background: rgb(24, 48, 85);
     color: white;
-    font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
+    font-family: monospace
+}
+
+.code-wrapper .code {
+    word-break: break-all;
+    margin: 0 20px;
+}
+
+.code-wrapper div.code-line {
+    display: block;
+    font: inherit;
+    padding: 0 0 0 20px;
+    position: relative;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
+    counter-increment: line 1;
+    word-break: break-all;
+    line-height: 1.7;
+}
+
+.code-wrapper div.code-line:before {
+    top: 2px;
+    left: -15px;
+    color: rgb(92, 105, 117);
+    width: 24px;
+    bottom: 0;
+    content: counter(line);
+    display: inline-block;
+    overflow: hidden;
+    position: absolute;
+    font-size: 12px;
+    text-align: right;
+    text-overflow: ellipsis;
+    background-color: transparent;
+    user-select: none;
+
 }
 
 /* Animations */
