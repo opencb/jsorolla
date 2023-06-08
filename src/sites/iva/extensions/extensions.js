@@ -21,7 +21,7 @@ window.IVA_EXTENSIONS = {
             `,
         },
         {
-            id: "custom-columns",
+            id: "variant-browser-columns",
             name: "Custom columns",
             description: "Example columns for Variant Browser",
             type: "column",
@@ -86,6 +86,19 @@ window.IVA_EXTENSIONS = {
                     },
                 ],
             ],
+        },
+        {
+            id: "variant-browser-detail",
+            name: "New Variant Browser Tab",
+            description: "Example detail_tab extension for Variant Browser",
+            type: "detail_tab",
+            components: [
+                "variant-browser-detail",
+            ],
+            compatibleWith: "",
+            render: params => params.html`
+                <div>Content of the new detail tab for <b>Variant Browser</b></div>
+            `,
         },
         {
             id: "custom-columns-file-grid",
