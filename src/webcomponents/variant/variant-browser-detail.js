@@ -27,9 +27,7 @@ export default class VariantBrowserDetail extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,9 +38,6 @@ export default class VariantBrowserDetail extends LitElement {
         return {
             variantId: {
                 type: String
-            },
-            variant: {
-                type: Object
             },
             opencgaSession: {
                 type: Object
@@ -56,25 +51,20 @@ export default class VariantBrowserDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated(_changedProperties) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
-        for (const item of this._config.items) {
-            switch (item.id) {
-                case "cohortStats":
-                    this.cohortConfig = {cohorts: item.cohorts};
-                    break;
-            }
-        }
     }
 
     update(changedProperties) {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
@@ -86,35 +76,34 @@ export default class VariantBrowserDetail extends LitElement {
                 .then(response => {
                     this.variant = {
                         id: this.variantId,
-                        annotation: response.responses[0].results[0]
+                        annotation: response.responses[0].results[0],
                     };
+                    this.requestUpdate();
                 });
         } else {
             this.variant = null;
+            this.requestUpdate();
         }
+    }
+
+    render() {
+        if (!this.opencgaSession || !this.variant?.annotation) {
+            return "";
+        }
+
+        return html`
+            <detail-tabs
+                .data="${this.variant}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
     }
 
     getDefaultConfig() {
         return {
             // detail-tab configuration in variant-browser
         };
-    }
-
-    render() {
-        if (!this.opencgaSession) {
-            return "";
-        }
-
-        if (!this.variant?.annotation) {
-            return;
-        }
-
-        return html`
-            <detail-tabs
-                    .data="${this.variant}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
     }
 
 }
