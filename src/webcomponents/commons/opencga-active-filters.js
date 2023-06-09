@@ -366,7 +366,9 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     launchModal() {
-        $("#" + this._prefix + "SaveModal").modal("show");
+        // $("#" + this._prefix + "SaveModal").modal("show");
+        const saveModal = new bootstrap.Modal(`#${this._prefix}SaveModal`);
+        saveModal.show();
     }
 
     showSelectFilters() {
@@ -692,21 +694,21 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 return html`
                     <!-- Render the filter option -->
-                    <li class="dropdown-item">
-                        <a data-filter-id="${item.id}" class="filtersLink"
-                           style="cursor: pointer;color: ${item.active ? "green" : "black"}"
-                           @click="${this.onFilterChange}">
-                            <span class="id-filter-button">${item.id}</span>
-                            <span class="action-buttons">
+                    <li>
+                        <a data-filter-id="${item.id}" class="d-flex dropdown-item ${item.active ? "text-success" : ""}"
+                            style="cursor:pointer;"
+                            @click="${this.onFilterChange}">
+                            <span class="flex-grow-1">${item.id}</span>
+                            <span class="text-secondary">
                             <span tooltip-title="${item.id}"
-                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                  data-filter-id="${item.id}">
+                                tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                data-filter-id="${item.id}">
                                 <i class="fas fa-eye" data-action="view-filter"></i>
                             </span>
                             <!-- Add delete icon only to saved filters. Saved filters have a 'resource' field -->
                             ${item.resource ? html`
                                 <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                   data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                    data-action="delete-filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
                                 </i>
                             ` : null}
                         </span>
@@ -727,13 +729,13 @@ export default class OpencgaActiveFilters extends LitElement {
             <a class="dropdown-item" @click="${e => this.onFilterChange(e, item.query)}">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <div class="id-filter-button mt-0 text-truncate">
+                    <div class="mt-0 text-truncate">
                         ${filterTitle} ${item.latest ? " (latest)" : ""}
                     </div>
                     <div class="form-text">
                     ${filterParams?.length > 0 ? html`
                         ${filterParams.slice(0, 2).map(key => html`
-                            <div style="margin: 0 15px" title="${item.query[key]}">
+                            <div class="mx-2" title="${item.query[key]}">
                                 <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
                             </div>
                         `)}
@@ -751,7 +753,6 @@ export default class OpencgaActiveFilters extends LitElement {
             </a>
         `;
     }
-
     render() {
         return html`
             ${this.facetActive ? html`
@@ -822,7 +823,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 ${this.isLoggedIn() ? html`
                                     <li>
                                         <a class="dropdown-item" style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save icon-padding"></i>
+                                            <i class="fas fa-save"></i>
                                             <label>Save current filter</label>
                                         </a>
                                     </li>
@@ -836,48 +837,46 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <!-- Single-valued filters -->
                                 ${!item.locked ? html`
                                     <!-- No multi-valued filters -->
-                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
                                             @click="${this.onQueryFilterDelete}">
                                         ${item.text}
                                     </button>
                                 ` : html`
-                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
                                             @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
                                         ${item.text}
                                     </button>
                                 `}
                             ` : html`
                                 <!-- Multi-valued filters -->
-                                <div class="btn-group" style="display:flex;">
+                                <div class="btn-group">
                                     ${item.locked ? html`
-                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
                                                 @click="${this.onQueryFilterDelete}" disabled>
-                                            ${item.text} <span class="badge">${item.items.length}</span>
+                                            ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
                                         </button>
-                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
+                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu">
                                             ${item.items.length && item.items.map(filterItem => html`
-                                                <li class="active-filter-button disabled" style="cursor: pointer">
-                                                    <a>${filterItem}</a>
+                                                <li class="disabled" style="cursor: pointer">
+                                                    <a class="dropdown-item">${filterItem}</a>
                                                 </li>
                                             `)}
                                         </ul>
                                     ` : html`
-                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter active-filter-button" data-filter-name="${item.name}" data-filter-value=""
+                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
                                                 @click="${this.onQueryFilterDelete}">
-                                            ${item.text} <span class="badge">${item.items.length}</span>
+                                            ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
                                         </button>
-                                        <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
+                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu">
                                             ${item.items.length && item.items.map(filterItem => html`
-                                                <li class="active-filter-button" style="cursor: pointer">
-                                                    <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
+                                                <li class="text-decoration-line-through-hover" style="cursor: pointer">
+                                                    <a class="dropdown-item" @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
                                                         ${filterItem}
                                                     </a>
                                                 </li>
@@ -908,7 +907,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             </div>
                             <div class="button-list">
                                 ${Object.entries(this.facetQuery).map(([name, facet]) => html`
-                                    <button type="button" class="btn btn-danger ${name}ActiveFilter active-filter-button" data-filter-name="${name}" data-filter-value=""
+                                    <button type="button" class="btn btn-danger ${name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${name}" data-filter-value=""
                                             @click="${this.onQueryFacetDelete}">
                                         ${facet.formatted}
                                     </button>
@@ -925,27 +924,25 @@ export default class OpencgaActiveFilters extends LitElement {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group row">
-                                <label for="filterName" class="col-xs-2 col-form-label">Name</label>
-                                <div class="col-xs-10">
+                            <div class="mb-3 row">
+                                <label for="${this._prefix}filterName" class="col-sm-2 col-form-label fw-bold">Name</label>
+                                <div class="col-sm-10">
                                     <input class="form-control" type="text" id="${this._prefix}filterName" data-cy="modal-filter-name">
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
-                                <div class="col-xs-10">
+                            <div class="mb-3 row">
+                                <label for="${this._prefix}filterDescription" class="col-sm-2 col-form-label fw-bold">Description</label>
+                                <div class="col-sm-10">
                                     <input class="form-control" type="text" id="${this._prefix}filterDescription" data-cy="modal-filter-description">
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">
                                 Save
                             </button>
                         </div>
