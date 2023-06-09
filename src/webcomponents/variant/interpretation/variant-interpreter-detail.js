@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../../extensions-manager.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
 import "../annotation/variant-consequence-type-view.js";
@@ -45,6 +46,9 @@ export default class VariantInterpreterDetail extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
             variant: {
                 type: Object
             },
@@ -61,19 +65,25 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "";
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolId") && this.toolId) {
+            this.COMPONENT_ID = this.toolId + "-detail";
+        }
+
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
@@ -91,8 +101,14 @@ export default class VariantInterpreterDetail extends LitElement {
         }
     }
 
-    render() {
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
 
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
