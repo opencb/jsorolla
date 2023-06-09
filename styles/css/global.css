@@ -85,6 +85,10 @@ a:visited {
     transition: .3s;
 }
 
+.text-decoration-line-through-hover:hover {
+    text-decoration: line-through;
+}
+
 /* TODO: Review code-wrapper, if all this is really necessary */
 .code-wrapper {
     background: rgb(24, 48, 85);
@@ -126,6 +130,7 @@ a:visited {
     user-select: none;
 
 }
+/**** *********/
 
 /*********** main view tabs *****************/
 .main-view .content-tab {
