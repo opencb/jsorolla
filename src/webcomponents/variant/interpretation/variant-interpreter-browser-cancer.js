@@ -58,6 +58,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "variant-interpreter-cancer-snv";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -266,7 +267,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .toolId="${"variantInterpreterCancerSNV"}"
+                .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
