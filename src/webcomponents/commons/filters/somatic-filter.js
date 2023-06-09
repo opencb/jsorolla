@@ -77,32 +77,31 @@ export default class SomaticFilter extends LitElement {
 
     render() {
         return html`
-            <form id="${this._prefix}-somatic" class="somatic-filter subsection-content form-group">
+            <form id="${this._prefix}-somatic" class="somatic-filter">
+                <fieldset class="d-grid my-1 mx-0">
+                    <div class="btn-group" role="group">
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-none"
+                            type="radio" name="${this._prefix}-somatic-options" value="none"
+                            @change="${this.filterChange}" checked>
+                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-none">
+                            <span>None</span>
+                        </label>
 
-            <fieldset>
-                <div class="switch-toggle text-white">
-                    <input id="${this._prefix}-somatic-option-none"
-                        class="form-group-sm ${this._prefix}FilterRadio"
-                        type="radio" name="${this._prefix}-somatic-options" value="none"
-                        @change="${this.filterChange}" checked>
-                    <label for="${this._prefix}-somatic-option-none"><span class="small">None</span></label>
-
-                    <input id="${this._prefix}-somatic-option-true"
-                            class="form-group-sm ${this._prefix}FilterRadio"
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-true"
                             type="radio" name="${this._prefix}-somatic-options" value="True"
                             @change="${this.filterChange}">
-                    <label for="${this._prefix}-somatic-option-true"><span class="small">True</span></label>
+                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-true">
+                            <span>True</span>
+                        </label>
 
-                    <input id="${this._prefix}-somatic-option-false"
-                            class="form-group-sm ${this._prefix}FilterRadio"
+                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-false"
                             type="radio" name="${this._prefix}-somatic-options" value="False"
                             @change="${this.filterChange}">
-                    <label for="${this._prefix}-somatic-option-false"><span class="small">False</span></label>
-
-                    <a class="btn btn-primary ripple"></a>
-                </div>
-            </fieldset>
-
+                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-false">
+                            <span>False</span>
+                        </label>
+                    </div>
+                </fieldset>
             </form>
         `;
     }
