@@ -30,8 +30,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -61,16 +60,8 @@ export default class VariantInterpreterDetail extends LitElement {
         };
     }
 
-    _init() {
-        // Initially we set the default config, this will be overridden if 'config' is passed
+    #init() {
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
     }
 
     update(changedProperties) {
