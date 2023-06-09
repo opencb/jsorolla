@@ -870,7 +870,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 @click="${this.onQueryFilterDelete}">
                                             ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
                                         </button>
-                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
                                             <span class="visually-hidden">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu">
