@@ -338,6 +338,161 @@ export default class VariantBrowser extends LitElement {
         }
     }
 
+    render() {
+        // Check if there is any project available
+        if (!this.opencgaSession?.study) {
+            return html`
+                <div class="guard-page">
+                    <i class="fas fa-lock fa-5x"></i>
+                    <h3>No public projects available to browse. Please login to continue.</h3>
+                </div>
+            `;
+        }
+
+        return html`
+            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <div class="row">
+                <div class="col-md-2 left-menu">
+
+                    <div class="search-button-wrapper">
+                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
+                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            <strong>${this._config.searchButtonText || "Search"}</strong>
+                        </button>
+                    </div>
+
+                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                            <variant-browser-filter
+                                .opencgaSession=${this.opencgaSession}
+                                .query="${this.query}"
+                                .cellbaseClient="${this.cellbaseClient}"
+                                .config="${this._config.filter}"
+                                @queryChange="${this.onQueryFilterChange}"
+                                @querySearch="${this.onVariantFilterSearch}"
+                                @activeFacetChange="${this.onActiveFacetChange}"
+                                @activeFacetClear="${this.onActiveFacetClear}">
+                            </variant-browser-filter>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane" id="facet_tab">
+                            <facet-filter
+                                .selectedFacet="${this.selectedFacet}"
+                                .config="${this._config.aggregation}"
+                                @facetQueryChange="${this.onFacetQueryChange}">
+                            </facet-filter>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-10">
+                    <!-- TAB buttons -->
+                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("table-tab")}">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                            <strong>Table Result</strong>
+                        </button>
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("facet-tab")}">
+                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
+                            <strong>Aggregation Stats</strong>
+                        </button>
+                        <button
+                            type="button"
+                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
+                            @click="${() => this.changeView("genome-tab")}">
+                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
+                            <strong>Genome Browser</strong>
+                        </button>
+                    </div>
+
+                    <div>
+                        <opencga-active-filters
+                            facetActive
+                            resource="VARIANT"
+                            .opencgaSession="${this.opencgaSession}"
+                            .defaultStudy="${this.opencgaSession.study?.fqn}"
+                            .query="${this.preparedQuery}"
+                            .executedQuery="${this.executedQuery}"
+                            .facetQuery="${this.preparedFacetQueryFormatted}"
+                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
+                            .alias="${this._config.filter.activeFilters.alias}"
+                            .filters="${this._config.filter.examples}"
+                            .config="${this._config.filter.activeFilters}"
+                            @activeFacetChange="${this.onActiveFacetChange}"
+                            @activeFacetClear="${this.onActiveFacetClear}"
+                            @activeFilterChange="${this.onActiveFilterChange}"
+                            @activeFilterClear="${this.onActiveFilterClear}">
+                        </opencga-active-filters>
+
+                        <div class="main-view">
+                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
+                                <variant-browser-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .query="${this.executedQuery}"
+                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
+                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                    .config="${this._config.filter.result.grid}"
+                                    @queryComplete="${this.onQueryComplete}"
+                                    @selectrow="${this.onSelectVariant}"
+                                    @gridconfigsave="${this.onGridConfigSave}">
+                                </variant-browser-grid>
+
+                                <!-- Bottom tabs with specific variant information -->
+                                <variant-browser-detail
+                                    .variant="${this.variant}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .config="${this._config.filter.detail}">
+                                </variant-browser-detail>
+                            </div>
+
+                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
+                                <opencb-facet-results
+                                    resource="VARIANT"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab === "facet-tab"}"
+                                    .query="${this.facetQuery}"
+                                    .data="${this.facetResults}"
+                                    .error="${this.errorState}">
+                                </opencb-facet-results>
+                            </div>
+
+                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
+                                ${this.variant ? html`
+                                    <genome-browser
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${this._config.genomeBrowser.config}"
+                                        .region="${this.variant}"
+                                        .tracks="${this._config.genomeBrowser.tracks}"
+                                        .active="${this.activeTab === "genome-tab"}">
+                                    </genome-browser>
+                                ` : null}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     getDefaultConfig() {
         // return BrowserConf.config;
         return {
@@ -717,161 +872,6 @@ export default class VariantBrowser extends LitElement {
                 ],
             },
         };
-    }
-
-    render() {
-        // Check if there is any project available
-        if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>
-            `;
-        }
-
-        return html`
-            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-            <div class="row">
-                <div class="col-md-2 left-menu">
-
-                    <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
-                            <strong>${this._config.searchButtonText || "Search"}</strong>
-                        </button>
-                    </div>
-
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
-                        </li>
-                        <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <variant-browser-filter
-                                .opencgaSession=${this.opencgaSession}
-                                .query="${this.query}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config="${this._config.filter}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onVariantFilterSearch}"
-                                @activeFacetChange="${this.onActiveFacetChange}"
-                                @activeFacetClear="${this.onActiveFacetClear}">
-                            </variant-browser-filter>
-                        </div>
-
-                        <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter
-                                .selectedFacet="${this.selectedFacet}"
-                                .config="${this._config.aggregation}"
-                                @facetQueryChange="${this.onFacetQueryChange}">
-                            </facet-filter>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-10">
-                    <!-- TAB buttons -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"
-                            @click="${() => this.changeView("table-tab")}">
-                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
-                            <strong>Table Result</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""} content-pills`}"
-                            @click="${() => this.changeView("facet-tab")}">
-                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
-                            <strong>Aggregation Stats</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""} content-pills`}"
-                            @click="${() => this.changeView("genome-tab")}">
-                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
-                            <strong>Genome Browser</strong>
-                        </button>
-                    </div>
-
-                    <div>
-                        <opencga-active-filters
-                            facetActive
-                            resource="VARIANT"
-                            .opencgaSession="${this.opencgaSession}"
-                            .defaultStudy="${this.opencgaSession.study?.fqn}"
-                            .query="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .facetQuery="${this.preparedFacetQueryFormatted}"
-                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                            .alias="${this._config.filter.activeFilters.alias}"
-                            .filters="${this._config.filter.examples}"
-                            .config="${this._config.filter.activeFilters}"
-                            @activeFacetChange="${this.onActiveFacetChange}"
-                            @activeFacetClear="${this.onActiveFacetClear}"
-                            @activeFilterChange="${this.onActiveFilterChange}"
-                            @activeFilterClear="${this.onActiveFilterClear}">
-                        </opencga-active-filters>
-
-                        <div class="main-view">
-                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
-                                <variant-browser-grid
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .query="${this.executedQuery}"
-                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
-                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                    .config="${this._config.filter.result.grid}"
-                                    @queryComplete="${this.onQueryComplete}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @gridconfigsave="${this.onGridConfigSave}">
-                                </variant-browser-grid>
-
-                                <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail
-                                    .variant="${this.variant}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .config="${this._config.filter.detail}">
-                                </variant-browser-detail>
-                            </div>
-
-                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
-                                <opencb-facet-results
-                                    resource="VARIANT"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab === "facet-tab"}"
-                                    .query="${this.facetQuery}"
-                                    .data="${this.facetResults}"
-                                    .error="${this.errorState}">
-                                </opencb-facet-results>
-                            </div>
-
-                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
-                                ${this.variant ? html`
-                                    <genome-browser
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this._config.genomeBrowser.config}"
-                                        .region="${this.variant}"
-                                        .tracks="${this._config.genomeBrowser.tracks}"
-                                        .active="${this.activeTab === "genome-tab"}">
-                                    </genome-browser>
-                                ` : null}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
 }
