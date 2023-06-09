@@ -27,6 +27,10 @@ window.IVA_EXTENSIONS = {
             type: "column",
             components: [
                 "variant-browser-grid",
+                "variant-interpreter-rd-grid",
+                "variant-interpreter-cancer-snv-grid",
+                "variant-interpreter-cancer-cnv-grid",
+                "variant-interpreter-rearrangement-grid",
             ],
             maintainer: "",
             version: "",
@@ -34,7 +38,7 @@ window.IVA_EXTENSIONS = {
             columns: [
                 [
                     {
-                        position: -4,
+                        position: -2,
                         config: {
                             id: "new-column-1",
                             title: "Extra column",
@@ -43,45 +47,6 @@ window.IVA_EXTENSIONS = {
                             colspan: 1,
                             align: "center",
                             formatter: (value, row, index) => `Row ${index}`,
-                        },
-                    },
-                    {
-                        position: -2,
-                        config: {
-                            id: "new-column-2",
-                            title: "Extra columns",
-                            field: "",
-                            rowspan: 1,
-                            colspan: 2,
-                            align: "center",
-                        },
-                    },
-                ],
-                [
-                    {
-                        // position: -1,
-                        config: {
-                            id: "new-subcolumn-1",
-                            title: "Column 1",
-                            field: "",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: (value, row, index) => `Row ${index}.1`,
-                            align: "center",
-                            // visible: true,
-                        },
-                    },
-                    {
-                        // position: -1,
-                        config: {
-                            id: "new-subcolumn-2",
-                            title: "Column 2",
-                            field: "",
-                            colspan: 1,
-                            rowspan: 1,
-                            formatter: (value, row, index) => `Row ${index}.2`,
-                            align: "center",
-                            // visible: true,
                         },
                     },
                 ],
@@ -94,6 +59,10 @@ window.IVA_EXTENSIONS = {
             type: "detail_tab",
             components: [
                 "variant-browser-detail",
+                "variant-interpreter-rd-detail",
+                "variant-interpreter-cancer-snv-detail",
+                "variant-interpreter-cancer-cnv-detail",
+                "variant-interpreter-rearrangement-detail",
             ],
             compatibleWith: "",
             render: params => params.html`
