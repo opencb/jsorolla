@@ -73,6 +73,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
