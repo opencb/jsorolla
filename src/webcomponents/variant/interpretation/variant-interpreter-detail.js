@@ -253,21 +253,8 @@ export default class VariantInterpreterDetail extends LitElement {
                     render: (variant, active) => html`
                         <json-viewer .data="${variant}" .active="${active}"></json-viewer>
                     `,
-                }
-                // TODO Think about the possibility of allowing plugins here
-                // {
-                //     id: "variantDetail",
-                //     name: "Variant Detail",
-                //     render: (variant, active,opencgaSession) => {
-                //         return html`
-                //             <opencga-variant-detail-template
-                //                 .opencgaSession="${opencgaSession}"
-                //                 .variant="${variant.id}"
-                //                 .active="${active}">
-                //             </opencga-variant-detail-template>`;
-                //     }
-                // }
-            ]
+                },
+            ],
         };
     }
 
