@@ -50,6 +50,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             clinicalVariants: {
                 type: Array,
             },
+            toolId: {
+                type: String,
+            },
             query: {
                 type: Object
             },
@@ -63,6 +66,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "";
         this._prefix = UtilsNew.randomString(8);
 
         this.toolbarConfig = {};
@@ -95,18 +99,26 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         // this.checkedVariants = new Map();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("toolId")) {
+            this.COMPONENT_ID = this.toolId + "-grid";
+        }
+
+        super.update(changedProperties);
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
 
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query") || changedProperties.has("toolId")) {
             // this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -459,7 +471,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         // Prepare Grid columns
-        const _columns = [
+        let _columns = [
             [
                 {
                     title: "Variant 1",
@@ -635,6 +647,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 },
             ]
         ];
+
+        // Update columns
+        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
 
         return _columns;
     }
