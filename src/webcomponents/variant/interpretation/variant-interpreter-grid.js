@@ -111,7 +111,7 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
             this.requestUpdate();
             this.renderVariants();
