@@ -84,6 +84,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "variant-browser";
         this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
@@ -107,10 +108,6 @@ export default class VariantBrowser extends LitElement {
         this.variant = null;
 
         this.activeTab = "table-tab";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
         this._config = this.getDefaultConfig();
     }
 
@@ -136,11 +133,7 @@ export default class VariantBrowser extends LitElement {
         if (!this.opencgaSession) {
             return;
         }
-        // merge filters
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this._config = this.getDefaultConfig();
 
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
@@ -149,7 +142,10 @@ export default class VariantBrowser extends LitElement {
 
         // Grid configuration
         if (this.settings?.table) {
-            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+            this._config.filter.result.grid = {
+                ...this._config.filter.result.grid,
+                ...this.settings.table,
+            };
         }
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {
@@ -159,10 +155,10 @@ export default class VariantBrowser extends LitElement {
         }
 
         // Apply user configuration
-        if (this.opencgaSession.user?.configs?.IVA?.variantBrowser?.grid) {
+        if (this.opencgaSession.user?.configs?.IVA?.[this.COMPONENT_ID]?.grid) {
             this._config.filter.result.grid = {
                 ...this._config.filter.result.grid,
-                ...this.opencgaSession.user.configs.IVA.variantBrowser.grid,
+                ...this.opencgaSession.user.configs.IVA[this.COMPONENT_ID].grid,
             };
         }
 
