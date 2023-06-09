@@ -155,7 +155,7 @@ export default class SelectFieldFilter extends LitElement {
             } else {
                 // if classes os removed then we need to removed the old assigned classes
                 this.selectPicker.selectpicker("setStyle", changedProperties.get("classes"), "remove");
-                this.selectPicker.selectpicker("setStyle", "border rounded border-secondary-subtle", "add");
+                this.selectPicker.selectpicker("setStyle", "border-secondary-subtle", "add");
             }
         }
     }
