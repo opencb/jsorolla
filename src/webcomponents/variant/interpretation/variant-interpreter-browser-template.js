@@ -490,6 +490,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     <variant-interpreter-grid
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .toolId="${this.toolId}"
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
@@ -502,6 +503,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                     <variant-interpreter-rearrangement-grid
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
+                                        .toolId="${this.toolId}"
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
@@ -517,6 +519,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
                                     .variant="${this.variant}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .config=${this._config.filter.detail}>
