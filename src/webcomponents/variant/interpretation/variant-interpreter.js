@@ -35,7 +35,6 @@ import "../../clinical/clinical-analysis-review-info.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "./case-sms-report.js";
-import "./case-steiner-report.js";
 
 class VariantInterpreter extends LitElement {
 
