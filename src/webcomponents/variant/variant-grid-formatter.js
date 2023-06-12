@@ -990,13 +990,14 @@ export default class VariantGridFormatter {
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
-        if (freq === 0 || freq === "0") {
+        const freqFloat = Number.parseFloat(freq);
+        if (freqFloat === 0 || freqFloat === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freqFloat < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freqFloat < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freqFloat < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
