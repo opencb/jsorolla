@@ -247,7 +247,7 @@ export default class OpencgaFileFilter extends LitElement {
                                     <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                        <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
                             ${content}
                         </div>
                     </div>
@@ -262,7 +262,7 @@ export default class OpencgaFileFilter extends LitElement {
         return html`
             ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                    <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>

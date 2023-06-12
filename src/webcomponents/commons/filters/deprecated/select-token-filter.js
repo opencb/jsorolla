@@ -269,7 +269,7 @@ export default class SelectTokenFilter extends LitElement {
         </form>
 
         <button @click="${this.click}"> click</button>
-        <div class="subsection-content">
+        <div class="cy-subsection-content">
             <select class="tokenize" multiple></select>
         </div>
         `;

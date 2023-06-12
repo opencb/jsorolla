@@ -699,7 +699,7 @@ export default class OpencgaActiveFilters extends LitElement {
                             style="cursor:pointer;"
                             @click="${this.onFilterChange}">
                             <span class="flex-grow-1">${item.id}</span>
-                            <span class="text-secondary">
+                            <span class="text-secondary cy-action-buttons">
                             <span tooltip-title="${item.id}"
                                 tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
                                 data-filter-id="${item.id}">
@@ -745,7 +745,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     </div>
                 </div>
                 <div class="flex-shrink-0 text-secondary mb-auto">
-                    <span  class="action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
+                    <span  class="cy-action-buttons" tooltip-title="${filterTitle}" tooltip-text="${filterTooltip || "Empty query."}">
                         <i class="fas fa-eye" data-action="view-filter"></i>
                     </span>
                 </div>

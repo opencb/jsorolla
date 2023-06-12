@@ -37,7 +37,7 @@ context("8. Sample Browser", () => {
         cy.get("div.search-button-wrapper button").click();
         UtilsTest.checkResults("sample-grid");
 
-        cy.get("#somatic + .subsection-content label").contains("True").click({force: true}); // setting filter Somatic = true
+        cy.get("#somatic + .cy-subsection-content label").contains("True").click({force: true}); // setting filter Somatic = true
 
         cy.get("opencga-active-filters button[data-filter-name='id']").click();
         cy.get("opencga-active-filters button[data-filter-name='somatic']").click();
