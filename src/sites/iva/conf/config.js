@@ -193,6 +193,12 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
+    jobMonitor: {
+        visibility: "private"
+    },
+    fileExplorer: {
+        visibility: "private"
+    },
     restApi: {
         visibility: "private"
     },
