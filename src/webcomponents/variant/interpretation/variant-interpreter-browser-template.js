@@ -510,7 +510,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @queryComplete="${this.onQueryComplete}"
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
-                                        @checkrow="${this.onCheckVariant}">
+                                        @checkrow="${this.onCheckVariant}"
+                                        @gridconfigsave="${this.onGridConfigSave}">
                                     </variant-interpreter-rearrangement-grid>`
                                 }
 
