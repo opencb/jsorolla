@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./family-view.js";
 import "../commons/view/detail-tabs.js";
 
@@ -23,7 +24,7 @@ export default class FamilyDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,12 +48,14 @@ export default class FamilyDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this.COMPONENT_ID = "family-detail";
         this._prefix = "sf-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.family = null;
         }
@@ -62,9 +65,14 @@ export default class FamilyDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
+
+        super.update(changedProperties);
     }
 
     familyIdObserver() {
@@ -81,8 +89,14 @@ export default class FamilyDetail extends LitElement {
             } else {
                 this.family = null;
             }
-
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     getDefaultConfig() {
