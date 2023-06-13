@@ -56,10 +56,6 @@ export default class FamilyDetail extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.family = null;
-        }
-
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
@@ -81,7 +77,6 @@ export default class FamilyDetail extends LitElement {
                 this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
                         this.family = restResponse.getResult(0);
-                        this.requestUpdate();
                     })
                     .catch(restResponse => {
                         console.error(restResponse);
@@ -99,14 +94,7 @@ export default class FamilyDetail extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in family-browser
-        };
-    }
-
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
@@ -116,7 +104,14 @@ export default class FamilyDetail extends LitElement {
                 .data="${this.family}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>`;
+            </detail-tabs>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }
