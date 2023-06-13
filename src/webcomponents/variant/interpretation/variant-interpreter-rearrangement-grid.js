@@ -221,7 +221,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._createDefaultColumns(),
+                columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -304,7 +304,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: variants,
-            columns: this._createDefaultColumns(),
+            columns: this._getDefaultColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -418,7 +418,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         `;
     }
 
-    _createDefaultColumns() {
+    _getDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         const vcfDataColumns = {
@@ -471,7 +471,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         }
 
         // Prepare Grid columns
-        let _columns = [
+        this._columns = [
             [
                 {
                     title: "Variant 1",
@@ -649,9 +649,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         ];
 
         // Update columns
-        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumns(this._columns, this.COMPONENT_ID);
 
-        return _columns;
+        return this._columns;
     }
 
     onActionClick(e, value, row) {
@@ -970,7 +970,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <variant-interpreter-grid-config
+                                    .opencgaSession="${this.opencgaSession}"
                                     .config="${this._config}"
+                                    .gridColumns="${this._columns}"
                                     @configChange="${this.onGridConfigChange}">
                                 </variant-interpreter-grid-config>
                             </div>
@@ -1002,9 +1004,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             alleleStringLengthMax: 50,
 
-            genotype: {
-                type: "VCF_CALL"
-            },
+            // genotype: {
+            //     type: "VCF_CALL"
+            // },
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
