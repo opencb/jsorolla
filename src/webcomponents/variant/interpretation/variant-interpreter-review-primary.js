@@ -258,7 +258,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
-                                    @checkrow="${this.onCheckVariant}">
+                                    @checkrow="${this.onCheckVariant}"
+                                    @gridconfigsave="${this.onGridConfigSave}">
                                 </variant-interpreter-rearrangement-grid>
                             ` : html`
                                 <variant-interpreter-grid
