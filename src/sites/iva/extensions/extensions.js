@@ -21,8 +21,8 @@ window.IVA_EXTENSIONS = {
             `,
         },
         {
-            id: "variant-browser-columns",
-            name: "Custom columns",
+            id: "variant-columns",
+            name: "Variant Columns",
             description: "Example columns for Variant Browser",
             type: "column",
             components: [
@@ -53,8 +53,8 @@ window.IVA_EXTENSIONS = {
             ],
         },
         {
-            id: "variant-browser-detail",
-            name: "New Variant Browser Tab",
+            id: "variant-detail",
+            name: "New Variant Tab",
             description: "Example detail_tab extension for Variant Browser",
             type: "detail_tab",
             components: [
@@ -70,11 +70,13 @@ window.IVA_EXTENSIONS = {
             `,
         },
         {
-            id: "custom-columns-file-grid",
-            name: "Custom columns",
-            description: "Example columns for File Grid",
+            id: "catalog-columns",
+            name: "Catalog Columns",
+            description: "Example columns for Catalog Grids",
             type: "column",
             components: [
+                "clinical-analysis-grid",
+                "cohort-grid",
                 "file-grid",
             ],
             maintainer: "",
@@ -82,7 +84,7 @@ window.IVA_EXTENSIONS = {
             compatibleWith: "",
             columns: [
                 {
-                    position: -4,
+                    // position: 0,
                     config: {
                         id: "new-column-1",
                         title: "Extra column",
@@ -94,11 +96,42 @@ window.IVA_EXTENSIONS = {
             ],
         },
         {
-            id: "custom-tabs-file-detail",
-            name: "Custom Tab",
-            description: "Example detail tab for File Detail",
+            id: "catalog-columns-multiple",
+            name: "Catalog Columns",
+            description: "Example columns for Catalog Grids",
+            type: "column",
+            components: [
+                "disease-panel-grid",
+            ],
+            maintainer: "",
+            version: "",
+            compatibleWith: "",
+            columns: [
+                [
+                    {
+                        // position: 0,
+                        config: {
+                            id: "new-column-1",
+                            title: "Extra column",
+                            field: "",
+                            align: "center",
+                            rowspan: 2,
+                            colspan: 1,
+                            formatter: (value, row, index) => `Row ${index}`,
+                        },
+                    },
+                ],
+            ],
+        },
+        {
+            id: "catalog-detail",
+            name: "New Catalog Tab",
+            description: "Example detail tab for Catalog Details",
             type: "detail_tab",
             components: [
+                "clinical-analysis-detail",
+                "cohort-detail",
+                "disease-panel-detail",
                 "file-detail",
             ],
             maintainer: "",
