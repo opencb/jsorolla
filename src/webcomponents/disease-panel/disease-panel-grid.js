@@ -58,7 +58,7 @@ export default class DiseasePanelGrid extends LitElement {
     #init() {
         this.COMPONENT_ID = "disease-panel-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "DiseasePanelBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
