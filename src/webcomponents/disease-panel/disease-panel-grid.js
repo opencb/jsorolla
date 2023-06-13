@@ -56,16 +56,11 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "disease-panel-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "DiseasePanelBrowserGrid";
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -77,7 +72,10 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     propertyObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.toolbarConfig = {
             ...this.config?.toolbar,
             resource: "DISEASE_PANEL",
@@ -473,6 +471,7 @@ export default class DiseasePanelGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
