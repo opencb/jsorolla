@@ -253,6 +253,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
+                                    .toolId="${this.toolId}"
                                     .review="${true}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
@@ -264,6 +265,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .clinicalVariants="${this.clinicalVariants}"
+                                    .toolId="${this.toolId}"
                                     .review="${true}"
                                     .config="${this._config.result.grid}"
                                     @selectrow="${this.onSelectVariant}"
@@ -274,6 +276,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
                                     .variant="${this.variant}"
+                                    .toolId="${this.toolId}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .config="${this._config.detail}">
