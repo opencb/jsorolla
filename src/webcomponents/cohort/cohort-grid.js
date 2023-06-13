@@ -52,9 +52,9 @@ export default class CohortGrid extends LitElement {
     }
 
     _init() {
-        this.COMPONENT_ID = "cohort-detail",
+        this.COMPONENT_ID = "cohort-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + this.COMPONENT_ID;
+        this.gridId = this._prefix + "CohortBrowserGrid";
         this.active = true;
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
