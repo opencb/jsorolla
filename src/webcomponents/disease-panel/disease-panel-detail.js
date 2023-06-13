@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
@@ -50,7 +51,9 @@ export default class DiseasePanelDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "disease-panel-detail";
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -63,8 +66,11 @@ export default class DiseasePanelDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
         super.update(changedProperties);
     }
@@ -81,6 +87,13 @@ export default class DiseasePanelDetail extends LitElement {
         } else {
             this.diseasePanel = null;
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
