@@ -96,12 +96,6 @@ export default class ClinicalAnalysisDetail extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in clinical-analysis-browser
-        };
-    }
-
     render() {
         if (!this.opencgaSession) {
             return "";
@@ -114,6 +108,12 @@ export default class ClinicalAnalysisDetail extends LitElement {
                 .config="${this._config}">
             </detail-tabs>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }
