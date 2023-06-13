@@ -50,7 +50,7 @@ export default class FamilyDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "family-detail";
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
