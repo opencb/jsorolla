@@ -48,6 +48,7 @@ export default class CohortDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "cohort-detail";
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
