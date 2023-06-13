@@ -90,12 +90,6 @@ export default class CohortDetail extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in cohort-browser
-        };
-    }
-
     render() {
         if (!this.opencgaSession) {
             return "";
@@ -107,6 +101,12 @@ export default class CohortDetail extends LitElement {
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>`;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }
