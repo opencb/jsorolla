@@ -53,16 +53,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "ClinicalAnalysisGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -645,6 +640,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
