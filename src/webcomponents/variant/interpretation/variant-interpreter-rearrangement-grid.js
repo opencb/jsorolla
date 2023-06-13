@@ -448,14 +448,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                 sampleId: this.clinicalAnalysis?.proband?.samples?.[0]?.id,
                                 variantCaller: variantCaller,
                             };
+                            const id = name + column.replace("EXT_", "");
                             vcfDataColumns[name].push({
-                                id: column.replace("EXT_", ""),
+                                id: id,
                                 title: column.replace("EXT_", ""),
                                 field: field,
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[index], field),
                                 halign: "center",
+                                visible: this.gridCommons.isColumnVisible(id),
                             });
                         });
                     });
@@ -474,39 +476,37 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._columns = [
             [
                 {
+                    id: "variant1",
                     title: "Variant 1",
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("variant1"),
                 },
                 {
+                    id: "variant2",
                     title: "Variant 2",
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
-                    sortable: true
+                    sortable: true,
+                    visible: this.gridCommons.isColumnVisible("variant1"),
                 },
                 {
+                    id: "gene",
                     title: "Gene",
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[0], index, this.query, this.opencgaSession),
-                    halign: "center"
+                    halign: "center",
+                    visible: this.gridCommons.isColumnVisible("gene"),
                 },
-                // {
-                //     title: "Gene",
-                //     field: "gene",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[1], index, this.query, this.opencgaSession),
-                //     halign: "center"
-                // },
                 {
                     id: "evidences",
                     title: "Role in Cancer",
@@ -515,32 +515,26 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row, index) => VariantInterpreterGridFormatter.roleInCancerFormatter(row[0]?.evidences, index),
                     halign: "center",
-                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER",
+                    visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                 },
                 {
-                    title: "Type<br><span class='help-block' style='margin: 0px'>SVCLASS</span>",
-                    field: "type",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
-                    halign: "center",
-                    visible: false,
-                },
-                {
+                    id: "vcfData1",
                     title: "VCF Data 1",
                     rowspan: 1,
                     colspan: vcfDataColumns.vcf1?.length,
                     halign: "center",
-                    visible: vcfDataColumns.vcf1?.length > 1
+                    visible: vcfDataColumns.vcf1?.length > 1 && this.gridCommons.isColumnVisible("vcfData1"),
                 },
                 {
+                    id: "vcfData2",
                     title: "VCF Data 2",
                     rowspan: 1,
                     colspan: vcfDataColumns.vcf2?.length,
                     halign: "center",
-                    visible: vcfDataColumns.vcf2?.length > 1
+                    visible: vcfDataColumns.vcf2?.length > 1 && this.gridCommons.isColumnVisible("vcfData2"),
                 },
                 {
+                    id: "interpretation",
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
@@ -597,21 +591,23 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
                 {
+                    id: "cohorts",
                     title: "Cohorts",
                     field: "cohort",
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("cohorts",)
                 },
                 {
+                    id: "prediction",
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.predictionFormatter,
                     halign: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                    visible: (this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY") && this.gridCommons.isColumnVisible("prediction"),
                 },
                 {
                     title: "Select",
@@ -797,7 +793,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     showLoading() {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
-
 
     onGridConfigChange(e) {
         this.__config = e.detail.value;
