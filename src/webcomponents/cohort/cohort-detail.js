@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./cohort-view.js";
 import "./../commons/view/detail-tabs.js";
 
@@ -48,6 +49,7 @@ export default class CohortDetail extends LitElement {
 
     #init() {
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -58,7 +60,11 @@ export default class CohortDetail extends LitElement {
             this.cohortIdObserver();
         }
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
         super.update(changedProperties);
     }
@@ -75,6 +81,13 @@ export default class CohortDetail extends LitElement {
         } else {
             this.cohort = null;
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     getDefaultConfig() {
