@@ -72,6 +72,7 @@ export default class DiseasePanelDetail extends LitElement {
             };
             this.#updateDetailTabs();
         }
+
         super.update(changedProperties);
     }
 
@@ -119,51 +120,47 @@ export default class DiseasePanelDetail extends LitElement {
                     id: "disease-panel-view",
                     name: "Overview",
                     active: true,
-                    render: (diseasePanel, _active, opencgaSession) => {
-                        return html`
-                            <disease-panel-summary
-                                .diseasePanel="${diseasePanel}"
-                                .opencgaSession="${opencgaSession}">
-                            </disease-panel-summary>`;
-                    }
+                    render: (diseasePanel, _active, opencgaSession) => html`
+                        <disease-panel-summary
+                            .diseasePanel="${diseasePanel}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-summary>
+                    `,
                 },
                 {
                     id: "disease-panel-genes",
                     name: "Genes",
-                    render: (diseasePanel, active, opencgaSession) => {
-                        return html`
-                            <disease-panel-gene-view
-                                .genePanels="${diseasePanel.genes}"
-                                .opencgaSession=${opencgaSession}>
-                            </disease-panel-gene-view>`;
-                    }
+                    render: (diseasePanel, active, opencgaSession) => html`
+                        <disease-panel-gene-view
+                            .genePanels="${diseasePanel.genes}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-gene-view>
+                    `,
                 },
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: (diseasePanel, active, opencgaSession) => {
-                        return html`
-                            <disease-panel-region-view
-                                .regions="${diseasePanel.regions}"
-                                .opencgaSession=${opencgaSession}>
-                            </disease-panel-region-view>`;
-                    }
+                    render: (diseasePanel, active, opencgaSession) => html`
+                        <disease-panel-region-view
+                            .regions="${diseasePanel.regions}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-region-view>
+                    `,
                 },
                 {
                     id: "disease-panel-variants",
                     name: "Variants",
-                    render: () => construction
+                    render: () => construction,
                 },
                 {
                     id: "json-view",
                     name: "JSON Data",
-                    render: (diseasePanel, active) => {
-                        return html`
-                            <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                            </json-viewer>`;
-                    }
+                    render: (diseasePanel, active) => html`
+                        <json-viewer
+                            .data="${diseasePanel}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
                 }
             ]
         };
