@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class ClinicalAnalysisDetail extends LitElement {
@@ -47,8 +48,10 @@ export default class ClinicalAnalysisDetail extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "clinical-analysis-detail";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     updated(changedProperties) {
@@ -61,7 +64,11 @@ export default class ClinicalAnalysisDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
             this.requestUpdate();
         }
     }
@@ -80,6 +87,13 @@ export default class ClinicalAnalysisDetail extends LitElement {
                 this.clinicalAnalysis = null;
             }
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     getDefaultConfig() {
