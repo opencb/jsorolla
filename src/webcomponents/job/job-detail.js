@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./job-detail-log.js";
 import "./job-view.js";
 import "../commons/view/detail-tabs.js";
@@ -24,7 +25,7 @@ export default class JobDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,9 +49,11 @@ export default class JobDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this.COMPONENT_ID = "job-detail";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -63,6 +66,7 @@ export default class JobDetail extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
@@ -82,8 +86,14 @@ export default class JobDetail extends LitElement {
         }
     }
 
-    render() {
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
 
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
