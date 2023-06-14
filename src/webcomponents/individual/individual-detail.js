@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./individual-view.js";
 import "./../commons/view/detail-tabs.js";
 
@@ -22,7 +23,7 @@ export default class IndividualDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,11 +47,13 @@ export default class IndividualDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this.COMPONENT_ID = "individual-grid";
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.individual = null;
         }
@@ -60,8 +63,14 @@ export default class IndividualDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
+
+        super.update(changedProperties);
     }
 
     individualIdObserver() {
@@ -76,6 +85,13 @@ export default class IndividualDetail extends LitElement {
         } else {
             this.individual = null;
         }
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     getDefaultConfig() {
