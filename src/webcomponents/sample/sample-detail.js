@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
@@ -49,10 +50,12 @@ export default class SampleDetail extends LitElement {
     }
 
     #init() {
+        this.COMMENT_ID = "sample-detail";
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.sample = null;
         }
@@ -62,9 +65,14 @@ export default class SampleDetail extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
+
+        super.update(changedProperties);
     }
 
     sampleIdObserver() {
@@ -84,8 +92,14 @@ export default class SampleDetail extends LitElement {
         }
     }
 
-    render() {
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
 
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
@@ -96,7 +110,7 @@ export default class SampleDetail extends LitElement {
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
-            `;
+        `;
     }
 
     getDefaultConfig() {
