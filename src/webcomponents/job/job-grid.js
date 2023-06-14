@@ -27,7 +27,6 @@ export default class JobGrid extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -60,18 +59,13 @@ export default class JobGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "job-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "JobBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -84,7 +78,10 @@ export default class JobGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.toolbarConfig = {
             ...this.config.toolbar,
             resource: "JOB",
@@ -428,6 +425,7 @@ export default class JobGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
