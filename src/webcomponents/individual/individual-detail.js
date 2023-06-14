@@ -94,25 +94,24 @@ export default class IndividualDetail extends LitElement {
         ];
     }
 
-    getDefaultConfig() {
-        return {
-            // detail-tab configuration in individual-browser
-        };
-    }
-
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
 
         return html`
-                <detail-tabs
-                    .data="${this.individual}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            `;
+            <detail-tabs
+                .data="${this.individual}"
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }
