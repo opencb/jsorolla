@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
@@ -56,16 +55,11 @@ export default class SampleGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "sample-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -78,7 +72,10 @@ export default class SampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -400,6 +397,7 @@ export default class SampleGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
