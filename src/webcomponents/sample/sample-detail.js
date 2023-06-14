@@ -50,7 +50,7 @@ export default class SampleDetail extends LitElement {
     }
 
     #init() {
-        this.COMMENT_ID = "sample-detail";
+        this.COMPONENT_ID = "sample-detail";
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
