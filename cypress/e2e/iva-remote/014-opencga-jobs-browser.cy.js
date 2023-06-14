@@ -48,7 +48,7 @@ context("14. Jobs Browser", () => {
         cy.get("opencga-active-filters button[data-filter-name='tool']").click();
         UtilsTest.checkResults("opencga-job-grid");
 
-        cy.get("#priority + .subsection-content a").click({force: true, multiple: true});
+        cy.get("#priority + .cy-subsection-content a").click({force: true, multiple: true});
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
         cy.get("div.search-button-wrapper button").click();

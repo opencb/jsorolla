@@ -594,7 +594,7 @@ export default class FacetFilter extends LitElement {
                     <!-- this.selectedFacet <pre>\${JSON.stringify(this.selectedFacet, null, "  ")}</pre> -->
                     ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html `
                         <div class="facet-box" id="${this._prefix}Heading">
-                            <div class="subsection-content form-group">
+                            <div class="cy-subsection-content form-group">
                                 <div class="browser-subsection">
                                     ${facet.name}
                                     ${facet.description ? html`

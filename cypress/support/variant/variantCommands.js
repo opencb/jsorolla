@@ -68,7 +68,7 @@ Cypress.Commands.add("saveCurrentFilter", data =>{
 
 // All browser has filters
 Cypress.Commands.add("removeFilters", name => {
-    cy.get(".active-filter-label").click();
+    cy.get(".cy-active-filter-label").click();
     cy.get("ul.saved-filter-wrapper").contains(name);
     cy.get(`span.cy-action-buttons i[data-cy=delete][data-filter-id='${name}']`).click();
     cy.get("#myModalLabel").contains("Are you sure?");

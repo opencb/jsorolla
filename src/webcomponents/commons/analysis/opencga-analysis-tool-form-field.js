@@ -91,7 +91,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "number":
                 const [min = "", max = ""] = fieldConfig.allowedValues || [];
                 return html`
-                    <div id="${this._prefix}-wrapper" class="subsection-content form-group">
+                    <div id="${this._prefix}-wrapper" class="cy-subsection-content form-group">
                         <input type="number" min=${min} max=${max} step="0.01"
                         .disabled=${this.config.disabled}
                         ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}"

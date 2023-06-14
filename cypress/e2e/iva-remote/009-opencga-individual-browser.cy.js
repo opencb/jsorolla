@@ -35,7 +35,7 @@ context("9. Individual Browser", () => {
         UtilsTest.checkResults("individual-grid");
 
         UtilsTest.getResult("individual-grid", 1).then($text => {
-            UtilsTest.selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
+            UtilsTest.selectToken(".cy-subsection-content[data-cy='id'] individual-id-autocomplete", $text);
             cy.get("div.search-button-wrapper button").click();
             UtilsTest.checkExactResult("individual-grid", 1);
             cy.get("opencga-active-filters button[data-filter-name='id']").click();

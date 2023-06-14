@@ -252,7 +252,7 @@ class TestApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".navbar-inverse ul > li", this).removeClass("active");
+        $(".cy-navbar ul > li", this).removeClass("active");
         $(target).parent("li").addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
             $(target).closest("ul").closest("li").addClass("active");

@@ -57,7 +57,7 @@ context("16.  RGA Browser", () => {
         cy.get("rga-variant-view > .container-fluid .columns-toggle-wrapper ul li a").click({multiple: true, timeout: TIMEOUT}); // reactivate all the columns
         cy.get("rga-variant-view div[data-cy='variant-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
 
-        cy.get("button.active-filter-label").click();
+        cy.get("button.cy-active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
 
         UtilsTest.checkResults("rga-variant-view");
@@ -178,7 +178,7 @@ context("16.  RGA Browser", () => {
             cy.get("rga-individual-family table > thead > :nth-child(1) > :nth-child(7) > .th-inner").contains(IndividualId);
 
         });
-        cy.get("button.active-filter-label").click();
+        cy.get("button.cy-active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
         UtilsTest.checkResults("rga-individual-view");
 
@@ -238,7 +238,7 @@ context("16.  RGA Browser", () => {
 
         // cy.get("opencga-active-filters button[data-filter-name='knockoutType']").click();
 
-        cy.get("button.active-filter-label").click();
+        cy.get("button.cy-active-filter-label").click();
         cy.get("a[data-action='active-filter-clear']").click();
         UtilsTest.checkResults("rga-gene-view");
 

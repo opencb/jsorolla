@@ -39,8 +39,8 @@ context("12. File Browser", () => {
         cy.get("opencga-active-filters button[data-filter-name='name']").click();
         UtilsTest.checkResults("opencga-file-grid");
 
-        cy.get("#format + .subsection-content a").contains("VCF").click({force: true});
-        cy.get("#bioformat + .subsection-content a").contains("VARIANT").click({force: true});
+        cy.get("#format + .cy-subsection-content a").contains("VCF").click({force: true});
+        cy.get("#bioformat + .cy-subsection-content a").contains("VARIANT").click({force: true});
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 3);
         cy.get("div.search-button-wrapper button").click();

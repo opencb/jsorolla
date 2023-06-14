@@ -215,8 +215,8 @@ export default class CustomNavBar extends LitElement {
     render() {
         return html `
                 ${this.renderStyle()}
-
-            <nav class="navbar navbar-zetta navbar-expand-lg p-1">
+            <!-- TODO: It'll change soon by default theme -->
+            <nav class="navbar navbar-zetta cy-navbar navbar-expand-lg p-1">
                 <div class="container-fluid p-1">
 
                     <!-- Left Sidebar Icon -->

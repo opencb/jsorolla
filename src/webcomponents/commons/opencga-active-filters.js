@@ -772,7 +772,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     <!-- display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center; -->
                     <div class="d-flex flex-wrap column-gap-1 row-gap-1 align-items-center">
                         <div class="dropdown me-1">
-                            <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                            <button type="button" class="cy-active-filter-label btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                                     role="button" aria-expanded="false" data-cy="filter-button">
                                 <i class="fa fa-filter" aria-hidden="true"></i> Filters
                             </button>
@@ -894,7 +894,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
                             <div class="dropdown" style="margin-right: 5px">
-                                <button type="button" class="active-filter-label no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                <button type="button" class="cy-active-filter-label no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                     <i class="fas fa-project-diagram rotate-180"></i> Aggregation fields <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu saved-filter-wrapper">
