@@ -48,7 +48,7 @@ export default class IndividualDetail extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "individual-grid";
+        this.COMPONENT_ID = "individual-detail";
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
