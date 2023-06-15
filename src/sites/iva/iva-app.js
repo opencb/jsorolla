@@ -630,6 +630,13 @@ class IvaApp extends LitElement {
     async logout() {
         // this delete token in the client and removes the Cookies
         await this.opencgaClient.logout();
+
+        // Check if sso is active: we will open a new tab calling the 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso) {
+            const config = this.opencgaClient._config;
+            UtilsNew.openInNewTab(`${config.host}/webservices/rest/${config.version}/meta/sso/logout`);
+        }
+
         this._createOpencgaSessionFromConfig();
 
         this.tool = "#home";
