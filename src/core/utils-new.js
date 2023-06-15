@@ -1089,4 +1089,9 @@ export default class UtilsNew {
                 .filter(item => !!item);
     }
 
+    // Open the specified url in a new tab
+    static openInNewTab(href) {
+        window.open(href, "_blank").focus();
+    }
+
 }
