@@ -63,6 +63,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "";
+        this._variant = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
@@ -74,6 +75,10 @@ export default class VariantInterpreterDetail extends LitElement {
 
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
+        }
+
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
         }
 
         if (changedProperties.has("config") || changedProperties.has("toolId")) {
@@ -97,9 +102,15 @@ export default class VariantInterpreterDetail extends LitElement {
 
             this.opencgaSession.opencgaClient.clinical().queryVariant(params)
                 .then(response => {
-                    this.variant = response?.responses?.[0]?.results?.[0];
+                    this._variant = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
                 });
         }
+    }
+
+    variantObserver() {
+        this._variant = {...this.variant};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -116,7 +127,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.variant}"
+                .data="${this._variant}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
