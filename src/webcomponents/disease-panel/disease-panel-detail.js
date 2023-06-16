@@ -52,17 +52,18 @@ export default class DiseasePanelDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "disease-panel-detail";
+        this._diseasePanel = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.sample = null;
-        }
-
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
+        }
+
+        if (changedProperties.has("diseasePanel")) {
+            this.diseasePanelObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -78,16 +79,24 @@ export default class DiseasePanelDetail extends LitElement {
 
     diseasePanelIdObserver() {
         if (this.opencgaSession && this.diseasePanelId) {
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, {
+            const params = {
                 study: this.opencgaSession.study.fqn,
-            }).then(response => {
-                this.diseasePanel = response.getResult(0);
-            }).catch(reason => {
-                console.error(reason);
-            });
-        } else {
-            this.diseasePanel = null;
+            };
+
+            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, params)
+                .then(response => {
+                    this._diseasePanel = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
         }
+    }
+
+    diseasePanelObserver() {
+        this._diseasePanel = {...this.diseasePanel};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -104,7 +113,7 @@ export default class DiseasePanelDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.diseasePanel}"
+                .data="${this._diseasePanel}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
