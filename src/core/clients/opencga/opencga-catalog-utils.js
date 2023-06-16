@@ -102,7 +102,6 @@ export default class OpencgaCatalogUtils {
 
     // Check if the user has the right the permissions in the study.
     static isAdmin(study, userLogged) {
-        debugger
         if (!study || !userLogged) {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
