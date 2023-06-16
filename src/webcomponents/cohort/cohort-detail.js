@@ -77,7 +77,7 @@ export default class CohortDetail extends LitElement {
         if (this.opencgaSession && this.cohortId) {
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this._cohort = response?.responses?.[0]?.results?.[0];
+                    this._cohort = response.getResult(0);
                     this.requestUpdate();
                 })
                 .catch(response => {
