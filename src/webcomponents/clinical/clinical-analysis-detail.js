@@ -50,17 +50,18 @@ export default class ClinicalAnalysisDetail extends LitElement {
     _init() {
         this.COMPONENT_ID = "clinical-analysis-detail";
         this._prefix = UtilsNew.randomString(8);
+        this._clinicalAnalysis = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysis = null;
-        }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -74,19 +75,21 @@ export default class ClinicalAnalysisDetail extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            if (this.clinicalAnalysisId) {
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.clinicalAnalysis = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.clinicalAnalysis = null;
-            }
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this._clinicalAnalysis = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
+    }
+
+    clinicalAnalysisObserver() {
+        this._clinicalAnalysis = {...this.clinicalAnalysis};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -103,7 +106,7 @@ export default class ClinicalAnalysisDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.clinicalAnalysis}"
+                .data="${this._clinicalAnalysis}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}">
             </detail-tabs>
