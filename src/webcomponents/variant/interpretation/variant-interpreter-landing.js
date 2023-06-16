@@ -33,7 +33,7 @@ class VariantInterpreterLanding extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -57,20 +57,14 @@ class VariantInterpreterLanding extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.writeMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-        // }
-
         if (changedProperties.has("config")) {
             this._config.items = UtilsNew.mergeArray(this._config.items, this.config.tabs, false, true);
         }
-
-        // this._config = this.getDefaultConfig();
         super.update(changedProperties);
     }
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisManager {
@@ -24,10 +23,10 @@ export default class ClinicalAnalysisManager {
         this.clinicalAnalysis = clinicalAnalysis;
         this.opencgaSession = opencgaSession;
 
-        this.init();
+        this.#init();
     }
 
-    init() {
+    #init() {
         this.state = {
             addedVariants: [],
             removedVariants: [],
@@ -37,13 +36,9 @@ export default class ClinicalAnalysisManager {
 
     // Clear all changed variants.
     reset() {
-        this.init();
+        this.#init();
         this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
     }
-
-    // getStatuses() {
-    //     return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
-    // }
 
     getProbandQc() {
         return this.clinicalAnalysis?.proband?.qualityControl;
@@ -57,19 +52,18 @@ export default class ClinicalAnalysisManager {
         return qc;
     }
 
-
     addVariant(variant) {
-        // First, check if the variant was selected to be removed
+        // 1. check if the variant was selected to be removed
         let index = this.state.removedVariants.findIndex(v => v.id === variant.id);
         if (index >= 0) {
             this.state.removedVariants.splice(index, 1);
         } else {
-            // Second, check variant is new and selected to be added
+            // 2. check variant is new and selected to be added
             index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
             if (index === -1) {
                 this.state.addedVariants.push(variant);
             } else {
-                // Third, this cannot happen, variant must exist somewhere
+                // 3. this cannot happen, variant must exist somewhere
                 console.error("There must be an error, variant " + variant.id + " seems to exist.");
             }
         }
@@ -108,10 +102,11 @@ export default class ClinicalAnalysisManager {
     }
 
     setInterpretationAsPrimary(interpretationId, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {}, {
-            study: this.opencgaSession.study.fqn,
-            setAs: "PRIMARY"
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, interpretationId, {}, {
+                study: this.opencgaSession.study.fqn,
+                setAs: "PRIMARY"
+            })
             .then(() => {
                 // Notify interpretation saved
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
@@ -127,7 +122,6 @@ export default class ClinicalAnalysisManager {
 
     updateInterpretationVariants(comment, callback) {
         if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
-            // console.log("Nothing to do");
             return;
         }
 
@@ -136,6 +130,7 @@ export default class ClinicalAnalysisManager {
             primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
             comments: [],
         };
+
         // Check if a comment is provided
         if (comment?.message) {
             interpretation.comments.push(comment);
@@ -178,29 +173,31 @@ export default class ClinicalAnalysisManager {
         }
 
         const interpretationId = this.clinicalAnalysis.interpretation.id;
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
-            study: this.opencgaSession.study.fqn,
-            primaryFindingsAction: "SET",
-            // secondaryFindingsAction: "SET",
-        }).then(() => {
-            // Notify
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                // title: "Interpretation saved",
-                message: "The interpretation has been updated.",
-            });
-            callback(this.clinicalAnalysis);
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
+                study: this.opencgaSession.study.fqn,
+                primaryFindingsAction: "SET",
+                // secondaryFindingsAction: "SET",
+            })
+            .then(() => {
+                // Notify
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+                    // title: "Interpretation saved",
+                    message: "The interpretation has been updated.",
+                });
+                callback(this.clinicalAnalysis);
 
-            // Reset internal state
-            this.state = {
-                ...this.state,
-                addedVariants: [],
-                removedVariants: [],
-                updatedVariants: [],
-            };
-        }).catch(response => {
-            // console.error(response);
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
-        });
+                // Reset internal state
+                this.state = {
+                    ...this.state,
+                    addedVariants: [],
+                    removedVariants: [],
+                    updatedVariants: [],
+                };
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     createInterpretation(interpretation, callback) {
@@ -211,9 +208,10 @@ export default class ClinicalAnalysisManager {
             }
         };
 
-        this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, newInterpretation, {
-            study: this.opencgaSession.study.fqn,
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .createInterpretation(this.clinicalAnalysis.id, newInterpretation, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Interpretation Created",
@@ -228,9 +226,10 @@ export default class ClinicalAnalysisManager {
     }
 
     clearInterpretation(interpretationId, callback) {
-        this.opencgaSession.opencgaClient.clinical().clearInterpretation(this.clinicalAnalysis.id, interpretationId, {
-            study: this.opencgaSession.study.fqn,
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .clearInterpretation(this.clinicalAnalysis.id, interpretationId, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Interpretation '${interpretationId}' cleared.`,
@@ -238,15 +237,15 @@ export default class ClinicalAnalysisManager {
                 callback(this.clinicalAnalysis);
             })
             .catch(response => {
-                // console.error("An error occurred clearing an interpretation: ", restResponse);
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
     deleteInterpretation(interpretationId, callback) {
-        this.opencgaSession.opencgaClient.clinical().deleteInterpretation(this.clinicalAnalysis.id, interpretationId, {
-            study: this.opencgaSession.study.fqn
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .deleteInterpretation(this.clinicalAnalysis.id, interpretationId, {
+                study: this.opencgaSession.study.fqn
+            })
             .then(() => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Interpretation '${interpretationId}' deleted.`,
@@ -254,15 +253,15 @@ export default class ClinicalAnalysisManager {
                 callback(this.clinicalAnalysis);
             })
             .catch(response => {
-                // console.error("An error occurred deleting an interpretation: ", restResponse);
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
     #updateInterpretation(interpretationId, params, message, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
-            study: this.opencgaSession.study.fqn
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, interpretationId, params, {
+                study: this.opencgaSession.study.fqn
+            })
             .then(() => {
                 // Notify interpretation saved
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
@@ -284,10 +283,11 @@ export default class ClinicalAnalysisManager {
     }
 
     updateVariant(variant, interpretation, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretation.id, {primaryFindings: [variant]}, {
-            study: this.opencgaSession.study.fqn,
-            primaryFindingsAction: "REPLACE",
-        })
+        this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, interpretation.id, {primaryFindings: [variant]}, {
+                study: this.opencgaSession.study.fqn,
+                primaryFindingsAction: "REPLACE",
+            })
             .then(() => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
                     // title: "Variant Updated",
