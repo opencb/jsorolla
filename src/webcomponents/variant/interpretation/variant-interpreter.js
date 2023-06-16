@@ -317,13 +317,13 @@ class VariantInterpreter extends LitElement {
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
-                                                <a style="background-color:white!important;">
+                                                <a class="dropdown-item" style="background-color:white!important;">
                                                     <strong>Change interpretation</strong>
                                                 </a>
                                             </li>
                                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                                 <li>
-                                                    <a style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                                    <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
                                                         ${item.id}
                                                         <i class="fa ${item.locked ? "fa-lock" : "fa-unlock"} icon-padding" style="padding-left: 5px"></i>
                                                     </a>
@@ -332,28 +332,28 @@ class VariantInterpreter extends LitElement {
                                             <li><hr class="dropdown-divider"></li>
                                         ` : null}
                                         <li>
-                                            <a style="background-color:white!important;">
+                                            <a class="dropdown-item" style="background-color:white!important;">
                                                 <strong>Case Actions</strong>
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
                                                 <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
                                                 ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
+                                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisRefresh}">
                                                 <i class="fa fa-sync icon-padding"></i> Refresh
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
+                                            <a class="dropdown-item" style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisDownload}">
                                                 <i class="fa fa-download icon-padding"></i> Download
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                            <a class="dropdown-item" style="padding-left: 25px" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
                                                 <i class="fa fa-times icon-padding"></i> Close
                                             </a>
                                         </li>
