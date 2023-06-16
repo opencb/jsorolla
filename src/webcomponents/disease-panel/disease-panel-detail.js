@@ -79,11 +79,7 @@ export default class DiseasePanelDetail extends LitElement {
 
     diseasePanelIdObserver() {
         if (this.opencgaSession && this.diseasePanelId) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, params)
+            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this._diseasePanel = response.getResult(0);
                     this.requestUpdate();
