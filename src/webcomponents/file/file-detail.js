@@ -23,7 +23,6 @@ export default class OpencgaFileDetail extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -33,14 +32,14 @@ export default class OpencgaFileDetail extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             file: {
                 type: Object
             },
             fileId: {
                 type: String
-            },
-            opencgaSession: {
-                type: Object
             },
             config: {
                 type: Object
@@ -50,7 +49,7 @@ export default class OpencgaFileDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "file-detail";
-        this.file = null;
+        this._file = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
@@ -59,6 +58,11 @@ export default class OpencgaFileDetail extends LitElement {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
+
+        if (changedProperties.has("file")) {
+            this.fileObserver();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -66,22 +70,26 @@ export default class OpencgaFileDetail extends LitElement {
             };
             this.#updateDetailTabs();
         }
+
         super.update(changedProperties);
     }
 
     fileIdObserver() {
         if (this.opencgaSession && this.fileId) {
             this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.file = restResponse.responses[0].results[0];
+                .then(response => {
+                    this._file = response.getResult(0);
+                    this.requestUpdate();
                 })
-                .catch(restResponse => {
-                    this.file = null;
-                    console.error(restResponse);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.file = null;
         }
+    }
+
+    fileObserver() {
+        this._file = {...this.file};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -98,7 +106,7 @@ export default class OpencgaFileDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.file}"
+                .data="${this._file}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
