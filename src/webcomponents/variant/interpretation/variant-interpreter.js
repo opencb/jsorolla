@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
@@ -206,22 +207,24 @@ class VariantInterpreter extends LitElement {
     }
 
     onClinicalAnalysisLock = () => {
-        const id = this.clinicalAnalysis.id;
-        const updateParams = {
-            locked: !this.clinicalAnalysis.locked,
-        };
+        if (OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id)) {
+            const id = this.clinicalAnalysis.id;
+            const updateParams = {
+                locked: !this.clinicalAnalysis.locked,
+            };
 
-        return this.opencgaSession.opencgaClient.clinical()
-            .update(id, updateParams, {study: this.opencgaSession.study.fqn})
-            .then(() => this.onClinicalAnalysisUpdate())
-            .then(() => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Case '${id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+            return this.opencgaSession.opencgaClient.clinical()
+                .update(id, updateParams, {study: this.opencgaSession.study.fqn})
+                .then(() => this.onClinicalAnalysisUpdate())
+                .then(() => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        message: `Case '${id}' has been ${updateParams.locked ? "locked" : "unlocked"}.`,
+                    });
+                })
+                .catch(response => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
+        }
     };
 
     onChangePrimaryInterpretation = e => {
@@ -444,6 +447,8 @@ class VariantInterpreter extends LitElement {
         //         }
         //     });
         // }
+        // Used to check if lock is enabled for the current user
+        const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
 
         return html`
             <div class="variant-interpreter-tool">
@@ -504,7 +509,7 @@ class VariantInterpreter extends LitElement {
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="cursor:pointer;padding-left: 25px" @click="${this.onClinicalAnalysisLock}">
+                                            <a style="padding-left:25px;${isAdmin ? "cursor:pointer" : "pointer-events:none;opacity:0.6"}" @click="${this.onClinicalAnalysisLock}">
                                                 <i class="fa ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} icon-padding"></i>
                                                 ${this.clinicalAnalysis.locked ? "Case Unlock" : "Case Lock"}
                                             </a>
