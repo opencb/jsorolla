@@ -300,7 +300,7 @@ class VariantInterpreter extends LitElement {
                                         </div>
                                         ${this.clinicalAnalysis.interpretation?.method?.name ? html`
                                             <div style="font-size:0.875em;">
-                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong> 
+                                                <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                                             </div>
                                         ` : null}
                                         <div class="text-muted">
@@ -329,7 +329,7 @@ class VariantInterpreter extends LitElement {
                                                     </a>
                                                 </li>
                                             `)}
-                                            <li role="separator" class="divider"></li>
+                                            <li><hr class="dropdown-divider"></li>
                                         ` : null}
                                         <li>
                                             <a style="background-color:white!important;">

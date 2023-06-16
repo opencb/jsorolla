@@ -562,7 +562,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="download">

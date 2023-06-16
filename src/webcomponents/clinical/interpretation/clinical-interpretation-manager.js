@@ -176,13 +176,13 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 </li>
                                 <!-- Action Lock/Unlock -->
                                 ${interpretationLockAction}
-                                <li role="separator" class="divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
                             ` : html`
                                 ${this.renderItemAction(interpretation.id, "setAsPrimary", "fa-map-marker", "Set as primary")}
                                 <!-- Action Lock/Unlock -->
                                 ${interpretationLockAction}
-                                <li role="separator" class="divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 ${this.renderItemAction(interpretation.id, "clear", "fa-eraser", "Clear")}
                                 ${this.renderItemAction(interpretation.id, "delete", "fa-trash", "Delete")}
                             `}

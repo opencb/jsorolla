@@ -445,13 +445,13 @@ export default class DiseasePanelGrid extends LitElement {
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="copy" href="javascript: void 0" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-user icon-padding" aria-hidden="true"></i> Make a Copy
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>

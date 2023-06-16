@@ -832,7 +832,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     ${this._config.showGenomeBrowserLink ? `
                                         <li class="dropdown-header">Genome Browser</li>
                                         <li>
@@ -852,7 +852,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
@@ -875,7 +875,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
@@ -888,7 +888,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     ${copiesHtml ? `
-                                        <li role="separator" class="divider"></li>
+                                        <li><hr class="dropdown-divider"></li>
                                         <li class="dropdown-header">Custom Copy</li>
                                         ${copiesHtml}
                                     ` : ""}

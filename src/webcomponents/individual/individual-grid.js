@@ -506,14 +506,14 @@ export default class IndividualGrid extends LitElement {
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
                                     <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                                         <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
@@ -525,7 +525,7 @@ export default class IndividualGrid extends LitElement {
                                     </a>`
                 }
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#individualUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>

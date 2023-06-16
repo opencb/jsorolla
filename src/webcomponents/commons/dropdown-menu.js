@@ -37,7 +37,7 @@ export default class DropdownMenu extends LitElement {
     renderDropdownSection(section) {
         return html`
             ${this.config.display?.separator && this.config.sections[0].title !== section.title ? html`
-                <li role="separator" class="divider"></li>
+                <li><hr class="dropdown-divider"></li>
             ` : null
             }
             ${section.title ? html`

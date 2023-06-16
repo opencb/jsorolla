@@ -189,7 +189,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     ${this.variantInclusionState?.length > 0 ? html`
                                         ${this.variantInclusionState.map(inclusion => this.renderInclusionVariant(inclusion))}
 
-                                        <li role="separator" class="divider"></li>
+                                        <li><hr class="dropdown-divider"></li>
                                         <li style="margin: 5px 10px">
                                             <div style="float: right">
                                                 <button
@@ -226,7 +226,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     `}
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
                                     <button type="button" ?disabled="${!this.clinicalAnalysis.interpretation?.primaryFindings?.length}"
@@ -257,7 +257,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     `}
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Removed Variants</span>
@@ -270,7 +270,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     `}
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
                                     <button type="button" ?disabled="${!(this.state.addedVariants?.length || this.state.removedVariants?.length)}"
@@ -317,7 +317,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     </div>
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Add new comment</span>
@@ -334,7 +334,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     </text-field-filter>
                                 </div>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
                                     <button type="button" ?disabled="${!hasVariantsToSave}" class="btn btn-primary ${hasVariantsToSave ? "" : "disabled"}"

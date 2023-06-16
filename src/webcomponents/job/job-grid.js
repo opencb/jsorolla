@@ -405,7 +405,7 @@ export default class JobGrid extends LitElement {
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
                                     href='#sampleUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>

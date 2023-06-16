@@ -407,7 +407,7 @@ export default class CustomVerticalNavBar extends LitElement {
                                                     `;
                                                 case "separator":
                                                     return html `
-                                                        <li role="separator" class="divider"></li>
+                                                        <li><hr class="dropdown-divider"></li>
                                                     `;
                                                 default:
                                                     return html `

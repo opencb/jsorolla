@@ -811,7 +811,7 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">

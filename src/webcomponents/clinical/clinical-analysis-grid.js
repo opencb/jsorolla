@@ -618,7 +618,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                 </li>
                                 <!-- Perfom write operations to the case -->
                                 ${hasWriteAccess ? `
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <!-- Lock or unlock the case -->
                                     <li>
                                         <a class="btn force-text-left" data-action="lock">
