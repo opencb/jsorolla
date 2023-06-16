@@ -49,17 +49,20 @@ export default class CohortDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "cohort-detail";
+        this._cohort = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.cohort = null;
-        }
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
+        if (changedProperties.has("cohort")) {
+            this.cohortObserver();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -73,15 +76,19 @@ export default class CohortDetail extends LitElement {
     cohortIdObserver() {
         if (this.opencgaSession && this.cohortId) {
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.cohort = restResponse.getResult(0);
+                .then(response => {
+                    this._cohort = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
                 })
-                .catch(restResponse => {
-                    console.error(restResponse);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.cohort = null;
         }
+    }
+
+    cohortObserver() {
+        this._cohort = {...this.cohort};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -98,7 +105,7 @@ export default class CohortDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.cohort}"
+                .data="${this._cohort}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>`;
