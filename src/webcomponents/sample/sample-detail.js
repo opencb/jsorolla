@@ -51,17 +51,18 @@ export default class SampleDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "sample-detail";
+        this._sample = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.sample = null;
-        }
-
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
+        }
+
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -77,19 +78,24 @@ export default class SampleDetail extends LitElement {
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {
+            const params = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
-            })
+            };
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, params)
                 .then(response => {
-                    this.sample = response.getResult(0);
+                    this._sample = response.getResult(0);
+                    this.requestUpdate();
                 })
-                .catch(reason => {
-                    console.error(reason);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.sample = null;
         }
+    }
+
+    sampleObserver() {
+        this._sample = {...this.sample};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -106,7 +112,7 @@ export default class SampleDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.sample}"
+                .data="${this._sample}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
