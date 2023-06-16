@@ -807,8 +807,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                 if (copy.execute || CustomActions.exists(copy)) {
                                     copiesHtml = `
                                         <li>
-                                            <a href="javascript: void 0" class="btn force-text-left" data-action="${copy.id}">
-                                                <i class="fas fa-copy icon-padding" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                                            <a href="javascript: void 0" class="dropdown-item" data-action="${copy.id}">
+                                                <i class="fas fa-copy" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
                                             </a>
                                         </li>
                                     `;
@@ -821,70 +821,70 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-toolbox" aria-hidden="true"></i>
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
-                                        <a id="${reviewId}" href="javascript: void 0" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
-                                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
+                                        <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
+                                            <i class="fas fa-edit reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     ${this._config.showGenomeBrowserLink ? `
                                         <li class="dropdown-header">Genome Browser</li>
                                         <li>
-                                            <a class="btn force-text-left" data-action="genome-browser">
-                                                <i class="fas fa-dna icon-padding" aria-hidden="true"></i>Genome Browser
+                                            <a class="dropdown-item" data-action="genome-browser">
+                                                <i class="fas fa-dna" aria-hidden="true"></i>Genome Browser
                                             </a>
                                         </li>
                                     ` : ""}
                                     <li class="dropdown-header">External Links</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
                                     <li class="dropdown-header">CellBase Links</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Ensembl Genome Browser
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>
                                     <li>
-                                        <a target="_blank" class="btn force-text-left"
+                                        <a target="_blank" class="dropdown-item"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> UCSC Genome Browser
+                                            <i class="fas fa-external-link-alt" aria-hidden="true"></i> UCSC Genome Browser
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-json">
-                                            <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
+                                            <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
+                                            <i class="fas fa-download" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
                                     ${copiesHtml ? `
@@ -1465,7 +1465,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 {
                     render: () => html`
                         <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                            <i class="fas fa-cog"></i> Settings ...
                         </button>`
                 }
             ];

@@ -261,7 +261,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         return `
-            <a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter"
+            <a class="dropdown-item" data-action="interpreter" title="Go to Case Interpreter"
                     href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
                 ${html}
             </a>`;
@@ -300,17 +300,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0;">
                         ${currentPriorityText}
                     </span>
-                    <span class="caret"></span>
+
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
+                                <a class="dropdown-item right-icon" data-action="priorityChange" data-priority="${priority.id}">
                                     <span class="label ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
                                         ${priority.id}
                                     </span>
@@ -342,15 +342,15 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
                     <span style="margin-right:auto;">${currentStatus}</span>
-                    <span class="caret"></span>
+
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu dropdown-menu-right">
                         ${_status[row.type].map(({id, description}) => `
                             <li>
-                                <a class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
+                                <a class="dropdown-item right-icon" data-action="statusChange" data-status="${id}">
                                     ${id === currentStatus ? `<strong>${id}</strong>` : id}
                                     <p class="text-muted"><small>${description}</small></p>
                                     ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
@@ -598,22 +598,22 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     // Generate actions dropdown
                     return `
                         <div class="dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox" aria-hidden="true"></i>
                                 <span>Actions</span>
                                 <span class="caret" style="margin-left: 5px"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
                                 <!-- Open the case in the case interpreter -->
                                 <li>
-                                    <a class="btn force-text-left" data-action="interpreter" href="${url}">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
+                                    <a class="dropdown-item" data-action="interpreter" href="${url}">
+                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter
                                     </a>
                                 </li>
                                 <!-- Download the case -->
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                    <a href="javascript: void 0" class="dropdown-item" data-action="download">
+                                        <i class="fas fa-download" aria-hidden="true"></i> Download
                                     </a>
                                 </li>
                                 <!-- Perfom write operations to the case -->
@@ -621,14 +621,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     <li><hr class="dropdown-divider"></li>
                                     <!-- Lock or unlock the case -->
                                     <li>
-                                        <a class="btn force-text-left" data-action="lock">
-                                            <i class="fas ${lockActionIcon} icon-padding" aria-hidden="true"></i> ${lockActionText}
+                                        <a class="dropdown-item" data-action="lock">
+                                            <i class="fas ${lockActionIcon}" aria-hidden="true"></i> ${lockActionText}
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
                                     <li>
-                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} btn force-text-left" data-action="delete">
-                                            <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} dropdown-item" data-action="delete">
+                                            <i class="fas fa-trash" aria-hidden="true"></i> Delete
                                         </a>
                                     </li>
                                 ` : ""}

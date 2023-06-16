@@ -551,21 +551,21 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                                     <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li>
-                                        <a id="${reviewId}" href="javascript:void 0;" class="btn force-text-left reviewButton" data-action="edit" ${reviewDisabled}>
+                                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li class="dropdown-header">Fetch Variant</li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                         </a>
                                     </li>
