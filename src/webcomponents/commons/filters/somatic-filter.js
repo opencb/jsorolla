@@ -77,27 +77,31 @@ export default class SomaticFilter extends LitElement {
 
     render() {
         return html`
+            <!-- TODO: Is it form necessary -->
             <form id="${this._prefix}-somatic" class="somatic-filter">
-                <fieldset class="d-grid my-1 mx-0">
-                    <div class="btn-group" role="group">
-                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-none"
+                <!-- TODO: Is it fieldset necessary -->
+                <fieldset>
+                    <div class="form-check form-check-inline">
+                        <input class="${this._prefix}FilterRadio form-check-input" id="${this._prefix}-somatic-option-none"
                             type="radio" name="${this._prefix}-somatic-options" value="none"
                             @change="${this.filterChange}" checked>
-                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-none">
+                        <label class="form-check-label" for="${this._prefix}-somatic-option-none">
                             <span>None</span>
                         </label>
-
-                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-true"
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="${this._prefix}FilterRadio form-check-input" id="${this._prefix}-somatic-option-true"
                             type="radio" name="${this._prefix}-somatic-options" value="True"
                             @change="${this.filterChange}">
-                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-true">
+                        <label class="form-check-label" for="${this._prefix}-somatic-option-true">
                             <span>True</span>
                         </label>
-
-                        <input class="${this._prefix}FilterRadio btn-check" id="${this._prefix}-somatic-option-false"
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="${this._prefix}FilterRadio form-check-input" id="${this._prefix}-somatic-option-false"
                             type="radio" name="${this._prefix}-somatic-options" value="False"
                             @change="${this.filterChange}">
-                        <label class="btn btn-outline-primary" for="${this._prefix}-somatic-option-false">
+                        <label class="form-check-label" for="${this._prefix}-somatic-option-false">
                             <span>False</span>
                         </label>
                     </div>
