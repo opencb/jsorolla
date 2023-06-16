@@ -55,7 +55,7 @@ export default class ClinicalAnalysisDetail extends LitElement {
         this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -70,8 +70,9 @@ export default class ClinicalAnalysisDetail extends LitElement {
                 ...this.config,
             };
             this.#updateDetailTabs();
-            this.requestUpdate();
         }
+
+        super.update(changedProperties);
     }
 
     clinicalAnalysisIdObserver() {
