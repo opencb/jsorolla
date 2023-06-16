@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 import ExtensionsManager from "../extensions-manager.js";
 import "./family-view.js";
 import "../commons/view/detail-tabs.js";
@@ -50,7 +49,7 @@ export default class FamilyDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "family-detail";
-        this._prefix = UtilsNew.randomString(8);
+        this._family = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
@@ -58,6 +57,10 @@ export default class FamilyDetail extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
+        }
+
+        if (changedProperties.has("family")) {
+            this.familyObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -72,19 +75,21 @@ export default class FamilyDetail extends LitElement {
     }
 
     familyIdObserver() {
-        if (this.opencgaSession) {
-            if (this.familyId) {
-                this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.family = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.family = null;
-            }
+        if (this.opencgaSession && this.familyId) {
+            this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    this._family = restResponse.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(restResponse => {
+                    console.error(restResponse);
+                });
         }
+    }
+
+    familyObserver() {
+        this._family = {...this.family};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -101,7 +106,7 @@ export default class FamilyDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.family}"
+                .data="${this._family}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
