@@ -593,6 +593,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
 
+                    const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
                     const isOwnOrIsLocked = row.locked || this.opencgaSession?.user?.id !== row.analyst?.id ? "disabled" : "";
 
                     // Generate actions dropdown
@@ -621,7 +622,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     <li role="separator" class="divider"></li>
                                     <!-- Lock or unlock the case -->
                                     <li>
-                                        <a class="btn force-text-left" data-action="lock">
+                                        <a class="btn force-text-left ${isAdmin ? "" : "disabled"}" data-action="lock">
                                             <i class="fas ${lockActionIcon} icon-padding" aria-hidden="true"></i> ${lockActionText}
                                         </a>
                                     </li>
