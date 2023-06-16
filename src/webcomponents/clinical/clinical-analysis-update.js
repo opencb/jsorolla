@@ -25,6 +25,7 @@ import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import Types from "../commons/types";
+import opencgaSession from "../opencga/catalog/variableSets/test/opencgaSession";
 
 export default class ClinicalAnalysisUpdate extends LitElement {
 
@@ -238,6 +239,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             title: "Lock",
                             field: "locked",
                             type: "toggle-switch",
+                            display: {
+                                // FIXME: only admins can lock/unlock
+                                disabled: () => !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)
+                            }
                         },
                         {
                             title: "Status",
