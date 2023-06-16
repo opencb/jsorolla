@@ -55,9 +55,6 @@ export default class VariantInterpreterDetail extends LitElement {
             variantId: {
                 type: String
             },
-            cellbaseClient: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -90,13 +87,16 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     variantIdObserver() {
-        if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(restReponse => {
-                    this.variant = {
-                        id: this.variantId,
-                        annotation: restReponse.getResult(0)
-                    };
+        if (this.opencgaSession && this.variantId) {
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                id: this.variantId,
+                includeSampleId: "true",
+            };
+
+            this.opencgaSession.opencgaClient.clinical().queryVariant(params)
+                .then(response => {
+                    this.variant = response?.responses?.[0]?.results?.[0];
                 });
         }
     }
@@ -111,14 +111,6 @@ export default class VariantInterpreterDetail extends LitElement {
     render() {
         if (!this.opencgaSession) {
             return "";
-        }
-
-        if (!this.variant?.annotation && !Array.isArray(this.variant)) {
-            return;
-        }
-
-        if (!this._config?.items) {
-            return html`<h3>Error: No valid tab configuration</h3>`;
         }
 
         return html`
