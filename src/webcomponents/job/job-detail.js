@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
 import ExtensionsManager from "../extensions-manager.js";
 import "./job-detail-log.js";
 import "./job-view.js";
@@ -51,14 +50,18 @@ export default class JobDetail extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "job-detail";
-        this._prefix = UtilsNew.randomString(8);
+        this._job = null;
         this._config = this.getDefaultConfig();
         this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("jobId")) {
+        if (changedProperties.has("jobId")) {
             this.jobIdObserver();
+        }
+
+        if (changedProperties.has("job")) {
+            this.jobObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -76,14 +79,18 @@ export default class JobDetail extends LitElement {
         if (this.opencgaSession && this.jobId) {
             this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.job = response.getResult(0);
+                    this._job = response.getResult(0);
+                    this.requestUpdate();
                 })
-                .catch(function (reason) {
-                    console.error(reason);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.job = null;
         }
+    }
+
+    jobObserver() {
+        this._job = {...this.job};
+        this.requestUpdate();
     }
 
     #updateDetailTabs() {
@@ -100,7 +107,7 @@ export default class JobDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.job}"
+                .data="${this._job}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
