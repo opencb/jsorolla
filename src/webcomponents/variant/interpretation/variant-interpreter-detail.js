@@ -64,6 +64,7 @@ export default class VariantInterpreterDetail extends LitElement {
     #init() {
         this.COMPONENT_ID = "";
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
