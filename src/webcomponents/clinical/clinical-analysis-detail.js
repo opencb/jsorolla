@@ -82,8 +82,8 @@ export default class ClinicalAnalysisDetail extends LitElement {
                     this._clinicalAnalysis = response?.responses?.[0]?.results?.[0];
                     this.requestUpdate();
                 })
-                .catch(restResponse => {
-                    console.error(restResponse);
+                .catch(response => {
+                    console.error(response);
                 });
         }
     }
