@@ -37,17 +37,14 @@ export default class VariantBrowserDetail extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             variantId: {
                 type: String
             },
             variant: {
                 type: Object,
-            },
-            opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
             },
             config: {
                 type: Object
@@ -78,16 +75,15 @@ export default class VariantBrowserDetail extends LitElement {
     }
 
     variantIdObserver() {
-        if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+        if (this.opencgaSession && this.variantId) {
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                id: this.variantId,
+            };
+            this.opencgaSession.opencgaClient.variants().query(params)
                 .then(response => {
-                    this.variant = {
-                        id: this.variantId,
-                        annotation: response.responses[0].results[0],
-                    };
+                    this.variant = response.responses?.[0]?.results?.[0];
                 });
-        } else {
-            this.variant = null;
         }
     }
 
