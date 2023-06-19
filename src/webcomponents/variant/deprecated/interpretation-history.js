@@ -187,7 +187,7 @@ class InterpretationHistory extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="restore">
+                                <a href="javascript: void 0" class="dropdown-item" data-action="restore">
                                     <i class="fas fa-file-upload icon-padding" aria-hidden="true"></i> Restore
                                 </a>
                             </li>

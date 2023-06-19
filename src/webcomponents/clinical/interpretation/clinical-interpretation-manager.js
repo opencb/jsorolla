@@ -220,7 +220,7 @@ export default class ClinicalInterpretationManager extends LitElement {
         return html`
             <li>
                 <a
-                    class="btn force-text-left"
+                    class="dropdown-item"
                     data-action="${action}"
                     data-interpretation-id="${interpretationId}"
                     @click="${this.onActionClick}">

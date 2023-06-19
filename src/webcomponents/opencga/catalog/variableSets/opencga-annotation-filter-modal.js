@@ -234,15 +234,14 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         switch (variable.type) {
             case "OBJECT":
                 content = html`
-                    ${variable?.variableSet?.length ?
-                        html`
+                    ${variable?.variableSet?.length ? html`
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">
                                     ${variable.id}
                                 </label>
                                 ${variable.variableSet.map(v => this.renderVariable(v, variableSet))}
-                            </div>` :
-                        html`
+                            </div>
+                        ` : html`
                             <div class="col-md-3">
                                 <label class="form-label fw-bold" for="${variable.id}Textarea">
                                     <a tooltip-title="${variable.id}" tooltip-text="${variable.description}">
