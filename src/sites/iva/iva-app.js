@@ -632,10 +632,10 @@ class IvaApp extends LitElement {
         await this.opencgaClient.logout();
 
         // Check if sso is active: we will open a new tab calling the 'meta/sso/logout' endpoint
-        if (this.opencgaClient?._config?.sso) {
-            const config = this.opencgaClient._config;
-            UtilsNew.openInNewTab(`${config.host}/webservices/rest/${config.version}/meta/sso/logout`);
-        }
+        // if (this.opencgaClient?._config?.sso) {
+        //     const config = this.opencgaClient._config;
+        //     UtilsNew.openInNewTab(`${config.host}/webservices/rest/${config.version}/meta/sso/logout`);
+        // }
 
         this._createOpencgaSessionFromConfig();
 
