@@ -111,11 +111,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             ...this.query,
         };
 
-        // Add default region filter including only canonical chromosomes
-        if (!params.region) {
-            params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
-        }
-
         // Query SNV
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             ...params,
@@ -164,11 +159,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             ...this.query,
             ...this.queries?.["INDEL"],
         };
-
-        // Add default region filter including only canonical chromosomes
-        if (!params.region) {
-            params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
-        }
 
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
