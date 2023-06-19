@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -95,55 +96,29 @@ export default class ClinicalAnalysisCreate extends LitElement {
         };
     }
 
-    onFieldChange(e, field) {
-        // const param = field || e.detail.param;
+    onFieldChange(e) {
         this.clinicalAnalysis = {...this.clinicalAnalysis};
+
+        // If we have changed the type field, we have to reset the 'proband', 'disorder' and ' family' fields of the clinical analysis object
+        if (e.detail.param === "type") {
+            delete this.clinicalAnalysis["proband"];
+            delete this.clinicalAnalysis["disorder"];
+            delete this.clinicalAnalysis["family"];
+        }
+
+        // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
+        // We have to add also the disorders list to 'proband.disorders'.
+        if (e.detail.param === "proband.id" && this.clinicalAnalysis.type === "FAMILY") {
+            if (this.clinicalAnalysis.proband?.id) {
+                const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
+                this.clinicalAnalysis.proband.disorders = proband?.disorders || [];
+            } else if (this.clinicalAnalysis.proband?.disorders) {
+                // If we have remove the 'proband.id', we have to remove also the 'proband.disorders' field
+                delete this.clinicalAnalysis.proband.disorders;
+            }
+        }
+
         this.requestUpdate();
-        // switch (param) {
-        //     case "type":
-        //         this.clinicalAnalysis.type = e.detail.value?.toUpperCase();
-        //         break;
-        //     case "proband.id":
-        //         this.clinicalAnalysis.proband = this.clinicalAnalysis.family.members.find(d => d.id === e.detail.value);
-        //         if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-        //             this.clinicalAnalysis.disorder = {
-        //                 id: this.clinicalAnalysis.proband.disorders[0].id
-        //             };
-        //         }
-        //         break;
-        //     case "disorder.id":
-        //         if (e.detail.value) {
-        //             if (this.clinicalAnalysis.proband?.disorders?.length > 0) {
-        //                 const disorder = this.clinicalAnalysis.proband.disorders.find(d => e.detail.value === `${d.name} (${d.id})`);
-        //                 this.clinicalAnalysis.disorder = {
-        //                     id: disorder.id
-        //                 };
-        //             }
-        //         } else {
-        //             delete this.clinicalAnalysis.disorder;
-        //         }
-        //         break;
-        //     case "analyst.id":
-        //         this.clinicalAnalysis.analyst = {
-        //             id: e.detail.value
-        //         };
-        //         break;
-        //     case "panels.id":
-        //     case "flags.id":
-        //         const [field, prop] = param.split(".");
-        //         if (e.detail.value) {
-        //             this.clinicalAnalysis[field] = e.detail.value.split(",").map(value => ({[prop]: value}));
-        //         } else {
-        //             delete this.clinicalAnalysis[field];
-        //         }
-        //         break;
-        //     case "panelLock":
-        //         this.clinicalAnalysis.panelLock = e.detail.value;
-        //         break;
-        //     default:
-        //         this.clinicalAnalysis = {...FormUtils.createObject(this.clinicalAnalysis, param, e.detail.value)};
-        //         break;
-        // }
     }
 
     onCustomFieldChange(field, e) {
@@ -156,6 +131,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
     }
 
     onIndividualChange(e) {
+        // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "SINGLE";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -175,17 +154,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Single Analyisis Configuration
-            // Empty disorder and samples field when remove item from proband field.
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
-            // refresh the form
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
 
     onFamilyChange(e) {
+        // Empty proband, disorder and family fields when a family is changed or removed.
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+        delete this.clinicalAnalysis["family"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "FAMILY";
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -215,16 +194,16 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Empty family fields
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
-            delete this.clinicalAnalysis["family"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
     }
 
     onCancerChange(e) {
+        // Empty proband and disorder fields when a new individual has been selected or removed from the proband field
+        delete this.clinicalAnalysis["proband"];
+        delete this.clinicalAnalysis["disorder"];
+
         if (e.detail.value) {
             this.clinicalAnalysis.type = "CANCER";
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
@@ -250,9 +229,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     console.error(reason);
                 });
         } else {
-            // Empty disorder and samples field when remove item from proband field.
-            delete this.clinicalAnalysis["proband"];
-            delete this.clinicalAnalysis["disorder"];
             this.clinicalAnalysis = {...this.clinicalAnalysis};
             this.requestUpdate();
         }
@@ -355,10 +331,10 @@ export default class ClinicalAnalysisCreate extends LitElement {
             requires: "2.0.0",
             description: "Sample Variant Stats description",
             display: {
-                buttonsWidth: 8,
+                buttonsWidth: 10,
                 buttonClearText: "Clear",
                 buttonOkText: "Create Clinical Analysis",
-                width: 8,
+                width: 10,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
@@ -504,7 +480,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
+                                },
                                 errorMessage: "No disorders available",
                             }
                         },
@@ -583,7 +564,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
+                                },
                                 errorMessage: "No disorders available",
                             },
                         },
@@ -598,23 +584,32 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 errorClassName: "",
                                 columns: [
                                     {
-                                        title: "Individual",
+                                        title: "Individual ID",
                                         type: "custom",
                                         display: {
                                             render: individual => html`
                                                 <div style="font-weight: bold">${individual.id}</div>
                                                 <div class="help-block">
-                                                    ${UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex} (${individual.karyotypicSex || "Not specified"})
+                                                    ${individual?.sex?.id || "Not specified"} (${individual.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
                                         },
                                     },
                                     {
-                                        title: "Sample",
+                                        title: "Individual Name",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Samples",
                                         field: "samples",
                                         type: "custom",
                                         display: {
-                                            render: samples => html`${samples[0].id}`,
+                                            render: samples => {
+                                                if (!samples || samples.length === 0) {
+                                                    return "-";
+                                                }
+                                                return samples.map(sample => html`<div>${sample.id}</div>`);
+                                            },
                                         },
                                     },
                                     {
@@ -690,7 +685,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "select",
                             allowedValues: "proband.disorders",
                             display: {
-                                apply: disorder => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => {
+                                    return {
+                                        id: disorder.id,
+                                        name: WebUtils.getDisplayName(disorder),
+                                    };
+                                },
                                 errorMessage: "No disorders available",
                             }
                         },
