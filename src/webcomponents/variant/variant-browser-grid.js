@@ -948,7 +948,7 @@ export default class VariantBrowserGrid extends LitElement {
         ];
 
         // Inject columns for extensions
-        this._columns = this.gridCommons.addColumns(this._columns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
 
         // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;

@@ -471,7 +471,7 @@ export default class DiseasePanelGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        _columns = this.gridCommons.addColumns(_columns, this.COMPONENT_ID);
+        _columns = this.gridCommons.addColumnsFromExtensions(_columns, this.COMPONENT_ID);
         return _columns;
     }
 

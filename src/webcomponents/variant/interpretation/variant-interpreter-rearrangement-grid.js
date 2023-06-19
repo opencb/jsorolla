@@ -645,7 +645,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         ];
 
         // Update columns
-        this._columns = this.gridCommons.addColumns(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
         return this._columns;
     }

@@ -1051,7 +1051,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._columns = this._updateTableColumns(this._columns);
-        this._columns = this.gridCommons.addColumns(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
         return this._columns;
     }

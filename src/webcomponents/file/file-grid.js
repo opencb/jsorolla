@@ -382,7 +382,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        _columns = this.gridCommons.addColumns(_columns);
+        _columns = this.gridCommons.addColumnsFromExtensions(_columns);
         return _columns;
     }
 
