@@ -298,7 +298,7 @@ export default class GridCommons {
         return rowStyle;
     }
 
-    addColumns(columns, componentId) {
+    addColumnsFromExtensions(columns, componentId) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
             return ExtensionsManager.injectColumns(columns, id, columnId => this.isColumnVisible(columnId));
