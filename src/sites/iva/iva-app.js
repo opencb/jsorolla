@@ -340,15 +340,15 @@ class IvaApp extends LitElement {
                 if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
+                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"));
 
                     // Decode token to get user ID
                     // eslint-disable-next-line no-undef
                     const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub, {secure: true});
+                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
 
                     // We need to remove the params from the url
                     Array.from(currentUrl.searchParams.keys()).forEach(key => {

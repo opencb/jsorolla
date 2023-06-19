@@ -276,9 +276,9 @@ export class OpenCGAClient {
     setCookies(userId, token) {
         if (userId && token) {
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_userId", userId, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_userId", userId);
             // eslint-disable-next-line no-undef
-            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token, {secure: true});
+            Cookies.set(this._config.cookies.prefix + "_sid", this._config.token);
         } else {
             // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_userId");
