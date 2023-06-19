@@ -261,7 +261,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         return `
-            <a class="dropdown-item" data-action="interpreter" title="Go to Case Interpreter"
+            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter"
                     href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
                 ${html}
             </a>`;
