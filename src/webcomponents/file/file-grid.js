@@ -112,7 +112,7 @@ export default class OpencgaFileGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "bg-light",
+                theadClasses: "table-light",
                 buttonsClass: "btn btn-light",
                 columns: this._getDefaultColumns(),
                 method: "get",
@@ -203,6 +203,8 @@ export default class OpencgaFileGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "btn btn-light",
             columns: this._getDefaultColumns(),
             data: this.files,
             sidePagination: "local",
