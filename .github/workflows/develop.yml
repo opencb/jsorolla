@@ -16,7 +16,7 @@ jobs:
     secrets: inherit
     with:
       test_profile: runShortTests
-      report_context: development
+#      report_context: development
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
