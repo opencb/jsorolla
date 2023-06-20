@@ -39,7 +39,7 @@ jobs:
       - id: package
         name: Get project version
         run: |
-          echo "version=`cat package.json | grep -w version | cut -d : -f 2 | cut -d \" -f 2`" >> $GITHUB_OUTPUT
+          echo "version=`cat package.json | grep -w version | cut -d : -f 2 | cut -d \\" -f 2`" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
         with:
           name: build-folder
