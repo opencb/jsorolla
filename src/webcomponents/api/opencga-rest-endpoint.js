@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import "../commons/json-viewer.js";
 import "../commons/json-editor.js";
 
 
-export default class RestEndpoint extends LitElement {
+export default class OpencgaRestEndpoint extends LitElement {
 
     constructor() {
         super();
@@ -57,11 +57,7 @@ export default class RestEndpoint extends LitElement {
         this.dataModel = {};
         // Config for data-form endpoint
         this.configFormEndpoint = {};
-        this.methodColor = {
-            "GET": "blue",
-            "POST": "darkorange",
-            "DELETE": "red"
-        };
+        this.config = this.getDefaultConfig();
         this.paramsTypeToHtml = {
             "string": "input-text",
             "integer": "input-text",
@@ -69,6 +65,7 @@ export default class RestEndpoint extends LitElement {
             "boolean": "checkbox",
             "enum": "select",
         };
+
 
         this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
         this.specialTypeKeys = inputType => {
@@ -103,24 +100,37 @@ export default class RestEndpoint extends LitElement {
 
     endpointObserver() {
         this.result = "";
+        this.configFormEndpoint = {};
+        // ********************************************************************
+        // 0. Functions for checking if the param is: enum | primitive | object
+        // ********************************************************************
         const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
         const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-        this.configFormEndpoint = {};
+
+        // Given an endpoint, the keys that I have are:
+        // - Path, method, response, responseClass, notes, description
+        // - parameters []
+
+        // 1. If the endpoint has parameters,
+        // POST:
+        // (a) Get the dataModel for json,
+        // (b) Build dataform element (primitive | enum | object ), stored in bodyElements
+
         if (this.endpoint?.parameters?.length > 0) {
-            // this will clean up when the endpoint is changed.
+            // Init some of the variables: this will clean up when the endpoint is changed
             const queryElements = [];
             const filterElements = [];
             const pathElements = [];
             const bodyElements = [];
             this.dataModel = {};
-
             this.data = {};
+
             // 1. Split params in body and query/path params
             for (const parameter of this.endpoint.parameters) {
 
                 if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
-
+                    // 1. Get the parameters data model. Query /meta/model with parameter typeClass
                     for (const dataParameter of parameter.data) {
                         const paramType = dataParameter.type?.toLowerCase();
 
@@ -400,7 +410,6 @@ export default class RestEndpoint extends LitElement {
     }
 
     #setDataBody(body, params) {
-
         let _body = {...body};
         const paramValueByType = {
             map: {},
@@ -665,7 +674,7 @@ export default class RestEndpoint extends LitElement {
                 <div class="panel-body">
                     <!-- Header Section-->
                     <h4>
-                        <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
+                        <span style="margin-right: 10px; font-weight: bold; color:${this.config.methodColor[this.endpoint.method]}">
                             ${this.endpoint.method}
                         </span>
                         ${this.endpoint.path}
@@ -836,6 +845,16 @@ export default class RestEndpoint extends LitElement {
         };
     }
 
+    getDefaultConfig() {
+        return {
+            methodColor: {
+                "GET": "blue",
+                "POST": "darkorange",
+                "DELETE": "red"
+            },
+        };
+    }
+
 }
 
-customElements.define("rest-endpoint", RestEndpoint);
+customElements.define("opencga-rest-endpoint", OpencgaRestEndpoint);
