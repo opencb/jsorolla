@@ -24,13 +24,15 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/json-viewer.js";
 import "../commons/json-editor.js";
 
+import RestUtils from "./rest-utils.js";
+
 
 export default class OpencgaRestEndpoint extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,7 +50,7 @@ export default class OpencgaRestEndpoint extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.data = {};
         this._data = {};
@@ -58,6 +60,16 @@ export default class OpencgaRestEndpoint extends LitElement {
         // Config for data-form endpoint
         this.configFormEndpoint = {};
         this.config = this.getDefaultConfig();
+
+        this.restClient = new RestClient();
+        this.isLoading = false;
+        // FIXME: to refactor
+        this.methodColor = {
+            "GET": "blue",
+            "POST": "darkorange",
+            "DELETE": "red"
+        };
+        // FIXME: to refactor
         this.paramsTypeToHtml = {
             "string": "input-text",
             "integer": "input-text",
@@ -65,27 +77,14 @@ export default class OpencgaRestEndpoint extends LitElement {
             "boolean": "checkbox",
             "enum": "select",
         };
-
-
-        this._queryFilter = ["include", "exclude", "skip", "version", "limit", "release", "count", "attributes"];
-        this.specialTypeKeys = inputType => {
-            const passwordKeys = ["password", "newPassword"];
-            const dateKeys = ["creationDate", "modificationDate", "dateOfBirth", "date"];
-            if (passwordKeys.includes(inputType)) {
-                return "input-password";
-            }
-
-            if (dateKeys.includes(inputType)) {
-                return "input-date";
-            }
-            return false;
+        // CAUTION: new
+        this.elementsByType = {
+            "query": [],
+            "path": [],
+            "body": [],
+            "filter": [],
         };
-        // Type not support by the moment
-        // Format, BioFormat, List, software, Map
-        // ResourceType, Resource, Query, QueryOptions
 
-        this.restClient = new RestClient();
-        this.isLoading = false;
     }
 
     update(changedProperties) {
@@ -97,106 +96,121 @@ export default class OpencgaRestEndpoint extends LitElement {
         }
         super.update(changedProperties);
     }
+    #buildElement(parameterType, parameter) {
+        const fieldName = parameter.parentName ? `${parameter.parentName}.${parameter.name}` : parameter.name;
+        const dataformType = RestUtils.mapParamToDataformType(parameter);
+        // if (!dataformType) {// FIXME: exit orderly}
+
+        const element = {
+            title: parameter.name,
+            field: `${parameterType}.${fieldName}`,
+            // type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type?.toLowerCase()],
+            type: dataformType,
+            allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
+            defaultValue: this.getDefaultValue(parameter),
+            required: !!parameter.required,
+            display: dataformType === "object-list" ? {
+                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                collapsedUpdate: true,
+                view: data => html`
+                    <div>${data.id} - ${data?.name}</div>
+                `,
+            } : {
+                helpMessage: parameter?.description,
+                // CAUTION: should this study be disabled?
+                disabled: parameter.name === "study"
+            },
+        };
+
+        // 2. Add Elements for the object or list
+        if (dataformType === "object-list" || dataformType === "object") {
+            let elements = [];
+            for (const childParam of parameter.data) {
+                const parentElement = childParam.type === "List" ?
+                    `${fieldName}[].${childParam.name}`:
+                    `${fieldName}.${childParam.name}`;
+                elements = [
+                    ...elements,
+                    this.#buildElement("body", parentElement),
+                ];
+            }
+            element.elements = elements;
+        }
+        return element;
+    }
+    #addElement(paramType, element) {
+        this.elementsByType[paramType].push(element);
+    }
+
+    // FIXME: I believe #getDataformBodyElements and #getDataformQueryPathElements can be unified.
+    #getDataformBodyElements(parametersBody) {
+        for (const dataParameter of parametersBody.data) {
+            // Prepare data for json
+            this.dataModel = this.#setDataBody(this.dataModel, dataParameter);
+            // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
+            // Format, BioFormat, software, Map,ResourceType, Resource, Query, QueryOptions, etc..
+            let element = {};
+            element = this.#buildElement("body", dataParameter);
+            if (element) {
+                this.#addElement("body", element);
+            }
+        }
+    }
+
+    #getDataformQueryPathElements(parameters) {
+        // 1. Split params in body and query/path params
+        let element = {};
+        for (const parameter of parameters) {
+            // Get component type: path | filter | query
+            const componentType = RestUtils.getComponentType(parameter);
+            // Build element
+            element = this.#buildElement("param", parameter);
+            // Add element to the appropriate array
+            this.#addElement(componentType, element);
+        }
+    }
 
     endpointObserver() {
         this.result = "";
         this.configFormEndpoint = {};
-        // ********************************************************************
-        // 0. Functions for checking if the param is: enum | primitive | object
-        // ********************************************************************
-        const isPrimitiveOrEnum = dataParameter => !dataParameter.complex || dataParameter.type === "enum";
-        const isObject = dataParameter => dataParameter.complex && UtilsNew.isNotEmptyArray(dataParameter?.data);
-        const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-
-        // Given an endpoint, the keys that I have are:
-        // - Path, method, response, responseClass, notes, description
-        // - parameters []
-
-        // 1. If the endpoint has parameters,
-        // POST:
-        // (a) Get the dataModel for json,
-        // (b) Build dataform element (primitive | enum | object ), stored in bodyElements
+        this.elementsByType = {
+            "query": [],
+            "path": [],
+            "body": [],
+            "filter": [],
+        };
 
         if (this.endpoint?.parameters?.length > 0) {
             // Init some of the variables: this will clean up when the endpoint is changed
-            const queryElements = [];
-            const filterElements = [];
-            const pathElements = [];
             const bodyElements = [];
             this.dataModel = {};
             this.data = {};
 
-            // 1. Split params in body and query/path params
-            for (const parameter of this.endpoint.parameters) {
+            // FIXME DELETE: dictionary for param
+            // const dictionaryParam = [...new Set(this.endpoint.parameters.map(item => item.type))];
 
-                if (parameter.param === "body" && UtilsNew.isNotEmptyArray(parameter?.data)) {
-                    // 1. Get the parameters data model. Query /meta/model with parameter typeClass
-                    for (const dataParameter of parameter.data) {
-                        const paramType = dataParameter.type?.toLowerCase();
-
-                        // Prepare data for json
-                        this.dataModel = this.#setDataBody(this.dataModel, dataParameter);
-
-                        // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
-                        // Format, BioFormat, software, Map,ResourceType, Resource, Query, QueryOptions, etc..
-
-                        // Pass Enum, primitive or scalar type element.
-                        if (isPrimitiveOrEnum(dataParameter) && this.paramsTypeToHtml[paramType]) {
-                            bodyElements.push(
-                                {
-                                    name: dataParameter.name,
-                                    field: "body." + dataParameter.name,
-                                    type: this.specialTypeKeys(dataParameter.name) || this.paramsTypeToHtml[dataParameter.type?.toLowerCase()],
-                                    allowedValues: dataParameter.allowedValues?.split(/[\s,]+/) || "",
-                                    defaultValue: this.getDefaultValue(dataParameter),
-                                    required: !!dataParameter.required,
-                                    display: {
-                                        helpMessage: dataParameter.description
-                                    }
-                                }
-                            );
-                        }
-
-                        // Pass Object element.
-                        if (isObject(dataParameter)) {
-                            bodyElements.push(this.buildObjectOrListForm(dataParameter));
-                        }
-                    }
-                } else { // Parameter IS NOT body,
-                    //  Path and Query Params
-                    const element = {
-                        name: parameter.name,
-                        field: "param." + parameter.name,
-                        type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type],
-                        allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
-                        defaultValue: this.getDefaultValue(parameter),
-                        required: !!parameter.required,
-                        display: {
-                            helpMessage: parameter.description,
-                            disabled: parameter.name === "study"
-                        },
-                    };
-
-                    if (parameter.param === "path") {
-                        pathElements.push(element);
-                    } else {
-                        if (this._queryFilter.includes(parameter.name)) {
-                            filterElements.push(element);
-                        } else {
-                            queryElements.push(element);
-                        }
-                    }
+            // 1. POST endpoint
+            const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
+            if (bodyParameters.length === 1) {
+                if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
+                    this.#getDataformBodyElements(bodyParameters[0]);
                 }
+            }
+
+            // 2. Query and Path params
+            const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
+            if (queryPathParameters.length > 0) {
+                this.#getDataformQueryPathElements(queryPathParameters);
             }
 
             // 2. Sort and move 'study/ to first position
             const byStudy = elm => elm.name === "study" ? -1 : 1;
             const elements = [
-                ...this.#sortArray(pathElements),
-                ...this.#sortArray(queryElements).sort(byStudy),
-                ...this.#sortArray(filterElements)
+                ...RestUtils.sortArray(this.elementsByType["path"]),
+                ...RestUtils.sortArray(this.elementsByType["query"]).sort(byStudy),
+                ...RestUtils.sortArray(this.elementsByType["filter"])
             ];
-            const fieldElements = this.isNotEndPointAdmin() || this.isAdministrator() ? elements : this.disabledElements(elements);
+            const fieldElements = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? elements : this.disabledElements(elements);
 
             // 3. Init Form
             this.configFormEndpoint = {
@@ -207,7 +221,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                     defaultLayout: "horizontal",
                     buttonClearText: "Clear",
                     buttonOkText: "Try it out!",
-                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator())
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession))
                 },
                 sections: []
             };
@@ -244,7 +258,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
-                const bodyElementsForm = this.isNotEndPointAdmin() || this.isAdministrator() ? bodyElements : this.disabledElements(bodyElements);
+                const bodyElementsForm = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? bodyElements : this.disabledElements(bodyElements);
                 this.configFormEndpoint.sections.push({
                     title: "Body",
                     display: {
@@ -269,7 +283,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             }
 
             // 5. If the user is logged in, it will show the current study.
-            if (hasStudyField(fieldElements)) {
+            if (RestUtils.hasStudyField(fieldElements)) {
                 // this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
                 this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
             }
@@ -287,7 +301,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                     buttonOkText: "Try it out!",
                     labelWidth: "3",
                     defaultLayout: "horizontal",
-                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (this.isNotEndPointAdmin() || this.isAdministrator()),
+                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession)),
                 },
                 sections: [
                     {
@@ -320,95 +334,17 @@ export default class OpencgaRestEndpoint extends LitElement {
         return parameter?.defaultValue ?? "";
     }
 
-    buildObjectOrListForm(dataParameter) {
-
-        // Create List or Object
-        // 1. Field Name for the Object or list
-        const fieldName = dataParameter.parentName ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
-        const childElm = {
-            title: dataParameter.name,
-            field: "body." + fieldName,
-            type: dataParameter.type === "List" ? "object-list": "object",
-            display: dataParameter.type === "List" ? {
-                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                collapsedUpdate: true,
-                view: data => html`
-                    <div>${data.id} - ${data?.name}</div>
-            `,
-            } : {helpMessage: dataParameter?.description},
-            elements: [],
-        };
-
-        // 2. Add Elements for the object or list
-        for (const param of dataParameter.data) {
-
-            // primitive or scalar Type Elements
-            if (this.paramsTypeToHtml[param?.type?.toLowerCase()]) {
-                const parentElm = dataParameter.type === "List" ?
-                `${fieldName}[].${param.name}`:
-                `${fieldName}.${param.name}`;
-
-                childElm.elements = [...childElm?.elements, {
-                    title: param.name,
-                    field: "body." + parentElm,
-                    type: this.specialTypeKeys(param.name) || this.paramsTypeToHtml[param.type?.toLowerCase()],
-                    allowedValues: param.allowedValues?.split(/[\s,]+/) || "",
-                    defaultValue: this.getDefaultValue(param),
-                    required: !!param.required,
-                    display: {
-                        helpMessage: param.description
-                    }
-                }];
-            }
-
-            // Object or List
-            if (param.complex && UtilsNew.isNotEmptyArray(param?.data)) {
-                childElm.elements = [...childElm?.elements, this.buildObjectOrListForm(param)];
-            }
-        }
-        return childElm;
-    }
-
-    isAdministrator() {
-        return this.opencgaSession?.user?.account?.type === "ADMINISTRATOR" || this.opencgaSession?.user.id === "OPENCGA";
-    }
-
-    isNotEndPointAdmin() {
-        return !this.endpoint.path.includes("/admin/");
-    }
-
     disabledElements(elements) {
         return elements.map(element => ({...element, display: {disabled: true}}));
     }
 
-    #sortArray(elements) {
-        const _elements = elements;
-
-        _elements.sort((a, b) => {
-            const _nameA = a.name.toLowerCase();
-            const _nameB = b.name.toLowerCase();
-
-            // If both have the same required value, sort in alphabetical order
-            if (a.required === b.required) {
-                if (_nameA < _nameB) {
-                    return -1;
-                }
-
-                if (_nameA > _nameB) {
-                    return 1;
-                }
-            }
-
-            if (a.required) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-
-        return _elements;
-    }
-
+    // FIXME 2023 Vero: The meta/model endpoint is currently returning the json in string.
+    //  It has been discussed to change the endpoint to return a json
+    //  When fixed in opencga, this method can be replaced by:
+    //  {apiVersion}/opencga/webservices/rest/v2/meta/model?model={typeClass}
+    //  i.e:
+    //  {apiVersion}/meta/model?model=org.opencb.opencga.core.models.sample.SampleAclUpdateParams
+    //  Caution with the ; at the end of typeClass
     #setDataBody(body, params) {
         let _body = {...body};
         const paramValueByType = {
@@ -419,12 +355,12 @@ export default class OpencgaRestEndpoint extends LitElement {
         // Basic Type
         if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
             // _body[params.name] = params.value || "";
-            _body = {..._body, [params.name]: params.value || ""};
+            _body = {..._body, [params.title]: params.value || ""};
         }
 
         if (params.type === "List") {
             // _body[params.name] = [];
-            _body = {..._body, [params.name]: []};
+            _body = {..._body, [params.title]: []};
         }
 
         // Support object nested as 2nd Level
@@ -668,13 +604,12 @@ export default class OpencgaRestEndpoint extends LitElement {
         if (!this.endpoint) {
             return;
         }
-
         return html`
             <div class="panel panel-default">
                 <div class="panel-body">
                     <!-- Header Section-->
                     <h4>
-                        <span style="margin-right: 10px; font-weight: bold; color:${this.config.methodColor[this.endpoint.method]}">
+                        <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
                             ${this.endpoint.method}
                         </span>
                         ${this.endpoint.path}
@@ -738,11 +673,11 @@ export default class OpencgaRestEndpoint extends LitElement {
                         <div class="modal-body">
                             <opencga-export
                                     .config="${
-                                            {
-                                                resource: "API",
-                                                exportTabs: ["link", "code"]
-                                            }
-                                    }"
+            {
+                resource: "API",
+                exportTabs: ["link", "code"]
+            }
+        }"
                                     .query="${this.data}"
                                     .endpoint="${this.endpoint}"
                                     .opencgaSession="${this.opencgaSession}"
@@ -759,7 +694,7 @@ export default class OpencgaRestEndpoint extends LitElement {
     getTabsConfig(elements) {
         const configFormTab = {
             display: {
-                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 buttonClearText: "Clear",
                 buttonOkText: "Try it out!",
             },
@@ -773,7 +708,7 @@ export default class OpencgaRestEndpoint extends LitElement {
 
         const configJsonTab = {
             display: {
-                buttonsVisible: this.endpoint.method === "POST" && this.isNotEndPointAdmin() || this.isAdministrator(),
+                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 buttonClearText: "Clear",
                 buttonOkText: "Try it out!",
             },
@@ -787,7 +722,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                         type: "json-editor",
                         display: {
                             placeholder: "write json",
-                            readOnly: !(this.isNotEndPointAdmin() || this.isAdministrator()),
+                            readOnly: !(RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession)),
                             help: {
                                 text: "Must be a valid json, please remove empty fields if you don't need them."
                             }
@@ -839,7 +774,6 @@ export default class OpencgaRestEndpoint extends LitElement {
                 }
             });
         }
-
         return {
             items: [...items]
         };
@@ -847,14 +781,20 @@ export default class OpencgaRestEndpoint extends LitElement {
 
     getDefaultConfig() {
         return {
-            methodColor: {
-                "GET": "blue",
-                "POST": "darkorange",
-                "DELETE": "red"
+            type: "form",
+            display: {
+                width: "12",
+                labelWidth: "3",
+                defaultLayout: "horizontal",
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
+                buttonsVisible: (this.endpoint?.method === "GET" || this.endpoint?.method === "DELETE") && (RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession))
             },
+            sections: [],
         };
     }
 
 }
 
 customElements.define("opencga-rest-endpoint", OpencgaRestEndpoint);
+
