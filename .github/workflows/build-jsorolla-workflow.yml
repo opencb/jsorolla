@@ -34,8 +34,12 @@ jobs:
 #            ${{ runner.os }}-
       - run: npm install
       - run: npm run build
+#      - id: package
+#        uses: tyankatsu0105/read-package-version-actions@v1
       - id: package
-        uses: tyankatsu0105/read-package-version-actions@v1
+        name: Get project version
+        run: |
+          echo "version=`cat package.json | grep -w version | cut -d : -f 2 | cut -d \" -f 2`" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v3
         with:
           name: build-folder
