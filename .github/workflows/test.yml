@@ -52,8 +52,8 @@ jobs:
           path: |
             cypress/reports/assets
             cypress/reports/*.html
-#            cypress/screenshots
-#            cypress/videos
+            cypress/screenshots
+            cypress/videos
 
 #  publish-test:
 #    name: Publish test results

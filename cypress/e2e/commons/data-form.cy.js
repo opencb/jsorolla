@@ -13,7 +13,7 @@ describe("Data Form Component", () => {
 
     it("should has a title", () => {
         cy.get("#data-form")
-            .find("div", "General Information");
+            .find("div", "General Informatio");
     });
 
     it("should be render string field empty", () => {
