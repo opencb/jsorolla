@@ -27,6 +27,10 @@ export default {
         return parameter.complex && UtilsNew.isNotEmptyArray(parameter?.data);
     },
 
+    isListString(dataParameter) {
+        return dataParameter.complex && (dataParameter.type === "List") && (typeof dataParameter["data"] === "undefined");
+    },
+
     hasStudyField(fieldElements) {
         this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
     },

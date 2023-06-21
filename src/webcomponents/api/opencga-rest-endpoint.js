@@ -85,6 +85,8 @@ export default class OpencgaRestEndpoint extends LitElement {
             "filter": [],
         };
 
+        // get value from list<string>
+        this.valuesTolist = {};
     }
 
     update(changedProperties) {
@@ -121,6 +123,13 @@ export default class OpencgaRestEndpoint extends LitElement {
                 disabled: parameter.name === "study"
             },
         };
+
+        if (dataformType === "object-list") {
+            element.save = value => {
+                UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
+                return value;
+            };
+        }
 
         // 2. Add Elements for the object or list
         if (dataformType === "object-list" || dataformType === "object") {
@@ -172,6 +181,7 @@ export default class OpencgaRestEndpoint extends LitElement {
 
     endpointObserver() {
         this.result = "";
+        const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
         this.configFormEndpoint = {};
         this.elementsByType = {
             "query": [],
@@ -182,7 +192,6 @@ export default class OpencgaRestEndpoint extends LitElement {
 
         if (this.endpoint?.parameters?.length > 0) {
             // Init some of the variables: this will clean up when the endpoint is changed
-            const bodyElements = [];
             this.dataModel = {};
             this.data = {};
 
@@ -195,6 +204,11 @@ export default class OpencgaRestEndpoint extends LitElement {
                 if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
                     this.#getDataformBodyElements(bodyParameters[0]);
                 }
+            }
+
+            // Pass Object element.
+            if (isListString(dataParameter)) {
+                bodyElements.push(this.buildListString(dataParameter));
             }
 
             // 2. Query and Path params
@@ -291,6 +305,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             // 6. Get data.body to JSON.
             this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
 
+            // Copy Original Data
             this._data = UtilsNew.objectClone(this.data);
         } else {
             // If parameters no found
@@ -336,6 +351,24 @@ export default class OpencgaRestEndpoint extends LitElement {
 
     disabledElements(elements) {
         return elements.map(element => ({...element, display: {disabled: true}}));
+    }
+
+    // generateListInput
+    buildListString(dataParameter) {
+        const fieldName = dataParameter.parentName !== "" ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
+        return {
+            title: fieldName,
+            field: "body." + fieldName,
+            type: "input-text",
+            save: value => {
+                // stringToList
+                UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
+                return value;
+            },
+            display: {
+                helpMessage: dataParameter.description
+            }
+        };
     }
 
     // FIXME 2023 Vero: The meta/model endpoint is currently returning the json in string.
@@ -406,17 +439,6 @@ export default class OpencgaRestEndpoint extends LitElement {
         e.stopPropagation();
         const param = field || e.detail.param;
         this.data = {...e.detail.data};
-        // If it contains more than a dot or If the form has nested object
-        // ex. body.field.prop -> sample: body.source.name
-        // if ((param.match(/\./g) || []).length > 1) {
-        //     // For param type Object
-        //     const paramBody = param.replace("body.", "");
-        //     this.data.body = {...FormUtils.createObject(this.data.body, paramBody, e.detail.value)};
-        //     this.dataForm.body = {...FormUtils.createObject(this.dataForm.body, paramBody, e.detail.value)};
-        // } else {
-        //     this.data = {...FormUtils.createObject(this.data, param, e.detail.value)};
-        //     this.dataForm = {...FormUtils.createObject(this.dataForm, param, e.detail.value)};
-        // }
         this.requestUpdate();
     }
 
@@ -424,6 +446,7 @@ export default class OpencgaRestEndpoint extends LitElement {
         e.stopPropagation();
         this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
         this.data = UtilsNew.objectClone(this._data);
+        this.valuesTolist = {};
         this.requestUpdate();
     }
 
@@ -437,7 +460,7 @@ export default class OpencgaRestEndpoint extends LitElement {
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data[parameter.name])
+            .filter(parameter => parameter.param === "query" && this.data.param[parameter.name])
             .forEach(parameter => {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
@@ -470,16 +493,23 @@ export default class OpencgaRestEndpoint extends LitElement {
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => parameter.param === "query" && this.data.param[parameter.name])
+            .filter(parameter => (parameter.param === "query" && parameter.name !== "study") && this.data.param[parameter.name])
             .forEach(parameter => {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
+            });
+
+        // check if QUERY is required and it is not exist in the data
+        this.endpoint.parameters
+            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data.param[parameter.name] === "undefined")
+            .forEach(parameter => {
+                url += `&${parameter.name}=${parameter.defaultValue}`;
             });
 
         try {
             const _options = {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
-                data: isForm ? this.data?.body : JSON.parse(this.dataJson?.body),
+                data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
                 method: "POST"
             };
 
@@ -516,6 +546,15 @@ export default class OpencgaRestEndpoint extends LitElement {
             console.error(e);
         }
 
+    }
+
+    formatBody(data) {
+        if (UtilsNew.isNotEmpty(this.valuesTolist)) {
+            Object.keys(this.valuesTolist).forEach(key => {
+                UtilsNew.setObjectValue(data, key, this.valuesTolist[key]);
+            });
+        }
+        return data;
     }
 
     onSubmitJson(e) {
@@ -633,11 +672,11 @@ export default class OpencgaRestEndpoint extends LitElement {
                         <h3 style="display:inline-block;">Input Parameters</h3>
                         <div style="padding: 20px">
                             <data-form
-                                    .data="${this.data}"
-                                    .config="${this.configFormEndpoint}"
-                                    @fieldChange="${e => this.onChangeFormField(e)}"
-                                    @clear="${this.onClear}"
-                                    @submit="${this.onSubmit}">
+                                .data="${this.data}"
+                                .config="${this.configFormEndpoint}"
+                                @fieldChange="${e => this.onChangeFormField(e)}"
+                                @clear="${this.onClear}"
+                                @submit="${this.onSubmit}">
                             </data-form>
                         </div>
                     </div>
@@ -673,11 +712,11 @@ export default class OpencgaRestEndpoint extends LitElement {
                         <div class="modal-body">
                             <opencga-export
                                     .config="${
-            {
-                resource: "API",
-                exportTabs: ["link", "code"]
-            }
-        }"
+                                            {
+                                                resource: "API",
+                                                exportTabs: ["link", "code"]
+                                            }
+                                    }"
                                     .query="${this.data}"
                                     .endpoint="${this.endpoint}"
                                     .opencgaSession="${this.opencgaSession}"
@@ -744,11 +783,11 @@ export default class OpencgaRestEndpoint extends LitElement {
                     return html`
                         <!-- Body Forms -->
                         <data-form
-                                .data="${this.data}"
-                                .config="${configFormTab}"
-                                @fieldChange="${e => this.onChangeFormField(e)}"
-                                @clear="${e => this.onClear(e)}"
-                                @submit="${this.onSubmitForm}">
+                            .data="${this.data}"
+                            .config="${configFormTab}"
+                            @fieldChange="${e => this.onChangeFormField(e)}"
+                            @clear="${e => this.onClear(e)}"
+                            @submit="${this.onSubmitForm}">
                         </data-form>
                     `;
                 }
