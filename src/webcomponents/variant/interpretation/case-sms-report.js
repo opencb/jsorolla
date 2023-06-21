@@ -159,7 +159,7 @@ class CaseSmsReport extends LitElement {
                             field: "patient.birthDate",
                             type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`
+                                render: field => `${this.formatDateOrNA(field)}`
                             }
                         },
                         {
@@ -182,7 +182,7 @@ class CaseSmsReport extends LitElement {
                             field: "sample.extractionDate",
                             type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`
+                                render: field => `${this.formatDateOrNA(field)}`
                             }
                         },
                         {
@@ -229,7 +229,7 @@ class CaseSmsReport extends LitElement {
                             field: "request.requestDate",
                             type: "custom",
                             display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`
+                                render: field => `${this.formatDateOrNA(field)}`
                             },
                             defaultValue: "N/A"
                         },
@@ -293,6 +293,12 @@ class CaseSmsReport extends LitElement {
         console.error("An error occurred saving report: ", response);
     }
 
+    // tmp
+    formatDateOrNA(field) {
+        return field ? UtilsNew.dateFormatter(field) : "N/A";
+    }
+
+
     // It might not need to be a component.
     openUploadModal() {
         console.log("Open modal");
@@ -320,11 +326,11 @@ class CaseSmsReport extends LitElement {
                                     body: [
                                         [PdfUtils.fieldText("Nombre: ", this._reportData.patient.name)],
                                         [PdfUtils.fieldText("Apellidos: ", this._reportData.patient.lastName)],
-                                        [PdfUtils.fieldText("Fecha Nacimiento: ", UtilsNew.dateFormatter(this._reportData.patient.birthDate))],
+                                        [PdfUtils.fieldText("Fecha Nacimiento: ", this.formatDateOrNA(this._reportData.patient.birthDate))],
                                         [PdfUtils.fieldText("Edad: ", this._reportData.patient.age)],
                                         [PdfUtils.fieldText("Código Sistema Salud: ", this._reportData.patient.cipa)],
                                         [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.clinicalAnalysis.sample.type)],
-                                        [PdfUtils.fieldText("Fecha de Extracción: ", this._reportData.clinicalAnalysis.sample.extractionDate)],
+                                        [PdfUtils.fieldText("Fecha de Extracción: ", this.formatDateOrNA(this._reportData.clinicalAnalysis.sample.extractionDate))],
                                         [PdfUtils.fieldText("Razón Extracción: ", this._reportData.clinicalAnalysis.sample?.reason)]
                                     ]
                                 },
@@ -338,7 +344,7 @@ class CaseSmsReport extends LitElement {
                                     widths: [230],
                                     body: [
                                         [PdfUtils.fieldText("N. Petición: ", this._reportData.clinicalAnalysis.request.id)],
-                                        [PdfUtils.fieldText("Fecha de Petición: ", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.sample.requestDate))],
+                                        [PdfUtils.fieldText("Fecha de Petición: ", this.formatDateOrNA(this._reportData.clinicalAnalysis.sample.requestDate))],
                                         [PdfUtils.fieldText("Dr/Dra: ", ["nombre_doctor\n", "Unidad\n", "Nombre del hopital\n", "direction del hopital\n", "CP del hospital\n"])],
                                     ]
                                 },
@@ -429,7 +435,7 @@ class CaseSmsReport extends LitElement {
                         ],
                         [
                             PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.lab?.validation),
-                            PdfUtils.fieldText("Fecha", UtilsNew.dateFormatter(this._reportData.clinicalAnalysis.lab?.date)),
+                            PdfUtils.fieldText("Fecha", this.formatDateOrNA(this._reportData.clinicalAnalysis.lab?.date)),
                         ]
                     ]
                 }
@@ -588,10 +594,10 @@ class CaseSmsReport extends LitElement {
             primaryFinding => primaryFinding?.status === "REPORTED");
         const variantsReported = interpretations.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
         const variantsHtml = variantsReported
-            .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+            ?.map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
         const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
         const variantElements = variantsReported
-            .map(variant => ({
+            ?.map(variant => ({
                 label: variant.title,
                 content: `<div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`
             }));
@@ -1497,26 +1503,26 @@ class CaseSmsReport extends LitElement {
                         {
                             title: "Study Reason",
                             field: "study.reason",
-                            defaultValue: "Testing"
+                            defaultValue: "N/A"
                         },
                         {
                             title: "Project",
                             field: "study.project",
-                            defaultValue: "Testing"
+                            defaultValue: "N/A"
                         },
                         {
                             title: "Current Analysis",
                             field: "study.currentAnalysis",
-                            defaultValue: "Testing"
+                            defaultValue: "N/A"
                         },
                         {
                             title: "Gene Priority",
                             field: "study.genePriority",
                             type: "custom",
                             display: {
-                                render: field => `${field?.join(", ")}`
+                                render: field => `${field?.join(", ") || "N/A"}`
                             },
-                            defaultValue: "Testing"
+                            defaultValue: "N/A"
                         },
                     ]
                 },
@@ -1608,20 +1614,22 @@ class CaseSmsReport extends LitElement {
                                 disabled: false,
                                 preview: true,
                                 render: interpretations => {
+                                    const _interpretations = interpretations || [];
                                     const primaryFindingReported = this._clinicalAnalysis?.interpretation?.primaryFindings?.filter(
                                         primaryFinding => primaryFinding?.status === "REPORTED");
-                                    const variantsReported = interpretations?.variants.filter(variant => primaryFindingReported.findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
+                                    const variantsReported = _interpretations?.variants?.filter(variant => primaryFindingReported
+                                        .findIndex(primaryFinding => primaryFinding.id === variant.id) > -1);
                                     const variantsHtml = variantsReported
-                                        .map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
-                                    const interpretationsHtml = `<div id='intro'>${interpretations.intro}</div>${variantsHtml}`;
+                                        ?.map(variant => `<b>${variant.title}</b></br><div id='${variant.id}'>${_interpretations._variantsKeys?.map(key => variant[key]).join(" ")}</div>`).join("");
+                                    const interpretationsHtml = `<div id='intro'>${_interpretations.intro || ""}</div>${variantsHtml || ""}`;
                                     return html`
-                                    <rich-text-editor
-                                        .data="${interpretationsHtml}"
-                                        .config="${{
+                                        <rich-text-editor
+                                            .data="${interpretationsHtml}"
+                                            .config="${{
                                         disabled: false,
                                         preview: true,
                                     }}">
-                                    </rich-text-editor>
+                                        </rich-text-editor>
                                     `;
                                 }
                             }
