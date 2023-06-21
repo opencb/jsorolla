@@ -129,6 +129,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             },
         };
 
+        // FIXME: try to devise a more clever way of doing this...
         if (RestUtils.isListString(parameter)) {
             element.type = "input-text";
             element.save = value => {
@@ -158,7 +159,7 @@ export default class OpencgaRestEndpoint extends LitElement {
         return element;
     }
 
-    async #getDataformElements(parameters, parameterType) {
+    #getDataformElements(parameters, parameterType) {
         for (const parameter of parameters) {
             // 1. Get component type: path | filter | query | body
             const componentType = RestUtils.getComponentType(parameter);
