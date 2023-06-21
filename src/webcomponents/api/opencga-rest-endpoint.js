@@ -162,10 +162,6 @@ export default class OpencgaRestEndpoint extends LitElement {
         for (const parameter of parameters) {
             // 1. Get component type: path | filter | query | body
             const componentType = RestUtils.getComponentType(parameter);
-            if (parameterType === "body") {
-                this.dataModel = this.#setDataBody(this.dataModel, parameter);
-                // this.dataModel = await this.#getDataModel(parameter);
-            }
             // 2. Build element
             const element = this.#buildElement(parameterType, "", parameter);
             // 3. Add element to the appropriate array
@@ -178,7 +174,7 @@ export default class OpencgaRestEndpoint extends LitElement {
         }
     }
 
-    endpointObserver() {
+    async endpointObserver() {
         this.result = "";
         const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
         this.configFormEndpoint = {};
@@ -201,6 +197,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
             if (bodyParameters.length === 1) {
                 if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
+                    this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
                     this.#getDataformElements(bodyParameters[0].data, "body");
                 }
             }
@@ -347,78 +344,13 @@ export default class OpencgaRestEndpoint extends LitElement {
         return elements.map(element => ({...element, display: {disabled: true}}));
     }
 
-    // FIXME 2023 Vero: The meta/model endpoint is currently returning the json in string.
-    //  It has been discussed to change the endpoint to return a json
-    //  When fixed in opencga, this method can be replaced by:
-    //  {apiVersion}/opencga/webservices/rest/v2/meta/model?model={typeClass}
-    //  i.e:
-    //  {apiVersion}/meta/model?model=org.opencb.opencga.core.models.sample.SampleAclUpdateParams
-    //  Caution with the ; at the end of typeClass
-    async #setDataBody(body, params) {
-        // debugger
-        let _body = {...body};
-        const paramValueByType = {
-            map: {},
-            list: [],
-        };
-
-        // Basic Type
-        if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
-            // _body[params.name] = params.value || "";
-            _body = {..._body, [params.name]: params.value || ""};
-        }
-
-        if (params.type === "List") {
-            // _body[params.name] = [];
-            _body = {..._body, [params.name]: []};
-        }
-
-        // Support object nested as 2nd Level
-        if (RestUtils.isObjectOrList(params)) {
-            _body = await this.#getDataModel(params.typeClass.replace(";", ""));
-        }
-
-        // Display object props from object. sample.source
-        // if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
-        //     params.data.forEach(param => {
-        //         _body[param.parentName] = {
-        //             ..._body[param.parentName],
-        //             [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
-        //         };
-        //     });
-        // }
-        //
-        // // Display object props from list ex. List<Phenotypes>
-        // if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
-        //     let paramData = {};
-        //     params.data.forEach(param => {
-        //         paramData = {
-        //             ...paramData,
-        //             [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
-        //         };
-        //     });
-        //     // _body[params.name] = [paramData];
-        //     _body = {..._body, [params.name]: [paramData]};
-        // }
-
-        return _body;
-    }
-
-
     #getDataModel(model) {
-        // debugger
-        // this.restClient.call(url, {model: model})
         return this.opencgaSession.opencgaClient.meta().model({model: model})
             .then(response => {
-                // debugger
                 return JSON.parse(response.responses[0].results[0]);
             })
             .catch(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            })
-            .finally(() => {
-                // this.isLoading = false;
-                // this.requestUpdate();
             });
     }
 
