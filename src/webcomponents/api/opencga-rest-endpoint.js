@@ -204,7 +204,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             }
 
             // 2. Sort and move 'study/ to first position
-            const byStudy = elm => elm.name === "study" ? -1 : 1;
+            const byStudy = elm => elm.title === "study" ? -1 : 1;
             const elements = [
                 ...RestUtils.sortArray(this.elementsByType["path"]),
                 ...RestUtils.sortArray(this.elementsByType["query"]).sort(byStudy),
@@ -258,7 +258,7 @@ export default class OpencgaRestEndpoint extends LitElement {
             // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
             // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
             if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
-                const bodyElementsForm = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? bodyElements : this.disabledElements(bodyElements);
+                const bodyElementsForm = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? this.elementsByType["body"] : this.disabledElements(this.elementsByType["body"]);
                 this.configFormEndpoint.sections.push({
                     title: "Body",
                     display: {
@@ -355,12 +355,12 @@ export default class OpencgaRestEndpoint extends LitElement {
         // Basic Type
         if (this.paramsTypeToHtml[params.type?.toLowerCase()]) {
             // _body[params.name] = params.value || "";
-            _body = {..._body, [params.title]: params.value || ""};
+            _body = {..._body, [params.name]: params.value || ""};
         }
 
         if (params.type === "List") {
             // _body[params.name] = [];
-            _body = {..._body, [params.title]: []};
+            _body = {..._body, [params.name]: []};
         }
 
         // Support object nested as 2nd Level
