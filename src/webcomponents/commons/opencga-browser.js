@@ -365,7 +365,7 @@ export default class OpencgaBrowser extends LitElement {
                         </button>
                     </div>
                     <ul class="nav nav-tabs mb-3" id="filterTab" role="tablist">
-                        <li role="nav-item">
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link active fw-bold"
                                 href="#filters_tab"
                                 aria-controls="filters_tab"
@@ -378,7 +378,7 @@ export default class OpencgaBrowser extends LitElement {
                             </button>
                         </li>
                         ${this._config.aggregation ? html`
-                            <li role="nav-item">
+                            <li class="nav-item" role="presentation">
                                 <button class="nav-link fw-bold"
                                     href="#facet_tab"
                                     aria-controls="facet_tab"
