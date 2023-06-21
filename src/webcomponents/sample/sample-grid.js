@@ -293,6 +293,8 @@ export default class SampleGrid extends LitElement {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                width: "10",
+                widthUnit: "%",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession)
             },
             {

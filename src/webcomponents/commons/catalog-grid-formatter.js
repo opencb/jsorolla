@@ -145,7 +145,7 @@ export default class CatalogGridFormatter {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
-                    <button title="Go to Case Interpreter" class="btn btn-light btn-sm  " href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                    <button title="Go to Case Interpreter" class="btn btn-sm btn-light" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
                         <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                     </button>
                 `;
