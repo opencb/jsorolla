@@ -6,11 +6,14 @@ import UtilsNew from "../../core/utils-new";
 export default {
 
     getParameterType(parameter) {
-        if (!parameter.complex || parameter.type === "enum") {
+        if (this.isPrimitiveOrEnum(parameter)) {
             return "primitive_enum";
         }
-        if (parameter.complex && UtilsNew.isNotEmptyArray(parameter?.data)) {
-            return "object";
+        if (this.isObjectOrList(parameter)) {
+            return "object-list";
+        }
+        if (this.isListString(parameter)) {
+            return "list-string";
         }
     },
 
@@ -23,12 +26,12 @@ export default {
         return !parameter.complex || parameter.type === "enum";
     },
 
-    isObject(parameter) {
+    isObjectOrList(parameter) {
         return parameter.complex && UtilsNew.isNotEmptyArray(parameter?.data);
     },
 
-    isListString(dataParameter) {
-        return dataParameter.complex && (dataParameter.type === "List") && (typeof dataParameter["data"] === "undefined");
+    isListString(parameter) {
+        return parameter.complex && (parameter.type === "List") && (typeof parameter["data"] === "undefined");
     },
 
     hasStudyField(fieldElements) {
@@ -73,11 +76,7 @@ export default {
     mapParamToDataformType(param) {
         // NOTE 20230620 It is important to check first the name of the param, and if not found, the type.
         //  The type the following params in Opencga in "string" but the dataform type needs to be different.
-
-        // Type not support by the moment
-        // Format, BioFormat, List, software, Map
-        // ResourceType, Resource, Query, QueryOptions
-
+        // Type not support by the moment: Format, BioFormat, List, software, Map, ResourceType, Resource, Query, QueryOptions
         const mapSpecial = {
             "input-password": ["password", "newPassword"],
             "input-date": ["creationDate", "modificationDate", "dateOfBirth", "date"],
@@ -87,11 +86,14 @@ export default {
             "checkbox": ["boolean"],
             "select": ["enum"],
             "object-list": ["list"],
-            "object": ["object"],
         };
-        return Object.keys(mapSpecial).find(key => mapSpecial[key].includes(param.name)) ||
-            Object.keys(map).find(key => map[key].includes(param.type?.toLowerCase())) ||
-            null;
+
+        if (this.isObjectOrList(param) && param.type !== "List") {
+            return "object";
+        } else {
+            return Object.keys(mapSpecial).find(key => mapSpecial[key].includes(param.name)) ||
+                Object.keys(map).find(key => map[key].includes(param.type?.toLowerCase()));
+        }
     }
 
 };

@@ -98,13 +98,16 @@ export default class OpencgaRestEndpoint extends LitElement {
         }
         super.update(changedProperties);
     }
-    #buildElement(parameterType, parameter) {
-        const fieldName = parameter.parentName ? `${parameter.parentName}.${parameter.name}` : parameter.name;
+    #buildElement(parameterType, childFieldName, parameter) {
+        const fieldName = childFieldName || parameter.parentName ? `${parameter.parentName}.${parameter.name}` : parameter.name;
         const dataformType = RestUtils.mapParamToDataformType(parameter);
-        // if (!dataformType) {// FIXME: exit orderly}
+        if (parameter.name === "phenotypes") {
+            // debugger
+        }
 
         const element = {
             title: parameter.name,
+            // field: `${parameterType}.${fieldName}`,
             field: `${parameterType}.${fieldName}`,
             // type: this.specialTypeKeys(parameter.name) || this.paramsTypeToHtml[parameter.type?.toLowerCase()],
             type: dataformType,
@@ -119,63 +122,59 @@ export default class OpencgaRestEndpoint extends LitElement {
                 `,
             } : {
                 helpMessage: parameter?.description,
-                // CAUTION: should this study be disabled?
-                disabled: parameter.name === "study"
+                // CAUTION: should study be disabled?
+                //   disabled Exist:   (a) Query or Path param
+                //   disabled Do not exit:  (a) PrimitiveEnum, (b) Object or List, (c) List string
+                // disabled: parameter.name === "study"
             },
         };
 
-        if (dataformType === "object-list") {
+        if (RestUtils.isListString(parameter)) {
+            element.type = "input-text";
             element.save = value => {
                 UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
                 return value;
             };
         }
 
-        // 2. Add Elements for the object or list
-        if (dataformType === "object-list" || dataformType === "object") {
+        // 2. If the parameter has data attribute (is an object or a list),
+        // recursive call to create elements.
+        if (RestUtils.isObjectOrList(parameter)) {
             let elements = [];
+            let childFieldName = "";
             for (const childParam of parameter.data) {
-                const parentElement = childParam.type === "List" ?
-                    `${fieldName}[].${childParam.name}`:
-                    `${fieldName}.${childParam.name}`;
+                if (RestUtils.getParameterType(childParam) === "primitive-enum") {
+                    childFieldName = parameter.type === "List" ?
+                        `${fieldName}[].${childParam.name}`:
+                        `${fieldName}.${childParam.name}`;
+                }
                 elements = [
                     ...elements,
-                    this.#buildElement("body", parentElement),
+                    this.#buildElement("body", childFieldName, childParam),
                 ];
             }
             element.elements = elements;
         }
         return element;
     }
-    #addElement(paramType, element) {
-        this.elementsByType[paramType].push(element);
-    }
 
-    // FIXME: I believe #getDataformBodyElements and #getDataformQueryPathElements can be unified.
-    #getDataformBodyElements(parametersBody) {
-        for (const dataParameter of parametersBody.data) {
-            // Prepare data for json
-            this.dataModel = this.#setDataBody(this.dataModel, dataParameter);
-            // INFO: Here are some other elements to be avoided, the type of which is not yet supported.
-            // Format, BioFormat, software, Map,ResourceType, Resource, Query, QueryOptions, etc..
-            let element = {};
-            element = this.#buildElement("body", dataParameter);
-            if (element) {
-                this.#addElement("body", element);
-            }
-        }
-    }
-
-    #getDataformQueryPathElements(parameters) {
-        // 1. Split params in body and query/path params
-        let element = {};
+    async #getDataformElements(parameters, parameterType) {
         for (const parameter of parameters) {
-            // Get component type: path | filter | query
+            // 1. Get component type: path | filter | query | body
             const componentType = RestUtils.getComponentType(parameter);
-            // Build element
-            element = this.#buildElement("param", parameter);
-            // Add element to the appropriate array
-            this.#addElement(componentType, element);
+            if (parameterType === "body") {
+                this.dataModel = this.#setDataBody(this.dataModel, parameter);
+                // this.dataModel = await this.#getDataModel(parameter);
+            }
+            // 2. Build element
+            const element = this.#buildElement(parameterType, "", parameter);
+            // 3. Add element to the appropriate array
+            if (element) {
+                this.elementsByType[componentType].push(element);
+            } else {
+                // CAUTION: it should not enter here
+                console.log("CAUTION: element not created");
+            }
         }
     }
 
@@ -202,19 +201,14 @@ export default class OpencgaRestEndpoint extends LitElement {
             const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
             if (bodyParameters.length === 1) {
                 if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
-                    this.#getDataformBodyElements(bodyParameters[0]);
+                    this.#getDataformElements(bodyParameters[0].data, "body");
                 }
-            }
-
-            // Pass Object element.
-            if (isListString(dataParameter)) {
-                bodyElements.push(this.buildListString(dataParameter));
             }
 
             // 2. Query and Path params
             const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
             if (queryPathParameters.length > 0) {
-                this.#getDataformQueryPathElements(queryPathParameters);
+                this.#getDataformElements(queryPathParameters, "param");
             }
 
             // 2. Sort and move 'study/ to first position
@@ -353,24 +347,6 @@ export default class OpencgaRestEndpoint extends LitElement {
         return elements.map(element => ({...element, display: {disabled: true}}));
     }
 
-    // generateListInput
-    buildListString(dataParameter) {
-        const fieldName = dataParameter.parentName !== "" ? `${dataParameter.parentName}.${dataParameter.name}` : dataParameter.name;
-        return {
-            title: fieldName,
-            field: "body." + fieldName,
-            type: "input-text",
-            save: value => {
-                // stringToList
-                UtilsNew.setObjectValue(this.valuesTolist, fieldName, value?.split(","));
-                return value;
-            },
-            display: {
-                helpMessage: dataParameter.description
-            }
-        };
-    }
-
     // FIXME 2023 Vero: The meta/model endpoint is currently returning the json in string.
     //  It has been discussed to change the endpoint to return a json
     //  When fixed in opencga, this method can be replaced by:
@@ -378,7 +354,8 @@ export default class OpencgaRestEndpoint extends LitElement {
     //  i.e:
     //  {apiVersion}/meta/model?model=org.opencb.opencga.core.models.sample.SampleAclUpdateParams
     //  Caution with the ; at the end of typeClass
-    #setDataBody(body, params) {
+    async #setDataBody(body, params) {
+        // debugger
         let _body = {...body};
         const paramValueByType = {
             map: {},
@@ -397,30 +374,52 @@ export default class OpencgaRestEndpoint extends LitElement {
         }
 
         // Support object nested as 2nd Level
-        // Display object props from object. sample.source
-        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
-            params.data.forEach(param => {
-                _body[param.parentName] = {
-                    ..._body[param.parentName],
-                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
-                };
-            });
+        if (RestUtils.isObjectOrList(params)) {
+            _body = await this.#getDataModel(params.typeClass.replace(";", ""));
         }
 
-        // Display object props from list ex. List<Phenotypes>
-        if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
-            let paramData = {};
-            params.data.forEach(param => {
-                paramData = {
-                    ...paramData,
-                    [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
-                };
-            });
-            // _body[params.name] = [paramData];
-            _body = {..._body, [params.name]: [paramData]};
-        }
+        // Display object props from object. sample.source
+        // if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type !== "List") {
+        //     params.data.forEach(param => {
+        //         _body[param.parentName] = {
+        //             ..._body[param.parentName],
+        //             [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+        //         };
+        //     });
+        // }
+        //
+        // // Display object props from list ex. List<Phenotypes>
+        // if (params.complex && UtilsNew.isNotEmptyArray(params.data) && params.type === "List") {
+        //     let paramData = {};
+        //     params.data.forEach(param => {
+        //         paramData = {
+        //             ...paramData,
+        //             [param.name]: paramValueByType[param.type.toLowerCase()] || param.defaultValue || ""
+        //         };
+        //     });
+        //     // _body[params.name] = [paramData];
+        //     _body = {..._body, [params.name]: [paramData]};
+        // }
 
         return _body;
+    }
+
+
+    #getDataModel(model) {
+        // debugger
+        // this.restClient.call(url, {model: model})
+        return this.opencgaSession.opencgaClient.meta().model({model: model})
+            .then(response => {
+                // debugger
+                return JSON.parse(response.responses[0].results[0]);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
+                // this.isLoading = false;
+                // this.requestUpdate();
+            });
     }
 
     onChangeJsonField(e, field) {
