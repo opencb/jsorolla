@@ -37,7 +37,7 @@ context("10. Disease Browser", () => {
                 UtilsTest.getResult("disease-panel-grid", 0).then($text => {
                     UtilsTest.selectToken("disease-panel-id-autocomplete", $text.trim());
                     cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-                    cy.get("div.search-button-wrapper button").click();
+                    cy.get("div.cy-search-button-wrapper button").click();
                 });
                 UtilsTest.checkResults("disease-panel-grid");
                 cy.get("opencga-active-filters button[data-filter-name='id']").click();

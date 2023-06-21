@@ -34,7 +34,7 @@ context("8. Sample Browser", () => {
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("sample-grid");
 
         cy.get("#somatic + .cy-subsection-content label").contains("True").click({force: true}); // setting filter Somatic = true
@@ -67,7 +67,7 @@ context("8. Sample Browser", () => {
 
 
         UtilsTest.facet.checkActiveFacetLength(3);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(3);
 
         // cy.get("div.facet-wrapper button[data-filter-name='creationYear']").contains("creationYear>>creationMonth");
@@ -83,7 +83,7 @@ context("8. Sample Browser", () => {
         UtilsTest.facet.select("Status"); // removing status
 
         UtilsTest.facet.checkActiveFacetLength(2);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(2);
     });
 });

@@ -432,7 +432,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
             <div class="row">
                 <div class="col-md-2">
-                    <div class="search-button-wrapper">
+                    <div class="cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>
                             <strong>${this._config.filter?.searchButtonText || "Search"}</strong>

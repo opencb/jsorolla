@@ -63,7 +63,7 @@ context("16.  RGA Browser", () => {
         UtilsTest.checkResults("rga-variant-view");
 
         cy.get("variant-type-filter input[value='SNV'] + label").click({force: true});
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("rga-variant-view");
 
         // variantId
@@ -88,7 +88,7 @@ context("16.  RGA Browser", () => {
         UtilsTest.getResult("rga-variant-view", 1).then($text => {
             geneName = $text.split(",")[0];
             UtilsTest.selectToken("feature-filter", geneName, true);
-            cy.get("div.search-button-wrapper button").click();
+            cy.get("div.cy-search-button-wrapper button").click();
             UtilsTest.checkResults("rga-variant-view");
             UtilsTest.getResult("rga-variant-view", 1).then($resultCell => {
                 cy.wrap($resultCell).should("contain", geneName);
@@ -119,7 +119,7 @@ context("16.  RGA Browser", () => {
             cy.get("button[data-tab-id='variant-tab']", {timeout: TIMEOUT}).click({force: true});
             UtilsTest.checkResults("rga-variant-view");
             UtilsTest.selectToken("individual-id-autocomplete", IndividualId);
-            cy.get("div.search-button-wrapper button").click();
+            cy.get("div.cy-search-button-wrapper button").click();
             UtilsTest.checkResults("rga-variant-view");
 
             UtilsTest.checkResults("rga-variant-individual");
@@ -155,7 +155,7 @@ context("16.  RGA Browser", () => {
         cy.get("rga-individual-view div[data-cy='individual-view-grid'] .bootstrap-table .fixed-table-container tr[data-index=0] > td", {timeout: TIMEOUT}).should("have.length.gt", 1);
 
         UtilsTest.selectToken("feature-filter", "CR1", true);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("rga-individual-view");
 
         // queries for the first gene and then check if the first result contains the gene.
@@ -164,7 +164,7 @@ context("16.  RGA Browser", () => {
             IndividualId = $text;
             console.log("IndividualId i", IndividualId);
             UtilsTest.selectToken("individual-id-autocomplete", IndividualId);
-            cy.get("div.search-button-wrapper button").click();
+            cy.get("div.cy-search-button-wrapper button").click();
             UtilsTest.checkResults("rga-individual-view");
 
             UtilsTest.getResult("rga-individual-view", 0).then($resultCell => {
@@ -210,7 +210,7 @@ context("16.  RGA Browser", () => {
         UtilsTest.getResult("rga-gene-view", 0).then($text => {
             geneName = $text;
             UtilsTest.selectToken("feature-filter", geneName, true);
-            cy.get("div.search-button-wrapper button").click();
+            cy.get("div.cy-search-button-wrapper button").click();
             UtilsTest.checkResults("rga-gene-view");
             UtilsTest.getResult("rga-gene-view", 0).then($resultCell => {
                 cy.wrap($resultCell).should("contain", geneName);
@@ -222,12 +222,12 @@ context("16.  RGA Browser", () => {
         cy.get("div[data-cy='knockoutType'] button").click();
         cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Compound Heterozygous").click();
         cy.get("div[data-cy='knockoutType'] .dropdown-menu a").contains("Homozygous").click();
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("rga-gene-view");
 
         // set numParents=2
         cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("rga-gene-view");
 
         // checking the number of CH Definite is > 0 (the current query is geneName=XXX,knockoutType=COMP_HET,numParents=2)

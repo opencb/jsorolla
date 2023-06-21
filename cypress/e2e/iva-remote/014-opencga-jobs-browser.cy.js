@@ -39,7 +39,7 @@ context("14. Jobs Browser", () => {
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 2);
 
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("opencga-job-grid");
 
         cy.get("opencga-active-filters button[data-filter-name='id']").click();
@@ -51,7 +51,7 @@ context("14. Jobs Browser", () => {
         cy.get("#priority + .cy-subsection-content a").click({force: true, multiple: true});
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
 
         UtilsTest.checkResults("opencga-job-grid");
         UtilsTest.changePage("opencga-job-grid", 2);
@@ -74,13 +74,13 @@ context("14. Jobs Browser", () => {
         UtilsTest.facet.checkActiveFacet("toolId", "toolId>>executorId");
 
         UtilsTest.facet.checkActiveFacetLength(2);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(2);
 
         UtilsTest.facet.select("Tool Id"); // removing toolId
 
         UtilsTest.facet.checkActiveFacetLength(1);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(1);
 
     });

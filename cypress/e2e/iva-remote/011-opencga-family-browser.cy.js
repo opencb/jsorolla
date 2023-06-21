@@ -35,7 +35,7 @@ context("11. Family Browser", () => {
                 UtilsTest.getResult("family-grid", 1).then($text => {
                     UtilsTest.selectToken("family-id-autocomplete", $text);
                     cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-                    cy.get("div.search-button-wrapper button").click();
+                    cy.get("div.cy-search-button-wrapper button").click();
                 });
                 UtilsTest.checkResults("family-grid");
                 cy.get("opencga-active-filters button[data-filter-name='id']").click();
@@ -44,7 +44,7 @@ context("11. Family Browser", () => {
                 UtilsTest.getResult("family-grid", 3, 0, "html").then($html => {
                     cy.wrap($html).get("span[data-cy='disorder-id']").then($text => {
                         UtilsTest.selectToken(".cy-subsection-content[data-cy=disorders]", $text.first().text(), true); // disorder id
-                        cy.get("div.search-button-wrapper button").click();
+                        cy.get("div.cy-search-button-wrapper button").click();
                         UtilsTest.checkResults("family-grid");
                         cy.get("opencga-active-filters button[data-filter-name='disorders']").click();
                     });
@@ -98,7 +98,7 @@ context("11. Family Browser", () => {
 
 
                 UtilsTest.facet.checkActiveFacetLength(5);
-                cy.get("div.search-button-wrapper button").click();
+                cy.get("div.cy-search-button-wrapper button").click();
                 UtilsTest.facet.checkResultLength(5);
 
                 UtilsTest.facet.removeActive("status"); // removing status

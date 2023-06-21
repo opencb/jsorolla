@@ -261,7 +261,7 @@ export default class OpencgaFileFilter extends LitElement {
     render() {
         return html`
             ${this.config?.searchButton ? html`
-                <div class="search-button-wrapper">
+                <div class="cy-search-button-wrapper">
                     <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>

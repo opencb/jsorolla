@@ -33,7 +33,7 @@ context("13. Cohort Browser", () => {
             UtilsTest.selectToken("cohort-id-autocomplete", $text);
         });
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("opencga-cohort-grid");
         cy.get("opencga-active-filters button[data-filter-name='id']").click();
 
@@ -61,7 +61,7 @@ context("13. Cohort Browser", () => {
 
 
         UtilsTest.facet.checkActiveFacetLength(3);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(3);
 
         // cy.get("div.facet-wrapper button[data-filter-name='creationYear']").contains("creationYear>>creationMonth");
@@ -72,7 +72,7 @@ context("13. Cohort Browser", () => {
         UtilsTest.facet.select("Status"); // removing status
 
         UtilsTest.facet.checkActiveFacetLength(2);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(2);
 
 

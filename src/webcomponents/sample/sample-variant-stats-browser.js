@@ -296,7 +296,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             ` : null}
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <div class="search-button-wrapper">
+                    <div class="cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${() => this.renderVariantStats()}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>

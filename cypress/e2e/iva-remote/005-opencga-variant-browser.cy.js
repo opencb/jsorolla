@@ -20,7 +20,7 @@ import BrowserTest from "../../support/browser-test.js";
 
 
 context("5. Variant Browser", () => {
-    const executeSearchQuery = () => cy.get("div.search-button-wrapper button").click();
+    const executeSearchQuery = () => cy.get("div.cy-search-button-wrapper button").click();
     const browserGrid = "variant-browser-grid";
     const browserDetail = "variant-browser-detail";
 
@@ -316,13 +316,13 @@ context("5. Variant Browser", () => {
         // cy.get("div.facet-wrapper button[data-filter-name='type']").contains("type[INSERTION]");
 
         UtilsTest.Facet.checkActiveFacetLength(3);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(3);
         // cy.get("opencb-facet-results", {timeout: 120000}).find("opencga-facet-result-view", {timeout: TIMEOUT}).should("have.lengthOf", 3); // 2 default fields + genes
 
         UtilsTest.facet.select("Chromosome"); // removing chromosome
         UtilsTest.facet.checkActiveFacetLength(2);
-        cy.get("div.search-button-wrapper button").click();
+        cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.facet.checkResultLength(2);
 
         UtilsTest.facet.removeActive("type");
