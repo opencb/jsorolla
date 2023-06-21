@@ -29,14 +29,14 @@ describe("Data Form Component", () => {
     });
 
     it("should be render string field disabled", () => {
-        UtilsTest.getByDataTest("test1-inputTextDisabl", "input")
+        UtilsTest.getByDataTest("test1-inputTextDisabled", "input")
             .should("be.visible")
             .should("be.disabled");
     });
 
 
     it("should be render string multiline as textarea empty", () => {
-        UtilsTest.getByDataTest("test1-inputDescEmpt", "textarea")
+        UtilsTest.getByDataTest("test1-inputDescEmpty", "textarea")
             .should("be.visible")
             .should("have.value","")
     });
