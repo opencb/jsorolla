@@ -271,9 +271,9 @@ class IvaApp extends LitElement {
         }
 
         // Go to the page that tool has
-        if (window.location.hash !== this.tool) {
-            window.location.hash = this.tool;
-        }
+        // if (window.location.hash !== this.tool) {
+        //     window.location.hash = this.tool;
+        // }
 
         // Other initialisations
         // This manages the sample selected in each tool for updating the breadcrumb
@@ -784,7 +784,7 @@ class IvaApp extends LitElement {
             }
         }
 
-        if (window.location.hash === hashFrag) {
+        if (window.location.hash === hashFrag || hashFrag === "#interpreter") {
             this.hashFragmentListener(this);
         } else {
             window.location.hash = hashFrag;
@@ -816,7 +816,7 @@ class IvaApp extends LitElement {
         const [hashTool, hashProject, hashStudy, feature] = arr;
 
         // Stopping the recursive call
-        if (hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
+        if (hashTool === "#interpreter" || hashTool !== this.tool || hashProject !== this.opencgaSession?.project?.id || hashStudy !== this.opencgaSession?.study?.id) {
             if (arr.length > 1) {
                 // Field 'project' is being observed, just in case Polymer triggers
                 // an unnecessary event we can check they are really different
