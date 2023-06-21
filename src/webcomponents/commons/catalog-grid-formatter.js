@@ -145,14 +145,12 @@ export default class CatalogGridFormatter {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
-                    <div>
-                        <a title="Go to Case Interpreter" class="btn btn-default btn-small ripple dropdown-toggle one-line" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                       </a>
-                    </div>
+                    <button title="Go to Case Interpreter" class="btn btn-light btn-sm  " href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                        <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                    </button>
                 `;
             }
-            return result;
+            return `<div class="d-grid gap-2 d-md-flex flex-column">${result}</div>`;
         } else {
             return "-";
         }
