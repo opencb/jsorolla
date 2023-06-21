@@ -103,6 +103,9 @@ export default class VariantInterpreterDetail extends LitElement {
                 .then(response => {
                     this._variant = response?.responses?.[0]?.results?.[0];
                     this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
         }
     }
