@@ -77,7 +77,10 @@ export default class JobDetail extends LitElement {
 
     jobIdObserver() {
         if (this.opencgaSession && this.jobId) {
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.jobs()
+                .info(this.jobId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this._job = response.getResult(0);
                     this.requestUpdate();

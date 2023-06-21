@@ -76,7 +76,10 @@ export default class FamilyDetail extends LitElement {
 
     familyIdObserver() {
         if (this.opencgaSession && this.familyId) {
-            this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.families()
+                .info(this.familyId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(restResponse => {
                     this._family = restResponse.getResult(0);
                     this.requestUpdate();

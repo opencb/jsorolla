@@ -78,11 +78,11 @@ export default class SampleDetail extends LitElement {
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            };
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, params)
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, {
+                    study: this.opencgaSession.study.fqn,
+                    includeIndividual: true
+                })
                 .then(response => {
                     this._sample = response.getResult(0);
                     this.requestUpdate();

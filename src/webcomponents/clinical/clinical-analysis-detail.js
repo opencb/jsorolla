@@ -77,7 +77,10 @@ export default class ClinicalAnalysisDetail extends LitElement {
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this._clinicalAnalysis = response.getResult(0);
                     this.requestUpdate();

@@ -76,7 +76,10 @@ export default class IndividualDetail extends LitElement {
 
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this._individual = response.getResult(0);
                     this.requestUpdate();
