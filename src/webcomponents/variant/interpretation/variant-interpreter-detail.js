@@ -94,13 +94,12 @@ export default class VariantInterpreterDetail extends LitElement {
 
     variantIdObserver() {
         if (this.opencgaSession && this.variantId) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                id: this.variantId,
-                includeSampleId: "true",
-            };
-
-            this.opencgaSession.opencgaClient.clinical().queryVariant(params)
+            this.opencgaSession.opencgaClient.clinical()
+                .queryVariant({
+                    study: this.opencgaSession.study.fqn,
+                    id: this.variantId,
+                    includeSampleId: "true",
+                })
                 .then(response => {
                     this._variant = response?.responses?.[0]?.results?.[0];
                     this.requestUpdate();
