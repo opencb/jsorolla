@@ -23,8 +23,6 @@ jobs:
           cache-dependency-path: "package.json"
       - run: npm install
       - run: npm run build
-#      - id: package
-#        uses: tyankatsu0105/read-package-version-actions@v1
       - id: package
         name: Get project version
         run: |

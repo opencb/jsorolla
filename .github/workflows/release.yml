@@ -1,4 +1,4 @@
-name: "New Release Workflow"
+name: "Release workflow"
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
     needs: build
     with:
       test_profile: runShortTests
-#      report_context: xetabase
     secrets: inherit
 
   deploy-docker:
