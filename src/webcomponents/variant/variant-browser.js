@@ -737,21 +737,19 @@ export default class VariantBrowser extends LitElement {
         return html`
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
-                <div class="col-md-2 left-menu">
-
-                    <div class="search-button-wrapper">
+                <div class="col-2">
+                    <div class="d-grid gap-2 pb-1 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.searchButtonText || "Search"}</strong>
                         </button>
                     </div>
-
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation" >
+                            <a class="nav-link active fw-bold" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link fw-bold" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
 
@@ -781,7 +779,7 @@ export default class VariantBrowser extends LitElement {
 
                 <div class="col-md-10">
                     <!-- TAB buttons -->
-                    <div class="content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="content-pills mb-3" role="toolbar" aria-label="toolbar">
                         <button
                             type="button"
                             class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""} content-pills`}"

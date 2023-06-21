@@ -646,7 +646,7 @@ export default class VariantBrowserFilter extends LitElement {
 
     render() {
         return html`
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+            <div class="d-grid gap-1" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 ${this.renderFilterMenu()}
             </div>
         `;
