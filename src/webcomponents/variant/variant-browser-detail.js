@@ -81,11 +81,11 @@ export default class VariantBrowserDetail extends LitElement {
 
     variantIdObserver() {
         if (this.opencgaSession && this.variantId) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                id: this.variantId,
-            };
-            this.opencgaSession.opencgaClient.variants().query(params)
+            this.opencgaSession.opencgaClient.variants()
+                .query({
+                    study: this.opencgaSession.study.fqn,
+                    id: this.variantId,
+                })
                 .then(response => {
                     this._variant = response.responses?.[0]?.results?.[0];
                     this.requestUpdate();
