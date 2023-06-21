@@ -113,7 +113,7 @@ export default class OpencgaFileGrid extends LitElement {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
                 theadClasses: "table-light",
-                buttonsClass: "btn btn-light",
+                buttonsClass: "light",
                 columns: this._getDefaultColumns(),
                 method: "get",
                 sidePagination: "server",

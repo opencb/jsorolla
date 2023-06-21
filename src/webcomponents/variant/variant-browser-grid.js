@@ -169,7 +169,7 @@ export default class VariantBrowserGrid extends LitElement {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
                 theadClasses: "table-light",
-                buttonsClass: "btn btn-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
