@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
