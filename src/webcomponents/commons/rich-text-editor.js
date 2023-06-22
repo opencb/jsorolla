@@ -110,6 +110,7 @@ export default class RichTextEditor extends LitElement {
                 hideModeSwitch: this._config.hideModeSwitch,
                 previewStyle: this._config.previewStyle,
             });
+            this.textEditor.on("change", e => this.fieldChange());
         }
     }
 
