@@ -62,6 +62,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     #init() {
         this.updateCaseParams = {};
         this.updateCaseComments = {};
+        this.updatedFields = {};
         this.updateInterpretationComments = [];
         this._clinicalAnalysis = {};
         this._config = this.getDefaultConfig();
@@ -331,30 +332,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
-    submitCaseInfo() {
-        // Update methodology description
-        this.submitReportVariant();
-
-        // update case comments
-        if (this.updateCaseComments?.added?.length > 0) {
-            this.updateOrDeleteCaseComments(false);
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.added}, {
-                    study: this.opencgaSession.study.fqn,
-                    // flagsAction: "SET",
-                    // panelsAction: "SET",
-                })
-                .then(response => {
-                    this.postUpdate(response);
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        } else {
-            this.updateOrDeleteCaseComments(true);
-        }
-    }
-
     // ClinicalReport
     // TODO: interpretation.attributes to case.attributes
     submitReportVariant() {
@@ -372,22 +349,42 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         }
     }
 
-    submitCaseFinalSummary() {
-        if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, this.updateCaseParams, {
-                    study: this.opencgaSession.study.fqn,
-                    // flagsAction: "SET",
-                    // panelsAction: "SET",
-                })
-                .then(response => {
-                    this.postUpdate(response);
-                })
-                .catch(response => {
-                    // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-                    this.notifyError(response);
-                });
+    submitCaseInfo() {
+        // Update description or Final Summary
+        if (this.updatedFields && UtilsNew.isNotEmpty(this.updatedFields)) {
+            const updateParams = FormUtils.getUpdateParams(this._clinicalAnalysis, this.updatedFields);
+            this.submitClinicalCase(updateParams);
         }
+
+        // Methodology
+        // TODO: replace variable
+        if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
+            // Submit Report
+            this.submitReportVariant();
+        }
+
+        // Update case comments
+        if (this.updateCaseComments?.added?.length > 0) {
+            this.updateOrDeleteCaseComments(false);
+            this.submitClinicalCase({comments: this.updateCaseComments.added});
+        } else {
+            this.updateOrDeleteCaseComments(true);
+        }
+    }
+
+    submitClinicalCase(params) {
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, params, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true,
+            })
+            .then(response => {
+                this.postUpdate(response);
+            })
+            .catch(response => {
+                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                this.notifyError(response);
+            });
     }
 
     submitInterpretationsComments() {
@@ -396,13 +393,14 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const interpretationId = updateInterpretationComments.id;
             if (updateInterpretationComments.added?.length > 0) {
                 this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, false);
-                this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysisId, interpretationId, {comments: updateInterpretationComments.added}, {
-                    study: this.opencgaSession.study.fqn,
-                }).then(response => {
-                    this.postUpdate(response, interpretationId);
-                }).catch(response => {
-                    this.notifyError(response);
-                });
+                this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(clinicalAnalysisId, interpretationId, {comments: updateInterpretationComments.added}, {
+                        study: this.opencgaSession.study.fqn,
+                    }).then(response => {
+                        this.postUpdate(response, interpretationId);
+                    }).catch(response => {
+                        this.notifyError(response);
+                    });
             } else {
                 this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, true);
             }
@@ -427,14 +425,14 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         });
 
         // Reset values after success update
-        this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-        this.updateCaseParams = {};
+        // this.clinicalAnalysis = UtilsNew.objectClone(response.responses[0].results[0]);
+        this.updatedFields = {};
         this.updateInterpretationComments = [];
         this._config = this.getDefaultConfig();
 
         LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            // id: this.interpretation.id, // maybe this not would be necessary
-            clinicalAnalysis: this.clinicalAnalysis
+            // id: this.interpretation.id, -- maybe this not would be necessary
+            clinicalAnalysis: this._clinicalAnalysis
         });
 
         this.requestUpdate();
@@ -465,56 +463,13 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // !DEPRECATED
-    onFieldChangeOld(e, field) {
-        const param = field || e.detail.param;
-        if (param.includes("attributes")) {
-            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
-            UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
-        } else {
-            switch (param) {
-                case "report.date":
-                case "status.id":
-                case "report.signedBy":
-                    this.updateCaseParams = FormUtils.updateObjectParams(
-                        this._clinicalAnalysis,
-                        this.clinicalAnalysis,
-                        this.updateCaseParams,
-                        param,
-                        e.detail.value);
-                    break;
-                case "report.discussion.text":
-                    // Josemi (2022-07-29) added very basic implementation for saving discussion data
-                    // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
-                    this.clinicalAnalysis.report = {
-                        ...this.clinicalAnalysis.report,
-                        discussion: {
-                            text: e.detail.value,
-                            author: this.opencgaSession?.user?.id || "-",
-                            date: UtilsNew.getDatetime(),
-                        },
-                    };
-                    this.updateCaseParams = {
-                        ...this.updateCaseParams,
-                        report: {
-                            ...this.updateCaseParams?.report,
-                            discussion: this.clinicalAnalysis.report.discussion,
-                        },
-                    };
-                    break;
-            }
-        }
-        this.requestUpdate();
-    }
-
     // TODO: replace interpretation.attributes to case.attributes
-    onFieldChange(e, field) {
+    onFieldChangeOld(e, field) {
         const param = field || e.detail.param;
 
         if (param.includes("attributes")) {
             // Copy all attributes
-            // UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
-            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this.clinicalAnalysis.interpretation.attributes);
+            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
             // Update the attribute field
             UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
         } else {
@@ -522,6 +477,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 case "report.date":
                 case "status.id":
                 case "report.signedBy":
+                case "description":
                     UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
                     break;
                 case "report.discussion.text":
@@ -544,6 +500,26 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
         //     e.detail.value);
         // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
         // LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {component: this._component, action: e.detail.action}, null);
+        this.requestUpdate();
+    }
+
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        if (param.includes("attributes")) {
+            // Copy all attributes
+            // UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this._clinicalAnalysis.interpretation.attributes);
+            UtilsNew.setObjectValue(this.updateCaseParams, "interpretation.attributes", this.clinicalAnalysis.interpretation.attributes);
+            // Update the attribute field
+            UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
+        } else {
+            this.updatedFields = FormUtils.getUpdatedFields(
+                this.clinicalAnalysis,
+                this.updateFields,
+                param,
+                e.detail.value,
+                e.detail.action
+            );
+        }
         this.requestUpdate();
     }
 
@@ -584,7 +560,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                 this.submitInterpretationsComments();
                 break;
             case "finalSummary":
-                this.submitCaseFinalSummary();
+                this.submitCaseInfo();
                 break;
             default:
                 break;
@@ -675,7 +651,9 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
 
         return html`
             <data-form
-                .data="${this.clinicalAnalysis}"
+                .data="${this._clinicalAnalysis}"
+                .original="${this.clinicalAnalysis}"
+                .updateParams="${this.updateFields}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
