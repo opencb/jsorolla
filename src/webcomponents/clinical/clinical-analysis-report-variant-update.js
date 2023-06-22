@@ -125,7 +125,7 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
         if (UtilsNew.isNotEmpty(this._clinicalAnalysis)) {
             this._variantReview = UtilsNew.objectClone(this.variantReview);
             this._reportInfo = this._clinicalAnalysis.interpretation.attributes?.reportTest;
-            this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant.id === this.variantReview.id) || {};
+            this._variantInfo = this._reportInfo?.interpretations?.variants?.find(variant => variant?.id === this.variantReview?.id) || {};
             UtilsNew.setObjectValue(this._variantInfo, "_variantText", this._variantReview?.discussion?.text || "");
             this._config = this.getDefaultConfig();
             this.requestUpdate();
