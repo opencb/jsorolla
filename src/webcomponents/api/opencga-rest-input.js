@@ -62,11 +62,12 @@ export default class OpencgaRestInput extends LitElement {
         // Dictionary: json | both
         this.bodyMode = "json";
         this.displayConfig = {
-            width: "12",
-            labelWidth: "3",
-            defaultLayout: "horizontal",
-            buttonClearText: "Clear",
-            buttonOkText: "Try it out!",
+            width: 12,
+            titleVisible: false,
+            titleAlign: "left",
+            titleWidth: 4,
+            buttonsVisible: true,
+            buttonsLayout: "bottom", // TODO: Changed to UPPER when TASK-4286 merged
         };
     }
 
@@ -463,8 +464,8 @@ export default class OpencgaRestInput extends LitElement {
         const configJsonTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
-                buttonClearText: "Clear",
-                buttonOkText: "Try it out!",
+                // buttonClearText: "Clear",
+                // buttonOkText: "Try it out!",
             },
             sections: [{
                 display: {
@@ -488,8 +489,8 @@ export default class OpencgaRestInput extends LitElement {
         const configFormTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
-                buttonClearText: "Clear",
-                buttonOkText: "Try it out!",
+                // buttonClearText: "Clear",
+                // buttonOkText: "Try it out!",
             },
             sections: [{
                 display: {
@@ -579,6 +580,10 @@ export default class OpencgaRestInput extends LitElement {
         return {
             type: "tabs",
             display: this.displayConfig,
+            buttons: {
+                clearText: "Discard Changes",
+                okText: "Try it out!",
+            },
             sections: [],
         };
     }
