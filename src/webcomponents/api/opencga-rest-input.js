@@ -90,12 +90,16 @@ export default class OpencgaRestInput extends LitElement {
             this.elements = [];
             this.dataModel = {};
             this.data = {};
-            // 1.1 Query and Path params
+            // 1. Build dataform elements from API rest parameters and retrieve JSON data model if necessary.
+            // Note 20230622 Vero: It would be nice to wrap the elements construction in a separate function.
+            // However, await only pauses the execution of its surrounding async function,
+            // so enclosed in a function will not block the main thread.
+            // 1.1 Build Query and Path elements
             const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
             if (queryPathParameters.length > 0) {
                 this.#getDataformElements(queryPathParameters, "param");
             }
-            // 1.2. POST endpoint
+            // 1.2. Retrieve JSON model and body elements (if this.bodyMode = "form" || "both")
             const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
             if (bodyParameters.length === 1) {
                 if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
@@ -105,7 +109,6 @@ export default class OpencgaRestInput extends LitElement {
                     }
                 }
             }
-
             // 2. Sort and move study to first position
             this.#sortParams();
             // 3. Verify rights
@@ -114,7 +117,7 @@ export default class OpencgaRestInput extends LitElement {
                 this.elements.map(element => ({...element, display: {disabled: true}}));
             // 4. Add elements to the form configuration
             this.#addElementsToConfig();
-            // CAUTION 20230622 Not sure why this is here
+            // CAUTION 20230622 Vero: Not sure why this is here
             // 5. If the user is logged in, it will show the current study.
             if (RestUtils.hasStudyField(this.elements)) {
                 this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
@@ -142,9 +145,6 @@ export default class OpencgaRestInput extends LitElement {
             };
         }
         this.requestUpdate();
-    }
-
-    #getElements() {
     }
 
     #getDataModel(model) {
