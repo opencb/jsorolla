@@ -427,7 +427,7 @@ export default class DiseasePanelCreate extends LitElement {
                                     field: "regions[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add a region ID/Location (e.g. 1:134545:2324234) ...",
+                                        placeholder: "Add a region ID/Location (e.g. 1:10100-10110)...",
                                     }
                                 },
                                 {
