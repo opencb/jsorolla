@@ -90,6 +90,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     onFieldChange(e, field) {
+        e.stopPropagation();
         const param = (field || e.detail.param);
 
         switch (param) {
