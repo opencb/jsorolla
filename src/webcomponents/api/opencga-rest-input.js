@@ -90,10 +90,22 @@ export default class OpencgaRestInput extends LitElement {
             this.elements = [];
             this.dataModel = {};
             this.data = {};
-            this.config = this.getDefaultConfig();
-            // 1. Get the parameters
-            this.#getQueryPathElements();
-            this.#getBodyElements();
+            // 1.1 Query and Path params
+            const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
+            if (queryPathParameters.length > 0) {
+                this.#getDataformElements(queryPathParameters, "param");
+            }
+            // 1.2. POST endpoint
+            const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
+            if (bodyParameters.length === 1) {
+                if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
+                    this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
+                    if (this.bodyMode !== "json") {
+                        this.#getDataformElements(bodyParameters[0].data, "body");
+                    }
+                }
+            }
+
             // 2. Sort and move study to first position
             this.#sortParams();
             // 3. Verify rights
@@ -132,26 +144,7 @@ export default class OpencgaRestInput extends LitElement {
         this.requestUpdate();
     }
 
-    #getQueryPathElements() {
-        // 1. Query and Path params
-        const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
-        if (queryPathParameters.length > 0) {
-            this.#getDataformElements(queryPathParameters, "param");
-        }
-    }
-
-    async #getBodyElements() {
-        // 2. POST endpoint
-        const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
-        if (bodyParameters.length === 1) {
-            if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
-                this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
-                if (this.bodyMode !== "json") {
-                    this.#getDataformElements(bodyParameters[0].data, "body");
-                }
-            }
-        }
-
+    #getElements() {
     }
 
     #getDataModel(model) {
@@ -248,6 +241,9 @@ export default class OpencgaRestInput extends LitElement {
 
     // Add Elemenets to the form
     #addElementsToConfig() {
+
+        this.config = this.getDefaultConfig();
+
         if (this.elements.length > 0) {
             // 1. Notes if they exist
             if (this.endpoint?.notes) {
@@ -463,7 +459,7 @@ export default class OpencgaRestInput extends LitElement {
         const items = [];
         const configJsonTab = {
             display: {
-                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
+                // buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 // buttonClearText: "Clear",
                 // buttonOkText: "Try it out!",
             },
@@ -488,7 +484,7 @@ export default class OpencgaRestInput extends LitElement {
         };
         const configFormTab = {
             display: {
-                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
+                // buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 // buttonClearText: "Clear",
                 // buttonOkText: "Try it out!",
             },
@@ -508,11 +504,11 @@ export default class OpencgaRestInput extends LitElement {
                 render: () => html`
                     <!-- Body Json text area -->
                     <data-form
-                            .data="${this.dataJson}"
-                            .config="${configJsonTab}"
-                            @fieldChange="${e => this.onChangeJsonField(e, "body")}"
-                            @clear="${e => this.onClear(e)}"
-                            @submit="${this.onSubmitJson}">
+                        .data="${this.dataJson}"
+                        .config="${configJsonTab}"
+                        @fieldChange="${e => this.onChangeJsonField(e, "body")}"
+                        @clear="${e => this.onClear(e)}"
+                        @submit="${this.onSubmitJson}">
                     </data-form>
                 `,
             });
@@ -537,7 +533,6 @@ export default class OpencgaRestInput extends LitElement {
                 `,
             });
         }
-
         return {
             items: items,
         };
