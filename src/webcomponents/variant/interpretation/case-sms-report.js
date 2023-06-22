@@ -121,6 +121,7 @@ class CaseSmsReport extends LitElement {
             this._reportData = {
                 ...this.clinicalAnalysis?.interpretation?.attributes?.reportTest,
             };
+            UtilsNew.setObjectValue(this._reportData, "study.reason", this._clinicalAnalysis?.description);
             UtilsNew.setObjectValue(this._reportData, "reportDiscussion", this._clinicalAnalysis?.report);
             UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.validation", this._clinicalAnalysis.analyst?.name);
             UtilsNew.setObjectValue(this._reportData, "clinicalAnalysis.lab.date", UtilsNew.dateFormatter(UtilsNew.getDatetime()));
