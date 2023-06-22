@@ -1176,23 +1176,42 @@ class CaseSmsReport extends LitElement {
         ];
         const fileStatus = [];
 
-        const fileUpload = fileCreates.map(file => this.opencgaSession.opencgaClient
-            .files().create(file, params)
-            .then(res => fileStatus.push({
-                fileName: file.path.split("/").at(-1),
-                path: file.path,
-                status: "DONE"
-            }))
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-                fileStatus.push({
+        // const fileUpload = fileCreates.map(file => this.opencgaSession.opencgaClient
+        //     .files().create(file, params)
+        //     .then(res => fileStatus.push({
+        //         fileName: file.path.split("/").at(-1),
+        //         path: file.path,
+        //         status: "DONE"
+        //     }))
+        //     .catch(err => {
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+        //         fileStatus.push({
+        //             fileName: file.path.split("/").at(-1),
+        //             path: file.path,
+        //             status: "FAILED"
+        //         });
+        //     }));
+        // await Promise.all(fileUpload);
+        for (let i = 0; i < fileCreates.length; i++) {
+            const file = fileCreates[i];
+            await (this.opencgaSession.opencgaClient
+                .files()
+                .create(file, params)
+                .then(res => fileStatus.push({
                     fileName: file.path.split("/").at(-1),
                     path: file.path,
-                    status: "FAILED"
-                });
-            }));
-        await Promise.all(fileUpload);
-
+                    status: "DONE"
+                }))
+                .catch(err => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                    fileStatus.push({
+                        fileName: file.path.split("/").at(-1),
+                        path: file.path,
+                        status: "FAILED"
+                    });
+                })
+            );
+        }
         try {
             await this.saveReportFile(dateTimeCreated, fileStatus);
         } catch (error) {
