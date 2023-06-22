@@ -18,6 +18,31 @@ import {html, LitElement} from "lit";
 
 export default class OpencgaRestResult extends LitElement {
 
+    constructor() {
+        super();
+
+        this.#init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            endpoint: {
+                type: Object,
+            },
+            opencgaSession: {
+                type: Object,
+            },
+        };
+    }
+
+    #init() {
+
+    }
+
     render() {
         if (!this.endpoint) {
             return;

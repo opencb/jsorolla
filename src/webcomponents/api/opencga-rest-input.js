@@ -43,6 +43,9 @@ export default class OpencgaRestInput extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            bodyMode: {
+                type: String,
+            }
         };
     }
 
@@ -56,14 +59,14 @@ export default class OpencgaRestInput extends LitElement {
 
         // Data Structure for Json
         this.dataModel = {};
-        // Config for data-form endpoint
-        this.configFormEndpoint = {};
-        // CAUTION: new
-        this.elementsByType = {
-            "query": [],
-            "path": [],
-            "body": [],
-            "filter": [],
+        // Dictionary: json | both
+        this.bodyMode = "json";
+        this.displayConfig = {
+            width: "12",
+            labelWidth: "3",
+            defaultLayout: "horizontal",
+            buttonClearText: "Clear",
+            buttonOkText: "Try it out!",
         };
     }
 
@@ -74,12 +77,111 @@ export default class OpencgaRestInput extends LitElement {
         super.update(changedProperties);
     }
 
+    async endpointObserver() {
+        if (this.endpoint?.parameters?.length > 0) {
+            // Clean up variables when the endpoint change
+            this.elementsByType = {
+                "query": [],
+                "path": [],
+                "filter": [],
+                "body": [],
+            };
+            this.elements = [];
+            this.dataModel = {};
+            this.data = {};
+            this.config = this.getDefaultConfig();
+            // 1. Get the parameters
+            this.#getQueryPathElements();
+            this.#getBodyElements();
+            // 2. Sort and move study to first position
+            this.#sortParams();
+            // 3. Verify rights
+            this.elements = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ?
+                this.elements :
+                this.elements.map(element => ({...element, display: {disabled: true}}));
+            // 4. Add elements to the form configuration
+            this.#addElementsToConfig();
+            // CAUTION 20230622 Not sure why this is here
+            // 5. If the user is logged in, it will show the current study.
+            if (RestUtils.hasStudyField(this.elements)) {
+                this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
+            }
+            // 6. Get data.body to JSON.
+            this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
+            // Copy Original Data
+            this._data = UtilsNew.objectClone(this.data);
+        } else {
+            // If the endpoint does not have parameters, show notification
+            this.config.sections = {
+                sections: [
+                    {
+                        elements: [
+                            {
+                                type: "notification",
+                                text: "No parameters...",
+                                display: {
+                                    notificationType: "info",
+                                },
+                            }
+                        ]
+                    }
+                ]
+            };
+        }
+        this.requestUpdate();
+    }
+
+    #getQueryPathElements() {
+        // 1. Query and Path params
+        const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
+        if (queryPathParameters.length > 0) {
+            this.#getDataformElements(queryPathParameters, "param");
+        }
+    }
+
+    async #getBodyElements() {
+        // 2. POST endpoint
+        const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
+        if (bodyParameters.length === 1) {
+            if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
+                this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
+                if (this.bodyMode !== "json") {
+                    this.#getDataformElements(bodyParameters[0].data, "body");
+                }
+            }
+        }
+
+    }
+
+    #getDataModel(model) {
+        return this.opencgaSession.opencgaClient.meta().model({model: model})
+            .then(response => {
+                return JSON.parse(response.responses[0].results[0]);
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    #getDataformElements(parameters, parameterType) {
+        for (const parameter of parameters) {
+            // 1. Get component type: path | filter | query | body
+            const componentType = RestUtils.getComponentType(parameter);
+            // 2. Build element
+            const element = this.#buildElement(parameterType, "", parameter);
+            // 3. Add element to the appropriate array
+            if (element) {
+                this.elementsByType[componentType].push(element);
+            } else {
+                // CAUTION: it should not enter here
+                console.log("CAUTION: element not created");
+            }
+        }
+    }
+
     #buildElement(parameterType, childFieldName, parameter) {
         const fieldName = childFieldName || parameter.parentName ? `${parameter.parentName}.${parameter.name}` : parameter.name;
         const dataformType = RestUtils.mapParamToDataformType(parameter);
-        if (parameter.name === "phenotypes") {
-            // debugger
-        }
 
         const element = {
             title: parameter.name,
@@ -114,8 +216,7 @@ export default class OpencgaRestInput extends LitElement {
             };
         }
 
-        // 2. If the parameter has data attribute (is an object or a list),
-        // recursive call to create elements.
+        // 2. If the parameter is object or list with data array, recursive call to create elements.
         if (RestUtils.isObjectOrList(parameter)) {
             let elements = [];
             let childFieldName = "";
@@ -135,34 +236,73 @@ export default class OpencgaRestInput extends LitElement {
         return element;
     }
 
-    #getDataformElements(parameters, parameterType) {
-        for (const parameter of parameters) {
-            // 1. Get component type: path | filter | query | body
-            const componentType = RestUtils.getComponentType(parameter);
-            // 2. Build element
-            const element = this.#buildElement(parameterType, "", parameter);
-            // 3. Add element to the appropriate array
-            if (element) {
-                this.elementsByType[componentType].push(element);
-            } else {
-                // CAUTION: it should not enter here
-                console.log("CAUTION: element not created");
+    #sortParams() {
+        const byStudy = elm => elm.title === "study" ? -1 : 1;
+        this.elements = [
+            ...RestUtils.sortArray(this.elementsByType["path"]),
+            ...RestUtils.sortArray(this.elementsByType["query"]).sort(byStudy),
+            ...RestUtils.sortArray(this.elementsByType["filter"])
+        ];
+    }
+
+    // Add Elemenets to the form
+    #addElementsToConfig() {
+        if (this.elements.length > 0) {
+            // 1. Notes if they exist
+            if (this.endpoint?.notes) {
+                this.config.sections.push({
+                    elements: [
+                        {
+                            type: "notification",
+                            text: this.endpoint?.notes,
+                            display: {
+                                notificationType: "info",
+                            },
+                        }
+                    ]
+                });
             }
+            // 2. Path and query params
+            this.config.sections.push(
+                {
+                    title: "Path and Query Params",
+                    display: {
+                        titleHeader: "h4",
+                        style: "margin-left: 20px",
+                    },
+                    elements: [...this.elements]
+                }
+            );
         }
-    }
 
-    #getDataModel(model) {
-        return this.opencgaSession.opencgaClient.meta().model({model: model})
-            .then(response => {
-                return JSON.parse(response.responses[0].results[0]);
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        //  If POST and body EXISTS then we must show the FORM and JSON tabs
+        // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
+        if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
+            const bodyElementsForm = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ?
+                this.elementsByType["body"] :
+                this.elementsByType["body"].map(element => ({...element, display: {disabled: true}}));
+            this.config.sections.push({
+                title: "Body",
+                display: {
+                    titleHeader: "h4",
+                    style: "margin-left: 20px"
+                },
+                elements: [
+                    {
+                        type: "custom",
+                        display: {
+                            render: () => html`
+                                <detail-tabs
+                                    .data="${{}}"
+                                    .config="${this.getTabsConfig(bodyElementsForm)}"
+                                    .mode="${DetailTabs.TABS_MODE}">
+                                </detail-tabs>
+                            `,
+                        }
+                    }
+                ]
             });
-    }
-
-    disabledElements(elements) {
-        return elements.map(element => ({...element, display: {disabled: true}}));
+        }
     }
 
     getDefaultValue(parameter) {
@@ -170,160 +310,6 @@ export default class OpencgaRestInput extends LitElement {
             return parameter?.defaultValue === "true" || parameter?.defaultValue === true;
         }
         return parameter?.defaultValue ?? "";
-    }
-
-    async endpointObserver() {
-        this.result = "";
-        const hasStudyField = fieldElements => this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-        this.configFormEndpoint = {};
-        this.elementsByType = {
-            "query": [],
-            "path": [],
-            "body": [],
-            "filter": [],
-        };
-        this.elements = [];
-
-        if (this.endpoint?.parameters?.length > 0) {
-            // Init some of the variables: this will clean up when the endpoint is changed
-            this.dataModel = {};
-            this.data = {};
-
-            // FIXME DELETE: dictionary for param
-            // const dictionaryParam = [...new Set(this.endpoint.parameters.map(item => item.type))];
-
-            // 1. POST endpoint
-            const bodyParameters = this.endpoint.parameters.filter(parameter => parameter.param === "body");
-            if (bodyParameters.length === 1) {
-                if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
-                    this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
-                    this.#getDataformElements(bodyParameters[0].data, "body");
-                }
-            }
-
-            // 2. Query and Path params
-            const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
-            if (queryPathParameters.length > 0) {
-                this.#getDataformElements(queryPathParameters, "param");
-            }
-
-            // 2. Sort and move 'study/ to first position
-            const byStudy = elm => elm.title === "study" ? -1 : 1;
-            const elements = [
-                ...RestUtils.sortArray(this.elementsByType["path"]),
-                ...RestUtils.sortArray(this.elementsByType["query"]).sort(byStudy),
-                ...RestUtils.sortArray(this.elementsByType["filter"])
-            ];
-            const fieldElements = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? elements : this.disabledElements(elements);
-
-            // 3. Init Form
-            this.configFormEndpoint = {
-                type: "form",
-                display: {
-                    width: "12",
-                    labelWidth: "3",
-                    defaultLayout: "horizontal",
-                    buttonClearText: "Clear",
-                    buttonOkText: "Try it out!",
-                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession))
-                },
-                sections: []
-            };
-
-            // Add Elemenets to the form
-            if (fieldElements.length > 0) {
-                // Check if there are 'notes' to display
-                if (this.endpoint?.notes) {
-                    this.configFormEndpoint.sections.push({
-                        elements: [
-                            {
-                                type: "notification",
-                                text: this.endpoint?.notes,
-                                display: {
-                                    notificationType: "info",
-                                },
-                            }
-                        ]
-                    });
-                }
-
-                this.configFormEndpoint.sections.push(
-                    {
-                        title: "Path and Query Params",
-                        display: {
-                            titleHeader: "h4",
-                            style: "margin-left: 20px",
-                        },
-                        elements: [...fieldElements]
-                    }
-                );
-            }
-
-            // 4. If POST and body EXISTS then we must show the FORM and JSON tabs
-            // TOOD: Pablo me insiste en que os diga los 2 REST: interpretation clear y secondary index configure
-            if (this.endpoint.method === "POST" && this.endpoint.parameters.findIndex(parameter => parameter.param === "body") !== -1) {
-                const bodyElementsForm = RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession) ? this.elementsByType["body"] : this.disabledElements(this.elementsByType["body"]);
-                this.configFormEndpoint.sections.push({
-                    title: "Body",
-                    display: {
-                        titleHeader: "h4",
-                        style: "margin-left: 20px"
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <detail-tabs
-                                        .data="${{}}"
-                                        .config="${this.getTabsConfig(bodyElementsForm)}"
-                                        .mode="${DetailTabs.PILLS_MODE}">
-                                    </detail-tabs>
-                                `
-                            }
-                        }
-                    ]
-                });
-            }
-
-            // 5. If the user is logged in, it will show the current study.
-            if (RestUtils.hasStudyField(fieldElements)) {
-                // this.data = {...this.data, study: this.opencgaSession?.study?.fqn};
-                this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
-            }
-
-            // 6. Get data.body to JSON.
-            this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
-
-            // Copy Original Data
-            this._data = UtilsNew.objectClone(this.data);
-        } else {
-            // If parameters no found
-            this.configFormEndpoint = Types.dataFormConfig({
-                type: "form",
-                display: {
-                    buttonClearText: "",
-                    buttonOkText: "Try it out!",
-                    labelWidth: "3",
-                    defaultLayout: "horizontal",
-                    buttonsVisible: (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") && (RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession)),
-                },
-                sections: [
-                    {
-                        elements: [
-                            {
-                                type: "notification",
-                                text: "No parameters...",
-                                display: {
-                                    notificationType: "info",
-                                },
-                            }
-                        ]
-                    }
-                ]
-            });
-        }
-        this.requestUpdate();
     }
 
     onChangeFormField(e, field) {
@@ -472,21 +458,8 @@ export default class OpencgaRestInput extends LitElement {
         return data;
     }
 
-    getTabsConfig(elements) {
-        const configFormTab = {
-            display: {
-                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
-                buttonClearText: "Clear",
-                buttonOkText: "Try it out!",
-            },
-            sections: [{
-                display: {
-                    titleHeader: "h4",
-                },
-                elements: [...elements]
-            }]
-        };
-
+    getTabsConfig(bodyElements) {
+        const items = [];
         const configJsonTab = {
             display: {
                 buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
@@ -512,51 +485,60 @@ export default class OpencgaRestInput extends LitElement {
                 ]
             }]
         };
-
-        const items = [];
-
-        if (elements.length > 0) {
-            items.push({
-                id: "form",
-                name: "Form",
-                icon: "fab fa-wpforms",
-                active: true,
-                render: () => {
-                    return html`
-                        <!-- Body Forms -->
-                        <data-form
-                            .data="${this.data}"
-                            .config="${configFormTab}"
-                            @fieldChange="${e => this.onChangeFormField(e)}"
-                            @clear="${e => this.onClear(e)}"
-                            @submit="${this.onSubmitForm}">
-                        </data-form>
-                    `;
-                }
-            });
-        }
+        const configFormTab = {
+            display: {
+                buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
+                buttonClearText: "Clear",
+                buttonOkText: "Try it out!",
+            },
+            sections: [{
+                display: {
+                    titleHeader: "h4",
+                },
+                elements: [...bodyElements]
+            }]
+        };
 
         if (this.dataJson) {
             items.push({
                 id: "json",
                 name: "JSON",
                 icon: "",
-                render: () => {
-                    return html`
-                        <!-- Body Json text area -->
-                        <data-form
+                render: () => html`
+                    <!-- Body Json text area -->
+                    <data-form
                             .data="${this.dataJson}"
                             .config="${configJsonTab}"
                             @fieldChange="${e => this.onChangeJsonField(e, "body")}"
                             @clear="${e => this.onClear(e)}"
                             @submit="${this.onSubmitJson}">
-                        </data-form>
-                    `;
-                }
+                    </data-form>
+                `,
             });
         }
+
+        if (bodyElements.length > 0) {
+            items.push({
+                id: "form",
+                name: "Form",
+                icon: "fab fa-wpforms",
+                active: true,
+                visible: this.bodyMode === "both",
+                render: () => html`
+                    <!-- Body Forms -->
+                    <data-form
+                        .data="${this.data}"
+                        .config="${configFormTab}"
+                        @fieldChange="${e => this.onChangeFormField(e)}"
+                        @clear="${e => this.onClear(e)}"
+                        @submit="${this.onSubmitForm}">
+                    </data-form>
+                `,
+            });
+        }
+
         return {
-            items: [...items]
+            items: items,
         };
     }
 
@@ -583,7 +565,7 @@ export default class OpencgaRestInput extends LitElement {
                 <div style="padding: 20px">
                     <data-form
                         .data="${this.data}"
-                        .config="${this.configFormEndpoint}"
+                        .config="${this.config}"
                         @fieldChange="${e => this.onChangeFormField(e)}"
                         @clear="${this.onClear}"
                         @submit="${this.onSubmit}">
@@ -591,6 +573,14 @@ export default class OpencgaRestInput extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            type: "tabs",
+            display: this.displayConfig,
+            sections: [],
+        };
     }
 
 }

@@ -142,6 +142,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                         <opencga-rest-input
                             .endpoint="${this.endpoint}"
                             .opencgaSession="${this.opencgaSession}"
+                            .bodyMode="${"json"}"
                             @sumbit="${this.onSubmit}"
                         ></opencga-rest-input>
                     </div>
