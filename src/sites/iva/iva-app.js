@@ -822,7 +822,8 @@ class IvaApp extends LitElement {
                 // an unnecessary event we can check they are really different
                 if (ctx.opencgaSession?.project?.id !== hashProject) {
                     // eslint-disable-next-line no-param-reassign
-                    ctx.opencgaSession.project.id = hashProject;
+                    ctx.opencgaSession.project = ctx.opencgaSession.projects?.find(project => project.id === hashProject);
+                    // ctx.opencgaSession.project.id = hashProject;
                 }
                 if (ctx.opencgaSession?.study && arr.length > 2 && ctx.opencgaSession.study !== hashStudy) {
                     for (let i = 0; i < ctx.opencgaSession.projects.length; i++) {
@@ -942,6 +943,11 @@ class IvaApp extends LitElement {
         if (studyFound) {
             // Update the lastStudy in config iff has changed
             this.opencgaClient.updateUserConfigs({...this.opencgaSession.user.configs, lastStudy: studyFqn});
+
+            // This is a terrible hack to exit interpreter when we change the current study
+            if (this.tool === "#interpreter") {
+                window.location.hash = "#clinicalAnalysisPortal";
+            }
 
             // Refresh the session and update cellbase
             this.opencgaSession = {...this.opencgaSession};
