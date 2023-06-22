@@ -23,6 +23,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 
@@ -649,11 +650,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                // defaultLayout: "vertical",
                                 render: data => {
-                                    if (data.family) {
-                                        return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
+                                    if (data?.family?.pedigreeGraph?.base64) {
+                                        return html`
+                                            <image-viewer
+                                                .data="${data.family?.pedigreeGraph?.base64}">
+                                            </image-viewer>
+                                        `;
                                     }
+                                    return "-";
                                 },
                                 errorMessage: "No family selected",
                             }
