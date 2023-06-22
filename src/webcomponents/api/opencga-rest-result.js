@@ -30,10 +30,7 @@ export default class OpencgaRestResult extends LitElement {
 
     static get properties() {
         return {
-            endpoint: {
-                type: Object,
-            },
-            opencgaSession: {
+            result: {
                 type: Object,
             },
         };
@@ -44,7 +41,7 @@ export default class OpencgaRestResult extends LitElement {
     }
 
     render() {
-        if (!this.endpoint) {
+        if (!this.result) {
             return;
         }
         return html`

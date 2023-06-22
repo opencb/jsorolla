@@ -21,6 +21,7 @@ import DetailTabs from "../commons/view/detail-tabs";
 import Types from "../commons/types";
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
+import RestClient from "../../core/clients/rest-client";
 
 
 export default class OpencgaRestInput extends LitElement {
@@ -57,6 +58,9 @@ export default class OpencgaRestInput extends LitElement {
         // get value from list<string>
         this.valuesTolist = {};
 
+        this.restClient = new RestClient();
+        this.isLoading = false;
+
         // Data Structure for Json
         this.dataModel = {};
         // Dictionary: json | both
@@ -69,6 +73,11 @@ export default class OpencgaRestInput extends LitElement {
             buttonsVisible: true,
             buttonsLayout: "bottom", // TODO: Changed to UPPER when TASK-4286 merged
         };
+    }
+
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
     }
 
     update(changedProperties) {
@@ -241,9 +250,8 @@ export default class OpencgaRestInput extends LitElement {
 
     // Add Elemenets to the form
     #addElementsToConfig() {
-
         this.config = this.getDefaultConfig();
-
+        // Add elements to respective sections
         if (this.elements.length > 0) {
             // 1. Notes if they exist
             if (this.endpoint?.notes) {
@@ -309,9 +317,8 @@ export default class OpencgaRestInput extends LitElement {
         return parameter?.defaultValue ?? "";
     }
 
-    onChangeFormField(e, field) {
+    onChangeFormField(e) {
         e.stopPropagation();
-        const param = field || e.detail.param;
         this.data = {...e.detail.data};
         this.requestUpdate();
     }
@@ -363,18 +370,19 @@ export default class OpencgaRestInput extends LitElement {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
 
-        this.isLoading = true;
-        this.requestUpdate();
+        let error;
+        this.#setLoading(true);
         this.restClient.call(url, {method: this.endpoint.method})
             .then(response => {
-                this.result = response.responses[0];
+                this.result = UtilsNew.objectClone(response.responses[0].results[0]);
             })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            .catch(reason => {
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                this.isLoading = false;
-                this.requestUpdate();
+                LitUtils.dispatchCustomEvent(this, "submit", this.result, {}, error);
+                this.#setLoading(false);
             });
     }
 
@@ -439,7 +447,7 @@ export default class OpencgaRestInput extends LitElement {
 
         } catch (e) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: e
+                message: e,
             });
             console.error(e);
         }

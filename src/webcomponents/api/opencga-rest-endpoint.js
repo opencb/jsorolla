@@ -104,7 +104,7 @@ export default class OpencgaRestEndpoint extends LitElement {
         ` : html`${this.endpoint.responseClass}`;
     }
 
-    onSubmit() {
+    onSubmit(e) {
         this.result = e.detail.value;
         this.requestUpdate();
     }
