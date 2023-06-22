@@ -35,7 +35,7 @@ export default {
     },
 
     hasStudyField(fieldElements) {
-        this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
+        return this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
     },
 
     isNotEndPointAdmin(endpoint) {
