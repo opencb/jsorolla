@@ -181,7 +181,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             const classifications = Array.from(new Set(transcript.review.acmg.map(acmg => acmg.classification))).join(",");
             return classifications !== "" ? `(${classifications})` : "N/A";
         };
-        const transcriptTemplate = transcript => `Para el transcrito <b>${transcript.genomicFeature.transcriptId}</b> del gen <b>${transcript.genomicFeature.geneName}</b>` +
+        const transcriptTemplate = transcript => `Para el transcrito <b>${transcript.genomicFeature.transcriptId}</b> del gen <b>${transcript?.genomicFeature?.geneName ?? "-"}</b>` +
         ` que cumple con los criterios de ACMG <b>${acmgClassification(transcript)}</b>` +
         ` esta variante se clasifica como variante <b>${transcript.review.clinicalSignificance?? "N/A"}</b>`;
         const generateTranscriptTemplate = variant => variant.clinicalEvidences.map(transcript => `<li>${transcriptTemplate(transcript)}</li>`).join("");
@@ -207,7 +207,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             // get variant evidence with hgvs
             const variantEvidence = this.getHgvsVariants(primaryFinding);
             const variantIndex = variantsReport.findIndex(variant => variant.id === variantEvidence.variantId);
-            const variantTitle = variantEvidence.clinicalEvidences.map(evidence => evidence.genomicFeature.geneName + " " + evidence.hgvs)
+            const variantTitle = variantEvidence.clinicalEvidences.map(evidence => `${evidence?.genomicFeature?.geneName ?? ""} ${evidence.hgvs}`)
                 .join(" || ");
             const classification = this.generateClassificationTemplate(variantEvidence);
             // transcripts {hgvs: "",geneName: "",transcriptId: ""}
@@ -306,7 +306,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                     }))
                 .filter(variant => variant); // Removed undefined
             const variantAcmg = evidencesWithHgvs.map(evidence => `<span>La variante <b>${evidence.variantId}</b> es clasificada como <b>${evidence.classification.clinicalSignificance}</b>` +
-            ` en el gen <b>${evidence.genomicFeature.geneName} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
+            ` en el gen <b>${evidence.genomicFeature?.geneName ?? "-"} (${evidence.genomicFeature.transcriptId})</b></span>`).join("</br>");
             const hgvsList = evidencesWithHgvs.map(evidence => `<li><b>${evidence.variantId} - ${evidence.hgvs}</b></li>`).join("");
             UtilsNew.setObjectValue(this.clinicalAnalysis, "interpretation.attributes.reportTest.mainResults.templateResult", `${variantAcmg} <ol>${hgvsList}</ol> </br>`);
         }
@@ -512,6 +512,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             // Update the attribute field
             UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
         } else {
+            debugger;
             this.updatedFields = FormUtils.getUpdatedFields(
                 this.clinicalAnalysis,
                 this.updateFields,
@@ -636,7 +637,7 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
                             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                         </clinical-interpretation-variant-evidence-review>
                     ` : "Nothing...."}
-                    <div>
+                    <div class="pull-right" style="padding-right: 16px">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
                     </div>

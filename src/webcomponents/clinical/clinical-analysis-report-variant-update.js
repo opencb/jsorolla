@@ -632,20 +632,6 @@ export default class ClinicalAnalysisReportVariantUpdate extends LitElement {
                                 }
                             }
                         }
-                        // {
-                        //     field: "_classificationAcmgTT",
-                        //     type: "rich-text",
-                        //     display: {
-                        //         preview: true,
-                        //     }
-                        // },
-                        // {
-                        //     field: "_classsificationDiscussionTT",
-                        //     type: "rich-text",
-                        //     display: {
-                        //         preview: true,
-                        //     }
-                        // },
                     ]
                 },
                 {

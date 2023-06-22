@@ -1624,7 +1624,7 @@ export default class VariantInterpreterGridBeta extends LitElement {
                             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                         </clinical-interpretation-variant-evidence-review>
                     ` : "Nothing...."}
-                    <div>
+                    <div class="pull-right" style="padding-right:16px">
                         <button type="button" class="btn btn-default" @click="${() => this.closeNav()}">Cancel</button>
                         <button type="button" class="btn btn-primary" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
                     </div>
