@@ -149,10 +149,14 @@ class VariantInterpreter extends LitElement {
                     .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
                         {attributes: UtilsNew.initClinicalAnalysisReport()}, {study: this.opencgaSession.study.fqn})
                     .then(response => {
-                        console.log("successfully created reportTest", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `successfully created report metadata ${response}`
+                        });
                     })
                     .catch(response => {
-                        console.log("Couldn't create reportTest", response);
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                            message: `Failed to create report metadata.</br>Cause: ${response.events[0].message}`
+                        });
                     });
             }
         }
