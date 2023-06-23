@@ -94,7 +94,7 @@ export default class SelectFieldFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this.multiple = false;
         this.all = false;
         this.data = [];
@@ -106,7 +106,6 @@ export default class SelectFieldFilter extends LitElement {
 
     firstUpdated() {
         this.selectPicker = $("#" + this.elm, this);
-        $.fn.selectpicker.Constructor.BootstrapVersion = "5";
         this.selectPicker.selectpicker({
             iconBase: "fas",
             tickIcon: "fa-check",
@@ -124,6 +123,9 @@ export default class SelectFieldFilter extends LitElement {
             // To prevent this, it's necessary to disable refresh.
             // Further investigation is necessary to ensure a solution
             // this.selectPicker.selectpicker("refresh");
+            // https://developer.snapappointments.com/bootstrap-select/methods/#:~:text=%27deselectAll%27)%3B-,.selectpicker(%27render%27),-You%20can%20force
+            // Solution:
+            this.selectPicker.selectpicker("render");
         }
 
         if (changedProperties.has("disabled")) {
