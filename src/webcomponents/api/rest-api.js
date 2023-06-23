@@ -19,13 +19,14 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "./rest-endpoint.js";
 import "./rest-menu.js";
+import NotificationUtils from "../commons/utils/notification-utils";
 
 export default class RestApi extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,13 +44,12 @@ export default class RestApi extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.listAPI = [
             {id: "opencga", title: "OpenCGA API REST", description: ""},
             {id: "cellbase", title: "Cellbase API REST", description: ""}
         ];
         this.selectedAPI = this.listAPI[0];
-
     }
 
     update(changedProperties) {
@@ -59,9 +59,8 @@ export default class RestApi extends LitElement {
         super.update(changedProperties);
     }
 
-    //
-
     opencgaSessionObserver() {
+        let error;
         if (this.opencgaSession) {
             this.opencgaSession.opencgaClient.meta().api()
                 .then(responses => {
@@ -74,7 +73,10 @@ export default class RestApi extends LitElement {
                     }
                     this.requestUpdate();
                 })
-                .catch(error => {});
+                .catch(reason => {
+                    error = reason;
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                });
         }
     }
 
@@ -129,19 +131,15 @@ export default class RestApi extends LitElement {
                 .rest-option-button-icon{
                     color:white;
                 }
-
                 .rest-manager {
                     display: flex;
                     flex:1;
                 }
-
             </style>
         `;
     }
 
-
     render() {
-
         return html`
             ${this.renderStyle()}
             <div class="row">
