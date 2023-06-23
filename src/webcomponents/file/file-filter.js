@@ -240,17 +240,18 @@ export default class OpencgaFileFilter extends LitElement {
         }
 
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </a>
+                        ` : null }
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
                 `;
     }
 
