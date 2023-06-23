@@ -69,7 +69,7 @@ export default class VariantBrowserGrid extends LitElement {
     #init() {
         this.COMPONENT_ID = "variant-browser-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "VariantBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.checkedVariants = new Map();
 
         // Set colors
