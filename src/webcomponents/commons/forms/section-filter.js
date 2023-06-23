@@ -55,7 +55,7 @@ export default class SectionFilter extends LitElement {
         const id = this.config.title.replace(/ /g, "");
         return this.config && this.filters?.length > 0 ? html`
             <div class="card shadow-sm" data-cy-section-id="${id}">
-                <div class="card-body" role="tab" id="${this._prefix}Heading">
+                <div class="card-header" role="tab" id="${this._prefix}Heading">
                     <h4 class="card-title">
                         <a class="collapsed text-decoration-none" role="button" data-bs-toggle="collapse" data-parent="#${this._prefix}Accordion" data-cy-section-title="${id}"
                             href="#${this._prefix}" aria-expanded="true" aria-controls="${this._prefix}">
@@ -63,7 +63,7 @@ export default class SectionFilter extends LitElement {
                         </a>
                     </h4>
                 </div>
-                <div id="${this._prefix}" class="collapse ${this.config.collapsed ? "" : "in"}" role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                <div class="collapse ${this.config.collapsed ? "" : "in"}" id="${this._prefix}"  role="tabpanel" aria-labelledby="${this._prefix}Heading">
                     <div class="card-body">
                         ${this.filters?.map(filter => html`${filter}`)}
                     </div>
