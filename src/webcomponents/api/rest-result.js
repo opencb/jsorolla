@@ -15,8 +15,9 @@
  */
 
 import {html, LitElement} from "lit";
+import "../commons/json-editor.js";
 
-export default class OpencgaRestResult extends LitElement {
+export default class RestResult extends LitElement {
 
     constructor() {
         super();
@@ -38,6 +39,9 @@ export default class OpencgaRestResult extends LitElement {
 
     #init() {
 
+    }
+    update(changedProperties) {
+        super.update(changedProperties);
     }
 
     render() {
@@ -64,4 +68,4 @@ export default class OpencgaRestResult extends LitElement {
 
 }
 
-customElements.define("opencga-rest-result", OpencgaRestResult);
+customElements.define("rest-result", RestResult);
