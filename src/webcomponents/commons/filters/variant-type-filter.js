@@ -79,15 +79,8 @@ export default class VariantTypeFilter extends LitElement {
 
     render() {
         return html`
-            <style>
-                variant-type-filter .inline li {
-                    display: inline-block;
-                    margin-right: 10px;
-                }
-            </style>
-
-            <div style="margin-bottom: 10px">
-                <button type="button" class="btn btn-xs btn-default" @click=${this.onToggleAll}>
+            <div class="mb-3">
+                <button class="btn btn-xs btn-light" type="button" @click=${this.onToggleAll}>
                     ${this.setAll ? "Deselect" : "Select"} all
                 </button>
             </div>
