@@ -16,12 +16,9 @@
 
 import {html, LitElement} from "lit";
 import RestClient from "../../core/clients/rest-client.js";
-import "../commons/json-viewer.js";
-import "../commons/json-editor.js";
-
 import RestUtils from "./rest-utils.js";
 import "./opencga-rest-input.js";
-import "./opencga-rest-result.js";
+import "./rest-result.js";
 
 export default class OpencgaRestEndpoint extends LitElement {
 
@@ -49,7 +46,6 @@ export default class OpencgaRestEndpoint extends LitElement {
     #init() {
         this.restClient = new RestClient();
         this.isLoading = false;
-        // FIXME: to refactor
         this.methodColor = {
             "GET": "blue",
             "POST": "darkorange",
@@ -58,16 +54,14 @@ export default class OpencgaRestEndpoint extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("endpoint")) {
+            this.endpointObserver();
         }
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        if (this.opencgaSession?.study && this.data?.param?.study) {
-            this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
-        }
+    endpointObserver() {
+        this.result = null;
     }
 
     getUrlLinkModelClass(responseClass) {
@@ -143,15 +137,15 @@ export default class OpencgaRestEndpoint extends LitElement {
                             .endpoint="${this.endpoint}"
                             .opencgaSession="${this.opencgaSession}"
                             .bodyMode="${"json"}"
-                            @sumbit="${this.onSubmit}"
+                            @submit="${this.onSubmit}"
                         ></opencga-rest-input>
                     </div>
 
                     <!-- Results Section -->
                     <div style="padding: 5px 10px">
-                        <opencga-rest-result
-                            .result="${this.result}"
-                        ></opencga-rest-result>
+                        <rest-result
+                            .result="${this.result}">
+                        </rest-result>
                     </div>
 
                 </div>
