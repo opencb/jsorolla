@@ -51,18 +51,8 @@ export default class OpencgaRestInput extends LitElement {
     }
 
     #init() {
-        // CAUTION: not sure if needed
-        this.dataJson = {};
-        this.data = {};
-        this._data = {};
-        // get value from list<string>
-        this.valuesTolist = {};
-
         this.restClient = new RestClient();
         this.isLoading = false;
-
-        // Data Structure for Json
-        this.dataModel = {};
         // Dictionary: json | both
         this.bodyMode = "json";
         this.displayConfig = {
@@ -73,6 +63,7 @@ export default class OpencgaRestInput extends LitElement {
             buttonsVisible: true,
             buttonsLayout: "bottom", // TODO: Changed to UPPER when TASK-4286 merged
         };
+        this.#initOriginalObjects();
     }
 
     #setLoading(value) {
@@ -84,25 +75,41 @@ export default class OpencgaRestInput extends LitElement {
         if (changedProperties.has("endpoint")) {
             this.endpointObserver();
         }
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
         super.update(changedProperties);
     }
 
+    opencgaSessionObserver() {
+        if (this.opencgaSession?.study && this.data?.param?.study) {
+            this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
+            this.data = {...this.data};
+        }
+    }
+
+    #initOriginalObjects() {
+        // Clean up variables when the endpoint change
+        this.elementsByType = {
+            "query": [],
+            "path": [],
+            "filter": [],
+            "body": [],
+        };
+        this.elements = [];
+        this.dataModel = {};
+        this.data = {};
+        this._data = {};
+
+        // Get value from list<string>
+        this.valuesTolist = {};
+
+    }
+
     async endpointObserver() {
+        this.#initOriginalObjects();
         if (this.endpoint?.parameters?.length > 0) {
-            // Clean up variables when the endpoint change
-            this.elementsByType = {
-                "query": [],
-                "path": [],
-                "filter": [],
-                "body": [],
-            };
-            this.elements = [];
-            this.dataModel = {};
-            this.data = {};
             // 1. Build dataform elements from API rest parameters and retrieve JSON data model if necessary.
-            // Note 20230622 Vero: It would be nice to wrap the elements construction in a separate function.
-            // However, await only pauses the execution of its surrounding async function,
-            // so enclosed in a function will not block the main thread.
             // 1.1 Build Query and Path elements
             const queryPathParameters = this.endpoint.parameters.filter(parameter => parameter.param !== "body");
             if (queryPathParameters.length > 0) {
@@ -113,6 +120,7 @@ export default class OpencgaRestInput extends LitElement {
             if (bodyParameters.length === 1) {
                 if (UtilsNew.isNotEmptyArray(bodyParameters[0].data)) {
                     this.dataModel = await this.#getDataModel(bodyParameters[0].typeClass.replace(";", ""));
+                    this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
                     if (this.bodyMode !== "json") {
                         this.#getDataformElements(bodyParameters[0].data, "body");
                     }
@@ -126,14 +134,10 @@ export default class OpencgaRestInput extends LitElement {
                 this.elements.map(element => ({...element, display: {disabled: true}}));
             // 4. Add elements to the form configuration
             this.#addElementsToConfig();
-            // CAUTION 20230622 Vero: Not sure why this is here
             // 5. If the user is logged in, it will show the current study.
-            if (RestUtils.hasStudyField(this.elements)) {
+            if (this.opencgaSession?.study && this.elements.some(field => field.title === "study")) {
                 this.data.param = {...this.data.param, study: this.opencgaSession?.study?.fqn};
             }
-            // 6. Get data.body to JSON.
-            this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
-            // Copy Original Data
             this._data = UtilsNew.objectClone(this.data);
         } else {
             // If the endpoint does not have parameters, show notification
@@ -195,20 +199,36 @@ export default class OpencgaRestInput extends LitElement {
             allowedValues: parameter.allowedValues?.split(/[\s,]+/) || "",
             defaultValue: this.getDefaultValue(parameter),
             required: !!parameter.required,
-            display: dataformType === "object-list" ? {
+            display: {
+                helpMessage: parameter?.description,
+                disabled: parameter.name === "study",
+            },
+            // display: dataformType === "object-list" ? {
+            //     style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+            //     collapsedUpdate: true,
+            //     // helpMode: "block",
+            //     view: data => html`
+            //         <div>${data.id} - ${data?.name}</div>
+            //     `,
+            // } : {
+            //     helpMessage: parameter?.description,
+            //     // helpMode: "block",
+            //     // CAUTION: should study be disabled?
+            //     //   disabled Exist:   (a) Query or Path param
+            //     //   disabled Do not exit:  (a) PrimitiveEnum, (b) Object or List, (c) List string
+            //     // disabled: parameter.name === "study"
+            // },
+        };
+        if (dataformType === "object-list") {
+            element.display = {...element.display, ...{
                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                 collapsedUpdate: true,
+                // helpMode: "block",
                 view: data => html`
                     <div>${data.id} - ${data?.name}</div>
                 `,
-            } : {
-                helpMessage: parameter?.description,
-                // CAUTION: should study be disabled?
-                //   disabled Exist:   (a) Query or Path param
-                //   disabled Do not exit:  (a) PrimitiveEnum, (b) Object or List, (c) List string
-                // disabled: parameter.name === "study"
-            },
-        };
+            }};
+        }
 
         // FIXME: try to devise a more clever way of doing this...
         if (RestUtils.isListString(parameter)) {
@@ -272,7 +292,7 @@ export default class OpencgaRestInput extends LitElement {
                 {
                     title: "Path and Query Params",
                     display: {
-                        titleHeader: "h4",
+                        titleHeader: "h5",
                         style: "margin-left: 20px",
                     },
                     elements: [...this.elements]
@@ -289,7 +309,7 @@ export default class OpencgaRestInput extends LitElement {
             this.config.sections.push({
                 title: "Body",
                 display: {
-                    titleHeader: "h4",
+                    titleHeader: "h5",
                     style: "margin-left: 20px"
                 },
                 elements: [
@@ -299,7 +319,7 @@ export default class OpencgaRestInput extends LitElement {
                             render: () => html`
                                 <detail-tabs
                                     .data="${{}}"
-                                    .config="${this.getTabsConfig(bodyElementsForm)}"
+                                    .config="${{items: this.getTabsConfig(bodyElementsForm), hideTabsIfOnlyOneVisible: true}}"
                                     .mode="${DetailTabs.TABS_MODE}">
                                 </detail-tabs>
                             `,
@@ -370,18 +390,18 @@ export default class OpencgaRestInput extends LitElement {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
 
-        let error;
+        let error, result;
         this.#setLoading(true);
         this.restClient.call(url, {method: this.endpoint.method})
             .then(response => {
-                this.result = UtilsNew.objectClone(response.responses[0].results[0]);
+                result = UtilsNew.objectClone(response.responses[0].results[0]);
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "submit", this.result, {}, error);
+                LitUtils.dispatchCustomEvent(this, "submit", result, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -416,7 +436,7 @@ export default class OpencgaRestInput extends LitElement {
                 sid: this.opencgaSession.opencgaClient._config.token,
                 token: this.opencgaSession.opencgaClient._config.token,
                 data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
-                method: "POST"
+                method: "POST",
             };
 
             this.isLoading = true;
@@ -471,24 +491,26 @@ export default class OpencgaRestInput extends LitElement {
                 // buttonClearText: "Clear",
                 // buttonOkText: "Try it out!",
             },
-            sections: [{
-                display: {
-                    titleHeader: "h4",
-                },
-                elements: [
-                    {
-                        field: "body",
-                        type: "json-editor",
-                        display: {
-                            placeholder: "write json",
-                            readOnly: !(RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession)),
-                            help: {
-                                text: "Must be a valid json, please remove empty fields if you don't need them."
-                            }
-                        }
+            sections: [
+                {
+                    display: {
+                        titleHeader: "h4",
                     },
-                ]
-            }]
+                    elements: [
+                        {
+                            field: "body",
+                            type: "json-editor",
+                            display: {
+                                placeholder: "write json",
+                                readOnly: !(RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession)),
+                                help: {
+                                    text: "Must be a valid json, please remove empty fields if you don't need them."
+                                }
+                            }
+                        },
+                    ]
+                }
+            ]
         };
         const configFormTab = {
             display: {
@@ -541,9 +563,7 @@ export default class OpencgaRestInput extends LitElement {
                 `,
             });
         }
-        return {
-            items: items,
-        };
+        return items;
     }
 
     onChangeJsonField(e, field) {

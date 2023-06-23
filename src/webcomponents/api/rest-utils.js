@@ -34,10 +34,6 @@ export default {
         return parameter.complex && (parameter.type === "List") && (typeof parameter["data"] === "undefined");
     },
 
-    hasStudyField(fieldElements) {
-        return this.opencgaSession?.study && fieldElements.some(field => field.name === "study");
-    },
-
     isNotEndPointAdmin(endpoint) {
         return !endpoint.path.includes("/admin/");
     },
