@@ -350,14 +350,10 @@ export default class OpencgaBrowserFilter extends LitElement {
                 <div class="mb-3">
                     <label class="form-label fw-bold" id="${subsection.id}">${subsection.name}</label>
                         ${subsection.description ? html`
-                        <!-- TODO: upgrade to bs5 -->
-                            <div class="tooltip-div pull-right">
-                                <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                </a>
-                            </div>
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </a>
                         ` : null}
-
                     <div id="${this._prefix}${subsection.id}" class="cy-subsection-content" data-cy="${subsection.id}">
                         ${content}
                     </div>
