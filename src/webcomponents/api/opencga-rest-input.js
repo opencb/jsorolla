@@ -18,7 +18,6 @@ import {html, LitElement} from "lit";
 import RestUtils from "./rest-utils.js";
 import UtilsNew from "../../core/utils-new";
 import DetailTabs from "../commons/view/detail-tabs";
-import Types from "../commons/types";
 import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
 import RestClient from "../../core/clients/rest-client";

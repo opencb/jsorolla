@@ -21,8 +21,6 @@ export default class RestResult extends LitElement {
 
     constructor() {
         super();
-
-        this.#init();
     }
 
     createRenderRoot() {
@@ -37,9 +35,6 @@ export default class RestResult extends LitElement {
         };
     }
 
-    #init() {
-
-    }
     update(changedProperties) {
         super.update(changedProperties);
     }

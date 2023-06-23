@@ -62,7 +62,6 @@ export default class RestMenu extends LitElement {
                     ${
                         this.api?.map(category => {
                             const categoryName = category.name.replaceAll(" ", "_");
-                            const isFirst = category.name === this.api[0].name;
                             return html `
                                 <div class="panel panel-default">
                                     <div class="panel-body" role="tab" id="${categoryName}HeadingOne">

@@ -73,9 +73,8 @@ export default class RestApi extends LitElement {
                     }
                     this.requestUpdate();
                 })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
                 });
         }
     }
