@@ -17,7 +17,7 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
-import "./opencga-rest-endpoint.js";
+import "./rest-endpoint.js";
 import "./rest-menu.js";
 
 export default class RestApi extends LitElement {
@@ -178,10 +178,11 @@ export default class RestApi extends LitElement {
                         </div>
                         <!-- DASHBOARD -->
                         <div id="rest-endpoint-panel" class="col-md-8">
-                            <opencga-rest-endpoint
+                            <rest-endpoint
+                                .apiInfo="${this.selectedAPI}"
                                 .endpoint="${this.endpoint}"
                                 .opencgaSession="${this.opencgaSession}">
-                            </opencga-rest-endpoint>
+                            </rest-endpoint>
                         </div>
                     </div>
                 </div>
