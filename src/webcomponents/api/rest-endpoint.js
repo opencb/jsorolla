@@ -61,7 +61,7 @@ export default class RestEndpoint extends LitElement {
             //     render: () => {
             //         return html`
             //             <cellbase-rest-endpoint
-            //                     .endpoint="${this.endpoint}">
+            //                 .endpoint="${this.endpoint}">
             //             </cellbase-rest-endpoint>
             //         `;
             //     }
