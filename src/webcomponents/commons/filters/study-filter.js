@@ -122,14 +122,14 @@ export default class StudyFilter extends LitElement {
                 <fieldset class="d-grid my-1 mx-0" ?disabled="${this.selectedStudies.length < 2}">
                     <div class="btn-group" role="group">
                         <input class="btn-check" id="${this._prefix}orInput" name="pss"
-                            type="radio" value="," checked
-                            @change="${this.onChangeOperator}" />
+                            type="radio" value="," @change="${this.onChangeOperator}"
+                            autocomplete="off" checked>
                         <label class="btn btn-outline-primary" for="${this._prefix}orInput">
                             In any of (OR)
                         </label>
                         <input class="btn-check" id="${this._prefix}andInput" name="pss"
-                            type="radio" value=";"
-                            @change="${this.onChangeOperator}"/>
+                            type="radio" value=";" @change="${this.onChangeOperator}"
+                            autocomplete="off">
                         <label class="btn btn-outline-primary" for="${this._prefix}andInput">
                             In all (AND)
                         </label>
