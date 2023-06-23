@@ -495,7 +495,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     sortable: true,
-                    visible: this.gridCommons.isColumnVisible("variant1"),
+                    visible: this.gridCommons.isColumnVisible("variant2"),
                 },
                 {
                     id: "gene",
