@@ -51,8 +51,8 @@ export default class RestEndpoint extends LitElement {
                 render: () => {
                     return html`
                         <opencga-rest-endpoint
-                                .endpoint="${this.endpoint}"
-                                .opencgaSession="${this.opencgaSession}">
+                            .endpoint="${this.endpoint}"
+                            .opencgaSession="${this.opencgaSession}">
                         </opencga-rest-endpoint>
                     `;
                 }

@@ -88,24 +88,6 @@ export default class OpencgaRestInput extends LitElement {
         }
     }
 
-    #initOriginalObjects() {
-        // Clean up variables when the endpoint change
-        this.elementsByType = {
-            "query": [],
-            "path": [],
-            "filter": [],
-            "body": [],
-        };
-        this.elements = [];
-        this.dataModel = {};
-        this.data = {};
-        this._data = {};
-
-        // Get value from list<string>
-        this.valuesTolist = {};
-
-    }
-
     async endpointObserver() {
         this.#initOriginalObjects();
         if (this.endpoint?.parameters?.length > 0) {
@@ -158,6 +140,22 @@ export default class OpencgaRestInput extends LitElement {
             };
         }
         this.requestUpdate();
+    }
+
+    #initOriginalObjects() {
+        // Clean up variables when the endpoint change
+        this.elementsByType = {
+            "query": [],
+            "path": [],
+            "filter": [],
+            "body": [],
+        };
+        this.elements = [];
+        this.dataModel = {};
+        this.data = {};
+        this._data = {};
+        // Get value from list<string>
+        this.valuesTolist = {};
     }
 
     #getDataModel(model) {
