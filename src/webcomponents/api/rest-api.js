@@ -47,7 +47,7 @@ export default class RestApi extends LitElement {
     #init() {
         this.listAPI = [
             {id: "opencga", title: "OpenCGA API REST", description: ""},
-            {id: "cellbase", title: "Cellbase API REST", description: ""}
+            // {id: "cellbase", title: "Cellbase API REST", description: ""},
         ];
         this.selectedAPI = this.listAPI[0];
     }
@@ -146,22 +146,7 @@ export default class RestApi extends LitElement {
                 <div class="rest-api">
                     <!-- LEFT-BAR -->
                     <div class="rest-options">
-                        <!-- List wrapper -->
-                        <div class="rest-option dropdown">
-                            <a href="#" class="rest-option-button dropdown-toggle study-switcher dropdown-button-wrapper"
-                               data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                <div class="rest-option-button-icon">A</div>
-                            </a>
-                            <ul class="dropdown-menu">
-                                ${this.listAPI.map(api => html`
-                                    <li>
-                                        <a href="javascript: void 0" @click="${e => this.onAPISelect(e, api)}">
-                                            ${api.title}
-                                        </a>
-                                    </li>
-                                `)}
-                            </ul>
-                        </div>
+                        <!-- List wrapper: TODO when we add cellbase -->
                     </div>
                     <!-- MAIN-MANAGER -->
                     <div class="rest-manager col-md-10">
