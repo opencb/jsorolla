@@ -391,7 +391,7 @@ export default class OpencgaRestInput extends LitElement {
         this.#setLoading(true);
         this.restClient.call(url, {method: this.endpoint.method})
             .then(response => {
-                result = UtilsNew.objectClone(response.responses[0].results[0]);
+                result = UtilsNew.objectClone(response.responses[0].results);
             })
             .catch(reason => {
                 error = reason;
