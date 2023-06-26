@@ -1,5 +1,5 @@
-import OpencgaKnockoutAnalysis from "./deprecated/opencga-knockout-analysis.js";
-import OpencgaRecessiveGeneAnalysis from "./deprecated/opencga-recessive-gene-analysis.js";
+import OpencgaKnockoutAnalysis from "./opencga-knockout-analysis.js";
+import OpencgaRecessiveGeneAnalysis from "./opencga-recessive-gene-analysis.js";
 
 export default class AnalysisRegistry {
 
