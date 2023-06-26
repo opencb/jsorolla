@@ -429,47 +429,38 @@ export default class OpencgaRestInput extends LitElement {
                 url += `&${parameter.name}=${parameter.defaultValue}`;
             });
 
-        try {
-            const _options = {
-                sid: this.opencgaSession.opencgaClient._config.token,
-                token: this.opencgaSession.opencgaClient._config.token,
-                data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
-                method: "POST",
-            };
+        const _options = {
+            sid: this.opencgaSession.opencgaClient._config.token,
+            token: this.opencgaSession.opencgaClient._config.token,
+            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
+            method: "POST",
+        };
 
-            this.isLoading = true;
-            this.requestUpdate();
-            this.restClient.call(url, _options)
-                .then(() => {
-                    this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
-                    this.data = UtilsNew.objectClone(this._data);
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        message: "Endpoint successfully executed"
-                    });
-                })
-                .catch(response => {
-                    // Sometimes response is an instance of an String
-                    if (typeof response == "string") {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                            message: response
-                        });
-                    } else {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    }
-                    console.error(response);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                    this.requestUpdate();
+        this.isLoading = true;
+        this.requestUpdate();
+        this.restClient.call(url, _options)
+            .then(() => {
+                this.dataJson = {body: JSON.stringify(this.dataModel, undefined, 4)};
+                this.data = UtilsNew.objectClone(this._data);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Endpoint successfully executed"
                 });
-
-        } catch (e) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: e,
+            })
+            .catch(response => {
+                // Sometimes response is an instance of an String
+                if (typeof response == "string") {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                        message: response
+                    });
+                } else {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                }
+                console.error(response);
+            })
+            .finally(() => {
+                this.isLoading = false;
+                this.requestUpdate();
             });
-            console.error(e);
-        }
-
     }
 
     formatBody(data) {
