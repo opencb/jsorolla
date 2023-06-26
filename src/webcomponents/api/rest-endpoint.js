@@ -77,7 +77,7 @@ export default class RestEndpoint extends LitElement {
     }
 
     apiInfoObserver(id) {
-        return this.restEndpointComponentSelected = this.restEndpointComponent[id];
+        this.restEndpointComponentSelected = this.restEndpointComponent[id];
     }
 
     render() {

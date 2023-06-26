@@ -19,10 +19,6 @@ import "../commons/json-editor.js";
 
 export default class RestResult extends LitElement {
 
-    constructor() {
-        super();
-    }
-
     createRenderRoot() {
         return this;
     }
@@ -33,10 +29,6 @@ export default class RestResult extends LitElement {
                 type: Object,
             },
         };
-    }
-
-    update(changedProperties) {
-        super.update(changedProperties);
     }
 
     render() {

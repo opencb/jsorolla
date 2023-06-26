@@ -217,14 +217,15 @@ export default class OpencgaRestInput extends LitElement {
             // },
         };
         if (dataformType === "object-list") {
-            element.display = {...element.display, ...{
+            element.display = {
+                ...element.display,
                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                 collapsedUpdate: true,
                 // helpMode: "block",
                 view: data => html`
                     <div>${data.id} - ${data?.name}</div>
                 `,
-            }};
+            };
         }
 
         // FIXME: try to devise a more clever way of doing this...
