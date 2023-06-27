@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new.js";
-import GridCommons from "../../../commons/grid-commons.js";
-import "./../../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../../../core/utils-new.js";
+import GridCommons from "../../../../commons/grid-commons.js";
+import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
-export default class KnockoutVariantAllelePairs extends LitElement {
+export default class KnockoutIndividualVariants extends LitElement {
 
     constructor() {
         super();
@@ -37,7 +37,7 @@ export default class KnockoutVariantAllelePairs extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            individual: {
                 type: Object
             },
             config: {
@@ -49,15 +49,13 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-        this.gridId = this._prefix + "KnockoutVAPGrid";
+        this.gridId = this._prefix + "KnockoutIndividualGrid";
+        this.individual = null;
 
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
-
-        if (changedProperties.has("variantId")) {
+        if (changedProperties.has("individual")) {
             this.prepareData();
             this.renderTable();
         }
@@ -68,7 +66,10 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        // TODO
+        if (this.individual) {
+            const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
+            this.tableData = variants;
+        }
 
     }
 
@@ -83,6 +84,8 @@ export default class KnockoutVariantAllelePairs extends LitElement {
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pagination: true,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
@@ -102,39 +105,31 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Allele",
-                field: "variant"
-            },
-            {
-                title: "Pair type",
-                field: "pair"
+                title: "id",
+                field: "id"
             },
             {
                 title: "Type",
-                field: "type"
+                field: "knockoutType"
             },
             {
-                title: "Alt. freq",
-                field: "freq"
+                title: "GT",
+                field: "genotype"
             },
             {
-                title: "Consequence Type",
-                field: "consequenceType"
+                title: "Depth",
+                field: ""
             },
             {
-                title: "ClinVar",
-                field: "clinvar"
-            },
-            {
-                title: "Num. Individuals",
-                field: "individuals"
+                title: "Filter",
+                field: "filter"
             }
         ];
     }
 
     getDefaultConfig() {
         return {
-            title: "Allele Pairs"
+            title: "Individual"
 
         };
     }
@@ -149,4 +144,4 @@ export default class KnockoutVariantAllelePairs extends LitElement {
 
 }
 
-customElements.define("knockout-variant-allele-pairs", KnockoutVariantAllelePairs);
+customElements.define("knockout-individual-variants", KnockoutIndividualVariants);
