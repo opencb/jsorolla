@@ -345,6 +345,7 @@ export default class JobView extends LitElement {
                         },
                     ],
                 },
+                /*
                 {
                     title: "Results",
                     display: {
@@ -360,6 +361,7 @@ export default class JobView extends LitElement {
                         },
                     ],
                 },
+                 */
                 {
                     title: "Job Dependencies",
                     display: {
