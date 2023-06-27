@@ -321,8 +321,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (panels, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handlePanelsFilterChange = e => {
                                         // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
-                                            ?.split(",")
+                                        e.detail.value = (e.detail.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(e.detail.value);
