@@ -119,7 +119,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         // <span class='badge badge-light' style="color: ${CONSEQUENCE_TYPES.style[term.impact]}">${term.impact}</span>
         return {
             id: term.name,
-            name: `${term.name}  <span class="badge text-bg-light">${term.id}</span>`
+            name: `${term.name}  <span class="badge text-bg-secondary">${term.id}</span>`
         };
     }
 
@@ -191,7 +191,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             <!-- Render the different aliases configured -->
             <div class="mb-3">
                 ${this._config.alias && this._config.alias.length > 0 ? html`
-                    <span>Add terms from a preset configuration:</span>
+                    <label class="form-label">Add terms from a preset configuration:</label>
                     ${this._config.alias.map(alias => {
                         const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
                         return html`
@@ -217,7 +217,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             </div>
 
             <div class="mb-3">
-                <span>Or select terms manually:</span>
+                <label class="form-label">Or select terms manually:</label>
                 <select-field-filter
                     multiple
                     ?liveSearch="${true}"
