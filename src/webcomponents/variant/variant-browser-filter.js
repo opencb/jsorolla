@@ -621,11 +621,11 @@ export default class VariantBrowserFilter extends LitElement {
             return html`
                 <div class="mb-2">
                     ${subsection.title ? html`
-                        <label class="form-label fw-bold" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
+                        <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
                             ${this._getFilterField(subsection.title)}
                             ${subsection.tooltip ? html`
                                 <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
-                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                                 </a>
                             ` : null}
                         </label>
