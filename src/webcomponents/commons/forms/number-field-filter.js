@@ -37,7 +37,7 @@ export default class NumberFieldFilter extends LitElement {
                 type: String
             },
             config: {
-                type: String
+                type: Object
             },
             value: {
                 type: String
