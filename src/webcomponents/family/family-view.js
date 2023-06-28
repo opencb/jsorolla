@@ -318,12 +318,16 @@ export default class FamilyView extends LitElement {
                                     {
                                         title: "Father ID",
                                         field: "father.id",
-                                        defaultValue: "-"
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Mother ID",
                                         field: "mother.id",
-                                        defaultValue: "-"
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Disorders",
@@ -337,9 +341,9 @@ export default class FamilyView extends LitElement {
                                         title: "Phenotypes",
                                         field: "phenotypes",
                                         type: "custom",
-                                        defaultValue: "-",
                                         display: {
                                             render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
+                                            defaultValue: "-",
                                         }
                                     },
                                     {
