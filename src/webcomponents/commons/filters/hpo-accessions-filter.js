@@ -139,10 +139,12 @@ export default class HpoAccessionsFilter extends LitElement {
                 @filterChange="${this.onFilterChange}">
             </ontology-autocomplete-filter>
 
-            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
-                <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                Browse HPO Terms
-            </button>
+            <div class="d-grid">
+                <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
+                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
+                    Browse HPO Terms
+                </button>
+            </div>
 
             <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
