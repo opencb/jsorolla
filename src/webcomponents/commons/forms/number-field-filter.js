@@ -139,7 +139,7 @@ export default class NumberFieldFilter extends LitElement {
         return html`
             <div class="row g-2" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
                 ${this.label ? html`
-                        <label class="col-md-${this._config.layout[0]} col-sm-2 col-form-label text-center"
+                        <label class="col-md-${this._config.layout[0]} col-sm-2 col-form-label"
                             data-toggle="tooltip" data-placement="top" title="${this.label}">
                             ${this.label}
                         </label>` : nothing
