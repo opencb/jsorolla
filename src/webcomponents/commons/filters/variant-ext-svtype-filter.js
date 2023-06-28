@@ -110,7 +110,7 @@ export default class VariantExtSvtypeFilter extends LitElement {
                 }
             </style>
             <div id="${this._prefix}Type">
-             <ul class="magic-checkbox-wrapper ${classMap({inline: this._config.layout === "horizontal"})}">
+             <ul class="cy-magic-checkbox-wrapper ${classMap({inline: this._config.layout === "horizontal"})}">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`
                     <li>
                         <input class="magic-checkbox" type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}"/>

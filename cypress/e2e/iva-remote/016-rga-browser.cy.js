@@ -226,7 +226,7 @@ context("16.  RGA Browser", () => {
         UtilsTest.checkResults("rga-gene-view");
 
         // set numParents=2
-        cy.get("div[data-cy='numParents'] .magic-checkbox-wrapper > :nth-child(3) > label").click();
+        cy.get("div[data-cy='numParents'] .cy-magic-checkbox-wrapper > :nth-child(3) > label").click();
         cy.get("div.cy-search-button-wrapper button").click();
         UtilsTest.checkResults("rga-gene-view");
 
