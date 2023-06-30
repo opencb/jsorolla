@@ -1042,23 +1042,21 @@ export default class VariantBrowserGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1" role="dialog"
+                aria-hidden="true">
+                <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <div class="modal-header">
                             <h3>Table Settings</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .gridColumns="${this._columns}"
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
+                            <variant-interpreter-grid-config
+                                .opencgaSession="${this.opencgaSession}"
+                                .gridColumns="${this._columns}"
+                                .config="${this._config}"
+                                @configChange="${this.onGridConfigChange}">
+                            </variant-interpreter-grid-config>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
