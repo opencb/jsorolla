@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
@@ -767,154 +767,154 @@ export default class OpencgaActiveFilters extends LitElement {
 
             <div class="card mb-3">
                 <!-- padding: 8px 10px -->
-                <div class="card-body py-2 px-2 ">
+                <div class="card-body py-2 px-2">
                     <!-- Render dropdown menu with all filters and history -->
                     <!-- display:flex;flex-wrap:wrap;column-gap:4px;row-gap:4px;align-items:center; -->
-                    <div class="d-flex flex-wrap column-gap-1 row-gap-1 align-items-center">
-                        <div class="dropdown me-1">
-                            <button type="button" class="cy-active-filter-label btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
-                                    role="button" aria-expanded="false" data-cy="filter-button">
-                                <i class="fa fa-filter" aria-hidden="true"></i> Filters
-                            </button>
-                            <ul class="dropdown-menu">
-                                <!-- Render FILTERS options -->
-                                <li>
-                                    <h6 class="dropdown-header fw-bold text-dark">
-                                        <i class="fas fa-filter"></i>
-                                        Filters
-                                    </h6>
-                                </li>
-                                ${this._filters?.length > 0 ? html`
-                                    ${this._filters.map(item => this.renderFilterItem(item))}
-                                ` : html`
-                                    <!-- style="margin: 0 30px" -->
-                                    <div class="form-text">
-                                        No filters found.
-                                    </div>
-                                `}
-                                <li><hr class="dropdown-divider"></li>
-                                <!-- Render HISTORY filters -->
-                                <li>
-                                    <h6 class="dropdown-header fw-bold text-dark">
-                                    <i class="fas fa-history"></i>
-                                        History
-                                    </h6>
-                                </li>
-                                ${this.history?.length > 0 ? html`
-                                    ${this.history.map(item => html`
-                                        <li>
-                                            ${this.renderHistoryItem(item)}
-                                        </li>
-                                    `)}
-                                ` : html`
-                                    <div class="form-text">
-                                        Empty history.
-                                    </div>
-                                `}
-                                <li><hr class="dropdown-divider"></li>
-
-                                <!-- Add CLEAR and SAVE buttons -->
-                                <li>
-                                    <a class="dropdown-item" href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                        <i class="fa fa-eraser " aria-hidden="true"></i>
-                                        <label>Clear</label>
-                                    </a>
-                                </li>
-                                ${this.isLoggedIn() ? html`
-                                    <li>
-                                        <a class="dropdown-item" style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                            <i class="fas fa-save"></i>
-                                            <label>Save current filter</label>
-                                        </a>
-                                    </li>
-                                ` : null}
-                            </ul>
-                        </div>
-
-                        <!-- Render active query filters -->
-                        ${this.queryList?.length > 0 ? html`
-                            ${this.queryList.map(item => !item.items ? html`
-                                <!-- Single-valued filters -->
-                                ${!item.locked ? html`
-                                    <!-- No multi-valued filters -->
-                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
-                                            @click="${this.onQueryFilterDelete}">
-                                        ${item.text}
-                                    </button>
-                                ` : html`
-                                    <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
-                                            @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
-                                        ${item.text}
-                                    </button>
-                                `}
-                            ` : html`
-                                <!-- Multi-valued filters -->
-                                <div class="btn-group">
-                                    ${item.locked ? html`
-                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
-                                                @click="${this.onQueryFilterDelete}" disabled>
-                                            ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
-                                        </button>
-                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="visually-hidden">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            ${item.items.length && item.items.map(filterItem => html`
-                                                <li class="disabled" style="cursor: pointer">
-                                                    <a class="dropdown-item">${filterItem}</a>
-                                                </li>
-                                            `)}
-                                        </ul>
-                                    ` : html`
-                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
-                                                @click="${this.onQueryFilterDelete}">
-                                            ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
-                                        </button>
-                                        <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                                            <span class="visually-hidden">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            ${item.items.length && item.items.map(filterItem => html`
-                                                <li class="text-decoration-line-through-hover" style="cursor: pointer">
-                                                    <a class="dropdown-item" @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                        ${filterItem}
-                                                    </a>
-                                                </li>
-                                            `)}
-                                        </ul>
-                                    `}
-                                </div>
-                            `)}
-                        ` : html`
-                            <label>No filters selected</label>
-                        `}
-                    </div>
-
-                    <!-- aggregation stat section -->
-                    ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
-                        <div class="facet-wrapper">
-                            <div class="dropdown" style="margin-right: 5px">
-                                <button type="button" class="cy-active-filter-label no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
-                                    <i class="fas fa-project-diagram rotate-180"></i> Aggregation fields <span class="caret"></span>
+                    <div class="d-flex flex-column gap-1">
+                        <div class="d-flex flex-wrap gap-1 align-items-center">
+                            <div class="dropdown me-1">
+                                <button type="button" class="cy-active-filter-label btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false" data-cy="filter-button">
+                                    <i class="fa fa-filter" aria-hidden="true"></i> Filters
                                 </button>
-                                <ul class="dropdown-menu saved-filter-wrapper">
+                                <ul class="dropdown-menu">
+                                    <!-- Render FILTERS options -->
                                     <li>
-                                        <a href="javascript: void 0" @click="${this.clearFacet}" data-action="active-filter-clear">
-                                            <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                        <h6 class="dropdown-header fw-bold text-dark">
+                                            <i class="fas fa-filter"></i>
+                                            Filters
+                                        </h6>
+                                    </li>
+                                    ${this._filters?.length > 0 ? html`
+                                        ${this._filters.map(item => this.renderFilterItem(item))}
+                                    ` : html`
+                                        <!-- style="margin: 0 30px" -->
+                                        <div class="form-text">
+                                            No filters found.
+                                        </div>
+                                    `}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <!-- Render HISTORY filters -->
+                                    <li>
+                                        <h6 class="dropdown-header fw-bold text-dark">
+                                        <i class="fas fa-history"></i>
+                                            History
+                                        </h6>
+                                    </li>
+                                    ${this.history?.length > 0 ? html`
+                                        ${this.history.map(item => html`
+                                            <li>
+                                                ${this.renderHistoryItem(item)}
+                                            </li>
+                                        `)}
+                                    ` : html`
+                                        <div class="form-text">
+                                            Empty history.
+                                        </div>
+                                    `}
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <!-- Add CLEAR and SAVE buttons -->
+                                    <li>
+                                        <a class="dropdown-item" href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
+                                            <i class="fa fa-eraser " aria-hidden="true"></i>
+                                            <label>Clear</label>
                                         </a>
                                     </li>
+                                    ${this.isLoggedIn() ? html`
+                                        <li>
+                                            <a class="dropdown-item" style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
+                                                <i class="fas fa-save"></i>
+                                                <label>Save current filter</label>
+                                            </a>
+                                        </li>
+                                    ` : null}
                                 </ul>
                             </div>
-                            <div class="button-list">
+
+                            <!-- Render active query filters -->
+                            ${this.queryList?.length > 0 ? html`
+                                ${this.queryList.map(item => !item.items ? html`
+                                    <!-- Single-valued filters -->
+                                    ${!item.locked ? html`
+                                        <!-- No multi-valued filters -->
+                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
+                                                @click="${this.onQueryFilterDelete}">
+                                            ${item.text}
+                                        </button>
+                                    ` : html`
+                                        <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
+                                                @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
+                                            ${item.text}
+                                        </button>
+                                    `}
+                                ` : html`
+                                    <!-- Multi-valued filters -->
+                                    <div class="btn-group">
+                                        ${item.locked ? html`
+                                            <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
+                                                    @click="${this.onQueryFilterDelete}" disabled>
+                                                ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="visually-hidden">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                ${item.items.length && item.items.map(filterItem => html`
+                                                    <li class="disabled" style="cursor: pointer">
+                                                        <a class="dropdown-item">${filterItem}</a>
+                                                    </li>
+                                                `)}
+                                            </ul>
+                                        ` : html`
+                                            <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
+                                                    @click="${this.onQueryFilterDelete}">
+                                                ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                                                <span class="visually-hidden">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                ${item.items.length && item.items.map(filterItem => html`
+                                                    <li class="text-decoration-line-through-hover" style="cursor: pointer">
+                                                        <a class="dropdown-item" @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
+                                                            ${filterItem}
+                                                        </a>
+                                                    </li>
+                                                `)}
+                                            </ul>
+                                        `}
+                                    </div>
+                                `)}
+                            ` : html`
+                                <label>No filters selected</label>
+                            `}
+                        </div>
+
+                        <!-- aggregation stat section -->
+                        ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
+                            <div class="facet-wrapper d-flex flex-wrap gap-1 align-items-center">
+                                <div class="dropdown me-1" style="margin-right: 5px">
+                                    <button class="cy-active-filter-label btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                        <i class="fas fa-project-diagram"></i> Aggregation fields
+                                    </button>
+                                    <ul class="dropdown-menu saved-filter-wrapper">
+                                        <li>
+                                            <a class="dropdown-item fw-bold text-decoration-none" href="javascript: void 0" @click="${this.clearFacet}" data-action="active-filter-clear">
+                                                <i class="fa fa-eraser" aria-hidden="true"></i> Clear
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                                 ${Object.entries(this.facetQuery).map(([name, facet]) => html`
-                                    <button type="button" class="btn btn-danger ${name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${name}" data-filter-value=""
+                                    <button type="button" class="btn btn-secondary ${name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${name}" data-filter-value=""
                                             @click="${this.onQueryFacetDelete}">
                                         ${facet.formatted}
                                     </button>
                                 `)}
                             </div>
-                        </div>
-                    ` : null}
+                        ` : nothing}
+                    </div>
                 </div>
             </div>
 
