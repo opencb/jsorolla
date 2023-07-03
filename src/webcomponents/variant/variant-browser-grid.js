@@ -749,7 +749,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 3,
                     align: "center"
                 },
                 {
@@ -943,6 +943,16 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("cosmic")
+                },
+                {
+                    id: "omim",
+                    title: "OMIM",
+                    field: "omim",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: VariantGridFormatter.clinicalOmimFormatter,
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("omim"),
                 },
             ]
         ];
