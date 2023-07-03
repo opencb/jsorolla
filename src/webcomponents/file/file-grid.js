@@ -235,7 +235,6 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        debugger;
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
             case "copy-json":
