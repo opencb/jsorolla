@@ -195,7 +195,8 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 render: report => {
                                     const generateUrl = file => `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version}/files/${file}/download?study=${this.opencgaSession.study.fqn}&sid=${this.opencgaSession.token}`;
-                                    const files = report?.reportFiles?.flatMap(report => report.files);
+                                    // tmp solution: filter to avoid undefined
+                                    const files = report?.reportFiles?.flatMap(report => report.files)?.filter(file => file);
                                     if (files && files?.length > 0) {
                                         const colorExtension = {
                                             "json": "label-default",
@@ -204,7 +205,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         };
                                         const reports = {};
                                         files?.forEach(file => {
-                                            const [filename, format] = file.fileName.split(".");
+                                            const [filename, format] = file?.fileName.split(".");
                                             if (!reports[filename]) {
                                                 reports[filename] = [format];
                                             } else {
