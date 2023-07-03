@@ -61,7 +61,9 @@ class CaseSmsReport extends LitElement {
     }
 
     #init() {
+        this._reportFile = {};
         this._reportData = {};
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this._reportJson = {};
         this.selectTemplate = "Plantilla A";
@@ -93,6 +95,10 @@ class CaseSmsReport extends LitElement {
         const param = field || e.detail.param;
         if (param === "template") {
             this.selectTemplate = e.detail.value;
+        }
+
+        if (param === "exportFiles") {
+            this._reportFile = {...e.detail.data};
         }
     }
 
@@ -302,13 +308,14 @@ class CaseSmsReport extends LitElement {
 
     // It might not need to be a component.
     openUploadModal() {
-        console.log("Open modal");
-        this.openModalTest = true;
+        // console.log("Open modal");
+        // this.openModalTest = true;
+        $(`#${this._prefix}FileUploadBeta`).modal("show");
         this.requestUpdate();
     }
 
     // pdfMake
-    onGeneratePDFMake(download, data) {
+    async onGeneratePDFMake(download, data) {
         const docDefinition = {
             watermark: {text: "Draft Report", color: "blue", opacity: 0.3, bold: true, italics: false},
             content: [
@@ -444,61 +451,168 @@ class CaseSmsReport extends LitElement {
             ]
         };
         const pdfDocument = new PdfBuilder(docDefinition);
-        if (download) {
-            pdfDocument.pdfBlob(blob => {
-                // aprroach #1
-                let status = "Start";
-                const file = new File([blob], data.name, {type: blob.type});
-                data.file = file;
-                console.log("Uploading....", data);
-                // new Approach #2 in progress
-                // const file = new File([blob], "testing_pdfFileExample_3.pdf", {type: blob.type});
-                // const formData = new FormData();
-                // formData.append("file", file);
-                // Object.keys(data).forEach(key => formData.append(key, data[key]));
-                this.opencgaSession.opencgaClient.files()
-                    .upload(data)
-                    .then(response => {
-                        console.log("Uploaded file....", response);
-                        status = "DONE";
-                    })
-                    .catch(reason =>{
-                        console.log("Error:", reason);
-                        status = "FAIL";
-                    })
-                    .finally(()=>{
-                        const fileUploaded = {
-                            path: "/",
-                            fileName: data.name,
-                            upload_status: status,
-                            sample: "",
-                            description: data.description,
-                            title: "",
-                            tag: "",
-                            comments: []
-                        };
-                        let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
-                        reportTestData = {
-                            ...reportTestData,
-                            reportFiles: reportTestData?.reportFiles? [...reportTestData?.reportFiles, fileUploaded] : [fileUploaded],
-                        };
-                        this.opencgaSession.opencgaClient.clinical()
-                            .updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id,
-                                {"attributes": {"reportTest": reportTestData}}, {study: this.opencgaSession.study.fqn})
-                            .then(response => {
-                                this.postUpdate(response);
-                                console.log("Saved Attributes");
-                            })
-                            .catch(response => {
-                                console.log("Error Attributes", response);
-                                // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-                                this.notifyError(response);
-                            });
-                    });
-            });
-        } else {
-            pdfDocument.open();
-        }
+        pdfDocument.open();
+    }
+
+    async onUploadFilePdfReport(data, fileStatus) {
+
+        const docDefinition = {
+            watermark: {text: "Draft Report", color: "blue", opacity: 0.3, bold: true, italics: false},
+            content: [
+                PdfUtils.titleText(
+                    "INFORME GENÉTICO", {
+                        bold: true,
+                        alignment: "center"
+                    }),
+                {
+                    columns: [
+                        [
+                            PdfUtils.headerText("1. Datos Personales del Paciente\n"),
+                            {
+                                table: {
+                                    widths: [230],
+                                    body: [
+                                        [PdfUtils.fieldText("Nombre: ", this._reportData.patient.name)],
+                                        [PdfUtils.fieldText("Apellidos: ", this._reportData.patient.lastName)],
+                                        [PdfUtils.fieldText("Fecha Nacimiento: ", this.formatDateOrNA(this._reportData.patient.birthDate))],
+                                        [PdfUtils.fieldText("Edad: ", this._reportData.patient.age)],
+                                        [PdfUtils.fieldText("Código Sistema Salud: ", this._reportData.patient.cipa)],
+                                        [PdfUtils.fieldText("Tipo de Mustra: ", this._reportData.clinicalAnalysis.sample.type)],
+                                        [PdfUtils.fieldText("Fecha de Extracción: ", this.formatDateOrNA(this._reportData.clinicalAnalysis.sample.extractionDate))],
+                                        [PdfUtils.fieldText("Razón Extracción: ", this._reportData.clinicalAnalysis.sample?.reason)]
+                                    ]
+                                },
+                                layout: "headerVerticalBlueLine"
+                            },
+                        ],
+                        [
+                            PdfUtils.headerText("2. Datos Personales del Paciente\n"),
+                            {
+                                table: {
+                                    widths: [230],
+                                    body: [
+                                        [PdfUtils.fieldText("N. Petición: ", this._reportData.clinicalAnalysis.request.id)],
+                                        [PdfUtils.fieldText("Fecha de Petición: ", this.formatDateOrNA(this._reportData.clinicalAnalysis.sample.requestDate))],
+                                        [PdfUtils.fieldText("Dr/Dra: ", ["nombre_doctor\n", "Unidad\n", "Nombre del hopital\n", "direction del hopital\n", "CP del hospital\n"])],
+                                    ]
+                                },
+                                layout: "headerVerticalBlueLine"
+                            }
+                        ],
+                    ],
+                    margin: [0, 12],
+                },
+                {
+                    stack: [
+                        PdfUtils.headerText("3. Descripción del Estudio\n\n"),
+                        PdfUtils.fieldText("Razón del Estudio: ", this._reportData.study.reason),
+                        PdfUtils.fieldText("Projecto: ", this._reportData.study.project),
+                        PdfUtils.fieldText("Análisis: ", this._reportData.study.currentAnalysis),
+                        PdfUtils.fieldText("Genes Prioritarios: ", this._reportData.study.genePriority),
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "4. Metodologia Empleada\n\n",
+                            style: "header"
+                        },
+                        PdfUtils.htmlToPdf(this._reportData.study.method?.description?.replaceAll("h2", "b")),
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "5. Resultados",
+                            style: "header",
+                            margin: [0, 10]
+                        },
+                        {
+                            text: "No se than encontrado variants para mostrar (tabla)\n\n"
+                        },
+                        PdfUtils.htmlToPdf(this._reportData.mainResults.templateResult + " " + this._reportData.mainResults.summaryResult)
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "6. Interpretación de Resultados\n\n",
+                            style: "header"
+                        },
+                        PdfUtils.htmlToPdf(this._reportData.interpretation ?? ""),
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    stack: [
+                        {
+                            text: "7. Discusión del Informe\n\n",
+                            style: "header"
+                        },
+                        PdfUtils.htmlToPdf(this._reportData?.reportDiscussion?.discussion?.text ?? ""),
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    text: "8. Notas\n\n",
+                    style: "header"
+                },
+                PdfUtils.htmlToPdf(this._reportData.notes ?? ""),
+                {
+                    stack: [
+                        {
+                            text: "Apéndice\n\n",
+                            style: "header"
+                        },
+                        {
+                            ...PdfUtils.htmlToPdf(this._reportData?.appendix?? ""),
+                            // alignment: "justify", // if the content is empty this will crash
+                        }
+                    ],
+                    margin: [0, 10]
+                },
+                {
+                    columns: [
+                        [
+                            PdfUtils.fieldText("Responsable Lab Genética Molecular:", this._reportData.clinicalAnalysis.lab?.responsible),
+                            PdfUtils.fieldText("Facultive", this._reportData.clinicalAnalysis.lab?.facultative.join(",")),
+                            PdfUtils.fieldText("Contacto", this._reportData.clinicalAnalysis.lab?.email)
+                        ],
+                        [
+                            PdfUtils.fieldText("Validado por", this._reportData.clinicalAnalysis.lab?.validation),
+                            PdfUtils.fieldText("Fecha", this.formatDateOrNA(this._reportData.clinicalAnalysis.lab?.date)),
+                        ]
+                    ]
+                }
+                // {text: "page break -----", pageBreak: "before"},
+            ]
+        };
+        const pdfDocument = new PdfBuilder(docDefinition);
+        const blob = await pdfDocument.pdfBlob();
+        const file = new File([blob], data.name, {type: blob.type});
+        data.file = file;
+
+        await (this.opencgaSession.opencgaClient.files()
+            .upload(data)
+            .then(response => {
+                console.log("Uploaded file....", response);
+                fileStatus.push({
+                    fileName: data.path.split("/").at(-1),
+                    path: data.path,
+                    status: "DONE"
+                });
+            })
+            .catch(reason =>{
+                console.log("Error:", reason);
+                fileStatus.push({
+                    fileName: data.path.split("/").at(-1),
+                    path: data.path,
+                    status: "FAILED"
+                });
+            }));
     }
 
     #setLoading(value) {
@@ -1140,8 +1254,7 @@ class CaseSmsReport extends LitElement {
         };
         const fileType = {
             "PDF": {
-                format: "BINARY",
-                bioformat: "UNKNOWN"
+                bioformat: "NONE"
             },
             "IMAGE": {
                 format: "IMAGE"
@@ -1153,7 +1266,6 @@ class CaseSmsReport extends LitElement {
                 format: "PLAIN",
             }
         };
-        const status = "START";
         const interpretationId = this._clinicalAnalysis.interpretation.id.replace(".", "_");
         const studyName = this.opencgaSession.study.fqn.replace(/[@:]/g, "_");
         const dateTimeCreated = UtilsNew.getDatetime();
@@ -1172,26 +1284,18 @@ class CaseSmsReport extends LitElement {
                 path: `${path}.html`,
                 content: dataContent?.htmlRendered,
                 type: "FILE",
-            }
+            },
         ];
+        const fileUpload = {
+            ...fileType["PDF"],
+            name: `${fileName}`,
+            path: `${path}.pdf`,
+            study: this.opencgaSession.study.fqn,
+            type: "FILE",
+        };
         const fileStatus = [];
 
-        // const fileUpload = fileCreates.map(file => this.opencgaSession.opencgaClient
-        //     .files().create(file, params)
-        //     .then(res => fileStatus.push({
-        //         fileName: file.path.split("/").at(-1),
-        //         path: file.path,
-        //         status: "DONE"
-        //     }))
-        //     .catch(err => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
-        //         fileStatus.push({
-        //             fileName: file.path.split("/").at(-1),
-        //             path: file.path,
-        //             status: "FAILED"
-        //         });
-        //     }));
-        // await Promise.all(fileUpload);
+        // Create html/json file
         for (let i = 0; i < fileCreates.length; i++) {
             const file = fileCreates[i];
             await (this.opencgaSession.opencgaClient
@@ -1212,32 +1316,25 @@ class CaseSmsReport extends LitElement {
                 })
             );
         }
+
+        // Upload pdf file
+        await this.onUploadFilePdfReport(fileUpload, fileStatus);
         try {
+            // Register the created/uploaded files in the reportFiles
             await this.saveReportFile(dateTimeCreated, fileStatus);
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
             this.postUpdate();
+            $(`#${this._prefix}FileUploadBeta`).modal("hide");
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 title: "File Create",
                 message: "File created correctly"
             });
-
         }
     }
 
     async saveReportFile(dateTime, fileStatus) {
-        // const fileUploaded = fileStatus.map(file => ({
-        //     path: file.path,
-        //     fileName: file.fileName,
-        //     upload_status: file.status,
-        //     template: this.selectTemplate,
-        //     sample: "",
-        //     description: "",
-        //     title: "",
-        //     tag: "",
-        //     comments: []}));
-
         const reportFiles = {
             _metadata: {
                 cellbaseDbVersions: Array.isArray(this.opencgaSession?.project) ? this.opencgaSession?.project?.map(project => project?.cellbase): [{...this.opencgaSession?.project?.cellbase}],
@@ -1248,7 +1345,7 @@ class CaseSmsReport extends LitElement {
             data: {
                 template: this.selectTemplate,
                 sample: "",
-                description: "",
+                description: this._reportFile?.description,
                 title: "",
                 tag: "",
                 comments: []
@@ -1279,6 +1376,37 @@ class CaseSmsReport extends LitElement {
             });
     }
 
+    onClear() {
+        this._reportFile = {};
+        $(`#${this._prefix}FileUploadBeta`).modal("hide");
+    }
+
+    renderDataForm() {
+        return html`
+            <data-form
+                .data="${this._reportFile || {}}"
+                .config="${this.getReportConfig()}"
+                @fieldChange="${e => this.onFieldChange(e, "exportFiles")}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onUploadFileReport(e)}">
+            </data-form>`;
+    }
+
+    renderModalDataForm() {
+        return html`
+            <div class="modal fade" id="${this._prefix}FileUploadBeta" tabindex="-1"
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 768px;">
+                    <div class="modal-content" style="padding: 12px;">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Save Report (Beta)</h3>
+                        </div>
+                        ${this.renderDataForm()}
+                    </div>
+                </div>
+            </div>`;
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return html`
@@ -1300,14 +1428,10 @@ class CaseSmsReport extends LitElement {
             <div style="display:flex;gap:2px">
                 <button type="button" class="btn btn-primary"
                 @click="${() => this.onGeneratePDFMake()}">
-                Generate PDF (Beta)
+                    Generate PDF (Beta)
                 </button>
                 <button type="button" class="btn btn-primary"
                     @click="${() => this.openUploadModal()}">
-                    Saved PDF (Beta)
-                </button>
-                <button type="button" class="btn btn-primary"
-                    @click="${() => this.onUploadFileReport()}">
                     Save Report (Beta)
                 </button>
                 <button type="button" class="btn btn-primary"
@@ -1323,17 +1447,7 @@ class CaseSmsReport extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
-            <!-- This will be removed -->
-            <file-upload-beta
-                .data="${this._clinicalAnalysis}"
-                .opencgaSession="${this.opencgaSession}"
-                ?openModal="${this.openModalTest}"
-                @onUploadFile="${e => this.onGeneratePDFMake(true, e.detail.value)}"
-                @onCloseModal="${() => {
-            this.openModalTest = false;
-            this.requestUpdate();
-        }}">
-            </file-upload-beta>
+            ${this.renderModalDataForm()}
         `;
     }
 
@@ -1861,6 +1975,35 @@ class CaseSmsReport extends LitElement {
                 },
 
             ]
+        });
+    }
+
+    getReportConfig() {
+        // content, path, type
+        // file, filename,fileformat,bioformat,study,description.parents
+        return Types.dataFormConfig({
+            type: "form",
+            display: {
+                style: "margin: 10px",
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Save",
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description...",
+                            },
+                        },
+                    ],
+                }
+            ],
         });
     }
 
