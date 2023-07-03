@@ -225,4 +225,8 @@ export default class BioinfoUtils {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
+    static getOmimLink(omimEntry) {
+        return `https://www.omim.org/entry/${omimEntry}`;
+    }
+
 }
