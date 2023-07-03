@@ -44,8 +44,16 @@ export default class PdfBuilder {
         pdfMake.createPdf(this.docDefinition).print();
     }
 
-    pdfBlob(cb) {
-        pdfMake.createPdf(this.docDefinition, this.tableLayouts).getBlob(cb);
+    pdfBlob() {
+        return new Promise((resolve, reject) => {
+            pdfMake.createPdf(this.docDefinition, this.tableLayouts)
+                .getBlob(result => {
+                    resolve(result);
+                },
+                err => {
+                    reject(err);
+                });
+        });
     }
 
     addStyles(stylesDefinition) {
