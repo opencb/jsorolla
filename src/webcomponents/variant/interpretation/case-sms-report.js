@@ -1428,15 +1428,15 @@ class CaseSmsReport extends LitElement {
             <div style="display:flex;gap:2px">
                 <button type="button" class="btn btn-primary"
                 @click="${() => this.onGeneratePDFMake()}">
-                    Generate PDF (Beta)
-                </button>
-                <button type="button" class="btn btn-primary"
-                    @click="${() => this.openUploadModal()}">
-                    Save Report (Beta)
+                    Preview PDF
                 </button>
                 <button type="button" class="btn btn-primary"
                     @click="${() => this.previewHtmlReport(this.selectTemplate)}">
-                    Preview html (Beta)
+                    Preview HTML
+                </button>
+                <button type="button" class="btn btn-success" style="margin-left: 20px"
+                    @click="${() => this.openUploadModal()}">
+                    Save Report
                 </button>
             </div>
 
