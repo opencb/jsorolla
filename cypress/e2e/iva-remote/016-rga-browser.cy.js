@@ -30,7 +30,7 @@ context("16.  RGA Browser", () => {
         cy.get("a[data-id=rga]", {timeout: TIMEOUT}).click({force: true});
         cy.get("rga-browser", {timeout: TIMEOUT}).then($comp => {
             if (!Cypress.$("tool-header[title='Recessive Variant Browser']", $comp).length) {
-                cy.get("div.guard-page h3").contains("not enabled to Recessive Variant Analysis");
+                cy.get("div.cy-guard-page h3").contains("not enabled to Recessive Variant Analysis");
             } else {
                 ENABLED = true;
             }

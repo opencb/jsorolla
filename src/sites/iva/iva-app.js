@@ -1240,7 +1240,7 @@ class IvaApp extends LitElement {
             </custom-navbar>
 
             ${ this.isCreatingSession ? html `
-            <div class="login-overlay">
+            <div class="cy-login-overlay position-absolute top-50 start-50 translate-middle">
                 <loading-spinner
                         .description="${"Creating session..."}">
                 </loading-spinner>

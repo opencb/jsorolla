@@ -26,7 +26,7 @@ const homePanel = [
 
 // resolve Home Category Cards (not used anymore)
 const resolveButtons = page => {
-    cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");
+    cy.get(".cy-login-overlay", {timeout: TIMEOUT}).should("not.exist");
     cy.get(`a[data-cat-id=${page.id}]`).should("be.visible").click();
     cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", page.title);
     // cy.get("a#home-nav").click();
@@ -44,7 +44,7 @@ context("15. Welcome page", () => {
         cy.get(".navbar-brand > img", {timeout: TIMEOUT}).should("be.visible");
         // cy.get("a#home-nav").click();
         cy.get(".navbar-brand").click();
-        cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");
+        cy.get(".cy-login-overlay", {timeout: TIMEOUT}).should("not.exist");
         cy.get("#welcome-page-title", {timeout: TIMEOUT}).contains("Interactive Variant Analysis");
         cy.get(".iva-logo").find("img").should("be.visible");
         cy.get("#welcome-page-title ").contains("Interactive Variant Analysis");

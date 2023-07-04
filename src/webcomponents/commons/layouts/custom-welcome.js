@@ -194,7 +194,7 @@ export default class CustomWelcome extends LitElement {
         if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
             return html`
-                <div class="guard-page">
+                <div class="cy-guard-page text-center opacity-50">
                     <i class="fas fa-lock fa-5x"></i>
                     <h3>You don´t have projects or/and studies. Please contact the admin</h3>
                 </div>`;
