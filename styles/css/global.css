@@ -90,6 +90,7 @@ a:visited {
 }
 
 /* TODO: Review code-wrapper, if all this is really necessary */
+/****** Code Wrapper  ********/
 .code-wrapper {
     background: rgb(24, 48, 85);
     color: white;
@@ -130,7 +131,6 @@ a:visited {
     user-select: none;
 
 }
-/**** *********/
 
 /*********** main view tabs *****************/
 .main-view .content-tab {
@@ -141,6 +141,10 @@ a:visited {
     display: block;
 }
 
+/*********** table *****************/
+.detail-view {
+    --bs-table-hover-bg: transparent
+}
 
 /* Animations */
 @keyframes pulse {
