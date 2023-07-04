@@ -2,6 +2,7 @@ import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 import "../../commons/filters/feature-filter.js";
+import "../filters/disease-panel-filter.js";
 
 export default class AnalysisUtils {
 
@@ -95,8 +96,16 @@ export default class AnalysisUtils {
                 type: "custom",
                 display: {
                     visible: !ignoreList?.includes("panel"),
-                    render: (panels, dataFormFilterChange, updateParams) => html`
-                        -
+                    render: (panel, dataFormFilterChange, updateParams) => html`
+                        <disease-panel-filter
+                            .opencgaSession="${opencgaSession}"
+                            .diseasePanels="${opencgaSession.study?.panels || []}"
+                            .panel="${panel}"
+                            .showExtendedFilters="${false}"
+                            .multiple="${false}"
+                            .classes="${updateParams?.panels ? "selection-updated" : ""}"
+                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                        </disease-panel-filter>
                     `,
                 },
             },
