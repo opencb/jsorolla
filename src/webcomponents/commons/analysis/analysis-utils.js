@@ -100,6 +100,7 @@ export default class AnalysisUtils {
                             .diseasePanels="${opencgaSession.study?.panels || []}"
                             .panel="${panel}"
                             .showExtendedFilters="${false}"
+                            .showSelectedPanels="${false}"
                             .multiple="${false}"
                             .classes="${updateParams?.panels ? "selection-updated" : ""}"
                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
