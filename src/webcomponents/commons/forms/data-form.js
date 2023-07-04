@@ -1052,7 +1052,7 @@ export default class DataForm extends LitElement {
         const content = html`
             <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
-                    <thead>
+                    <thead class="table-light">
                     <tr>
                         ${element.display.columns.map(elem => html`
                             <th scope="col">${elem.title || elem.name}</th>

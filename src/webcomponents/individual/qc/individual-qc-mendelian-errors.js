@@ -150,7 +150,7 @@ export default class IndividualQcMendelianErrors extends LitElement {
             return html`
                 <h4 style="padding-top: 15px">Summary</h4>
                 <table class="table table-hover table-no-bordered">
-                    <thead>
+                    <thead class="table-light">
                     <tr>
                         <th>Sample ID</th>
                         <th>Role</th>
@@ -184,7 +184,7 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 <!-- Print errors for Individual -->
                 <h4 style="padding-top: 15px">Mendelian Errors of ${this.individual.id}</h4>
                 <table class="table table-hover table-no-bordered">
-                    <thead>
+                    <thead class="table-light">
                     <tr>
                         <th>Sample ID</th>
                         <th>Chromosome</th>

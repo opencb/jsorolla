@@ -308,7 +308,7 @@ export default class DataView extends LitElement {
 
         return html`
             <table class="table" style="display: inline">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         ${element.display.columns.map(elem => html`
                             <th scope="col">${elem.name}</th>

@@ -275,7 +275,7 @@ export default class IndividualGrid extends LitElement {
             result += `
                 <div style="width: 90%;padding-left: 20px">
                     <table class="table table-hover table-no-bordered">
-                        <thead>
+                        <thead class="table-light">
                             <tr class="table-header">
                                 ${tableCheckboxHeader}
                                 <th>Sample ID</th>

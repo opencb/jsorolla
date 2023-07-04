@@ -136,7 +136,7 @@ class SamtoolsStatsView extends LitElement {
                 <!-- Render the table -->
                 <div>
                     <table class="table table-hover table-no-bordered">
-                        <thead>
+                        <thead class="table-light">
                         <tr>
                             <th></th>
                             ${this.config?.columns?.length ?

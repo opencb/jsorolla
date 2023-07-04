@@ -496,7 +496,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     <div>
                         <h4 style="padding-top: 10px; margin-bottom: 0px">Select Sample Genoypes</h4>
                         <table id="${this._prefix}BasicTable" class="table table-hover table-no-bordered">
-                            <thead>
+                            <thead class="table-light">
                             <tr>
                                 <th rowspan="2">Sample</th>
 <!--                                <th rowspan="2">Proband</th>-->

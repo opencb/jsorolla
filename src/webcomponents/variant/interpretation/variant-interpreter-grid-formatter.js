@@ -197,7 +197,7 @@ export default class VariantInterpreterGridFormatter {
             `;
 
             if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                ctHtml += `<thead>
+                ctHtml += `<thead class="table-light">
                                <tr>
                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>
@@ -216,7 +216,7 @@ export default class VariantInterpreterGridFormatter {
                            </thead>
                            <tbody>`;
             } else {
-                ctHtml += `<thead>
+                ctHtml += `<thead class="table-light">
                                <tr>
                                    <th rowspan="2" style="padding: 2px 5px">Gene</th>
                                    <th rowspan="2" style="padding: 2px 5px">Transcript</th>

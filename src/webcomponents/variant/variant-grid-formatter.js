@@ -480,7 +480,7 @@ export default class VariantGridFormatter {
         }
 
         let html = `<table id="${id ? id : null}" class="table ${config?.classes ? config.classes : "table-hover table-no-bordered"}">
-                        <thead>
+                        <thead class="table-light">
                             ${tr}
                         </thead>
                         <tbody>`;
@@ -643,7 +643,7 @@ export default class VariantGridFormatter {
                               ${message}
                           </div>
                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                              <thead>
+                              <thead class="table-light">
                                   <tr>
                                       <th rowspan="2">Gene</th>
                                       <th rowspan="2">Transcript</th>
@@ -1382,7 +1382,7 @@ export default class VariantGridFormatter {
         if (row?.interpretations?.length > 0) {
             let reportedHtml = `
                 <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th rowspan="2">Case</th>
                             <th rowspan="2">Disease Panel</th>

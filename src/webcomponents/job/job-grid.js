@@ -247,7 +247,7 @@ export default class JobGrid extends LitElement {
                         <div class='col-md-12'>
                             <div>
                                 <table class="table table-hover table-no-bordered">
-                                    <thead>
+                                    <thead class="table-light">
                                         <tr class="table-header">
                                             <th>ID</th>
                                             <th>Tool</th>

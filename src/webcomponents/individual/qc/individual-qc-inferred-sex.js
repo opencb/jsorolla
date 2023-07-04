@@ -155,7 +155,7 @@ export default class IndividualQcInferredSex extends LitElement {
 
             return html`
                 <table class="table table-hover table-no-bordered text-center">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th>Individual ID</th>
                             <th>Sample ID</th>

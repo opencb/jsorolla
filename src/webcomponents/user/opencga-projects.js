@@ -324,7 +324,7 @@ export default class OpencgaProjects extends LitElement {
         return html`
             <div class="v-space"></div>
             <table class="table table-no-bordered opencga-project-table">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th rowspan="2">Field</th>
                         <th rowspan="2">Value</th>

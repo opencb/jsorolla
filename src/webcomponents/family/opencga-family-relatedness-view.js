@@ -115,7 +115,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
             const relatedness = this.family.qualityControl.relatedness[0];
             return html`
                 <table class="table table-hover table-no-bordered">
-                    <thead>
+                    <thead class="table-light">
                     <tr>
                         <th>Sample ID 1</th>
                         <th>Sample ID 2</th>
