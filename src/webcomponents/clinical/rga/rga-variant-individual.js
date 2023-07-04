@@ -105,6 +105,8 @@ export default class RgaVariantIndividual extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.variant.individuals,
             columns: this._initTableColumns(),
             sidePagination: "server",

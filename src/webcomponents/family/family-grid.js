@@ -228,6 +228,8 @@ export default class FamilyGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             data: this.families,
             sidePagination: "local",

@@ -441,7 +441,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             theadClasses: "table-light",
-            buttonsClass: "btn btn-light",
+            buttonsClass: "light",
             data: this.clinicalVariants,
             columns: this._getDefaultColumns(),
             sidePagination: "local",

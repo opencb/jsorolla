@@ -299,6 +299,8 @@ export default class ClinicalInterpretationView extends LitElement {
         const _table = $("#" + this._prefix + "mainTable");
         $("#" + this._prefix + "mainTable").bootstrapTable("destroy");
         $("#" + this._prefix + "mainTable").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: _this.interpretation.reportedVariants,
             columns: _this.cols,
             onPageChange: function (page, size) {

@@ -230,7 +230,7 @@ export default class IndividualGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             theadClasses: "table-light",
-            buttonsClass: "btn btn-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             data: this.individuals,
             sidePagination: "local",

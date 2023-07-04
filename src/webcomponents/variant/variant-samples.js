@@ -126,6 +126,8 @@ export default class VariantSamples extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             pagination: true,
             sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,

@@ -148,6 +148,8 @@ export default class RgaIndividualFamily extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._initTableColumns(),
             method: "get",
             sidePagination: "server",

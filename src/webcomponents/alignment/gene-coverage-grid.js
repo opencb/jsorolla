@@ -96,6 +96,8 @@ export default class GeneCoverageGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.transcriptCoverageStats,
             columns: this._initTableColumns(),
             sidePagination: "local",
@@ -134,6 +136,8 @@ export default class GeneCoverageGrid extends LitElement {
                 this.table = $("#" + this.gridId);
                 this.table.bootstrapTable("destroy");
                 this.table.bootstrapTable({
+                    theadClasses: "table-light",
+                    buttonsClass: "light",
                     columns: this._columns,
                     uniqueId: "id",
                     iconsPrefix: GridCommons.GRID_ICONS_PREFIX,

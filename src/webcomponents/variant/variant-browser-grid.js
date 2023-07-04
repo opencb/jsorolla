@@ -318,6 +318,8 @@ export default class VariantBrowserGrid extends LitElement {
     renderFromLocal() {
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.variants,
             columns: this._getDefaultColumns(),
             sidePagination: "local",

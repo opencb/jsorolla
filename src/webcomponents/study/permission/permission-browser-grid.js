@@ -122,6 +122,8 @@ export default class PermissionBrowserGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             data: this.studyPermissions,
             sidePagination: "local",

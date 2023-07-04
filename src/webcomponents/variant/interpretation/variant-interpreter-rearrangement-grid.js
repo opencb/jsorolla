@@ -209,6 +209,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
@@ -291,6 +293,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: variants,
             columns: this._createDefaultColumns(),
             sidePagination: "local",

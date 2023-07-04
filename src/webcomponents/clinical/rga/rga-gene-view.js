@@ -110,6 +110,8 @@ export default class RgaGeneView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._columns,
             method: "get",
             sidePagination: "server",

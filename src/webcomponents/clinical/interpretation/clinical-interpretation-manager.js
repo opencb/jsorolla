@@ -204,6 +204,8 @@ export default class ClinicalInterpretationManager extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.interpretationVersions,
             columns: this._initTableColumns(),
             uniqueId: "id",

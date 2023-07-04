@@ -204,6 +204,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this._audit,
             columns: this._getTableColumns(),
             sidePagination: "local",

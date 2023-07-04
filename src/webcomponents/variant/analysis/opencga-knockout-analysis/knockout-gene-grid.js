@@ -100,6 +100,8 @@ export default class KnockoutGeneGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             //data: this.tableData,
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._initTableColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,

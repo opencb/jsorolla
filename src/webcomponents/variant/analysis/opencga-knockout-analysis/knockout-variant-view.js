@@ -201,6 +201,8 @@ export default class KnockoutVariantView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",

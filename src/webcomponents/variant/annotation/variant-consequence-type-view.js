@@ -214,6 +214,8 @@ export default class VariantConsequenceTypeView extends LitElement {
 
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
         $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: this.consequenceTypes,
             pagination: true,
             showExport: true,

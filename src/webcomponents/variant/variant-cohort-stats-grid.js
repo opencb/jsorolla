@@ -69,6 +69,8 @@ class VariantCohortStatsGrid extends LitElement {
             const _this = this;
             _table.bootstrapTable("destroy");
             _table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: _this._createDefaultColumns(),
                 data: _this.stats,
                 pagination: _this._config.pagination,

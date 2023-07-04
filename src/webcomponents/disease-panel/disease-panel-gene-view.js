@@ -85,6 +85,8 @@ export default class DiseasePanelGeneView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this.getDefaultColumns(),
             data: this.genePanels,
             sidePagination: "local",
