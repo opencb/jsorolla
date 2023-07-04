@@ -92,16 +92,12 @@ export default class AnalysisUtils {
             {
                 title: "Disease Panel",
                 field: prefix + "panel",
-                type: "select",
-                allowedValues: opencgaSession?.study?.panels?.map(panel => (
-                    {
-                        id: panel.id,
-                        name: `${panel.name}
-                        ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                        ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`}
-                )) || [],
+                type: "custom",
                 display: {
-                    visible: !ignoreList?.includes("panel")
+                    visible: !ignoreList?.includes("panel"),
+                    render: (panels, dataFormFilterChange, updateParams) => html`
+                        -
+                    `,
                 },
             },
         ];
