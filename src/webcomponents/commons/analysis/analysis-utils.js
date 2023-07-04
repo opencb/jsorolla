@@ -1,7 +1,7 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
-import "../../commons/filters/feature-filter.js";
+import "../filters/feature-filter.js";
 import "../filters/disease-panel-filter.js";
 
 export default class AnalysisUtils {
