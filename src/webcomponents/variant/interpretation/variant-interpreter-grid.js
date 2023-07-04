@@ -581,6 +581,32 @@ export default class VariantInterpreterGrid extends LitElement {
         return "-";
     }
 
+    cohortFormatter(value, row) {
+        if (row && row.studies?.length > 0 && row.studies[0].stats) {
+            const cohortStats = new Map();
+            for (const study of row.studies) {
+                // Now we support both study.is and study.fqn
+                const metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                if (study.studyId === metaStudy) {
+                    (study?.stats || []).forEach(cohortStat => {
+                        cohortStats.set(cohortStat.cohortId, cohortStat);
+                    });
+                    break;
+                }
+            }
+            // We need to convert cohort objects to a string array
+            const cohortIds = this.meta.cohorts.map(cohort => cohort.id);
+            return VariantGridFormatter.renderPopulationFrequencies(
+                cohortIds,
+                cohortStats,
+                this.meta.colors,
+                this.meta.populationFrequenciesConfig,
+            );
+        } else {
+            return "-";
+        }
+    }
+
     _getDefaultColumns() {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
@@ -636,6 +662,32 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: false
                 }
             ];
+        }
+
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        let cohortColumns = [{visible: false}];
+        if (this.opencgaSession?.project?.studies?.length > 0) {
+            cohortColumns = [];
+            for (const study of this.opencgaSession.project.studies) {
+                cohortColumns.push({
+                    id: study.id,
+                    title: study.id,
+                    field: study.id,
+                    meta: {
+                        study: study.fqn,
+                        cohorts: study.cohorts,
+                        colors: POPULATION_FREQUENCIES.style,
+                        populationFrequenciesConfig: this._config?.populationFrequenciesConfig,
+                        context: this
+                    },
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.cohortFormatter,
+                    align: "center",
+                    eligible: true,
+                    visible: this.gridCommons.isColumnVisible(study.id),
+                });
+            }
         }
 
         // Prepare Grid columns
@@ -725,12 +777,12 @@ export default class VariantInterpreterGrid extends LitElement {
                     id: "cohort",
                     title: "Cohort Stats",
                     field: "cohort",
-                    rowspan: 2,
-                    colspan: 1,
+                    rowspan: 1,
+                    colspan: cohortColumns.length,
                     align: "center",
-                    formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
+                    // formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
                     // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
-                    visible: this.gridCommons.isColumnVisible("cohort"),
+                    visible: this.gridCommons.isColumnVisible("cohort") && cohortColumns.length,
                 },
                 {
                     id: "populationFrequencies",
@@ -928,6 +980,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("spliceai"),
                 },
                 ...vcfDataColumns,
+                ...cohortColumns,
                 {
                     id: "clinvar",
                     title: "ClinVar",
