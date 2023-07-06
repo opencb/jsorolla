@@ -359,7 +359,9 @@ export default class OpencgaUpdate extends LitElement {
                 this.initOriginalObjects();
                 this.requestUpdate();
                 // We need to dispatch a component clear event
-                LitUtils.dispatchCustomEvent(this, "componentClear", null, {component: this._component}, null);
+                LitUtils.dispatchCustomEvent(this, "componentClear", null, {
+                    component: this._component,
+                });
             },
         });
     }
