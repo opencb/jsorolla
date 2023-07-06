@@ -37,6 +37,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 import "./webcomponents/data-form-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
+import "./webcomponents/catalog-browser-grid-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
@@ -92,6 +93,7 @@ class TestApp extends LitElement {
             "data-form",
             "utils-new",
             "catalog-filters",
+            "file-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
             "variant-browser-grid-cancer",
@@ -638,6 +640,17 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["catalog-filters"] ? html`
                     <div class="content" id="rga">
                         Not available yet...
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["file-browser-grid"] ? html`
+                    <div class="content" id="file-browser-grid">
+                        <catalog-browser-grid-test
+                            testFile="files-chinese-test"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </catalog-browser-grid-test>
                     </div>
                 ` : null}
 
