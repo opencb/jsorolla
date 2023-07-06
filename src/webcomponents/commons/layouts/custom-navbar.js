@@ -413,7 +413,7 @@ export default class CustomNavBar extends LitElement {
                                             ${this.opencgaSession.user?.name ?? this.opencgaSession.user?.id}
                                         </div>
                                     </a>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.config?.userMenu?.length ? this.config.userMenu
                                     .filter(item => UtilsNew.isAppVisible(item, this.opencgaSession))
                                     .map(item => html`
