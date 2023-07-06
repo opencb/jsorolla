@@ -462,54 +462,48 @@ const client = new OpenCGAClient({
     render() {
         // TODO: Refactor this code
         return html`
-            <div>
-                <ul class="nav nav-tabs mb-3" role="tablist">
-                    ${~this.tabs.indexOf("download") ? html`
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" data-bs-toggle="tab" role="tab" href="#${this._prefix}download">Download Table</a>
-                        </li>` : nothing
-                    }
-                    ${~this.tabs.indexOf("export") ? html`
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#${this._prefix}export">Export Query</a>
-                        </li>` : nothing
-                    }
-                    ${~this.tabs.indexOf("link") ? html`
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#link">Link</a>
-                        </li>` : nothing
-                    }
-                    ${~this.tabs.indexOf("code") ? html`
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#code">Opencga Script Code</a>
-                        </li>` : nothing
-                    }
-                </ul>
-            </div>
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                ${~this.tabs.indexOf("download") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" role="tab" href="#${this._prefix}download">Download Table</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("export") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#${this._prefix}export">Export Query</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("link") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#link">Link</a>
+                    </li>` : nothing
+                }
+                ${~this.tabs.indexOf("code") ? html`
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" role="tab" href="#code">Opencga Script Code</a>
+                    </li>` : nothing
+                }
+            </ul>
 
             <div class="tab-content">
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <!-- TODO: is it really necessary use form? -->
-                    <form class="form-horizontal">
-                        <div class="col-md-12">
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>
-                                    <b>Note:</b>
-                                    ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
-                                </span>
-                            </div>
+                    <form>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <b>Note:</b>
+                            ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <h4 class="export-section-title">Select Output Format</h4>
+                            <h4>Select Output Format</h4>
                             <button type="button" class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" data-bs-toggle="button" data-format="tab" @click="${this.changeFormat}">
                                 <i class="fas fa-table fa-2x"></i>
-                                <div class="export-buttons-text">TSV</div>
+                                <div>TSV</div>
                             </button>
                             <button type="button" class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json"})}" data-bs-toggle="button" data-format="json" @click="${this.changeFormat}">
                                 <i class="fas fa-file-code fa-2x"></i>
-                                <div class="export-buttons-text">JSON</div>
+                                <div>JSON</div>
                             </button>
                         </div>
 
@@ -522,14 +516,18 @@ const client = new OpenCGAClient({
                                         <ul>
                                             ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                             <li>
-                                                <label><input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id} </label>
+                                                <label>
+                                                    <input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id}
+                                                </label>
                                                 ${li.children ? html`
                                                     <ul>
-                                                        ${li.children
-                        .filter(li => !li.excludeFromExport)
-                        .map((s, y) => html`
-                                                                <li><label><input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}</label></li>
-                                                            `)}
+                                                        ${li.children.filter(li => !li.excludeFromExport).map((s, y) => html`
+                                                            <li>
+                                                                <label>
+                                                                    <input type="checkbox" @change="${e => this.changeExportField(e, y, i)}" .checked=${s.export}>  ${s.id}
+                                                                </label>
+                                                            </li>
+                                                        `)}
                                                     </ul>
                                                 ` : ""}
                                             </li>
@@ -549,44 +547,46 @@ const client = new OpenCGAClient({
                 </div>
 
                 <div id="${this._prefix}export" class="tab-pane ${classMap({active: this.tabs[0] === "export"})}">
-                    <form class="form-horizontal">
-                        <div class="col-md-12">
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>
-                                    <span class="fw-bold">Note: </span>This option will launch an
-                                    <span class="fw-bold">async job</span> in the server to export all records, note that no limit is applied.
-                                    This might take few minutes depending on the data size and cluster load.
-                                </span>
+                    <form>
+                        <div class="row g-1 mb-3">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                        <b>Note:</b>This option will launch an
+                                        <b>async job</b> in the server to export all records, note that no limit is applied.
+                                        This might take few minutes depending on the data size and cluster load.
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="col-md-12">
-                            <h4 class="export-section-title">Select Output Format</h4>
-                            <button type="button" class="btn export-buttons ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
-                                <i class="fas fa-table fa-2x"></i>
-                                <span class="export-buttons-text">
-                                    ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
-                                </span>
-                            </button>
-                            ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
-                                <button type="button" class="btn export-buttons ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
-                                    <i class="fas fa-file-code fa-2x"></i>
-                                    <span class="export-buttons-text">Ensembl VEP</span>
+                            <div class="col-md-12">
+                                <h4>Select Output Format</h4>
+                                <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" type="button" data-format="tab" @click="${this.changeFormat}">
+                                    <i class="fas fa-table fa-2x"></i>
+                                    <div>
+                                        ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
+                                    </div>
                                 </button>
-                            ` : null}
-                            <button type="button" class="btn export-buttons ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
-                                <i class="fas fa-file-code fa-2x"></i>
-                                <span class="export-buttons-text">JSON</span>
-                            </button>
-                        </div>
+                                ${(this.config.resource === "VARIANT" || this.config.resource === "CLINICAL_VARIANT") ? html`
+                                    <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "vep"})}" type="button" data-format="vep" @click="${this.changeFormat}">
+                                        <i class="fas fa-file-code fa-2x"></i>
+                                        <div>Ensembl VEP</div>
+                                    </button>
+                                ` : null}
+                                <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json"})}" type="button" data-format="json" @click="${this.changeFormat}">
+                                    <i class="fas fa-file-code fa-2x"></i>
+                                    <div>JSON</div>
+                                </button>
+                            </div>
 
-                        <div class="col-md-12">
-                            <h4 class="export-section-title">Job Info</h4>
-                            <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
-                            <div class="col-md-10">
-                                <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                        value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                            <div class="col-md-12">
+                                <h4>Job Info</h4>
+                                <label class="col-md-2 form-label">
+                                    Job ID
+                                </label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
+                                            value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                </div>
                             </div>
                         </div>
                     </form>
