@@ -144,7 +144,9 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                 .componentId="${this.clinicalAnalysisId}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                @componentIdObserver="${this.clinicalAnalysisIdObserver}">
+                @componentIdObserver="${this.clinicalAnalysisIdObserver}"
+                @componentFieldChange="${this.onComponentFieldChange}"
+                @componentClear="${this.onComponentClear}">
             </opencga-update>
         `;
     }
