@@ -82,7 +82,7 @@ export default class OpencgaFileGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "FILE",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
@@ -195,8 +195,8 @@ export default class OpencgaFileGrid extends LitElement {
 
     renderLocalTable() {
         this.from = 1;
-        this.to = Math.min(this.samples.length, this._config.pageSize);
-        this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(this.files.length, this._config.pageSize);
+        this.numTotalResultsText = this.files.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -316,17 +316,18 @@ export default class OpencgaFileGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            const downloadUrl = [
-                this.opencgaSession.server.host,
+
+            const downloadUrl = this.opencgaSession?.server? [
+                this.opencgaSession?.server.host,
                 "/webservices/rest/",
-                this.opencgaSession.server.version,
+                this.opencgaSession?.server.version,
                 "/files/",
                 "FILE_ID",
                 "/download?study=",
-                this.opencgaSession.study.fqn,
+                this.opencgaSession?.study.fqn,
                 "&sid=",
-                this.opencgaSession.token,
-            ];
+                this.opencgaSession?.token,
+            ]:[];
             _columns.push({
                 id: "actions",
                 title: "Actions",
@@ -340,7 +341,7 @@ export default class OpencgaFileGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left">
+                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left ${downloadUrl.length == 0 ? "disabled" : ""}">
                                     <i class="fas fa-download icon-padding"></i>Download
                                 </a>
                             </li>
@@ -364,8 +365,8 @@ export default class OpencgaFileGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#fileUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user?.id) || "disabled" }"
+                                    href='#fileUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study?.id}/${row.id}'>
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>

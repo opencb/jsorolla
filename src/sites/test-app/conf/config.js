@@ -173,6 +173,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "file-browser-grid",
+                            name: "File browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "opencga-update",
                             name: "opencga-update Test",
                             description: "",
