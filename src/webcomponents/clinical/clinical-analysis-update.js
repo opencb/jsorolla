@@ -156,7 +156,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             id: "clinical-analysis", // Fixme: clinical-analysis-update.js?
             title: "Case Editor", // Fixme: Clinical Analysis update?
             icon: "fas fa-user-md", // Fixme: to overwrite?
-            display: this.displayConfig,
+            display: {
+                ...this.displayConfig,
+                buttonOkDisabled: this.buttonsDisabled,
+                buttonClearDisabled: this.buttonsDisabled,
+            },
             sections: [
                 {
                     id: "summary",
