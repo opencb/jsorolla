@@ -342,7 +342,7 @@ export default class OpencgaUpdate extends LitElement {
             e.detail.value,
             e.detail.action);
 
-        // Notify to parent components in case the want to perform any other action, fir instance, get the gene info in the disease panels.
+        // Notify to parent components in case the want to perform any other action, for instance, get the gene info in the disease panels.
         LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
             component: this._component,
             action: e.detail.action,
