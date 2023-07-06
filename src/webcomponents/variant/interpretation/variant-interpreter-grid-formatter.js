@@ -245,12 +245,12 @@ export default class VariantInterpreterGridFormatter {
                 if (re.genomicFeature.geneName) {
                     geneHtml = `
                         <div>
-                            <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
+                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
                                 ${re.genomicFeature.geneName}
                             </a>
                         </div>
                         <div style="margin: 5px 0px">
-                            <a href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
+                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
                                 ${re.genomicFeature.id || ""}
                             </a>
                         </div>`;

@@ -677,7 +677,7 @@ export default class VariantBrowserGrid extends LitElement {
                         C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
                         and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
                         SpliceAI: a deep learning-based tool to identify splice variants.">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                        <i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
                     colspan: 5,
@@ -694,7 +694,7 @@ export default class VariantBrowserGrid extends LitElement {
                                 range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint.
                                 Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while
                                 still strongly enriching for truly constrained sites">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                         </a>`,
                     field: "conservation",
                     rowspan: 1,
@@ -716,7 +716,7 @@ export default class VariantBrowserGrid extends LitElement {
                         <a id="cohortStatsInfoIcon"
                             tooltip-title="Cohort Stats"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
-                            <i class="fa fa-info-circle" aria-hidden="true">
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true">
                             </i>
                         </a>`,
                     field: "cohorts",
@@ -732,7 +732,7 @@ export default class VariantBrowserGrid extends LitElement {
                             tooltip-title="Population Frequencies"
                             tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                         </a>`,
                     field: "popfreq",
                     rowspan: 1,
@@ -750,7 +750,7 @@ export default class VariantBrowserGrid extends LitElement {
                                 <div style='padding-top: 10px'>
                                     <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
                                 </div>"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
                     field: "clinicalInfo",
                     rowspan: 1,
                     colspan: 2,

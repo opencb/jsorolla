@@ -226,17 +226,17 @@ export default class VariantGridFormatter {
                     if (query?.ct) {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
-                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
+                            geneWithCtLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
                                                         ${geneName}
                                                   </a>`);
                         } else {
-                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
+                            geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
                                             </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                        geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                                                 ${geneName}
                                         </a>`);
                     }
