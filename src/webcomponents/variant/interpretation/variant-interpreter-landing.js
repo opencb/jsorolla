@@ -126,6 +126,7 @@ class VariantInterpreterLanding extends LitElement {
         return {
             display: {
                 align: "center",
+                classes: "justify-content-center"
             },
             items: [
                 {
@@ -134,9 +135,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -153,9 +154,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <clinical-interpretation-manager
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -172,9 +173,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Clinical Data" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <individual-view
                                         .individual="${clinicalAnalysis.proband}"
                                         .opencgaSession="${opencgaSession}">
@@ -190,9 +191,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="CellBase Info" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <project-cellbase-info
                                         .projects="${opencgaSession.project}"
                                         .opencgaSession="${opencgaSession}">
@@ -208,9 +209,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <clinical-analysis-consent-editor
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}">
@@ -226,9 +227,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Audit Log" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <clinical-analysis-audit-browser
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
@@ -245,9 +246,9 @@ class VariantInterpreterLanding extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}" class="bg-white"></tool-header>
-                                <div style="padding: 0 20px">
+                                <div class="ps-3">
                                     <clinical-analysis-view
                                         .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
                                         .clinicalAnalysis="${clinicalAnalysis}"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import "../../commons/tool-header.js";
@@ -284,12 +284,12 @@ class VariantInterpreter extends LitElement {
                     <tool-header
                         icon="${this._config.icon}"
                         .title="${`
-                        ${this._config.title}
-                        <span class="inverse">
-                            Case ${this.clinicalAnalysis?.id}
-                            ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
-                        </span>
-                    `}"
+                                ${this._config.title}
+                                <span class="inverse">
+                                    Case ${this.clinicalAnalysis?.id}
+                                    ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock icon-padding\"></span>" : ""}
+                                </span>
+                            `}"
                         .rhs="${html`
                             <div style="align-items:center;display:flex;">
                                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -366,35 +366,28 @@ class VariantInterpreter extends LitElement {
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
 
-                <div class="col-md-10 col-md-offset-1">
-                    <nav class="navbar" style="margin-bottom: 5px; border-radius: 0">
-                        <div class="container-fluid">
-                            <!-- Brand and toggle get grouped for better mobile display -->
-                            <div class="navbar-header">
-                                <!--
-                                <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
-                                    <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
-                                </a>
-                            -->
-                            </div>
-                            <div>
-                                <!-- Controls aligned to the LEFT -->
-                                <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                    ${this._config?.tools?.map(item => html`
-                                        ${!item.hidden ? html`
-                                            <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
-                                               href="javascript: void 0" data-view="${item.id}"
-                                               @click="${this.onClickSection}">
-                                                <div class="interpreter-hi-icon ${item.icon}"></div>
-                                                <p>${item.title}</p>
-                                                <span class="smaller"></span>
-                                            </a>
-                                        ` : ""}
-                                    `)}
-                                </div>
-                            </div>
+                <div class="container">
+                    <div class="position-relative">
+                        <div class="position-absolute top-50 start-50 translate-middle" style="margin-top:4rem; width: 80%;">
+                            <hr class="border border-secondary border-2 opacity-75">
                         </div>
-                    </nav>
+                    </div>
+                    <ul class="nav justify-content-around mx-auto p-2 flex-nowrap">
+                        ${this._config?.tools?.map(item => html`
+                            ${!item.hidden ? html`
+                            <li class="nav-item text-center">
+                                    <div class="nav-link">
+                                        <a class="variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                        href="javascript: void 0" data-view="${item.id}"
+                                        @click="${this.onClickSection}">
+                                            <i class="position-relative interpreter-hi-icon ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4" style="z-index:1;background-color:white"></i>
+                                        </a>
+                                    </div>
+                                <p>${item.title}</p>
+                            </li>
+                            ` : nothing}
+                        `)}
+                    </ul>
                 </div>
 
                 <div id="${this._prefix}MainWindow" class="col-md-12">
