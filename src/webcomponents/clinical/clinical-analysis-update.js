@@ -130,6 +130,12 @@ export default class ClinicalAnalysisUpdate extends LitElement {
         }
     }
 
+    onComponentClear() {
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <opencga-update
