@@ -98,7 +98,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
 
     clinicalAnalysisIdObserver(e) {
         this.clinicalAnalysis = e.detail.value;
-    /*
+        /*
         // Fixme: discuss what to do with:
         //  (a) the custom event received.
         //  (b) event.status error and message (notified to the user  in opencga-update catch)
@@ -109,7 +109,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             e.detail.value,
             e.detail,
             null);
-    */
+        */
         // Initialize the state of the submit and discard buttons
         this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
         this._config = this.getDefaultConfig();
