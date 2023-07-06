@@ -184,7 +184,8 @@ export default class DetailTabs extends LitElement {
         }
 
         // Allow custom tabs alignment:  "center" or "justified"
-        const align = this._config?.display?.align || "";
+        const align = this._config?.display?.align || ""; // deprecated
+        const classes = this._config?.display?.classes;
         const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-md-10" : "";
         const visibleTabsCount = this.getVisibleTabs().length;
 
@@ -194,7 +195,7 @@ export default class DetailTabs extends LitElement {
                 ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
                     <!-- TABS -->
                     ${this.mode === DetailTabs.TABS_MODE ? html`
-                        <ul class="nav nav-tabs ${align ? `nav-${align}` : ""}" role="tablist">
+                        <ul class="nav nav-tabs ${classes ? `${classes}` : ""}" role="tablist">
                             ${this.renderTabTitle()}
                         </ul>
                     ` : nothing}
