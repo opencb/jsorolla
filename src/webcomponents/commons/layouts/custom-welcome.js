@@ -109,7 +109,7 @@ export default class CustomWelcome extends LitElement {
                         return html`
                                 <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
                                     <div class="card-body d-flex flex-column">
-                                        <a href="#${itemLink}" style="text-decoration:none!important;">
+                                        <a class="text-decoration-none" href="#${itemLink}">
                                             <div class="text-center">
                                                 ${ item?.icon.includes("fas") ? html`
                                                     <i class="${item.icon}" style="font-size: 5em;"></i>
@@ -203,7 +203,7 @@ export default class CustomWelcome extends LitElement {
         return html`
             ${this.renderStyle()}
 
-            <div class="container" style="margin: 2em 0;">
+            <div class="container mt-3">
                 <!-- Welcome page logo -->
 
                     ${welcomePage?.logo ? html`
