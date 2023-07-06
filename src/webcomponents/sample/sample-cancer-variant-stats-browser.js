@@ -72,19 +72,28 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             format: "SVG"
         };
 
+        this.callers = [
+            "CAVEMAN",
+            "PINDEL",
+            "ASCAT",
+            "BRASS",
+        ];
+        this.files = [];
+        this.filesByCaller = {};
+
+        this.query = {
+            region: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y",
+        };
+
         this.queries = {};
         this.circosPlot = null;
+        this.circosConfig = {};
         this.signature = {};
         this.deletionAggregationStatsPlot = null;
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
@@ -100,6 +109,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     queryObserver() {
@@ -130,6 +141,14 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
 
+                    // Assign each file to the specified caller
+                    this.filesByCaller = {};
+                    this.callers.forEach(callerName => {
+                        this.filesByCaller[callerName] = this.files.filter(file => {
+                            return (file?.software?.name || "").toUpperCase() === callerName;
+                        });
+                    });
+
                     // Prepare a map from caller to File
                     this.callerToFile = {};
                     for (const file of this.files) {
@@ -139,17 +158,50 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         }
                     }
 
-                    // Init the default caller INFO filters
-                    const fileDataFilters = [];
-                    for (const caller of this._config.filter.callers) {
-                        if (this.callerToFile[caller.id]) {
-                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
-                        }
+                    // Update query with default fileData from callers config
+                    if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.length > 0) {
+                        const callersConfig = this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers
+                            .filter(vc => vc.somatic)
+                            .filter(vc => this.callers.includes(vc.id.toUpperCase()));
+
+                        const fileDataFilters = [];
+                        callersConfig.forEach(vc => {
+                            const filtersWithDefaultValues = vc.dataFilters
+                                .filter(filter => !filter.source || filter.source === "FILE")
+                                .filter(filter => !!filter.defaultValue)
+                                .map(filter => {
+                                    // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                    return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                                });
+
+                            // Only add this file to the filter if we have at least one default value
+                            if (filtersWithDefaultValues.length > 0) {
+                                // We need to find the file for that caller
+                                const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                                if (fileId) {
+                                    fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
+                                }
+                            }
+                        });
+
+                        // Update query with default 'fileData' parameters
+                        this.query = {
+                            ...this.query,
+                            fileData: fileDataFilters.join(","),
+                        };
                     }
-                    this.query = {
-                        ...this.query,
-                        fileData: fileDataFilters.join(","),
-                    };
+
+                    // // Init the default caller INFO filters
+                    // const fileDataFilters = [];
+                    // for (const caller of this._config.filter.callers) {
+                    //     if (this.callerToFile[caller.id]) {
+                    //         fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                    //     }
+                    // }
+                    // this.query = {
+                    //     ...this.query,
+                    //     fileData: fileDataFilters.join(","),
+                    // };
 
                     this.parseFileDataQuery(this.query);
 
@@ -171,41 +223,34 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
-
-        // this._queries = {};
-        // let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
-        // for (let type of types) {
-        //     if (this.queries[type]) {
-        //         this._queries[type] = {
-        //             fileData: ""
-        //         };
-        //         for (let caller of Object.keys(this.queries[type])) {
-        //             if (this.callerToFile[caller]) {
-        //                 let fileId = this.callerToFile[caller].name;
-        //                 let fileFilter = this.queries[type][caller];
-        //                 // this._queries[type].fileData += fileId + ":" + fileFilter;
-        //                 let fileData = fileId + ":" + fileFilter;
-        //                 this._queries[type].fileData += this._queries[type].fileData ? "," + fileData : fileData
-        //             }
-        //         }
-        //     }
-        // }
-        // debugger
-
-        this.parseFileDataQuery(this.executedQuery);
-
+        this.query = {...this.executedQuery};
+        this.parseFileDataQuery(this.query);
         this.requestUpdate();
+    }
+
+    onRun() {
+        this.onVariantFilterSearch({
+            detail: {
+                query: this.preparedQuery,
+            },
+        });
     }
 
     parseFileDataQuery(query) {
         const fileData = query?.fileData;
+        const callersConfig = this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers || [];
+
         if (fileData) {
             const fileFilters = fileData.split(",");
             for (const fileFilter of fileFilters) {
                 const [fileName, filter] = fileFilter.split(":");
                 const callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
-                const caller = this._config.filter.callers.find(c => c.id === callerId[0]);
-                this.queries[caller.type] = {fileData: fileName + ":" + filter};
+                const caller = callersConfig.find(c => c.id === callerId[0]);
+                (caller.types || []).forEach(callerType => {
+                    this.queries[callerType] = {
+                        fileData: fileName + ":" + filter,
+                    };
+                });
             }
         }
     }
@@ -301,6 +346,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     onChangeCircosPlot(e) {
         this.circosPlot = e.detail.circosPlot;
+        this.circosConfig = e.detail.circosConfig;
     }
 
     onChangeDeletionAggregationStatsChart(e) {
@@ -352,7 +398,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         // Prepare circos plot image
         if (this.circosPlot) {
             const circosPlotParams = {
-                content: this.circosPlot.split(", ")?.[1],
+                content: (this.circosPlot.split(",")?.[1] || "").trim(),
                 path: "/circos/" + this.save.id + ".png",
                 type: "FILE",
                 format: "IMAGE",
@@ -394,6 +440,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 // Append circos plot
                 if (this.circosPlot) {
                     this.sample.qualityControl.variant.genomePlot.file = results[0].responses[0].results[0].id;
+                    this.sample.qualityControl.variant.genomePlot.config = {
+                        title: this.circosConfig?.title,
+                        density: this.circosConfig?.density,
+                        generalQuery: this.circosConfig?.query,
+                        tracks: (this.circosConfig?.tracks || []).map(track => ({
+                            // description: track.id,
+                            type: track.type,
+                            query: track.query,
+                        })),
+                    };
                 }
 
                 // Append the deletion aggregation plot
@@ -429,12 +485,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             .finally(() => {
                 this.requestUpdate();
             });
-    }
-
-    onRun() {
-        this.executedQuery = {...this.preparedQuery};
-        this.parseFileDataQuery(this.executedQuery);
-        this.requestUpdate();
     }
 
     render() {
@@ -654,6 +704,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     },
                     complexFields: [
                         {id: "genotype", separator: ";"},
+                        {id: "fileData", separator: ","},
                     ],
                     hiddenFields: []
                 },
@@ -675,107 +726,68 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         title: "SNV Filters",
                         filters: [
                             {
-                                id: "caveman",
-                                title: "Caveman Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["caveman"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "caveman", filter, query),
+                                id: "variant-file-info-filter",
+                                visible: () => this.filesByCaller["CAVEMAN"]?.length > 0,
                                 params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
-                                }
+                                    // files: this.filesByCaller["CAVEMAN"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["caveman"],
+                                    opencgaSession: this.opencgaSession
+                                },
                             },
-                            {
-                                id: "strelka",
-                                title: "Strelka Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["strelka"],
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
-                                }
-                            }
-                        ]
+                        ],
                     },
                     {
                         title: "INDEL Filters",
                         collapsed: true,
                         filters: [
                             {
-                                id: "pindel",
-                                title: "Pindel Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["pindel"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "pindel", filter, query),
+                                id: "variant-file-info-filter",
+                                visible: () => this.filesByCaller["PINDEL"]?.length > 0,
                                 params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
-                                }
+                                    // files: this.filesByCaller["PINDEL"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["pindel"],
+                                    opencgaSession: this.opencgaSession
+                                },
                             },
-                            {
-                                id: "strelka",
-                                title: "Strelka Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["strelka"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "strelka", filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
-                                }
-                            }
-                        ]
+                        ],
                     },
                     {
                         title: "CNV Filters",
                         collapsed: true,
                         filters: [
                             {
-                                id: "ascat",
-                                title: "ASCAT Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["ascat"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "ascat", filter, query),
+                                id: "variant-file-info-filter",
+                                visible: () => this.filesByCaller["ASCAT"]?.length > 0,
                                 params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["ascat"]?.name : null}`,
-                                }
+                                    // files: this.filesByCaller["ASCAT"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["ascat"],
+                                    opencgaSession: this.opencgaSession
+                                },
                             },
-                            {
-                                id: "canvas",
-                                title: "Canvas Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["canvas"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "canvas", filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
-                                }
-                            }
-                        ]
+                        ],
                     },
                     {
                         title: "Rearrangement Filters",
                         collapsed: true,
                         filters: [
                             {
-                                id: "brass",
-                                title: "BRASS Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["brass"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "brass", filter, query),
+                                id: "variant-file-info-filter",
+                                visible: () => this.filesByCaller["BRASS"]?.length > 0,
                                 params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
-                                }
+                                    // files: this.filesByCaller["BRASS"] || [],
+                                    files: this.files,
+                                    visibleCallers: ["brass"],
+                                    opencgaSession: this.opencgaSession
+                                },
                             },
-                            {
-                                id: "manta",
-                                title: "Manta Filters",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["manta"],
-                                // callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "manta",  filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
-                                }
-                            }
-                        ]
+                        ],
                     },
                     {
                         title: "Genomic Filters",
-                        collapsed: false,
+                        collapsed: true,
                         filters: [
                             // {
                             //     id: "file-quality",

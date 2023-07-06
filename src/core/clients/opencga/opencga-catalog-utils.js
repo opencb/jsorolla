@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../utils-new.js";
+import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -37,7 +38,7 @@ export default class OpencgaCatalogUtils {
         return project ? project.fqn.split("@")[0] : null;
     }
 
-    // Return an unique list of owners
+    // Return a unique list of owners
     static getProjectOwners(projects) {
         return projects ? [...new Set(projects.map(project => project.fqn.split("@")[0]))] : null;
     }
@@ -119,6 +120,20 @@ export default class OpencgaCatalogUtils {
         return false;
     }
 
+    // Find study object in opencgaSession
+    static getStudyInSession(opencgaSession, studyId) {
+        let study = {};
+        for (const p of opencgaSession?.projects) {
+            for (const s of p.studies) {
+                if (s.id === studyId || s.fqn === studyId) {
+                    study = s;
+                    break;
+                }
+            }
+        }
+        return study;
+    }
+
     // Update grid configuration of the specified browser
     static updateGridConfig(opencgaSession, browserName, newGridConfig) {
         const newConfig = {
@@ -128,12 +143,96 @@ export default class OpencgaCatalogUtils {
                 grid: newGridConfig,
             },
         };
+
         return opencgaSession.opencgaClient.updateUserConfigs(newConfig)
             .then(response => {
                 // Update user configuration in opencgaSession object
                 // eslint-disable-next-line no-param-reassign
                 opencgaSession.user.configs.IVA = response.responses[0].results[0];
+            }).
+            catch(error => {
+                console.error(error);
             });
+    }
+
+    /** Prepares the study tool settings params that will be updated. If no settings are provided,
+     * it will restore its default settings.
+     * @param {object} opencgaSession   Session
+     * @param {object} study            Study
+     * @param {string} toolName         Tool name
+     * @param {object} settings         OPTIONAL: if no settings, the default settings will be stored
+     * @returns {Object}                Tool settings to be updated
+     */
+    static getNewToolIVASettings(opencgaSession, study, toolName, settings) {
+
+        // 1. Retrieve other study attributes to avoid overwriting
+        const otherAttributes = UtilsNew.objectCloneExclude(
+            study.attributes,
+            [
+                // eslint-disable-next-line no-undef
+                `${SETTINGS_NAME}_BACKUP`,
+                // eslint-disable-next-line no-undef
+                SETTINGS_NAME
+            ]
+        );
+        // 2. The params that will be updated
+        return {
+            attributes: {
+                // 1. Other attributes that the study might have
+                ...otherAttributes,
+                // 2. BACKUP previous settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME + "_BACKUP"]:
+                // eslint-disable-next-line no-undef
+                    UtilsNew.objectClone(study.attributes[SETTINGS_NAME]),
+                // 3. New tool settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME]: {
+                    userId: opencgaSession.user.id,
+                    version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
+                    date: UtilsNew.getDatetime(), // Update date
+                    settings: {
+                        ...(
+                            // If settings param exists, save settings. If not, save defaultSettings
+                            UtilsNew.objectCloneReplace(
+                                // eslint-disable-next-line no-undef
+                                study.attributes[SETTINGS_NAME].settings,
+                                `${[toolName]}`,
+                                settings ?? opencgaSession.ivaDefaultSettings)
+                        )
+                    },
+                },
+            },
+        };
+    }
+
+    /** Gets study IVA DEFAULT settings
+     * @param {object} opencgaSession   Session
+     * @param {object} study            Study
+     * @param {string} type             Type of restore, default or backup
+     * @returns {object}                Study attributes with default IVA settings
+     */
+    static getRestoreIVASettings(opencgaSession, study, type) {
+        const getSettings = () => {
+            switch (type) {
+                case "default":
+                    return UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings);
+                case "backup":
+                    return UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings);
+            }
+        };
+        return {
+            attributes: {
+                ...study.attributes,
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME]: {
+                    userId: opencgaSession.user.id,
+                    version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
+                    date: UtilsNew.getDatetime(),
+                    settings: getSettings(),
+                },
+            }
+        };
     }
 
 }

@@ -109,13 +109,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             fitting: false,
             sample: this.sampleId,
             ...this.query,
-            // ...this.queries?.["SNV"]
         };
-
-        // Add default region filter including only canonical chromosomes
-        if (!params.region) {
-            params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
-        }
 
         // Query SNV
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
@@ -139,9 +133,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         // Query for SV
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             ...params,
-            // ...params,
-            // ...this.queries?.["SV"],
-            fileData: "", // We need to remove the fileData param of the query
+            ...this.queries?.["BREAKEND"],
             type: "SV",
         })
             .then(response => {
@@ -165,13 +157,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
             ...this.query,
-            ...this.queries?.["INDEL"]
+            ...this.queries?.["INDEL"],
         };
-
-        // Add default region filter including only canonical chromosomes
-        if (!params.region) {
-            params.region = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y";
-        }
 
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
@@ -209,9 +196,9 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     statsQuery() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            field: "EXT_REARR",
+            field: "EXT_SVTYPE",
             sample: this.sampleId,
-            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0",
+            ...this.queries?.["BREAKEND"],
         };
 
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)

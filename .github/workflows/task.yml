@@ -1,4 +1,4 @@
-name: "Task Workflow for Task branches"
+name: "Task workflow for TASK-* branches"
 
 on:
   push:
@@ -7,18 +7,18 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+    uses: ./.github/workflows/build-jsorolla-workflow.yml
 
   test:
     uses: ./.github/workflows/test.yml
     needs: build
+    with:
+      test_profile: runShortTests
     secrets: inherit
 
   deploy-docker:
-    uses: opencb/java-common-libs/.github/workflows/deploy-docker-hub-workflow.yml@develop
+    uses: ./.github/workflows/deploy-docker-jsorolla.yml
     needs: test
     with:
-      repository: opencb/jsorolla
-      branch: ${{ github.ref_name }}
       cli: python3 ./docker/docker-build.py push --tag ${{ github.ref_name }}
     secrets: inherit

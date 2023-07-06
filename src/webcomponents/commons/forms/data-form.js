@@ -281,7 +281,9 @@ export default class DataForm extends LitElement {
     }
 
     _getVisibleSections() {
-        return this.config.sections.filter(section => this._getBooleanValue(section?.display?.visible, true));
+        return this.config.sections
+            .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
+            .filter(section => this._getBooleanValue(section?.display?.visible, true));
     }
 
     _isUpdated(element) {
@@ -383,31 +385,31 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="${className}" style="${style}">
                         ${this.config?.display.layout.map(section => {
-                    const sectionClassName = section.className ?? section.classes ?? "";
-                    const sectionStyle = section.style ?? "";
+                            const sectionClassName = section.className ?? section.classes ?? "";
+                            const sectionStyle = section.style ?? "";
 
-                    if (section.id) {
-                        return html`
+                            if (section.id) {
+                                return html`
                                     <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
                                         ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                                     </div>
                                 `;
-                    } else {
-                        return html`
+                            } else {
+                                return html`
                                     <div class="${sectionClassName}" style="${sectionStyle}">
                                         ${(section.sections || []).map(subsection => {
-                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
-                            const subsectionStyle = subsection.style ?? "";
-                            return subsection.id && html`
+                                            const subsectionClassName = subsection.className ?? subsection.classes ?? "";
+                                            const subsectionStyle = subsection.style ?? "";
+                                            return subsection.id && html`
                                                 <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
                                                     ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                                 </div>
                                             `;
-                        })}
+                                        })}
                                     </div>
                                 `;
-                    }
-                })}
+                            }
+                        })}
                     </div>
                 `;
             } else {
@@ -698,8 +700,7 @@ export default class DataForm extends LitElement {
                 .step="${step}"
                 .value="${value}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
-                @filterChange="${e => this.onFilterChange(element, e.detail.value)}"
-                data-test="pepe">
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </text-field-filter>
         `;
 
@@ -870,7 +871,7 @@ export default class DataForm extends LitElement {
                 } else {
                     if (typeof element.allowedValues === "function") {
                         let item;
-                        if (element.field.includes("[]")) {
+                        if (element.field?.includes("[]")) {
                             const match = element.field.match(DataForm.re);
                             if (match) {
                                 item = UtilsNew.getObjectValue(this.data, match?.groups?.arrayFieldName, "")[match?.groups?.index];
@@ -891,22 +892,14 @@ export default class DataForm extends LitElement {
 
             // Check if data field contains a value
             defaultValue = this.getValue(element.field);
-            if (defaultValue) {
-                // If apply is defined we need to apply the same transformation to be selected
-                if (element.display?.apply && allowedValues) {
-                    for (const allowedValue of allowedValues) {
-                        if (allowedValue.includes(defaultValue)) {
-                            defaultValue = allowedValue;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                // Check if a defaultValue is set in element config
-                if (element.defaultValue) {
-                    defaultValue = element.defaultValue;
-                }
+            // Check if a defaultValue is set in element config
+            if (!defaultValue && element.defaultValue) {
+                defaultValue = element.defaultValue;
             }
+            // Check if 'apply' must be executed
+            // if (defaultValue && element.display?.apply) {
+            //     defaultValue = element.display.apply(defaultValue);
+            // }
         }
 
         // Default values
@@ -916,6 +909,7 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     ?multiple="${element.multiple}"
+                    ?all="${element.all}"
                     .maxOptions="${element.maxOptions || false}"
                     ?disabled="${disabled}"
                     ?required="${element.required}"
@@ -949,18 +943,14 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array || !array.length) {
-            //return html`<span class="text-danger">${this._getDefaultValue(element)}</span>`;
             const message = this._getDefaultValue(element);
             return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
         }
         if (!Array.isArray(array)) {
-            // return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
             const message = `Field '${element.field}' is not an array`;
             return this._createElementTemplate(element, null, null, {message: message, classname: "text-danger"});
-
         }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
-            // return html`<span class="text-danger">Content layout must be 'horizontal', 'vertical' or 'bullets'</span>`;
             const message = "Content layout must be 'horizontal', 'vertical' or 'bullets'";
             return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
         }
@@ -1014,7 +1004,6 @@ export default class DataForm extends LitElement {
                 `;
                 break;
         }
-        // return content;
         return this._createElementTemplate(element, null, content);
 
     }
@@ -1030,45 +1019,34 @@ export default class DataForm extends LitElement {
 
         // Check values
         if (!array) {
-            // return html`
-            //     <span class="${errorClassName}">
-            //         ${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}
-            //     </span>
-            // `;
             const message = errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`;
-            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
-
-
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                className: errorClassName
+            });
         }
         if (!Array.isArray(array)) {
-            // return html`
-            //     <span class="${errorClassName}">
-            //         Field '${element.field}' is not an array
-            //     </span>
-            // `;
             const message = `Field '${element.field}' is not an array`;
-            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
-
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                className: errorClassName,
+            });
         }
         if (typeof element.display?.transform === "function") {
             array = element.display.transform(array);
         }
         if (!array.length) {
-            // return this.getDefaultValue(element);
-            // return html`<span>${this._getDefaultValue(element)}</span>`;
             const message = this._getDefaultValue(element);
-            return this._createElementTemplate(element, null, null, {message: message});
-
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+            });
         }
         if (!element.display && !element.display.columns) {
-            // return html`
-            //     <span class="${errorClassName}">
-            //         Type 'table' requires a 'columns' array
-            //     </span>
-            // `;
             const message = "Type 'table' requires a 'columns' array";
-            return this._createElementTemplate(element, null, null, {message: message, className: errorClassName});
-
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                className: errorClassName,
+            });
         }
 
         const content = html`
@@ -1083,39 +1061,38 @@ export default class DataForm extends LitElement {
                     </thead>` : null}
                 <tbody>
                 ${array
-            .map(row => html`
+                    .map(row => html`
                         <tr scope="row">
                             ${element.display.columns
-                .map(elem => {
-                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                    const elemStyle = elem.display?.style ?? "";
-                    let content = null;
+                                .map(elem => {
+                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                                    const elemStyle = elem.display?.style ?? "";
+                                    let content = null;
 
-                    // Check the element type
-                    switch (elem.type) {
-                        case "complex":
-                            content = this._createComplexElement(elem, row);
-                            break;
-                        case "custom":
-                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                            break;
-                        default:
-                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                    }
+                                    // Check the element type
+                                    switch (elem.type) {
+                                        case "complex":
+                                            content = this._createComplexElement(elem, row);
+                                            break;
+                                        case "custom":
+                                            content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
+                                            break;
+                                        default:
+                                            content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
+                                    }
 
-                    return html`
+                                    return html`
                                         <td class="${elemClassName}" style="${elemStyle}">
                                             ${content}
                                         </td>
                                     `;
-                })}
+                                })}
                         </tr>
                     `)}
                 </tbody>
             </table>
         `;
         return this._createElementTemplate(element, null, content);
-
     }
 
     _createPlotElement(element) {
@@ -1149,15 +1126,6 @@ export default class DataForm extends LitElement {
             }
         }
         if (data) {
-            // return html`
-            //     <simple-chart
-            //         .active="${true}"
-            //         .type="${element.display?.highcharts?.chart?.type || "column"}"
-            //         .title="${element.display?.highcharts?.title?.text || element.name}"
-            //         .data="${data}"
-            //         .config="${element.display?.highcharts}">
-            //     </simple-chart>
-            // `;
             const content = html`
                 <simple-chart
                     .active="${true}"
@@ -1168,9 +1136,7 @@ export default class DataForm extends LitElement {
                 </simple-chart>
             `;
             return this._createElementTemplate(element, null, content);
-
         } else {
-            // return this._getErrorMessage(element);
             const message = this._getErrorMessage(element);
             return this._createElementTemplate(element, null, null, {message: message});
         }
@@ -1207,39 +1173,33 @@ export default class DataForm extends LitElement {
     _createTreeElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (typeof element.display.apply !== "function") {
-            // return html`
-            //     <span class="text-danger">apply() function that provides a 'text' property is mandatory in Tree-Viewer elements</span>
-            // `;
             const message = "apply() function that provides a 'text' property is mandatory in Tree-Viewer elements";
-            return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
-
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                classError: "text-danger"
+            });
         } else {
             if (Array.isArray(json)) {
                 if (json.length > 0) {
-                    //return html`<tree-viewer .data="${json.map(element.display.apply)}"></tree-viewer>`;
-                    const content = html`
+                    // return html`<tree-viewer .data="${json.map(element.display.apply)}"></tree-viewer>`;
+                    const content = html `
                         <tree-viewer
                             .data="${json.map(element.display.apply)}">
                         </tree-viewer>
                     `;
                     return this._createElementTemplate(element, null, content);
-
                 } else {
-                    // FIXME: IS THIS EQUIVALENT??
-                    // return this._getDefaultValue();
-                    const content = this._getDefaultValue();
+                    const content = this._getDefaultValue(element);
                     return this._createElementTemplate(element, null, content);
                 }
             } else if (UtilsNew.isObject(json)) {
-                //return html`<tree-viewer .data="${element.display.apply.call(null, json)}"></tree-viewer>`;
-                const content = html`
+                const content = html `
                     <tree-viewer
                         .data="${element.display.apply.call(null, json)}">
                     </tree-viewer>
                 `;
                 return this._createElementTemplate(element, null, content);
             } else {
-                // return html`<span class="text-danger">Unexpected JSON format</span>`;
                 const message = "Unexpected JSON format";
                 return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
             }
@@ -1269,8 +1229,6 @@ export default class DataForm extends LitElement {
         if (content) {
             return this._createElementTemplate(element, data, content);
         } else {
-            // FIXME: IS THIS EQUIVALENT??
-            // return this._getErrorMessage(element);
             const message = this._getErrorMessage(element);
             return this._createElementTemplate(element, null, null, {message: message});
         }
@@ -1283,9 +1241,7 @@ export default class DataForm extends LitElement {
                 name="${element.title ?? element.name}">
             </download-button>
         `;
-
         return this._createElementTemplate(element, null, content);
-
     }
 
     _createObjectElement(element) {
@@ -1338,7 +1294,6 @@ export default class DataForm extends LitElement {
                     </div>
                 `);
         }
-        // return html`${contents}`;
         const content = html`${contents}`;
         return this._createElementTemplate(element, null, content);
     }
@@ -1381,38 +1336,38 @@ export default class DataForm extends LitElement {
                 const view = html`
                     <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
                         ${items?.slice(0, maxNumItems)
-                    .map((item, index) => {
-                        const _element = JSON.parse(JSON.stringify(element));
-                        // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                        // items have a virtual element associated, this will allow to get the proper value later.
-                        for (let i = 0; i< _element.elements.length; i++) {
-                            // This support object nested
-                            const [left, right] = _element.elements[i].field.split("[].");
-                            _element.elements[i].field = left + "[]." + index + "." + right;
-                            if (_element.elements[i].type === "custom") {
-                                _element.elements[i].display.render = element.elements[i].display.render;
-                            }
-                            if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
-                                _element.elements[i].allowedValues = element.elements[i].allowedValues;
-                            }
-                            if (typeof element.elements[i]?.validation?.validate === "function") {
-                                _element.elements[i].validation.validate = element.elements[i].validation.validate;
-                            }
-                            if (typeof element.elements[i]?.save === "function") {
-                                _element.elements[i].save = element.elements[i].save;
-                            }
-                            // if (typeof element.elements[i]?.validation?.message === "function") {
-                            //     _element.elements[i].validation.message = element.elements[i].validation.message;
-                            // }
-                            // Copy JSON stringify and parse ignores functions, we need to copy them
-                            if (typeof element.elements[i]?.display?.disabled === "function") {
-                                _element.elements[i].display.disabled = element.elements[i].display.disabled;
-                            }
-                            if (typeof element.elements[i]?.display?.visible === "function") {
-                                _element.elements[i].display.visible = element.elements[i].display.visible;
-                            }
-                        }
-                        return html`
+                            .map((item, index) => {
+                                const _element = JSON.parse(JSON.stringify(element));
+                                // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                                // items have a virtual element associated, this will allow to get the proper value later.
+                                for (let i = 0; i< _element.elements.length; i++) {
+                                    // This support object nested
+                                    const [left, right] = _element.elements[i].field.split("[].");
+                                    _element.elements[i].field = left + "[]." + index + "." + right;
+                                    if (_element.elements[i].type === "custom") {
+                                        _element.elements[i].display.render = element.elements[i].display.render;
+                                    }
+                                    if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
+                                        _element.elements[i].allowedValues = element.elements[i].allowedValues;
+                                    }
+                                    if (typeof element.elements[i]?.validation?.validate === "function") {
+                                        _element.elements[i].validation.validate = element.elements[i].validation.validate;
+                                    }
+                                    if (typeof element.elements[i]?.save === "function") {
+                                        _element.elements[i].save = element.elements[i].save;
+                                    }
+                                    // if (typeof element.elements[i]?.validation?.message === "function") {
+                                    //     _element.elements[i].validation.message = element.elements[i].validation.message;
+                                    // }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
+                                    if (typeof element.elements[i]?.display?.disabled === "function") {
+                                        _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                                    }
+                                    if (typeof element.elements[i]?.display?.visible === "function") {
+                                        _element.elements[i].display.visible = element.elements[i].display.visible;
+                                    }
+                                }
+                                return html`
                                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
                                         <div>
                                             ${element.display.view(item)}
@@ -1444,7 +1399,7 @@ export default class DataForm extends LitElement {
                                             </button>
                                         </div>
                                     </div>`;
-                    })
+                            })
                         }
                     </div>
 
@@ -1522,7 +1477,6 @@ export default class DataForm extends LitElement {
                 </div>`;
             contents.push(createHtml);
         }
-        // return contents;
         return this._createElementTemplate(element, null, contents);
     }
 
@@ -1618,6 +1572,11 @@ export default class DataForm extends LitElement {
 
     onFilterChange(element, value, objectListEvent) {
         let eventDetail;
+
+        // Check field exists
+        if (!element.field) {
+            return;
+        }
 
         // Process the value to save it correctly.
         value = this.parseValue(element, value);
@@ -1778,7 +1737,7 @@ export default class DataForm extends LitElement {
     renderButtons(dismiss, sectionId=null) {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
         const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
-        const btnWidth = this.config.display?.buttonsWidth ?? 12;
+        const btnWidth = this.config.display?.buttonsWidth ?? this.config.display?.width ?? 12;
         const btnAlign = this.config.display?.buttonsAlign ?? "right";
 
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
@@ -1788,27 +1747,30 @@ export default class DataForm extends LitElement {
         const buttonPreviewVisible = !!this.config.buttons?.previewText;
         const buttonClearVisible = this.config.display?.buttonClearText !== "";
         const buttonOkVisible = this.config.display?.buttonOkText !== "";
+        const buttonPreviewDisabled = this._getBooleanValue(this.config.display?.buttonPreviewDisabled, false);
+        const buttonClearDisabled = this._getBooleanValue(this.config.display?.buttonClearDisabled, false);
+        const buttonOkDisabled = this._getBooleanValue(this.config.display?.buttonOkDisabled, false);
 
         return html`
             ${this.renderGlobalValidationError()}
             <div class="row">
                 <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
                     ${buttonPreviewVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
                                 @click="${this.onPreview}">
                             ${buttonPreviewText}
                         </button>
                     `: null
                     }
                     ${buttonClearVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
                     `: null
                     }
                     ${buttonOkVisible ? html`
-                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}"
+                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonOkDisabled}
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>
@@ -1910,21 +1872,26 @@ export default class DataForm extends LitElement {
         // Check for tabs style
         if (type === "tabs") {
             return html`
-                <ul class="nav nav-tabs">
-                    ${this._getVisibleSections().map((section, index) => {
-                const active = index === this.activeSection;
-                return html`
-                            <li role="presentation" class="${active ? "active" : ""}">
-                                <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                    ${section.title || ""}
-                                </a>
-                            </li>
-                        `;
-            })}
-                </ul>
+                <div>
+                    <ul class="nav nav-tabs">
+                        ${this._getVisibleSections()
+                            .map((section, index) => {
+                                const active = index === this.activeSection;
+                                return html`
+                                    <li role="presentation" class="${active ? "active" : ""}">
+                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                            ${section.title || ""}
+                                        </a>
+                                    </li>
+                                `;
+                            })}
+                    </ul>
+                    ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
+                </div>
                 <div style="margin-top:24px;">
                     ${this.renderData()}
                 </div>
+                ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
             `;
         }
 
@@ -1936,15 +1903,15 @@ export default class DataForm extends LitElement {
                     <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                         <ul class="nav nav-pills nav-stacked">
                             ${this._getVisibleSections().map((section, index) => {
-                const active = index === this.activeSection;
-                return html`
+                                const active = index === this.activeSection;
+                                return html`
                                     <li role="presentation" class="${active ? "active" : ""}">
                                         <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                             ${section.title || ""}
                                         </a>
                                     </li>
                                 `;
-            })}
+                            })}
                         </ul>
                     </div>
                     <div class="col-md-9">

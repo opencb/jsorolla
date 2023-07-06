@@ -18,14 +18,13 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
 import "../../visualization/split-genome-browser.js";
+import "../../commons/json-viewer.js";
 
 class VariantInterpreterBrowserRearrangement extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -58,7 +57,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -245,6 +244,10 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         this.query = {...this.query};
     }
 
+    onQueryChange(event) {
+        this.query = event.detail.query;
+    }
+
     render() {
         return html`
             <variant-interpreter-browser-template
@@ -254,7 +257,8 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
                 .toolId="${"variantInterpreterRearrangement"}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>
         `;
     }
@@ -276,6 +280,39 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 },
             };
         });
+
+        // Generate Genome browser columns and tracks configurations
+        const genomeBrowserTracks = [
+            {
+                type: "gene",
+                config: {},
+            },
+            {
+                type: "opencga-variant",
+                config: {
+                    title: "Variants",
+                    query: {
+                        sample: (this.clinicalAnalysis?.proband?.samples || []).map(s => s.id).join(","),
+                    },
+                    height: 120,
+                },
+            },
+            ...(this.clinicalAnalysis?.proband?.samples || []).map(sample => ({
+                type: "opencga-alignment",
+                config: {
+                    title: `Alignments - ${sample.id}`,
+                    sample: sample.id,
+                },
+            })),
+        ];
+        const genomeBrowserConfig = {
+            cellBaseClient: this.cellbaseClient,
+            karyotypePanelVisible: false,
+            overviewPanelVisible: false,
+            navigationPanelHistoryControlsVisible: false,
+            navigationPanelGeneSearchVisible: false,
+            navigationPanelRegionSearchVisible: false,
+        };
 
         return {
             title: "Cancer Case Interpreter",
@@ -419,38 +456,29 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .regions="${variants}"
                                     ?active="${this.active}"
-                                    .tracks="${[
-                                        {
-                                            type: "gene",
-                                            config: {},
-                                        },
-                                        {
-                                            type: "opencga-variant",
-                                            config: {
-                                                title: "Variants",
-                                                query: {
-                                                    sample: this.clinicalAnalysis.proband.samples.map(s => s.id).join(","),
-                                                },
-                                                height: 120,
-                                            },
-                                        },
-                                        ...(this.clinicalAnalysis.proband?.samples || []).map(sample => ({
-                                            type: "opencga-alignment",
-                                            config: {
-                                                title: `Alignments - ${sample.id}`,
-                                                sample: sample.id,
-                                            },
-                                        })),
-                                    ]}"
-                                    .config="${{
-                                        cellBaseClient: this.cellbaseClient,
-                                        karyotypePanelVisible: false,
-                                        overviewPanelVisible: false,
-                                        navigationPanelHistoryControlsVisible: false,
-                                        navigationPanelGeneSearchVisible: false,
-                                        navigationPanelRegionSearchVisible: false,
-                                    }}">
+                                    .tracks="${genomeBrowserTracks}"
+                                    .config="${genomeBrowserConfig}">
                                 </split-genome-browser>
+                            `,
+                        },
+                        {
+                            id: "json-view-variant1",
+                            name: "Variant 1 JSON Data",
+                            render: (variants, active) => html`
+                                <json-viewer
+                                    .data="${variants[0]}"
+                                    .active="${active}">
+                                </json-viewer>
+                            `,
+                        },
+                        {
+                            id: "json-view-variant2",
+                            name: "Variant 2 JSON Data",
+                            render: (variants, active) => html`
+                                <json-viewer
+                                    .data="${variants[1]}"
+                                    .active="${active}">
+                                </json-viewer>
                             `,
                         },
                     ]

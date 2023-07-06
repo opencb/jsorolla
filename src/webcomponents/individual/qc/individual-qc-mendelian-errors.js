@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
 
@@ -68,6 +69,40 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 .catch(response => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                 });
+        }
+    }
+
+    onDownload(event) {
+        if (this.individual?.qualityControl?.mendelianErrorReports) {
+            const format = event.currentTarget.dataset.format || "JSON";
+            const mendelianErrorReport = this.individual.qualityControl.mendelianErrorReports[0];
+            const sampleAggregation = mendelianErrorReport.sampleAggregation.find(sampleAggregation => {
+                return sampleAggregation.sample === this.individual.samples[0]?.id;
+            });
+            const fileName = `mendelian-errors-${sampleAggregation.sample}-${this.opencgaSession.study.id}`;
+
+            switch (format.toUpperCase()) {
+                case "TAB":
+                    const tableFields = ["sample", "totalNumErrors", "ratio", "chromosome", "errorCode", "numErrors"];
+                    const tableContent = (sampleAggregation.chromAggregation || [])
+                        .map(chromAggregation => {
+                            return Object.keys(chromAggregation?.errorCodeAggregation).map(key => ({
+                                sample: sampleAggregation.sample,
+                                totalNumErrors: sampleAggregation.numErrors,
+                                ratio: sampleAggregation.ratio.toFixed(4),
+                                chromosome: chromAggregation.chromosome,
+                                errorCode: key,
+                                numErrors: chromAggregation.errorCodeAggregation[key],
+                            }));
+                        })
+                        .flat();
+                    const data = UtilsNew.toTableString(tableContent, tableFields, {});
+                    UtilsNew.downloadData(data, `${fileName}.tsv`, "text/plain");
+                    break;
+                case "JSON":
+                    UtilsNew.downloadData(JSON.stringify(sampleAggregation, null, "    "), `${fileName}.json`, "application/json");
+                    break;
+            }
         }
     }
 
@@ -184,7 +219,7 @@ export default class IndividualQcMendelianErrors extends LitElement {
                     <ul class="dropdown-menu btn-sm">
                         ${this._config.download?.length && this._config.download.map(item => html`
                             <li>
-                                <a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a>
+                                <a href="javascript: void 0" data-format="${item}" @click="${this.onDownload}">${item}</a>
                             </li>
                         `)}
                     </ul>

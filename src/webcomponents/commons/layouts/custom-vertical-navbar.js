@@ -18,11 +18,11 @@ import UtilsNew from "../../../core/utils-new";
 
 export default class CustomVerticalNavBar extends LitElement {
 
+    // --- PRIVATE FIELDS ---
     #divMenu;
     #divContent;
 
     constructor() {
-        console.log("CONSTRUCTOR Menu Admin");
         super();
 
         this.#init();
@@ -32,6 +32,7 @@ export default class CustomVerticalNavBar extends LitElement {
         return this;
     }
 
+    // --- PROPERTIES ---
     static get properties() {
         return {
             studyId: {
@@ -56,6 +57,7 @@ export default class CustomVerticalNavBar extends LitElement {
         };
     }
 
+    // --- PRIVATE METHODS ---
     #init() {
         this.isLoading = false;
         this._activeMenuItem = "";
@@ -66,6 +68,12 @@ export default class CustomVerticalNavBar extends LitElement {
         this.#divContent = "admin-vertical-content";
     }
 
+    #initActiveMenu() {
+        const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
+        activeElement.click();
+    }
+
+    // --- LIT LIFECYCLE ---
     update(changedProperties) {
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             this.studyIdObserver();
@@ -84,6 +92,7 @@ export default class CustomVerticalNavBar extends LitElement {
         this.#initActiveMenu();
     }
 
+    // --- OBSERVERS ---
     studyIdObserver() {
         for (const project of this.opencgaSession?.projects) {
             for (const study of project.studies) {
@@ -109,14 +118,9 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
-    #initActiveMenu() {
-        const activeElement = document.querySelector(`#${this.#divMenu} li[data-id=${this._activeMenuItem}]`);
-        activeElement.click();
-    }
-
+    // --- EVENTS ---
     _onItemNavClick(e) {
         e.preventDefault();
-
         // Set menu id clicked
         if (e.target !== e.currentTarget) {
             this.clicked = e.target.dataset?.id || e.target.parentElement.dataset.id;
@@ -136,208 +140,220 @@ export default class CustomVerticalNavBar extends LitElement {
         this.requestUpdate();
     }
 
-    // TODO: REFACTOR STYLE
+    // --- RENDER METHODS ---
+
     #renderStyle() {
         return html`
-            <style>
-                .nav-item {
-                    margin-bottom: 3px;
-                    padding: 10px 15px;
-                    color: white;
-                    width: 100%;
-                    border-radius: 3px;
-                    line-height: 30px;
+        <style>
+            .custom-vertical-navbar {
+                display: flex;
+                align-items: stretch;
+            }
 
-                    /*transform: translate3d(0px, 0, 0);*/
-                    /*transition: transform*/
-                    /*    0.3s ease 0s,*/
-                    /*    opacity 0.3s ease 0s,*/
-                    /*    all .15s ease-in;*/
-                }
+            /*Remove rounded coners*/
+            nav.sidebar.navbar {
+                border-radius: 0;
+                width: 100%;
+                height: 100%;
+                min-height: 85vh;
+            }
 
-                .active-item {
-                    /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
-                    background-color: #E25D1D;
-                    /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
-                }
-                .nav-item > .nav-link:hover{
-                    background-color: inherit;
-                }
+            .custom-vertical-navbar ul.nav.navbar-nav.left {
+                width: 100%;
+            }
 
-                .nav-item:hover:not(.active-item) {
-                    /*background-color: #AAAABC;*/
-                    background-color: #767687;
-                    cursor: pointer;
-                }
+            .nav-item {
+                margin-bottom: 3px;
+                padding: 10px 15px;
+                color: white;
+                width: 100%;
+                border-radius: 3px;
+                line-height: 30px;
 
-                .navbar.navbar-inverse.main-navbar {
-                    position: fixed;
-                    top: 0;
-                    width: 100%;
-                    z-index: 1000;
-                }
+                /*transform: translate3d(0px, 0, 0);*/
+                /*transition: transform*/
+                /*    0.3s ease 0s,*/
+                /*    opacity 0.3s ease 0s,*/
+                /*    all .15s ease-in;*/
+            }
 
-                div.page-title {
-                    position: fixed;
-                    top: 50px;
-                    width: 100%;
-                    z-index: 10
-                }
+            .active-item {
+                /*background: linear-gradient(60deg,#ffa726,#fb8c00);;*/
+                background-color: #E25D1D;
+                /*box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(226, 93, 29,.4);*/
+            }
 
-                .row.left {
-                    margin-left: -30px;
-                    margin-top: -10px
-                }
+            .nav-item > .nav-link:hover{
+                background-color: inherit;
+            }
 
-                /*Remove rounded coners*/
-                nav.sidebar.navbar {
-                    border-radius: 0;
-                    top: 125px;
-                }
+            .nav-item:hover:not(.active-item) {
+                background-color: #767687;
+                cursor: pointer;
+            }
 
-                nav.sidebar, .main {
-                    -webkit-transition: margin 200ms ease-out;
-                    -moz-transition: margin 200ms ease-out;
-                    -o-transition: margin 200ms ease-out;
-                    transition: margin 200ms ease-out;
-                }
+            .navbar.navbar-inverse.main-navbar {
+                top: 0;
+                width: 100%;
+            }
 
-                /* Add gap to nav and right windows.*/
+            nav.sidebar, .main {
+                -webkit-transition: margin 200ms ease-out;
+                -moz-transition: margin 200ms ease-out;
+                -o-transition: margin 200ms ease-out;
+                transition: margin 200ms ease-out;
+            }
+
+            /* Add gap to nav and right windows.*/
+            .main {
+                padding: 10px 10px 0 10px;
+            }
+
+            /* .....NavBar: Icon only with coloring/layout.....*/
+            /*small/medium side display*/
+            @media (min-width: 768px) {
+                /*Allow main to be next to Nav*/
                 .main {
-                    padding: 10px 10px 0 10px;
+                    width: calc(100% - 40px); /*keeps 100% minus nav size*/
+                    margin-left: 40px;
+                    float: right;
                 }
 
-                /* .....NavBar: Icon only with coloring/layout.....*/
-                /*small/medium side display*/
-                @media (min-width: 768px) {
-                    /*Allow main to be next to Nav*/
-                    .main {
-                        width: calc(100% - 40px); /*keeps 100% minus nav size*/
-                        margin-left: 40px;
-                        float: right;
-                    }
-
-                    /*lets nav bar to be showed on mouseover*/
-                    nav.sidebar:hover + .main {
-                        margin-left: 200px;
-                    }
-
-                    /*Center Study Name*/
-                    nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
-                        margin-left: 0;
-                    }
-
-                    /*Center Study Name*/
-                    nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
-                        text-align: center;
-                        width: 100%;
-                        margin-left: 0;
-                    }
-
-                    /*Center Icons*/
-                    nav.sidebar a {
-                        padding-right: 13px;
-                    }
-
-                    /*adds border top to first nav box */
-                    nav.sidebar .navbar-nav.left > li:first-child {
-                        border-top: 1px #e5e5e5 solid;
-                    }
-
-                    /* adds border to bottom nav boxes */
-                    nav.sidebar .navbar-nav.left > li {
-                        border-bottom: 0 #e5e5e5 solid;
-                    }
-
-                    /* Colors/style dropdown box*/
-                    nav.sidebar .navbar-nav.left .open .dropdown-menu {
-                        position: static;
-                        float: none;
-                        width: auto;
-                        margin-top: 0;
-                        background-color: transparent;
-                        border: 0;
-                        -webkit-box-shadow: none;
-                        box-shadow: none;
-                    }
-
-                    /*allows nav box to use 100% width*/
-                    nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
-                        padding: 0;
-                    }
-
-                    /*colors dropdown box text */
-                    .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
-                        /*color: #777;*/
-                        color: #d2d2d2;
-                        white-space: normal;
-                    }
-
-                    /*gives sidebar width/height*/
-                    nav.sidebar {
-                        position: fixed;
-                        height: 100%;
-                        width: 250px;
-                        margin-left: -200px;
-                        float: left;
-                        /* z-index: 8000; */
-                        margin-bottom: 0;
-                        overflow-y: auto;
-                        padding-bottom: 10%
-                    }
-
-                    /*give sidebar 100% width;*/
-                    nav.sidebar li {
-                        width: 100%;
-                    }
-
-                    /* Move nav to full on mouse over*/
-                    nav.sidebar:hover {
-                        margin-left: 0;
-                    }
-
-                    /*for hiden things when navbar hidden*/
-                    .forAnimate {
-                        opacity: 0;
-                    }
+                /*lets nav bar to be showed on mouseover*/
+                nav.sidebar:hover + .main {
+                    margin-left: 200px;
                 }
 
-                /* .....NavBar: Fully showing nav bar..... */
-                @media (min-width: 1330px) {
-
-                    /*Allow main to be next to Nav*/
-                    .main {
-                        width: calc(100% - 200px); /*keeps 100% minus nav size*/
-                        margin-left: 200px;
-                    }
-
-                    /*Show all nav*/
-                    nav.sidebar {
-                        margin-left: 0;
-                        float: left;
-                    }
-
-                    /*Show hidden items on nav*/
-                    nav.sidebar .forAnimate {
-                        opacity: 1;
-                    }
+                /*Center Study Name*/
+                nav.sidebar.navbar.sidebar > .container .navbar-brand, .navbar > .container-fluid .navbar-brand {
+                    margin-left: 0;
                 }
 
-                nav:hover .forAnimate {
+                /*Center Study Name*/
+                nav.sidebar .navbar-brand, nav.sidebar .navbar-header {
+                    text-align: center;
+                    width: 100%;
+                    margin-left: 0;
+                }
+
+                /*Center Icons*/
+                nav.sidebar a {
+                    padding-right: 13px;
+                }
+
+                /*adds border top to first nav box */
+                nav.sidebar .navbar-nav.left > li:first-child {
+                    border-top: 1px #e5e5e5 solid;
+                }
+
+                /* adds border to bottom nav boxes */
+                nav.sidebar .navbar-nav.left > li {
+                    border-bottom: 0 #e5e5e5 solid;
+                }
+
+                /* Colors/style dropdown box*/
+                nav.sidebar .navbar-nav.left .open .dropdown-menu {
+                    position: static;
+                    float: none;
+                    width: auto;
+                    margin-top: 0;
+                    background-color: transparent;
+                    border: 0;
+                    -webkit-box-shadow: none;
+                    box-shadow: none;
+                }
+
+                /*allows nav box to use 100% width*/
+                nav.sidebar .navbar-collapse, nav.sidebar .container-fluid {
+                    padding: 0;
+                }
+
+                /*colors dropdown box text */
+                .navbar-inverse .navbar-nav.left .open .dropdown-menu > li > a {
+                    /*color: #777;*/
+                    color: #d2d2d2;
+                    white-space: normal;
+                }
+
+                /*gives sidebar width/height*/
+                nav.sidebar {
+                    /*position: fixed;*/
+                    /*height: 100%;*/
+                    /*width: 250px;*/
+                    margin-left: -200px;
+                    float: left;
+                    /* z-index: 8000; */
+                    margin-bottom: 0;
+                    overflow-y: auto;
+                    padding-bottom: 10%
+                }
+
+                /*give sidebar 100% width;*/
+                nav.sidebar li {
+                    width: 100%;
+                }
+
+                /* Move nav to full on mouse over*/
+                nav.sidebar:hover {
+                    margin-left: 0;
+                }
+
+                /*for hiden things when navbar hidden*/
+                .forAnimate {
+                    opacity: 0;
+                }
+            }
+
+            /* .....NavBar: Fully showing nav bar..... */
+            @media (min-width: 1330px) {
+
+                /*Allow main to be next to Nav*/
+                .main {
+                    width: calc(100% - 200px); /*keeps 100% minus nav size*/
+                    margin-left: 200px;
+                }
+
+                /*Show all nav*/
+                nav.sidebar {
+                    margin-left: 0;
+                    /*float: left;*/
+                }
+
+                /*Show hidden items on nav*/
+                nav.sidebar .forAnimate {
                     opacity: 1;
                 }
+            }
 
-                section {
-                    padding-left: 15px;
-                }
+            nav:hover .forAnimate {
+                opacity: 1;
+            }
 
-                .footer {
-                    position: fixed;
-                    bottom: 0;
-                    z-index: 10;
-                }
+            section {
+                padding-left: 15px;
+            }
 
-            </style>`;
+            .settings-header-wrapper,
+            .settings-header-wrapper > div {
+                display: flex;
+                align-items: center;
+                flex: 1;
+                font-size: 2.5rem;
+                color: var(--main-color-darker);
+            }
+
+            .settings-header-wrapper {
+                margin: 1rem 0;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #C2C4C6;
+            }
+
+            .settings-header-icon {
+                margin-right: 1rem;
+            }
+
+
+        </style>`;
     }
 
     // QUESTION: Make it optional?
@@ -421,9 +437,19 @@ export default class CustomVerticalNavBar extends LitElement {
                 ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
                     <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
                         <!-- TODO: HEADER in a div-->
-                        <h2><i class="${subItem.icon} icon-padding" style="padding-right: 10px"></i>${subItem.name}</h2>
+                        <div class="settings-header-wrapper" id="settings-title-wrapper">
+                            <div class="settings-header-title-wrapper">
+                                <div class="settings-header-icon"><i class="${subItem.icon}"></i></div>
+                                <div class="settings-header-title">${subItem.name}</div>
+                            </div>
+                            <div class="settings-header-info-wrapper">
+                                <div></div>
+                            </div>
+                        </div>
                         <!-- TODO: CONTENT in a div -->
-                        ${subItem.render(this.opencgaSession, this.study)}
+                        <div class="settings-content-wrapper" id="settings-content-wrapper">
+                            ${subItem.render(this.opencgaSession, this.study)}
+                        </div>
                     </div>
                 `)}
             ` : html `
@@ -439,8 +465,8 @@ export default class CustomVerticalNavBar extends LitElement {
             <!-- STYLE -->
             ${this.#renderStyle()}
             <!-- TOOL HEADER -->
-            <tool-header title="${this._config.name}" icon="fas fa-rocket"></tool-header>
-            <div class="row left">
+            <!-- <tool-header title="$this._config.name}" icon="$this._config.icon}"></tool-header> -->
+            <div class="custom-vertical-navbar row">
                 <!-- NAVIGATION -->
                 <div class="col-md-2">
                     <nav class="navbar navbar-inverse sidebar" role="navigation">
@@ -453,15 +479,15 @@ export default class CustomVerticalNavBar extends LitElement {
                 <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
-                <div class="col-md-10" style="top:150px;">
+                <div class="col-md-10" style="">
                     ${this.#renderContent()}
                 </div>
             </div>
         `;
     }
 
-    getDefaultConfig() {
-    }
+    // --- DEFAULT CONFIG ---
+    getDefaultConfig() {}
 
 
 }

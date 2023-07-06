@@ -249,7 +249,7 @@ export default class SampleBrowser extends LitElement {
                             name: "Files",
                             render: (sample, active, opencgaSession) => html`
                                 <file-grid
-                                    .query="${{sampleIds: sample.id}}"
+                                    .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
                                     .active="${active}"
                                     .config="${{downloadFile: this.config.downloadFile}}"
                                     .opencgaSession="${opencgaSession}">
@@ -259,7 +259,6 @@ export default class SampleBrowser extends LitElement {
                         {
                             id: "json-view",
                             name: "JSON Data",
-                            mode: "development",
                             render: (sample, active, opencgaSession) => html`
                                 <json-viewer
                                     .data="${sample}"
