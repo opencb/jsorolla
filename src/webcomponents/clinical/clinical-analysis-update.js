@@ -58,6 +58,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
+        this.buttonsDisabled = false;
 
         this.displayConfig = {
             titleWidth: 3,
@@ -89,6 +90,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
         this.disordersAllowedValues = (this.clinicalAnalysis?.proband?.disorders?.length > 0) ?
             this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id) :
             [];
+
+        // Initialize the state of the submit and discard buttons
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
     }
 
     clinicalAnalysisIdObserver(e) {
@@ -105,6 +110,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             e.detail,
             null);
     */
+        // Initialize the state of the submit and discard buttons
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
