@@ -120,6 +120,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
     }
 
+    onComponentFieldChange(e) {
+        if (e.detail.param === "locked") {
+            if (this.clinicalAnalysis?.locked) {
+                this.buttonsDisabled = e.detail.value;
+            }
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
     render() {
         return html`
             <opencga-update
