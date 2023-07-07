@@ -261,8 +261,8 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "lollipop",
-                            name: "Lollipop Test",
+                            id: "protein-lollipop",
+                            name: "Protein Lollipop Test",
                             description: "",
                             visibility: "public"
                         },
