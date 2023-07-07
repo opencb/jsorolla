@@ -190,7 +190,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
             return `
                 <div style="margin: 5px 0">
-                    <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
+                    <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
                         ${row.id}
                         ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
                     </a>
