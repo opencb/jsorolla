@@ -1275,21 +1275,21 @@ class CaseSmsReport extends LitElement {
         const fileCreates = [
             {
                 ...fileType["JSON"],
-                path: `${path}.json`,
+                path: `${path}-tmp.json`,
                 content: JSON.stringify(dataContent),
                 type: "FILE",
             },
             {
                 ...fileType["HTML"],
-                path: `${path}.html`,
+                path: `${path}-tmp.html`,
                 content: dataContent?.htmlRendered,
                 type: "FILE",
             },
         ];
         const fileUpload = {
             ...fileType["PDF"],
-            name: `${fileName}`,
-            path: `${path}.pdf`,
+            name: `${fileName}-tmp.pdf`,
+            path: `${path}-tmp.pdf`,
             study: this.opencgaSession.study.fqn,
             type: "FILE",
         };
