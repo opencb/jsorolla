@@ -757,7 +757,8 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["protein-lollipop"] ? html`
                     <div class="content" id="protein-lollipop">
                         <protein-lollipop-test
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .testDataVersion="${this.textDataVersion}">
                         </protein-lollipop-test>
                     </div>
                 ` : null}
