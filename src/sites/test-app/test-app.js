@@ -39,6 +39,8 @@ import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
 import "./webcomponents/catalog-browser-grid-test.js";
 
+import "./webcomponents/protein-lollipop-test.js";
+
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
 import {SAMPLE_DATA} from "./data/data-example.js";
 
@@ -102,7 +104,7 @@ class TestApp extends LitElement {
             "variant-interpreter-grid-cancer-cnv",
             "variant-filters",
             "genome-browser",
-            "lollipop",
+            "protein-lollipop",
             "pedigree",
             "mutational-signatures",
         ];
@@ -739,9 +741,11 @@ class TestApp extends LitElement {
                     </div>
                 ` : null}
 
-                ${this.config.enabledComponents["lollipop"] ? html`
-                    <div class="content" id="lollipop">
-                        Not available yet...
+                ${this.config.enabledComponents["protein-lollipop"] ? html`
+                    <div class="content" id="protein-lollipop">
+                        <protein-lollipop-test
+                            .opencgaSession="${this.opencgaSession}">
+                        </protein-lollipop-test>
                     </div>
                 ` : null}
 
