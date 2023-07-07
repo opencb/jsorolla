@@ -33,37 +33,106 @@ class ProteinLollipopTest extends LitElement {
 
     static get properties() {
         return {
-            testVariantFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
-            }
         };
     }
 
     #init() {
+        this._prefix = UtilsNew.randomString(8);
+        this._data = {};
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("testDataVersion")) {
+            this.testDataVersionObserver();
+        }
+    }
+
+    testDataVersionObserver() {
+        const filesToImport = [
+            "protein-lollipop-mtm1-protein.json",
+            "protein-lollipop-mtm1-transcript.json",
+            "protein-lollipop-mtm1-variants-platinum.json",
+            "protein-lollipop-mtm1-variants-cosmic.json",
+            "protein-lollipop-mtm1-variants-clinvar.json",
+        ];
+        const promises = filesToImport.map(file => {
+            return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
+        });
+
+        // Import all files
+        Promise.all(promises)
+            .then(data => {
+                this._data = {
+                    protein: data[0],
+                    transcript: data[1],
+                    platinumVariants: data[2],
+                    cosmicVariants: data[3],
+                    clinvarVariants: data[4],
+                };
+                // Mutate data and draw protein lollipop
+                this.mutate();
+                this.drawProteinLollipop();
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
     mutate() {
         return null;
     }
 
-    render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
+    drawProteinLollipop() {
+        const target = this.querySelector(`div#${this._prefix}`);
+        const studyTitle = "Platinum";
 
+        // Draw protein lollipop
+        ProteinLollipopViz.draw(target, this._data.transcript, this._data.protein, this._data.platinumVariants, {
+            title: studyTitle,
+            tracks: [
+                {
+                    type: ProteinLollipopViz.TRACK_TYPES.VARIANTS,
+                    title: "Clinvar",
+                    data: this._data.clinvarVariants,
+                    tooltip: ProteinLollipopViz.clinvarTooltipFormatter,
+                    tooltipWidth: "360px",
+                },
+                {
+                    type: ProteinLollipopViz.TRACK_TYPES.VARIANTS,
+                    title: "Cosmic",
+                    data: this._data.cosmicVariants,
+                    tooltip: ProteinLollipopViz.cosmicTooltipFormatter,
+                    tooltipWidth: "280px",
+                },
+            ],
+            highlights: [
+                {
+                    variants: ["X:150638967:G:-"],
+                    style: {
+                        strokeColor: "#fd984399",
+                        strokeWidth: "4px",
+                    },
+                }
+            ],
+        });
+    }
+
+    render() {
         return html`
-            <h2 style="font-weight: bold;">
-                Protein Lollipop Test
-            </h2>
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <h2 style="font-weight: bold;">
+                        Protein Lollipop Test
+                    </h2>
+                    <div id="${this._prefix}" style="margin-bottom:4rem;"></div>
+                </div>
+            </div>
         `;
     }
 
