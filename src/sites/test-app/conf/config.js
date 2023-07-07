@@ -179,6 +179,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "sample-browser-grid",
+                            name: "Sample Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "opencga-update",
                             name: "opencga-update Test",
                             description: "",
