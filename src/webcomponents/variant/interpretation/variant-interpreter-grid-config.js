@@ -68,14 +68,18 @@ export default class VariantInterpreterGridConfig extends LitElement {
             let lastSubColumn = 0;
             for (const gridColumn of this.gridColumns[0]) {
                 if (gridColumn.rowspan === 2) {
-                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.title});
-                    if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
-                        this.selectedColumns.push(gridColumn.id);
+                    if (!gridColumn.excludeFromSettings) {
+                        this.selectColumnData.push({id: gridColumn.id, name: gridColumn.title});
+                        if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
+                            this.selectedColumns.push(gridColumn.id);
+                        }
                     }
                 } else {
                     const option = {id: gridColumn.id, name: gridColumn.title, fields: []};
                     for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
-                        option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
+                        if (!this.gridColumns[1][i].excludeFromSettings) {
+                            option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
+                        }
                         if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {
                             this.selectedColumns.push(this.gridColumns[1][i].id);
                         }
