@@ -502,7 +502,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             ` : null}
             <div class="row">
                 <div class="col-md-2 left-menu">
-                    <div class="cy-search-button-wrapper">
+                    <div class="d-grid gap-2 pb-1 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.filter.searchButtonText || "Search"}</strong>

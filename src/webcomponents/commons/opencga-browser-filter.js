@@ -367,8 +367,8 @@ export default class OpencgaBrowserFilter extends LitElement {
     render() {
         return html`
             ${this.config?.searchButton ? html`
-                <div class="cy-search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                <div class="d-grid gap-2 pb-1 cy-search-button-wrapper">
+                    <button type="button" class="btn btn-primary" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
                     </button>
                 </div>

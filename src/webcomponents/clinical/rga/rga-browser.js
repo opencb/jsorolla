@@ -392,8 +392,8 @@ export default class RgaBrowser extends LitElement {
             <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
                 <div class="col-md-2">
-                    <div class="cy-search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
+                    <div class="d-grid gap-2 pb-1 cy-search-button-wrapper">
+                        <button type="button" class="btn btn-primary" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
                         </button>
                     </div>
