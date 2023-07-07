@@ -188,7 +188,7 @@ class VariantInterpreterMethods extends LitElement {
 
         return {
             display: {
-                align: "center"
+                classes: "justify-content-center",
             },
             items: items,
         };

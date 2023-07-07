@@ -479,6 +479,7 @@ class VariantInterpreterBrowser extends LitElement {
             // title: "Variant Interperter Browser",
             display: {
                 align: "center",
+                classes: "justify-content-center",
             },
             items: items,
         };

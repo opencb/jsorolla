@@ -399,7 +399,7 @@ export default class VariantInterpreterReview extends LitElement {
         return {
             // title: "Interpretation review",
             display: {
-                align: "center",
+                classes: "justify-content-center"
             },
             items: items,
         };
