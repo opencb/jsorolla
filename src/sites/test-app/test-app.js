@@ -758,7 +758,7 @@ class TestApp extends LitElement {
                     <div class="content" id="protein-lollipop">
                         <protein-lollipop-test
                             .opencgaSession="${this.opencgaSession}"
-                            .testDataVersion="${this.textDataVersion}">
+                            .testDataVersion="${this.testDataVersion}">
                         </protein-lollipop-test>
                     </div>
                 ` : null}
