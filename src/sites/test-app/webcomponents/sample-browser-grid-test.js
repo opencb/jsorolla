@@ -22,6 +22,7 @@ import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/sample/sample-grid.js";
+import "../../../webcomponents/sample/sample-detail.js";
 
 
 class SampleBrowserGridTest extends LitElement {
@@ -74,60 +75,55 @@ class SampleBrowserGridTest extends LitElement {
         };
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
+    // #setLoading(value) {
+        // this.isLoading = value;
+        // this.requestUpdate();
+    // }
 
     update(changedProperties) {
-        if (changedProperties.has("testFile") &&
-            changedProperties.has("testDataVersion") &&
-            changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("testFile")) {
             this.opencgaSessionObserver();
         }
         super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.#setLoading(true);
+        // this.#setLoading(true);
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
             .then(content => {
                 this.samples = content;
-                // this.samplesMutate();
+                this.selectedSample = this.samples[0];
+                this.mutate();
+                this.requestUpdate();
             })
             .catch(err => {
                 console.log(err);
             })
             .finally(() => {
-                this.#setLoading(false);
+                // this.#setLoading(false);
             });
     }
 
-    samplesMutate() {
+    mutate() {
         // 1. no gene names in the CT array
-        this.samples[10].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
-
-        // 2. SIFT with no description available
-        // this.variants[10].annotation.consequenceTypes
-        //     .filter(ct => ct.proteinVariantAnnotation)
-        //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
-
+        this.samples[1].creationDate = "";
+        this.samples[2].creationDate = "20540101";
 
         // Finally, we update samples mem address to force a rendering
         this.samples = [...this.samples];
+        // this.requestUpdate();
     }
 
-
-    changeView(id) {
-        this.activeTab = id;
-        // this.mutate();
+    selectSample(e) {
+        this.selectedSample = e.detail.value;
+        this.requestUpdate();
     }
-
 
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
+
         return html`
             <h2 style="font-weight: bold;">
                 Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
@@ -152,8 +148,14 @@ class SampleBrowserGridTest extends LitElement {
                 .samples="${this.samples}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.configSampleGrid}"
-                .active="${true}">
+                .active="${true}"
+                @selectrow="${this.selectSample}">
             </sample-grid>
+
+            <sample-detail
+                .opencgaSession="${this.opencgaSession}"
+                .sample="${this.selectedSample}">
+            </sample-detail>\`
         `;
     }
 

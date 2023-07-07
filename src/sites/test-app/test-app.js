@@ -626,7 +626,7 @@ class TestApp extends LitElement {
                 ${this.config.enabledComponents["file-browser-grid"] ? html`
                     <div class="content" id="file-browser-grid">
                         <catalog-browser-grid-test
-                            testFile="files-chinese-test"
+                            testFile="files-chinese"
                             testDataVersion="${this.testDataVersion || ""}"
                             .opencgaSession="${this.opencgaSession || {}}"
                             .config="${this.config}">

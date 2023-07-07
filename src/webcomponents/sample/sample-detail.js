@@ -19,6 +19,7 @@ import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
 import "../alignment/qc/samtools-flagstats-view.js";
+import debug from "debug";
 
 export default class SampleDetail extends LitElement {
 
