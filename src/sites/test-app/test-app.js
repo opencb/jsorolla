@@ -36,6 +36,7 @@ import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "./webcomponents/data-form-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
+import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
 import "./webcomponents/catalog-browser-grid-test.js";
 
@@ -94,6 +95,7 @@ class TestApp extends LitElement {
             "utils-new",
             "catalog-filters",
             "file-browser-grid",
+            "sample-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
             "variant-browser-grid-cancer",
@@ -629,6 +631,17 @@ class TestApp extends LitElement {
                             .opencgaSession="${this.opencgaSession || {}}"
                             .config="${this.config}">
                         </catalog-browser-grid-test>
+                    </div>
+                ` : null}
+
+                ${this.config.enabledComponents["sample-browser-grid"] ? html`
+                    <div class="content" id="sample-browser-grid">
+                        <sample-browser-grid-test
+                            testFile="samples-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </sample-browser-grid-test>
                     </div>
                 ` : null}
 
