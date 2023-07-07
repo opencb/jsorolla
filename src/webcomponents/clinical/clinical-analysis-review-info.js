@@ -352,7 +352,30 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
     submitCaseInfo() {
         // Update description or Final Summary
         if (this.updatedFields && UtilsNew.isNotEmpty(this.updatedFields)) {
-            const updateParams = FormUtils.getUpdateParams(this._clinicalAnalysis, this.updatedFields);
+            const updateCustomisation = [
+                params => {
+                    // Note: we need to remove additional fields to the status and priority objects that are
+                    // added by OpenCGA but not accepted in the update endpoint
+                    if (params.status?.id) {
+                        // eslint-disable-next-line no-param-reassign
+                        params.status = {id: params.status.id};
+                    }
+                    if (params.analyst) {
+                        // eslint-disable-next-line no-param-reassign
+                        params.analyst= {id: params.analyst.id};
+                    }
+                    if (params.comments) {
+                        // eslint-disable-next-line no-param-reassign
+                        params.comments = params.comments
+                            .filter(comment => !comment.author)
+                            .map(comment => ({
+                                ...comment,
+                                tags: UtilsNew.commaSeparatedArray(comment.tags)
+                            }));
+                    }
+                },
+            ];
+            const updateParams = FormUtils.getUpdateParams(this._clinicalAnalysis, this.updatedFields, updateCustomisation);
             this.submitClinicalCase(updateParams);
         }
 
@@ -512,7 +535,6 @@ export default class ClinicalAnalysisReviewInfo extends LitElement {
             // Update the attribute field
             UtilsNew.setObjectValue(this.updateCaseParams, param, e.detail.value);
         } else {
-            debugger;
             this.updatedFields = FormUtils.getUpdatedFields(
                 this.clinicalAnalysis,
                 this.updateFields,
