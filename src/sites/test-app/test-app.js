@@ -201,7 +201,7 @@ class TestApp extends LitElement {
         //         this.opencgaSession = content;
         //         this.requestUpdate();
         //     });
-        this.opencgaSession = new OpenCGAClientMock().createAnonymousSession();
+        this.opencgaSession = {};
         this.initProjectMock();
     }
 
@@ -214,11 +214,15 @@ class TestApp extends LitElement {
                 this.opencgaSession.projects = content.user.projects;
                 this.opencgaSession.project = content.user.projects[0];
                 this.opencgaSession.study = content.user.projects[0].studies[0];
+
+                // Initialise opencgaSession Client Mock
+                this.opencgaSession.opencgaClient = new OpenCGAClientMock().createLocalClient();
                 this.requestUpdate();
             })
             .catch(err => {
                 console.log(err);
             });
+
     }
 
 
