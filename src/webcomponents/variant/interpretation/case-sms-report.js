@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
+import {styleMap} from "lit/directives/style-map.js";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
@@ -617,8 +618,8 @@ class CaseSmsReport extends LitElement {
             }));
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
+    #setProcessing(value) {
+        this.isProcessing = value;
         this.requestUpdate();
     }
 
@@ -1250,6 +1251,7 @@ class CaseSmsReport extends LitElement {
     }
 
     async onUploadFileReport() {
+        this.#setProcessing(true);
         const params = {
             study: this.opencgaSession.study.fqn,
             parents: true,
@@ -1327,6 +1329,8 @@ class CaseSmsReport extends LitElement {
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
+            this.#setProcessing(false);
+            this.onClear();
             this.postUpdate();
             $(`#${this._prefix}FileUploadBeta`).modal("hide");
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -1398,6 +1402,14 @@ class CaseSmsReport extends LitElement {
     }
 
     renderModalDataForm() {
+        const loadingStyle = {
+            "position": "absolute",
+            "width": "50%",
+            "top": "40%",
+            "left": "28%",
+            "background-color": "white",
+            "z-index": "999"
+        };
         return html`
             <div class="modal fade" id="${this._prefix}FileUploadBeta" tabindex="-1"
                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
@@ -1406,6 +1418,14 @@ class CaseSmsReport extends LitElement {
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Save Report (Beta)</h3>
                         </div>
+                        ${this.isProcessing ? html`
+                            <div style="${styleMap(loadingStyle)}">
+                                <loading-spinner
+                                    text="Processing..."
+                                    description="Uploading files...">
+                                </loading-spinner>
+                            </div>
+                        ` : nothing }
                         ${this.renderDataForm()}
                     </div>
                 </div>
