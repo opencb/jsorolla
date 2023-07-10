@@ -38,7 +38,7 @@ import "./webcomponents/data-form-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
-import "./webcomponents/catalog-browser-grid-test.js";
+import "./webcomponents/file-browser-grid-test.js";
 
 import "./webcomponents/protein-lollipop-test.js";
 
@@ -627,12 +627,12 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["file-browser-grid"] ? html`
                     <div class="content" id="file-browser-grid">
-                        <catalog-browser-grid-test
+                        <file-browser-grid-test
                             testFile="files-chinese"
                             testDataVersion="${this.testDataVersion || ""}"
                             .opencgaSession="${this.opencgaSession || {}}"
                             .config="${this.config}">
-                        </catalog-browser-grid-test>
+                        </file-browser-grid-test>
                     </div>
                 ` : null}
 

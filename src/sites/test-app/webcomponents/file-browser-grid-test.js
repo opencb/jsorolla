@@ -24,7 +24,7 @@ import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
 
 
-class CatalogVariantBrowserGridTest extends LitElement {
+class FileBrowserGridTest extends LitElement {
 
     constructor() {
         super();
@@ -127,11 +127,9 @@ class CatalogVariantBrowserGridTest extends LitElement {
             <file-grid
                 .files="${this.data}"
                 .opencgaSession="${this.opencgaSession}">
-            </file-grid>
-            <!-- sample,individual grid... -->
-        `;
+            </file-grid>`;
     }
 
 }
 
-customElements.define("catalog-browser-grid-test", CatalogVariantBrowserGridTest);
+customElements.define("file-browser-grid-test", FileBrowserGridTest);
