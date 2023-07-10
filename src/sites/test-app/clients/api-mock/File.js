@@ -19,6 +19,7 @@
  *
 **/
 
+import {RestResponse} from "../../../../core/clients/rest-response";
 
 
 /**
@@ -394,7 +395,28 @@ export default class File {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     head(file, params) {
-        return this._get("files", file, null, null, "head", params);
+        const result = {
+            "responses": [{
+                "results": [
+                    {
+                        "fileId": "/opt/opencga/variants/demo/GIAB_ChineseTrio/data/HG005_GRCh38_1_22_v4.2.1_benchmark.vcf.gz",
+                        "eof": false,
+                        "offset": 2058,
+                        "size": 2058,
+                        "lines": 20,
+                        "content": "##fileformat=VCFv4.2" +
+                        "\n##fileDate=20160824\n##CL=vcffilter -i filtered-phase-transfer.vcf.gz -o - --javascript \"ensureFormatHeader(\\\"" +
+                        "##FORMAT=<ID=PS,Number=1,Type=Integer,Description=\\\\\\\"Phase set for GT\\\\\\\">\\\"); function record() {if(HG005.GT==\\\"1/1\\\")" +
+                        "{ INTEGRATION.IPS=\\\".\\\"; INTEGRATION.PS=\\\"HOMVAR\\\"; INTEGRATION.GT=\\\"1|1\\\";} else {if((INTEGRATION.GT==\\\"0/1\\\" || INTEGRATION.GT==\\\"1/2\\\" || " +
+                        "INTEGRATION.GT==\\\"2/1\\\" || INTEGRATION.GT==\\\"1/0\\\") ) {if(INTEGRATION.IPS.length>1) {INTEGRATION.PS=INTEGRATION.IPS; INTEGRATION.GT=INTEGRATION.IGT;} else"+
+                        "{INTEGRATION.PS=\\\".\\\";};} else { if((INTEGRATION.IPS.length<2)) { INTEGRATION.IPS=\\\".\\\";} INTEGRATION.PS=\\\"PATMAT\\\";};};}\"\n##RUN-ID=e8ffb950-52ea-4f42-9ce3-83b1d3033f3a\n"+
+                        "## TESTING PURPOSE TESITNG PURPOSE FILE:" + file + " TESTING PURPOSE FILE"
+                    }
+                ]
+            }]
+        };
+
+        return Promise.resolve(new RestResponse(result));
     }
 
     /** Obtain the base64 content of an image

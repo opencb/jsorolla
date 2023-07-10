@@ -22,6 +22,7 @@ import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
+import "../../../webcomponents/file/file-detail.js";
 
 
 class FileBrowserGridTest extends LitElement {
@@ -48,7 +49,11 @@ class FileBrowserGridTest extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
+            _selectRow: {
+                type: Object,
+                state: true
+            },
         };
     }
 
@@ -104,6 +109,7 @@ class FileBrowserGridTest extends LitElement {
             });
     }
 
+
     fileMutate() {
 
     }
@@ -112,6 +118,11 @@ class FileBrowserGridTest extends LitElement {
     changeView(id) {
         this.activeTab = id;
         // this.mutate();
+    }
+
+    selectRow(e) {
+        this._selectRow = {...e.detail.row};
+        console.log("select row", this._selectRow);
     }
 
 
@@ -126,8 +137,15 @@ class FileBrowserGridTest extends LitElement {
             </h2>
             <file-grid
                 .files="${this.data}"
+                .opencgaSession="${this.opencgaSession}"
+                @selectrow="${e => this.selectRow(e)}">
+            </file-grid>
+            <file-detail
+                .file="${this._selectRow}"
                 .opencgaSession="${this.opencgaSession}">
-            </file-grid>`;
+            </file-detail>
+
+        `;
     }
 
 }
