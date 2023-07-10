@@ -102,6 +102,7 @@ class CaseSmsReport extends LitElement {
 
         if (param === "exportFiles") {
             this._reportFile = {...e.detail.data};
+            this.requestUpdate();
         }
     }
 
@@ -1270,6 +1271,7 @@ class CaseSmsReport extends LitElement {
                 format: "PLAIN",
             }
         };
+        const statusFile = (this._reportFile?.status ?? "DRAFT")?.toLowerCase();
         const interpretationId = this._clinicalAnalysis.interpretation.id.replace(".", "_");
         const studyName = this.opencgaSession.study.fqn.replace(/[@:]/g, "_");
         const dateTimeCreated = UtilsNew.getDatetime();
@@ -1279,21 +1281,21 @@ class CaseSmsReport extends LitElement {
         const fileCreates = [
             {
                 ...fileType["JSON"],
-                path: `${path}-tmp.json`,
+                path: `${path}_${statusFile}.json`,
                 content: JSON.stringify(dataContent),
                 type: "FILE",
             },
             {
                 ...fileType["HTML"],
-                path: `${path}-tmp.html`,
+                path: `${path}_${statusFile}.html`,
                 content: dataContent?.htmlRendered,
                 type: "FILE",
             },
         ];
         const fileUpload = {
             ...fileType["PDF"],
-            name: `${fileName}-tmp.pdf`,
-            path: `${path}-tmp.pdf`,
+            name: `${fileName}_${statusFile}.pdf`,
+            path: `${path}_${statusFile}.pdf`,
             study: this.opencgaSession.study.fqn,
             type: "FILE",
         };
@@ -1332,7 +1334,6 @@ class CaseSmsReport extends LitElement {
             this.#setProcessing(false);
             this.onClear();
             this.postUpdate();
-            $(`#${this._prefix}FileUploadBeta`).modal("hide");
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 title: "File Create",
                 message: "File created correctly"
