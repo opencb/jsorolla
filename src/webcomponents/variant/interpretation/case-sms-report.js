@@ -61,7 +61,9 @@ class CaseSmsReport extends LitElement {
     }
 
     #init() {
-        this._reportFile = {};
+        this._reportFile = {
+            comments: []
+        };
         this._reportData = {};
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
@@ -1346,9 +1348,10 @@ class CaseSmsReport extends LitElement {
                 template: this.selectTemplate,
                 sample: "",
                 description: this._reportFile?.description,
-                title: "",
-                tag: "",
-                comments: []
+                title: this._reportFile.title,
+                tags: UtilsNew.commaSeparatedArray(this._reportFile.tag),
+                status: this._reportFile?.status ?? "DRAFT",
+                comments: this._reportFile?.comments
             }
         };
         let reportTestData = this.clinicalAnalysis?.interpretation?.attributes?.reportTest;
@@ -1377,7 +1380,9 @@ class CaseSmsReport extends LitElement {
     }
 
     onClear() {
-        this._reportFile = {};
+        this._reportFile = {
+            comments: []
+        };
         $(`#${this._prefix}FileUploadBeta`).modal("hide");
     }
 
@@ -1993,6 +1998,14 @@ class CaseSmsReport extends LitElement {
                 {
                     elements: [
                         {
+                            title: "Title",
+                            field: "title",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a title...",
+                            },
+                        },
+                        {
                             title: "Description",
                             field: "description",
                             type: "input-text",
@@ -2000,6 +2013,72 @@ class CaseSmsReport extends LitElement {
                                 rows: 3,
                                 placeholder: "Add a description...",
                             },
+                        },
+                        {
+                            title: "Report Tags",
+                            field: "tags",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a tags separate by comma...",
+                            },
+                        },
+                        {
+                            title: "Status",
+                            field: "status",
+                            type: "select",
+                            allowedValues: ["DRAFT", "FINAL", "ADENDA"],
+                            defaultValue: "DRAFT"
+                        },
+                        {
+                            title: "Comments",
+                            field: "comments",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                showAddBatchListButton: false,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => {
+                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                        .join(", ") || "-";
+                                    return html`
+                                        <div style="margin-bottom:1rem;">
+                                            <div style="display:flex;margin-bottom:0.5rem;">
+                                                <div style="padding-right:1rem;">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </div>
+                                                <div style="font-weight:bold">
+                                                    ${comment.author || this.opencgaSession?.user?.id || "-"} -
+                                                    ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
+                                                </div>
+                                            </div>
+                                            <div style="width:100%;">
+                                                <div style="margin-bottom:0.5rem;">${comment?.message || "-"}</div>
+                                                <div class="text-muted">Tags: ${tags}</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
                         },
                     ],
                 }
