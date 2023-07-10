@@ -28,10 +28,13 @@ export default class LoadingSpinner extends LitElement {
 
     static get properties() {
         return {
+            text: {
+                type: String
+            },
             description: {
                 type: String
             }
-        }
+        };
     }
 
     render() {
@@ -443,7 +446,7 @@ export default class LoadingSpinner extends LitElement {
             </div>
             <div class="loading-text-wrapper">
                 <div class="loading-text">
-                    Loading...
+                    ${this.text ?? "Loading..."}
                 </div>
 
             </div>
