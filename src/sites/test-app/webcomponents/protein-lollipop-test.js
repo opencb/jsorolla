@@ -130,7 +130,7 @@ class ProteinLollipopTest extends LitElement {
                     <h2 style="font-weight: bold;">
                         Protein Lollipop Test
                     </h2>
-                    <div id="${this._prefix}" style="margin-bottom:4rem;"></div>
+                    <div id="${this._prefix}" data-test-id="protein-lollipop-container" style="margin-bottom:4rem;"></div>
                 </div>
             </div>
         `;
