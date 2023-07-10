@@ -17,6 +17,8 @@
 context("Protein Lollipop Viz", () => {
     const svgSelector = `div[data-test-id="protein-lollipop-container"] svg`;
 
+    const highlightedVariant = "X:150638967:G:-";
+    const hoverVariant = "X:150641342:T:-";
     const highlightColor = "rgba(253, 152, 67, 0.6)";
 
     beforeEach(() => {
@@ -31,25 +33,25 @@ context("Protein Lollipop Viz", () => {
                 "main:variants",
                 "main:protein",
             ];
-            cy.get(svgSelector).within(() => {
-                mainTracks.forEach(trackName => {
-                    cy.get(`g[data-track="${trackName}"]`)
-                        .should("exist");
+            cy.get(svgSelector)
+                .within(() => {
+                    mainTracks.forEach(trackName => {
+                        cy.get(`g[data-track="${trackName}"]`)
+                            .should("exist");
+                    });
                 });
-            });
         });
 
         it("should render two variants tracks", () => {
-            cy.get(svgSelector).within(() => {
-                cy.get(`g[data-track="variants"]`)
-                    .should("have.length", 2);
-            });
+            cy.get(svgSelector)
+                .within(() => {
+                    cy.get(`g[data-track="variants"]`)
+                        .should("have.length", 2);
+                });
         });
     });
 
-    context("highlight", () => {
-        const highlightedVariant = "X:150638967:G:-";
-
+    context("variant:highlight", () => {
         beforeEach(() => {
             cy.get(svgSelector)
                 .find(`g[data-track="main:variants"]`)
@@ -100,7 +102,42 @@ context("Protein Lollipop Viz", () => {
                 .find(`g[data-highlighted="true"]`)
                 .should("exist");
         });
-        
+    });
+
+    context("variant:hover", () => {
+        beforeEach(() => {
+            cy.get(svgSelector)
+                .find(`g[data-track="main:variants"]`)
+                .within(() => {
+                    cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
+                    cy.get("@variant")
+                        .find("circle")
+                        .trigger("mouseover");
+                });
+        });
+
+        it("should style the variant", () => {
+            cy.get("@variant").within(() => {
+                cy.get(`path[fill="none"]`).as("variantPath");
+                cy.get("circle").as("variantCircle");
+
+                // Assert on lollipop path element
+                cy.get("@variantPath")
+                    .invoke("attr", "style")
+                    .should("contain", "stroke-width: 4px");
+                cy.get("@variantPath")
+                    .invoke("attr", "style")
+                    .should("contain", `stroke: ${highlightColor}`);
+
+                // Assert on lollipop circle element
+                cy.get("@variantCircle")
+                    .invoke("attr", "style")
+                    .should("contain", "stroke-width: 4px");
+                cy.get("@variantCircle")
+                    .invoke("attr", "style")
+                    .should("contain", `stroke: ${highlightColor}`);
+            });
+        });
     });
 
 });
