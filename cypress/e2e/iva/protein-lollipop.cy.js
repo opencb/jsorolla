@@ -31,19 +31,21 @@ context("Protein Lollipop Viz", () => {
                 "main:variants",
                 "main:protein",
             ];
-            cy.get(svgSelector).within(() => {
-                mainTracks.forEach(trackName => {
-                    cy.get(`g[data-track="${trackName}"]`)
-                        .should("exist");
+            cy.get(svgSelector)
+                .within(() => {
+                    mainTracks.forEach(trackName => {
+                        cy.get(`g[data-track="${trackName}"]`)
+                            .should("exist");
+                    });
                 });
-            });
         });
 
         it("should render two variants tracks", () => {
-            cy.get(svgSelector).within(() => {
-                cy.get(`g[data-track="variants"]`)
-                    .should("have.length", 2);
-            });
+            cy.get(svgSelector)
+                .within(() => {
+                    cy.get(`g[data-track="variants"]`)
+                        .should("have.length", 2);
+                });
         });
     });
 
