@@ -56,7 +56,7 @@ context("Protein Lollipop Viz", () => {
             cy.get("@variant").invoke("attr", "data-highlighted").should("eq", "true");
         });
 
-        it("should make the variant line bolder", () => {
+        it("should make the variant line bolder in the main variant track", () => {
             cy.get("@variant").within(() => {
                 cy.get(`path[fill="none"]`).invoke("attr", "style").should("contain", "stroke-width: 4px");
             });
