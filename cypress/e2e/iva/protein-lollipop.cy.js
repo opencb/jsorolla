@@ -220,6 +220,10 @@ context("Protein Lollipop Viz", () => {
                         .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
                         .invoke("attr", "style")
                         .should("equal", "opacity:1;");
+                    cy.get(svgSelector)
+                        .find(`g[data-ct]:not([data-ct="${ct}"])`)
+                        .invoke("attr", "style")
+                        .should("equal", "opacity: 0.2;");
                 });
         });
     });
