@@ -182,6 +182,10 @@ context("Protein Lollipop Viz", () => {
                 .find(`g[data-track="main:variants"]`)
                 .within(() => {
                     cy.get("foreignObject div").as("legend");
+                    cy.get("@legend")
+                        .find("div[data-index]")
+                        .eq(0)
+                        .as("firstLegendItem");
                 });
         });
 
@@ -205,10 +209,6 @@ context("Protein Lollipop Viz", () => {
         });
 
         it("should hide variants with different ct when clicking", () => {
-            cy.get("@legend")
-                .find("div[data-index]")
-                .eq(0)
-                .as("firstLegendItem");
             cy.get("@firstLegendItem")
                 .trigger("click");
             cy.get("@firstLegendItem")
@@ -225,6 +225,18 @@ context("Protein Lollipop Viz", () => {
                         .invoke("attr", "style")
                         .should("equal", "opacity: 0.2;");
                 });
+        });
+
+        it("should reset state when clicking again the the same ct", () => {
+            cy.get("@firstLegendItem")
+                .trigger("click");
+            cy.get("@firstLegendItem")
+                .trigger("click");
+            
+            cy.get(svgSelector)
+                .find(`g[data-track="main:variants"] g[data-ct]`)
+                .invoke("attr", "style")
+                .should("equal", "opacity:1;");
         });
     });
 
