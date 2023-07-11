@@ -166,6 +166,14 @@ context("Protein Lollipop Viz", () => {
                     .should("have.length.greaterThan", 0);
             });
         });
+
+        it("should be removed when user leaves the variant", () => {
+            cy.get("@variant")
+                .find("circle")
+                .trigger("mouseleave");
+            cy.get(".viz-tooltip")
+                .should("not.exist");
+        });
     });
 
 });
