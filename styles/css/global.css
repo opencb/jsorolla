@@ -146,6 +146,31 @@ a:visited {
     --bs-table-hover-bg: transparent
 }
 
+/*********** interpreter steps *****************/
+.variant-interpreter-step:hover {
+    position: relative;
+    border: 1px solid var(--main-bg-color);
+    border-radius: 50% !important;
+    border-width: 8px! important;
+    padding: 36px 1px 26px 1px;
+    transition: border 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.variant-interpreter-step.active {
+    position: relative;
+    border: 1px solid var(--main-bg-color);
+    border-radius: 50% !important;
+    border-width: 8px! important;
+    padding: 36px 1px 26px 1px;
+}
+
+.icon-interpreter-step:hover {
+    padding: 14px !important;
+    /* margin: 6px; */
+    transition: all 0.3s;
+}
+
+
 /* Animations */
 @keyframes pulse {
     0% {

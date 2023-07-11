@@ -380,7 +380,7 @@ class VariantInterpreter extends LitElement {
                                         <a class="variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
                                         href="javascript: void 0" data-view="${item.id}"
                                         @click="${this.onClickSection}">
-                                            <i class="position-relative interpreter-hi-icon ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4" style="z-index:1;background-color:white"></i>
+                                            <i class="position-relative ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4" style="z-index:1;background-color:white"></i>
                                         </a>
                                     </div>
                                 <p>${item.title}</p>
@@ -390,7 +390,7 @@ class VariantInterpreter extends LitElement {
                     </ul>
                 </div>
 
-                <div id="${this._prefix}MainWindow" class="col-md-12">
+                <div id="${this._prefix}MainWindow" class="col-md-12 px-3">
                     <div>
                         ${this._config.tools ? html`
                             ${this.activeTab["select"] ? html`
