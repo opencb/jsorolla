@@ -203,6 +203,25 @@ context("Protein Lollipop Viz", () => {
                         .should("exist");
                 });
         });
+
+        it("should hide variants with different ct when clicking", () => {
+            cy.get("@legend")
+                .find("div[data-index]")
+                .eq(0)
+                .as("firstLegendItem");
+            cy.get("@firstLegendItem")
+                .trigger("click");
+            cy.get("@firstLegendItem")
+                .find("strong")
+                .invoke("text")
+                .then(textContent => {
+                    const ct = textContent.trim().split(" ")[0].toLowerCase();
+                    cy.get(svgSelector)
+                        .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
+                        .invoke("attr", "style")
+                        .should("equal", "opacity:1;");
+                });
+        });
     });
 
 });
