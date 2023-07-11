@@ -138,6 +138,21 @@ context("Protein Lollipop Viz", () => {
                     .should("contain", `stroke: ${highlightColor}`);
             });
         });
+
+        it("should make the variant text bolder", () => {
+            cy.get("@variant")
+                .find("text")
+                .invoke("attr", "style")
+                .should("contain", "font-weight: bold;");
+        });
+
+        it("should display the position indicator", () => {
+            cy.get(svgSelector)
+                .get("g")
+                .find("g:not([data-track])")
+                .invoke("attr", "style")
+                .should("be.empty");
+        });
     });
 
     context("variant:tooltip", () => {
