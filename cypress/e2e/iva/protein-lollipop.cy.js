@@ -140,4 +140,28 @@ context("Protein Lollipop Viz", () => {
         });
     });
 
+    context("variant:tooltip", () => {
+        beforeEach(() => {
+            cy.get(svgSelector)
+                .find(`g[data-track="main:variants"]`)
+                .within(() => {
+                    cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
+                    cy.get("@variant")
+                        .find("circle")
+                        .trigger("mouseenter");
+                });
+        });
+
+        it("should display tooltip", () => {
+            cy.get(".viz-tooltip")
+                .should("exist");
+        });
+
+        it("should contain the information of the variant", () => {
+            cy.get(".viz-tooltip")
+                .find(".viz-tooltip-title")
+                .should("contain.text", hoverVariant);
+        });
+    });
+
 });
