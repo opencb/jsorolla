@@ -176,4 +176,33 @@ context("Protein Lollipop Viz", () => {
         });
     });
 
+    context("variant:legend", () => {
+        beforeEach(() => {
+            cy.get(svgSelector)
+                .find(`g[data-track="main:variants"]`)
+                .within(() => {
+                    cy.get("foreignObject div").as("legend");
+                });
+        });
+
+        it("should render variant legend", () => {
+            cy.get("@legend").should("exist");
+        });
+
+        it("should display all consequency types from variants", () => {
+            const consequenceTypes = new Set();
+            cy.get(svgSelector)
+                .find(`g[data-track="main:variants"] g[data-ct]`)
+                .each(el => {
+                    consequenceTypes.add(el.data("ct"));
+                });
+            Array.from(consequenceTypes)
+                .forEach(ct => {
+                    cy.get("legend")
+                        .contains(ct.toUpperCase())
+                        .should("exist");
+                });
+        });
+    });
+
 });
