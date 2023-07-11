@@ -152,15 +152,19 @@ context("Protein Lollipop Viz", () => {
                 });
         });
 
-        it("should display tooltip", () => {
+        it("should be displayed when hovering the variant", () => {
             cy.get(".viz-tooltip")
                 .should("exist");
         });
 
         it("should contain the information of the variant", () => {
-            cy.get(".viz-tooltip")
-                .find(".viz-tooltip-title")
-                .should("contain.text", hoverVariant);
+            cy.get(".viz-tooltip").within(() => {
+                cy.get(".viz-tooltip-title")
+                    .should("contain.text", hoverVariant);
+                cy.get(".viz-tooltip-content")
+                    .children()
+                    .should("have.length.greaterThan", 0);
+            });
         });
     });
 
