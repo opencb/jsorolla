@@ -16,9 +16,6 @@
  */
 
 import {html, LitElement} from "lit";
-
-
-import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
@@ -60,7 +57,6 @@ class FileBrowserGridTest extends LitElement {
     #init() {
         this.isLoading = false;
         this.data = [];
-        this._dataFormConfig = DATA_FORM_EXAMPLE;
         this.configVariantGrid = {
             pageSize: 10,
             pageList: [10, 25, 50],
@@ -94,12 +90,8 @@ class FileBrowserGridTest extends LitElement {
         this.#setLoading(true);
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
             .then(content => {
-                this.data = content;
-                if (this.testFile === "variant-browser-germline") {
-                    // this.germlineMutate();
-                } else {
-                    // this.cancerMutate();
-                }
+                this.files = content;
+                this.mutate();
             })
             .catch(err => {
                 console.log(err);
@@ -110,19 +102,12 @@ class FileBrowserGridTest extends LitElement {
     }
 
 
-    fileMutate() {
-
-    }
-
-
-    changeView(id) {
-        this.activeTab = id;
-        // this.mutate();
+    mutate() {
+        return null;
     }
 
     selectRow(e) {
         this._selectRow = {...e.detail.row};
-        console.log("select row", this._selectRow);
     }
 
 
@@ -136,7 +121,7 @@ class FileBrowserGridTest extends LitElement {
                 Catalog Browser Grid (${this.testFile})
             </h2>
             <file-grid
-                .files="${this.data}"
+                .files="${this.files}"
                 .opencgaSession="${this.opencgaSession}"
                 @selectrow="${e => this.selectRow(e)}">
             </file-grid>

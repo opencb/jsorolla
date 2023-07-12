@@ -19,7 +19,7 @@
     "prepare": "husky install",
     "test:open": "cypress open",
     "test:prepare": "./prepare-test.sh",
-    "test:run": "cypress run --spec cypress/e2e/commons/data-form.cy.js",
+    "test:run": "cypress run --spec cypress/e2e/iva/protein-lollipop.cy.js",
     "browser-support": "npx browserslist",
     "build-deprecated": "npm run clean && npm run dist && npx webpack && npm run package && npm run build-genome-browser",
     "build-genome-browser-demo": "for i in `ls src/genome-browser/demo`; do cat src/genome-browser/demo/$i | sed 's/..\\/..\\/..\\/node_modules/vendors/' | sed 's/..\\/..\\/..\\/dist/dist/' | sed 's/..\\/webcomponent\\//webcomponent\\//'> build/genome-browser/$i; done",
