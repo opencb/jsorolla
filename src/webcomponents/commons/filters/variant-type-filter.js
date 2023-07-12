@@ -84,14 +84,17 @@ export default class VariantTypeFilter extends LitElement {
                     ${this.setAll ? "Deselect" : "Select"} all
                 </button>
             </div>
-            <div class="${classMap({inline: this._config.layout === "horizontal"})}">
+            <!-- Rodiel 26-06-23 NOTE:  -->
+            <!-- it seems that the bs3 version never worked class="horizontal" -->
+            <!-- Will it be necessary to create one for bs5?  -->
+            <!-- <div class="${classMap({inline: this._config.layout === "horizontal"})}"> -->
                 <checkbox-field-filter
                     .value="${this.type}"
                     .data="${this._config.types}"
                     .disabled="${this.disabled}"
                     @filterChange="${e => this.filterChange(e)}">
                 </checkbox-field-filter>
-            </div>
+            <!-- </div> -->
         `;
     }
 

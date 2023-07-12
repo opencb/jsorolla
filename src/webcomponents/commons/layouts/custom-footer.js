@@ -181,13 +181,13 @@ export default class CustomFooter extends LitElement {
                         ` : null}
                         <!-- Fixed: OpenCB versions -->
                         <div class="footer-section-versions">
-                            <div class="footer-item">
+                            <div class="footer-item footer-section-text">
                                 <a href="https://github.com/opencb/jsorolla" target="blank" style="color: white">
                                     ${this.appName || "IVA (JSorolla)"} <sup style="margin-left: 5px">${this.version || this.config?.version}</sup>
                                 </a>
                             </div>
                             ${this.host?.opencga ? html `
-                                <div class="footer-item">
+                                <div class="footer-item footer-section-text">
                                     <a href="https://github.com/opencb/opencga" target="blank" style="color: white">
                                         OpenCGA <sup style="margin-left: 5px">${this.host?.opencga}</sup>
                                     </a>
@@ -195,7 +195,7 @@ export default class CustomFooter extends LitElement {
                             ` : html`OpenCGA <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`
                             }
                             ${this.host?.cellbase ? html `
-                                <div class="footer-item">
+                                <div class="footer-item footer-section-text">
                                     <a href="https://github.com/opencb/cellbase" target="blank" style="color: white">
                                         CellBase <sup style="margin-left: 5px">${this.host?.cellbase}</sup>
                                     </a>

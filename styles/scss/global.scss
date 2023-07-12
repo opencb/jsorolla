@@ -42,18 +42,18 @@
     --footer-color-highlight: hsl(223, 36%, 75%);
 }
 
-body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    /*background-color: var(--main-color-white);*/
-    background-color: white;
-    color: var(--main-bg-color);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-size: 14px;
-}
+// body {
+//     min-height: 100vh;
+//     margin: 0;
+//     padding: 0;
+//     /*background-color: var(--main-color-white);*/
+//     // background-color: white;
+//     color: var(--main-bg-color);
+//     -webkit-font-smoothing: antialiased;
+//     -moz-osx-font-smoothing: grayscale;
+//     text-rendering: optimizeLegibility;
+//     font-size: 14px;
+// }
 
 a#waffle-icon-wrapper {
     padding: 10px;
