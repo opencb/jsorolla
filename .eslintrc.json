@@ -21,7 +21,7 @@
   "rules": {
     "indent": ["error", 4, {
       "SwitchCase": 1,
-      "ignoredNodes": ["TemplateLiteral"]
+      "ignoredNodes": ["TemplateLiteral","TaggedTemplateExpression","ObjectExpression","ArrowFunctionExpression"]
       }
     ],
     "max-len": ["error", 230],

@@ -1995,7 +1995,7 @@ class IvaApp extends LitElement {
         ` : null}
 
                 ${this.config.enabledComponents["study-admin"] ? html`
-            <div class="content row" id="study-admin">
+            <div class="content" id="study-admin">
                 <study-admin
                     .study="${this.opencgaSession.study}"
                     .opencgaSession="${this.opencgaSession}"

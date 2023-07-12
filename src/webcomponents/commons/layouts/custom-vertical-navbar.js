@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new";
 
 export default class CustomVerticalNavBar extends LitElement {
@@ -89,7 +89,7 @@ export default class CustomVerticalNavBar extends LitElement {
     }
 
     firstUpdated() {
-        this.#initActiveMenu();
+        // this.#initActiveMenu();
     }
 
     // --- OBSERVERS ---
@@ -128,8 +128,9 @@ export default class CustomVerticalNavBar extends LitElement {
 
         // Set current active-item
         const navItems = document.querySelectorAll(`#${this.#divMenu} .nav-item`);
-        [...navItems].forEach(item => item.classList.remove("active-item"));
-        document.querySelector(`[data-id=${this.clicked}]`).classList.add("active-item");
+        [...navItems].forEach(item => item.classList.remove("active"));
+        document.querySelector(`[data-id=${this.clicked}]`)
+            .querySelector(".nav-link").classList.add("active");
 
         // Display selected content
         const navContents = document.querySelectorAll(`#${this.#divContent} > div[role=tabpanel]`);
@@ -359,16 +360,11 @@ export default class CustomVerticalNavBar extends LitElement {
     // QUESTION: Make it optional?
     #renderToggle() {
         return html`
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                        data-target="#bs-sidebar-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand">${this.study?.name}</a>
-            </div>`;
+            <a class="d-flex text-decoration-none align-items-center text-white">
+                <span class="fs-4">${this.study?.name}</span>
+            </a>
+            <hr class="text-white">
+        `;
     }
 
     /* QUESTION 1: in config submenu, should we consider category and separator?
@@ -376,6 +372,61 @@ export default class CustomVerticalNavBar extends LitElement {
          To replace [category | separator] keys with 'type'.
     */
     #renderMenu() {
+        return html`
+                <!-- To check the visibility of each menu and submenu item-->
+                <ul class="list-unstyled ps-0">
+                ${
+                    UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
+                        .map(item => item.submenu && UtilsNew.hasVisibleItems(item.submenu, this.opencgaSession) ? html `
+                            <li class="mb-1">
+                                <a class="d-inline-flex align-items-center rounded border-0 collapsed text-white text-decoration-none"
+                                    role="button" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-haspopup="true" aria-expanded="true">
+                                    ${item.name}
+                                </a>
+
+                                    <ul class="nav nav-pills flex-column mt-2">
+                                        ${
+                                            UtilsNew.getVisibleItems(item.submenu, this.opencgaSession)
+                                                .map((subItem, idx) => {
+                                                    const type = ["category", "separator"].find(type => type in subItem);
+                                                    switch (type) {
+                                                        case "category":
+                                                            return html `
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link text-white ${idx == 0 ? "active" : "" }" style="cursor:auto!important;">
+                                                                        <strong>${subItem.name}</strong>
+                                                                    </a>
+                                                                </li>
+                                                            `;
+                                                        case "separator":
+                                                            return html `
+                                                                <li class="border-top my-3">
+                                                                    <hr class="text-white">
+                                                                </li>
+                                                            `;
+                                                        default:
+                                                            return html `
+                                                                <li class="nav-item" data-id="${subItem.id}">
+                                                                <!-- TODO: fix for formatting icon | name -->
+                                                                    <a class="nav-link text-white ${idx == 0 ? "active" : "" }" id="${subItem.id}-tab" data-bs-target="#${subItem.id}" data-bs-toggle="pill"
+                                                                        type="button" role="tab" aria-controls="${subItem.id}-tab" aria-selected="false">
+                                                                        ${subItem.name}
+                                                                    </a>
+                                                                </li>
+                                                            `;
+                                                    }
+                                                })
+                                        }
+                                    </ul>
+                            </li>
+                        ` : html `
+                            <li>TODO: NO SUBMENU</li>
+                        `)}
+                </ul>
+        `;
+    }
+
+    #renderMenuOld() {
         return html`
             <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar" id="${this.#divMenu}">
                 <!-- To check the visibility of each menu and submenu item-->
@@ -386,7 +437,7 @@ export default class CustomVerticalNavBar extends LitElement {
                             <li class="dropdown open">
                                 <!-- CAUTION: href attribute removed. To discuss: toggle open always-->
                                 <a class="dropdown-toggle" data-toggle="dropdown open"
-                                   role="button" aria-haspopup="true" aria-expanded="true">
+                                role="button" aria-haspopup="true" aria-expanded="true">
                                     ${item.name} <!-- <span class="caret"></span> -->
                                 </a>
                                 <ul class="dropdown-menu" @click="${this._onItemNavClick}">
@@ -399,7 +450,7 @@ export default class CustomVerticalNavBar extends LitElement {
                                                     return html `
                                                         <li>
                                                         <a class="nav-item-category"
-                                                           style="cursor:auto!important;">
+                                                        style="cursor:auto!important;">
                                                             <strong>${subItem.name}</strong>
                                                         </a>
                                                         <!--<p class="navbar-text">$submenuItem.name}</p>-->
@@ -425,17 +476,17 @@ export default class CustomVerticalNavBar extends LitElement {
                             <li>TODO: NO SUBMENU</li>
                         `)}
                 </ul>
-            </div>
+
         `;
     }
 
     #renderContent() {
         return html`
-            <div class="content-tab-wrapper admin-vertical-content" id="${this.#divContent}" style="margin: 0 20px">
+            <div class="tab-content" id="${this.#divContent}" style="margin: 0 20px">
             ${UtilsNew.getVisibleItems(this._config.menu, this.opencgaSession)
             .map(menuItem => menuItem.submenu && UtilsNew.hasVisibleItems(menuItem.submenu, this.opencgaSession) ? html `
-                ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map(subItem => !subItem.render ? null : html `
-                    <div id="${subItem.id}" role="tabpanel" class="tab-pane content-tab active">
+                ${UtilsNew.getVisibleItems(menuItem.submenu, this.opencgaSession).map((subItem, idx) => !subItem.render ? nothing : html `
+                    <div class="tab-pane fade ${idx === 0 ? "show active" :""}" id="${subItem.id}" role="tabpanel"  aria-labelledby="${subItem.id}-tab" tabindex="0">
                         <!-- TODO: HEADER in a div-->
                         <div class="settings-header-wrapper" id="settings-title-wrapper">
                             <div class="settings-header-title-wrapper">
@@ -463,23 +514,21 @@ export default class CustomVerticalNavBar extends LitElement {
     render() {
         return html`
             <!-- STYLE -->
-            ${this.#renderStyle()}
+            <!-- \${this.#renderStyle()} -->
             <!-- TOOL HEADER -->
             <!-- <tool-header title="$this._config.name}" icon="$this._config.icon}"></tool-header> -->
-            <div class="custom-vertical-navbar row">
+            <div class="d-flex flex-nowrap">
                 <!-- NAVIGATION -->
-                <div class="col-md-2">
-                    <nav class="navbar navbar-inverse sidebar" role="navigation">
-                        <!-- 1. Brand and toggle get grouped for better mobile display -->
-                        ${this.#renderToggle()}
-                        <!-- 1. MENU -->
-                        ${this.#renderMenu()}
-                    </nav>
+                <div class="d-flex flex-column flex-shrink-0 p-3 min-vh-100" style="background-color: var(--main-bg-color); margin-left:-1rem">
+                    <!-- 1. Brand and toggle get grouped for better mobile display -->
+                    ${this.#renderToggle()}
+                    <!-- 1. MENU -->
+                    ${this.#renderMenu()}
                 </div>
                 <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
-                <div class="col-md-10" style="">
+                <div>
                     ${this.#renderContent()}
                 </div>
             </div>
