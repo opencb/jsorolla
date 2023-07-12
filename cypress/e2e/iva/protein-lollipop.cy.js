@@ -223,6 +223,20 @@ context("Protein Lollipop Viz", () => {
                 });
         });
 
+        it("should display the correct number of ct", () => {
+            cy.get("@firstLegendItem")
+                .find("strong")
+                .invoke("text")
+                .then(textContent => {
+                    const ct = textContent.trim().split(" ")[0].toLowerCase();
+                    const count = parseInt(textContent.trim().split(" ")[1].replace("(", "").replace(")", ""));
+
+                    cy.get(svgSelector)
+                        .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
+                        .should("have.length", count);
+                });
+        });
+
         it("should hide variants with different ct when clicking", () => {
             cy.get("@firstLegendItem")
                 .trigger("click");
