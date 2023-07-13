@@ -56,16 +56,11 @@ export default class FamilyGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "family-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "FamilyBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -78,7 +73,10 @@ export default class FamilyGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -502,6 +500,7 @@ export default class FamilyGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumnsFromExtensions(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
