@@ -114,7 +114,8 @@ class VariantBrowserGridTest extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-
+        this.opencgaSession
+debugger
         return html`
         <variant-browser-grid
             .variants="${this.variants}"

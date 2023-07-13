@@ -1,4 +1,4 @@
-name: "Task Workflow for Task branches"
+name: "Task workflow for TASK-* branches"
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
     needs: build
     with:
       test_profile: runShortTests
-      report_context: development
     secrets: inherit
 
   deploy-docker:
