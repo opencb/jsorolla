@@ -40,6 +40,7 @@ import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
 import "./webcomponents/file-browser-grid-test.js";
 
+import "./webcomponents/genome-browser-test.js";
 import "./webcomponents/protein-lollipop-test.js";
 
 import {DATA_FORM_EXAMPLE} from "./conf/data-form.js";
@@ -746,15 +747,10 @@ class TestApp extends LitElement {
 
                 ${this.config.enabledComponents["genome-browser"] ? html`
                     <div class="content" id="genome-browser">
-                        <genome-browser
+                        <genome-browser-test
                             .opencgaSession="${this.opencgaSession}"
-                            .region="${"1:1000000"}"
-                            .active="${true}"
-                            .config="${{
-            cellBaseClient: this.cellbaseClient,
-            featuresOfInterest: []}}"
-                            .tracks="${GENOME_BROWSER_TRACKS_EXAMPLE}">
-                        </genome-browser>
+                            .testDataVersion="${this.testDataVersion}">
+                        </genome-browser-test>
                     </div>
                 ` : null}
 
