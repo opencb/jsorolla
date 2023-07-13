@@ -297,7 +297,7 @@ export default class CohortGrid extends LitElement {
             ` : ""}
 
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}CohortBrowserGrid"></table>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
