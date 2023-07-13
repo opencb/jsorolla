@@ -90,11 +90,10 @@ class ProteinLollipopTest extends LitElement {
 
     drawProteinLollipop() {
         const target = this.querySelector(`div#${this._prefix}`);
-        const studyTitle = "Platinum";
 
         // Draw protein lollipop
         ProteinLollipopViz.draw(target, this._data.transcript, this._data.protein, this._data.platinumVariants, {
-            title: studyTitle,
+            title: "Platinum",
             tracks: [
                 {
                     type: ProteinLollipopViz.TRACK_TYPES.VARIANTS,
@@ -130,7 +129,11 @@ class ProteinLollipopTest extends LitElement {
                     <h2 style="font-weight: bold;">
                         Protein Lollipop Test
                     </h2>
-                    <div id="${this._prefix}" data-test-id="protein-lollipop-container" style="margin-bottom:4rem;"></div>
+                    <div
+                        id="${this._prefix}"
+                        data-cy="protein-lollipop-container"
+                        style="margin-bottom:4rem;">
+                    </div>
                 </div>
             </div>
         `;

@@ -15,7 +15,7 @@
  */
 
 context("Protein Lollipop Viz", () => {
-    const svgSelector = `div[data-test-id="protein-lollipop-container"] svg`;
+    const svgSelector = `div[data-cy="protein-lollipop-container"] svg`;
 
     const highlightedVariant = "X:150638967:G:-";
     const hoverVariant = "X:150641342:T:-";
