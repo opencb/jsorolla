@@ -528,7 +528,7 @@ export default class CustomVerticalNavBar extends LitElement {
                 <!-- 2. CONTENT -->
                 <!-- CAUTION: Enable this option if config has key "display" instead of "render" -->
                 <!-- <div class="this._config.display?.contentClass}" style="this._config.display?.contentStyle}">-->
-                <div>
+                <div class="w-100">
                     ${this.#renderContent()}
                 </div>
             </div>
