@@ -140,4 +140,8 @@ context("Variant Browser Grid Cancer", () => {
         })
     })
 
+    it.only("[extensions] Check 'Extra Column' column", () => {
+        cy.get("thead th").contains("div","Extra column").should('be.visible')
+    })
+
 });
