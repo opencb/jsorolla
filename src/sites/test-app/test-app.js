@@ -24,6 +24,7 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 import {OpenCGAClientMock} from "./clients/opencga-client-mock.js";
+import {CellBaseClientMock} from "./clients/cellbase-client-mock.js";
 
 
 import "../../webcomponents/loading-spinner.js";
@@ -218,12 +219,15 @@ class TestApp extends LitElement {
 
                 // Initialise opencgaSession Client Mock
                 this.opencgaSession.opencgaClient = new OpenCGAClientMock().createLocalClient();
+                this.opencgaSession.cellbaseClient = new CellBaseClientMock();
+                // We need to save the testDataVersion in the configuration of each client
+                this.opencgaSession.opencgaClient._config.testDataVersion = this.testDataVersion;
+                this.opencgaSession.cellbaseClient._config.testDataVersion = this.testDataVersion;
                 this.requestUpdate();
             })
             .catch(err => {
                 console.log(err);
             });
-
     }
 
 
