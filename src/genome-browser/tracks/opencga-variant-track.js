@@ -60,7 +60,7 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
             includeIndividual: true,
         });
 
-        response.getResults().forEach(result => {
+        (response?.responses?.[0]?.results || []).forEach(result => {
             this.samplesInfo.set(result.id, {
                 disorders: result.attributes?.OPENCGA_INDIVIDUAL?.disorders || [],
                 sex: result.attributes?.OPENCGA_INDIVIDUAL?.sex?.id || "UNKNOWN",
