@@ -20,13 +20,10 @@ import UtilsNew from "../../../core/utils-new.js";
 import Region from "../../../core/bioinfo/region.js";
 
 import GenomeBrowser from "../../../genome-browser/genome-browser.js";
-import FeatureTrack from "../../../genome-browser/tracks/feature-track.js";
 import GeneOverviewTrack from "../../../genome-browser/tracks/gene-overview-track.js";
 import GeneTrack from "../../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../../genome-browser/tracks/sequence-track.js";
-import VariantTrack from "../../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../../genome-browser/tracks/opencga-variant-track.js";
-import OpenCGAAlignmentTrack from "../../../genome-browser/tracks/opencga-alignment-track.js";
 
 
 class GenomeBrowserTest extends LitElement {
@@ -96,8 +93,6 @@ class GenomeBrowserTest extends LitElement {
             start: 43096757,
             end: 43112003,
         });
-        // TODO
-        // const species = availableSpecies.vertebrates[0];
         const species = {
             id: "hsapiens",
             scientificName: "Homo sapiens",
@@ -148,7 +143,7 @@ class GenomeBrowserTest extends LitElement {
                     visibleRegionSize: 100000000,
                     height: 200,
                     opencgaClient: this.opencgaSession.opencgaClient,
-                    opencgaStudy: "demo@family:platinum",
+                    opencgaStudy: "PLATINUM_TEST_GENOMEBROWSER",
                     query: {
                         sample: "NA12877,NA12878,NA12889",
                     },
@@ -175,7 +170,7 @@ class GenomeBrowserTest extends LitElement {
                         Genome Browser Test
                     </h2>
                     <div
-                        id="${this._prefix}"
+                        id="${"" + this._prefix}"
                         data-cy="genome-browser-container"
                         style="margin-bottom:4rem;">
                     </div>
