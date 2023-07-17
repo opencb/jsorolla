@@ -78,7 +78,7 @@ class GenomeBrowserTest extends LitElement {
                 };
                 // Mutate data and draw protein lollipop
                 this.mutate();
-                // this.drawGenomeBrowser();
+                this.drawGenomeBrowser();
             })
             .catch(error => {
                 console.error(error);
@@ -108,10 +108,10 @@ class GenomeBrowserTest extends LitElement {
         };
 
         const genomeBrowser = new GenomeBrowser(target, {
-            cellBaseClient: cellBaseClient,
+            cellBaseClient: this.opencgaSession.cellbaseClient,
             cellBaseHost: "CELLBASE_HOST",
             cellBaseVersion: "CELLBASE_VERSION",
-            width: parent.getBoundingClientRect().width,
+            width: target.getBoundingClientRect().width,
             region: region,
             species: species,
             resizable: true,
@@ -123,7 +123,7 @@ class GenomeBrowserTest extends LitElement {
             // Overview tracks
             genomeBrowser.addOverviewTracks([
                 new GeneOverviewTrack({
-                    cellBaseClient: cellBaseClient,
+                    cellBaseClient: this.opencgaSession.cellbaseClient,
                 }),
             ]);
 
@@ -131,12 +131,12 @@ class GenomeBrowserTest extends LitElement {
             genomeBrowser.addTracks([
                 // Sequence Track
                 new SequenceTrack({
-                    cellBaseClient: cellBaseClient,
+                    cellBaseClient: this.opencgaSession.cellbaseClient,
                 }),
                 // Gene track
                 new GeneTrack({
                     title: "Gene",
-                    cellBaseClient: cellBaseClient,
+                    cellBaseClient: this.opencgaSession.cellbaseClient,
                 }),
                 // OpenCGA Variant track with query
                 new OpenCGAVariantTrack({
@@ -147,7 +147,7 @@ class GenomeBrowserTest extends LitElement {
                     minTranscriptRegionSize: 200000,
                     visibleRegionSize: 100000000,
                     height: 200,
-                    opencgaClient: opencgaClient,
+                    opencgaClient: this.opencgaSession.opencgaClient,
                     opencgaStudy: "demo@family:platinum",
                     query: {
                         sample: "NA12877,NA12878,NA12889",
