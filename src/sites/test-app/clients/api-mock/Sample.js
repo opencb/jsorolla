@@ -19,6 +19,7 @@
  *
 **/
 
+import UtilsNew from "../../../../core/utils-new.js";
 
 /**
  * This class contains the methods for the "Sample" resource
@@ -27,7 +28,7 @@
 export default class Sample {
 
     constructor(config) {
-
+        this._config = config;
     }
 
     /** Update the set of permissions granted for the member
@@ -216,7 +217,10 @@ export default class Sample {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
-        return this._get("samples", null, null, null, "search", params);
+        // Response for genome browser test
+        if (params?.study === "PLATINUM_TEST_GENOMEBROWSER") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-samples.json`);
+        }
     }
 
     /** Returns the acl of the samples. If member is provided, it will only return the acl for the member.

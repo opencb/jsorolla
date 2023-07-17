@@ -19,6 +19,7 @@
  *
 **/
 
+import UtilsNew from "../../../../core/utils-new.js";
 
 /**
  * This class contains the methods for the "Variant" resource
@@ -27,6 +28,7 @@
 export default class Variant {
 
     constructor(config) {
+        this._config = config;
     }
 
     /** Calculate and fetch aggregation stats
@@ -633,6 +635,11 @@ export default class Variant {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     query(params) {
+        // Response for genome browser test
+        if (params?.study === "PLATINUM_TEST_GENOMEBROWSER") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-17-42677465-43531295-variants.json`);
+        }
+
         return this._get("analysis", null, "variant", null, "query", params);
     }
 
