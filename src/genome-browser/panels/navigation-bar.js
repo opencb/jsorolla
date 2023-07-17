@@ -80,7 +80,7 @@ export default class NavigationBar {
                             ${this.config.featuresOfInterestTitle}
                             <span class="caret"></span>
                         </button>
-                        <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
+                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu"></ul>
                     </div>
 
                     <div id="${this.prefix}ControlsSpace" style="width:1rem;display:none;"></div>
@@ -115,7 +115,7 @@ export default class NavigationBar {
 
                         <!-- Window size input -->
                         <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                            <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
+                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control input-sm" style="max-width:60px;" />
                             <span class="input-group-addon">nts</span>
                         </div>
                     </div>
