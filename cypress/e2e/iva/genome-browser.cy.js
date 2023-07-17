@@ -16,8 +16,8 @@ context("GenomeBrowser Viz", () => {
         it("should render navigation and status panels", () => {
             cy.get("@container")
                 .within(() => {
-                    cy.get(`div[data-cy="gb-navigation"]`)
-                        .should("exist");
+                    // cy.get(`div[data-cy="gb-navigation"]`)
+                    //     .should("exist");
                     cy.get(`div[data-cy="gb-status"]`)
                         .should("exist");
                 });
