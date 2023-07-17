@@ -1,3 +1,5 @@
+import UtilsNew from "../../../core/utils-new";
+
 export class CellBaseClientMock {
 
     constructor(config) {
@@ -45,6 +47,10 @@ export class CellBaseClientMock {
     }
 
     get(category, subcategory, ids, resource, params, options = {}) {
+        if (category === "genomic" && subcategory === "chromosome" && resource === "search") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-chromosomes.json`);
+        }
+        // Other request
         return Promise.reject(new Error("Not implemented"));
     }
 
