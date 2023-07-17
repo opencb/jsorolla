@@ -78,6 +78,30 @@ context("GenomeBrowser Viz", () => {
                 .as("karyotype");
         });
 
+        it("should display the karyotype panel title", () => {
+            cy.get("@karyotype")
+                .get(`div[data-cy="gb-karyotype-title"]`)
+                .should("contain.text", "Karyotype");
+        });
+
+        it("should hide the panel content when toggle button is clicked", () => {
+            cy.get("@karyotype")
+                .get(`div[data-cy="gb-karyotype-content"]`)
+                .as("karyotypeContent");
+
+            cy.get("@karyotypeContent")
+                .invoke("css", "display")
+                .should("equal", "block");
+
+            cy.get("@karyotype")
+                .get(`div[data-cy="gb-karyotype-toggle"]`)
+                .trigger("click");
+
+            cy.get("@karyotypeContent")
+                .invoke("css", "display")
+                .should("equal", "none");
+        });
+
         it("should render the 24 + MT chromosomes", () => {
             cy.get("@karyotype")
                 .get("svg > g[data-chr-name]")
@@ -95,5 +119,6 @@ context("GenomeBrowser Viz", () => {
                         .should("contain.text", name);
                 });
         });
+
     });
 });
