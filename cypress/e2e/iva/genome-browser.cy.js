@@ -71,4 +71,29 @@ context("GenomeBrowser Viz", () => {
         });
     });
 
+    context("karyotype panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .get(`li[data-cy="gb-karyotype"]`)
+                .as("karyotype");
+        });
+
+        it("should render the 24 + MT chromosomes", () => {
+            cy.get("@karyotype")
+                .get("svg > g[data-chr-name]")
+                .should("have.length", 25);
+        });
+
+        it("should render the name of each chromosome", () => {
+            cy.get("@karyotype")
+                .get("svg > g[data-chr-name]")
+                .each((el, index) => {
+                    const name = el.attr("data-chr-name");
+                    cy.get("@karyotype")
+                        .get("svg > text")
+                        .eq(index)
+                        .should("contain.text", name);
+                });
+        });
+    });
 });
