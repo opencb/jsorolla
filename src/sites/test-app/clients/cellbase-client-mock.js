@@ -1,4 +1,4 @@
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 
 export class CellBaseClientMock {
 
@@ -47,8 +47,17 @@ export class CellBaseClientMock {
     }
 
     get(category, subcategory, ids, resource, params, options = {}) {
-        if (category === "genomic" && subcategory === "chromosome" && resource === "search") {
-            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-chromosomes.json`);
+        if (category === "genomic") {
+            // Genome browser: import chromosomes
+            if (subcategory === "chromosome" && resource === "search") {
+                return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-chromosomes.json`);
+            }
+            // Genome browser: import genes in specified region
+            if (subcategory === "region" && resource === "gene") {
+                if (ids === "17:42677465-43531295" || ids === "17:43051016-43157744") {
+                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-42677465-43531295-genes.json`);
+                }
+            }
         }
         // Other request
         return Promise.reject(new Error("Not implemented"));
