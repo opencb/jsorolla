@@ -46,7 +46,7 @@ context("GenomeBrowser Viz", () => {
                 .should("equal", `${region.chromosome}:${region.start}-${region.end}`);
         });
 
-        it("shoudl display the current region size", () => {
+        it("should display the current region size", () => {
             cy.get("@navigation")
                 .get(`input[data-cy="gb-window-size"]`)
                 .invoke("val")
