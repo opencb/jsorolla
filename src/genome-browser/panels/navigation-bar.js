@@ -38,9 +38,10 @@ export default class NavigationBar {
                 <div style="display:flex;flex-wrap:wrap;gap:4px;">
 
                     <!-- Region input -->
-                    <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
+                    <div id="${this.prefix}RegionForm" data-cy="gb-region" title="Position" class="form-group" style="margin:0px;">
                         <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
                             <input
+                                data-cy="gb-region-input"
                                 type="text"
                                 id="${this.prefix}RegionInput"
                                 class="form-control input-sm"
@@ -48,7 +49,7 @@ export default class NavigationBar {
                                 style="width:170px;display:inline-block;"
                             />
                             <span class="input-group-btn">
-                                <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
+                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-default btn-sm">
                                     <strong>Go!</strong>
                                 </button>
                             </span>
