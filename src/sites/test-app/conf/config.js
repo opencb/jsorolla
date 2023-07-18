@@ -185,6 +185,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "family-browser-grid",
+                            name: "family browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "file-browser-grid",
                             name: "File browser Grid",
                             description: "",
