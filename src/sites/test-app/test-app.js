@@ -42,6 +42,7 @@ import "./webcomponents/variant-interpreter-grid-test.js";
 import "./webcomponents/file-browser-grid-test.js";
 import "./webcomponents/individual-browser-grid-test.js";
 import "./webcomponents/family-browser-grid-test.js";
+import "./webcomponents/cohort-browser-grid-test.js";
 
 
 import "./webcomponents/genome-browser-test.js";
@@ -104,6 +105,7 @@ class TestApp extends LitElement {
             "file-browser-grid",
             "individual-browser-grid",
             "family-browser-grid",
+            "cohort-browser-grid",
             "sample-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
@@ -669,6 +671,17 @@ class TestApp extends LitElement {
                             .opencgaSession="${this.opencgaSession || {}}"
                             .config="${this.config}">
                         </family-browser-grid-test>
+                    </div>
+                ` : nothing}
+
+                ${this.config.enabledComponents["cohort-browser-grid"] ? html`
+                    <div class="content" id="cohort-browser-grid">
+                        <cohort-browser-grid-test
+                            testFile="cohorts-1000G"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </cohort-browser-grid-test>
                     </div>
                 ` : nothing}
 

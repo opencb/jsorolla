@@ -186,7 +186,13 @@ const SUITE = {
                         },
                         {
                             id: "family-browser-grid",
-                            name: "family browser Grid",
+                            name: "Family browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "cohort-browser-grid",
+                            name: "Cohort browser Grid",
                             description: "",
                             visibility: "public"
                         },
