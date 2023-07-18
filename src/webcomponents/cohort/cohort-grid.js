@@ -284,7 +284,7 @@ export default class CohortGrid extends LitElement {
             study: this.opencgaSession.study.fqn,
             limit: e.detail?.exportLimit ?? 1000,
             includeIndividual: true,
-            skipCount: true,
+            // skipCount: true,
             include: "id,creationDate,status,type,samples"
         };
         this.opencgaSession.opencgaClient.cohorts()
