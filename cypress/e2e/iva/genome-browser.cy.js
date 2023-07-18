@@ -160,4 +160,67 @@ context("GenomeBrowser Viz", () => {
                 });
         });
     });
+
+    context("region overview panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .get(`li[data-cy="gb-region"]`)
+                .as("regionOverview");
+        });
+
+        it("should display the region overview title", () => {
+            cy.get("@regionOverview")
+                .get(`div[data-cy="gb-tracklist-title"]`)
+                .should("contain.text", "Region overview");
+        });
+
+        it("should display center nucleotide", () => {
+            cy.get("@regionOverview")
+                .get(`div[data-cy="gb-tracklist-position-center"]`)
+                .should("contain.text", `${(region.start + region.end) / 2}`);
+        });
+        
+        context("gene overview track", () => {
+            beforeEach(() => {
+                cy.get("@regionOverview")
+                    .get(`div[data-cy="gb-track"]`)
+                    .as("geneOverviewTrack");
+            });
+
+            it("should display track title", () => {
+                cy.get("@geneOverviewTrack")
+                    .get(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Gene overview");
+            });
+
+            it("should display features", () => {
+                cy.get("@geneOverviewTrack")
+                    .get(`svg g[data-cy="gb-feature"]`)
+                    .should("have.length", 6);
+            });
+
+            it("should display feature labels", () => {
+                cy.get("@geneOverviewTrack")
+                    .get(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
+                    .get(`text[data-cy="gb-feature-label"]`)
+                    .should("contain.text", "BRCA1");
+            });
+
+            it("should display tooltip when a feature is hovered", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@geneOverviewTrack")
+                    .get(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
+                    .trigger("mouseover", {
+                        force: true,
+                    });
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .get("div.qtip-title")
+                        .should("contain.text", "Gene - BRCA1");
+                });
+            });
+        });
+    });
 });
