@@ -78,7 +78,7 @@ export default class IndividualGrid extends LitElement {
         };
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns()
         };

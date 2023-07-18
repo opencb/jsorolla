@@ -173,14 +173,20 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
-                            id: "file-browser-grid",
-                            name: "File browser Grid",
+                            id: "sample-browser-grid",
+                            name: "Sample Grid",
                             description: "",
                             visibility: "public"
                         },
                         {
-                            id: "sample-browser-grid",
-                            name: "Sample Grid",
+                            id: "individual-browser-grid",
+                            name: "Individual browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
+                            id: "file-browser-grid",
+                            name: "File browser Grid",
                             description: "",
                             visibility: "public"
                         },

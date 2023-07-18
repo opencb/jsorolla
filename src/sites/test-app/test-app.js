@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
@@ -40,6 +40,8 @@ import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
 import "./webcomponents/file-browser-grid-test.js";
+import "./webcomponents/individual-browser-grid-test.js";
+
 
 import "./webcomponents/genome-browser-test.js";
 import "./webcomponents/protein-lollipop-test.js";
@@ -99,6 +101,7 @@ class TestApp extends LitElement {
             "utils-new",
             "catalog-filters",
             "file-browser-grid",
+            "individual-browser-grid",
             "sample-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
@@ -643,7 +646,18 @@ class TestApp extends LitElement {
                             .config="${this.config}">
                         </file-browser-grid-test>
                     </div>
-                ` : null}
+                ` : nothing}
+
+                ${this.config.enabledComponents["individual-browser-grid"] ? html`
+                    <div class="content" id="individual-browser-grid">
+                        <individual-browser-grid-test
+                            testFile="individuals-platinum"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </individual-browser-grid-test>
+                    </div>
+                ` : nothing}
 
                 ${this.config.enabledComponents["sample-browser-grid"] ? html`
                     <div class="content" id="sample-browser-grid">
