@@ -16,8 +16,8 @@ context("GenomeBrowser Viz", () => {
         it("should render navigation and status panels", () => {
             cy.get("@container")
                 .within(() => {
-                    // cy.get(`div[data-cy="gb-navigation"]`)
-                    //     .should("exist");
+                    cy.get(`div[data-cy="gb-navigation"]`)
+                        .should("exist");
                     cy.get(`div[data-cy="gb-status"]`)
                         .should("exist");
                 });
@@ -119,6 +119,45 @@ context("GenomeBrowser Viz", () => {
                         .should("contain.text", name);
                 });
         });
+    });
 
+    context("chromosome panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .get(`li[data-cy="gb-chromosome"]`)
+                .as("chromosome");
+        });
+ 
+        it("should display current chromosome in title", () => {
+            cy.get("@chromosome")
+                .get(`div[data-cy="gb-chromosome-title"]`)
+                .should("contain.text", `Chromosome ${region.chromosome}`);
+        });
+
+        it("should display all cytobands labels", () => {
+            cy.get("@chromosome")
+                .get("svg")
+                .get(`text[data-cy="gb-chromosome-cytoband-label"`)
+                .should("have.length", 24);
+        });
+
+        it("should display a mark in the current positon in the chromosome", () => {
+            cy.get("@chromosome")
+                .get(`g[data-cy="gb-chromosome-position"]`)
+                .invoke("attr", "data-position")
+                .should("equal", `${(region.start + region.end) / 2}`);
+        });
+
+        it("should display features of interest", () => {
+            const displayedFeatures = ["BRCA1", "TP53"];
+    
+            cy.get("@chromosome")
+                .get(`g[data-cy="gb-chromosome-feature-of-interest"]`)
+                .each((el, index) => {
+                    cy.wrap(el)
+                        .invoke("attr", "data-feature-id")
+                        .should("equal", displayedFeatures[index]);
+                });
+        });
     });
 });
