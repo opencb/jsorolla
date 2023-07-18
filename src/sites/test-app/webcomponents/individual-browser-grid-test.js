@@ -19,6 +19,9 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/individual/individual-grid.js";
+import "../../../webcomponents/individual/individual-detail.js";
+import "../../../webcomponents/individual/individual-view.js";
+import "../../../webcomponents/commons/json-viewer.js";
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -99,6 +102,35 @@ class IndividualBrowserGridTest extends LitElement {
             });
     }
 
+    getDefaultTabsConfig() {
+        return {
+            title: "Individual",
+            showTitle: true,
+            items: [
+                {
+                    id: "individual-view",
+                    name: "Overview",
+                    active: true,
+                    render: (individual, active, opencgaSession) => html`
+                        <individual-view
+                            .individual="${individual}"
+                            .opencgaSession="${opencgaSession}">
+                        </individual-view>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (individual, active, opencgaSession) => html`
+                        <json-viewer
+                            .data="${individual}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                }
+            ]
+        };
+    }
 
     mutate() {
         return null;
@@ -107,7 +139,6 @@ class IndividualBrowserGridTest extends LitElement {
     selectRow(e) {
         this._selectRow = {...e.detail.row};
     }
-
 
     render() {
         if (this.isLoading) {
@@ -123,6 +154,11 @@ class IndividualBrowserGridTest extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 @selectrow="${e => this.selectRow(e)}">
             </individual-grid>
+            <individual-detail
+                .individual="${this._selectRow}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this.getDefaultTabsConfig()}">
+            </individual-detail>
         `;
     }
 
