@@ -133,8 +133,6 @@ class VariantBrowserGridTest extends LitElement {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
         }
-        this.opencgaSession
-debugger
         return html`
             <h2 style="font-weight: bold;">
                 Variant Browser (${this.testVariantFile?.split("-")?.at(-1)})

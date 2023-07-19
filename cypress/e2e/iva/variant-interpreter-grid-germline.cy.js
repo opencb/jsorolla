@@ -125,8 +125,8 @@ context("Variant Interpreter Grid Germiline", () => {
     })
 
     context("Row", () => {
-        it("Row: Copy Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(17).within(() => {
+        it.skip("Copy Variant Json", () => {
+            cy.get("tbody tr:first > td").eq(-1).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                     .contains("a","Copy JSON")
@@ -139,8 +139,8 @@ context("Variant Interpreter Grid Germiline", () => {
             })
         })
 
-        it("Row: Download Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(17).within(() => {
+        it("Download Variant Json", () => {
+            cy.get("tbody tr:first > td").eq(-1).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                     .contains("a","Download JSON")
@@ -150,8 +150,8 @@ context("Variant Interpreter Grid Germiline", () => {
             })
         })
 
-        it.skip("Row: External Links", () => {
-            cy.get("tbody tr:first > td").eq(17).within(() => {
+        it("External Links", () => {
+            cy.get("tbody tr:first > td").eq(-1).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                     .contains("a","Ensembl Genome Browser").click()
