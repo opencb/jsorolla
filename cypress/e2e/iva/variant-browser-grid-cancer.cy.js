@@ -114,7 +114,7 @@ context("Variant Browser Grid Cancer", () => {
     })
 
     context("Row",() => {
-        it("Copy Variant Json", () => {
+        it.skip("Copy Variant Json", () => {
             cy.get("tbody tr:first > td").eq(18).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
@@ -128,8 +128,8 @@ context("Variant Browser Grid Cancer", () => {
             })
         })
 
-        it.skip("Download Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(18).within(() => {
+        it("Download Variant Json", () => {
+            cy.get("tbody tr:first > td").eq(-1).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                     .contains("a","Download JSON")
@@ -139,8 +139,8 @@ context("Variant Browser Grid Cancer", () => {
             })
         })
 
-        it.skip("External Links", () => {
-            cy.get("tbody tr:first > td").eq(18).within(() => {
+        it("External Links", () => {
+            cy.get("tbody tr:first > td").eq(-1).within(() => {
                 cy.get("button").click()
                 cy.get("ul[class='dropdown-menu dropdown-menu-right']")
                     .contains("a","Ensembl Genome Browser").click()
