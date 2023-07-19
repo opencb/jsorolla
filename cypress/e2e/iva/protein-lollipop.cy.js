@@ -21,8 +21,15 @@ context("Protein Lollipop Viz", () => {
     const hoverVariant = "X:150641342:T:-";
     const highlightColor = "rgba(253, 152, 67, 0.6)";
 
+    const consequenceColors = {
+        "missense_variant": "#fd7e14",
+        "stop_gained": "#dc3545",
+    };
+
     beforeEach(() => {
         cy.visit("#protein-lollipop");
+        cy.get(svgSelector)
+            .as("container");
         cy.waitUntil(() => cy.get(svgSelector).should("exist"));
     });
 
@@ -306,4 +313,70 @@ context("Protein Lollipop Viz", () => {
         });
     });
 
+    context("clinvar track", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`g[data-cy="protein-lollipop-track"][data-track-title="clinvar"]`)
+                .as("clinvarTrack");
+        });
+
+        it("should render", () => {
+            cy.get("@clinvarTrack")
+                .should("exist");
+        });
+
+        context("info", () => {
+            beforeEach(() => {
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-info"]`)
+                    .as("clinvarTrackInfo");
+            });
+
+            it("should render track title", () => {
+                cy.get("@clinvarTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-title"]`)
+                    .should("contain.text", "CLINVAR");
+            });
+
+            it("should render number of variants", () => {
+                cy.get("@clinvarTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"][data-index="0"]`)
+                    .should("contain.text", "100 Variants");
+            });
+        });
+
+        context("variants", () => {
+            it("should render all variants", () => {
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-feature"]`)
+                    .should("have.length", 100);
+            });
+
+            it("should style variants with the correct color", () => {
+                Object.keys(consequenceColors).forEach(ct => {
+                    cy.get("@clinvarTrack")
+                        .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"][data-highlighted="false"]`)
+                        .each(el => {
+                            cy.wrap(el)
+                                .find("path")
+                                .invoke("attr", "stroke")
+                                .should("equal", consequenceColors[ct]);
+                            cy.wrap(el)
+                                .find("circle")
+                                .invoke("attr", "fill")
+                                .should("equal", consequenceColors[ct]);
+                        });
+                });
+            });
+
+            it("should display tooltip when hovering the variant", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-feature"][data-index="0"] > circle`)
+                    .trigger("mouseenter", {force: true});
+                cy.get("div.viz-tooltip")
+                    .should("exist");
+            });
+        });
+    });
 });
