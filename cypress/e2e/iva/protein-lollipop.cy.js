@@ -28,33 +28,26 @@ context("Protein Lollipop Viz", () => {
 
     beforeEach(() => {
         cy.visit("#protein-lollipop");
-        cy.get(svgSelector)
+        cy.get(`div[data-cy="protein-lollipop-container"] svg`)
             .as("container");
-        cy.waitUntil(() => cy.get(svgSelector).should("exist"));
+        cy.waitUntil(() => {
+            cy.get("@container").should("exist");
+        });
     });
 
     context("render", () => {
         it("should render main tracks", () => {
-            const mainTracks = [
-                "main:scale",
-                "main:variants",
-                "main:protein",
-            ];
-            cy.get(svgSelector)
-                .within(() => {
-                    mainTracks.forEach(trackName => {
-                        cy.get(`g[data-track="${trackName}"]`)
-                            .should("exist");
-                    });
-                });
+            ["scale", "variants", "protein"].forEach(track => {
+                cy.get("@container")
+                    .find(`g[data-track="main:${track}"]`)
+                    .should("exist");
+            });
         });
 
         it("should render two variants tracks", () => {
-            cy.get(svgSelector)
-                .within(() => {
-                    cy.get(`g[data-track="variants"]`)
-                        .should("have.length", 2);
-                });
+            cy.get("@container")
+                .find(`g[data-track="variants"]`)
+                .should("have.length", 2);
         });
     });
 
