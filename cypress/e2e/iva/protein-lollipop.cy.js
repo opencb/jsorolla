@@ -373,14 +373,32 @@ context("Protein Lollipop Viz", () => {
                         });
                 });
             });
+        });
 
-            it("should display tooltip when hovering the variant", () => {
-                // eslint-disable-next-line cypress/no-force
+        context("tooltip", () => {
+            beforeEach(() => {
                 cy.get("@clinvarTrack")
-                    .find(`g[data-cy="protein-lollipop-track-feature"][data-index="0"] > circle`)
+                    .find(`g[data-cy="protein-lollipop-track-feature"][data-index="0"]`)
+                    .as("firstClinvarVariant");
+                
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@firstClinvarVariant")
+                    .find("circle")
                     .trigger("mouseenter", {force: true});
+            });
+
+            it("should be displayed when hovering a variant", () => {
                 cy.get("div.viz-tooltip")
                     .should("exist");
+            });
+
+            it("should be removed when user leaves the variant", () => {
+                cy.get("@firstClinvarVariant")
+                    .find("circle")
+                    .trigger("mouseleave");
+
+                cy.get("div.viz-tooltip")
+                    .should("not.exist");
             });
         });
 
