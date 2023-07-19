@@ -28,10 +28,11 @@ context("Protein Lollipop Viz", () => {
 
     beforeEach(() => {
         cy.visit("#protein-lollipop");
-        cy.get(`div[data-cy="protein-lollipop-container"] svg`)
+        cy.get(`div[data-cy="protein-lollipop"] svg`)
             .as("container");
         cy.waitUntil(() => {
-            cy.get("@container").should("exist");
+            return cy.get(`div[data-cy="protein-lollipop"] svg`)
+                .should("exist");
         });
     });
 
@@ -51,225 +52,230 @@ context("Protein Lollipop Viz", () => {
         });
     });
 
-    context("variant:highlight", () => {
+    context("variants track", () => {
         beforeEach(() => {
-            cy.get(svgSelector)
+            cy.get("@container")
                 .find(`g[data-track="main:variants"]`)
-                .within(() => {
-                    cy.get(`g[data-id="${highlightedVariant}"]`).as("variant");
-                });
+                .as("variantsTrack");
         });
 
-        it("should mark the variant as highlighted in the main variants track", () => {
-            cy.get("@variant")
-                .invoke("attr", "data-highlighted")
-                .should("eq", "true");
-        });
-
-        it("should style the variant in the main variants track", () => {
-            cy.get("@variant").within(() => {
-                cy.get(`path[fill="none"]`).as("variantPath");
-                cy.get("circle").as("variantCircle");
-
-                // Assert on lollipop path element
-                cy.get("@variantPath")
-                    .invoke("attr", "style")
-                    .should("contain", "stroke-width: 4px");
-                cy.get("@variantPath")
-                    .invoke("attr", "style")
-                    .should("contain", `stroke: ${highlightColor}`);
-
-                // Assert on lollipop circle element
-                cy.get("@variantCircle")
-                    .invoke("attr", "style")
-                    .should("contain", "stroke-width: 4px");
-                cy.get("@variantCircle")
-                    .invoke("attr", "style")
-                    .should("contain", `stroke: ${highlightColor}`);
+        context("highlight", () => {
+            beforeEach(() => {
+                cy.get("@variantsTrack")
+                    .find(`g[data-id="${highlightedVariant}"]`)
+                    .as("variant");
             });
-        });
 
-        it("should mark the variant as highlighted in the clinvar variants track", () => {
-            cy.get(`g[data-track="variants"]`)
-                .eq(0)
-                .find(`g[data-highlighted="true"]`)
-                .should("exist");
-        });
-
-        it("should mark the variant as highlighted in the cosmic variants track", () => {
-            cy.get(`g[data-track="variants"]`)
-                .eq(1)
-                .find(`g[data-highlighted="true"]`)
-                .should("exist");
-        });
-    });
-
-    context("variant:hover", () => {
-        beforeEach(() => {
-            cy.get(svgSelector)
-                .find(`g[data-track="main:variants"]`)
-                .within(() => {
-                    cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
-                    cy.get("@variant")
-                        .find("circle")
-                        .trigger("mouseover");
-                });
-        });
-
-        it("should style the variant", () => {
-            cy.get("@variant").within(() => {
-                cy.get(`path[fill="none"]`).as("variantPath");
-                cy.get("circle").as("variantCircle");
-
-                // Assert on lollipop path element
-                cy.get("@variantPath")
-                    .invoke("attr", "style")
-                    .should("contain", "stroke-width: 4px");
-                cy.get("@variantPath")
-                    .invoke("attr", "style")
-                    .should("contain", `stroke: ${highlightColor}`);
-
-                // Assert on lollipop circle element
-                cy.get("@variantCircle")
-                    .invoke("attr", "style")
-                    .should("contain", "stroke-width: 4px");
-                cy.get("@variantCircle")
-                    .invoke("attr", "style")
-                    .should("contain", `stroke: ${highlightColor}`);
+            it("should mark the variant as highlighted in the main variants track", () => {
+                cy.get("@variant")
+                    .invoke("attr", "data-highlighted")
+                    .should("eq", "true");
             });
-        });
 
-        it("should make the variant text bolder", () => {
-            cy.get("@variant")
-                .find("text")
-                .invoke("attr", "style")
-                .should("contain", "font-weight: bold;");
-        });
+            it("should style the variant in the main variants track", () => {
+                cy.get("@variant").within(() => {
+                    cy.get(`path[fill="none"]`).as("variantPath");
+                    cy.get("circle").as("variantCircle");
 
-        it("should display the position indicator", () => {
-            cy.get(svgSelector)
-                .get("g")
-                .find("g:not([data-track])")
-                .invoke("attr", "style")
-                .should("be.empty");
-        });
-    });
-
-    context("variant:tooltip", () => {
-        beforeEach(() => {
-            cy.get(svgSelector)
-                .find(`g[data-track="main:variants"]`)
-                .within(() => {
-                    cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
-                    cy.get("@variant")
-                        .find("circle")
-                        .trigger("mouseenter");
-                });
-        });
-
-        it("should be displayed when hovering the variant", () => {
-            cy.get(".viz-tooltip")
-                .should("exist");
-        });
-
-        it("should contain the information of the variant", () => {
-            cy.get(".viz-tooltip").within(() => {
-                cy.get(".viz-tooltip-title")
-                    .should("contain.text", hoverVariant);
-                cy.get(".viz-tooltip-content")
-                    .children()
-                    .should("have.length.greaterThan", 0);
-            });
-        });
-
-        it("should be removed when user leaves the variant", () => {
-            cy.get("@variant")
-                .find("circle")
-                .trigger("mouseleave");
-            cy.get(".viz-tooltip")
-                .should("not.exist");
-        });
-    });
-
-    context("variant:legend", () => {
-        beforeEach(() => {
-            cy.get(svgSelector)
-                .find(`g[data-track="main:variants"]`)
-                .within(() => {
-                    cy.get("foreignObject div").as("legend");
-                    cy.get("@legend")
-                        .find("div[data-index]")
-                        .eq(0)
-                        .as("firstLegendItem");
-                });
-        });
-
-        it("should render variant legend", () => {
-            cy.get("@legend").should("exist");
-        });
-
-        it("should display all consequency types from variants", () => {
-            const consequenceTypes = new Set();
-            cy.get(svgSelector)
-                .find(`g[data-track="main:variants"] g[data-ct]`)
-                .each(el => {
-                    consequenceTypes.add(el.data("ct"));
-                });
-            Array.from(consequenceTypes)
-                .forEach(ct => {
-                    cy.get("legend")
-                        .contains(ct.toUpperCase())
-                        .should("exist");
-                });
-        });
-
-        it("should display the correct number of ct", () => {
-            cy.get("@firstLegendItem")
-                .find("strong")
-                .invoke("text")
-                .then(textContent => {
-                    const ct = textContent.trim().split(" ")[0].toLowerCase();
-                    const count = parseInt(textContent.trim().split(" ")[1].replace("(", "").replace(")", ""));
-
-                    cy.get(svgSelector)
-                        .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
-                        .should("have.length", count);
-                });
-        });
-
-        it("should hide variants with different ct when clicking", () => {
-            cy.get("@firstLegendItem")
-                .trigger("click");
-            cy.get("@firstLegendItem")
-                .find("strong")
-                .invoke("text")
-                .then(textContent => {
-                    const ct = textContent.trim().split(" ")[0].toLowerCase();
-                    cy.get(svgSelector)
-                        .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
+                    // Assert on lollipop path element
+                    cy.get("@variantPath")
                         .invoke("attr", "style")
-                        .should("equal", "opacity:1;");
-                    cy.get(svgSelector)
-                        .find(`g[data-ct]:not([data-ct="${ct}"])`)
+                        .should("contain", "stroke-width: 4px");
+                    cy.get("@variantPath")
                         .invoke("attr", "style")
-                        .should("equal", "opacity: 0.2;");
+                        .should("contain", `stroke: ${highlightColor}`);
+
+                    // Assert on lollipop circle element
+                    cy.get("@variantCircle")
+                        .invoke("attr", "style")
+                        .should("contain", "stroke-width: 4px");
+                    cy.get("@variantCircle")
+                        .invoke("attr", "style")
+                        .should("contain", `stroke: ${highlightColor}`);
                 });
+            });
+
+            it("should mark the variant as highlighted in the clinvar variants track", () => {
+                cy.get("@container")
+                    .find(`g[data-track="variants"]`)
+                    .first()
+                    .find(`g[data-highlighted="true"]`)
+                    .should("exist");
+            });
+
+            it("should mark the variant as highlighted in the cosmic variants track", () => {
+                cy.get("@container")
+                    .find(`g[data-track="variants"]`)
+                    .last()
+                    .find(`g[data-highlighted="true"]`)
+                    .should("exist");
+            });
         });
 
-        it("should reset state when clicking again the the same ct", () => {
-            cy.get("@firstLegendItem")
-                .trigger("click");
-            cy.get("@firstLegendItem")
-                .trigger("click");
-            
-            cy.get(svgSelector)
-                .find(`g[data-track="main:variants"] g[data-ct]`)
-                .invoke("attr", "style")
-                .should("equal", "opacity:1;");
+        context("hover", () => {
+            beforeEach(() => {
+                cy.get("@variantsTrack")
+                    .find(`g[data-id="${hoverVariant}"]`)
+                    .as("variant");
+                cy.get("@variant")
+                    .find("circle")
+                    .trigger("mouseover");
+            });
+
+            it("should style the variant", () => {
+                cy.get("@variant").within(() => {
+                    cy.get(`path[fill="none"]`).as("variantPath");
+                    cy.get("circle").as("variantCircle");
+
+                    // Assert on lollipop path element
+                    cy.get("@variantPath")
+                        .invoke("attr", "style")
+                        .should("contain", "stroke-width: 4px");
+                    cy.get("@variantPath")
+                        .invoke("attr", "style")
+                        .should("contain", `stroke: ${highlightColor}`);
+
+                    // Assert on lollipop circle element
+                    cy.get("@variantCircle")
+                        .invoke("attr", "style")
+                        .should("contain", "stroke-width: 4px");
+                    cy.get("@variantCircle")
+                        .invoke("attr", "style")
+                        .should("contain", `stroke: ${highlightColor}`);
+                });
+            });
+
+            it("should make the variant text bolder", () => {
+                cy.get("@variant")
+                    .find("text")
+                    .invoke("attr", "style")
+                    .should("contain", "font-weight: bold;");
+            });
+
+            it("should display the position indicator", () => {
+                cy.get("@container")
+                    .find(`g[data-cy="protein-lollipop-position"]`)
+                    .invoke("attr", "style")
+                    .should("be.empty");
+            });
+        });
+
+        context("tooltip", () => {
+            beforeEach(() => {
+                cy.get("@container")
+                    .find(`g[data-track="main:variants"]`)
+                    .within(() => {
+                        cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
+                        cy.get("@variant")
+                            .find("circle")
+                            .trigger("mouseenter");
+                    });
+            });
+
+            it("should be displayed when hovering the variant", () => {
+                cy.get(".viz-tooltip")
+                    .should("exist");
+            });
+
+            it("should contain the information of the variant", () => {
+                cy.get(".viz-tooltip").within(() => {
+                    cy.get(".viz-tooltip-title")
+                        .should("contain.text", hoverVariant);
+                    cy.get(".viz-tooltip-content")
+                        .children()
+                        .should("have.length.greaterThan", 0);
+                });
+            });
+
+            it("should be removed when user leaves the variant", () => {
+                cy.get("@variant")
+                    .find("circle")
+                    .trigger("mouseleave");
+                cy.get(".viz-tooltip")
+                    .should("not.exist");
+            });
+        });
+
+        context("legend", () => {
+            beforeEach(() => {
+                cy.get(svgSelector)
+                    .find(`g[data-track="main:variants"]`)
+                    .within(() => {
+                        cy.get("foreignObject div").as("legend");
+                        cy.get("@legend")
+                            .find("div[data-index]")
+                            .eq(0)
+                            .as("firstLegendItem");
+                    });
+            });
+
+            it("should render variant legend", () => {
+                cy.get("@legend").should("exist");
+            });
+
+            it("should display all consequency types from variants", () => {
+                const consequenceTypes = new Set();
+                cy.get(svgSelector)
+                    .find(`g[data-track="main:variants"] g[data-ct]`)
+                    .each(el => {
+                        consequenceTypes.add(el.data("ct"));
+                    });
+                Array.from(consequenceTypes)
+                    .forEach(ct => {
+                        cy.get("legend")
+                            .contains(ct.toUpperCase())
+                            .should("exist");
+                    });
+            });
+
+            it("should display the correct number of ct", () => {
+                cy.get("@firstLegendItem")
+                    .find("strong")
+                    .invoke("text")
+                    .then(textContent => {
+                        const ct = textContent.trim().split(" ")[0].toLowerCase();
+                        const count = parseInt(textContent.trim().split(" ")[1].replace("(", "").replace(")", ""));
+
+                        cy.get(svgSelector)
+                            .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
+                            .should("have.length", count);
+                    });
+            });
+
+            it("should hide variants with different ct when clicking", () => {
+                cy.get("@firstLegendItem")
+                    .trigger("click");
+                cy.get("@firstLegendItem")
+                    .find("strong")
+                    .invoke("text")
+                    .then(textContent => {
+                        const ct = textContent.trim().split(" ")[0].toLowerCase();
+                        cy.get(svgSelector)
+                            .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
+                            .invoke("attr", "style")
+                            .should("equal", "opacity:1;");
+                        cy.get(svgSelector)
+                            .find(`g[data-ct]:not([data-ct="${ct}"])`)
+                            .invoke("attr", "style")
+                            .should("equal", "opacity: 0.2;");
+                    });
+            });
+
+            it("should reset state when clicking again the the same ct", () => {
+                cy.get("@firstLegendItem")
+                    .trigger("click");
+                cy.get("@firstLegendItem")
+                    .trigger("click");
+
+                cy.get(svgSelector)
+                    .find(`g[data-track="main:variants"] g[data-ct]`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity:1;");
+            });
         });
     });
 
-    context("protein:render", () => {
+    context("protein track", () => {
         it("should render all exons of the protein", () => {
             cy.get(svgSelector)
                 .find(`g[data-track="main:protein"] path[fill="transparent"]`)
