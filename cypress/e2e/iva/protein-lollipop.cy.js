@@ -378,5 +378,36 @@ context("Protein Lollipop Viz", () => {
                     .should("exist");
             });
         });
+
+        context("legend", () => {
+            beforeEach(() => {
+                cy.get("@clinvarTrack")
+                    .find(`div[data-cy="protein-lollipop-legend"]`)
+                    .as("clinvarTrackLegend");
+            });
+
+            it("should render", () => {
+                cy.get("@clinvarTrackLegend")
+                    .should("exist");
+            });
+
+            it("should show only the variants whith the same CT when clicking", () => {
+                const ct = "start_lost";
+                
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@clinvarTrackLegend")
+                    .find(`div[data-cy="protein-lollipop-legend-item"][data-item="${ct}"]`)
+                    .trigger("click", {force: true});
+
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"]`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity:1;");
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-feature"]:not([data-cy="${ct}"])`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity: 0.1;");
+            });
+        });
     });
 });
