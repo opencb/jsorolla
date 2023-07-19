@@ -276,39 +276,45 @@ context("Protein Lollipop Viz", () => {
     });
 
     context("protein track", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`g[data-track="main:protein"]`)
+                .as("proteinTrack");
+        });
+
         it("should render all exons of the protein", () => {
-            cy.get(svgSelector)
-                .find(`g[data-track="main:protein"] path[fill="transparent"]`)
+            cy.get("@proteinTrack")
+                .find(`path[fill="transparent"]`)
                 .should("have.length", 14);
         });
-    });
 
-    context("protein:tooltip", () => {
-        beforeEach(() => {
-            cy.get(svgSelector)
-                .find(`g[data-track="main:protein"] path[fill="transparent"]`)
-                .eq(0)
-                .as("proteinExon");
-            cy.get("@proteinExon")
-                .trigger("mouseenter");
-        });
+        context("tooltip", () => {
+            beforeEach(() => {
+                cy.get("@proteinTrack")
+                    .find(`path[fill="transparent"]`)
+                    .eq(0)
+                    .as("proteinExon");
+                cy.get("@proteinExon")
+                    .trigger("mouseenter");
+            });
 
-        it("should display a tooltip when user hovers an exon", () => {
-            cy.get(".viz-tooltip")
-                .should("exist");
-        });
+            it("should display a tooltip when user hovers an exon", () => {
+                cy.get(".viz-tooltip")
+                    .should("exist");
+            });
 
-        it("should display exon information", () => {
-            cy.get(".viz-tooltip")
-                .find(".viz-tooltip-title")
-                .should("contain.text", "ENSE00003647423.1");
-        });
+            it("should display exon information", () => {
+                cy.get(".viz-tooltip")
+                    .find(".viz-tooltip-title")
+                    .should("contain.text", "ENSE00003647423.1");
+            });
 
-        it("should remove the tooltip when user leaves exon", () => {
-            cy.get("@proteinExon")
-                .trigger("mouseleave");
-            cy.get(".viz-tooltip")
-                .should("not.exist");
+            it("should remove the tooltip when user leaves exon", () => {
+                cy.get("@proteinExon")
+                    .trigger("mouseleave");
+                cy.get(".viz-tooltip")
+                    .should("not.exist");
+            });
         });
     });
 
