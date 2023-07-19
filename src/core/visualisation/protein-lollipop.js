@@ -67,12 +67,15 @@ export default {
     },
 
     generateTrackInfo(parent, config) {
-        const group = SVG.addChild(parent, "g", {});
+        const group = SVG.addChild(parent, "g", {
+            "data-cy": "protein-lollipop-track-info",
+        });
         let offset = 0;
 
         // Add track title
         if (config?.title) {
             SVG.addChildText(group, config.title.toUpperCase(), {
+                "data-cy": "protein-lollipop-track-info-title",
                 "x": 0,
                 "y": 0,
                 "fill": "#000",
@@ -84,8 +87,10 @@ export default {
         }
 
         // Add track additional lines
-        (config?.additionalLines || []).forEach(line => {
+        (config?.additionalLines || []).forEach((line, index) => {
             SVG.addChildText(group, line, {
+                "data-cy": "protein-lollipop-track-info-line",
+                "data-index": index,
                 "x": 0,
                 "y": offset,
                 "fill": "#000",
@@ -111,11 +116,11 @@ export default {
         });
 
         const template = UtilsNew.renderHTML(`
-            <div style="display:flex;flex-direction:row-reverse;padding-top:0.4em;">
+            <div style="display:flex;flex-direction:row-reverse;padding-top:0.4em;gap:1em;" data-cy="protein-lollipop-legend">
                 ${(config.items || []).map((item, index) => `
-                    <div data-index="${index}" style="display:flex;align-items:center;font-size:8px;margin-left:1em;cursor:pointer;">
-                        <div style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
-                        <div style="margin-left:0.5em;line-height:1.5;">
+                    <div data-cy="protein-lollipop-legend-item" data-index="${index}" data-item="${item.title.toLowerCase()}" style="display:flex;align-items:center;font-size:8px;cursor:pointer;">
+                        <div data-cy="protein-lollipop-legend-item-circle" style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
+                        <div data-cy="protein-lollipop-legend-item-title" style="margin-left:0.5em;line-height:1.5;">
                             <strong style="color:${item.color};">
                                 ${item.title.toUpperCase()} ${item.count ? `(${item.count})` : ""}
                             </strong>
@@ -346,7 +351,7 @@ export default {
 
         // Initialize template
         const template = `
-            <div id="${prefix}" class="" style="user-select:none;font-size:16px;">
+            <div id="${prefix}" class="" style="user-select:none;font-size:16px;" data-cy="protein-lollipop">
             </div>
         `;
         const parent = UtilsNew.renderHTML(template).querySelector(`div#${prefix}`);
@@ -378,6 +383,7 @@ export default {
 
         // Vertical rule for displaying position
         const rule = SVG.addChild(container, "g", {
+            "data-cy": "protein-lollipop-position",
             "transform": "",
             "style": "display:none;",
         });
@@ -385,29 +391,37 @@ export default {
         if (config.scaleVisible) {
             offset = offset + config.scaleHeight;
             const group = SVG.addChild(container, "g", {
+                "data-cy": "protein-lollipop-track",
                 "data-track": this.TRACK_TYPES.MAIN_SCALE,
                 "transform": `translate(0, ${offset})`,
             });
 
             // Append scale ticks
-            VizUtils.getScaleTicks(1, proteinLength, Math.floor(width / 100)).forEach(tickValue => {
-                const tickPosition = getPixelPosition(tickValue) - 0.5;
-                SVG.addChild(group, "path", {
-                    "d": `M${tickPosition}-6V0.5`,
-                    "fill": "none",
-                    "stroke": "black",
-                    "stroke-width": "1px",
+            VizUtils.getScaleTicks(1, proteinLength, Math.floor(width / 100))
+                .forEach((tickValue, tickIndex) => {
+                    const tickPosition = getPixelPosition(tickValue) - 0.5;
+                    const tickGroup = SVG.addChild(group, "g", {
+                        "data-cy": "protein-lollipop-scale-tick",
+                        "data-index": tickIndex,
+                        "data-value": tickValue,
+                    });
+
+                    SVG.addChild(tickGroup, "path", {
+                        "d": `M${tickPosition}-6V0.5`,
+                        "fill": "none",
+                        "stroke": "black",
+                        "stroke-width": "1px",
+                    });
+                    SVG.addChildText(tickGroup, tickValue.toString(), {
+                        "fill": "black",
+                        "font-family": "Arial",
+                        "font-size": "10px",
+                        "style": "cursor:default;",
+                        "text-anchor": "middle",
+                        "x": tickPosition,
+                        "y": -8,
+                    });
                 });
-                SVG.addChildText(group, tickValue.toString(), {
-                    "fill": "black",
-                    "font-family": "Arial",
-                    "font-size": "10px",
-                    "style": "cursor:default;",
-                    "text-anchor": "middle",
-                    "x": tickPosition,
-                    "y": -8,
-                });
-            });
 
             // Append scale line
             SVG.addChild(group, "path", {
@@ -432,6 +446,7 @@ export default {
         // Show protein lollipops track
         if (config.variantsVisible) {
             const group = SVG.addChild(container, "g", {
+                "data-cy": "protein-lollipop-track",
                 "data-track": this.TRACK_TYPES.MAIN_VARIANTS,
             });
             const variantsCounts = {};
@@ -610,6 +625,7 @@ export default {
             const featuresCounts = {};
             const defaultColor = this.PROTEIN_FEATURES_COLORS.other;
             const group = SVG.addChild(container, "g", {
+                "data-cy": "protein-lollipop-track",
                 "data-track": this.TRACK_TYPES.MAIN_PROTEIN,
                 "transform": `translate(0, ${offset})`,
             });
@@ -707,10 +723,13 @@ export default {
         }
 
         // Render additional tracks
-        (config.tracks || []).forEach(track => {
+        (config.tracks || []).forEach((track, index) => {
             const trackType = track.type || this.TRACK_TYPES.VARIANTS;
             const group = SVG.addChild(container, "g", {
+                "data-cy": "protein-lollipop-track",
                 "data-track": trackType,
+                "data-track-index": index,
+                "data-track-title": (track.title || "-").toLowerCase(),
             });
             let trackHeight = 40; // Track maximum height
             const countsByType = {};
@@ -734,6 +753,7 @@ export default {
                     }
 
                     const lollipopGroup = SVG.addChild(group, "g", {
+                        "data-cy": "protein-lollipop-track-feature",
                         "data-ct": info.type || "",
                         "data-index": index,
                         "data-position": info.position,
