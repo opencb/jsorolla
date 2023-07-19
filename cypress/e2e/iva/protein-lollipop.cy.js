@@ -52,6 +52,20 @@ context("Protein Lollipop Viz", () => {
         });
     });
 
+    context("scale track", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`g[data-track="main:scale"]`)
+                .as("scaleTrack");
+        });
+
+        it("should render ticks", () => {
+            cy.get("@scaleTrack")
+                .find(`g[data-cy="protein-lollipop-scale-tick"]`)
+                .should("have.length.greaterThan", 0);
+        });
+    });
+
     context("variants track", () => {
         beforeEach(() => {
             cy.get("@container")
@@ -395,9 +409,10 @@ context("Protein Lollipop Viz", () => {
             });
 
             it("should be removed when user leaves the variant", () => {
+                // eslint-disable-next-line cypress/no-force
                 cy.get("@firstClinvarVariant")
                     .find("circle")
-                    .trigger("mouseleave");
+                    .trigger("mouseleave", {force: true});
 
                 cy.get("div.viz-tooltip")
                     .should("not.exist");
