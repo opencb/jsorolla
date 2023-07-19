@@ -209,8 +209,9 @@ context("Protein Lollipop Viz", () => {
                     });
             });
 
-            it("should render variant legend", () => {
-                cy.get("@legend").should("exist");
+            it("should render", () => {
+                cy.get("@legend")
+                    .should("exist");
             });
 
             it("should display all consequency types from variants", () => {
@@ -220,6 +221,7 @@ context("Protein Lollipop Viz", () => {
                     .each(el => {
                         consequenceTypes.add(el.data("ct"));
                     });
+
                 Array.from(consequenceTypes)
                     .forEach(ct => {
                         cy.get("legend")
@@ -298,7 +300,7 @@ context("Protein Lollipop Viz", () => {
                     .trigger("mouseenter");
             });
 
-            it("should display a tooltip when user hovers an exon", () => {
+            it("should be displayed when user hovers an exon", () => {
                 cy.get(".viz-tooltip")
                     .should("exist");
             });
@@ -309,7 +311,7 @@ context("Protein Lollipop Viz", () => {
                     .should("contain.text", "ENSE00003647423.1");
             });
 
-            it("should remove the tooltip when user leaves exon", () => {
+            it("should be removed when user leaves exon", () => {
                 cy.get("@proteinExon")
                     .trigger("mouseleave");
                 cy.get(".viz-tooltip")
@@ -337,13 +339,13 @@ context("Protein Lollipop Viz", () => {
                     .as("clinvarTrackInfo");
             });
 
-            it("should render track title", () => {
+            it("should render the track title", () => {
                 cy.get("@clinvarTrackInfo")
                     .find(`text[data-cy="protein-lollipop-track-info-title"]`)
                     .should("contain.text", "CLINVAR");
             });
 
-            it("should render number of variants", () => {
+            it("should render the number of variants", () => {
                 cy.get("@clinvarTrackInfo")
                     .find(`text[data-cy="protein-lollipop-track-info-line"][data-index="0"]`)
                     .should("contain.text", "100 Variants");
@@ -351,13 +353,13 @@ context("Protein Lollipop Viz", () => {
         });
 
         context("variants", () => {
-            it("should render all variants", () => {
+            it("should render", () => {
                 cy.get("@clinvarTrack")
                     .find(`g[data-cy="protein-lollipop-track-feature"]`)
                     .should("have.length", 100);
             });
 
-            it("should style variants with the correct color", () => {
+            it("should be styled with the correct color", () => {
                 Object.keys(consequenceColors).forEach(ct => {
                     cy.get("@clinvarTrack")
                         .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"][data-highlighted="false"]`)
