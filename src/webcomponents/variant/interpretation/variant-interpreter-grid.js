@@ -852,13 +852,15 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
@@ -899,6 +901,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
                     visible: this._config?.showActions,
+                    excludeFromSettings: true,
                     excludeFromExport: true // this is used in opencga-export
                     // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
                 },
@@ -1013,6 +1016,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         "click input": e => this.onVariantCheck(e)
                     },
                     visible: this._config.showSelectCheckbox,
+                    excludeFromSettings: true,
                     excludeFromExport: true // this is used in opencga-export
                 },
                 {
