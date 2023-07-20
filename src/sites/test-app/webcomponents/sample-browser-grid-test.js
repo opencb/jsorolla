@@ -42,10 +42,15 @@ class SampleBrowserGridTest extends LitElement {
             testDataVersion: {
                 type: String
             },
+            _ready: {
+                type: Boolean,
+                state: true,
+            }
         };
     }
 
     #init() {
+        this._ready = false;
         this.FILES = [
             "samples-platinum.json",
         ];
@@ -105,6 +110,8 @@ class SampleBrowserGridTest extends LitElement {
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            }).finally(() => {
+                this._ready = true;
             });
     }
 
@@ -123,6 +130,10 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     render() {
+        if (!this._ready) {
+            return html `Processing`;
+        }
+
         return html`
             <h2 style="font-weight: bold;">
                 Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
