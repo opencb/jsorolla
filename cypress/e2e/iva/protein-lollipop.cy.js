@@ -15,8 +15,6 @@
  */
 
 context("Protein Lollipop Viz", () => {
-    const svgSelector = `div[data-cy="protein-lollipop-container"] svg`;
-
     const highlightedVariant = "X:150638967:G:-";
     const hoverVariant = "X:150641342:T:-";
     const highlightColor = "rgba(253, 152, 67, 0.6)";
@@ -176,14 +174,12 @@ context("Protein Lollipop Viz", () => {
 
         context("tooltip", () => {
             beforeEach(() => {
-                cy.get("@container")
-                    .find(`g[data-track="main:variants"]`)
-                    .within(() => {
-                        cy.get(`g[data-id="${hoverVariant}"]`).as("variant");
-                        cy.get("@variant")
-                            .find("circle")
-                            .trigger("mouseenter");
-                    });
+                cy.get("@variantsTrack")
+                    .find(`g[data-id="${hoverVariant}"]`)
+                    .as("variant");
+                cy.get("@variant")
+                    .find("circle")
+                    .trigger("mouseenter");
             });
 
             it("should be displayed when hovering the variant", () => {
@@ -192,13 +188,13 @@ context("Protein Lollipop Viz", () => {
             });
 
             it("should contain the information of the variant", () => {
-                cy.get(".viz-tooltip").within(() => {
-                    cy.get(".viz-tooltip-title")
-                        .should("contain.text", hoverVariant);
-                    cy.get(".viz-tooltip-content")
-                        .children()
-                        .should("have.length.greaterThan", 0);
-                });
+                cy.get(".viz-tooltip")
+                    .find(".viz-tooltip-title")
+                    .should("contain.text", hoverVariant);
+                cy.get(".viz-tooltip")
+                    .find(".viz-tooltip-content")
+                    .children()
+                    .should("have.length.greaterThan", 0);
             });
 
             it("should be removed when user leaves the variant", () => {
@@ -211,16 +207,25 @@ context("Protein Lollipop Viz", () => {
         });
 
         context("legend", () => {
+            let ct = "";
+
             beforeEach(() => {
-                cy.get(svgSelector)
-                    .find(`g[data-track="main:variants"]`)
-                    .within(() => {
-                        cy.get("foreignObject div").as("legend");
-                        cy.get("@legend")
-                            .find("div[data-index]")
-                            .eq(0)
-                            .as("firstLegendItem");
-                    });
+                cy.get("@variantsTrack")
+                    .find(`div[data-cy="protein-lollipop-legend"]`)
+                    .as("legend");
+                
+                cy.get("@variantsTrack")
+                    .find(`div[data-cy="protein-lollipop-legend-item"]`)
+                    .first()
+                    .as("firstLegendItem")
+                
+                cy.get("@firstLegendItem")
+                    .invoke("attr", "data-item")
+                    .then(str => ct = str);
+                
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@firstLegendItem")
+                    .trigger("click", {force: true});
             });
 
             it("should render", () => {
@@ -228,63 +233,38 @@ context("Protein Lollipop Viz", () => {
                     .should("exist");
             });
 
-            it("should display all consequency types from variants", () => {
-                const consequenceTypes = new Set();
-                cy.get(svgSelector)
-                    .find(`g[data-track="main:variants"] g[data-ct]`)
-                    .each(el => {
-                        consequenceTypes.add(el.data("ct"));
-                    });
-
-                Array.from(consequenceTypes)
-                    .forEach(ct => {
-                        cy.get("legend")
-                            .contains(ct.toUpperCase())
-                            .should("exist");
-                    });
-            });
-
             it("should display the correct number of ct", () => {
                 cy.get("@firstLegendItem")
-                    .find("strong")
-                    .invoke("text")
-                    .then(textContent => {
-                        const ct = textContent.trim().split(" ")[0].toLowerCase();
-                        const count = parseInt(textContent.trim().split(" ")[1].replace("(", "").replace(")", ""));
+                    .invoke("attr", "data-count")
+                    .then(count => {
+                        cy.get("@firstLegendItem")
+                            .find(`div[data-cy="protein-lollipop-legend-item-title"] > strong`)
+                            .should("contain.text", count);
 
-                        cy.get(svgSelector)
-                            .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
-                            .should("have.length", count);
+                        cy.get("@variantsTrack")
+                            .find(`g[data-ct="${ct}"]`)
+                            .should("have.length", parseInt(count));
                     });
             });
 
             it("should hide variants with different ct when clicking", () => {
-                cy.get("@firstLegendItem")
-                    .trigger("click");
-                cy.get("@firstLegendItem")
-                    .find("strong")
-                    .invoke("text")
-                    .then(textContent => {
-                        const ct = textContent.trim().split(" ")[0].toLowerCase();
-                        cy.get(svgSelector)
-                            .find(`g[data-track="main:variants"] g[data-ct="${ct}"]`)
-                            .invoke("attr", "style")
-                            .should("equal", "opacity:1;");
-                        cy.get(svgSelector)
-                            .find(`g[data-ct]:not([data-ct="${ct}"])`)
-                            .invoke("attr", "style")
-                            .should("equal", "opacity: 0.2;");
-                    });
+                cy.get("@variantsTrack")
+                    .find(`g[data-ct="${ct}"]`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity:1;");
+                cy.get("@variantsTrack")
+                    .find(`g[data-ct]:not([data-ct="${ct}"])`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity: 0.2;");
             });
 
             it("should reset state when clicking again the the same ct", () => {
+                // eslint-disable-next-line cypress/no-force
                 cy.get("@firstLegendItem")
-                    .trigger("click");
-                cy.get("@firstLegendItem")
-                    .trigger("click");
+                    .trigger("click", {force: true});
 
-                cy.get(svgSelector)
-                    .find(`g[data-track="main:variants"] g[data-ct]`)
+                cy.get("@variantsTrack")
+                    .find(`g[data-ct]`)
                     .invoke("attr", "style")
                     .should("equal", "opacity:1;");
             });
@@ -419,10 +399,24 @@ context("Protein Lollipop Viz", () => {
         });
 
         context("legend", () => {
+            let ct = "";
+
             beforeEach(() => {
                 cy.get("@clinvarTrack")
                     .find(`div[data-cy="protein-lollipop-legend"]`)
                     .as("clinvarTrackLegend");
+                cy.get("@clinvarTrackLegend")
+                    .find(`div[data-cy="protein-lollipop-legend-item"]`)
+                    .first()
+                    .as("firstClinvarLegendItem");
+                
+                cy.get("@firstClinvarLegendItem")
+                    .invoke("attr", "data-item")
+                    .then(value => ct = value);
+                
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@firstClinvarLegendItem")
+                    .trigger("click", {force: true});
             });
 
             it("should render", () => {
@@ -430,14 +424,22 @@ context("Protein Lollipop Viz", () => {
                     .should("exist");
             });
 
-            it("should show only the variants whith the same CT when clicking", () => {
-                const ct = "start_lost";
-                
-                // eslint-disable-next-line cypress/no-force
-                cy.get("@clinvarTrackLegend")
-                    .find(`div[data-cy="protein-lollipop-legend-item"][data-item="${ct}"]`)
-                    .trigger("click", {force: true});
+            it("should display the correct number of ct", () => {
+                cy.get("@firstClinvarLegendItem")
+                    .invoke("attr", "data-count")
+                    .then(count => {
+                        cy.get("@firstClinvarLegendItem")
+                            .find(`div[data-cy="protein-lollipop-legend-item-title"] > strong`)
+                            .should("contain.text", count);
 
+                        cy.get("@clinvarTrack")
+                            .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"]`)
+                            .should("have.length", parseInt(count));
+                    });
+            });
+
+
+            it("should hide variants with different ct when clicking", () => {
                 cy.get("@clinvarTrack")
                     .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"]`)
                     .invoke("attr", "style")
@@ -446,6 +448,17 @@ context("Protein Lollipop Viz", () => {
                     .find(`g[data-cy="protein-lollipop-track-feature"]:not([data-cy="${ct}"])`)
                     .invoke("attr", "style")
                     .should("equal", "opacity: 0.1;");
+            });
+
+            it("should reset state when clicking again the the same ct", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@firstClinvarLegendItem")
+                    .trigger("click", {force: true});
+
+                cy.get("@clinvarTrack")
+                    .find(`g[data-cy="protein-lollipop-track-feature"]`)
+                    .invoke("attr", "style")
+                    .should("equal", "opacity:1;");
             });
         });
     });
