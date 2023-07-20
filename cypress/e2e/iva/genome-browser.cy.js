@@ -8,25 +8,30 @@ context("GenomeBrowser Viz", () => {
     beforeEach(() => {
         cy.visit("#genome-browser");
         // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(2000);
-        cy.get(`div[data-cy="genome-browser-container"]`).as("container");
+        // cy.wait(2000);
+        cy.get(`div[data-cy="genome-browser-container"]`)
+            .as("container");
+        cy.waitUntil(() => {
+            return cy.get("@container")
+                .find(`div[data-cy="gb-parent"]`)
+                .should("exist");
+        });
     });
 
     context("render", () => {
         it("should render navigation and status panels", () => {
             cy.get("@container")
-                .within(() => {
-                    cy.get(`div[data-cy="gb-navigation"]`)
-                        .should("exist");
-                    cy.get(`div[data-cy="gb-status"]`)
-                        .should("exist");
-                });
+                .find(`div[data-cy="gb-navigation"]`)
+                .should("exist");
+            cy.get("@container")
+                .find(`div[data-cy="gb-status"]`)
+                .should("exist");
         });
 
         it("should render inner panels", () => {
             ["karyotype", "chromosome", "tracks"].forEach(name => {
                 cy.get("@container")
-                    .get(`li[data-cy="gb-${name}"]`)
+                    .find(`li[data-cy="gb-${name}"]`)
                     .should("exist");
             });
         });
@@ -35,28 +40,27 @@ context("GenomeBrowser Viz", () => {
     context("navigation panel", () => {
         beforeEach(() => {
             cy.get("@container")
-                .get(`div[data-cy="gb-navigation"]`)
+                .find(`div[data-cy="gb-navigation"]`)
                 .as("navigation");
         });
 
         it("should display the current region in the region input", () => {
             cy.get("@navigation")
-                .get(`input[data-cy="gb-region-input"]`)
+                .find(`input[data-cy="gb-region-input"]`)
                 .invoke("val")
                 .should("equal", `${region.chromosome}:${region.start}-${region.end}`);
         });
 
         it("should display the current region size", () => {
             cy.get("@navigation")
-                .get(`input[data-cy="gb-window-size"]`)
+                .find(`input[data-cy="gb-window-size"]`)
                 .invoke("val")
                 .should("equal", `${region.end - region.start + 1}`);
         });
 
         it("should display the features of interest", () => {
             cy.get("@navigation")
-                .get(`ul[data-cy="gb-features-list"]`)
-                .get("li.dropdown-submenu")
+                .find(`ul[data-cy="gb-features-list"] > li.dropdown-submenu`)
                 .as("features");
             
             cy.get("@features")
@@ -65,7 +69,7 @@ context("GenomeBrowser Viz", () => {
             ["Primary Findings", "My genes of interest"].forEach((name, index) => {
                 cy.get("@features")
                     .eq(index)
-                    .get("a > span")
+                    .find("a > span")
                     .should("contain.text", name);
             });
         });
@@ -74,19 +78,19 @@ context("GenomeBrowser Viz", () => {
     context("karyotype panel", () => {
         beforeEach(() => {
             cy.get("@container")
-                .get(`li[data-cy="gb-karyotype"]`)
+                .find(`li[data-cy="gb-karyotype"]`)
                 .as("karyotype");
         });
 
         it("should display the karyotype panel title", () => {
             cy.get("@karyotype")
-                .get(`div[data-cy="gb-karyotype-title"]`)
+                .find(`div[data-cy="gb-karyotype-title"]`)
                 .should("contain.text", "Karyotype");
         });
 
         it("should hide the panel content when toggle button is clicked", () => {
             cy.get("@karyotype")
-                .get(`div[data-cy="gb-karyotype-content"]`)
+                .find(`div[data-cy="gb-karyotype-content"]`)
                 .as("karyotypeContent");
 
             cy.get("@karyotypeContent")
@@ -94,7 +98,7 @@ context("GenomeBrowser Viz", () => {
                 .should("equal", "block");
 
             cy.get("@karyotype")
-                .get(`div[data-cy="gb-karyotype-toggle"]`)
+                .find(`div[data-cy="gb-karyotype-toggle"]`)
                 .trigger("click");
 
             cy.get("@karyotypeContent")
@@ -104,17 +108,17 @@ context("GenomeBrowser Viz", () => {
 
         it("should render the 24 + MT chromosomes", () => {
             cy.get("@karyotype")
-                .get("svg > g[data-chr-name]")
+                .find("svg > g[data-chr-name]")
                 .should("have.length", 25);
         });
 
         it("should render the name of each chromosome", () => {
             cy.get("@karyotype")
-                .get("svg > g[data-chr-name]")
+                .find("svg > g[data-chr-name]")
                 .each((el, index) => {
                     const name = el.attr("data-chr-name");
                     cy.get("@karyotype")
-                        .get("svg > text")
+                        .find("svg > text")
                         .eq(index)
                         .should("contain.text", name);
                 });
@@ -124,26 +128,25 @@ context("GenomeBrowser Viz", () => {
     context("chromosome panel", () => {
         beforeEach(() => {
             cy.get("@container")
-                .get(`li[data-cy="gb-chromosome"]`)
+                .find(`li[data-cy="gb-chromosome"]`)
                 .as("chromosome");
         });
  
         it("should display current chromosome in title", () => {
             cy.get("@chromosome")
-                .get(`div[data-cy="gb-chromosome-title"]`)
+                .find(`div[data-cy="gb-chromosome-title"]`)
                 .should("contain.text", `Chromosome ${region.chromosome}`);
         });
 
         it("should display all cytobands labels", () => {
             cy.get("@chromosome")
-                .get("svg")
-                .get(`text[data-cy="gb-chromosome-cytoband-label"`)
+                .find(`svg text[data-cy="gb-chromosome-cytoband-label"]`)
                 .should("have.length", 24);
         });
 
         it("should display a mark in the current positon in the chromosome", () => {
             cy.get("@chromosome")
-                .get(`g[data-cy="gb-chromosome-position"]`)
+                .find(`g[data-cy="gb-chromosome-position"]`)
                 .invoke("attr", "data-position")
                 .should("equal", `${(region.start + region.end) / 2}`);
         });
@@ -152,7 +155,7 @@ context("GenomeBrowser Viz", () => {
             const displayedFeatures = ["BRCA1", "TP53"];
     
             cy.get("@chromosome")
-                .get(`g[data-cy="gb-chromosome-feature-of-interest"]`)
+                .find(`g[data-cy="gb-chromosome-feature-of-interest"]`)
                 .each((el, index) => {
                     cy.wrap(el)
                         .invoke("attr", "data-feature-id")
@@ -164,60 +167,58 @@ context("GenomeBrowser Viz", () => {
     context("region overview panel", () => {
         beforeEach(() => {
             cy.get("@container")
-                .get(`li[data-cy="gb-region"]`)
+                .find(`li[data-cy="gb-region"]`)
                 .as("regionOverview");
         });
 
         it("should display the region overview title", () => {
             cy.get("@regionOverview")
-                .get(`div[data-cy="gb-tracklist-title"]`)
+                .find(`div[data-cy="gb-tracklist-title"]`)
                 .should("contain.text", "Region overview");
         });
 
         it("should display center nucleotide", () => {
             cy.get("@regionOverview")
-                .get(`div[data-cy="gb-tracklist-position-center"]`)
+                .find(`div[data-cy="gb-tracklist-position-center"]`)
                 .should("contain.text", `${(region.start + region.end) / 2}`);
         });
         
         context("gene overview track", () => {
             beforeEach(() => {
                 cy.get("@regionOverview")
-                    .get(`div[data-cy="gb-track"]`)
+                    .find(`div[data-cy="gb-track"]`)
                     .as("geneOverviewTrack");
             });
 
             it("should display track title", () => {
                 cy.get("@geneOverviewTrack")
-                    .get(`div[data-cy="gb-track-title"]`)
+                    .find(`div[data-cy="gb-track-title"]`)
                     .should("contain.text", "Gene overview");
             });
 
             it("should display features", () => {
                 cy.get("@geneOverviewTrack")
-                    .get(`svg g[data-cy="gb-feature"]`)
+                    .find(`svg g[data-cy="gb-feature"]`)
                     .should("have.length", 6);
             });
 
             it("should display feature labels", () => {
                 cy.get("@geneOverviewTrack")
-                    .get(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
-                    .get(`text[data-cy="gb-feature-label"]`)
+                    .find(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
+                    .find(`text[data-cy="gb-feature-label"]`)
                     .should("contain.text", "BRCA1");
             });
 
             it("should display tooltip when a feature is hovered", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@geneOverviewTrack")
-                    .get(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
-                    .trigger("mouseover", {
-                        force: true,
-                    });
+                    .find(`svg g[data-cy="gb-feature"][data-feature-id="ENSG00000012048"]`)
+                    .trigger("mouseover", {force: true});
 
                 // eslint-disable-next-line cypress/no-unnecessary-waiting
                 cy.wait(2000).then(() => {
                     cy.get("div.qtip")
-                        .get("div.qtip-title")
+                        .find("div.qtip-title")
                         .should("contain.text", "Gene - BRCA1");
                 });
             });
