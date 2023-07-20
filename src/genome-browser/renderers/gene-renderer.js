@@ -86,11 +86,15 @@ export default class GeneRenderer extends Renderer {
                 // paint genes
                 if (foundArea) {
                     const geneGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
-                        "feature_id": feature.id,
+                        "data-cy": "gb-feature-gene",
+                        "data-type": "gene",
+                        "data-id": feature.id,
+                        "data-index": index,
                     });
 
                     // Render gene rectangle
                     SVG.addChild(geneGroup, "rect", {
+                        "data-cy": "gb-feature-gene-rect",
                         "x": x,
                         "y": rowY,
                         "width": width,
@@ -104,6 +108,7 @@ export default class GeneRenderer extends Renderer {
                     // Render gene label
                     if (options.labelMaxRegionSize > options.regionSize) {
                         const geneLabelElement = SVG.addChild(geneGroup, "text", {
+                            "data-cy": "gb-feature-gene-label",
                             "i": index,
                             "x": x,
                             "y": textY,
@@ -163,7 +168,7 @@ export default class GeneRenderer extends Renderer {
                             const transcriptTooltipText = this.getValueFromConfig("transcriptTooltipText", [transcript]);
 
                             // the length of the end of the gene is subtracted to the beginning of the transcript and is added the text of the transcript
-                            const transcriptLabelWidth = transcriptLabel.length * 6.4;
+                            // const transcriptLabelWidth = transcriptLabel.length * 6.4;
                             // const transcriptMaxWidth = Math.max(
                             //     transcriptWidth,
                             //     transcriptWidth - ((feature.end - transcript.start) * options.pixelBase) + transcriptLabelWidth
@@ -176,23 +181,26 @@ export default class GeneRenderer extends Renderer {
                             });
 
                             const transcriptGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
-                                "data-widget-id": transcript[this.config.infoWidgetId],
-                                "data-transcript-idx": transcriptIndex,
+                                "data-cy": "gb-feature-transcript",
+                                "data-type": "transcript",
+                                "data-id": transcript[this.config.infoWidgetId],
+                                "data-index": transcriptIndex,
                             });
 
                             // Transcript line
                             SVG.addChild(transcriptGroup, "rect", {
+                                "data-cy": "gb-feature-transcript-rect",
                                 "x": transcriptX,
                                 "y": checkRowY + 1,
                                 "width": transcriptWidth,
                                 "height": transcriptHeight,
                                 "fill": "gray",
                                 "cursor": "pointer",
-                                "feature_id": transcript.id,
                             });
 
                             // Transcript label element
                             const transcriptLabelElement = SVG.addChild(transcriptGroup, "text", {
+                                "data-cy": "gb-feature-transcript-label",
                                 "x": transcriptX,
                                 "y": checkTextY,
                                 "fill": "black",
@@ -236,9 +244,10 @@ export default class GeneRenderer extends Renderer {
                                 const exonTooltipText = this.getValueFromConfig("exonTooltipText", [exon, transcript]);
 
                                 const exonGroup = SVG.addChild(options.svgCanvasFeatures, "g", {
-                                    "class": "ocb-coding",
+                                    "data-cy": "gb-feature-exon",
                                     "data-id": exon.id,
-                                    "data-exon-index": exonIndex,
+                                    "data-type": "exon",
+                                    "data-index": exonIndex,
                                 });
 
                                 $(exonGroup).qtip({
@@ -260,6 +269,7 @@ export default class GeneRenderer extends Renderer {
 
                                 // Paint exons in white without coding region
                                 SVG.addChild(exonGroup, "rect", {
+                                    "data-cy": "gb-feature-exon-rect",
                                     "i": transcriptIndex,
                                     "x": exonX,
                                     "y": checkRowY - 1,

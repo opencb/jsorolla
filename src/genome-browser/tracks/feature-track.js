@@ -88,9 +88,9 @@ export default class FeatureTrack {
                         <i id="${this.prefix}TitleToggleIcon"class="fas fa-minus"></i>
                     </div>
                 </div>
-                <div id="${this.prefix}Error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
-                <div id="${this.prefix}Content" style="user-select:none;" data-cy="gb-track-content"></div>
-                <div id="${this.prefix}Resize" style="display:flex;justify-content:center;cursor:n-resize;padding:4px;">
+                <div id="${this.prefix}Error" data-cy="gb-track-error" class="alert alert-danger" style="display:none;margin-bottom:0px;"></div>
+                <div id="${this.prefix}Content" data-cy="gb-track-content" style="user-select:none;" data-cy="gb-track-content"></div>
+                <div id="${this.prefix}Resize" data-cy="gb-track-resize" style="display:flex;justify-content:center;cursor:n-resize;padding:4px;">
                     <span class="gb-icon gb-icon-resize" style="width:20px;height:4px;padding:4px;"></span>
                 </div>
             </div>
