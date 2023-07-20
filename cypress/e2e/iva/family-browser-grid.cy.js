@@ -16,24 +16,20 @@
 
 import UtilsTest from "../../support/utils-test.js";
 
-context("File Browser Grid", () => {
-    const browserGrid = "file-grid";
+context("Family Browser Grid", () => {
+    const browserGrid = "family-grid";
 
     beforeEach(() => {
-        cy.visit("#file-browser-grid")
+        cy.visit("#family-browser-grid")
         cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
     });
 
 
     context("Grid", () => {
-        it("Should be render file-browser-grid", () => {
+        it("Should be render family-browser-grid", () => {
             cy.get(browserGrid).should("be.visible")
         })
 
-        it("Change page file-browser-grid", () => {
-            UtilsTest.changePage(browserGrid,2)
-            UtilsTest.changePage(browserGrid,3)
-        })
     })
 
     context("Row", () => {

@@ -1,4 +1,3 @@
-
 /**
  * Copyright 2015-2023 OpenCB
  *
@@ -17,12 +16,11 @@
 
 import {html, LitElement} from "lit";
 
-
-import {DATA_FORM_EXAMPLE} from "../conf/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../../webcomponents/loading-spinner.js";
+
 import "../../../webcomponents/sample/sample-grid.js";
 import "../../../webcomponents/sample/sample-detail.js";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
 
 
 class SampleBrowserGridTest extends LitElement {
@@ -38,25 +36,26 @@ class SampleBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
+            _ready: {
+                type: Boolean,
+                state: true,
             }
         };
     }
 
     #init() {
-        this.isLoading = false;
-        this.samples = [];
-        this._dataFormConfig = DATA_FORM_EXAMPLE;
+        this._ready = false;
+        this.FILES = [
+            "samples-platinum.json",
+        ];
+        this._data = [];
+        this._selectedInstance = {};
 
         this.configSampleGrid = {
             pageSize: 10,
@@ -75,87 +74,80 @@ class SampleBrowserGridTest extends LitElement {
         };
     }
 
-    // #setLoading(value) {
-        // this.isLoading = value;
-        // this.requestUpdate();
-    // }
+    // TODO: The Sample Browser Test needs to test two things:
+    //   1. The view:
+    //      - The sample browser: table grid and details
+    //      - The sample browser facet
+    //  2. The filters
 
     update(changedProperties) {
-        if (changedProperties.has("testFile")) {
+        if (changedProperties.has("testDataVersion")) {
+            this.testDataVersionObserver();
+        }
+        // CAUTION: it could be useful to test by study. Json from current study?
+        /*
+        if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+         */
+
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        // this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
-            .then(content => {
-                this.samples = content;
-                this.selectedSample = this.samples[0];
+    testDataVersionObserver() {
+        const promises = this.FILES.map(file => {
+            return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
+        });
+
+        // Import all files
+        Promise.all(promises)
+            .then(data => {
+                this._data = data[0];
+                this._selectedInstance = this._data[0];
+                // Mutate data and update
                 this.mutate();
                 this.requestUpdate();
             })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                // this.#setLoading(false);
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            }).finally(() => {
+                this._ready = true;
             });
     }
 
     mutate() {
-        // 1. no gene names in the CT array
-        this.samples[1].creationDate = "";
-        this.samples[2].creationDate = "20540101";
+        // 1. Mutations related to date
+        this._data[1].creationDate = "";
+        this._data[2].creationDate = "20540101";
 
         // Finally, we update samples mem address to force a rendering
-        this.samples = [...this.samples];
-        // this.requestUpdate();
+        this._data = [...this._data];
     }
 
-    selectSample(e) {
-        this.selectedSample = e.detail.value;
+    selectInstance(e) {
+        this._selectedInstance = e.detail.row;
         this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._ready) {
+            return html `Processing`;
         }
 
         return html`
             <h2 style="font-weight: bold;">
                 Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
             </h2>
-
-            <!--
-        <div>
-            <button class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                type="button" @click="${() => this.mutate()}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 1: missing variants</strong>
-            </button>
-            <button type="button" class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                @click="${() => this.mutate("sdsad")}">
-                    <i class="fas fa-sync"></i>
-                    <strong>Mutate 2: other case</strong>
-            </button>
-        </div>
-        -->
-
             <sample-grid
-                .samples="${this.samples}"
+                .samples="${this._data}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.configSampleGrid}"
-                .active="${true}"
-                @selectrow="${this.selectSample}">
+                @selectrow="${this.selectInstance}">
             </sample-grid>
-
             <sample-detail
                 .opencgaSession="${this.opencgaSession}"
-                .sample="${this.selectedSample}">
-            </sample-detail>\`
+                .sample="${this._selectedInstance}">
+            </sample-detail>
         `;
     }
 
