@@ -1,7 +1,8 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
-import "../../commons/filters/feature-filter.js";
+import "../filters/feature-filter.js";
+import "../filters/disease-panel-filter.js";
 
 export default class AnalysisUtils {
 
@@ -78,30 +79,33 @@ export default class AnalysisUtils {
                 type: "custom",
                 display: {
                     visible: !ignoreList?.includes("ct"),
-                    render: (ct, dataFormFilterChange) => {
-                        return html`
-                            <consequence-type-select-filter
-                                .ct="${ct}"
-                                .config="${CONSEQUENCE_TYPES}"
-                                @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                            </consequence-type-select-filter>
-                        `;
-                    }
+                    render: (ct, dataFormFilterChange) => html`
+                        <consequence-type-select-filter
+                            .ct="${ct}"
+                            .config="${CONSEQUENCE_TYPES}"
+                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                        </consequence-type-select-filter>
+                    `,
                 }
             },
             {
                 title: "Disease Panel",
                 field: prefix + "panel",
-                type: "select",
-                allowedValues: opencgaSession?.study?.panels?.map(panel => (
-                    {
-                        id: panel.id,
-                        name: `${panel.name}
-                        ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                        ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`}
-                )) || [],
+                type: "custom",
                 display: {
-                    visible: !ignoreList?.includes("panel")
+                    visible: !ignoreList?.includes("panel"),
+                    render: (panel, dataFormFilterChange, updateParams) => html`
+                        <disease-panel-filter
+                            .opencgaSession="${opencgaSession}"
+                            .diseasePanels="${opencgaSession.study?.panels || []}"
+                            .panel="${panel}"
+                            .showExtendedFilters="${false}"
+                            .showSelectedPanels="${false}"
+                            .multiple="${false}"
+                            .classes="${updateParams?.panels ? "selection-updated" : ""}"
+                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                        </disease-panel-filter>
+                    `,
                 },
             },
         ];
