@@ -224,4 +224,167 @@ context("GenomeBrowser Viz", () => {
             });
         });
     });
+
+    context("tracklist panel", () => {
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`li[data-cy="gb-tracks"]`)
+                .as("tracklistPanel");
+        });
+
+        it("should display the tracklist title", () => {
+            cy.get("@tracklistPanel")
+                .find(`div[data-cy="gb-tracklist-title"]`)
+                .should("contain.text", "Detailed information");
+        });
+
+        it("should display the current window size", () => {
+            cy.get("@tracklistPanel")
+                .find(`div[data-cy="gb-tracklist-size"]`)
+                .should("contain.text", `Window size: ${region.end - region.start + 1} nts`);
+        });
+
+        it("should display the center of the region", () => {
+            cy.get("@tracklistPanel")
+                .find(`div[data-cy="gb-tracklist-position-center"]`)
+                .should("contain.text", `${(region.start + region.end) / 2}`);
+        });
+
+        context("sequence track", () => {
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Sequence"]`)
+                    .as("sequenceTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@sequenceTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@sequenceTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Sequence");
+            });
+        });
+
+        context("gene track", () => {
+            const gene = "ENSG00000012048";
+            const geneTitle = "BRCA1";
+            const transcript = "ENST00000461798.5";
+            const transcriptTitle = "BRCA1-207";
+            const exon = "ENSE00003513709.1";
+
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Gene"]`)
+                    .as("geneTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@geneTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Gene");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            it("should render gene rectangle", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-gene"][data-id="${gene}"]`)
+                    .find(`rect[data-cy="gb-feature-gene-rect"]`)
+                    .should("exist");
+            });
+
+            it("should render gene label", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-gene"][data-id="${gene}"]`)
+                    .find(`text[data-cy="gb-feature-gene-label"]`)
+                    .should("exist")
+                    .and("contain.text", geneTitle);
+            });
+
+            it("should display tooltip when hovering a gene", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-gene"][data-id="${gene}"]`)
+                    .trigger("mouseover", {force: true});
+                
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", `Gene - ${geneTitle}`);
+                });
+            });
+
+            it("should render transcript", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-transcript"][data-id="${transcript}"]`)
+                    .should("exist");
+            });
+
+            it("should render transcript label", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-transcript"][data-id="${transcript}"]`)
+                    .find(`text[data-cy="gb-feature-transcript-label"]`)
+                    .should("exist")
+                    .and("contain.text", transcriptTitle);
+            });
+
+            it("should display tooltip when hovering a transcript", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-transcript"][data-id="${transcript}"]`)
+                    .trigger("mouseover", {force: true});
+                
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", `Transcript - ${transcriptTitle}`);
+                });
+            });
+
+            it("should render exons", () => {
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-exon"][data-id="${exon}"]`)
+                    .should("exist");
+            });
+
+            it("should display tooltip when hovering an exon", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@geneTrack")
+                    .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-exon"][data-id="${exon}"]`)
+                    .first()
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", `Exon - ${exon}`);
+                });
+            });
+        });
+    });
 });
