@@ -118,7 +118,7 @@ export default {
         const template = UtilsNew.renderHTML(`
             <div style="display:flex;flex-direction:row-reverse;padding-top:0.4em;gap:1em;" data-cy="protein-lollipop-legend">
                 ${(config.items || []).map((item, index) => `
-                    <div data-cy="protein-lollipop-legend-item" data-index="${index}" data-item="${item.title.toLowerCase()}" style="display:flex;align-items:center;font-size:8px;cursor:pointer;">
+                    <div data-cy="protein-lollipop-legend-item" data-index="${index}" data-item="${item.title.toLowerCase()}" data-count="${item.count}" style="display:flex;align-items:center;font-size:8px;cursor:pointer;">
                         <div data-cy="protein-lollipop-legend-item-circle" style="background-color:${item.color};border-radius:1em;padding:0.5em;"></div>
                         <div data-cy="protein-lollipop-legend-item-title" style="margin-left:0.5em;line-height:1.5;">
                             <strong style="color:${item.color};">
