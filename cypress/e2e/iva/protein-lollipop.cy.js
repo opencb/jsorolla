@@ -377,13 +377,12 @@ context("Protein Lollipop Viz", () => {
                 Object.keys(consequenceColors).forEach(ct => {
                     cy.get("@clinvarTrack")
                         .find(`g[data-cy="protein-lollipop-track-feature"][data-ct="${ct}"][data-highlighted="false"]`)
-                        .each(el => {
-                            cy.wrap(el)
-                                .find("path")
+                        .first()
+                        .within(() => {
+                            cy.get("path")
                                 .invoke("attr", "stroke")
                                 .should("equal", consequenceColors[ct]);
-                            cy.wrap(el)
-                                .find("circle")
+                            cy.get("circle")
                                 .invoke("attr", "fill")
                                 .should("equal", consequenceColors[ct]);
                         });
