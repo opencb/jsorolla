@@ -52,18 +52,18 @@ class FamilyBrowserGridTest extends LitElement {
                 type: Object,
                 state: true
             },
+            _ready: {
+                type: Boolean,
+                state: true
+            }
         };
     }
 
     #init() {
-        this.isLoading = false;
+        this._ready = false;
         this.data = [];
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
 
     update(changedProperties) {
         if (changedProperties.has("testFile") &&
@@ -75,7 +75,6 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.#setLoading(true);
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
             .then(content => {
                 this.families = content;
@@ -85,7 +84,7 @@ class FamilyBrowserGridTest extends LitElement {
                 console.log(err);
             })
             .finally(() => {
-                this.#setLoading(false);
+                this._ready = true;
             });
     }
 
@@ -130,8 +129,8 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._ready) {
+            return html`processing`;
         }
 
         return html`
