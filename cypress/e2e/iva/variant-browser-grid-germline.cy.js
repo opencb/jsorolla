@@ -17,133 +17,182 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
-
 context("Variant Browser Grid Germline", () => {
     const browserGrid = "variant-browser-grid";
     const browserDetail = "variant-browser-detail";
 
     beforeEach(() => {
-        cy.visit("#variant-browser-grid-germline")
-        cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
+        cy.visit("#variant-browser-grid-germline");
+        cy.waitUntil(() => {
+            return cy.get(browserGrid)
+                .should("be.visible");
+        });
     });
 
     context("Grid", () => {
-        it("Should be render variant-browser-grid", () => {
-            cy.get(browserGrid).should("be.visible")
-        })
+        it("should render variant-browser-grid", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
 
-        it("Should change page variant-browser-grid", () => {
-            UtilsTest.changePage(browserGrid,2)
-            UtilsTest.changePage(browserGrid,3)
-        })
-    })
+        it("should change page variant-browser-grid", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
+        });
+    });
 
     context("Tooltip", () => {
-            // Columns tooltips
-        it("Check variant tooltip", () => {
+        it("should display variant tooltip", () => {
             // Select first row, first column: Variant
             // variant == id
-            BrowserTest.getColumnIndexByHeader("id")
-            cy.get("@indexColumn").then(index => {
-                cy.get("tbody tr:first > td").eq(index).within(() => {
-                    cy.get("a").eq(0).trigger("mouseover")
-                })
-                cy.get(".qtip-content").should('be.visible')
-            })
-        })
+            BrowserTest.getColumnIndexByHeader("id");
+            cy.get("@indexColumn")
+                .then(index => {
+                    cy.get("tbody tr:first > td")
+                        .eq(index)
+                        .within(() => {
+                            cy.get("a")
+                                .eq(0)
+                                .trigger("mouseover");
+                        })
+                    cy.get(".qtip-content")
+                        .should('be.visible');
+            });
+        });
 
-        it("Check gene", () => {
-            BrowserTest.getColumnIndexByHeader("gene")
-            cy.get("@indexColumn").then(index => {
-                cy.get("tbody tr:first > td").eq(index).within(() => {
-                    cy.get("a").eq(0).trigger("mouseover")
-                })
-                cy.get(".qtip-content").should('be.visible')
-            })
-        })
+        it("should display gene tooltip", () => {
+            BrowserTest.getColumnIndexByHeader("gene");
+            cy.get("@indexColumn")
+                .then(index => {
+                    cy.get("tbody tr:first > td")
+                        .eq(index)
+                        .within(() => {
+                            cy.get("a")
+                                .eq(0)
+                                .trigger("mouseover");
+                    });
+                    cy.get(".qtip-content")
+                        .should('be.visible');
+            });
+        });
 
-        it("Check consequenceType", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType")
-            cy.get("@indexColumn").then(index => {
-                cy.get("tbody tr:first > td").eq(index).within(() => {
-                    cy.get("span").eq(0).trigger("mouseover")
-                })
-                // cy.get(".qtip-content").should('be.visible')
-            })
-        })
+        it("should display consequenceType tooltip", () => {
+            BrowserTest.getColumnIndexByHeader("consequenceType");
+            cy.get("@indexColumn")
+                .then(index => {
+                    cy.get("tbody tr:first > td")
+                        .eq(index)
+                        .within(() => {
+                            cy.get("span")
+                                .eq(0)
+                                .trigger("mouseover");
+                    });
+                // cy.get(".qtip-content")
+                //  .should('be.visible')
+            });
+        });
 
-        it("Check population frequencies", () => {
-            cy.get("tbody tr:first > td").eq(13).within(() => {
-                cy.get("a").trigger("mouseover")
+        it("should display population frequencies tooltip", () => {
+            cy.get("tbody tr:first > td")
+                .eq(13)
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
             })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
+    });
 
     context("Helpers", () => {
-            // Columns helpers
-        it("Check Deleteriousness column", () => {
-            cy.get("thead th").contains("div","Deleteriousness").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display deleteriousness help", () => {
+            cy.get("thead th")
+                .contains("div","Deleteriousness")
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Conservation column", () => {
-            cy.get("thead th").contains("div","Conservation").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display conservation help", () => {
+            cy.get("thead th")
+                .contains("div","Conservation")
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Population Frequencies column", () => {
-            cy.get("thead th").contains("div","Population Frequencies").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display population frequencies help", () => {
+            cy.get("thead th")
+                .contains("div","Population Frequencies")
+                    .within(() => {
+                        cy.get("a")
+                            .trigger("mouseover");
+            });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Clinical Info column", () => {
-            cy.get("thead th").contains("div","Clinical Info").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+        it("should display clinical info help", () => {
+            cy.get("thead th")
+                .contains("div","Clinical Info")
+                    .within(() => {
+                        cy.get("a")
+                            .trigger("mouseover");
+            });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
+    });
 
     context("Row", () => {
-        it.skip("Copy Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(18).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Copy JSON")
-                    .click()
-                UtilsTest.assertValueCopiedToClipboard().then(content => {
-                    const dataClipboard = JSON.parse(content);
-                    expect(dataClipboard.id).eq("6:168293914:C:T")
-                    expect(dataClipboard.chromosome).eq("6")
-                })
-            })
-        })
+        it.skip("should copy variant json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(18)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Copy JSON")
+                        .click();
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            const dataClipboard = JSON.parse(content);
+                            expect(dataClipboard.id).eq("6:168293914:C:T");
+                            expect(dataClipboard.chromosome).eq("6");
+                    });
+            });
+        });
 
-        it("Download Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Download JSON")
-                    .click()
-                cy.readFile("cypress/downloads/6_168293914_C_T.json")
-                    .should("exist")
-            })
-        })
+        it("should download variant json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Download JSON")
+                        .click();
+                    cy.readFile("cypress/downloads/6_168293914_C_T.json")
+                        .should("exist");
+            });
+        });
 
         it("External Links", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Ensembl Genome Browser").click()
-            })
-        })
-    })
-
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Ensembl Genome Browser")
+                        .click();
+            });
+        });
+    });
 });
