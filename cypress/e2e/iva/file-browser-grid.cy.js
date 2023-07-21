@@ -21,54 +21,44 @@ context("File Browser Grid", () => {
 
     beforeEach(() => {
         cy.visit("#file-browser-grid")
-        cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
+        cy.waitUntil(() => {
+            return cy.get(browserGrid)
+                .should("be.visible");
+        });
     });
 
 
     context("Grid", () => {
-        it("Should be render file-browser-grid", () => {
-            cy.get(browserGrid).should("be.visible")
-        })
+        it("should be render file-browser-grid", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
 
-        it("Change page file-browser-grid", () => {
-            UtilsTest.changePage(browserGrid,2)
-            UtilsTest.changePage(browserGrid,3)
-        })
-    })
+        it("should change page file-browser-grid", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
+        });
+    });
 
     context("Row", () => {
-        // Rows
-        // flaky issue require permission from browser to clipboard
-        it.skip("Copy Variant Json", () => {
-            cy.window().focus();
-            cy.get("tbody tr:first > td").eq(7).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Copy JSON")
-                    .focus().click()
-                UtilsTest.assertValueCopiedToClipboard().then(content => {
-                    const dataClipboard = JSON.parse(content);
-                    expect(dataClipboard.name).eq("variant-aggregate-family.20220831105044.Av0GoT.log")
-                })
-            })
-        })
-
-        it("Download Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(-2).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Download JSON")
-                    .click()
-            })
-        })
-    })
+        it("should download file json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-2)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Download JSON")
+                        .click();
+            });
+        });
+    });
 
     context("extension", () => {
-        it("Check 'Extra Column' column", () => {
+        it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible')
-        })
-    })
-
+                .should('be.visible');
+        });
+    });
 });
