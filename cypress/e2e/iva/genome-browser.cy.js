@@ -393,6 +393,16 @@ context("GenomeBrowser Viz", () => {
             const sampleNames = ["NA12877", "NA12878", "NA12889"];
             const sampleTypes = ["Somatic", "Somatic", "Germline"];
 
+            const colorsByConsequenceType = {
+                "intron_variant": "#02599c",
+                "splice_region_variant": "#ff7f50",
+                "5_prime_UTR_variant": "#7ac5cd",
+            };
+            const colorsByGenotype = {
+                "heterozygous": "darkorange",
+                "homozygous": "red",
+            };
+
             beforeEach(() => {
                 cy.get("@tracklistPanel")
                     .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
@@ -465,6 +475,17 @@ context("GenomeBrowser Viz", () => {
                     .should("equal", "circle");
             });
 
+            it("should encode the consequence type of the variant in the lollipop fill", () => {
+                Object.keys(colorsByConsequenceType).forEach(key => {
+                    cy.get("@opencgaVariantsTrack")
+                        .find(`g[data-cy="gb-variant"][data-ct="${key}"]`)
+                        .first()
+                        .find(`[data-cy="gb-variant-lollipop-shape"]`)
+                        .invoke("attr", "fill")
+                        .should("equal", colorsByConsequenceType[key]);
+                });
+            });
+
             it("should display a tooltip when hovering the lollipop shape", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@opencgaVariantsTrack")
@@ -515,11 +536,26 @@ context("GenomeBrowser Viz", () => {
                     .should("have.length", sampleNames.length);
             });
 
+            it("should encode the genotype in the color or each rectangle", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
+                    .within(() => {
+                        cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-genotype="1/1"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", colorsByGenotype["homozygous"]);
+                        
+                        cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-genotype="0/1"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", colorsByGenotype["heterozygous"]);
+                    });
+            });
+
             it("should display a tooltip when user hovers the genotype", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@opencgaVariantsTrack")
                     .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
                     .find(`rect[data-cy="gb-variant-genotype"]`)
+                    .first()
                     .trigger("mouseover", {force: true});
 
                 // eslint-disable-next-line cypress/no-unnecessary-waiting
