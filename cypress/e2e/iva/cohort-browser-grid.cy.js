@@ -20,28 +20,30 @@ context("Cohort Browser Grid", () => {
     const browserGrid = "cohort-grid";
 
     beforeEach(() => {
-        cy.visit("#cohort-browser-grid")
-        cy.waitUntil(() => cy.get(browserGrid).should("be.visible"))
+        cy.visit("#cohort-browser-grid");
+        cy.waitUntil(() => {
+            return cy.get(browserGrid)
+                .should("be.visible");
+        });
     });
 
-
     context("Grid", () => {
-        it("Should be render cohort-browser-grid", () => {
-            cy.get(browserGrid).should("be.visible")
-        })
+        it("should render", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
 
-        it("Change page file-browser-grid", () => {
-            UtilsTest.changePage(browserGrid,2)
-            UtilsTest.changePage(browserGrid,3)
-        })
-    })
+        it("should change page", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
+        });
+    });
 
     context("extension", () => {
-        it("Check 'Extra Column' column", () => {
+        it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible')
-        })
-    })
-
+                .should('be.visible');
+        });
+    });
 });

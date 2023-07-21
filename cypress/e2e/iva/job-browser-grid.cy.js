@@ -16,26 +16,31 @@
 
 import UtilsTest from "../../support/utils-test.js";
 
-context("Family Browser Grid", () => {
-    const browserGrid = "family-grid";
+context("Job Browser Grid", () => {
+    const browserGrid = "job-grid";
 
     beforeEach(() => {
-        cy.visit("#family-browser-grid");
+        cy.visit("#job-browser-grid")
         cy.waitUntil(() => {
             return cy.get(browserGrid)
-                .should("be.visible")
-        })
-    });
-
-    context("Grid", () => {
-        it("should be render family-browser-grid", () => {
-            cy.get(browserGrid)
                 .should("be.visible");
         });
     });
 
+    context("Grid", () => {
+        it("should be render job-browser-grid", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
+
+        it("should change page file-browser-grid", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
+        });
+    });
+
     context("Row", () => {
-        it("should download family json", () => {
+        it("should download job Json", () => {
             cy.get("tbody tr:first > td")
                 .eq(-2)
                 .within(() => {

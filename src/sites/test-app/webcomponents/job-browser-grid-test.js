@@ -18,12 +18,10 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
-import "../../../webcomponents/family/family-grid.js";
-import "../../../webcomponents/family/family-detail.js";
-import "../../../webcomponents/family/family-view.js";
-import "../../../webcomponents/commons/json-viewer.js";
+import "../../../webcomponents/job/job-grid.js";
+import "../../../webcomponents/job/job-detail.js";
 
-class FamilyBrowserGridTest extends LitElement {
+class JobBrowserGridTest extends LitElement {
 
     constructor() {
         super();
@@ -52,18 +50,18 @@ class FamilyBrowserGridTest extends LitElement {
                 type: Object,
                 state: true
             },
-            _ready: {
-                type: Boolean,
-                state: true
-            }
         };
     }
 
     #init() {
-        this._ready = false;
+        this.isLoading = false;
         this.data = [];
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
 
     update(changedProperties) {
         if (changedProperties.has("testFile") &&
@@ -75,49 +73,18 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     opencgaSessionObserver() {
+        this.#setLoading(true);
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
             .then(content => {
-                this.families = content;
+                this.jobs = content;
                 this.mutate();
             })
             .catch(err => {
                 console.log(err);
             })
             .finally(() => {
-                this._ready = true;
+                this.#setLoading(false);
             });
-    }
-
-    getDefaultTabsConfig() {
-        return {
-            title: "Family",
-            showTitle: true,
-            items: [
-                {
-                    id: "family-view",
-                    name: "Overview",
-                    active: true,
-                    // visible:
-                    render: (family, active, opencgaSession) => html`
-                        <family-view
-                            .opencgaSession="${opencgaSession}"
-                            .family="${family}"
-                            .settings="${{}}">
-                        </family-view>
-                    `,
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    render: (family, active, opencgaSession) => html`
-                        <json-viewer
-                            .data="${family}"
-                            .active="${active}">
-                        </json-viewer>
-                    `,
-                }
-            ]
-        };
     }
 
     mutate() {
@@ -129,27 +96,26 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (!this._ready) {
-            return html`processing`;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
             <h2 style="font-weight: bold;">
                 Catalog Browser Grid (${this.testFile})
             </h2>
-            <family-grid
-                .families="${this.families}"
+            <job-grid
+                .jobs="${this.jobs}"
                 .opencgaSession="${this.opencgaSession}"
                 @selectrow="${e => this.selectRow(e)}">
-            </family-grid>
-            <family-detail
-                .family="${this._selectRow}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.getDefaultTabsConfig()}">
-            </family-detail>
+            </job-grid>
+            <job-detail
+                .job="${this._selectRow}"
+                .opencgaSession="${this.opencgaSession}">
+            </job-detail>
         `;
     }
 
 }
 
-customElements.define("family-browser-grid-test", FamilyBrowserGridTest);
+customElements.define("job-browser-grid-test", JobBrowserGridTest);

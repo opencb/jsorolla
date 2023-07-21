@@ -203,6 +203,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "job-browser-grid",
+                            name: "Job browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "opencga-update",
                             name: "opencga-update Test",
                             description: "",

@@ -125,7 +125,6 @@ export default class CohortGrid extends LitElement {
         });
     }
 
-
     renderRemoteTable(active) {
         if (!active) {
             return;

@@ -25,138 +25,198 @@ context("Variant Interpreter Grid Germiline", () => {
     beforeEach(() => {
         // cy.intercept("#variant-interpreter-grid-germline").as("getBrowserGrid") //Not Working
         cy.visit("#variant-interpreter-grid-germline")
-        cy.waitUntil(() => cy.get(browserInterpreterGrid).should("be.visible"))
+        cy.waitUntil(() => {
+            return cy.get(browserInterpreterGrid)
+                .should("be.visible");
+        });
         // cy.wait("@getBrowserGrid") // Not working
     });
 
     context("Grid", () => {
-        it("Should be render variant-interpreter-grid", () => {
-            cy.get(browserInterpreterGrid).should("be.visible")
-        })
+        it("should render variant-interpreter-grid", () => {
+            cy.get(browserInterpreterGrid)
+                .should("be.visible");
+        });
 
-        it("Should change page variant-interpreter-grid", () => {
-            UtilsTest.changePage(browserInterpreterGrid,2)
-            UtilsTest.changePage(browserInterpreterGrid,3)
-        })
-    })
+        it("should change page variant-interpreter-grid", () => {
+            UtilsTest.changePage(browserInterpreterGrid,2);
+            UtilsTest.changePage(browserInterpreterGrid,3);
+        });
+    });
 
     context("Tooltip",() => {
-        it("Check variant tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("id")
-            cy.get("@indexColumn").then(index => {
-                cy.get("tbody tr:first > td").eq(index).within(() => {
-                    cy.get("a").trigger("mouseover")
-                })
-                cy.get(".qtip-content").should('be.visible')
+        it("should display variant tooltip", () => {
+            BrowserTest.getColumnIndexByHeader("id");
+            cy.get("@indexColumn")
+                .then(index => {
+                    cy.get("tbody tr:first > td")
+                        .eq(index)
+                        .within(() => {
+                            cy.get("a")
+                                .trigger("mouseover");
+                        })
+                    cy.get(".qtip-content")
+                        .should('be.visible');
             })
         })
 
-        it("Check gene", () => {
-            BrowserTest.getColumnIndexByHeader("gene")
-            cy.get("@indexColumn").then(indexColumn => {
-                cy.get("tbody tr:first > td").eq(indexColumn).within(() => {
-                    cy.get("a").eq(0).trigger("mouseover")
-                })
-                cy.get(".qtip-content").should('be.visible')
-            })
-        })
+        it("should display gene tooltip", () => {
+            BrowserTest.getColumnIndexByHeader("gene");
+            cy.get("@indexColumn")
+                .then(indexColumn => {
+                    cy.get("tbody tr:first > td")
+                        .eq(indexColumn)
+                        .within(() => {
+                            cy.get("a")
+                                .eq(0)
+                                .trigger("mouseover");
+                        });
+                    cy.get(".qtip-content")
+                        .should('be.visible');
+                });
+        });
 
-        it("Check Sample Genotype (Variant Call Information)", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType")
-            cy.get("@indexColumn").then(indexColumn => {
-                cy.get("tbody tr:first > td").eq(indexColumn).within(() => {
-                    cy.get("a").eq(0).trigger("mouseover")
-                })
-                cy.get(".qtip-content").should('be.visible')
-            })
-        })
+        it("should display sample genotype (Variant Call Information) tooltip", () => {
+            BrowserTest.getColumnIndexByHeader("consequenceType");
+            cy.get("@indexColumn")
+                .then(indexColumn => {
+                    cy.get("tbody tr:first > td")
+                        .eq(indexColumn)
+                        .within(() => {
+                            cy.get("a")
+                                .eq(0)
+                                .trigger("mouseover");
+                    });
+                    cy.get(".qtip-content")
+                        .should('be.visible');
+            });
+        });
 
-        it("Check Cohort Stats (Population Frequencies)", () => {
-            cy.get("tbody tr:first > td").eq(8).within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display cohort stats (Population Frequencies) tooltip", () => {
+            cy.get("tbody tr:first > td")
+                .eq(8)
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Reference population frequencies", () => {
-            cy.get("tbody tr:first > td").eq(9).within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display reference population frequencies tooltip", () => {
+            cy.get("tbody tr:first > td")
+                .eq(9)
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check ACMG Prediction (Classification)", () => {
-            cy.get("tbody tr:first > td").eq(14).within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+        it("should display ACMG Prediction (Classification) tooltip", () => {
+            cy.get("tbody tr:first > td")
+                .eq(14)
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
+    });
 
     context("Helpers", () => {
 
-        it("Check Deleteriousness column", () => {
-            cy.get("thead th").contains("div","Deleteriousness").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
+        it("should display deleteriousness column help", () => {
+            cy.get("thead th")
+                .contains("div","Deleteriousness")
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
+                })
+            cy.get(".qtip-content")
+                .should('be.visible');
         })
 
-        it("Check Reference Population Frequencies column", () => {
-            cy.get("thead th").contains("div","Reference Population Frequencies").within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+        it("should display reference population frequencies column help", () => {
+            cy.get("thead th")
+                .contains("div","Reference Population Frequencies")
+                .within(() => {
+                cy.get("a")
+                    .trigger("mouseover");
+            });
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Clinical Info column", () => {
-            cy.get("thead th").contains("div","Clinical Info").within(() => {
-                cy.get("a").trigger("mouseover")
+        it("should display clinical info column help", () => {
+            cy.get("thead th").contains("div","Clinical Info")
+                .within(() => {
+                    cy.get("a")
+                        .trigger("mouseover");
             })
-            cy.get(".qtip-content").should('be.visible')
-        })
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
 
-        it("Check Interpretation column", () => {
-            cy.get("thead th").contains("div","Interpretation").within(() => {
-                cy.get("a").trigger("mouseover")
+        it("should display interpretation column hel`", () => {
+            cy.get("thead th")
+                .contains("div","Interpretation")
+                .within(() => {
+                cy.get("a")
+                    .trigger("mouseover");
             })
-            cy.get(".qtip-content").should('be.visible')
-        })
-    })
+            cy.get(".qtip-content")
+                .should('be.visible');
+        });
+    });
 
     context("Row", () => {
-        it.skip("Copy Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Copy JSON")
-                    .click()
-                UtilsTest.assertValueCopiedToClipboard().then(content => {
-                    const dataClipboard = JSON.parse(content);
-                    expect(dataClipboard.id).eq("1:187378:A:G")
-                    expect(dataClipboard.type).eq("SNV")
-                })
-            })
-        })
+        it.skip("should display variant interpreter json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Copy JSON")
+                        .click();
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            const dataClipboard = JSON.parse(content);
+                            expect(dataClipboard.id)
+                                .eq("1:187378:A:G");
+                            expect(dataClipboard.type)
+                                .eq("SNV");
+                        });
+            });
+        });
 
-        it("Download Variant Json", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Download JSON")
-                    .click()
-                cy.readFile("cypress/downloads/1_187378_A_G.json")
-                    .should("exist")
-            })
-        })
+        it("should download variant json", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Download JSON")
+                        .click();
+                    cy.readFile("cypress/downloads/1_187378_A_G.json")
+                        .should("exist");
+                });
+        });
 
-        it("External Links", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button").click()
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Ensembl Genome Browser").click()
-            })
-        })
-    })
-
+        it("should click external links", () => {
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Ensembl Genome Browser")
+                        .click();
+                });
+        });
+    });
 });

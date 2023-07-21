@@ -43,6 +43,7 @@ import "./webcomponents/file-browser-grid-test.js";
 import "./webcomponents/individual-browser-grid-test.js";
 import "./webcomponents/family-browser-grid-test.js";
 import "./webcomponents/cohort-browser-grid-test.js";
+import "./webcomponents/job-browser-grid-test.js";
 
 
 import "./webcomponents/genome-browser-test.js";
@@ -107,6 +108,7 @@ class TestApp extends LitElement {
             "family-browser-grid",
             "cohort-browser-grid",
             "sample-browser-grid",
+            "job-browser-grid",
             "opencga-update",
             "variant-browser-grid-germline",
             "variant-browser-grid-cancer",
@@ -694,7 +696,18 @@ class TestApp extends LitElement {
                             .config="${this.config}">
                         </sample-browser-grid-test>
                     </div>
-                ` : null}
+                ` : nothing}
+
+                ${this.config.enabledComponents["job-browser-grid"] ? html`
+                    <div class="content" id="job-browser-grid">
+                        <job-browser-grid-test
+                            testFile="job-1000G"
+                            testDataVersion="${this.testDataVersion || ""}"
+                            .opencgaSession="${this.opencgaSession || {}}"
+                            .config="${this.config}">
+                        </job-browser-grid-test>
+                    </div>
+                ` : nothing}
 
                 ${this.config.enabledComponents["opencga-update"] ? html`
                     <div class="content" id="opencga-update">
