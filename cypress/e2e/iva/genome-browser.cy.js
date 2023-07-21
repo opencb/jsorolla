@@ -386,6 +386,13 @@ context("GenomeBrowser Viz", () => {
         });
 
         context("opencga variants track", () => {
+            const snvVariant = "17:43108791:A:G";
+            const indelVariant = "17:43102949:-:T";
+            const highlightedVariant = "17:43106026:C:T";
+
+            const sampleNames = ["NA12877", "NA12878", "NA12889"];
+            const sampleTypes = ["Somatic", "Somatic", "Germline"];
+
             beforeEach(() => {
                 cy.get("@tracklistPanel")
                     .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
@@ -409,10 +416,7 @@ context("GenomeBrowser Viz", () => {
                     .should("not.be.visible");
             });
 
-            it("should render samples names and types", () => {
-                const sampleNames = ["NA12877", "NA12878", "NA12889"];
-                const sampleTypes = ["Somatic", "Somatic", "Germline"];
-
+            it("should render sample names and types", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
                     .find(`div[data-cy="gb-opencga-variants-samples-item"]`)
@@ -425,6 +429,104 @@ context("GenomeBrowser Viz", () => {
                             .find(`[data-cy="gb-opencga-variants-samples-item-type"]`)
                             .should("contain.text", sampleTypes[index]);
                     });
+            });
+
+            it("should render variants", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-variant"]`)
+                    .should("have.length.greaterThan", 0);
+            });
+
+            it("should render the lollipop", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
+                    .within(() => {
+                        cy.get(`path[data-cy="gb-variant-lollipop-path"]`)
+                            .should("exist");
+                        cy.get(`[data-cy="gb-variant-lollipop-shape"]`)
+                            .should("exist");
+                    });
+            });
+
+            it("should render the correct lollipop shape for INDEL variants", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-type="INDEL"][data-id="${indelVariant}"]`)
+                    .find(`path[data-cy="gb-variant-lollipop-shape"]`)
+                    .invoke("attr", "data-shape")
+                    .should("equal", "triangle");
+            });
+
+            it("should render the correct lollipop shape for SNV variants", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-type="SNV"][data-id="${snvVariant}"]`)
+                    .find(`circle[data-cy="gb-variant-lollipop-shape"]`)
+                    .invoke("attr", "data-shape")
+                    .should("equal", "circle");
+            });
+
+            it("should display a tooltip when hovering the lollipop shape", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
+                    .find(`path[data-cy="gb-variant-lollipop-shape"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", indelVariant);
+                });
+            });
+
+            it("should highlight the variant", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${highlightedVariant}"]`)
+                    .find(`path[data-cy="gb-variant-highlight"]`)
+                    .should("exist");
+            });
+
+            it("should display a tooltip when user hovers the highlight icon", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${highlightedVariant}"]`)
+                    .find(`rect[data-cy="gb-variant-highlight-mask"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", highlightedVariant);
+                });
+            });
+
+            it("should display variant genotypes for each sample", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
+                    .find(`rect[data-cy="gb-variant-genotype"]`)
+                    .should("have.length", sampleNames.length);
+            });
+
+            it("should display a tooltip when user hovers the genotype", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
+                    .find(`rect[data-cy="gb-variant-genotype"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                });
             });
  
         });
