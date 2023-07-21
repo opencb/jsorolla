@@ -70,19 +70,20 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
 
         const topPosition = this.#getHeaderHeight();
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;">
-                ${this.sampleNames.map(name => {
+            <div id="${this.prefix}SampleNames" style="position:absolute;top:0px;" data-cy="gb-opencga-variants-samples">
+                ${this.sampleNames.map((name, index) => {
                     const info = this.samplesInfo.get(name);
                     const sampleColor = info.disorders?.length > 0 ? "#CC0000" : "inherit";
                     const sampleSexIcon = GenomeBrowserUtils.getIndividualSexIcon(info.sex);
                     const sampleSexColor = GenomeBrowserUtils.getIndividualSexColor(info.sex);
+                    const sampleStyle = `height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;`;
                     return `
-                        <div style="height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;">
+                        <div style="${sampleStyle}" data-cy="gb-opencga-variants-samples-item" data-index="${index}">
                             <div style="font-size:14px;">
                                 <i class="fas ${sampleSexIcon}" style="padding-right:4px;color:${sampleSexColor};"></i>
-                                <b style="color:${sampleColor};">${name}</b>
+                                <b style="color:${sampleColor};" data-cy="gb-opencga-variants-samples-item-name">${name}</b>
                             </div>
-                            <div style="color:#6C757D;font-size:10px;padding-left:12px;">
+                            <div style="color:#6C757D;font-size:10px;padding-left:12px;" data-cy="gb-opencga-variants-samples-item-type">
                                 <b>${info.somatic ? "Somatic" : "Germline"} sample</b>
                             </div>
                         </div>
