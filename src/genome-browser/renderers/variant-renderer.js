@@ -30,6 +30,7 @@ export default class VariantRenderer extends Renderer {
                 "data-cy": "gb-variant",
                 "data-id": feature.id || "-",
                 "data-type": feature.type || "-",
+                "data-ct": feature?.annotation?.displayConsequenceType || "-",
                 "data-index": featureIndex,
             });
 
@@ -188,7 +189,6 @@ export default class VariantRenderer extends Renderer {
 
             // Render for each sample in feature.studies[0].samples
             // this.config.sampleNames.forEach((sampleName, index) => {
-            console.log(feature.studies[0]);
             (feature.studies[0]?.samples || []).forEach((sampleData, index) => {
                 // Only one study is expected, and GT is always the first field in samplesData
                 const genotype = sampleData.data[0];
@@ -199,6 +199,7 @@ export default class VariantRenderer extends Renderer {
                 const sampleGenotypeElement = SVG.addChild(group, "rect", {
                     "data-cy": "gb-variant-genotype",
                     "data-sample-index": index,
+                    "data-sample-genotype": genotype,
                     "x": x,
                     "y": topPosition + (index * this.config.sampleHeight) + 1,
                     "width": width,
