@@ -349,6 +349,8 @@ export default class GenomeBrowserUtils {
         switch (type.toUpperCase()) {
             case "SNV":
                 return SVG.addChild(parent, "circle", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "circle",
                     "cx": x,
                     "cy": y,
                     "r": half,
@@ -356,12 +358,16 @@ export default class GenomeBrowserUtils {
                 });
             case "INDEL":
                 return SVG.addChild(parent, "path", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "triangle",
                     "d": `M${x},${y+half} L${x-half},${y-half} L${x+half},${y-half} Z`,
                     "fill": color,
                     "stroke-width": "0px",
                 });
             default:
                 return SVG.addChild(parent, "path", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "square",
                     "d": `M${x},${y-half} L${x-half},${y} L${x},${y+half} L${x+half},${y} Z`,
                     "fill": color,
                     "stroke-width": "0px",

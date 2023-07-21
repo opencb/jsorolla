@@ -26,7 +26,12 @@ export default class VariantRenderer extends Renderer {
         }
 
         (features || []).forEach((feature, featureIndex) => {
-            const group = SVG.addChild(options.svgCanvasFeatures, "g", {});
+            const group = SVG.addChild(options.svgCanvasFeatures, "g", {
+                "data-cy": "gb-variant",
+                "data-id": feature.id || "-",
+                "data-type": feature.type || "-",
+                "data-index": featureIndex,
+            });
 
             // get feature genomic information
             const start = feature.start;
@@ -58,6 +63,7 @@ export default class VariantRenderer extends Renderer {
 
                 // Render lollipop stick
                 const lollipopStick = SVG.addChild(group, "path", {
+                    "data-cy": "gb-variant-lollipop-path",
                     "d": lollipopPath.join(" "),
                     "fill": "transparent",
                     "stroke": this.config.lollipopStickColor,
@@ -90,6 +96,7 @@ export default class VariantRenderer extends Renderer {
                 }
             } else {
                 variantElement = SVG.addChild(group, "rect", {
+                    "data-cy": "gb-variant-lollipop-shape",
                     "x": x,
                     "y": 0,
                     "width": `${width}px`,
@@ -145,6 +152,7 @@ export default class VariantRenderer extends Renderer {
 
                     // Create highlight icon
                     SVG.addChild(group, "path", {
+                        "data-cy": "gb-variant-highlight",
                         "d": iconPath.join(" "),
                         "fill": "transparent",
                         "stroke-width": this.config.highlightIconWidth,
@@ -153,12 +161,13 @@ export default class VariantRenderer extends Renderer {
 
                     // Mask for displaying tooltip with the highlight info
                     const highlightMaskElement = SVG.addChild(group, "rect", {
-                        x: iconCenterX - this.config.highlightIconSize / 2,
-                        y: 0,
-                        width: this.config.highlightIconSize,
-                        height: this.config.highlightHeight,
-                        fill: "transparent",
-                        stroke: "transparent",
+                        "data-cy": "gb-variant-highlight-mask",
+                        "x": iconCenterX - this.config.highlightIconSize / 2,
+                        "y": 0,
+                        "width": this.config.highlightIconSize,
+                        "height": this.config.highlightHeight,
+                        "fill": "transparent",
+                        "stroke": "transparent",
                     });
                     $(highlightMaskElement).qtip({
                         content: {
@@ -179,6 +188,7 @@ export default class VariantRenderer extends Renderer {
 
             // Render for each sample in feature.studies[0].samples
             // this.config.sampleNames.forEach((sampleName, index) => {
+            console.log(feature.studies[0]);
             (feature.studies[0]?.samples || []).forEach((sampleData, index) => {
                 // Only one study is expected, and GT is always the first field in samplesData
                 const genotype = sampleData.data[0];
@@ -187,6 +197,8 @@ export default class VariantRenderer extends Renderer {
                 const sampleGenotypeTooltipText = this.getValueFromConfig("sampleGenotypeTooltipText", [feature, sampleData]);
 
                 const sampleGenotypeElement = SVG.addChild(group, "rect", {
+                    "data-cy": "gb-variant-genotype",
+                    "data-sample-index": index,
                     "x": x,
                     "y": topPosition + (index * this.config.sampleHeight) + 1,
                     "width": width,
