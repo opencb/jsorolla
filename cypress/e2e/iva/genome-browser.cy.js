@@ -7,8 +7,6 @@ context("GenomeBrowser Viz", () => {
 
     beforeEach(() => {
         cy.visit("#genome-browser");
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        // cy.wait(2000);
         cy.get(`div[data-cy="genome-browser-container"]`)
             .as("container");
         cy.waitUntil(() => {
@@ -385,6 +383,50 @@ context("GenomeBrowser Viz", () => {
                         .should("contain.text", `Exon - ${exon}`);
                 });
             });
+        });
+
+        context("opencga variants track", () => {
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
+                    .as("opencgaVariantsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Variant (Samples)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            it("should render samples names and types", () => {
+                const sampleNames = ["NA12877", "NA12878", "NA12889"];
+                const sampleTypes = ["Somatic", "Somatic", "Germline"];
+
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
+                    .find(`div[data-cy="gb-opencga-variants-samples-item"]`)
+                    .each((el, index) => {
+                        cy.wrap(el)
+                            .find(`[data-cy="gb-opencga-variants-samples-item-name"]`)
+                            .should("contain.text", sampleNames[index]);
+
+                        cy.wrap(el)
+                            .find(`[data-cy="gb-opencga-variants-samples-item-type"]`)
+                            .should("contain.text", sampleTypes[index]);
+                    });
+            });
+ 
         });
     });
 });
