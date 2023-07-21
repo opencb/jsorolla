@@ -54,32 +54,34 @@ class GenomeBrowserTest extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("testDataVersion")) {
-            this.testDataVersionObserver();
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
+            this.propertyObserver();
         }
     }
 
-    testDataVersionObserver() {
-        const filesToImport = [
-            "genome-browser-features-of-interest.json",
-        ];
-        const promises = filesToImport.map(file => {
-            return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
-        });
-
-        // Import all files
-        Promise.all(promises)
-            .then(data => {
-                this._data = {
-                    featuresOfInterest: data[0],
-                };
-                // Mutate data and draw protein lollipop
-                this.mutate();
-                this.drawGenomeBrowser();
-            })
-            .catch(error => {
-                console.error(error);
+    propertyObserver() {
+        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+            const filesToImport = [
+                "genome-browser-features-of-interest.json",
+            ];
+            const promises = filesToImport.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
+
+            // Import all files
+            Promise.all(promises)
+                .then(data => {
+                    this._data = {
+                        featuresOfInterest: data[0],
+                    };
+                    // Mutate data and draw protein lollipop
+                    this.mutate();
+                    this.drawGenomeBrowser();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
     }
 
     mutate() {
