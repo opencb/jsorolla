@@ -566,5 +566,64 @@ context("GenomeBrowser Viz", () => {
             });
  
         });
+
+        context("Cellbase variants track", () => {
+            const variant = "17:43104257:G:A";
+
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (CellBase)"]`)
+                    .as("cellbaseVariantsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Variants (CellBase)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            it("should render features (variants)", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .should("exist");
+            });
+
+            it("should not render features labels", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .find(`text[data-cy="gb-feature-label"]`)
+                    .should("not.exist");
+            });
+
+            it("should display a tooltip when hovering a variant", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", variant);
+                });
+            });
+        });
     });
 });
