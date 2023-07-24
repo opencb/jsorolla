@@ -15,9 +15,11 @@
  */
 
 import UtilsTest from "../../support/utils-test.js";
+import BrowserTest from "../../support/browser-test.js";
 
 context("Job Browser Grid", () => {
     const browserGrid = "job-grid";
+    const browserDetail = "job-detail";
 
     beforeEach(() => {
         cy.visit("#job-browser-grid")
@@ -83,7 +85,7 @@ context("Job Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Name")
+            BrowserTest.getColumnIndexByHeader("Job ID")
             cy.get("@indexColumn")
                 .then((indexColumn) => {
                     const indexRow = 2
@@ -97,20 +99,20 @@ context("Job Browser Grid", () => {
                     });
 
             cy.get("@textRow")
-                .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
-                        .invoke("text")
-                        .then((text) => {
-                            const textTab = text.split(":");
-                            expect(textRow).to.equal(textTab[1].trim());
-                        });
-                });
+            .then((textRow) => {
+                cy.get("detail-tabs > div.panel")
+                    .invoke("text")
+                    .then((text) => {
+                        const textTab = text.trim().split(" ");
+                        expect(textRow).to.equal(textTab[1].trim());
+                    });
+            });
         });
 
-        it("should display 'Preview' Tab", () => {
+        it("should display 'Logs' Tab", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
-                .contains("Preview")
+                .contains("Logs")
                 .click()
                 .should('be.visible');
         });
