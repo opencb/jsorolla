@@ -360,15 +360,30 @@ export default class BrowserTest {
         cy.get(`section-filter a[data-cy-section-title=${filter}]`).click();
     }
     // This work for simple header table (No nested)
-    // index will be add global variable indexColumn
-    static getColumnIndexByHeader = (columnName) => {
+    // The indexColumn variable will be index
+    // !DEPRECATED
+    static getColumnIndexByHeaderOld = (columnName) => {
         let shouldStop = false;
-        cy.get("thead th").each(($column,index) => {
-            if(shouldStop) return true;
-            if($column[0].getAttribute("data-field") === columnName) {
+        cy.get("thead th")
+            .each(($column,index) => {
+                if(shouldStop) return true;
+                if($column[0].getAttribute("data-field") === columnName) {
                 shouldStop = true;
-                return cy.wrap(index).as("indexColumn")
+                return cy.wrap(index)
+                    .as("indexColumn")
             }
         })
     }
+
+    // This work for simple header table (No nested)
+    static getColumnIndexByHeader = (columnName) => {
+        cy.get("thead th")
+            .then(($headers) => {
+                const columnIndex = Array.from($headers)
+                    .findIndex(th => th.textContent.trim() === columnName)
+                cy.wrap(columnIndex)
+                    .as("indexColumn")
+            });
+    }
+
 }
