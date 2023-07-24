@@ -29,14 +29,13 @@ context("File Browser Grid", () => {
         });
     });
 
-
     context("Grid", () => {
-        it("should be render file-browser-grid", () => {
+        it("should render", () => {
             cy.get(browserGrid)
                 .should("be.visible");
         });
 
-        it("should change page file-browser-grid", () => {
+        it("should change page", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
         });
@@ -48,7 +47,7 @@ context("File Browser Grid", () => {
                     .eq(3)
                     .click()
                     .should("have.class","success");
-            });
+        });
 
         it("should download file json", () => {
             cy.get("tbody tr:first > td")
@@ -81,7 +80,6 @@ context("File Browser Grid", () => {
 
 
     context("detail tab", () => {
-
         it("should render", () => {
             cy.get(browserDetail)
                 .should("be.visible");
@@ -119,6 +117,5 @@ context("File Browser Grid", () => {
                 .click()
                 .should('be.visible');
         });
-
-    })
+    });
 });
