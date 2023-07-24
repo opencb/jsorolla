@@ -23,8 +23,8 @@ import GenomeBrowser from "../../../genome-browser/genome-browser.js";
 import GeneOverviewTrack from "../../../genome-browser/tracks/gene-overview-track.js";
 import GeneTrack from "../../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../../genome-browser/tracks/sequence-track.js";
+import VariantTrack from "../../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../../genome-browser/tracks/opencga-variant-track.js";
-
 
 class GenomeBrowserTest extends LitElement {
 
@@ -133,6 +133,10 @@ class GenomeBrowserTest extends LitElement {
                 // Gene track
                 new GeneTrack({
                     title: "Gene",
+                    cellBaseClient: this.opencgaSession.cellbaseClient,
+                }),
+                // CellBase Variant track
+                new VariantTrack({
                     cellBaseClient: this.opencgaSession.cellbaseClient,
                 }),
                 // OpenCGA Variant track with query
