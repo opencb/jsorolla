@@ -36,6 +36,12 @@ export class CellBaseClientMock {
                     return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-42677465-43531295-genes.json`);
                 }
             }
+            // Genome browser: import variants in specified region
+            if (subcategory === "region" && resource === "variant") {
+                if (ids === "17:43051016-43157744") {
+                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-42677465-43531295-variants.json`);
+                }
+            }
         }
         // Other request
         return Promise.reject(new Error("Not implemented"));
