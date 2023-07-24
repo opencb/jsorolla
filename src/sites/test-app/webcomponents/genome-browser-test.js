@@ -139,6 +139,9 @@ class GenomeBrowserTest extends LitElement {
                 new VariantTrack({
                     title: "Variants (CellBase)",
                     cellBaseClient: this.opencgaSession.cellbaseClient,
+                    renderer: {
+                        color: () => "#8BC35A",
+                    },
                 }),
                 // OpenCGA Variant track with query
                 new OpenCGAVariantTrack({
