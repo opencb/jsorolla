@@ -640,6 +640,14 @@ export default class DataForm extends LitElement {
         const helpMessage = this._getHelpMessage(element);
         const helpMode = this._getHelpMode(element);
 
+        if (error) {
+            return html `
+                <span class="${error.className}">
+                    ${error.message || "Error"}
+                </span>
+            `;
+        }
+
         return html`
             <div class="${hasErrorMessages ? "has-error" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
@@ -944,15 +952,23 @@ export default class DataForm extends LitElement {
         // Check values
         if (!array || !array.length) {
             const message = this._getDefaultValue(element);
-            return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+            });
         }
         if (!Array.isArray(array)) {
             const message = `Field '${element.field}' is not an array`;
-            return this._createElementTemplate(element, null, null, {message: message, classname: "text-danger"});
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                classname: "text-danger"
+            });
         }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets") {
             const message = "Content layout must be 'horizontal', 'vertical' or 'bullets'";
-            return this._createElementTemplate(element, null, null, {message: message, className: "text-danger"});
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                className: "text-danger"
+            });
         }
 
         // Apply the template to all Array elements and store them in 'values'
@@ -1022,7 +1038,7 @@ export default class DataForm extends LitElement {
             const message = errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`;
             return this._createElementTemplate(element, null, null, {
                 message: message,
-                className: errorClassName
+                className: errorClassName,
             });
         }
         if (!Array.isArray(array)) {
@@ -1138,7 +1154,11 @@ export default class DataForm extends LitElement {
             return this._createElementTemplate(element, null, content);
         } else {
             const message = this._getErrorMessage(element);
-            return this._createElementTemplate(element, null, null, {message: message});
+            const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                className: errorClassName,
+            });
         }
     }
 
@@ -1173,10 +1193,11 @@ export default class DataForm extends LitElement {
     _createTreeElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (typeof element.display.apply !== "function") {
+            const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
             const message = "apply() function that provides a 'text' property is mandatory in Tree-Viewer elements";
             return this._createElementTemplate(element, null, null, {
                 message: message,
-                classError: "text-danger"
+                classError: errorClassName,
             });
         } else {
             if (Array.isArray(json)) {
@@ -1201,7 +1222,11 @@ export default class DataForm extends LitElement {
                 return this._createElementTemplate(element, null, content);
             } else {
                 const message = "Unexpected JSON format";
-                return this._createElementTemplate(element, null, null, {message: message, classError: "text-danger"});
+                const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+                return this._createElementTemplate(element, null, null, {
+                    message: message,
+                    classError: errorClassName,
+                });
             }
         }
     }
@@ -1230,7 +1255,11 @@ export default class DataForm extends LitElement {
             return this._createElementTemplate(element, data, content);
         } else {
             const message = this._getErrorMessage(element);
-            return this._createElementTemplate(element, null, null, {message: message});
+            const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+            return this._createElementTemplate(element, null, null, {
+                message: message,
+                classError: errorClassName,
+            });
         }
     }
 

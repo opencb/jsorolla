@@ -370,8 +370,8 @@ export default class JobView extends LitElement {
                             name: "Dependencies",
                             field: "dependsOn",
                             type: "table",
-                            defaultValue: "No Job dependencies",
                             display: {
+                                defaultValue: "No Job dependencies",
                                 columns: [
                                     {
                                         name: "Job ID", field: "id"
