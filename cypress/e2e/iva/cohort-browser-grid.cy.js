@@ -19,6 +19,7 @@ import BrowserTest from "../../support/browser-test.js";
 
 context("Cohort Browser Grid", () => {
     const browserGrid = "cohort-grid";
+    const browserDetail = "cohort-detail";
 
     beforeEach(() => {
         cy.visit("#cohort-browser-grid");
@@ -72,7 +73,7 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Name")
+            BrowserTest.getColumnIndexByHeader("Cohort")
             cy.get("@indexColumn")
                 .then((indexColumn) => {
                     const indexRow = 2
@@ -90,16 +91,16 @@ context("Cohort Browser Grid", () => {
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
-                            const textTab = text.split(":");
+                            const textTab = text.trim().split(" ");
                             expect(textRow).to.equal(textTab[1].trim());
                         });
                 });
         });
 
-        it("should display 'Preview' Tab", () => {
+        it("should display 'JSON Data' Tab", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
-                .contains("Preview")
+                .contains("JSON Data")
                 .click()
                 .should('be.visible');
         });
