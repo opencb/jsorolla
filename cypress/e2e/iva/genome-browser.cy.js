@@ -385,7 +385,7 @@ context("GenomeBrowser Viz", () => {
             });
         });
 
-        context("opencga variants track", () => {
+        context("OpenCGA variants track", () => {
             const snvVariant = "17:43108791:A:G";
             const indelVariant = "17:43102949:-:T";
             const highlightedVariant = "17:43106026:C:T";
@@ -405,7 +405,7 @@ context("GenomeBrowser Viz", () => {
 
             beforeEach(() => {
                 cy.get("@tracklistPanel")
-                    .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (OpenCGA)"]`)
                     .as("opencgaVariantsTrack");
             });
 
@@ -417,7 +417,7 @@ context("GenomeBrowser Viz", () => {
             it("should render track title", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-title"]`)
-                    .should("contain.text", "Variant (Samples)");
+                    .should("contain.text", "Variants (OpenCGA)");
             });
 
             it("should not display errors", () => {
