@@ -366,6 +366,26 @@ context("GenomeBrowser Viz", () => {
                     .should("exist");
             });
 
+            it("should encode biotype as the exon color", () => {
+                const exons = ["ENSE00001946902.1", "ENSE00002796714.1", "ENSE00003824040.1"];
+                const biotypes = ["protein_coding", "non_stop_decay", "nonsense_mediated_decay"];
+                const colors = ["#a00000", "aqua", "seagreen"];
+
+                exons.forEach((exonId, index) => {
+                    cy.get("@geneTrack")
+                        .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-exon"][data-id="${exonId}"]`)
+                        .as("exon");
+                    
+                    cy.get("@exon")
+                        .invoke("attr", "data-transcript-biotype")
+                        .should("equal", biotypes[index]);
+                    cy.get("@exon")
+                        .find(`rect[data-cy="gb-feature-exon-coding"]`)
+                        .invoke("attr", "fill")
+                        .should("equal", colors[index]);
+                });
+            });
+
             it("should display tooltip when hovering an exon", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@geneTrack")
