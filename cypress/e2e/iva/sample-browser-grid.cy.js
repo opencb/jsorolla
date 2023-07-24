@@ -21,30 +21,52 @@ context("Sample Browser Grid", () => {
 
     beforeEach(() => {
         cy.visit("#sample-browser-grid");
+        cy.get(`div[data-cy="sample-browser-container"]`)
+            .as("container");
         cy.waitUntil(() => {
-            return cy.get(gridComponent)
+            return cy.get("@container")
                 .should("be.visible");
         });
     });
 
+    // GRID
+    context("sample browser grid - table", () => {
 
-    context("render", () => {
-        it("should render sample-browser-grid", () => {
-            cy.get(gridComponent)
-                .should("be.visible");
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="sb-grid"]`)
+                .as("grid");
+        });
+
+        // 1. Render the grid
+        context("render", () => {
+            // It should render a table, with at least one column and one row
+            it("should render table", () => {
+                cy.get("@container")
+                    .find(`table`)
+                    .should("be.visible");
+                cy.get("@container")
+                    .find(`thead tr th`)
+                    .should("be.visible");
+                cy.get("@container")
+                    .find(`tbody tr`)
+                    .should("be.visible");
+            });
+            // It should render the pagination
+            it("should change page sample-browser-grid", () => {
+                UtilsTest.changePage(gridComponent,2);
+            });
+
+        });
+
+        context("extension", () => {
+            it("should display 'Extra Column' column", () => {
+                cy.get("thead th")
+                    .contains("Extra column")
+                    .should('be.visible')
+            })
         })
-        // Fixme: this test is not working
-        // it("should change page sample-browser-grid", () => {
-        //     UtilsTest.changePage(gridComponent,2);
-        // })
-    })
 
-    context("extension", () => {
-        it("Check 'Extra Column' column", () => {
-            cy.get("thead th")
-                .contains("Extra column")
-                .should('be.visible')
-        })
-    })
 
+    });
 });
