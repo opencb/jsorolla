@@ -57,19 +57,17 @@ class SampleBrowserGridTest extends LitElement {
         this._data = [];
         this._selectedInstance = {};
 
-        this.configSampleGrid = {
+        this.configGrid = {
             pageSize: 10,
             pageList: [10, 25, 50],
             multiSelection: false,
             showSelectCheckbox: false,
             toolbar: {
-                // showNew: true,
                 showColumns: true,
                 showDownload: false,
                 showExport: false,
                 showSettings: false,
                 exportTabs: ["download", "link", "code"]
-                // columns list for the dropdown will be added in grid webcomponents based on settings.table.columns
             },
         };
     }
@@ -81,38 +79,35 @@ class SampleBrowserGridTest extends LitElement {
     //  2. The filters
 
     update(changedProperties) {
-        if (changedProperties.has("testDataVersion")) {
-            this.testDataVersionObserver();
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
+            this.propertyObserver();
         }
-        // CAUTION: it could be useful to test by study. Json from current study?
-        /*
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
-         */
 
         super.update(changedProperties);
     }
 
-    testDataVersionObserver() {
-        const promises = this.FILES.map(file => {
-            return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
-        });
+    propertyObserver() {
+        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
 
-        // Import all files
-        Promise.all(promises)
-            .then(data => {
-                this._data = data[0];
-                this._selectedInstance = this._data[0];
-                // Mutate data and update
-                this.mutate();
-                this.requestUpdate();
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-            }).finally(() => {
-                this._ready = true;
+            const promises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
+
+            // Import all files
+            Promise.all(promises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedInstance = this._data[0];
+                    // Mutate data and update
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                }).finally(() => {
+                    this._ready = true;
+                });
+        }
     }
 
     mutate() {
@@ -135,19 +130,21 @@ class SampleBrowserGridTest extends LitElement {
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
-            </h2>
-            <sample-grid
-                .samples="${this._data}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.configSampleGrid}"
-                @selectrow="${this.selectInstance}">
-            </sample-grid>
-            <sample-detail
-                .opencgaSession="${this.opencgaSession}"
-                .sample="${this._selectedInstance}">
-            </sample-detail>
+            <div data-cy="sample-browser-container">
+                <h2 style="font-weight: bold;">
+                    Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
+                </h2>
+                <sample-grid
+                    .samples="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.configGrid}"
+                    @selectrow="${this.selectInstance}">
+                </sample-grid>
+                <sample-detail
+                    .sample="${this._selectedInstance}"
+                    .opencgaSession="${this.opencgaSession}">
+                </sample-detail>
+            </div>
         `;
     }
 
