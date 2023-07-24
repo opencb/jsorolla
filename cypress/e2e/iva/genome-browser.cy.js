@@ -385,7 +385,7 @@ context("GenomeBrowser Viz", () => {
             });
         });
 
-        context("opencga variants track", () => {
+        context("OpenCGA variants track", () => {
             const snvVariant = "17:43108791:A:G";
             const indelVariant = "17:43102949:-:T";
             const highlightedVariant = "17:43106026:C:T";
@@ -405,7 +405,7 @@ context("GenomeBrowser Viz", () => {
 
             beforeEach(() => {
                 cy.get("@tracklistPanel")
-                    .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (OpenCGA)"]`)
                     .as("opencgaVariantsTrack");
             });
 
@@ -417,7 +417,7 @@ context("GenomeBrowser Viz", () => {
             it("should render track title", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-title"]`)
-                    .should("contain.text", "Variant (Samples)");
+                    .should("contain.text", "Variants (OpenCGA)");
             });
 
             it("should not display errors", () => {
@@ -565,6 +565,75 @@ context("GenomeBrowser Viz", () => {
                 });
             });
  
+        });
+
+        context("Cellbase variants track", () => {
+            const variantId = "17:43104257:G:A";
+            const variantColor = "#8BC35A";
+
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (CellBase)"]`)
+                    .as("cellbaseVariantsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Variants (CellBase)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            it("should render features (variants)", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .should("exist");
+            });
+
+            it("should not render features labels", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .find(`text[data-cy="gb-feature-label"]`)
+                    .should("not.exist");
+            });
+
+            it("should style features rectangle", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .find(`rect[data-cy="gb-feature-rect"]`)
+                    .invoke("attr", "fill")
+                    .should("equal", variantColor);
+            });
+
+            it("should display a tooltip when hovering a variant", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", variantId);
+                });
+            });
         });
     });
 });

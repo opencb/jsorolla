@@ -137,11 +137,15 @@ class GenomeBrowserTest extends LitElement {
                 }),
                 // CellBase Variant track
                 new VariantTrack({
+                    title: "Variants (CellBase)",
                     cellBaseClient: this.opencgaSession.cellbaseClient,
+                    renderer: {
+                        color: () => "#8BC35A",
+                    },
                 }),
                 // OpenCGA Variant track with query
                 new OpenCGAVariantTrack({
-                    title: "Variant (Samples)",
+                    title: "Variants (OpenCGA)",
                     closable: false,
                     minHistogramRegionSize: 20000000,
                     maxLabelRegionSize: 10000000,
