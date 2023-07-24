@@ -568,7 +568,8 @@ context("GenomeBrowser Viz", () => {
         });
 
         context("Cellbase variants track", () => {
-            const variant = "17:43104257:G:A";
+            const variantId = "17:43104257:G:A";
+            const variantColor = "#8BC35A";
 
             beforeEach(() => {
                 cy.get("@tracklistPanel")
@@ -596,22 +597,31 @@ context("GenomeBrowser Viz", () => {
             it("should render features (variants)", () => {
                 cy.get("@cellbaseVariantsTrack")
                     .find(`div[data-cy="gb-track-content"]`)
-                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
                     .should("exist");
             });
 
             it("should not render features labels", () => {
                 cy.get("@cellbaseVariantsTrack")
                     .find(`div[data-cy="gb-track-content"]`)
-                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
                     .find(`text[data-cy="gb-feature-label"]`)
                     .should("not.exist");
+            });
+
+            it("should style features rectangle", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .find(`rect[data-cy="gb-feature-rect"]`)
+                    .invoke("attr", "fill")
+                    .should("equal", variantColor);
             });
 
             it("should display a tooltip when hovering a variant", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@cellbaseVariantsTrack")
-                    .find(`g[data-cy="gb-feature"][data-feature-id="${variant}"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
                     .trigger("mouseover", {force: true});
 
                 // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -621,7 +631,7 @@ context("GenomeBrowser Viz", () => {
                     
                     cy.get("div.qtip")
                         .find("div.qtip-title")
-                        .should("contain.text", variant);
+                        .should("contain.text", variantId);
                 });
             });
         });
