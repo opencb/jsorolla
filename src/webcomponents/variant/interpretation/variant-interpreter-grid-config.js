@@ -43,10 +43,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.onConfigObserver();
@@ -55,7 +51,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     onConfigObserver() {
-        this._highlights = this.config.highlights
+        this._highlights = (this.config?.highlights || [])
             .filter(h => h.active)
             .map(h => h.id)
             .join(",") || [];

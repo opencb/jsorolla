@@ -58,6 +58,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "variant-interpreter-rearrangement";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -72,6 +73,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -256,7 +258,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .toolId="${"variantInterpreterRearrangement"}"
+                .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>

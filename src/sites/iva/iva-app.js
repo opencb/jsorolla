@@ -101,6 +101,7 @@ import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
 // alternatvie B
 // import "../../../styles/scss/custom.scss";
@@ -240,7 +241,13 @@ class IvaApp extends LitElement {
             "variants-admin",
             "projects-admin",
             // REST-API
-            "rest-api"];
+            "rest-api",
+        ];
+
+        // Add custom tools
+        ExtensionsManager
+            .getTools()
+            .forEach(tool => components.push(tool.id));
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -2032,6 +2039,14 @@ class IvaApp extends LitElement {
                         <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
                 ` : null}
+
+                ${ExtensionsManager.getTools().map(tool => html`
+                    ${this.config.enabledComponents[tool.id] ? html`
+                        <div class="content">
+                            ${tool.render(this.opencgaSession)}
+                        </div>
+                    ` : null}
+                `)}
             </div>
 
             <custom-footer

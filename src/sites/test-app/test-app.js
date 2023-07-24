@@ -200,41 +200,19 @@ class TestApp extends LitElement {
     }
 
     initProjectMock() {
-        this.opencgaSession = {
-            project: {
-                id: "family",
-                name: "Family Studies GRCh38",
-                fqn: "demo@family",
-                description: "Project description",
-                organism: {
-                    scientificName: "hsapiens",
-                    commonName: "",
-                    assembly: "GRCh38"
-                },
-                cellbase: {
-                    url: "https://uk.ws.zettagenomics.com/cellbase/",
-                    version: "v5.1",
-                    dataRelease: "3"
+        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/opencga-session.json`)
+            .then(content => {
+                this.opencgaSession = content;
 
-                }
-            }
-        };
-
-        // TODO
-        // JSZip.loadAsync(UtilsNew.importBinaryFile(opencgasession.data.zip))
-        //     .then(zip => {
-        //         zip.file(filename).async("string")
-        //             .then(content => {
-        //                 this.opencgaSession = JSON.parse(content);
-        //                 this.requestUpdate();
-        //             });
-        //     }).catch(err => {
-        //     console.error("File not exist", err);
-        // });
-        // this.opencgaSession.projects = this.opencgaSession.user.projects;
-        // this.opencgaSession.project = this.opencgaSession.projects[0];
-        // this.opencgaSession.study = this.opencgaSession.project.studies[0];
-        // this.mutate();
+                // Initialise opencgaSession
+                this.opencgaSession.projects = content.user.projects;
+                this.opencgaSession.project = content.user.projects[0];
+                this.opencgaSession.study = content.user.projects[0].studies[0];
+                this.requestUpdate();
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
 

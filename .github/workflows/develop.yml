@@ -1,4 +1,4 @@
-name: "Main development workflow"
+name: "Develop branch workflow"
 
 on:
   push:
@@ -13,10 +13,9 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
     needs: build
-    secrets: inherit
     with:
       test_profile: runShortTests
-      report_context: development
+    secrets: inherit
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
