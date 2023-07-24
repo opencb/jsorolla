@@ -18,6 +18,7 @@ import BrowserTest from "../../support/browser-test.js";
 
 context("Family Browser Grid", () => {
     const browserGrid = "family-grid";
+    const browserDetail = "family-detail";
 
     beforeEach(() => {
         cy.visit("#family-browser-grid");
@@ -35,9 +36,9 @@ context("Family Browser Grid", () => {
     });
 
     context("Row", () => {
-        it("should display row #3 as selected", () => {
+        it("should display row #1 as selected", () => {
             cy.get("tbody tr")
-                .eq(3)
+                .eq(1)
                 .click()
                 .should("have.class","success");
         });
@@ -78,10 +79,10 @@ context("Family Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Name")
+            BrowserTest.getColumnIndexByHeader("Family")
             cy.get("@indexColumn")
                 .then((indexColumn) => {
-                    const indexRow = 2
+                    const indexRow = 1
                     cy.get(`tbody tr`)
                         .eq(indexRow)
                         .click() // select the row
@@ -96,16 +97,16 @@ context("Family Browser Grid", () => {
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
-                            const textTab = text.split(":");
+                            const textTab = text.trim().split(" ");
                             expect(textRow).to.equal(textTab[1].trim());
                         });
                 });
         });
 
-        it("should display 'Preview' Tab", () => {
+        it("should display 'JSON Data' Tab", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
-                .contains("Preview")
+                .contains("JSON Data")
                 .click()
                 .should('be.visible');
         });
