@@ -1,8 +1,8 @@
 context("GenomeBrowser Viz", () => {
     const region = {
         chromosome: "17",
-        start: 43096757,
-        end: 43112003,
+        start: 43102293,
+        end: 43106467,
     };
 
     beforeEach(() => {
@@ -197,7 +197,11 @@ context("GenomeBrowser Viz", () => {
             it("should display features", () => {
                 cy.get("@geneOverviewTrack")
                     .find(`svg g[data-cy="gb-feature"]`)
-                    .should("have.length", 6);
+                    .should("have.length", 1);
+                cy.get("@geneOverviewTrack")
+                    .find(`svg g[data-cy="gb-feature"]`)
+                    .invoke("attr", "data-feature-id")
+                    .should("equal", "ENSG00000012048");
             });
 
             it("should display feature labels", () => {
@@ -415,8 +419,11 @@ context("GenomeBrowser Viz", () => {
 
             const colorsByConsequenceType = {
                 "intron_variant": "#02599c",
-                "splice_region_variant": "#ff7f50",
-                "5_prime_UTR_variant": "#7ac5cd",
+                "synonymous_variant": "#8BC34A",
+                "missense_variant": "#ffd700",
+                // "splice_region_variant": "#ff7f50",
+                // "5_prime_UTR_variant": "#7ac5cd",
+                "3_prime_UTR_variant": "#7ac5cd"
             };
             const colorsByGenotype = {
                 "heterozygous": "darkorange",
