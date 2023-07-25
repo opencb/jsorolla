@@ -266,6 +266,11 @@ export default class Sample {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(samples, params) {
+        // Response for Genome browser test
+        if (params?.study === "TEST_STUDY_CANCER_GB" && samples === "TEST_SAMPLE_GB") {
+            return Promise.resolve({});
+        }
+
         return this._get("samples", samples, null, null, "info", params);
     }
 
