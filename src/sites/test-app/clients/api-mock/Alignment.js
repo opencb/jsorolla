@@ -94,7 +94,7 @@ export default class Alignment {
     queryCoverage(file, params) {
         // Response for genome browser test
         if (params?.study === "TEST_STUDY_CANCER_GB") {
-            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-42677465-43531295-coverage.json`);
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-43102293-43106467-coverage.json`);
         }
 
         return this._get("analysis", null, "alignment/coverage", null, "query", {file, ...params});
@@ -237,7 +237,7 @@ export default class Alignment {
     query(file, params) {
         // Response for genome browser test
         if (params?.study === "TEST_STUDY_CANCER_GB") {
-            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-42677465-43531295-alignments.json`);
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-43102293-43106467-alignments.json`);
         }
 
         return this._get("analysis", null, "alignment", null, "query", {file, ...params});
