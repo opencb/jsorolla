@@ -405,12 +405,16 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "Collection Method",
                                         field: "collection.method",
-                                        defaultValue: "-",
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Preparation Method",
                                         field: "processing.preparationMethod",
-                                        defaultValue: "-",
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Somatic",
@@ -427,7 +431,9 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "Status",
                                         field: "status.name",
-                                        defaultValue: "-",
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                 ],
                                 defaultValue: "No sample found",
