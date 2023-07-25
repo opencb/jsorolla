@@ -19,15 +19,16 @@
  *
 **/
 
-
-
 /**
  * This class contains the methods for the "Alignment" resource
  */
 
+import UtilsNew from "../../../../core/utils-new.js";
+
 export default class Alignment {
 
     constructor(config) {
+        this._config = config;
     }
 
     /** BWA is a software package for mapping low-divergent sequences against a large reference genome.
@@ -91,6 +92,11 @@ export default class Alignment {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryCoverage(file, params) {
+        // Response for genome browser test
+        if (params?.study === "TEST_STUDY_CANCER_GB") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-42677465-43531295-coverage.json`);
+        }
+
         return this._get("analysis", null, "alignment/coverage", null, "query", {file, ...params});
     }
 
@@ -229,6 +235,11 @@ export default class Alignment {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     query(file, params) {
+        // Response for genome browser test
+        if (params?.study === "TEST_STUDY_CANCER_GB") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-17-42677465-43531295-alignments.json`);
+        }
+
         return this._get("analysis", null, "alignment", null, "query", {file, ...params});
     }
 
