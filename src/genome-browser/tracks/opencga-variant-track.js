@@ -78,12 +78,12 @@ export default class OpenCGAVariantTrack extends FeatureTrack {
                     const sampleSexColor = GenomeBrowserUtils.getIndividualSexColor(info.sex);
                     const sampleStyle = `height:${this.config.sampleHeight}px;display:flex;flex-direction:column;justify-content:center;`;
                     return `
-                        <div style="${sampleStyle}" data-cy="gb-opencga-variants-samples-item" data-index="${index}">
+                        <div style="${sampleStyle}" data-cy="gb-opencga-variants-sample" data-index="${index}">
                             <div style="font-size:14px;">
-                                <i class="fas ${sampleSexIcon}" style="padding-right:4px;color:${sampleSexColor};"></i>
-                                <b style="color:${sampleColor};" data-cy="gb-opencga-variants-samples-item-name">${name}</b>
+                                <i class="fas ${sampleSexIcon}" data-cy="gb-opencga-variants-sample-sex" style="padding-right:4px;color:${sampleSexColor};"></i>
+                                <b style="color:${sampleColor};" data-cy="gb-opencga-variants-sample-name">${name}</b>
                             </div>
-                            <div style="color:#6C757D;font-size:10px;padding-left:12px;" data-cy="gb-opencga-variants-samples-item-type">
+                            <div style="color:#6C757D;font-size:10px;padding-left:12px;" data-cy="gb-opencga-variants-sample-type">
                                 <b>${info.somatic ? "Somatic" : "Germline"} sample</b>
                             </div>
                         </div>
