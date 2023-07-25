@@ -636,8 +636,8 @@ export default class Variant {
     */
     query(params) {
         // Response for genome browser test
-        if (params?.study === "PLATINUM_TEST_GENOMEBROWSER") {
-            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-17-42677465-43531295-variants.json`);
+        if (params?.study === "TEST_STUDY_PLATINUM_GB") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-17-43102293-43106467-variants.json`);
         }
 
         return this._get("analysis", null, "variant", null, "query", params);
