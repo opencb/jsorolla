@@ -25,6 +25,7 @@ import GeneTrack from "../../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../../genome-browser/tracks/sequence-track.js";
 import VariantTrack from "../../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../../genome-browser/tracks/opencga-variant-track.js";
+import OpenCGAAlignmentTrack from "../../../genome-browser/tracks/opencga-alignment-track.js";
 
 class GenomeBrowserTest extends LitElement {
 
@@ -165,6 +166,13 @@ class GenomeBrowserTest extends LitElement {
                             condition: feature => feature.end - feature.start + 1 > 0,
                         },
                     ],
+                }),
+                // OpenCGA alignments track
+                new OpenCGAAlignmentTrack({
+                    title: "Alignments (OpenCGA)",
+                    opencgaClient: this.opencgaSession.opencgaClient,
+                    opencgaStudy: "TEST_STUDY_CANCER_GB",
+                    sample: "TEST_SAMPLE_GB",
                 }),
             ]);
 
