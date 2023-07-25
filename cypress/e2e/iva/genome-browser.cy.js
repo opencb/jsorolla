@@ -720,106 +720,115 @@ context("GenomeBrowser Viz", () => {
                     .should("not.be.visible");
             });
 
-            it("should render coverage", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-coverage"] > polyline`)
-                    .should("exist");
-            });
-
-            it("should render alignments", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .should("exist")
-                    .and("not.be.empty");
-            });
-
-            it("should render paired reads", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-read"]`)
-                    .should("have.length", 2);
-            });
-
-            it("should render connector between paired reads", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-connector"]`)
-                    .should("exist");
-            });
-
-            it("should encode possible deletion as read color", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-read"]`)
-                    .invoke("attr", "fill")
-                    .should("equal", alignmentsColor.possibleDeletion);
-            });
-
-            it("should not render a connector in overlapped reads (possible deletion)", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-connector"]`)
-                    .should("not.exist");
-            });
-
-            it("should render a single read in a translocation alignment", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-read"]`)
-                    .should("have.length", 1);
-            });
-
-            it("should encode translocation as read color", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-read"]`)
-                    .invoke("attr", "fill")
-                    .should("equal", alignmentsColor.translocation);
-            });
-
-            it("should encode low quality read as fill-opacity", () => {
-                cy.get("@alignmentsTrack")
-                    .find(`g[data-cy="gb-alignments"]`)
-                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${lowQualityAlignmentId}"]`)
-                    .find(`path[data-cy="gb-alignment-read"]`)
-                    .invoke("attr", "fill-opacity")
-                    .should("equal", "0.2");
-            });
-
-            context("tooltip", () => {
+            context("coverage", () => {
                 beforeEach(() => {
-                    // eslint-disable-next-line cypress/no-force
                     cy.get("@alignmentsTrack")
-                        .find(`g[data-cy="gb-alignments"]`)
-                        .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
-                        .find(`path[data-cy="gb-alignment-read"]`)
-                        .first()
-                        .trigger("mouseover", {force: true});
+                        .find(`g[data-cy="gb-coverage"]`)
+                        .as("coverage");
                 });
 
-                it("should display a tooltip when hovering a read", () => {
-                    cy.get("div.qtip")
+                it("should render coverage of current region", () => {
+                    cy.get("@coverage")
+                        .find("polyline")
                         .should("exist");
                 });
+            });
 
-                it("should display the alignment ID in the tooltip title", () => {
-                    cy.get("div.qtip")
-                        .find("div.qtip-title")
-                        .should("contain.text", `Alignment ${pairedAlignmentId}`);
+            context("alignments", () => {
+                beforeEach(() => {
+                    cy.get("@alignmentsTrack")
+                        .find(`g[data-cy="gb-alignments"]`)
+                        .as("alignments");
                 });
 
-                it("should display read flags in tooltip when hovering the read", () => {
-                    cy.get("div.qtip")
-                        .find("div.qtip-content")
-                        .find(`div[data-cy="gb-alignment-tooltip-flags"]`)
-                        .find(`div[data-cy="gb-alignment-tooltip-flag"]`)
-                        .should("have.length.greaterThan", 0);
+                it("should render alignments", () => {
+                    cy.get("@alignments")
+                        .should("exist")
+                        .and("not.be.empty");
+                });
+
+                context("reads", () => {
+                    it("should render paired reads", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .should("have.length", 2);
+                    });
+
+                    it("should render connector between paired reads", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-connector"]`)
+                            .should("exist");
+                    });
+
+                    it("should encode possible deletion as the read color", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", alignmentsColor.possibleDeletion);
+                    });
+
+                    it("should not render a connector in overlapped reads (possible deletion)", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-connector"]`)
+                            .should("not.exist");
+                    });
+
+                    it("should render a single read in a translocation alignment", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .should("have.length", 1);
+                    });
+
+                    it("should encode translocation as the read color", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", alignmentsColor.translocation);
+                    });
+
+                    it("should encode quality as the read fill-opacity", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${lowQualityAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill-opacity")
+                            .should("equal", "0.2");
+                    });
+                });
+
+                context("tooltip", () => {
+                    beforeEach(() => {
+                        // eslint-disable-next-line cypress/no-force
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .first()
+                            .trigger("mouseover", {force: true});
+                    });
+
+                    it("should display a tooltip when hovering a read", () => {
+                        cy.get("div.qtip")
+                            .should("exist");
+                    });
+
+                    it("should display the alignment ID in the tooltip title", () => {
+                        cy.get("div.qtip")
+                            .find("div.qtip-title")
+                            .should("contain.text", `Alignment ${pairedAlignmentId}`);
+                    });
+
+                    it("should display read flags in tooltip when hovering the read", () => {
+                        cy.get("div.qtip")
+                            .find("div.qtip-content")
+                            .find(`div[data-cy="gb-alignment-tooltip-flags"]`)
+                            .find(`div[data-cy="gb-alignment-tooltip-flag"]`)
+                            .should("have.length.greaterThan", 0);
+                    });
                 });
             });
         });
