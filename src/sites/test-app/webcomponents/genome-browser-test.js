@@ -93,8 +93,8 @@ class GenomeBrowserTest extends LitElement {
         const target = this.querySelector(`div#${this._prefix}`);
         const region = new Region({
             chromosome: "17",
-            start: 43096757,
-            end: 43112003,
+            start: 43102293,
+            end: 43106467,
         });
         const species = {
             id: "hsapiens",
@@ -154,7 +154,7 @@ class GenomeBrowserTest extends LitElement {
                     visibleRegionSize: 100000000,
                     height: 200,
                     opencgaClient: this.opencgaSession.opencgaClient,
-                    opencgaStudy: "PLATINUM_TEST_GENOMEBROWSER",
+                    opencgaStudy: "TEST_STUDY_PLATINUM_GB",
                     query: {
                         sample: "NA12877,NA12878,NA12889",
                     },
