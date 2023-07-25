@@ -662,5 +662,30 @@ context("GenomeBrowser Viz", () => {
                 });
             });
         });
+
+        context("Alignments track", () => {
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Alignments (OpenCGA)"]`)
+                    .as("alignmentsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@alignmentsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Alignments (OpenCGA)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+        });
     });
 });
