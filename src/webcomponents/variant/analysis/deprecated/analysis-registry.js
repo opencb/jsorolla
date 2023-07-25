@@ -1,5 +1,5 @@
-import OpencgaKnockoutAnalysis from "./deprecated/opencga-knockout-analysis.js";
-import OpencgaRecessiveGeneAnalysis from "./deprecated/opencga-recessive-gene-analysis.js";
+import OpencgaKnockoutAnalysis from "./opencga-knockout-analysis.js";
+import OpencgaRecessiveGeneAnalysis from "./opencga-recessive-gene-analysis.js";
 
 export default class AnalysisRegistry {
 
@@ -17,18 +17,18 @@ export default class AnalysisRegistry {
     }
 
     static get(id) {
-        const ar = this.registry[id];
+        const AR = this.registry[id];
         // override the class default result config
-        if (ar) {
-            if (ar.result) {
-                ar.class.result = ar.result;
+        if (AR) {
+            if (AR.result) {
+                AR.class.result = AR.result;
             }
 
-            if (ar.config) {
-                ar.class.config = {...ar.class.config, ...ar.config};
+            if (AR.config) {
+                AR.class.config = {...AR.class.config, ...AR.config};
             }
             // return Reflect.constructor(ar.class, ar.config)
-            return new ar.class(ar.config);
+            return new AR.class(AR.config);
         } else {
             console.warn("Analysis Class not found:" + id);
         }

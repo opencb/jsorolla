@@ -19,11 +19,11 @@ import {classMap} from "lit/directives/class-map.js";
 import GridCommons from "../../../commons/grid-commons.js";
 import UtilsNew from "../../../../core/utils-new.js";
 import "../../../commons/analysis/opencga-analysis-tool.js";
-import AnalysisRegistry from "../analysis-registry.js";
+import AnalysisRegistry from "./analysis-registry.js";
 import "../../../commons/forms/select-field-filter.js";
-import "../opencga-knockout-analysis/knockout-gene-grid.js";
-import "../opencga-knockout-analysis/knockout-individual-view.js";
-import "../opencga-knockout-analysis/knockout-variant-view.js";
+import "./opencga-knockout-analysis/knockout-gene-grid.js";
+import "./opencga-knockout-analysis/knockout-individual-view.js";
+import "./opencga-knockout-analysis/knockout-variant-view.js";
 
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
@@ -71,8 +71,6 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
@@ -82,7 +80,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     _changeTab(e) {
         e.preventDefault();
         const tabId = e.currentTarget.dataset.id;
-        //the selectors are strictly defined to avoid conflics in tabs in children components
+        // the selectors are strictly defined to avoid conflics in tabs in children components
         $("#opencga-knockout-analysis-result > div > .content-pills", this).removeClass("active");
         $("#opencga-knockout-analysis-result > .content-tab-wrapper > .content-tab", this).hide();
         $("#" + this._prefix + tabId, this).show();
@@ -95,11 +93,11 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     }
 
     getDefaultConfig() {
-        return AnalysisRegistry.get("knockout").config;
+        // return AnalysisRegistry.get("knockout").config;
     }
 
     render() {
-        //wait for opencgaSession to be available because inner components use it
+        // wait for opencgaSession to be available because inner components use it
         return this.opencgaSession ? html`
             <div class="container" style="margin-top: 60px">
                 <div id="opencga-knockout-analysis-result">
