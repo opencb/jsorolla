@@ -32,14 +32,14 @@ export class CellBaseClientMock {
             }
             // Genome browser: import genes in specified region
             if (subcategory === "region" && resource === "gene") {
-                if (ids === "17:42677465-43531295" || ids === "17:43051016-43157744") {
-                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-42677465-43531295-genes.json`);
+                if (ids === "17:42987481-43221279" || ids === "17:43089768-43118992") {
+                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-43102293-43106467-genes.json`);
                 }
             }
             // Genome browser: import variants in specified region
             if (subcategory === "region" && resource === "variant") {
-                if (ids === "17:43051016-43157744") {
-                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-42677465-43531295-variants.json`);
+                if (ids === "17:43089768-43118992") {
+                    return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-region-17-43102293-43106467-variants.json`);
                 }
             }
         }
