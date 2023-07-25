@@ -416,6 +416,7 @@ context("GenomeBrowser Viz", () => {
 
             const sampleNames = ["NA12877", "NA12878", "NA12889"];
             const sampleTypes = ["Somatic", "Somatic", "Germline"];
+            const sampleSexIcons = ["fa-mars", "fa-genderless", "fa-genderless"];
 
             const colorsByConsequenceType = {
                 "intron_variant": "#02599c",
@@ -453,18 +454,37 @@ context("GenomeBrowser Viz", () => {
                     .should("not.be.visible");
             });
 
-            it("should render sample names and types", () => {
+            it("should render sample names", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
-                    .find(`div[data-cy="gb-opencga-variants-samples-item"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
                     .each((el, index) => {
                         cy.wrap(el)
-                            .find(`[data-cy="gb-opencga-variants-samples-item-name"]`)
+                            .find(`[data-cy="gb-opencga-variants-sample-name"]`)
                             .should("contain.text", sampleNames[index]);
+                    });
+            });
 
+            it("should render sample types", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
+                    .each((el, index) => {
                         cy.wrap(el)
-                            .find(`[data-cy="gb-opencga-variants-samples-item-type"]`)
+                            .find(`[data-cy="gb-opencga-variants-sample-type"]`)
                             .should("contain.text", sampleTypes[index]);
+                    });
+            });
+
+            it("should render sample sex", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
+                    .each((el, index) => {
+                        cy.wrap(el)
+                            .find(`[data-cy="gb-opencga-variants-sample-sex"]`)
+                            .invoke("attr", "class")
+                            .should("contain", sampleSexIcons[index]);
                     });
             });
 
@@ -664,6 +684,19 @@ context("GenomeBrowser Viz", () => {
         });
 
         context("Alignments track", () => {
+            const pairedAlignmentId = "A00354:92:HLCFJDSXX:2:2307:17390:27352";
+            const deletionAlignmentId = "A00354:92:HLCFJDSXX:2:2278:31439:21621";
+            const translocationAlignmentId = "E00527:162:H23G7CCX2:4:2201:12611:7866";
+            const lowQualityAlignmentId = "A00354:92:HLCFJDSXX:1:2233:30779:21762";
+
+            const alignmentsColor = {
+                default: "#6c757d",
+                possibleDeletion: "#dc3545",
+                // possibleInsertion: "#0d6efd",
+                translocation: "#fd7e14",
+                // not_paired: "#140330", // "#2c0b0e",
+            };
+
             beforeEach(() => {
                 cy.get("@tracklistPanel")
                     .find(`div[data-cy="gb-track"][data-track-title="Alignments (OpenCGA)"]`)
@@ -685,6 +718,109 @@ context("GenomeBrowser Viz", () => {
                 cy.get("@alignmentsTrack")
                     .find(`div[data-cy="gb-track-error"]`)
                     .should("not.be.visible");
+            });
+
+            it("should render coverage", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-coverage"] > polyline`)
+                    .should("exist");
+            });
+
+            it("should render alignments", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .should("exist")
+                    .and("not.be.empty");
+            });
+
+            it("should render paired reads", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-read"]`)
+                    .should("have.length", 2);
+            });
+
+            it("should render connector between paired reads", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-connector"]`)
+                    .should("exist");
+            });
+
+            it("should encode possible deletion as read color", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-read"]`)
+                    .invoke("attr", "fill")
+                    .should("equal", alignmentsColor.possibleDeletion);
+            });
+
+            it("should not render a connector in overlapped reads (possible deletion)", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-connector"]`)
+                    .should("not.exist");
+            });
+
+            it("should render a single read in a translocation alignment", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-read"]`)
+                    .should("have.length", 1);
+            });
+
+            it("should encode translocation as read color", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-read"]`)
+                    .invoke("attr", "fill")
+                    .should("equal", alignmentsColor.translocation);
+            });
+
+            it("should encode low quality read as fill-opacity", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`g[data-cy="gb-alignments"]`)
+                    .find(`g[data-cy="gb-alignment"][data-alignment-id="${lowQualityAlignmentId}"]`)
+                    .find(`path[data-cy="gb-alignment-read"]`)
+                    .invoke("attr", "fill-opacity")
+                    .should("equal", "0.2");
+            });
+
+            context("tooltip", () => {
+                beforeEach(() => {
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("@alignmentsTrack")
+                        .find(`g[data-cy="gb-alignments"]`)
+                        .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                        .find(`path[data-cy="gb-alignment-read"]`)
+                        .first()
+                        .trigger("mouseover", {force: true});
+                });
+
+                it("should display a tooltip when hovering a read", () => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                });
+
+                it("should display the alignment ID in the tooltip title", () => {
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", `Alignment ${pairedAlignmentId}`);
+                });
+
+                it("should display read flags in tooltip when hovering the read", () => {
+                    cy.get("div.qtip")
+                        .find("div.qtip-content")
+                        .find(`div[data-cy="gb-alignment-tooltip-flags"]`)
+                        .find(`div[data-cy="gb-alignment-tooltip-flag"]`)
+                        .should("have.length.greaterThan", 0);
+                });
             });
         });
     });
