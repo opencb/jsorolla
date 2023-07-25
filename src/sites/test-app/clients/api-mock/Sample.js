@@ -218,7 +218,7 @@ export default class Sample {
     */
     search(params) {
         // Response for genome browser test
-        if (params?.study === "PLATINUM_TEST_GENOMEBROWSER") {
+        if (params?.study === "TEST_STUDY_PLATINUM_GB") {
             return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-platinum-samples.json`);
         }
     }
