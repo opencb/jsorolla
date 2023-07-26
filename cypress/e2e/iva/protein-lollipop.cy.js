@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-context("Protein Lollipop Viz", () => {
+context("Protein Lollipop", () => {
     const highlightedVariant = "X:150638967:G:-";
     const hoverVariant = "X:150641342:T:-";
     const highlightColor = "rgba(253, 152, 67, 0.6)";
@@ -69,6 +69,33 @@ context("Protein Lollipop Viz", () => {
             cy.get("@container")
                 .find(`g[data-track="main:variants"]`)
                 .as("variantsTrack");
+        });
+
+        it("should render variants", () => {
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"]`)
+                .should("have.length.greaterThan", 0);
+        });
+
+        it("should render variant circle and path", () => {
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"]`)
+                .first()
+                .within(() => {
+                    cy.get(`path[data-cy="protein-lollipop-variant-path"]`)
+                        .should("exist");
+                    cy.get(`circle[data-cy="protein-lollipop-variant-circle"]`)
+                        .should("exist");
+                });
+        });
+
+        it("should render variant label", () => {
+            const position = "43";
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"][data-position="${position}"]`)
+                .find(`text[data-cy="protein-lollipop-variant-label"]`)
+                .should("exist")
+                .and("contain.text", position);
         });
 
         context("highlight", () => {
