@@ -23,8 +23,9 @@ import GenomeBrowser from "../../../genome-browser/genome-browser.js";
 import GeneOverviewTrack from "../../../genome-browser/tracks/gene-overview-track.js";
 import GeneTrack from "../../../genome-browser/tracks/gene-track.js";
 import SequenceTrack from "../../../genome-browser/tracks/sequence-track.js";
+import VariantTrack from "../../../genome-browser/tracks/variant-track.js";
 import OpenCGAVariantTrack from "../../../genome-browser/tracks/opencga-variant-track.js";
-
+import OpenCGAAlignmentTrack from "../../../genome-browser/tracks/opencga-alignment-track.js";
 
 class GenomeBrowserTest extends LitElement {
 
@@ -92,8 +93,8 @@ class GenomeBrowserTest extends LitElement {
         const target = this.querySelector(`div#${this._prefix}`);
         const region = new Region({
             chromosome: "17",
-            start: 43096757,
-            end: 43112003,
+            start: 43102293,
+            end: 43106467,
         });
         const species = {
             id: "hsapiens",
@@ -135,9 +136,17 @@ class GenomeBrowserTest extends LitElement {
                     title: "Gene",
                     cellBaseClient: this.opencgaSession.cellbaseClient,
                 }),
+                // CellBase Variant track
+                new VariantTrack({
+                    title: "Variants (CellBase)",
+                    cellBaseClient: this.opencgaSession.cellbaseClient,
+                    renderer: {
+                        color: () => "#8BC35A",
+                    },
+                }),
                 // OpenCGA Variant track with query
                 new OpenCGAVariantTrack({
-                    title: "Variant (Samples)",
+                    title: "Variants (OpenCGA)",
                     closable: false,
                     minHistogramRegionSize: 20000000,
                     maxLabelRegionSize: 10000000,
@@ -145,7 +154,7 @@ class GenomeBrowserTest extends LitElement {
                     visibleRegionSize: 100000000,
                     height: 200,
                     opencgaClient: this.opencgaSession.opencgaClient,
-                    opencgaStudy: "PLATINUM_TEST_GENOMEBROWSER",
+                    opencgaStudy: "TEST_STUDY_PLATINUM_GB",
                     query: {
                         sample: "NA12877,NA12878,NA12889",
                     },
@@ -157,6 +166,13 @@ class GenomeBrowserTest extends LitElement {
                             condition: feature => feature.end - feature.start + 1 > 0,
                         },
                     ],
+                }),
+                // OpenCGA alignments track
+                new OpenCGAAlignmentTrack({
+                    title: "Alignments (OpenCGA)",
+                    opencgaClient: this.opencgaSession.opencgaClient,
+                    opencgaStudy: "TEST_STUDY_CANCER_GB",
+                    sample: "TEST_SAMPLE_GB",
                 }),
             ]);
 

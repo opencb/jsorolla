@@ -185,6 +185,7 @@ export default class GeneRenderer extends Renderer {
                                 "data-type": "transcript",
                                 "data-id": transcript[this.config.infoWidgetId],
                                 "data-index": transcriptIndex,
+                                "data-biotype": transcript?.biotype || "-",
                             });
 
                             // Transcript line
@@ -248,6 +249,8 @@ export default class GeneRenderer extends Renderer {
                                     "data-id": exon.id,
                                     "data-type": "exon",
                                     "data-index": exonIndex,
+                                    "data-transcript-id": transcript?.id || "-",
+                                    "data-transcript-biotype": transcript?.biotype || "-",
                                 });
 
                                 $(exonGroup).qtip({
@@ -288,6 +291,7 @@ export default class GeneRenderer extends Renderer {
 
                                 if (codingLength > 0) {
                                     SVG.addChild(exonGroup, "rect", {
+                                        "data-cy": "gb-feature-exon-coding",
                                         "i": transcriptIndex,
                                         "x": codingX,
                                         "y": checkRowY - 1,

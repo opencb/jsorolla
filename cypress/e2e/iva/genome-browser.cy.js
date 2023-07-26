@@ -1,8 +1,8 @@
 context("GenomeBrowser Viz", () => {
     const region = {
         chromosome: "17",
-        start: 43096757,
-        end: 43112003,
+        start: 43102293,
+        end: 43106467,
     };
 
     beforeEach(() => {
@@ -197,7 +197,11 @@ context("GenomeBrowser Viz", () => {
             it("should display features", () => {
                 cy.get("@geneOverviewTrack")
                     .find(`svg g[data-cy="gb-feature"]`)
-                    .should("have.length", 6);
+                    .should("have.length", 1);
+                cy.get("@geneOverviewTrack")
+                    .find(`svg g[data-cy="gb-feature"]`)
+                    .invoke("attr", "data-feature-id")
+                    .should("equal", "ENSG00000012048");
             });
 
             it("should display feature labels", () => {
@@ -366,6 +370,26 @@ context("GenomeBrowser Viz", () => {
                     .should("exist");
             });
 
+            it("should encode biotype as the exon color", () => {
+                const exons = ["ENSE00001946902.1", "ENSE00002796714.1", "ENSE00003824040.1"];
+                const biotypes = ["protein_coding", "non_stop_decay", "nonsense_mediated_decay"];
+                const colors = ["#a00000", "aqua", "seagreen"];
+
+                exons.forEach((exonId, index) => {
+                    cy.get("@geneTrack")
+                        .find(`div[data-cy="gb-track-content"] g[data-cy="gb-feature-exon"][data-id="${exonId}"]`)
+                        .as("exon");
+                    
+                    cy.get("@exon")
+                        .invoke("attr", "data-transcript-biotype")
+                        .should("equal", biotypes[index]);
+                    cy.get("@exon")
+                        .find(`rect[data-cy="gb-feature-exon-coding"]`)
+                        .invoke("attr", "fill")
+                        .should("equal", colors[index]);
+                });
+            });
+
             it("should display tooltip when hovering an exon", () => {
                 // eslint-disable-next-line cypress/no-force
                 cy.get("@geneTrack")
@@ -385,18 +409,22 @@ context("GenomeBrowser Viz", () => {
             });
         });
 
-        context("opencga variants track", () => {
+        context("OpenCGA variants track", () => {
             const snvVariant = "17:43108791:A:G";
             const indelVariant = "17:43102949:-:T";
             const highlightedVariant = "17:43106026:C:T";
 
             const sampleNames = ["NA12877", "NA12878", "NA12889"];
             const sampleTypes = ["Somatic", "Somatic", "Germline"];
+            const sampleSexIcons = ["fa-mars", "fa-genderless", "fa-genderless"];
 
             const colorsByConsequenceType = {
                 "intron_variant": "#02599c",
-                "splice_region_variant": "#ff7f50",
-                "5_prime_UTR_variant": "#7ac5cd",
+                "synonymous_variant": "#8BC34A",
+                "missense_variant": "#ffd700",
+                // "splice_region_variant": "#ff7f50",
+                // "5_prime_UTR_variant": "#7ac5cd",
+                "3_prime_UTR_variant": "#7ac5cd"
             };
             const colorsByGenotype = {
                 "heterozygous": "darkorange",
@@ -405,7 +433,7 @@ context("GenomeBrowser Viz", () => {
 
             beforeEach(() => {
                 cy.get("@tracklistPanel")
-                    .find(`div[data-cy="gb-track"][data-track-title="Variant (Samples)"]`)
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (OpenCGA)"]`)
                     .as("opencgaVariantsTrack");
             });
 
@@ -417,7 +445,7 @@ context("GenomeBrowser Viz", () => {
             it("should render track title", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-title"]`)
-                    .should("contain.text", "Variant (Samples)");
+                    .should("contain.text", "Variants (OpenCGA)");
             });
 
             it("should not display errors", () => {
@@ -426,18 +454,37 @@ context("GenomeBrowser Viz", () => {
                     .should("not.be.visible");
             });
 
-            it("should render sample names and types", () => {
+            it("should render sample names", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
-                    .find(`div[data-cy="gb-opencga-variants-samples-item"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
                     .each((el, index) => {
                         cy.wrap(el)
-                            .find(`[data-cy="gb-opencga-variants-samples-item-name"]`)
+                            .find(`[data-cy="gb-opencga-variants-sample-name"]`)
                             .should("contain.text", sampleNames[index]);
+                    });
+            });
 
+            it("should render sample types", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
+                    .each((el, index) => {
                         cy.wrap(el)
-                            .find(`[data-cy="gb-opencga-variants-samples-item-type"]`)
+                            .find(`[data-cy="gb-opencga-variants-sample-type"]`)
                             .should("contain.text", sampleTypes[index]);
+                    });
+            });
+
+            it("should render sample sex", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"] div[data-cy="gb-opencga-variants-samples"]`)
+                    .find(`div[data-cy="gb-opencga-variants-sample"]`)
+                    .each((el, index) => {
+                        cy.wrap(el)
+                            .find(`[data-cy="gb-opencga-variants-sample-sex"]`)
+                            .invoke("attr", "class")
+                            .should("contain", sampleSexIcons[index]);
                     });
             });
 
@@ -565,6 +612,225 @@ context("GenomeBrowser Viz", () => {
                 });
             });
  
+        });
+
+        context("Cellbase variants track", () => {
+            const variantId = "17:43104257:G:A";
+            const variantColor = "#8BC35A";
+
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Variants (CellBase)"]`)
+                    .as("cellbaseVariantsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Variants (CellBase)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            it("should render features (variants)", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .should("exist");
+            });
+
+            it("should not render features labels", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .find(`text[data-cy="gb-feature-label"]`)
+                    .should("not.exist");
+            });
+
+            it("should style features rectangle", () => {
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`div[data-cy="gb-track-content"]`)
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .find(`rect[data-cy="gb-feature-rect"]`)
+                    .invoke("attr", "fill")
+                    .should("equal", variantColor);
+            });
+
+            it("should display a tooltip when hovering a variant", () => {
+                // eslint-disable-next-line cypress/no-force
+                cy.get("@cellbaseVariantsTrack")
+                    .find(`g[data-cy="gb-feature"][data-feature-id="${variantId}"]`)
+                    .trigger("mouseover", {force: true});
+
+                // eslint-disable-next-line cypress/no-unnecessary-waiting
+                cy.wait(2000).then(() => {
+                    cy.get("div.qtip")
+                        .should("exist");
+                    
+                    cy.get("div.qtip")
+                        .find("div.qtip-title")
+                        .should("contain.text", variantId);
+                });
+            });
+        });
+
+        context("Alignments track", () => {
+            const pairedAlignmentId = "A00354:92:HLCFJDSXX:2:2307:17390:27352";
+            const deletionAlignmentId = "A00354:92:HLCFJDSXX:2:2278:31439:21621";
+            const translocationAlignmentId = "E00527:162:H23G7CCX2:4:2201:12611:7866";
+            const lowQualityAlignmentId = "A00354:92:HLCFJDSXX:1:2233:30779:21762";
+
+            const alignmentsColor = {
+                default: "#6c757d",
+                possibleDeletion: "#dc3545",
+                // possibleInsertion: "#0d6efd",
+                translocation: "#fd7e14",
+                // not_paired: "#140330", // "#2c0b0e",
+            };
+
+            beforeEach(() => {
+                cy.get("@tracklistPanel")
+                    .find(`div[data-cy="gb-track"][data-track-title="Alignments (OpenCGA)"]`)
+                    .as("alignmentsTrack");
+            });
+
+            it("should render", () => {
+                cy.get("@alignmentsTrack")
+                    .should("exist");
+            });
+
+            it("should render track title", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`div[data-cy="gb-track-title"]`)
+                    .should("contain.text", "Alignments (OpenCGA)");
+            });
+
+            it("should not display errors", () => {
+                cy.get("@alignmentsTrack")
+                    .find(`div[data-cy="gb-track-error"]`)
+                    .should("not.be.visible");
+            });
+
+            context("coverage", () => {
+                beforeEach(() => {
+                    cy.get("@alignmentsTrack")
+                        .find(`g[data-cy="gb-coverage"]`)
+                        .as("coverage");
+                });
+
+                it("should render coverage of current region", () => {
+                    cy.get("@coverage")
+                        .find("polyline")
+                        .should("exist");
+                });
+            });
+
+            context("alignments", () => {
+                beforeEach(() => {
+                    cy.get("@alignmentsTrack")
+                        .find(`g[data-cy="gb-alignments"]`)
+                        .as("alignments");
+                });
+
+                it("should render alignments", () => {
+                    cy.get("@alignments")
+                        .should("exist")
+                        .and("not.be.empty");
+                });
+
+                context("reads", () => {
+                    it("should render paired reads", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .should("have.length", 2);
+                    });
+
+                    it("should render connector between paired reads", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-connector"]`)
+                            .should("exist");
+                    });
+
+                    it("should encode possible deletion as the read color", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", alignmentsColor.possibleDeletion);
+                    });
+
+                    it("should not render a connector in overlapped reads (possible deletion)", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${deletionAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-connector"]`)
+                            .should("not.exist");
+                    });
+
+                    it("should render a single read in a translocation alignment", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .should("have.length", 1);
+                    });
+
+                    it("should encode translocation as the read color", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${translocationAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill")
+                            .should("equal", alignmentsColor.translocation);
+                    });
+
+                    it("should encode quality as the read fill-opacity", () => {
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${lowQualityAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .invoke("attr", "fill-opacity")
+                            .should("equal", "0.2");
+                    });
+                });
+
+                context("tooltip", () => {
+                    beforeEach(() => {
+                        // eslint-disable-next-line cypress/no-force
+                        cy.get("@alignments")
+                            .find(`g[data-cy="gb-alignment"][data-alignment-id="${pairedAlignmentId}"]`)
+                            .find(`path[data-cy="gb-alignment-read"]`)
+                            .first()
+                            .trigger("mouseover", {force: true});
+                    });
+
+                    it("should display a tooltip when hovering a read", () => {
+                        cy.get("div.qtip")
+                            .should("exist");
+                    });
+
+                    it("should display the alignment ID in the tooltip title", () => {
+                        cy.get("div.qtip")
+                            .find("div.qtip-title")
+                            .should("contain.text", `Alignment ${pairedAlignmentId}`);
+                    });
+
+                    it("should display read flags in tooltip when hovering the read", () => {
+                        cy.get("div.qtip")
+                            .find("div.qtip-content")
+                            .find(`div[data-cy="gb-alignment-tooltip-flags"]`)
+                            .find(`div[data-cy="gb-alignment-tooltip-flag"]`)
+                            .should("have.length.greaterThan", 0);
+                    });
+                });
+            });
         });
     });
 });

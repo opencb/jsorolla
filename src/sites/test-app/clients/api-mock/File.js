@@ -19,7 +19,8 @@
  *
  **/
 
-import {RestResponse} from "../../../../core/clients/rest-response";
+import {RestResponse} from "../../../../core/clients/rest-response.js";
+import UtilsNew from "../../../../core/utils-new.js";
 
 
 /**
@@ -29,6 +30,7 @@ import {RestResponse} from "../../../../core/clients/rest-response";
 export default class File {
 
     constructor(config) {
+        this._config = config;
     }
 
     /** Update the set of permissions granted for the member
@@ -250,6 +252,12 @@ export default class File {
      * @returns {Promise} Promise object in the form of RestResponse instance.
      */
     search(params) {
+        // Response for Genome browser test
+        if (params?.study === "TEST_STUDY_CANCER_GB" && params?.sampleIds === "TEST_SAMPLE_GB") {
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/genome-browser-cancer-files-alignment.json`);
+
+        }
+
         return this._get("files", null, null, null, "search", params);
     }
 

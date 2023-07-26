@@ -15,9 +15,11 @@
  */
 
 import UtilsTest from "../../support/utils-test.js";
+import BrowserTest from "../../support/browser-test.js";
 
 context("Cohort Browser Grid", () => {
     const browserGrid = "cohort-grid";
+    const browserDetail = "cohort-detail";
 
     beforeEach(() => {
         cy.visit("#cohort-browser-grid");
@@ -39,10 +41,67 @@ context("Cohort Browser Grid", () => {
         });
     });
 
+    context("Row", () => {
+        it("should display row #3 as selected", () => {
+                cy.get("tbody tr")
+                    .eq(3)
+                    .click()
+                    .should("have.class","success");
+            });
+    });
+
     context("extension", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
+                .should('be.visible');
+        });
+
+        it("should display 'New Catalog Tab' Tab", () => {
+            cy.get(`detail-tabs > div.detail-tabs > ul`)
+                .find("li")
+                .contains("New Catalog Tab")
+                .click()
+                .should('be.visible');
+        });
+    });
+
+    context("detail tab", () => {
+        it("should render", () => {
+            cy.get(browserDetail)
+                .should("be.visible");
+        });
+
+        it("should display info from the selected row",() => {
+            BrowserTest.getColumnIndexByHeader("Cohort")
+            cy.get("@indexColumn")
+                .then((indexColumn) => {
+                    const indexRow = 2
+                    cy.get(`tbody tr`)
+                        .eq(indexRow)
+                        .click() // select the row
+                        .find("td")
+                        .eq(indexColumn)
+                        .invoke("text")
+                        .as("textRow")
+                    });
+
+            cy.get("@textRow")
+                .then((textRow) => {
+                    cy.get("detail-tabs > div.panel")
+                        .invoke("text")
+                        .then((text) => {
+                            const textTab = text.trim().split(" ");
+                            expect(textRow).to.equal(textTab[1].trim());
+                        });
+                });
+        });
+
+        it("should display 'JSON Data' Tab", () => {
+            cy.get(`detail-tabs > div.detail-tabs > ul`)
+                .find("li")
+                .contains("JSON Data")
+                .click()
                 .should('be.visible');
         });
     });

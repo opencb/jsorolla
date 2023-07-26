@@ -432,8 +432,9 @@ export default class GenomeBrowserUtils {
 
     // Alignment flag formatter
     static alignmentFlagFormatter(flag) {
+        const flagStyle = "white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;";
         return `
-            <div style="white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;">
+            <div data-cy="gb-alignment-tooltip-flag" style="${flagStyle}">
                 <b>${flag.replace(/\s/g, "_")}</b>
             </div>
         `;
@@ -459,7 +460,7 @@ export default class GenomeBrowserUtils {
         return `
             <div>
                 ${flags.length > 0 ? `
-                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;">
+                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;" data-cy="gb-alignment-tooltip-flags">
                         ${flags.map(f => GenomeBrowserUtils.alignmentFlagFormatter(f)).join("")}
                     </div>
                 ` : ""}

@@ -15,9 +15,11 @@
  */
 
 import UtilsTest from "../../support/utils-test.js";
+import BrowserTest from "../../support/browser-test.js";
 
 context("File Browser Grid", () => {
     const browserGrid = "file-grid";
+    const browserDetail = "file-detail";
 
     beforeEach(() => {
         cy.visit("#file-browser-grid")
@@ -27,20 +29,26 @@ context("File Browser Grid", () => {
         });
     });
 
-
     context("Grid", () => {
-        it("should be render file-browser-grid", () => {
+        it("should render", () => {
             cy.get(browserGrid)
                 .should("be.visible");
         });
 
-        it("should change page file-browser-grid", () => {
+        it("should change page", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
         });
     });
 
     context("Row", () => {
+        it("should display row #3 as selected", () => {
+                cy.get("tbody tr")
+                    .eq(3)
+                    .click()
+                    .should("have.class","success");
+        });
+
         it("should download file json", () => {
             cy.get("tbody tr:first > td")
                 .eq(-2)
@@ -58,6 +66,55 @@ context("File Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
+                .should('be.visible');
+        });
+
+        it("should display 'New Catalog Tab' Tab", () => {
+            cy.get(`detail-tabs > div.detail-tabs > ul`)
+                .find("li")
+                .contains("New Catalog Tab")
+                .click()
+                .should('be.visible');
+        });
+    });
+
+
+    context("detail tab", () => {
+        it("should render", () => {
+            cy.get(browserDetail)
+                .should("be.visible");
+        });
+
+        it("should display info from the selected row",() => {
+            BrowserTest.getColumnIndexByHeader("Name")
+            cy.get("@indexColumn")
+                .then((indexColumn) => {
+                    const indexRow = 2
+                    cy.get(`tbody tr`)
+                        .eq(indexRow)
+                        .click() // select the row
+                        .find("td")
+                        .eq(indexColumn)
+                        .invoke("text")
+                        .as("textRow")
+                    });
+
+            cy.get("@textRow")
+                .then((textRow) => {
+                    cy.get("detail-tabs > div.panel")
+                        .invoke("text")
+                        .then((text) => {
+                            const textTab = text.split(":");
+                            expect(textRow).to.equal(textTab[1].trim());
+                        });
+                });
+        });
+
+        it("should display 'Preview' Tab", () => {
+            cy.get(`detail-tabs > div.detail-tabs > ul`)
+                .find("li")
+                .contains("Preview")
+                .click()
                 .should('be.visible');
         });
     });
