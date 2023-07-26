@@ -45,9 +45,13 @@ context("Individual Browser Grid", () => {
                 cy.get("@container")
                     .find(`table`)
                     .should("be.visible");
+            });
+            it("should render at least one column", () => {
                 cy.get("@container")
                     .find(`thead tr th`)
                     .should("be.visible");
+            });
+            it("should render at least one row", () => {
                 cy.get("@container")
                     .find(`tbody tr`)
                     .should("be.visible");
