@@ -22,6 +22,7 @@ import "../../../webcomponents/individual/individual-grid.js";
 import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -36,17 +37,15 @@ class IndividualBrowserGridTest extends LitElement {
 
     static get properties() {
         return {
-            testFile: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
             testDataVersion: {
                 type: String
             },
-            config: {
-                type: Object
+            _ready: {
+                type: Boolean,
+                state: true,
             },
             _selectRow: {
                 type: Object,
@@ -56,9 +55,14 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     #init() {
-        this.isLoading = false;
-        this.data = [];
-        this.configVariantGrid = {
+        this._ready = false;
+        this.FILES = [
+            "individuals-platinum.json",
+        ];
+        this._data = [];
+        this._selectedInstance = {};
+
+        this.configGrid = {
             pageSize: 10,
             pageList: [10, 25, 50],
             multiSelection: false,
@@ -73,33 +77,41 @@ class IndividualBrowserGridTest extends LitElement {
         };
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        if (changedProperties.has("testFile") &&
+        /* if (changedProperties.has("testFile") &&
             changedProperties.has("testDataVersion") &&
             changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
+        } */
+        if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
+            this.propertyObserver();
         }
+
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        this.#setLoading(true);
-        UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
-            .then(content => {
-                this.individuals = content;
-                this.mutate();
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                this.#setLoading(false);
+    propertyObserver() {
+        if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
+
+            const promises = this.FILES.map(file => {
+                return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
+
+            // Import all files
+            Promise.all(promises)
+                .then(data => {
+                    this._data = data[0];
+                    this._selectedInstance = this._data[0];
+                    // Mutate data and update
+                    this.mutate();
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                }).finally(() => {
+                    this._ready = true;
+                });
+        }
     }
 
     getDefaultTabsConfig() {
@@ -136,29 +148,33 @@ class IndividualBrowserGridTest extends LitElement {
         return null;
     }
 
-    selectRow(e) {
-        this._selectRow = {...e.detail.row};
+    selectInstance(e) {
+        this._selectedInstance = e.detail.row;
+        this.requestUpdate();
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (!this._ready) {
+            return html `Processing`;
         }
 
         return html`
-            <h2 style="font-weight: bold;">
-                Catalog Browser Grid (${this.testFile})
-            </h2>
-            <individual-grid
-                .individuals="${this.individuals}"
-                .opencgaSession="${this.opencgaSession}"
-                @selectrow="${e => this.selectRow(e)}">
-            </individual-grid>
-            <individual-detail
-                .individual="${this._selectRow}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this.getDefaultTabsConfig()}">
-            </individual-detail>
+            <div data-cy="individual-browser-container">
+                <h2 style="font-weight: bold;">
+                    Individual Browser Grid (${this.testFile?.split("-")?.at(-1)})
+                </h2>
+                <individual-grid
+                    .individuals="${this._data}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.configGrid}"
+                    @selectrow="${this.selectInstance}">
+                </individual-grid>
+                <individual-detail
+                    .individual="${this._selectedInstance}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this.getDefaultTabsConfig()}">
+                </individual-detail>
+            </div>
         `;
     }
 

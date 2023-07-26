@@ -600,7 +600,7 @@ export default class IndividualGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" data-cy="ib-grid">
                 <table id="${this.gridId}"></table>
             </div>
         `;
