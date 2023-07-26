@@ -466,6 +466,7 @@ export default {
 
                         // We will generate a new group to wrap all lollipop elements
                         const lollipopGroup = SVG.addChild(group, "g", {
+                            "data-cy": "protein-lollipop-variant",
                             "data-id": info.variant.id,
                             "data-index": index,
                             "data-ct": info.type,
@@ -476,6 +477,7 @@ export default {
 
                         // Lollipop line
                         SVG.addChild(lollipopGroup, "path", {
+                            "data-cy": "protein-lollipop-variant-path",
                             "d": `M${x0 - 0.5},0V-30L${x1 - 0.5},-50V-70`,
                             "fill": "none",
                             "stroke": color,
@@ -486,6 +488,7 @@ export default {
 
                         // Lollipop circle
                         const circleElement = SVG.addChild(lollipopGroup, "circle", {
+                            "data-cy": "protein-lollipop-variant-circle",
                             "cx": x1 - 0.5,
                             "cy": -70,
                             "r": 8,
@@ -498,6 +501,7 @@ export default {
 
                         // Lollipop ID text
                         const text = SVG.addChildText(lollipopGroup, info.title, {
+                            "data-cy": "protein-lollipop-variant-label",
                             "fill": color,
                             "text-anchor": "start",
                             "dominant-baseline": "middle",
