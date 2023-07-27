@@ -48,8 +48,18 @@ context("Individual Browser Grid", () => {
             });
             it("should render at least one column", () => {
                 cy.get("@container")
+                    .find(`tbody tr`)
+                    .should("be.visible");
+            });
+            it("should render at least one column", () => {
+                cy.get("@container")
                     .find(`thead tr th`)
                     .should("be.visible");
+            });
+            it("should render column titles", () => {
+                cy.get("@container")
+                    .find(`thead tr th div[class="th-inner "]`)
+                    .should("not.be.empty");
             });
             it("should render at least one row", () => {
                 cy.get("@container")
@@ -60,6 +70,40 @@ context("Individual Browser Grid", () => {
             // it("should change page sample-browser-grid", () => {
             //     UtilsTest.changePage(gridComponent,2);
             // });
+
+        });
+
+        context("data completeness", () => {
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find(`tbody`)
+                    .as("body");
+            });
+            it("should have IDs", () => {
+                cy.get("@body")
+                    .find("td:first-child")
+                    .each($td => {
+                        cy.wrap($td)
+                            .should("not.be.empty");
+                    });
+            });
+            it("should have a valid creation date", () => {
+                cy.get("@body")
+                    .find("td:nth-child(7)")
+                    .each($td => {
+                        cy.wrap($td)
+                            .should("not.be.empty");});
+                // TODO: to finish this
+            });
+        });
+
+        context("data format", () => {
+            beforeEach(() => {
+                cy.get("@grid")
+                    .find(`tbody tr[data-index="0"]`)
+                    .as("row");
+            });
+
 
         });
 
