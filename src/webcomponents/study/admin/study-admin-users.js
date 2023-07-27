@@ -522,132 +522,124 @@ export default class StudyAdminUsers extends LitElement {
         }
 
         return html`
-            <div class="pull-left" style="margin: 10px 0px">
-                <!-- SEARCH USER -->
-                <div class="form-inline">
-                    <div class="form-group">
-                        <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..."
-                            @change="${this.onUserSearchFieldChange}">
+                <div class="d-flex mb-3">
+                    <div class="p-2">
+                    <!-- SEARCH USER -->
+                    <div class="row row-cols-lg-auto g-3 align-items-center">
+                        <div class="col-12">
+                            <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..."
+                                @change="${this.onUserSearchFieldChange}">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-light btn-xs"
+                                    aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
+                                    @click="${e => this.onUserSearch(e, true)}">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-light btn-xs"
+                                    aria-haspopup="true" aria-expanded="false" title="Filter user from ${this.study?.name} study"
+                                    @click="${e => this.onUserSearch(e, false)}">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <datalist id="${this._prefix}MemberUsers">
+                            ${this.sortedUserIds?.map(userId => html`<option value="${userId}"></option>`)}
+                        </datalist>
                     </div>
-                    <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
-                            @click="${e => this.onUserSearch(e, true)}">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Filter user from ${this.study?.name} study"
-                            @click="${e => this.onUserSearch(e, false)}">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                    </button>
-                    <datalist id="${this._prefix}MemberUsers">
-                        ${this.sortedUserIds?.map(userId => html`<option value="${userId}"></option>`)}
-                    </datalist>
                 </div>
-            </div>
 
-            <div class="pull-right" style="margin: 10px 0px">
-                <div style="display:inline-block; margin: 0px 20px">
-                    <!-- ADD USER -->
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}AddUserMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study">
-                            <i class="fas fa-user icon-padding" aria-hidden="true"></i> Add User
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}AddUserMenu" style="width: 320px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 10px 0px">
-                                    <span style="font-weight: bold">User ID</span>
-                                </div>
-                                <div style="margin: 10px 0px">
+                <div class="ms-auto p-2">
+                    <div class="row row-cols-lg-auto g-3 align-items-center">
+                        <!-- ADD USER -->
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddUserMenu" data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study">
+                                <i class="fas fa-user" aria-hidden="true"></i> Add User
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddUserMenu" style="width: 320px">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">User ID</label>
                                     <text-field-filter
-                                            .value="${this.addUserId}"
-                                            placeholder="new user ID..."
-                                            @filterChange="${e => this.onUserAddFieldChange(e)}">
+                                        .value="${this.addUserId}"
+                                        placeholder="new user ID..."
+                                        @filterChange="${e => this.onUserAddFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
-                                <div class="pull-right" style="margin: 5px">
-                                    <button type="button" class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onUserAddFieldChange(e, true)}" style="margin: 0px 5px">Cancel
-                                    </button>
+                                <div class="d-flex justify-content-end gap-1">
                                     <button type="button" class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
                                             @click="${this.onUserAdd}">Add
                                     </button>
+                                    <button type="button" class="btn btn-secondary ${this.addUserId?.length > 0 ? "" : "disabled"}"
+                                            @click="${e => this.onUserAddFieldChange(e, true)}">Cancel
+                                    </button>
                                 </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div style="display:inline-block">
-                    <!-- ADD GROUP -->
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}AddGroupMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" title="Add new group to ${this.study?.name} study">
-                            <i class="fas fa-user-friends icon-padding" aria-hidden="true"></i> Create a Group
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}AddGroupMenu" style="width: 320px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 10px 0px">
-                                    <span style="font-weight: bold">New Group ID</span>
-                                </div>
-                                <div style="margin: 10px 0px">
+                            </div>
+                        </div>
+
+                        <!-- ADD GROUP -->
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddGroupMenu" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false" title="Add new group to ${this.study?.name} study">
+                                <i class="fas fa-user-friends icon-padding" aria-hidden="true"></i> Create a Group
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddGroupMenu" style="width: 320px">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">New Group ID</label>
                                     <text-field-filter
                                             .value="${this.addGroupId}"
                                             placeholder="new group ID..."
                                             @filterChange="${e => this.onAddGroupFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
-                                <div class="pull-right" style="margin: 5px">
-                                    <button type="button" class="btn btn-primary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onAddGroupFieldChange(e, true)}" style="margin: 0px 5px">Cancel
-                                    </button>
+                                <div class="d-flex justify-content-end gap-1">
                                     <button type="button" class="btn btn-primary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
                                             @click="${this.onGroupAdd}">Add
                                     </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- DELETE GROUP -->
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}DeleteGroupMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" title="Delete group from ${this.study?.name} study">
-                            <i class="fas fa-user-slash" aria-hidden="true"></i><i class="fas fa-user-slash icon-padding" aria-hidden="true"></i> Delete Group
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}DeleteGroupMenu" style="width: 320px">
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 10px 0px">
-                                    <span style="font-weight: bold">Delete Group</span>
-                                </div>
-                                <div style="margin: 10px 5px">
-                                    ${[...this.groupsMap?.keys()]
-            .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
-            .map(group => html`
-                                        <div>
-                                            <span style="margin: 0px 5px">
-                                                <input
-                                                        type="checkbox"
-                                                        value="${group}"
-                                                        .checked="${this.removeGroupSet?.has(group)}"
-                                                        @click="${this.onGroupRemoveFieldChange}">
-                                            </span>
-                                            <span>${group}</span>
-                                        </div>
-                                    `)}
-                                </div>
-                                <div class="pull-right" style="margin: 5px">
-                                    <button type="button" class="btn btn-primary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onGroupRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                    <button type="button" class="btn btn-secondary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
+                                            @click="${e => this.onAddGroupFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DELETE GROUP -->
+                        <div class="dropdown">
+                            <button type="button" id="${this._prefix}DeleteGroupMenu" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false" title="Delete group from ${this.study?.name} study">
+                                <i class="fas fa-user-slash" aria-hidden="true"></i>
+                                <i class="fas fa-user-slash icon-padding" aria-hidden="true"></i> Delete Group
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}DeleteGroupMenu" style="width: 320px">
+                                <div class="mb-3">
+                                    <label class="fw-bold">Delete Group</label>
+                                </div>
+                                <div class="mb-3">
+                                    ${
+                                        [...this.groupsMap?.keys()]
+                                            .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
+                                            .map((group, idx) => html`
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="check${group}-${idx}" type="checkbox" value="${group}"
+                                                        ?checked="${this.removeGroupSet?.has(group)}" @click="${this.onGroupRemoveFieldChange}">
+                                                <label class="form-check-label" for="check${group}-${idx}">${group}</label>
+                                            </div>
+                                        `)
+                                    }
+                                </div>
+                                <div class="d-flex justify-content-end gap-1">
                                     <button type="button" class="btn btn-danger ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
                                             @click="${this.onGroupRemove}">Remove
                                     </button>
+                                    <button type="button" class="btn btn-secondary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
+                                            @click="${e => this.onGroupRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                    </button>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
