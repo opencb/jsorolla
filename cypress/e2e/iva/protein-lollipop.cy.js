@@ -98,6 +98,26 @@ context("Protein Lollipop", () => {
                 .and("contain.text", position);
         });
 
+        context("info", () => {
+            beforeEach(() => {
+                cy.get("@variantsTrack")
+                    .find(`g[data-cy="protein-lollipop-track-info"]`)
+                    .as("variantsTrackInfo");
+            });
+
+            it("should render the track title from options", () => {
+                cy.get("@variantsTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-title"]`)
+                    .should("contain.text", "TEST_STUDY");
+            });
+
+            it("should display number of variants in this track", () => {
+                cy.get("@variantsTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .should("contain.text", "45 Variants");
+            });
+        });
+
         context("highlight", () => {
             beforeEach(() => {
                 cy.get("@variantsTrack")
@@ -309,6 +329,34 @@ context("Protein Lollipop", () => {
             cy.get("@proteinTrack")
                 .find(`path[fill="transparent"]`)
                 .should("have.length", 14);
+        });
+
+        context("info", () => {
+            beforeEach(() => {
+                cy.get("@proteinTrack")
+                    .find(`g[data-cy="protein-lollipop-track-info"]`)
+                    .as("proteinTrackInfo");
+            });
+
+            it("should render the track title", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-title"]`)
+                    .should("contain.text", "PROTEIN");
+            });
+
+            it("should display protein ID", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .first()
+                    .should("contain.text", "ENSP00000359423.3");
+            });
+
+            it("should display transcript ID", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .last()
+                    .should("contain.text", "ENST00000370396.7");
+            });
         });
 
         context("tooltip", () => {
