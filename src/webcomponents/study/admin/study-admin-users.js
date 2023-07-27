@@ -554,7 +554,7 @@ export default class StudyAdminUsers extends LitElement {
                         <div class="dropdown">
                             <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddUserMenu" data-bs-toggle="dropdown"
                                 data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study">
-                                <i class="fas fa-user" aria-hidden="true"></i> Add User
+                                <i class="fas fa-user me-1" aria-hidden="true"></i> Add User
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddUserMenu" style="width: 320px">
                                 <div class="mb-3">
@@ -581,7 +581,7 @@ export default class StudyAdminUsers extends LitElement {
                         <div class="dropdown">
                             <button class="btn btn-light dropdown-toggle" type="button" id="${this._prefix}AddGroupMenu" data-bs-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false" title="Add new group to ${this.study?.name} study">
-                                <i class="fas fa-user-friends icon-padding" aria-hidden="true"></i> Create a Group
+                                <i class="fas fa-user-friends me-1" aria-hidden="true"></i> Create a Group
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}AddGroupMenu" style="width: 320px">
                                 <div class="mb-3">
@@ -608,7 +608,7 @@ export default class StudyAdminUsers extends LitElement {
                             <button type="button" id="${this._prefix}DeleteGroupMenu" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false" title="Delete group from ${this.study?.name} study">
                                 <i class="fas fa-user-slash" aria-hidden="true"></i>
-                                <i class="fas fa-user-slash icon-padding" aria-hidden="true"></i> Delete Group
+                                <i class="fas fa-user-slash me-1" aria-hidden="true"></i> Delete Group
                             </button>
                             <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="${this._prefix}DeleteGroupMenu" style="width: 320px">
                                 <div class="mb-3">
