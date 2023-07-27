@@ -522,30 +522,28 @@ export default class StudyAdminUsers extends LitElement {
         }
 
         return html`
-                <div class="d-flex mb-3">
-                    <div class="p-2">
-                    <!-- SEARCH USER -->
-                    <div class="row row-cols-lg-auto g-3 align-items-center">
-                        <div class="col-12">
-                            <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..."
-                                @change="${this.onUserSearchFieldChange}">
-                        </div>
-                        <div class="col-12">
-                            <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-light btn-xs"
-                                    aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
-                                    @click="${e => this.onUserSearch(e, true)}">
-                                <i class="fas fa-times" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-light btn-xs"
-                                    aria-haspopup="true" aria-expanded="false" title="Filter user from ${this.study?.name} study"
-                                    @click="${e => this.onUserSearch(e, false)}">
-                                <i class="fas fa-search" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <datalist id="${this._prefix}MemberUsers">
-                            ${this.sortedUserIds?.map(userId => html`<option value="${userId}"></option>`)}
-                        </datalist>
+            <div class="d-flex">
+                <!-- SEARCH USER -->
+                <div class="row row-cols-lg-auto g-3 align-items-center">
+                    <div class="col-12">
+                        <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..."
+                            @change="${this.onUserSearchFieldChange}">
                     </div>
+                    <div class="col-12">
+                        <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-light btn-xs"
+                                aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
+                                @click="${e => this.onUserSearch(e, true)}">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-light btn-xs"
+                                aria-haspopup="true" aria-expanded="false" title="Filter user from ${this.study?.name} study"
+                                @click="${e => this.onUserSearch(e, false)}">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <datalist id="${this._prefix}MemberUsers">
+                        ${this.sortedUserIds?.map(userId => html`<option value="${userId}"></option>`)}
+                    </datalist>
                 </div>
 
                 <div class="ms-auto p-2">
@@ -573,7 +571,6 @@ export default class StudyAdminUsers extends LitElement {
                                             @click="${e => this.onUserAddFieldChange(e, true)}">Cancel
                                     </button>
                                 </div>
-
                             </div>
                         </div>
 
@@ -639,7 +636,6 @@ export default class StudyAdminUsers extends LitElement {
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
