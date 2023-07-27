@@ -93,7 +93,7 @@ class ProteinLollipopTest extends LitElement {
 
         // Draw protein lollipop
         ProteinLollipopViz.draw(target, this._data.transcript, this._data.protein, this._data.platinumVariants, {
-            title: "Platinum",
+            title: "TEST_STUDY",
             tracks: [
                 {
                     type: ProteinLollipopViz.TRACK_TYPES.VARIANTS,

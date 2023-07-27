@@ -1,4 +1,4 @@
-context("GenomeBrowser Viz", () => {
+context("GenomeBrowser", () => {
     const region = {
         chromosome: "17",
         start: 43102293,

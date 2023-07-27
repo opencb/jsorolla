@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-context("Protein Lollipop Viz", () => {
+context("Protein Lollipop", () => {
     const highlightedVariant = "X:150638967:G:-";
     const hoverVariant = "X:150641342:T:-";
     const highlightColor = "rgba(253, 152, 67, 0.6)";
@@ -69,6 +69,53 @@ context("Protein Lollipop Viz", () => {
             cy.get("@container")
                 .find(`g[data-track="main:variants"]`)
                 .as("variantsTrack");
+        });
+
+        it("should render variants", () => {
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"]`)
+                .should("have.length.greaterThan", 0);
+        });
+
+        it("should render variant circle and path", () => {
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"]`)
+                .first()
+                .within(() => {
+                    cy.get(`path[data-cy="protein-lollipop-variant-path"]`)
+                        .should("exist");
+                    cy.get(`circle[data-cy="protein-lollipop-variant-circle"]`)
+                        .should("exist");
+                });
+        });
+
+        it("should render variant label", () => {
+            const position = "43";
+            cy.get("@variantsTrack")
+                .find(`g[data-cy="protein-lollipop-variant"][data-position="${position}"]`)
+                .find(`text[data-cy="protein-lollipop-variant-label"]`)
+                .should("exist")
+                .and("contain.text", position);
+        });
+
+        context("info", () => {
+            beforeEach(() => {
+                cy.get("@variantsTrack")
+                    .find(`g[data-cy="protein-lollipop-track-info"]`)
+                    .as("variantsTrackInfo");
+            });
+
+            it("should render the track title from options", () => {
+                cy.get("@variantsTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-title"]`)
+                    .should("contain.text", "TEST_STUDY");
+            });
+
+            it("should display number of variants in this track", () => {
+                cy.get("@variantsTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .should("contain.text", "45 Variants");
+            });
         });
 
         context("highlight", () => {
@@ -282,6 +329,34 @@ context("Protein Lollipop Viz", () => {
             cy.get("@proteinTrack")
                 .find(`path[fill="transparent"]`)
                 .should("have.length", 14);
+        });
+
+        context("info", () => {
+            beforeEach(() => {
+                cy.get("@proteinTrack")
+                    .find(`g[data-cy="protein-lollipop-track-info"]`)
+                    .as("proteinTrackInfo");
+            });
+
+            it("should render the track title", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-title"]`)
+                    .should("contain.text", "PROTEIN");
+            });
+
+            it("should display protein ID", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .first()
+                    .should("contain.text", "ENSP00000359423.3");
+            });
+
+            it("should display transcript ID", () => {
+                cy.get("@proteinTrackInfo")
+                    .find(`text[data-cy="protein-lollipop-track-info-line"]`)
+                    .last()
+                    .should("contain.text", "ENST00000370396.7");
+            });
         });
 
         context("tooltip", () => {
