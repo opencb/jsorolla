@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
@@ -289,65 +289,65 @@ export default class StudyAdminAudit extends LitElement {
         }
 
         return html`
-            <div class="pull-left" style="margin: 10px 0px">
-                <div class="lhs">
+            <div class="d-flex my-2">
+                <div class="row row-cols-lg-auto g-2 align-items-center">
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config=${this._config}
-                                    .data="${this.sortedUserIds}"
-                                    .value="${this.query?.userId}"
-                                    placeholder="${"User: All"}"
-                                    multiple
-                                    @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
+                                .opencgaSession="${this.opencgaSession}"
+                                .data="${this.sortedUserIds || []}"
+                                .config=${this._config}
+                                .value="${this.query?.userId}"
+                                placeholder="${"User: All"}"
+                                multiple
+                                @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    `: null}
+                    `: nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .data="${this.actionValues}"
-                                    .config=${this._config}
-                                    .value="${this.query?.action}"
-                                    placeholder="${"Action: All"}"
-                                    multiple
-                                    @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
+                                .opencgaSession="${this.opencgaSession}"
+                                .data="${this.actionValues}"
+                                .config=${this._config}
+                                .value="${this.query?.action}"
+                                placeholder="${"Action: All"}"
+                                multiple
+                                @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .data="${this.resourceTypeValues}"
-                                    .value=${this.query?.resource}
-                                    placeholder="${"Resource: All"}"
-                                    @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
+                                .data="${this.resourceTypeValues}"
+                                .value=${this.query?.resource}
+                                placeholder="${"Resource: All"}"
+                                @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
-                        <div class="btn-group">
+                        <div class="col-12">
                             <select-field-filter
-                                    .data="${this.statusTypeValues}"
-                                    .value=${this.query?.status}
-                                    placeholder="${"Status: All"}"
-                                    @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                                .data="${this.statusTypeValues}"
+                                .value=${this.query?.status}
+                                placeholder="${"Status: All"}"
+                                @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                    ` : null}
+                    ` : nothing}
 
-                    <div class="btn-group">
-                        <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-default btn-xs ripple"
+                    <div class="col-12">
+                        <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-light btn-xs"
                                 aria-haspopup="true" aria-expanded="false" title="Clear filters"
                                 @click="${e => this.clear(e)}">
                             <i class="fas fa-times" aria-hidden="true"></i>
@@ -356,7 +356,7 @@ export default class StudyAdminAudit extends LitElement {
                 </div>
             </div>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}AuditBrowserGrid"></table>
             </div>
 
