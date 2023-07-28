@@ -74,11 +74,14 @@ context("Individual Browser Grid", () => {
         });
 
         context("data completeness", () => {
+            let creationDateIndex = null;
+
             beforeEach(() => {
                 cy.get("@grid")
                     .find(`tbody`)
                     .as("body");
             });
+
             it("should have IDs", () => {
                 cy.get("@body")
                     .find("td:first-child")
@@ -87,14 +90,41 @@ context("Individual Browser Grid", () => {
                             .should("not.be.empty");
                     });
             });
-            it("should have a valid creation date", () => {
-                cy.get("@body")
-                    .find("td:nth-child(7)")
-                    .each($td => {
-                        cy.wrap($td)
-                            .should("not.be.empty");});
-                // TODO: to finish this
+
+            it("should have a creation date", () => {
+                cy.get("@grid")
+                    .contains("th", "Creation Date")
+                    .invoke("index")
+                    .then(i => {
+                        creationDateIndex = i + 1;
+                        cy.get("@body")
+                            .find(`td:nth-child(${i})`)
+                            .each(td => {
+                                cy.wrap(td)
+                                    .should("not.be.empty");
+                            });
+                    });
             });
+
+            it("should have a creation date with valid format", () => {
+                cy.get("@body")
+                    .find(`td:nth-child(${creationDateIndex})`)
+                    .each(td => {
+                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/
+                        expect(td.text()).to.match(regExp);
+                    });
+            });
+
+            it("should have a creation date equal or earlier than today ", () => {
+                cy.get("@body")
+                    .find(`td:nth-child(${creationDateIndex})`)
+                    .each(td => {
+                        const date = new Date(td.text());
+                        const today = new Date();
+                        expect(date).to.be.lte(today);
+                    });
+            });
+
         });
 
         context("data format", () => {
