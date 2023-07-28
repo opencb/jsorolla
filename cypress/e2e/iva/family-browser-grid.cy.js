@@ -72,7 +72,7 @@ context("Family Browser Grid", () => {
         });
     });
 
-    context("detail tab", () => {
+    context("detail tab",{tags: ["@shortTask","@testTask"]}, () => {
         it("should render", () => {
             cy.get(browserDetail)
                 .should("be.visible");

@@ -18,7 +18,7 @@ describe("Data Form Component", () => {
         });
     })
 
-    context("Input Text Field", () => {
+    context("Input Text Field",{tags: "@shortTask"}, () => {
         it("should render string field empty", () => {
             UtilsTest.getByDataTest("test1-inputTextEmpty", "input")
                 .should("be.visible")

@@ -29,7 +29,7 @@ context("File Browser Grid", () => {
         });
     });
 
-    context("Grid", () => {
+    context("Grid",{tags: "@shortTask"}, () => {
         it("should render", () => {
             cy.get(browserGrid)
                 .should("be.visible");
@@ -49,7 +49,7 @@ context("File Browser Grid", () => {
                     .should("have.class","success");
         });
 
-        it("should download file json", () => {
+        it("should download file json",{tags:"@shortTask"}, () => {
             cy.get("tbody tr:first > td")
                 .eq(-2)
                 .within(() => {

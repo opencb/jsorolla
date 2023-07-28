@@ -86,6 +86,7 @@
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.15.4",
     "@babel/runtime": "^7.15.4",
+    "@cypress/grep": "^3.1.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-replace": "^4.0.0",
