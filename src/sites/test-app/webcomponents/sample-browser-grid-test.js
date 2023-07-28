@@ -113,7 +113,7 @@ class SampleBrowserGridTest extends LitElement {
     mutate() {
         // 1. Mutations related to date
         // this._data[3].id = "";
-        this._data[1].creationDate = "";
+        // this._data[1].creationDate = "";
         this._data[2].creationDate = "20540101"; // No valid format
         this._data[2].creationDate = "20210527101416"; // Valid format
 
