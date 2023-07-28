@@ -46,7 +46,7 @@ context("Variant Browser Grid Cancer", () => {
         it("should display variant tooltip", () => {
             // Select first row, first column: Variant
             // variant == id
-            BrowserTest.getColumnIndexByHeader("id");
+            BrowserTest.getColumnIndexByHeader("Variant");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -62,7 +62,7 @@ context("Variant Browser Grid Cancer", () => {
         });
 
         it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("gene");
+            BrowserTest.getColumnIndexByHeader("Gene");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -78,7 +78,7 @@ context("Variant Browser Grid Cancer", () => {
         });
 
         it("should display consequenceType tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType");
+            BrowserTest.getColumnIndexByHeader("Consequence Type");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -153,6 +153,7 @@ context("Variant Browser Grid Cancer", () => {
     });
 
     context("Row",() => {
+
         it.skip("should copy variant Json", () => {
             cy.get("tbody tr:first > td")
                 .eq(18)
@@ -186,12 +187,14 @@ context("Variant Browser Grid Cancer", () => {
         });
 
         it("should click external links", () => {
-            cy.get("tbody tr:first > td").eq(-1).within(() => {
-                cy.get("button")
-                    .click();
-                cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                    .contains("a","Ensembl Genome Browser")
-                    .click();
+            cy.get("tbody tr:first > td")
+                .eq(-1)
+                .within(() => {
+                    cy.get("button")
+                        .click();
+                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        .contains("a","Ensembl Genome Browser")
+                        .click();
             });
         });
     });

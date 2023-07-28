@@ -45,7 +45,7 @@ context("Variant Browser Grid Germline", () => {
         it("should display variant tooltip", () => {
             // Select first row, first column: Variant
             // variant == id
-            BrowserTest.getColumnIndexByHeader("id");
+            BrowserTest.getColumnIndexByHeader("Variant");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -61,7 +61,7 @@ context("Variant Browser Grid Germline", () => {
         });
 
         it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("gene");
+            BrowserTest.getColumnIndexByHeader("Gene");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -77,7 +77,7 @@ context("Variant Browser Grid Germline", () => {
         });
 
         it("should display consequenceType tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType");
+            BrowserTest.getColumnIndexByHeader("Consequence Type");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
