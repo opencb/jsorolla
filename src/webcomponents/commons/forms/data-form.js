@@ -426,47 +426,47 @@ export default class DataForm extends LitElement {
     _createSection(section) {
         // Check if the section is visible
         if (section.display && !this._getBooleanValue(section.display.visible)) {
-            return;
+            return nothing;
         }
 
         // Section values
-        const sectionClassName = section?.display?.className ?? section?.display?.classes ?? "";
-        const sectionStyle = section?.display?.style ?? "";
+        const sectionClassName = section?.display?.className ?? section?.display?.classes ?? nothing;
+        const sectionStyle = section?.display?.style ?? nothing;
         const sectionWidth = "col-md-" + this._getSectionWidth(section);
 
         // Section title values
         const titleHeader = section?.display?.titleHeader ?? "h3";
-        const titleClassName = section?.display?.titleClassName ?? section?.display?.titleClasses ?? "";
-        const titleStyle = section?.display?.titleStyle ?? "";
+        const titleClassName = section?.display?.titleClassName ?? section?.display?.titleClasses ?? nothing;
+        const titleStyle = section?.display?.titleStyle ?? nothing;
 
         // Section description values
         const description = section.description ?? section.text ?? null;
-        const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? "";
-        const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? "";
+        const descriptionClassName = section.display?.descriptionClassName ?? section.display?.textClass ?? nothing;
+        const descriptionStyle = section.display?.descriptionStyle ?? section.display?.textStyle ?? nothing;
 
         const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
 
         return html`
-            <div class="row" style="margin-bottom: 12px;">
+            <div class="row mb-2">
                 <div class="${sectionWidth}">
                     ${section.title ? html`
-                        <div style="margin-bottom:8px;">
+                        <div class="mb-3">
                             ${this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle)}
                         </div>
-                    ` : null}
+                    ` : nothing}
                     ${description ? html`
-                        <div style="margin-bottom:8px">
+                        <div class="mb-3">
                             <div class="${descriptionClassName}" style="${descriptionStyle}">
                                 <span>${description}</span>
                             </div>
                         </div>
-                    ` : null}
+                    ` : nothing}
                     <div class="${sectionClassName}" style="${sectionStyle}">
                         ${section.elements.map(element => this._createElement(element, section))}
                     </div>
                 </div>
             </div>
-            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : null}
+            ${buttonsSectionVisible ? this.renderButtons(null, section?.id) : nothing}
         `;
     }
 
