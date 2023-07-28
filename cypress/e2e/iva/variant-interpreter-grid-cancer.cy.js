@@ -44,7 +44,7 @@ context("Variant Interpreter Grid Cancer", () => {
 
     context("Tooltip", () => {
         it("should display variant tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("id");
+            BrowserTest.getColumnIndexByHeader("Variant");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
@@ -59,7 +59,7 @@ context("Variant Interpreter Grid Cancer", () => {
         });
 
         it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("gene");
+            BrowserTest.getColumnIndexByHeader("Gene");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     cy.get("tbody tr:first > td")
@@ -75,7 +75,7 @@ context("Variant Interpreter Grid Cancer", () => {
         });
 
         it("should display sample genotype (Variant Call Information) tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType");
+            BrowserTest.getColumnIndexByHeader("Consequence Type");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     cy.get("tbody tr:first > td")
@@ -91,11 +91,14 @@ context("Variant Interpreter Grid Cancer", () => {
         });
 
         it("should display cohort stats (population frequencies) tooltip", () => {
-            cy.get("tbody tr:first > td").eq(8).within(() => {
-                cy.get("a").trigger("mouseover")
-            })
-            cy.get(".qtip-content").should('be.visible')
-        })
+            cy.get("tbody tr:first > td")
+                .eq(8)
+                .within(() => {
+                    cy.get("a").trigger("mouseover")
+                });
+            cy.get(".qtip-content")
+                .should('be.visible')
+        });
 
         it("should reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")

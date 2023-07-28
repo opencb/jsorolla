@@ -61,7 +61,7 @@ context("Variant Interpreter Grid Germiline", () => {
         })
 
         it("should display gene tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("gene");
+            BrowserTest.getColumnIndexByHeader("Gene");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     cy.get("tbody tr:first > td")
@@ -77,7 +77,7 @@ context("Variant Interpreter Grid Germiline", () => {
         });
 
         it("should display sample genotype (Variant Call Information) tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType");
+            BrowserTest.getColumnIndexByHeader("Consequence Type");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     cy.get("tbody tr:first > td")

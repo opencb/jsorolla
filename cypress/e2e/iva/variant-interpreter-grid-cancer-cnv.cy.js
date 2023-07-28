@@ -45,7 +45,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
     context("Tooltip", () => {
 
         it("should display variant tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("id")
+            BrowserTest.getColumnIndexByHeader("Variant")
             cy.get("@indexColumn")
                 .then(index => {
                 cy.get("tbody tr:first > td")
@@ -60,7 +60,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         })
 
         it("should display gene", () => {
-            BrowserTest.getColumnIndexByHeader("gene");
+            BrowserTest.getColumnIndexByHeader("Gene");
             cy.get("@indexColumn")
                 .then(indexColumn => {
                 cy.get("tbody tr:first > td")
@@ -76,7 +76,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         });
 
         it("should display sample genotype (Variant Call Information) tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("consequenceType");
+            BrowserTest.getColumnIndexByHeader("Consequence Type");
                 cy.get("@indexColumn")
                     .then(indexColumn => {
                         cy.get("tbody tr:first > td")
