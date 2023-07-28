@@ -473,11 +473,12 @@ export default class DataForm extends LitElement {
     _createElement(element, section) {
         // Check if the element is visible
         if (element.display && !this._getBooleanValue(element.display.visible, true, element)) {
-            return;
+            return nothing;
         }
 
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
+            // https://getbootstrap.com/docs/5.3/content/reboot/#horizontal-rules
             return html`<hr style="${element.display?.style || ""}" />`;
         }
 
@@ -574,7 +575,7 @@ export default class DataForm extends LitElement {
 
         // Initialize container values
         const elementContainerClassName = element.display?.containerClassName ?? "";
-        const elementContainerStyle = element.display?.containerStyle ?? "";
+        const elementContainerStyle = element.display?.containerStyle ?? nothing;
 
         // Initialize title values
         let title = element.title ?? element.name; // element.name is deprecated --> use element.title
@@ -597,33 +598,31 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
-                        <div class="col-md-${titleWidth}">
-                            <label class="control-label ${titleClassName}" style="padding-top: 0; text-align:${titleAlign};${titleStyle}">
-                                ${title} ${titleRequiredMark}
-                            </label>
-                        </div>
-                    ` : null}
+                        <label class="col-md-${titleWidth} col-form-label fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
+                            ${title} ${titleRequiredMark}
+                        </label>
+                    ` : nothing}
                     <div class="col-md-${(width - titleWidth)}">
-                        <div>${content}</div>
+                        ${content}
                         ${helpMessage && helpMode === "block" ? html`
-                            <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
+                            <div class="col-md-1 pt-0 mt-2" title="${helpMessage}">
                                 <span><i class="${this._getHelpIcon(element, section)}"></i></span>
                             </div>
-                        ` : null}
+                        ` : nothing}
                     </div>
                 </div>
             `;
         } else {
             return html`
-                <div class="row form-group ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="control-label ${titleClassName}" style="padding-top: 0; ${titleStyle}">
+                            <label class="form-label pt-0 ${titleClassName}" style="${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
-                        ` : null}
+                        ` : nothing}
                         <div>${content}</div>
                     </div>
                 </div>
