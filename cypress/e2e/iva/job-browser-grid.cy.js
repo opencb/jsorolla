@@ -17,6 +17,7 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
+
 context("Job Browser Grid", () => {
     const browserGrid = "job-grid";
     const browserDetail = "job-detail";
@@ -41,26 +42,27 @@ context("Job Browser Grid", () => {
         });
     });
 
-    context("Row", () => {
-        it("should display row #3 as selected", () => {
-            cy.get("tbody tr")
-                .eq(3)
-                .click()
-                .should("have.class","success");
-        });
 
-        it("should download job Json", () => {
-            cy.get("tbody tr:first > td")
-                .eq(-2)
-                .within(() => {
-                    cy.get("button")
-                        .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
-                        .contains("a","Download JSON")
-                        .click();
+        context("Row", () => {
+            it("should display row #3 as selected", () => {
+                cy.get("tbody tr")
+                    .eq(3)
+                    .click()
+                    .should("have.class","success");
+            });
+
+            it("should download job Json", () => {
+                cy.get("tbody tr:first > td")
+                    .eq(-2)
+                    .within(() => {
+                        cy.get("button")
+                            .click();
+                        cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                            .contains("a","Download JSON")
+                            .click();
+                });
             });
         });
-    });
 
     context("extension", () => {
         it("should display 'Extra Column' column", () => {
@@ -78,7 +80,7 @@ context("Job Browser Grid", () => {
         });
     });
 
-    context("detail tab", () => {
+    context("detail tab",{tags: "@shortTask"}, () => {
         it("should render", () => {
             cy.get(browserDetail)
                 .should("be.visible");
