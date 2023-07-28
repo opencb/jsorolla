@@ -640,23 +640,23 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         return html`
-            <div class="${hasErrorMessages ? "has-error" : nothing}">
+            <div class="${hasErrorMessages ? "text-danger" : nothing}">
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
                     ${content}
                 </div>
                 ${helpMessage && helpMode !== "block" ? html`
-                    <div class="help-block" style="margin:8px">${helpMessage}</div>
-                ` : null}
+                    <div class="text-body-secondary m-2">${helpMessage}</div>
+                ` : nothing}
                 ${hasErrorMessages ? html`
-                    <div class="help-block" style="display:flex;margin-top:8px;">
-                        <div style="margin-right:8px">
+                    <div class="d-flex mt-2 text-body-secondary">
+                        <div class="ms-2">
                             <i class="${this._getErrorIcon(element)}"></i>
                         </div>
-                        <div style="font-weight:bold;">
-                            ${isRequiredEmpty ? "This field is required." : element.validation?.message || ""}
+                        <div class="fw-bold">
+                            ${isRequiredEmpty ? "This field is required." : element.validation?.message || nothing}
                         </div>
                     </div>
-                ` : null}
+                ` : nothing}
             </div>
         `;
     }
