@@ -15,10 +15,9 @@
  */
 
 import UtilsTest from "../../support/utils-test.js";
-import CatalogGridFormatter from "../../../src/webcomponents/commons/catalog-grid-formatter";
+import BrowserTest from "../../support/browser-test";
 
 context("Sample Browser Grid", () => {
-    const gridComponent = "sample-grid";
 
     beforeEach(() => {
         cy.visit("#sample-browser-grid");
@@ -31,7 +30,8 @@ context("Sample Browser Grid", () => {
     });
 
     // GRID
-    context("sample browser grid - table", () => {
+    context("Grid", () => {
+        const gridComponent = "sample-grid";
 
         beforeEach(() => {
             cy.get("@container")
@@ -145,4 +145,54 @@ context("Sample Browser Grid", () => {
         })
 
     });
+
+    context("Detail", () => {
+        const browserDetail = "sample-detail";
+
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="sb-detail"]`)
+                .as("detail");
+        });
+
+        it("should render", () => {
+            cy.get("@detail")
+                .should("be.visible");
+        });
+
+        it("should display info from the selected row",() => {
+            BrowserTest.getColumnIndexByHeader("Sample ID")
+            cy.get("@indexColumn")
+                .then(indexColumn => {
+                    const indexRow = 2
+                    cy.get(`tbody tr`)
+                        .eq(indexRow)
+                        .click() // select the row
+                        .find("td")
+                        .eq(indexColumn)
+                        .invoke("text")
+                        .as("textRow")
+                });
+
+            cy.get("@textRow")
+                .then((textRow) => {
+                    cy.get("detail-tabs > div.panel")
+                        .invoke("text")
+                        .then((text) => {
+                            const textTab = text.trim().split(" ");
+                            expect(textRow).to.equal(textTab[1].trim());
+                        });
+                });
+        });
+
+        // it("should display 'JSON Data' Tab", () => {
+        //     cy.get("@detail")
+        //         .find("li")
+        //         .contains("JSON Data")
+        //         .click()
+        //         .should('be.visible');
+        // });
+    });
+
+
 });
