@@ -664,14 +664,14 @@ export default class DataForm extends LitElement {
     _createTextElement(element) {
         const value= element.text;
         const textClass = element.display?.textClassName ?? "";
-        const textStyle = element.display?.textStyle ?? "";
+        const textStyle = element.display?.textStyle ?? nothing;
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
         const content = html`
             <div class="${textClass} ${notificationClass}" style="${textStyle}">
                 ${element.display?.icon ? html`
-                    <i class="fas fa-${element.display.icon} icon-padding"></i>
-                ` : null}
+                    <i class="fas fa-${element.display.icon} ms-1"></i>
+                ` : nothing}
                 <span>${UtilsNew.renderHTML(value || "")}</span>
             </div>
         `;
