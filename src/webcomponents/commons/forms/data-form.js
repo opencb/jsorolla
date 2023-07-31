@@ -461,7 +461,7 @@ export default class DataForm extends LitElement {
                             </div>
                         </div>
                     ` : nothing}
-                    <div class="${sectionClassName}" style="${sectionStyle}">
+                    <div id="${this._prefix}Section" class="${sectionClassName}" style="${sectionStyle}">
                         ${section.elements.map(element => this._createElement(element, section))}
                     </div>
                 </div>
