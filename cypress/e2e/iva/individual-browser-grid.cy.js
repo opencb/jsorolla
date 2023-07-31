@@ -15,6 +15,7 @@
  */
 
 import UtilsTest from "../../support/utils-test.js";
+import BrowserTest from "../../support/browser-test";
 
 context("Individual Browser Grid", () => {
     const gridComponent = "individual-grid";
@@ -30,7 +31,7 @@ context("Individual Browser Grid", () => {
     });
 
     // GRID
-    context("individual browser grid - table", () => {
+    context("Individual Grid", () => {
 
         beforeEach(() => {
             cy.get("@container")
@@ -147,4 +148,52 @@ context("Individual Browser Grid", () => {
 
 
     });
+
+    context("Detail", () => {
+
+        beforeEach(() => {
+            cy.get("@container")
+                .find(`div[data-cy="ib-detail"]`)
+                .as("detail");
+        });
+
+        it("should render", () => {
+            cy.get("@detail")
+                .should("be.visible");
+        });
+
+        it("should display info from the selected row",() => {
+            BrowserTest.getColumnIndexByHeader("Individual")
+            cy.get("@indexColumn")
+                .then(indexColumn => {
+                    const indexRow = 2
+                    cy.get(`tbody tr`)
+                        .eq(indexRow)
+                        .click() // select the row
+                        .find("td")
+                        .eq(indexColumn)
+                        .invoke("text")
+                        .as("textRow")
+                });
+
+            cy.get("@textRow")
+                .then((textRow) => {
+                    cy.get("detail-tabs > div.panel")
+                        .invoke("text")
+                        .then((text) => {
+                            const textTab = text.trim().split(" ");
+                            expect(textRow).to.equal(textTab[1].trim());
+                        });
+                });
+        });
+
+        it("should display 'JSON Data' Tab", () => {
+            cy.get("@detail")
+                .find("li")
+                .contains("JSON Data")
+                .click()
+                .should('be.visible');
+        });
+    });
+
 });
