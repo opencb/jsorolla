@@ -67,11 +67,6 @@ context("Individual Browser Grid", () => {
                     .find(`tbody tr`)
                     .should("be.visible");
             });
-            // It should render the pagination
-            // it("should change page sample-browser-grid", () => {
-            //     UtilsTest.changePage(gridComponent,2);
-            // });
-
         });
 
         context("data completeness", () => {
