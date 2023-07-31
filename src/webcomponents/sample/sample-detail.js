@@ -112,11 +112,13 @@ export default class SampleDetail extends LitElement {
         }
 
         return html`
-            <detail-tabs
-                .data="${this._sample}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="sb-detail">
+                <detail-tabs
+                    .data="${this._sample}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 
