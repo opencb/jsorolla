@@ -801,9 +801,9 @@ export default class DataForm extends LitElement {
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
                 ${disabled && element.display?.helpMessage ? html`
-                    <div class="help-block small">
+                    <div class="form-text text-body-secondary small">
                         ${element.display?.helpMessage}
-                    </div>` : null
+                    </div>` : nothing
                 }
             </div>
         `;
@@ -819,16 +819,14 @@ export default class DataForm extends LitElement {
         const inactiveClassName = element.display?.inactiveClassName ?? element.display?.inactiveClass ?? "";
 
         const content = html`
-            <div class="">
-                <toggle-buttons
-                    .names="${names}"
-                    .value="${value}"
-                    .activeClass="${activeClassName}"
-                    .inactiveClass="${inactiveClassName}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
-                    @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
-                </toggle-buttons>
-            </div>
+            <toggle-buttons
+                .names="${names}"
+                .value="${value}"
+                .activeClass="${activeClassName}"
+                .inactiveClass="${inactiveClassName}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+            </toggle-buttons>
         `;
 
         return this._createElementTemplate(element, value, content);

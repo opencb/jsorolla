@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 
 /**
@@ -57,6 +58,10 @@ export default class ToggleSwitch extends LitElement {
             },
             classes: {
                 type: String
+            },
+            _value: {
+                type: Boolean,
+                state: true
             }
         };
     }
@@ -72,27 +77,58 @@ export default class ToggleSwitch extends LitElement {
         this.classes = "";
     }
 
-    updated(changedProperties) {
+    // updated(changedProperties) {
+    //     if (changedProperties.has("value")) {
+    //         this._propertyObserver();
+    //         this._value = this.value;
+    //     }
+    //     if (changedProperties.has("onText")) {
+    //         this.onText = this.onText ? this.onText : "ON";
+    //         // this._propertyObserver();
+    //     }
+    //     if (changedProperties.has("offText")) {
+    //         this.offText = this.offText ? this.offText : "OFF";
+    //         // this._propertyObserver();
+    //     }
+    //     if (changedProperties.has("activeClass")) {
+    //         this.activeClass = this.activeClass ? this.activeClass : "btn-primary";
+    //         this._propertyObserver();
+    //     }
+    //     if (changedProperties.has("inactiveClass")) {
+    //         this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-default";
+    //         this._propertyObserver();
+    //     }
+    // }
+
+    firstUpdated(changedProperties) {
         if (changedProperties.has("value")) {
-            this._propertyObserver();
-            this._value = this.value;
+            this.propertyObserver();
         }
+    }
+
+    update(changedProperties) {
+        // if (changedProperties.has("value")) {
+        //     this.propertyObserver();
+        // }
+
         if (changedProperties.has("onText")) {
             this.onText = this.onText ? this.onText : "ON";
-            // this._propertyObserver();
         }
+
         if (changedProperties.has("offText")) {
             this.offText = this.offText ? this.offText : "OFF";
-            // this._propertyObserver();
         }
-        if (changedProperties.has("activeClass")) {
-            this.activeClass = this.activeClass ? this.activeClass : "btn-primary";
-            this._propertyObserver();
-        }
-        if (changedProperties.has("inactiveClass")) {
-            this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-default";
-            this._propertyObserver();
-        }
+        super.update(changedProperties);
+    }
+
+    propertyObserver() {
+        // const val = this.value?.toString();
+        // if (val !== "OFF" && val !== "false") {
+        //     this._value = true;
+        // } else {
+        //     this._value = false;
+        // }
+        this._value = this.value;
     }
 
     _propertyObserver() {
@@ -144,39 +180,46 @@ export default class ToggleSwitch extends LitElement {
         this.filterChange();
     }
 
-    filterChange() {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: this.value
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
+    filterChange(val) {
+        LitUtils.dispatchCustomEvent(this, "filterChange", val);
     }
 
     render() {
         return html`
-            <div class="">
-                <div class="btn-group">
-                    <button
-                        class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}"
-                        data-id="ON"
-                        ?disabled="${this.disabled}"
-                        type="button"
-                        @click="${e => this.onToggleClick("ON", e)}">
+            <fieldset ?disabled="${this.disabled}">
+                <div class="btn-group" role="group">
+                    <input class="btn-check" type="radio" ?checked="${this._value}"
+                        name="${this._prefix}BtnRadio" id="${this._prefix}onBtnRadio"
+                        @click=${() => this.filterChange("ON")} autocomplete="off">
+                    <label class="btn btn-outline-primary" for="${this._prefix}onBtnRadio">
                         ${this.onText}
-                    </button>
-                    <button
-                        class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}"
-                        data-id="OFF"
-                        ?disabled="${this.disabled}"
-                        type="button"
-                        @click="${e => this.onToggleClick("OFF", e)}">
+                    </label>
+
+                    <input type="radio" class="btn-check" ?checked="${!this._value}"
+                        name="${this._prefix}BtnRadio" id="${this._prefix}offBtnRadio"
+                        @click=${() => this.filterChange("OFF")} autocomplete="off">
+                    <label class="btn btn-outline-primary" for="${this._prefix}offBtnRadio">
                         ${this.offText}
-                    </button>
+                    </label>
                 </div>
-             </div>
+            </fieldset>
+                <!-- <button
+                    class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}"
+                    data-id="ON"
+                    ?disabled="${this.disabled}"
+                    type="button"
+                    @click="${e => this.onToggleClick("ON", e)}">
+                    ${this.onText}
+                </button>
+                <button
+                    class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}"
+                    data-id="OFF"
+                    ?disabled="${this.disabled}"
+                    type="button"
+                    @click="${e => this.onToggleClick("OFF", e)}">
+                    ${this.offText}
+                </button> -->
+
         `;
     }
 
