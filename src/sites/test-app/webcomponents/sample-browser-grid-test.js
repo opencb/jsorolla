@@ -165,7 +165,7 @@ class SampleBrowserGridTest extends LitElement {
         return html`
             <div data-cy="sample-browser-container">
                 <h2 style="font-weight: bold;">
-                    Sample Browser Grid (${this.testFile?.split("-")?.at(-1)})
+                    Sample Browser Grid (${this.FILES[0]})
                 </h2>
                 <sample-grid
                     .samples="${this._data}"
