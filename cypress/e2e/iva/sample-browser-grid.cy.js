@@ -68,7 +68,7 @@ context("Sample Browser Grid", () => {
                     .should("be.visible");
             });
             // It should render the pagination
-            it("should change page sample-browser-grid", () => {
+            it("should change page", () => {
                 UtilsTest.changePage(gridComponent,2);
             });
 
