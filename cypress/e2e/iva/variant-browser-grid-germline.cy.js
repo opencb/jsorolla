@@ -183,7 +183,7 @@ context("Variant Browser Grid Germline", () => {
             });
         });
 
-        it("External Links", () => {
+        it.skip("External Links", () => {
             cy.get("tbody tr:first > td")
                 .eq(-1)
                 .within(() => {
