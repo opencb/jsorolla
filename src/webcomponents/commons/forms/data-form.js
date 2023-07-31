@@ -761,15 +761,16 @@ export default class DataForm extends LitElement {
         }
 
         const content = html`
-            <label style="padding-top: 0; font-weight: normal;margin: 0">
+            <div class="form-check mt-2">
                 <input
+                    id="${this._prefix}FilterCheckbox"
                     type="checkbox"
-                    class="${this._prefix}FilterCheckbox"
+                    class="${this._prefix}FilterCheckbox form-check-input"
                     .checked="${value}"
                     ?disabled="${disabled}"
                     @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                <span style="margin: 0 5px">${element.text}</span>
-            </label>
+                <label class="form-check-label" for="${this._prefix}FilterCheckbox">${element.text}</label>
+            </div>
         `;
 
         return this._createElementTemplate(element, value, content);
