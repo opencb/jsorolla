@@ -46,7 +46,7 @@ context("Variant Interpreter Grid Germiline", () => {
 
     context("Tooltip",() => {
         it("should display variant tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("id");
+            BrowserTest.getColumnIndexByHeader("Variant");
             cy.get("@indexColumn")
                 .then(index => {
                     cy.get("tbody tr:first > td")
