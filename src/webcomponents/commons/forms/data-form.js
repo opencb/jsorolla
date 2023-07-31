@@ -640,8 +640,8 @@ export default class DataForm extends LitElement {
         const helpMode = this._getHelpMode(element);
 
         return html`
-            <div class="${hasErrorMessages ? "text-danger" : nothing}">
-                <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
+            <div id="${this._prefix}ElementTemplate" class="${hasErrorMessages ? "text-danger" : nothing}">
+                <div id="${this._prefix}Element" data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
                     ${content}
                 </div>
                 ${helpMessage && helpMode !== "block" ? html`
