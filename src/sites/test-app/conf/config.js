@@ -174,7 +174,7 @@ const SUITE = {
                         },
                         {
                             id: "sample-browser-grid",
-                            name: "Sample Grid",
+                            name: "Sample browser Grid",
                             description: "",
                             visibility: "public"
                         },

@@ -30,7 +30,7 @@ context("Sample Browser Grid", () => {
     });
 
     // GRID
-    context("Grid", () => {
+    context("Sample Grid", () => {
         const gridComponent = "sample-grid";
 
         beforeEach(() => {
@@ -147,7 +147,6 @@ context("Sample Browser Grid", () => {
     });
 
     context("Detail", () => {
-        const browserDetail = "sample-detail";
 
         beforeEach(() => {
             cy.get("@container")
@@ -185,14 +184,13 @@ context("Sample Browser Grid", () => {
                 });
         });
 
-        // it("should display 'JSON Data' Tab", () => {
-        //     cy.get("@detail")
-        //         .find("li")
-        //         .contains("JSON Data")
-        //         .click()
-        //         .should('be.visible');
-        // });
+        it("should display 'JSON Data' Tab", () => {
+            cy.get("@detail")
+                .find("li")
+                .contains("JSON Data")
+                .click()
+                .should('be.visible');
+        });
     });
-
 
 });

@@ -126,6 +126,7 @@ class IndividualBrowserGridTest extends LitElement {
                     render: (individual, active, opencgaSession) => html`
                         <individual-view
                             .individual="${individual}"
+                            .active="${active}"
                             .opencgaSession="${opencgaSession}">
                         </individual-view>
                     `,
