@@ -155,7 +155,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .should('be.visible');
         })
 
-        it("Check Interpretation column", () => {
+        it("should display Interpretation column", () => {
             cy.get("thead th")
                 .contains("div","Interpretation")
                 .within(() => {

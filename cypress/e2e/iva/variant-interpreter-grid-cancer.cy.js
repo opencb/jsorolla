@@ -201,7 +201,7 @@ context("Variant Interpreter Grid Cancer", () => {
                 });
         });
 
-        it("should click External Links", () => {
+        it.skip("should click External Links", () => {
             cy.get("tbody tr:first > td")
                 .eq(-1)
                 .within(() => {

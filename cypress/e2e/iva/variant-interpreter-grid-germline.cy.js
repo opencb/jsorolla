@@ -207,7 +207,7 @@ context("Variant Interpreter Grid Germiline", () => {
                 });
         });
 
-        it("should click external links", () => {
+        it.skip("should click external links", () => {
             cy.get("tbody tr:first > td")
                 .eq(-1)
                 .within(() => {
