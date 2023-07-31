@@ -171,6 +171,16 @@ a:visited {
 }
 
 
+/****  Form Style   ****/
+.updated {
+    border-color: darkorange;
+}
+
+.selection-updated {
+    border-color: darkorange !important;
+}
+
+
 /* Animations */
 @keyframes pulse {
     0% {
