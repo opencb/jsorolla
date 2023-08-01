@@ -108,11 +108,13 @@ export default class IndividualDetail extends LitElement {
         }
 
         return html`
-            <detail-tabs
-                .data="${this._individual}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="ib-detail">
+                <detail-tabs
+                    .data="${this._individual}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 

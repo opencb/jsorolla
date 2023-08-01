@@ -20,6 +20,7 @@ import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
 import "../alignment/qc/samtools-flagstats-view.js";
+import debug from "debug";
 
 export default class SampleDetail extends LitElement {
 
@@ -111,11 +112,13 @@ export default class SampleDetail extends LitElement {
         }
 
         return html`
-            <detail-tabs
-                .data="${this._sample}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="sb-detail">
+                <detail-tabs
+                    .data="${this._sample}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 
