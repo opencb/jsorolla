@@ -55,16 +55,11 @@ export default class SampleGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "sample-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig()};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -77,7 +72,10 @@ export default class SampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this.config.toolbar,
@@ -158,6 +156,7 @@ export default class SampleGrid extends LitElement {
                                                     if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                         sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                                     } else {
+                                                        // eslint-disable-next-line no-param-reassign
                                                         sample.attributes = {
                                                             OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
                                                         };
@@ -184,8 +183,8 @@ export default class SampleGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -196,13 +195,13 @@ export default class SampleGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: (row, $element) => {
+                onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
                     this.gridCommons.onCheckAll(rows);
                 },
-                onUncheck: (row, $element) => {
+                onUncheck: row => {
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
@@ -212,9 +211,6 @@ export default class SampleGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: data => {
-                    // Add tooltips?
-                }
             });
         }
     }
@@ -239,7 +235,7 @@ export default class SampleGrid extends LitElement {
             detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -399,6 +395,7 @@ export default class SampleGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumnsFromExtensions(_columns, this.COMPONENT_ID);
         return _columns;
     }
 
@@ -450,8 +447,8 @@ export default class SampleGrid extends LitElement {
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>` : nothing
-            }
+                </opencb-grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>

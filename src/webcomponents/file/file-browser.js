@@ -312,7 +312,7 @@ export default class FileBrowser extends LitElement {
                                     .active="${active}">
                                 </json-viewer>
                             `,
-                        }
+                        },
                     ]
                 }
             },
