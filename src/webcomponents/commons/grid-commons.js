@@ -16,6 +16,7 @@
 
 import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
+import ExtensionsManager from "../extensions-manager.js";
 
 
 export default class GridCommons {
@@ -295,6 +296,15 @@ export default class GridCommons {
                 }
             });
         return rowStyle;
+    }
+
+    addColumnsFromExtensions(columns, componentId) {
+        if (!this.context?._config?.skipExtensions) {
+            const id = componentId || this.context?.COMPONENT_ID;
+            return ExtensionsManager.injectColumns(columns, id, columnId => this.isColumnVisible(columnId));
+        }
+        // No extensions to inject, just return the original columns list
+        return columns;
     }
 
 }
