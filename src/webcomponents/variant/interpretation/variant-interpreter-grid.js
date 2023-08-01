@@ -1062,6 +1062,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         "click button": e => this.onVariantReview(e)
                     },
                     visible: this.review,
+                    excludeFromSettings: true,
                     excludeFromExport: true // this is used in opencga-export
                 },
             ]
