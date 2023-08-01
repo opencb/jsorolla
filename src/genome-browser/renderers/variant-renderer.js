@@ -221,7 +221,6 @@ export default class VariantRenderer extends Renderer {
 
     getDefaultConfig() {
         return {
-            infoWidgetId: "id",
             strokeColor: "#555",
             height: 10,
             histogramColor: "#58f3f0",
@@ -260,6 +259,12 @@ export default class VariantRenderer extends Renderer {
             highlightIconColor: "red",
             highlightIconSize: 6,
             highlightIconWidth: 1,
+            // Quality control
+            quality: {
+                filter: ["PASS"],
+                minQuality: 60,
+                minDP: 20,
+            },
         };
     }
 
