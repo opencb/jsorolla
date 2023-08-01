@@ -584,7 +584,7 @@ export default class DataForm extends LitElement {
         const titleVisible = element.display?.titleVisible ?? element.showLabel ?? true;
         const titleWidth = title && titleVisible ? this._getElementTitleWidth(element, section) ?? this._getLabelWidth(element, section) : 0;
         const titleAlign = element.display?.titleAlign ?? element.display?.labelAlign ?? "left";
-        const titleRequiredMark = element.required ? html`<b class="text-danger" style="margin-left:8px;">*</b>` : "";
+        const titleRequiredMark = element.required ? html`<b class="text-danger ms-2">*</b>` : "";
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
@@ -598,7 +598,7 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <label class="col-md-${titleWidth} col-form-label fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
                             ${title} ${titleRequiredMark}
@@ -623,7 +623,7 @@ export default class DataForm extends LitElement {
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : nothing}
-                        <div>${content}</div>
+                        ${content}
                     </div>
                 </div>
             `;
@@ -923,7 +923,10 @@ export default class DataForm extends LitElement {
 
     _createComplexElement(element, data = this.data) {
         if (!element.display?.template) {
-            return html`<span class="text-danger">No template provided</span>`;
+            return html`
+                <span class="text-danger">
+                    No template provided
+                </span>`;
         }
         const content = html`
             <span>
@@ -994,7 +997,7 @@ export default class DataForm extends LitElement {
                 break;
             case "bullets":
                 content = html`
-                    <ul class="pad-left-15">
+                    <ul class="ps-3">
                         ${values.map(elem => html`
                             <li>${elem}</li>
                         `)}
@@ -1013,7 +1016,7 @@ export default class DataForm extends LitElement {
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
         const tableClassName = element.display?.className || "";
-        const tableStyle = element.display?.style || "";
+        const tableStyle = element.display?.style || nothing;
 
         // Check values
         if (!array) {
@@ -1056,15 +1059,15 @@ export default class DataForm extends LitElement {
                             <th scope="col">${elem.title || elem.name}</th>
                         `)}
                     </tr>
-                    </thead>` : null}
+                    </thead>` : nothing}
                 <tbody>
                 ${array
                     .map(row => html`
                         <tr scope="row">
                             ${element.display.columns
                                 .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = elem.display?.style ?? "";
+                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? nothing;
+                                    const elemStyle = elem.display?.style ?? nothing;
                                     let content = null;
 
                                     // Check the element type
@@ -1271,22 +1274,22 @@ export default class DataForm extends LitElement {
             const helpMode = this._getHelpMode(element);
             contents.push(
                 html`
-                    <div class="row form-group" style="margin-left: 0;margin-right: 0">
+                    <div class="row mb-3">
                         ${childElement.title ? html`
                             <div>
-                                <label class="control-label" style="padding-top: 0;">
+                                <label class="fw-bold form-label pt-0">
                                     ${childElement.title}
                                 </label>
                             </div>
-                        ` : null
+                        ` : nothing
                         }
                         <div>
                             <div>${elemContent}</div>
                             ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1" style="padding:0; margin-top:8px" title="${helpMessage}">
+                                <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
                                     <span><i class="${this._getHelpIcon(element)}"></i></span>
                                 </div>
-                            ` : null
+                            ` : nothing
                             }
                         </div>
                     </div>
@@ -1323,8 +1326,9 @@ export default class DataForm extends LitElement {
 
         // Render all existing items
         if (!items || items?.length === 0) {
+            // border-warning is similar to darkorange
             const view = html`
-                <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
                     <span>No items found.</span>
                 </div>
             `;
@@ -1332,7 +1336,7 @@ export default class DataForm extends LitElement {
         } else {
             if (maxNumItems > 0) {
                 const view = html`
-                    <div style="padding-bottom: 5px; ${isUpdated ? "border-left: 2px solid darkorange; padding-left: 12px; margin-bottom:24px" : ""}">
+                    <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
                         ${items?.slice(0, maxNumItems)
                             .map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
@@ -1366,7 +1370,7 @@ export default class DataForm extends LitElement {
                                     }
                                 }
                                 return html`
-                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                    <div class="d-flex justify-content-between mb-1">
                                         <div>
                                             ${element.display.view(item)}
                                         </div>
@@ -1376,22 +1380,23 @@ export default class DataForm extends LitElement {
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-edit"></i>
-                                                </button>` : null
+                                                </button>` : nothing
                                             }
                                             ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
                                                 <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                                </button>` : null
+                                                </button>` : nothing
                                             }
                                         </div>
                                     </div>
+                                    <!-- TODO  Style -->
                                     <div id="${element?.field}_${index}"
-                                         style="border-left: 2px solid #0c2f4c; margin-left: 10px; padding-left: 12px; display: ${index === this.editOpen ? "block" : "none"}">
+                                        class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
                                         ${this._createObjectElement(_element)}
-                                        <div style="display:flex; flex-direction:row-reverse; margin-bottom: 6px">
-                                            <button type="button" class="btn btn-xs btn-primary"
+                                        <div class="d-flex flex-row-reverse mb-1">
+                                            <button type="button" class="btn btn-sm btn-primary"
                                                     @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                 Close
                                             </button>
@@ -1402,21 +1407,21 @@ export default class DataForm extends LitElement {
                     </div>
 
                     ${element.display.collapsed && items?.length > 0 ? html`
-                        <div style="padding: 0 0 10px 0">
-                            <button type="button" class="btn btn-link" style="padding: 0"
+                        <div class="pt-0 pe-0 pb-2 ps-0">
+                            <button type="button" class="btn btn-link p-0"
                                     @click="${e => this.#toggleObjectListCollapse(element, false)}">
                                 Show more ... (${items?.length} items)
                             </button>
-                        </div>` : null
+                        </div>` : nothing
                     }
 
                     ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
-                        <div style="padding: 0 0 10px 0">
-                            <button type="button" class="btn btn-link" style="padding: 0"
+                        <div class="pt-0 pe-0 pb-2 ps-0">
+                            <button type="button" class="btn btn-link p-0"
                                     @click="${e => this.#toggleObjectListCollapse(element, true)}">
                                 Show less ...
                             </button>
-                        </div>` : null
+                        </div>` : nothing
                     }
                 `;
                 contents.push(view);
@@ -1427,15 +1432,15 @@ export default class DataForm extends LitElement {
         if (this._getBooleanValue(element.display.showAddItemListButton, true) || this._getBooleanValue(element.display.showAddBatchListButton, true)) {
             const createHtml = html`
                 <div>
-                    <div class="help-block" style="float: left; margin-bottom: 6px">
+                    <div class="form-text float-start mb-2">
                         ${items?.length > 0 ? html`Items: ${items.length}` : nothing}
                     </div>
-                    <div class="text-right" style="float: right; margin-bottom: 6px">
+                    <div class="text-end float-end mb-2">
                         ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#addToObjectList(e, element)}">
-                                <i aria-hidden="true" class="fas fa-plus icon-padding"></i>
+                                <i aria-hidden="true" class="fas fa-plus pe-1"></i>
                                 Add Item
                             </button>`: nothing
                         }
@@ -1443,7 +1448,7 @@ export default class DataForm extends LitElement {
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
-                                <i aria-hidden="true" class="fas fa-file-import icon-padding"></i>
+                                <i aria-hidden="true" class="fas fa-file-import pe-1"></i>
                                 Add Batch
                             </button>`: nothing
                         }
@@ -1451,20 +1456,20 @@ export default class DataForm extends LitElement {
                             <button type="button" class="btn btn-sm btn-primary" title="Discord changes in this list"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#resetObjectList(e, element)}">
-                                <i aria-hidden="true" class="fas fa-undo icon-padding"></i>
+                                <i aria-hidden="true" class="fas fa-undo pe-1"></i>
                                 Reset
                             </button>`: nothing
                         }
                     </div>
                     ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
-                        <div id="${this._prefix}-${element?.field}" style="margin-left: 10px; padding-left: 12px; display: none">
+                        <div class="ms-2 ps-3 d-none" id="${this._prefix}-${element?.field}">
                             <text-field-filter
                                 value="${this.batchItems[element?.field] || ""}"
                                 placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
                                 .rows="${3}"
                                 @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}"></text-field-filter>
-                            <div style="display:flex; flex-direction:row-reverse; margin: 5px">
-                                <button type="button" class="btn btn-xs btn-primary"
+                            <div class="d-flex flex-row-reverse m-1">
+                                <button type="button" class="btn btn-sm btn-primary"
                                         ?disabled="${!this.batchItems[element.field]}"
                                         @click="${e => this.#addBatchToObjectList(e, element)}">
                                     OK
@@ -1483,7 +1488,7 @@ export default class DataForm extends LitElement {
         this.editOpen = -1;
 
         const htmlElement = document.getElementById(element?.field + "_" + index);
-        htmlElement.style.display = htmlElement.style.display === "none" ? "block" : "none";
+        htmlElement.classList.toggle("d-none");
     }
 
     #removeFromObjectList(e, item, index, element) {
@@ -1717,11 +1722,11 @@ export default class DataForm extends LitElement {
     renderGlobalValidationError() {
         if (this.showGlobalValidationError) {
             return html`
-                <div class="help-block" style="display:flex;margin-bottom:16px;">
-                    <div class="text-danger" style="margin-right:16px">
+                <div class="d-flex mb-3 form-text">
+                    <div class="text-danger me-3">
                         <i class="${this._getErrorIcon(null, null)}"></i>
                     </div>
-                    <div class="text-danger" style="font-weight:bold;">
+                    <div class="fw-bold text-danger">
                         ${this.config?.validation?.message || "There are some invalid fields..."}
                     </div>
                 </div>
@@ -1751,17 +1756,17 @@ export default class DataForm extends LitElement {
 
         return html`
             ${this.renderGlobalValidationError()}
-            <div class="row">
-                <div align="${btnAlign}" class="col-md-${btnWidth}" style="padding-top:16px;">
+            <div class="row mb-3">
+                <div class="d-grid col-${btnWidth} gap-2 d-md-flex justify-content-${btnAlign}">
                     ${buttonPreviewVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
+                        <button type="button" class="btn btn-light ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
                                 @click="${this.onPreview}">
                             ${buttonPreviewText}
                         </button>
                     `: null
                     }
                     ${buttonClearVisible ? html`
-                        <button type="button" class="btn btn-default ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
+                        <button type="button" class="btn btn-light ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
@@ -1783,10 +1788,10 @@ export default class DataForm extends LitElement {
         // Check configuration
         if (!this.config) {
             return html`
-                <div class="guard-page">
+                <div class="d-flex flex-column justify-content-center align-items-center pt-5 text-secondary">
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid configuration provided. Please check configuration:</h3>
-                    <div style="padding: 10px">
+                    <div class="p-2">
                         <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
@@ -1811,7 +1816,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row">
                     <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#${this._prefix}Help">
-                        <i class="${icon} icon-padding" aria-hidden="true"></i>
+                        <i class="${icon} pe-1" aria-hidden="true"></i>
                         ${this.config.title}
                     </button>
                     <div class="">
@@ -1840,7 +1845,7 @@ export default class DataForm extends LitElement {
                         data-toggle="modal"
                         ?disabled="${isDisabled}"
                         data-target="#${this._prefix}DataModal">
-                    <i class="${icon} icon-padding" aria-hidden="true"></i>
+                    <i class="${icon} pe-1" aria-hidden="true"></i>
                     ${this.config.title}
                 </button>
 
@@ -1956,7 +1961,7 @@ export default class DataForm extends LitElement {
                         <div class="modal-body">
                             <div style="display:flex; flex-direction:row-reverse">
                                 <button type="button" class="btn btn-link" @click="${this.onCopyPreviewClick}">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i>Copy JSON
+                                    <i class="fas fa-copy pe-1" aria-hidden="true"></i>Copy JSON
                                 </button>
                             </div>
                             <div>
