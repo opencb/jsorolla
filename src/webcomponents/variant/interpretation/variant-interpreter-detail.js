@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../../extensions-manager.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../annotation/cellbase-variantannotation-view.js";
 import "../annotation/variant-consequence-type-view.js";
@@ -22,14 +23,15 @@ import "../annotation/variant-annotation-clinical-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
 import "../variant-samples.js";
+import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../../commons/view/detail-tabs.js";
+import "../../visualization/protein-lollipop-variant-view.js";
 
 export default class VariantInterpreterDetail extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,14 +46,14 @@ export default class VariantInterpreterDetail extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
             variant: {
                 type: Object
             },
             variantId: {
                 type: String
-            },
-            cellbaseClient: {
-                type: Object
             },
             config: {
                 type: Object
@@ -59,62 +61,75 @@ export default class VariantInterpreterDetail extends LitElement {
         };
     }
 
-    _init() {
-        // Initially we set the default config, this will be overridden if 'config' is passed
+    #init() {
+        this.COMPONENT_ID = "";
+        this._variant = null;
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated() {
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config,
-        };
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolId") && this.toolId) {
+            this.COMPONENT_ID = this.toolId + "-detail";
+        }
+
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
     }
 
     variantIdObserver() {
-        if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(restReponse => {
-                    this.variant = {
-                        id: this.variantId,
-                        annotation: restReponse.getResult(0)
-                    };
+        if (this.opencgaSession && this.variantId) {
+            this.opencgaSession.opencgaClient.clinical()
+                .queryVariant({
+                    study: this.opencgaSession.study.fqn,
+                    id: this.variantId,
+                    includeSampleId: "true",
+                })
+                .then(response => {
+                    this._variant = response?.responses?.[0]?.results?.[0];
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
         }
     }
 
-    render() {
+    variantObserver() {
+        this._variant = {...this.variant};
+        this.requestUpdate();
+    }
 
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
+
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
 
-        if (!this.variant?.annotation && !Array.isArray(this.variant)) {
-            return;
-        }
-
-        if (!this._config?.items) {
-            return html`<h3>Error: No valid tab configuration</h3>`;
-        }
-
         return html`
             <detail-tabs
-                .data="${this.variant}"
+                .data="${this._variant}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
@@ -203,6 +218,17 @@ export default class VariantInterpreterDetail extends LitElement {
                     `,
                 },
                 {
+                    id: "protein",
+                    name: "Protein",
+                    render: (variant, active, opencgaSession) => html`
+                        <protein-lollipop-variant-view
+                            .opencgaSession="${opencgaSession}"
+                            .variant="${variant}"
+                            .active="${active}">
+                        </protein-lollipop-variant-view>
+                    `,
+                },
+                {
                     id: "beacon",
                     name: "Beacon",
                     render: (variant, active, opencgaSession) => html`
@@ -215,26 +241,26 @@ export default class VariantInterpreterDetail extends LitElement {
                     `,
                 },
                 {
+                    id: "exomiser",
+                    name: "Exomiser",
+                    visible: () => {
+                        return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
+                    },
+                    render: (variant, active) => html`
+                        <variant-interpreter-exomiser-view
+                            .variant="${variant}"
+                            .active="${active}">
+                        </variant-interpreter-exomiser-view>
+                    `,
+                },
+                {
                     id: "json-view",
                     name: "JSON Data",
                     render: (variant, active) => html`
                         <json-viewer .data="${variant}" .active="${active}"></json-viewer>
                     `,
-                }
-                // TODO Think about the possibility of allowing plugins here
-                // {
-                //     id: "variantDetail",
-                //     name: "Variant Detail",
-                //     render: (variant, active,opencgaSession) => {
-                //         return html`
-                //             <opencga-variant-detail-template
-                //                 .opencgaSession="${opencgaSession}"
-                //                 .variant="${variant.id}"
-                //                 .active="${active}">
-                //             </opencga-variant-detail-template>`;
-                //     }
-                // }
-            ]
+                },
+            ],
         };
     }
 

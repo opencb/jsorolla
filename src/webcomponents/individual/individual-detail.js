@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./individual-view.js";
 import "./../commons/view/detail-tabs.js";
 
@@ -22,7 +23,7 @@ export default class IndividualDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,57 +47,81 @@ export default class IndividualDetail extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this.COMPONENT_ID = "individual-detail";
+        this._individual = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.individual = null;
-        }
-
+    update(changedProperties) {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("individual")) {
+            this.individualObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
+        super.update(changedProperties);
     }
 
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.individual = restResponse.getResult(0);
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
                 })
-                .catch(restResponse => {
-                    console.error(restResponse);
+                .then(response => {
+                    this._individual = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.individual = null;
         }
     }
 
-    getDefaultConfig() {
-        return {
-            // detail-tab configuration in individual-browser
-        };
+    individualObserver() {
+        this._individual = {...this.individual};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
-
         if (!this.opencgaSession) {
             return "";
         }
 
         return html`
+            <div data-cy="ib-detail">
                 <detail-tabs
-                    .data="${this.individual}"
+                    .data="${this._individual}"
                     .config="${this._config}"
                     .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
-            `;
+            </div>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }

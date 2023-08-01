@@ -72,16 +72,19 @@ export default class CohortVariantStatsAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.cohort || !!this.toolParams.sample;
+        if (!this.toolParams.cohort && !this.toolParams.samples) {
+            return {
+                message: "You must select a cohort or sample",
+                notificationType: "warning"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -129,35 +132,37 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Cohort ID",
+                        field: "cohort",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (cohort, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.cohort}"
+                                        .value="${cohort}"
                                         .resource="${"COHORT"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.samples}}"
-                                        @filterChange="${e => this.onFieldChange(e, "cohort")}">
+                                        .config="${{multiple: false, disabled: !!toolParams?.samples}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Cohort Variant stats will be calculated for the cohort selected",
+                                text: "Calculate cohort variant stats for the selected cohorts",
                             }
                         },
                     },
                     {
                         title: "Sample ID",
+                        field: "samples",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (sample, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.sample}"
+                                        .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.cohort}}"
-                                        @filterChange="${e => this.onFieldChange(e, "samples")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.cohort}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail?.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
@@ -175,6 +180,9 @@ export default class CohortVariantStatsAnalysis extends LitElement {
                         field: "index",
                         type: "checkbox",
                         display: {
+                            help: {
+                                text: "Cohort variant stats will be indexed in Catalog. Only Study Admins can index scores"
+                            }
                         },
                     },
                 ]

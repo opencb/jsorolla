@@ -1,4 +1,4 @@
-name: "Main development workflow"
+name: "Develop branch workflow"
 
 on:
   push:
@@ -8,28 +8,25 @@ on:
 
 jobs:
   build:
-    uses: opencb/jsorolla/.github/workflows/build-jsorolla-workflow.yml@develop
+    uses: ./.github/workflows/build-jsorolla-workflow.yml
 
-  docker:
+  test:
+    uses: ./.github/workflows/test.yml
     needs: build
-    uses: opencb/jsorolla/.github/workflows/docker-jsorolla-workflow.yml@develop
     with:
-      docker_tag: ${{ needs.build.outputs.version }}
-    secrets:
-      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
-      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      DOCKER_HUB_ORGANISATION: ${{ secrets.DOCKER_HUB_ORGANISATION }}
-      DOCKER_IMAGES_JSOROLLA: ${{ secrets.DOCKER_IMAGES_JSOROLLA }}
-      JSOROLLA_CUSTOM_SITES_REPOSITORY: ${{ secrets.JSOROLLA_CUSTOM_SITES_REPOSITORY }}
-      GH_PRIVATE_TOKEN: ${{ secrets.GH_PRIVATE_TOKEN }}
+      test_profile: runShortTests
+    secrets: inherit
 
-  deploy:
-    needs: build
-    if: ${{ github.repository == 'opencb/jsorolla' }}
-    uses: opencb/jsorolla/.github/workflows/deploy-jsorolla-workflow.yml@develop
+  deploy-docker:
+    uses: ./.github/workflows/deploy-docker-jsorolla.yml
+    needs: test
+    with:
+      cli: python3 ./docker/docker-build.py push
+    secrets: inherit
+
+  deploy-web:
+    uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
+    needs: [ build, test ]
     with:
       version: ${{ needs.build.outputs.version }}
-    secrets:
-      SSH_SWDEV_IP: ${{ secrets.SSH_SWDEV_IP }}
-      SSH_SWDEV_USER: ${{ secrets.SSH_SWDEV_USER }}
-      SSH_SWDEV_PASSWORD: ${{ secrets.SSH_SWDEV_PASSWORD }}
+    secrets: inherit

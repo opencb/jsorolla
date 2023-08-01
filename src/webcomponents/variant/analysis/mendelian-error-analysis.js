@@ -62,17 +62,37 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
         this.config = this.getDefaultConfig();
     }
 
-    check() {
-        return !!this.toolParams.individual || !!this.toolParams.family;
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
+            this.individual = this.toolParams.individual || "";
+            this.family = this.toolParams.family || "";
+        }
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+    update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
+            };
+            this.config = this.getDefaultConfig();
         }
-        // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+        super.update(changedProperties);
+    }
+
+    check() {
+        if (!this.toolParams.individual && !this.toolParams.family) {
+            return {
+                message: "You must select a individual or a family",
+                notificationType: "warning"
+            };
+        }
+        return null;
+    }
+
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -80,7 +100,6 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
         const toolParams = {
             family: this.toolParams.family || "",
             individual: this.toolParams.individual || "",
-            // sample: this.toolParams.sample || "",
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -123,14 +142,13 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                         field: "family",
                         type: "custom",
                         display: {
-                            helpMessage: "Family ID",
-                            render: family => html `
+                            render: (family, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${family}"
                                     .resource="${"FAMILY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.individual}}"
-                                    @filterChange="${e => this.onFieldChange(e, "family")}">
+                                    .config="${{multiple: false, disabled: !!toolParams?.individual}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -140,34 +158,17 @@ export default class IndividualMendelianErrorAnalysis extends LitElement {
                         field: "individual",
                         type: "custom",
                         display: {
-                            helpMessage: "Individual ID",
-                            render: individual => html `
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => html `
                                 <catalog-search-autocomplete
                                     .value="${individual}"
                                     .resource="${"INDIVIDUAL"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams?.family}}"
-                                    @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                    .config="${{multiple: false, disabled: !!toolParams?.family}}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-                    // {
-                    //     title: "Select samples",
-                    //     field: "samples",
-                    //     type: "custom",
-                    //     display: {
-                    //         render: samples => html `
-                    //             <catalog-search-autocomplete
-                    //                 .value="${samples}"
-                    //                 .resource="${"SAMPLE"}"
-                    //                 .opencgaSession="${this.opencgaSession}"
-                    //                 .config="${{multiple: true, disabled: !!this.toolParams?.individuals}}"
-                    //                 @filterChange="${e => this.onFieldChange(e, "samples")}">
-                    //             </catalog-search-autocomplete>
-                    //         `,
-                    //     },
-                    // },
                 ],
             },
         ];

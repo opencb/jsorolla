@@ -47,14 +47,14 @@ export default class KaryotypePanel {
         const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" style="user-select:none;">
                 <div style="display:flex;justify-content:space-between;">
-                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;">
+                    <div id="${this.prefix}Title" style="font-weight:bold;cursor:pointer;" data-cy="gb-karyotype-title">
                         ${this.config?.title || ""}
                     </div>
-                    <div id="${this.prefix}Collapse" style="cursor:pointer;">
+                    <div id="${this.prefix}Collapse" style="cursor:pointer;" data-cy="gb-karyotype-toggle">
                         <span id="${this.prefix}CollapseIcon" class="fa fa-minus"></span>
                     </div>
                 </div>
-                <div id="${this.prefix}Content" style="display:block;margin-top:8px;"></div>
+                <div id="${this.prefix}Content" style="display:block;margin-top:8px;" data-cy="gb-karyotype-content"></div>
             </div>
         `);
 

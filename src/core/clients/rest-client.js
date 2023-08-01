@@ -108,6 +108,9 @@ export default class RestClient {
             //     }
             // }
 
+            // Enable withCredentials param to send cookies with the request
+            request.withCredentials = !!options.includeCredentials;
+
             request.onload = event => {
                 // request is fulfilled
                 // delete this.requests[key];

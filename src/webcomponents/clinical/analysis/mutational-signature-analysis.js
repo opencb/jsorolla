@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../commons/forms/form-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -105,56 +104,91 @@ export default class MutationalSignatureAnalysis extends LitElement {
         super.update(changedProperties);
     }
 
+    checkValidCatalogId() {
+        // Check if the current sample has signatures saved and we have selected one
+        if ((this.selectedSample?.qualityControl?.variant?.signatures || []).length > 0) {
+            return !!this.toolParams.signature;
+        }
+
+        // Other case, catalogueId is valid
+        return true;
+    }
+
+    checkValidFittingId() {
+        // Check if we have provided a custom fitting ID and does not already exists
+        if (this.toolParams.fitId) {
+            const signatures = this.selectedSample?.qualityControl?.variant?.signatures || [];
+            return !signatures.some(signature => {
+                return (signature?.fittings || []).some(fitting => fitting.id === this.toolParams.fitId);
+            });
+        }
+
+        // Other case, fitId is valid
+        return true;
+    }
+
     check() {
+        // Prevent running fitting without selecting a catalogue id
+        if (!this.checkValidCatalogId()) {
+            return {
+                message: "Please select a catalogue ID for running fitting analysis.",
+            };
+        }
+
+        // Check if this fitting id is not unique
+        if (!this.checkValidFittingId()) {
+            return {
+                message: `Fitting ID '${this.toolParams.fitId}' already exists.`,
+            };
+        }
+
         return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
-        const toolParams = {
-            sample: this.toolParams.query.sample,
-            fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
-            fitMethod: this.toolParams.fitMethod,
-            fitSigVersion: this.toolParams.fitSigVersion,
-            fitOrgan: this.toolParams.fitOrgan,
-            fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
-            fitNBoot: this.toolParams.fitNBoot,
-            fitThresholdPerc: this.toolParams.fitThresholdPerc,
-            fitThresholdPval: this.toolParams.fitThresholdPval,
-            fitSignaturesFile: this.toolParams.fitSignaturesFile,
-            fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
-        };
+        // Prevent submitting the form if the new fittingID already exists or the catalogue ID is empty
+        if (this.checkValidCatalogId() && this.checkValidFittingId()) {
+            const toolParams = {
+                sample: this.toolParams.query.sample,
+                fitId: this.toolParams.fitId || `fit-${UtilsNew.getDatetime()}`,
+                fitMethod: this.toolParams.fitMethod,
+                fitSigVersion: this.toolParams.fitSigVersion,
+                fitOrgan: this.toolParams.fitOrgan,
+                fitMaxRareSigs: this.toolParams.fitMaxRareSigs,
+                fitNBoot: this.toolParams.fitNBoot,
+                fitThresholdPerc: this.toolParams.fitThresholdPerc,
+                fitThresholdPval: this.toolParams.fitThresholdPval,
+                fitSignaturesFile: this.toolParams.fitSignaturesFile,
+                fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
+            };
 
-        // Check if we have provided an existing signature list
-        if (this.toolParams.signature) {
-            toolParams.skip = "catalogue";
-            toolParams.id = this.toolParams.signature; // .split(":")[1];
-        } else {
-            toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
-            toolParams.description = this.toolParams.description || "";
-            toolParams.query = JSON.stringify(this.toolParams.query);
+            // Check if we have provided an existing signature list
+            if (this.toolParams.signature) {
+                toolParams.skip = "catalogue";
+                toolParams.id = this.toolParams.signature; // .split(":")[1];
+            } else {
+                toolParams.id = this.toolParams.id || `catalogue-${UtilsNew.getDatetime()}`;
+                toolParams.description = this.toolParams.description || "";
+                toolParams.query = JSON.stringify(this.toolParams.query);
+            }
+
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            };
+
+            AnalysisUtils.submit(
+                this.ANALYSIS_TITLE,
+                this.opencgaSession.opencgaClient.variants()
+                    .runMutationalSignature(toolParams, params),
+                this,
+            );
         }
-
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
-
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.variants()
-                .runMutationalSignature(toolParams, params),
-            this,
-        );
     }
 
     onClear() {
@@ -224,14 +258,15 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "Sample ID",
                         field: "query.sample",
                         type: "custom",
+                        required: true,
                         display: {
-                            render: sampleId => html`
+                            render: (sampleId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${sampleId}"
                                     .resource="${"SAMPLE"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{multiple: false, disabled: !!this.query.sample}}"
-                                    @filterChange="${e => this.onFieldChange(e, "query.sample")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -242,13 +277,13 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         type: "custom",
                         display: {
                             visible: signatures.length > 0,
-                            render: signature => html`
+                            render: (signature, dataFormFilterChange) => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
                                     ?multiple="${false}"
                                     ?liveSearch=${false}
-                                    @filterChange="${e => this.onFieldChange(e, "signature")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
                         },
@@ -379,7 +414,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "fitSignaturesFile",
                         type: "custom",
                         display: {
-                            render: fitSignaturesFile => html`
+                            render: (fitSignaturesFile, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${fitSignaturesFile}"
                                     .resource="${"FILE"}"
@@ -387,7 +422,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .config="${{multiple: false}}"
                                     .searchField="${"id"}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e, "fitSignaturesFile")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -397,7 +432,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         field: "fitRareSignaturesFile",
                         type: "custom",
                         display: {
-                            render: fitRareSignaturesFile => html`
+                            render: (fitRareSignaturesFile, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${fitRareSignaturesFile}"
                                     .resource="${"FILE"}"
@@ -405,7 +440,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                     .config="${{multiple: false}}"
                                     .searchField="${"id"}"
                                     .query="${fileQuery}"
-                                    @filterChange="${e => this.onFieldChange(e, "fitRareSignaturesFile")}">
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },

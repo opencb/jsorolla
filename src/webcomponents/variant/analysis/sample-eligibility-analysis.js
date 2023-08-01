@@ -72,15 +72,11 @@ export default class SampleEligibilityAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.query;
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -131,12 +127,19 @@ export default class SampleEligibilityAnalysis extends LitElement {
                         title: "Query",
                         field: "query",
                         type: "input-text",
+                        required: true,
                         display: {
+                            rows: 3,
                             help: {
                                 text: "Election query. e.g. ((gene=A AND ct=lof) AND (NOT (gene=B AND ct=lof)))",
                             },
                         },
-                    },
+                    }
+                ]
+            },
+            {
+                title: "Configuration Parameters",
+                elements: [
                     {
                         title: "Index",
                         field: "index",
@@ -154,7 +157,7 @@ export default class SampleEligibilityAnalysis extends LitElement {
                         display: {
                             disabled: () => !this.toolParams.index,
                             help: {
-                                text: "ID for the cohort to be created if index",
+                                text: "ID for the cohort to be created if indexed",
                             },
                         },
                     },

@@ -2,6 +2,7 @@
 build/
 build-next/
 dist/
+test-data/
 *node_modules/
 *web_modules/
 bower_components/
@@ -9,13 +10,14 @@ grunt/
 dist-genome/
 custom-conf
 custom-sites
+/extensions
 *.tar.gz
 package-lock.json
-
 npm-debug.log
 
 ## VS Code
 *.code-workspace
+.vscode/settings.json
 
 ## IntelliJ
 *.iml
@@ -54,9 +56,16 @@ local.properties
 .buildpath
 
 # Cypress
-fixtures
-screenshots
-support
-videos
 mochawesome-report
+cypress/reports
+cypress/downloads
+cypress/screenshots
+cypress/videos
+.data-test
+
+# code-coverage
+.nyc_output
+coverage
+
+
 

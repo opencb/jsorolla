@@ -52,9 +52,9 @@ export default class CustomSidebar extends LitElement {
     }
 
     render() {
-        return html `
+        return html`
             <style>
-                  /* The side navigation menu */
+                /* The side navigation menu */
                 #side-nav {
                     position: fixed;
                     z-index: 1002;
@@ -73,22 +73,45 @@ export default class CustomSidebar extends LitElement {
                     animation-name: slideOutFrames
                 }
 
+                #side-nav {
+                    display: flex;
+                    flex-direction: column;
+                }
+
                 #side-nav.active {
                     left: 0px;
                     visibility: visible;
                     animation-name: slideInFrames
                 }
 
-                #side-nav .iva-logo {
+                #side-nav .top-logo {
+                    /*font-size: 5px;*/
+                    /*text-align: center;*/
+                    /*margin-top: 30px;*/
                     font-size: 5px;
-                    text-align: center;
-                    margin-top: 30px;
+                    margin: 30px;
+                }
+
+                #side-nav .zetta-logo {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: flex-end;
+                    flex: 1;
+                }
+
+                #side-nav .zetta-logo > div {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: flex-end;
+                    flex: 1;
+                    padding: 1.2em 1.5em;
+                    background-color: #efefef;
                 }
 
                 #side-nav .nav a {
                     padding: 6px 1px 6px 1px;
                     text-decoration: none;
-                    color: #818181;
+                    color: var(--footer-color-payne-blue);
                     display: block;
                     transition: 0.3s;
                     font-size: 14px;
@@ -97,7 +120,7 @@ export default class CustomSidebar extends LitElement {
                 }
 
                 #side-nav .nav a:hover {
-                    color: #204d74;
+                    color: var(--footer-color-payne-blue) !important;
                 }
 
                 #side-nav .closebtn {
@@ -106,19 +129,20 @@ export default class CustomSidebar extends LitElement {
                     right: 25px;
                     font-size: 36px;
                     margin-left: 50px;
-                    padding:0;
+                    padding: 0;
                     z-index: 99;
+                    color: var(--main-bg-color);
                 }
 
-                #side-nav a.closebtn:hover {
-                    background: transparent;
-                    text-decoration: none;
-                    color: black;
-                }
+                /*#side-nav a.closebtn:hover {*/
+                /*    background: transparent;*/
+                /*    text-decoration: none;*/
+                /*    color: black;*/
+                /*}*/
 
                 #side-nav a > img,
                 #side-nav a > i {
-                    width:48px
+                    width: 48px
                 }
 
                 #side-nav .nav a.sidebar-nav-login {
@@ -133,33 +157,41 @@ export default class CustomSidebar extends LitElement {
                     <a class="closebtn" @click="${this.onSideBarToggle}">&times;</a>
                     <nav class="navbar" id="sidebar-wrapper" role="navigation">
                         <a href="#home" @click="${e => this.onChangeApp(e, true)}">
-                            <div class="iva-logo">
-                                <img src="${this.config.logoAlt}" />
-                                <span class="subtitle">OpenCB Suite</span>
+                            <div class="top-logo">
+                                <img src="${this.config.logoAlt}" height="50px"/>
+                                <span class="subtitle">Suite</span>
                             </div>
                         </a>
                         <ul class="nav sidebar-nav">
                             ${!this.loggedIn ? html`
                                 <li>
-                                    <a href="#login" class="text-center sidebar-nav-login" role="button" @click="${e => this.onChangeApp(e, true)}">
-                                        <i href="#login" class="fa fa-3x fa-sign-in-alt fa-lg icon-padding" aria-hidden="true"></i>Login
+                                    <a href="#login" class="text-center sidebar-nav-login" role="button"
+                                       @click="${e => this.onChangeApp(e, true)}">
+                                        <i href="#login" class="fa fa-3x fa-sign-in-alt fa-lg icon-padding"
+                                           aria-hidden="true"></i>Login
                                     </a>
                                 </li>
                             ` : null}
 
                             ${this.config?.apps?.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 <li>
-                                    <a href="#home" role="button" data-id="${item.id}" @click="${e => this.onChangeApp(e, true)}">
-                                        <img src="${item.icon}" alt="${item.name}"/>  ${item.name}
+                                    <a href="#home" role="button" data-id="${item.id}"
+                                       @click="${e => this.onChangeApp(e, true)}">
+                                        <img src="${item.icon}" alt="${item.name}"/> ${item.name}
                                     </a>
                                 </li>
                             `)}
                         </ul>
                     </nav>
+                    <div class="zetta-logo">
+                        <div>
+                            <img height="24px" src="${this.config.landingPage?.organisation?.logo?.img}"/>
+                        </div>
+                    </div>
                 </div>
             ` : null
             }
-                `;
+        `;
     }
 
 }

@@ -1,0 +1,42 @@
+name: "Build and Run tests"
+
+on:
+  workflow_call:
+    inputs:
+      test_profile:
+        type: string
+        required: true
+    secrets:
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  test:
+    name: "Test and push Sonar analysis"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "npm"
+          cache-dependency-path: "package.json"
+      - run: npm install
+      - run: npm run test:prepare
+      - uses: cypress-io/github-action@v5
+        with:
+          start: npm run serve
+          command: npm run test:run
+          browser: chrome
+          wait-on: 'http://localhost:3000/src/sites/test-app/'
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-report
+          path: |
+            cypress/reports/assets
+            cypress/reports/*.html
+            cypress/screenshots
+            cypress/videos

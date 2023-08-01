@@ -54,6 +54,9 @@
     <!-- Load IVA configuration file, this must be located in the same folder -->
     <script src="{{ IVA_CONFIG_PATH }}/config.js"></script>
     <script src="{{ IVA_CONFIG_PATH }}/opencga-variant-constants.js"></script>
+    <script src="{{ IVA_CONFIG_PATH }}/browsers.settings.js"></script>
+    <script src="{{ IVA_CONFIG_PATH }}/custom-actions.js"></script>
+
     <script defer src="{{ IVA_CONFIG_PATH }}/opencga-cohort-browser.settings.js"></script>
     <script defer src="{{ IVA_CONFIG_PATH }}/opencga-family-browser.settings.js"></script>
     <script defer src="{{ IVA_CONFIG_PATH }}/opencga-file-browser.settings.js"></script>
@@ -180,10 +183,11 @@
     <link rel="stylesheet" href="../../../styles/css/toggle-switch.css">
     <link rel="stylesheet" href="../../../styles/css/magic-check.css">
     <link rel="stylesheet" href="../../genome-browser/css/genome-browser.css">
-    <!-- <link rel="stylesheet" href="styles/global.css"> -->
+    <link rel="stylesheet" href="../../core/visualisation/viz-styles.css">
     <!-- /build -->
     <!-- LitElement assets -->
     <!-- build:void[] -->
+    <script src="{{ IVA_EXTENSIONS_PATH }}/extensions.js"></script>
     <script type="module" src="./iva-app.js"></script>
     <!-- /build -->
 

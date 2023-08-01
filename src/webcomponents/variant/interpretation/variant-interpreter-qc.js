@@ -20,7 +20,6 @@ import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
 import "../../sample/sample-variant-stats-browser.js";
 import "../../sample/sample-cancer-variant-stats-browser.js";
-import "../../clinical/analysis/mutational-signature-analysis.js";
 import "../../variant/analysis/family-qc-analysis.js";
 import "../../variant/analysis/individual-qc-analysis.js";
 
@@ -32,7 +31,6 @@ class VariantInterpreterQc extends LitElement {
     static DEFAULT_TABS = [
         {id: "overview"},
         {id: "cancerQCPlots"},
-        {id: "mutationalSignature"},
         {id: "sampleVariantStats"},
         {id: "somaticVariantStats"},
         {id: "germlineVariantStats"},
@@ -300,25 +298,6 @@ class VariantInterpreterQc extends LitElement {
                                     .active="${active}"
                                     .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
-                            </div>
-                        `;
-                    },
-                });
-            }
-
-            if (this._tabs.includes("mutationalSignature") && type === "CANCER") {
-                items.push({
-                    id: "mutational-signature",
-                    name: "Mutational Signature",
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-8 col-md-offset-2">
-                                <tool-header title="Mutational Signature - ${probandId} (${this.somaticSample?.id})" class="bg-white"></tool-header>
-                                <mutational-signature-analysis
-                                    .toolParams="${{query: {sample: this.somaticSample?.id}}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .active="${active}">
-                                </mutational-signature-analysis>
                             </div>
                         `;
                     },

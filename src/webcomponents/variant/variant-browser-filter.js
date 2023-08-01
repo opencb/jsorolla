@@ -24,6 +24,7 @@ import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
+import "../commons/filters/role-in-cancer-filter.js";
 import "../commons/filters/conservation-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
@@ -35,6 +36,7 @@ import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/sample-genotype-filter.js";
+import "../commons/filters/individual-hpo-filter.js";
 import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
@@ -202,9 +204,11 @@ export default class VariantBrowserFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     // DEPRECATED
+    // FIXME: is it deprecated?
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
@@ -383,6 +387,15 @@ export default class VariantBrowserFilter extends LitElement {
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
                         </sample-genotype-filter>`;
                     break;
+                case "individual-hpo":
+                    content = html`
+                        <individual-hpo-filter
+                            .individual="${subsection.params?.individual}"
+                            .value="${this.preparedQuery?.["annot-hpo"]}"
+                            .disabled="${disabled}"
+                            @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
+                        </individual-hpo-filter>`;
+                    break;
                 case "variant-file":
                     content = html`
                         <variant-file-filter
@@ -405,6 +418,7 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <variant-file-info-filter
                             .files="${subsection.params.files}"
+                            .visibleCallers="${subsection.params.visibleCallers}"
                             .study="${subsection.params.study || this.opencgaSession.study}"
                             .fileData="${this.preparedQuery.fileData}"
                             .opencgaSession="${subsection.params.opencgaSession || this.opencgaSession}"
@@ -464,6 +478,15 @@ export default class VariantBrowserFilter extends LitElement {
                             @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
                         </consequence-type-select-filter>`;
                     break;
+                case "role-in-cancer":
+                    content = html`
+                        <role-in-cancer-filter
+                            .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
+                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .disabled="${disabled}"
+                            @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
+                        </role-in-cancer-filter>`;
+                    break;
                 case "proteinSubstitutionScore":
                     content = html`
                         <protein-substitution-score-filter
@@ -517,15 +540,17 @@ export default class VariantBrowserFilter extends LitElement {
                             .showPanelTitle="${true}"
                             .disabled="${disabled}"
                             .showExtendedFilters="${true}"
-                            @filterChange="${e => this.onFilterChange({
-                                panel: "panel",
-                                panelFeatureType: "panelFeatureType",
-                                panelModeOfInheritance: "panelModeOfInheritance",
-                                panelConfidence: "panelConfidence",
-                                panelRoleInCancer: "panelRoleInCancer",
-                                panelIntersection: "panelIntersection",
-                            }, e.detail.query)}">
-                        </disease-panel-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    panel: "panel",
+                                    panelFeatureType: "panelFeatureType",
+                                    panelModeOfInheritance: "panelModeOfInheritance",
+                                    panelConfidence: "panelConfidence",
+                                    panelRoleInCancer: "panelRoleInCancer",
+                                    panelIntersection: "panelIntersection",
+                                }, e.detail.query)}">
+                        </disease-panel-filter>
+                    `;
                     break;
                 case "clinical-annotation":
                     content = html`
@@ -533,22 +558,25 @@ export default class VariantBrowserFilter extends LitElement {
                             .clinical="${this.preparedQuery.clinical}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
                             .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinical: "clinical",
-                                clinicalSignificance: "clinicalSignificance",
-                                clinicalConfirmedStatus: "clinicalConfirmedStatus"
-                            }, e.detail)}">
-                        </clinical-annotation-filter>`;
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinical: "clinical",
+                                    clinicalSignificance: "clinicalSignificance",
+                                    clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                }, e.detail)}">
+                        </clinical-annotation-filter>
+                    `;
                     break;
                 case "clinvar": // Deprecated: use clinical instead
                     content = html`
                         <clinvar-accessions-filter
                             .clinvar="${this.preparedQuery.clinvar}"
                             .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
-                            @filterChange="${e => this.onFilterChange({
-                                clinvar: "xref",
-                                clinicalSignificance: "clinicalSignificance"
-                            }, e.detail.value)}">
+                            @filterChange="${
+                                e => this.onFilterChange({
+                                    clinvar: "xref",
+                                    clinicalSignificance: "clinicalSignificance"
+                                }, e.detail.value)}">
                         </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
@@ -592,14 +620,18 @@ export default class VariantBrowserFilter extends LitElement {
         if (content !== "") {
             return html`
                 <div class="form-group">
-                    <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
-                        ${subsection.title ? html`
-                            <span>${this._getFilterField(subsection.title)}</span>` : null
-                        }
-                        <div class="tooltip-div pull-right">
-                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                    ${subsection.title ? html`
+                        <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
+                            <span>${this._getFilterField(subsection.title)}</span>
+                            ${subsection.tooltip ? html`
+                                <div class="tooltip-div pull-right">
+                                    <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            ` : null}
                         </div>
-                    </div>
+                    `: null}
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${this._createMessage(subsection)}
                         ${subsection.description ? html`

@@ -38,9 +38,10 @@ export default class NavigationBar {
                 <div style="display:flex;flex-wrap:wrap;gap:4px;">
 
                     <!-- Region input -->
-                    <div id="${this.prefix}RegionForm" title="Position" class="form-group" style="margin:0px;">
+                    <div id="${this.prefix}RegionForm" data-cy="gb-region" title="Position" class="form-group" style="margin:0px;">
                         <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
                             <input
+                                data-cy="gb-region-input"
                                 type="text"
                                 id="${this.prefix}RegionInput"
                                 class="form-control input-sm"
@@ -48,7 +49,7 @@ export default class NavigationBar {
                                 style="width:170px;display:inline-block;"
                             />
                             <span class="input-group-btn">
-                                <button id="${this.prefix}RegionSubmit" class="btn btn-default btn-sm">
+                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-default btn-sm">
                                     <strong>Go!</strong>
                                 </button>
                             </span>
@@ -79,7 +80,7 @@ export default class NavigationBar {
                             ${this.config.featuresOfInterestTitle}
                             <span class="caret"></span>
                         </button>
-                        <ul id="${this.prefix}FeaturesOfInterestMenu" class="dropdown-menu"></ul>
+                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu"></ul>
                     </div>
 
                     <div id="${this.prefix}ControlsSpace" style="width:1rem;display:none;"></div>
@@ -114,7 +115,7 @@ export default class NavigationBar {
 
                         <!-- Window size input -->
                         <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                            <input id="${this.prefix}WindowSizeInput" class="form-control input-sm" style="max-width:60px;" />
+                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control input-sm" style="max-width:60px;" />
                             <span class="input-group-addon">nts</span>
                         </div>
                     </div>

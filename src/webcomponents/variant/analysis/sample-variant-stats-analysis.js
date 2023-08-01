@@ -80,16 +80,17 @@ export default class SampleVariantStatsAnalysis extends LitElement {
     }
 
     check() {
-        return !!this.toolParams.sample || !!this.toolParams.individual;
+        if (!this.toolParams.sample && !this.toolParams.individual) {
+            return {
+                message: "You must select a sample or an individual",
+                notificationType: "warning"
+            };
+        }
+        return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        }
-        // Enable this only when a dynamic property in the config can change
-        this.config = this.getDefaultConfig();
+    onFieldChange(e) {
+        this.toolParams = {...this.toolParams};
         this.requestUpdate();
     }
 
@@ -140,39 +141,41 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Sample ID",
+                        field: "sample",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (sample, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.sample}"
+                                        .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.individual, showSelectAll: true} }"
-                                        @filterChange="${e => this.onFieldChange(e, "sample")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.individual, showSelectAll: true} }"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Select on Sample to run the analysis",
+                                text: "Select to samples to run the analysis",
                             }
                         },
                     },
                     {
                         title: "Individual ID",
+                        field: "individual",
                         type: "custom",
                         display: {
-                            render: toolParams => {
+                            render: (individual, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
-                                        .value="${toolParams?.individual}"
+                                        .value="${individual}"
                                         .resource="${"INDIVIDUAL"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: !!toolParams.sample}}"
-                                        @filterChange="${e => this.onFieldChange(e, "individual")}">
+                                        .config="${{multiple: true, disabled: !!toolParams?.sample}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>`;
                             },
                             help: {
-                                text: "Variant stats will be calculated for all the samples of these individuals",
+                                text: "Variant stats will be calculated for all the samples belonging to these individuals",
                             }
                         },
                     },
@@ -186,16 +189,24 @@ export default class SampleVariantStatsAnalysis extends LitElement {
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Index",
+                        title: "Index Stats",
                         field: "index",
                         type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Sample variant stats will be indexed in Catalog. Only Study Admins can index scores"
+                            }
+                        }
                     },
                     {
-                        title: "Index ID",
+                        title: "Index Stats ID",
                         field: "indexId",
                         type: "input-text",
                         display: {
                             disabled: !this.toolParams.index,
+                            help: {
+                                text: "You must use this ID when querying sample variant stats in Catalog"
+                            }
                         },
                     }
                 ]

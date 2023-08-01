@@ -34,22 +34,62 @@ export default class VariantInterpreterGridConfig extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            gridColumns: {
+                type: Object
+            },
             config: {
                 type: Object
             }
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this.onConfigObserver();
+        }
+        super.update(changedProperties);
     }
 
-    update(changedProperties) {
-        super.update(changedProperties);
+    onConfigObserver() {
+        this._highlights = (this.config?.highlights || [])
+            .filter(h => h.active)
+            .map(h => h.id)
+            .join(",") || [];
+
+
+        // Prepare data for the column select
+        this.selectColumnData = [];
+        this.selectedColumns = [];
+        if (this.gridColumns && Array.isArray(this.gridColumns)) {
+            let lastSubColumn = 0;
+            for (const gridColumn of this.gridColumns[0]) {
+                if (gridColumn.rowspan === 2) {
+                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.title});
+                    if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
+                        this.selectedColumns.push(gridColumn.id);
+                    }
+                } else {
+                    const option = {id: gridColumn.id, name: gridColumn.title, fields: []};
+                    for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
+                        option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
+                        if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {
+                            this.selectedColumns.push(this.gridColumns[1][i].id);
+                        }
+                    }
+                    if (option.fields[0].id) {
+                        this.selectColumnData.push(option);
+                    }
+                    lastSubColumn += gridColumn.colspan;
+                }
+            }
+        }
     }
 
     onFieldChange(e) {
         switch (e.detail.param) {
+            case "columns":
+                this.config.columns = e.detail.value?.split(",");
+                break;
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
                 break;
@@ -82,8 +122,15 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     this.requestUpdate();
                 }
                 break;
-            case "activeHighlights":
-                this.config.activeHighlights = (e.detail.value || "").split(",").filter(v => v.length > 0);
+            case "_highlights":
+                if (e.detail.value) {
+                    const values = e.detail.value.split(",");
+                    this.config.highlights.forEach(h => h.active = values.includes(h.id));
+                } else {
+                    this.config.highlights.forEach(h => h.active = false);
+                }
+                this._highlights = e.detail.value || "";
+                this.requestUpdate();
                 break;
         }
 
@@ -121,8 +168,70 @@ export default class VariantInterpreterGridConfig extends LitElement {
             },
             sections: [
                 {
+                    title: "General",
+                    display: {
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Select the page size",
+                            display: {
+                                containerStyle: "margin: 5px 5px 5px 0px"
+                            }
+                        },
+                        {
+                            field: "pageSize",
+                            type: "custom",
+                            text: "Page Size",
+                            display: {
+                                containerStyle: "margin: 5px 5px 5px 0px",
+                                render: (columns, dataFormFilterChange) => {
+                                    return html`
+                                        <select-field-filter
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
+                                            .multiple="${false}"
+                                            .classes="${"btn-sm"}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </select-field-filter>
+                                    `;
+                                }
+                            }
+                        },
+                        {
+                            type: "text",
+                            text: `Select the <span style="font-weight: bold">columns</span> to be displayed`,
+                            display: {
+                                containerStyle: "margin: 20px 5px 5px 0px",
+                            }
+                        },
+                        {
+                            field: "columns",
+                            type: "custom",
+                            text: "Columns",
+                            display: {
+                                containerStyle: "margin: 5px 5px 5px 0px",
+                                render: (columns, dataFormFilterChange) => {
+                                    return html`
+                                        <select-field-filter
+                                            .data="${this.selectColumnData}"
+                                            .value="${this.selectedColumns?.join(",")}"
+                                            .title="${"Columns"}"
+                                            .multiple="${true}"
+                                            .classes="${"btn-sm"}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </select-field-filter>
+                                    `;
+                                }
+                            }
+                        },
+                    ],
+                },
+                {
                     id: "gt",
-                    title: "General Settings",
+                    title: "Genotype Settings",
                     description: "Select some general options",
                     display: {
                         titleHeader: "h4",
@@ -159,7 +268,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
-                        descriptionStyle: "margin: 0px 10px"
+                        descriptionStyle: "margin: 0px 10px",
+                        visible: () => !!this.config?.geneSet
                     },
                     elements: [
                         {
@@ -309,16 +419,24 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         titleStyle: "margin: 5px 5px",
                         descriptionClassName: "help-block",
                         descriptionStyle: "margin: 0px 10px",
-                        visible: true
+                        visible: () => !!this.config?.populationFrequenciesConfig
                     },
                     elements: [
                         {
-                            title: "Select the display mode of the population frequencies",
+                            type: "text",
+                            text: "Select the display mode of the population frequencies",
+                            display: {
+                                containerStyle: "margin: 5px 5px 5px 0px"
+                            }
+                        },
+                        {
+                            // title: "Select the display mode of the population frequencies",
                             field: "populationFrequenciesConfig.displayMode",
                             type: "select",
                             multiple: false,
                             allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
                             display: {
+                                containerStyle: "margin: 5px 5px 5px 0px"
                             },
                         },
                     ]
@@ -332,10 +450,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     elements: [
                         {
                             title: "Configure the highlight to apply to displayed variant rows",
-                            field: "activeHighlights",
+                            field: "_highlights",
                             type: "select",
                             multiple: true,
-                            allowedValues: this.config?.highlights?.map(highlight => highlight.id) || [],
+                            allowedValues: this.config?.highlights?.map(highlight => {
+                                return {id: highlight.id, name: highlight.name};
+                            }) || [],
+                            defaultValue: this._highlights,
                             display: {
                                 visible: () => (this.config?.highlights || []).length > 0,
                             },

@@ -1,7 +1,7 @@
 import {html} from "lit";
 import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
-
+import "../../commons/filters/feature-filter.js";
 
 export default class AnalysisUtils {
 
@@ -42,9 +42,16 @@ export default class AnalysisUtils {
             {
                 title: "Gene",
                 field: prefix + "gene",
-                type: "input-text",
+                type: "custom",
                 display: {
-                    visible: !ignoreList?.includes("gene")
+                    render: (genes, dataFormFilterChange) => html`
+                        <feature-filter
+                            .cellbaseClient="${opencgaSession.cellbaseClient}"
+                            .query=${{gene: genes}}
+                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                        </feature-filter>
+                    `,
+                    visible: !ignoreList?.includes("gene"),
                 },
             },
             {
@@ -71,12 +78,12 @@ export default class AnalysisUtils {
                 type: "custom",
                 display: {
                     visible: !ignoreList?.includes("ct"),
-                    render: ct => {
+                    render: (ct, dataFormFilterChange) => {
                         return html`
                             <consequence-type-select-filter
                                 .ct="${ct}"
                                 .config="${CONSEQUENCE_TYPES}"
-                                @filterChange="${e => callback(e, prefix + "ct")}">
+                                @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                             </consequence-type-select-filter>
                         `;
                     }
@@ -105,17 +112,20 @@ export default class AnalysisUtils {
             id: id,
             title: title,
             description: description,
-            // display: {},
+            display: {
+                // defaultLayout: "vertical"
+            },
             sections: [
                 {
                     display: {},
                     elements: [
                         {
                             type: "notification",
-                            text: check?.message || "",
+                            text: check?.message || "No message defined.",
                             display: {
-                                visible: () => check ? !check.status : false,
-                                notificationType: "warning",
+                                // visible: () => check ? !check.status : false,
+                                visible: () => !!check?.message,
+                                notificationType: check?.notificationType || "warning",
                             },
                         },
                     ]

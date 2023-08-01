@@ -84,9 +84,14 @@ export default class FeatureRenderer extends Renderer {
 
                 if (foundArea) {
                     const featureGroup = SVG.addChild(group, "g", {
-                        feature_id: feature.id,
+                        "data-cy": "gb-feature",
+                        "data-feature-id": feature.id,
+                        "data-feature-start": feature.start,
+                        "data-feature-end": feature.end,
+                        "data-feature-label": label || "-",
                     });
                     SVG.addChild(featureGroup, "rect", {
+                        "data-cy": "gb-feature-rect",
                         "x": x,
                         "y": rowY,
                         "width": width,
@@ -100,6 +105,7 @@ export default class FeatureRenderer extends Renderer {
 
                     if (options.labelMaxRegionSize > options.regionSize) {
                         const text = SVG.addChild(featureGroup, "text", {
+                            "data-cy": "gb-feature-label",
                             "i": featureIndex,
                             "x": x,
                             "y": textY,

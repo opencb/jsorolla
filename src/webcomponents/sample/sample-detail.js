@@ -15,10 +15,12 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./../commons/view/detail-tabs.js";
 import "./sample-view.js";
 import "./sample-variant-stats-view.js";
 import "../alignment/qc/samtools-flagstats-view.js";
+import debug from "debug";
 
 export default class SampleDetail extends LitElement {
 
@@ -49,54 +51,75 @@ export default class SampleDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "sample-detail";
+        this._sample = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.sample = null;
-        }
-
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
+        super.update(changedProperties);
     }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            })
-                .then(response => {
-                    this.sample = response.getResult(0);
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, {
+                    study: this.opencgaSession.study.fqn,
+                    includeIndividual: true
                 })
-                .catch(reason => {
-                    console.error(reason);
+                .then(response => {
+                    this._sample = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.sample = null;
         }
     }
 
-    render() {
+    sampleObserver() {
+        this._sample = {...this.sample};
+        this.requestUpdate();
+    }
 
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
+
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
 
         return html`
-            <detail-tabs
-                .data="${this.sample}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
-            `;
+            <div data-cy="sb-detail">
+                <detail-tabs
+                    .data="${this._sample}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -129,9 +152,12 @@ export default class SampleDetail extends LitElement {
                 {
                     id: "file-view",
                     name: "Files",
-                    render: (sample, active, opencgaSession) => {
-                        return html`<file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></file-grid>`;
-                    }
+                    render: (sample, active, opencgaSession) => html`
+                        <file-grid
+                            .opencgaSession="${opencgaSession}"
+                            .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}">
+                        </file-grid>
+                    `,
                 }
             ]
         };

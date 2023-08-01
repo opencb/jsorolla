@@ -22,7 +22,7 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row) {
+    static roleInCancerFormatter(value, row, index) {
         if (value) {
             const roles = new Set();
             for (const evidence of value) {
@@ -41,8 +41,30 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
             }
-            if (roles.size > 0) {
-                return Array.from(roles.keys()).join("<br>");
+            const rolesList = Array.from(roles.keys());
+            if (rolesList.length > 0) {
+                // Do not display more than 'maxDisplayedRoles' roles
+                const maxDisplayedRoles = 8;
+                if (rolesList.length <= maxDisplayedRoles) {
+                    return Array.from(roles.keys()).join("<br>");
+                } else {
+                    return `
+                        <div data-role="roles-list" data-variant-index="${index}">
+                            ${rolesList.slice(0, maxDisplayedRoles).join("<br>")}
+                            <span data-role="roles-list-extra" style="display:none">
+                                ${rolesList.slice(maxDisplayedRoles).join("<br>")}
+                            </span>
+                            <div style="margin-top:8px;">
+                                <a data-role="roles-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+                                    ... show more (${(rolesList.length - maxDisplayedRoles)})
+                                </a>
+                                <a data-role="roles-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+                                    show less
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
         return "-";
@@ -56,8 +78,7 @@ export default class VariantInterpreterGridFormatter {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                // cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
-                cohortMap.set(s, study.stats);
+                cohortMap.set(s, (study.stats || []).find(stats => stats?.cohortId === "ALL"));
             });
             return VariantGridFormatter.renderPopulationFrequencies(
                 cohorts,
@@ -298,8 +319,8 @@ export default class VariantInterpreterGridFormatter {
                                         <div style="margin: 5px 0">${panel.id}</div>`
                                 }
                             </div>
-                            ${gene.modeOfInheritance ? `
-                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modeOfInheritance}</div>
+                            ${gene.modesOfInheritance ? `
+                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
                             }
                             ${gene.confidence ? `
@@ -313,8 +334,11 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let roleInCancer = "-";
-                if (re.roleInCancer) {
-                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
+                if (re.rolesInCancer) {
+                    roleInCancer = re.rolesInCancer
+                        .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
+                        .join(", ");
+
                 }
 
                 let acmgPrediction = "-";
@@ -449,7 +473,7 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 // Render genotypes
-                let content;
+                let content = "";
                 switch (this.field.config?.genotype?.type?.toUpperCase() || "VCF_CALL") {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
@@ -724,7 +748,7 @@ export default class VariantInterpreterGridFormatter {
         const extVafIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "EXT_VAF");
         if (extVafIndex !== -1) {
             const dpIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "DP");
-            return {vaf: Number.parseFloat(sampleEntry.data[extVafIndex]), depth: Number.parseInt(sampleEntry.data[dpIndex])};
+            return {vaf: Number.parseFloat(sampleEntry?.data[extVafIndex]), depth: Number.parseInt(sampleEntry?.data[dpIndex])};
         }
 
         // Try to guess the variant caller used.
@@ -831,18 +855,18 @@ export default class VariantInterpreterGridFormatter {
         }
 
         // 2. Get FORMAT fields
-        const formatFields = [];
-        for (const formatFieldIndex in variant.studies[0].sampleDataKeys) {
-            // GT field is treated separately
-            let key = variant.studies[0].sampleDataKeys[formatFieldIndex];
-            key = key !== "GT" ? key : `${key} (${variant.reference || "-"}/${variant.alternate || "-"})`;
-            const value = sampleFormat[formatFieldIndex] ? sampleFormat[formatFieldIndex] : "-";
-            const html = `<div class="form-group" style="margin: 2px 2px">
-                                    <label class="col-md-5">${key}</label>
-                                    <div class="col-md-7">${value}</div>
-                                  </div>`;
-            formatFields.push(html);
-        }
+        const formatFields = (variant?.studies?.[0]?.sampleDataKeys || [])
+            .map((fieldKey, fieldIndex) => {
+                // GT field is treated separately
+                const key = fieldKey !== "GT" ? fieldKey : `${fieldKey} (${variant.reference || "-"}/${variant.alternate || "-"})`;
+                const value = sampleFormat[fieldIndex] ? sampleFormat[fieldIndex] : "-";
+                return `
+                    <div class="form-group" style="margin: 2px 2px">
+                        <label class="col-md-5">${key}</label>
+                        <div class="col-md-7">${value}</div>
+                    </div>
+                `;
+            });
 
         // 3. Get SECONDARY ALTERNATES fields
         const secondaryAlternates = [];
@@ -901,6 +925,97 @@ export default class VariantInterpreterGridFormatter {
                                 </form>
                              </div>`;
         return tooltipText;
+    }
+
+    static exomiserScoresFormatter(value, row) {
+        const evidence = (row?.evidences || []).find(evidence => {
+            return !!evidence?.attributes?.exomiser;
+        });
+
+        if (evidence?.attributes?.exomiser) {
+            const scoreFields = [
+                {field: "EXOMISER_GENE_COMBINED_SCORE", title: "Gene Combined Score"},
+                {field: "EXOMISER_GENE_PHENO_SCORE", title: "Gene Phenotype Score"},
+                {field: "EXOMISER_GENE_VARIANT_SCORE", title: "Gene Variant Score"},
+                {field: "EXOMISER_VARIANT_SCORE", title: "Variant Score"},
+            ];
+            const tooltipText = `
+                <table style='width:160px;'>
+                    ${scoreFields.map(value => `
+                        <tr>
+                            <td><strong>${value.title}:</strong></td>
+                            <td>${evidence.attributes?.exomiser[value.field] || "-"}</td>
+                        </tr>
+                    `).join("")}
+                </table>
+            `;
+
+            return `
+                <div>
+                    <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
+                        <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
+                        <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
+                    </a>
+                </div>
+            `;
+        }
+
+        // No exomiser scores to display
+        return "-";
+    }
+
+    static reviewFormatter(row, index, checked, disabled, prefix, config) {
+        // Prepare discussion tooltip text
+        let discussionTooltipText = "";
+        if (row.discussion?.text) {
+            discussionTooltipText = `
+                <div style="min-width:200px;">
+                    <div>${row.discussion?.text || "-"}</div>
+                    <div style="margin-top:6px;">
+                        Added by <b>${row.discussion?.author || "-"}</b> on <b>${UtilsNew.dateFormatter(row.discussion?.date)}</b>
+                    </div>
+                </div>
+            `;
+        }
+        // Prepare comments
+        const commentsTooltipText = `
+            <div style="min-width:200px;">
+                ${(row.comments || []).map(comment => `
+                    <div style="padding:4px;">
+                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                        <div>${comment.message || "-"}</div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+
+        return `
+            <div>
+                ${config?.showEditReview ? `
+                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                    </button>
+                `: ""}
+                ${checked && row?.status ? `
+                    <div class="help-block" style="margin: 5px 0">${row.status}</div>
+                ` : ""}
+                ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
+                    <div style="">
+                        ${row.discussion?.text ? `
+                        <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fas fa-comment-alt" style="margin-right:8px;"></i>
+                        </a>
+                        ` : ""}
+                        ${row.comments?.length > 0 ? `
+                        <a tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <i class="fas fa-comments" style="margin-right:2px;"></i>${row.comments.length}
+                        </a>
+                        ` : ""}
+                    </div>
+                ` : ""}
+            </div>
+        `;
+
     }
 
 }
