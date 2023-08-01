@@ -358,7 +358,9 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onConfigClick(e) {
-        $("#" + this._prefix + "ConfigModal").modal("show");
+        // $("#" + this._prefix + "ConfigModal").modal("show");
+        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
+        configModal.show();
     }
 
     detailFormatter(index, row, a) {

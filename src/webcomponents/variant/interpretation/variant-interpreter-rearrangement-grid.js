@@ -96,6 +96,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this.table = $("#" + this.gridId);
+        this.reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
         // this.checkedVariants = new Map();
     }
 
@@ -665,7 +666,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
                     ];
                     this.requestUpdate();
-                    $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    // $("#" + this._prefix + "ReviewSampleModal").modal("show");
+                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+                    this.reviewSampleModal.show();
                 }
                 break;
             case "download":
@@ -847,12 +850,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             ];
             this.requestUpdate();
 
-            $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            // $("#" + this._prefix + "ReviewSampleModal").modal("show");
+            // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+            this.reviewSampleModal.show();
         }
     }
 
     onConfigClick(e) {
-        $("#" + this._prefix + "ConfigModal").modal("show");
+        // $("#" + this._prefix + "ConfigModal").modal("show");
+        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
+        configModal.show();
     }
 
     onVariantChange(e) {

@@ -243,7 +243,9 @@ export default class NotificationManager {
 
         // Append confirmation and display modal
         this.confirmationDiv.appendChild(element);
-        $(element).modal("show");
+        // $(element).modal("show");
+        const elementModal = new bootstrap.Modal(element);
+        elementModal.show();
     }
 
     // Get default config for the notification manager

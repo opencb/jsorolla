@@ -62,7 +62,9 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     openModal(e) {
-        $(`#${this._prefix}analysis_description_modal`, this).modal("show");
+        // $(`#${this._prefix}analysis_description_modal`, this).modal("show");
+        const analysisModal = new bootstrap.Modal(`#${this._prefix}analysis_description_modal`);
+        analysisModal.show();
     }
 
     onAnalysisRun(e) {

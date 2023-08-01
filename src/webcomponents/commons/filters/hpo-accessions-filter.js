@@ -118,7 +118,8 @@ export default class HpoAccessionsFilter extends LitElement {
     }
 
     openModal() {
-        $("#HP_ontologyModal").modal("show");
+        const ontologyModal = new bootstrap.Modal(`#HP_ontologyModal`);
+        ontologyModal.show();
     }
 
     getDefaultConfig() {

@@ -175,7 +175,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
 
     onViewInterpretation() {
-        $("#" + this._prefix + "PreviewModal").modal("show");
+        // $("#" + this._prefix + "PreviewModal").modal("show");
+        const previewModal = new bootstrap.Modal("#" + this._prefix + "PreviewModal");
+        previewModal.show();
     }
 
     onSaveVariants(e) {

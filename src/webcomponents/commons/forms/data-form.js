@@ -1674,7 +1674,8 @@ export default class DataForm extends LitElement {
     }
 
     onPreview(e) {
-        $("#" + this._prefix + "PreviewDataModal").modal("show");
+        const previewModal = new bootstrap.Modal("#" + this._prefix + "PreviewDataModal");
+        previewModal.show();
     }
 
     onClear(e) {

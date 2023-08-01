@@ -1208,7 +1208,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.requestUpdate();
                     const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
                     UtilsNew.draggableModal(document, modalElm);
-                    $(`#${this._prefix}ReviewSampleModal`).modal("show");
+                    // $(`#${this._prefix}ReviewSampleModal`).modal("show");
+                    const variantModal = new bootstrap.Modal(modalElm);
+                    variantModal.show();
                 }
                 break;
             case "genome-browser":
@@ -1318,7 +1320,9 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onConfigClick(e) {
-        $("#" + this._prefix + "ConfigModal").modal("show");
+        // $("#" + this._prefix + "ConfigModal").modal("show");
+        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
+        configModal.show();
     }
 
     onVariantCheck(e) {
@@ -1383,7 +1387,9 @@ export default class VariantInterpreterGrid extends LitElement {
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
             UtilsNew.draggableModal(document, modalElm);
-            $(`#${this._prefix}ReviewSampleModal`).modal("show");
+            // $(`#${this._prefix}ReviewSampleModal`).modal("show");
+            const reviewSampleModal = new bootstrap.Modal(modalElm);
+            reviewSampleModal.show();
         }
     }
 
@@ -1449,7 +1455,9 @@ export default class VariantInterpreterGrid extends LitElement {
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
             UtilsNew.draggableModal(document, modalElm);
-            $(`#${this._prefix}EvidenceReviewModal`).modal("show");
+            // $(`#${this._prefix}EvidenceReviewModal`).modal("show");
+            const evidenceReviewModal = new bootstrap.Modal(modalElm);
+            evidenceReviewModal.show();
         }
     }
 

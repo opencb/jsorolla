@@ -59,7 +59,9 @@ export default class FamilyGenotypeModal extends LitElement {
     }
 
     showModal() {
-        $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
+        // $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
+        const sampleGenotypeFilterModal = new bootstrap.Modal("#" + this._prefix + "SampleGenotypeFilterModal");
+        sampleGenotypeFilterModal.show();
     }
 
     // forward the event and handle error state

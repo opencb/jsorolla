@@ -53,7 +53,9 @@ export default class GettingStarted extends LitElement {
 
     openModal(e) {
         $("#thumbnail_modal img", this).attr("src", e.target.src);
-        $("#thumbnail_modal", this).modal("show");
+        // $("#thumbnail_modal", this).modal("show");
+        const thumbnailModal = new bootstrap.Modal("#thumbnail_modal");
+        thumbnailModal.show();
     }
 
     update(changedProperties) {
