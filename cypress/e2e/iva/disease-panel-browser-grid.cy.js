@@ -17,11 +17,11 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test";
 
-context("Sample Browser Grid", () => {
+context("Disease Panel Browser Grid", () => {
 
     beforeEach(() => {
-        cy.visit("#sample-browser-grid");
-        cy.get(`div[data-cy="sample-browser-container"]`)
+        cy.visit("#disease-panel-browser-grid");
+        cy.get(`div[data-cy="disease-panel-browser-container"]`)
             .as("container");
         cy.waitUntil(() => {
             return cy.get("@container")
@@ -30,12 +30,12 @@ context("Sample Browser Grid", () => {
     });
 
     // GRID
-    context("Sample Grid", () => {
-        const gridComponent = "sample-grid";
+    context("Disease Panel Grid", () => {
+        const gridComponent = "disease-panel-grid";
 
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="sb-grid"]`)
+                .find(`div[data-cy="dpb-grid"]`)
                 .as("grid");
         });
 
@@ -91,41 +91,6 @@ context("Sample Browser Grid", () => {
                             .should("not.be.empty");
                     });
             });
-
-            it("should have a creation date", () => {
-                cy.get("@grid")
-                    .contains("th", "Creation Date")
-                    .invoke("index")
-                    .then(i => {
-                        creationDateIndex = i + 1;
-                        cy.get("@body")
-                            .find(`td:nth-child(${i})`)
-                            .each(td => {
-                                cy.wrap(td)
-                                    .should("not.be.empty");
-                            });
-                    });
-            });
-
-            it("should have a creation date with valid format", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/
-                        expect(td.text()).to.match(regExp);
-                    });
-            });
-
-            it("should have a creation date equal or earlier than today ", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const date = new Date(td.text());
-                        const today = new Date();
-                        expect(date).to.be.lte(today);
-                    });
-            });
-
         });
 
         context("data format", () => {
@@ -150,7 +115,7 @@ context("Sample Browser Grid", () => {
 
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="sb-detail"]`)
+                .find(`div[data-cy="dpb-detail"]`)
                 .as("detail");
         });
 
@@ -160,7 +125,7 @@ context("Sample Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Sample ID")
+            BrowserTest.getColumnIndexByHeader("Panel ID")
             cy.get("@indexColumn")
                 .then(indexColumn => {
                     const indexRow = 2
@@ -175,11 +140,12 @@ context("Sample Browser Grid", () => {
 
             cy.get("@textRow")
                 .then((textRow) => {
+                    const textRowTrimmed = textRow.trim();
                     cy.get("detail-tabs > div.panel")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
-                            expect(textRow).to.equal(textTab[1].trim());
+                            expect(textRowTrimmed).to.equal(textTab[2].trim());
                         });
                 });
         });

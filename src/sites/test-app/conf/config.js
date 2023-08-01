@@ -209,6 +209,12 @@ const SUITE = {
                             visibility: "public"
                         },
                         {
+                            id: "disease-panel-browser-grid",
+                            name: "Disease Panel browser Grid",
+                            description: "",
+                            visibility: "public"
+                        },
+                        {
                             id: "opencga-update",
                             name: "opencga-update Test",
                             description: "",

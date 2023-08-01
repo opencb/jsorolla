@@ -18,12 +18,12 @@ import {html, LitElement} from "lit";
 
 import UtilsNew from "../../../core/utils-new.js";
 
-import "../../../webcomponents/sample/sample-grid.js";
-import "../../../webcomponents/sample/sample-detail.js";
+import "../../../webcomponents/disease-panel/disease-panel-grid.js";
+import "../../../webcomponents/disease-panel/disease-panel-detail.js";
 import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
 
 
-class SampleBrowserGridTest extends LitElement {
+class DiseasePanelBrowserGridTest extends LitElement {
 
     constructor() {
         super();
@@ -52,7 +52,7 @@ class SampleBrowserGridTest extends LitElement {
     #init() {
         this._ready = false;
         this.FILES = [
-            "samples-platinum.json",
+            "disease-panels-platinum.json",
         ];
         this._data = [];
         this._selectedInstance = {};
@@ -88,7 +88,6 @@ class SampleBrowserGridTest extends LitElement {
 
     propertyObserver() {
         if (this.opencgaSession?.cellbaseClient && this.testDataVersion) {
-
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
@@ -112,31 +111,30 @@ class SampleBrowserGridTest extends LitElement {
 
     getDefaultTabsConfig() {
         return {
-            title: "Sample",
+            title: "Disease Panel",
             showTitle: true,
             items: [
                 {
-                    id: "sample-view",
-                    name: "Overview",
+                    id: "disease-panel-view",
+                    name: "Summary",
                     active: true,
-                    render: (sample, active, opencgaSession) => html`
-                                <sample-view
-                                    .sample="${sample}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </sample-view>
-                            `,
+                    render: (diseasePanel, _active, opencgaSession) => html`
+                        <disease-panel-summary
+                            .diseasePanel="${diseasePanel}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-summary>
+                    `,
                 },
                 {
                     id: "json-view",
                     name: "JSON Data",
-                    render: (sample, active) => html`
+                    render: (diseasePanel, active) => html`
                         <json-viewer
-                            .data="${sample}"
-                            .active="${active}">
+                                .data="${diseasePanel}"
+                                .active="${active}">
                         </json-viewer>
                     `,
-                }
+                },
             ]
         };
     }
@@ -145,11 +143,11 @@ class SampleBrowserGridTest extends LitElement {
         // 1. Mutations related to date
         // this._data[3].id = "";
         // this._data[1].creationDate = "";
-        this._data[2].creationDate = "20540101"; // No valid format
-        this._data[2].creationDate = "20210527101416"; // Valid format
+        // this._data[2].creationDate = "20540101"; // No valid format
+        // this._data[2].creationDate = "20210527101416"; // Valid format
 
         // Finally, we update samples mem address to force a rendering
-        this._data = [...this._data];
+        // this._data = [...this._data];
     }
 
     selectInstance(e) {
@@ -163,25 +161,25 @@ class SampleBrowserGridTest extends LitElement {
         }
 
         return html`
-            <div data-cy="sample-browser-container">
+            <div data-cy="disease-panel-browser-container">
                 <h2 style="font-weight: bold;">
-                    Sample Browser Grid (${this.FILES[0]})
+                    Disease Panel Browser Grid (${this.FILES[0]})
                 </h2>
-                <sample-grid
-                    .samples="${this._data}"
+                <disease-panel-grid
+                    .diseasePanels="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
                     @selectrow="${this.selectInstance}">
-                </sample-grid>
-                <sample-detail
-                    .sample="${this._selectedInstance}"
+                </disease-panel-grid>
+                <disease-panel-detail
+                    .diseasePanel="${this._selectedInstance}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.getDefaultTabsConfig()}">
-                </sample-detail>
+                </disease-panel-detail>
             </div>
         `;
     }
 
 }
 
-customElements.define("sample-browser-grid-test", SampleBrowserGridTest);
+customElements.define("disease-panel-browser-grid-test", DiseasePanelBrowserGridTest);

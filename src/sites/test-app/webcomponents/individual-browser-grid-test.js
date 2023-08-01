@@ -162,7 +162,7 @@ class IndividualBrowserGridTest extends LitElement {
         return html`
             <div data-cy="individual-browser-container">
                 <h2 style="font-weight: bold;">
-                    Individual Browser Grid (${this.testFile?.split("-")?.at(-1)})
+                    Individual Browser Grid (${this.FILES[0]})
                 </h2>
                 <individual-grid
                     .individuals="${this._data}"
