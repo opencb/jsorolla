@@ -1051,7 +1051,7 @@ export default class VariantBrowserGrid extends LitElement {
 
             <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1" role="dialog"
                 aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3>Table Settings</h3>
@@ -1066,8 +1066,8 @@ export default class VariantBrowserGrid extends LitElement {
                             </variant-interpreter-grid-config>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
                         </div>
                     </div>
                 </div>
