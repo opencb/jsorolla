@@ -1882,8 +1882,8 @@ export default class DataForm extends LitElement {
                             .map((section, index) => {
                                 const active = index === this.activeSection;
                                 return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                    <li role="presentation" class="nav-item">
+                                        <a class="nav-link ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                             ${section.title || ""}
                                         </a>
                                     </li>
@@ -1892,7 +1892,7 @@ export default class DataForm extends LitElement {
                     </ul>
                     ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
                 </div>
-                <div style="margin-top:24px;">
+                <div class="mt-5">
                     ${this.renderData()}
                 </div>
                 ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(null) : null}
@@ -1903,20 +1903,17 @@ export default class DataForm extends LitElement {
         if (type === "pills") {
             return html`
                 ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
-                <div class="row">
-                    <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                        <ul class="nav nav-pills nav-stacked">
-                            ${this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li role="presentation" class="${active ? "active" : ""}">
-                                        <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })}
-                        </ul>
+                <div class="d-flex align-items-start">
+                    <div class="nav flex-column nav-pills me-3">
+                        ${this._getVisibleSections().map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                            <button class="nav-link text-start ${active ? "active" : ""}" role="tab" data-section-index="${index}"
+                                @click="${e => this.onSectionChange(e)}">
+                                ${section.title || ""}
+                            </button>
+                            `;
+                        })}
                     </div>
                     <div class="col-md-9">
                         ${this.renderData()}
@@ -1930,16 +1927,16 @@ export default class DataForm extends LitElement {
         return html`
             <!-- Header -->
             ${this.config.title && titleVisible ? html`
-                <div style="display: flex; margin-bottom: 12px;">
+                <div class="d-flex mb-2">
                     <div>
                         <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
                     </div>
                     ${this.config.logo ? html`
-                        <div style="margin-left:auto;">
+                        <div class="ms-auto">
                             <img src="${this.config.logo}" />
-                        </div>` : null
+                        </div>` : nothing
                     }
-                </div>` : null
+                </div>` : nothing
             }
 
             <!-- Render buttons -->
