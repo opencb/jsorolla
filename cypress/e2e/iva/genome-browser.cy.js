@@ -413,6 +413,7 @@ context("GenomeBrowser", () => {
             const snvVariant = "17:43108791:A:G";
             const indelVariant = "17:43102949:-:T";
             const highlightedVariant = "17:43106026:C:T";
+            const qualityVariant = "17:43100558:G:A";
 
             const sampleNames = ["NA12877", "NA12878", "NA12889"];
             const sampleTypes = ["Somatic", "Somatic", "Germline"];
@@ -583,7 +584,7 @@ context("GenomeBrowser", () => {
                     .should("have.length", sampleNames.length);
             });
 
-            it("should encode the genotype in the color or each rectangle", () => {
+            it("should encode the genotype in the color of each rectangle", () => {
                 cy.get("@opencgaVariantsTrack")
                     .find(`g[data-cy="gb-variant"][data-id="${indelVariant}"]`)
                     .within(() => {
@@ -594,6 +595,22 @@ context("GenomeBrowser", () => {
                         cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-genotype="0/1"]`)
                             .invoke("attr", "fill")
                             .should("equal", colorsByGenotype["heterozygous"]);
+                    });
+            });
+
+            it("should encode the quality as the opacity of each rectangle", () => {
+                cy.get("@opencgaVariantsTrack")
+                    .find(`g[data-cy="gb-variant"][data-id="${qualityVariant}"]`)
+                    .within(() => {
+                        // In the first sample, this variant does not pass quality checks
+                        cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-index="0"]`)
+                            .invoke("attr", "opacity")
+                            .should("equal", "0.3");
+                        
+                        // In the third sample, this variant pass quality checks
+                        cy.get(`rect[data-cy="gb-variant-genotype"][data-sample-index="2"]`)
+                            .invoke("attr", "opacity")
+                            .should("equal", "1");
                     });
             });
 
