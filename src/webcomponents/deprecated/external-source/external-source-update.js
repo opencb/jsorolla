@@ -44,7 +44,7 @@ export default class ExternalSourceUpdate extends LitElement {
 
     #init() {
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Source",
             titleVisible: false,

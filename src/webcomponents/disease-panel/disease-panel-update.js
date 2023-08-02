@@ -61,7 +61,7 @@ export default class DiseasePanelUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
 
         this._config = this.getDefaultConfig();

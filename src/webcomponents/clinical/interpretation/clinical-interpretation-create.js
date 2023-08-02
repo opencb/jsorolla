@@ -59,7 +59,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
 
         this.displayConfigDefault = {
             width: 10,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
             titleVisible: false,

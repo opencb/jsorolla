@@ -49,7 +49,7 @@ export default class VariableCreate extends LitElement {
         this.mode = "";
         this.variable = {};
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Ontology Term",
             titleVisible: false,

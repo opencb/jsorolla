@@ -53,7 +53,7 @@ export default class OntologyTermAnnotationCreate extends LitElement {
     _init() {
         this.mode = "";
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Ontology Term",
             titleVisible: false,

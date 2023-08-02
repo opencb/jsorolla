@@ -449,7 +449,7 @@ class SteinerReport extends LitElement {
             },
             display: {
                 width: 12,
-                buttonsAlign: "right",
+                buttonsAlign: "end",
                 titleWidth: 3,
                 titleVisible: true,
                 titleStyle: "padding: 20px 5px",
@@ -754,13 +754,13 @@ class SteinerReport extends LitElement {
                                         </div>
                                         <div class="col-md-12 help-block" style="padding: 10px">
                                             <p>
-                                                Whole genome circos plot (left) depicting from outermost rings heading inwards: 
-                                                Karyotypic ideogram outermost. Base substitutions next, plotted as rainfall plots (log10 
-                                                inter-mutation distance on radial axis, dot colours: blue, C>A; black, C>G; red, C>T; grey, T>A; 
-                                                green, T>C; pink, T>G). Ring with short green lines, insertions; ring with short red lines, deletions. 
-                                                Major copy number allele ring (green, gain), minor copy number allele ring (red, loss). 
-                                                Structural rearrangements shown as central lines (green, tandem duplications; red, deletions; 
-                                                blue, inversions; grey, inter-chromosomal events). Top right, 96-trinucleotide substitution profile. 
+                                                Whole genome circos plot (left) depicting from outermost rings heading inwards:
+                                                Karyotypic ideogram outermost. Base substitutions next, plotted as rainfall plots (log10
+                                                inter-mutation distance on radial axis, dot colours: blue, C>A; black, C>G; red, C>T; grey, T>A;
+                                                green, T>C; pink, T>G). Ring with short green lines, insertions; ring with short red lines, deletions.
+                                                Major copy number allele ring (green, gain), minor copy number allele ring (red, loss).
+                                                Structural rearrangements shown as central lines (green, tandem duplications; red, deletions;
+                                                blue, inversions; grey, inter-chromosomal events). Top right, 96-trinucleotide substitution profile.
                                                 Bottom right, structural rearrangement profile.
                                             </p>
                                         </div>

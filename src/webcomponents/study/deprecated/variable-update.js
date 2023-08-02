@@ -47,7 +47,7 @@ export default class VariableUpdate extends LitElement {
 
     #init() {
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Variable",
             titleVisible: false,

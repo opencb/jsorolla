@@ -47,7 +47,7 @@ export default class StatusCreate extends LitElement {
     #init() {
         this.mode = "";
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Status",
             titleVisible: false,

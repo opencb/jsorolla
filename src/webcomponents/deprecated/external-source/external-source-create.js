@@ -47,7 +47,7 @@ export default class ExternalSourceCreate extends LitElement {
     #init() {
         this.mode = "";
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Source",
             titleVisible: false,
