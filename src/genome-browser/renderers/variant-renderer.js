@@ -5,6 +5,41 @@ import LollipopLayout from "../../core/visualisation/lollipop-layout.js";
 
 export default class VariantRenderer extends Renderer {
 
+    #getVariantOpaictyByQuality(variant, sample) {
+        const quality = this.config.quality;
+        const study = variant.studies?.[0];
+        if (quality && typeof quality === "object") {
+            // Check if no file is associated with this sample
+            if (typeof sample?.fileIndex !== "number" || !study?.files?.[sample.fileIndex]) {
+                return this.config.qualityNotPassedOpacity;
+            }
+            const file = study.files[sample.fileIndex];
+            // Check filter
+            if (quality?.filter && Array.isArray(quality.filter)) {
+                if (!quality.filter.includes(file?.data?.FILTER)) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+            // Check minimum quality
+            if (typeof quality.minQuality === "number") {
+                const qual = Number(file?.data?.QUAL ?? 0);
+                if (qual < quality.minQuality) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+            // Check minimum coverage value
+            if (typeof quality.minDP === "number") {
+                const dpIndex = (study?.sampleDataKeys || []).indexOf("DP");
+                const dp = Number(sample?.data?.[dpIndex] ?? 0);
+                if (dp < quality.minDP) {
+                    return this.config.qualityNotPassedOpacity;
+                }
+            }
+        }
+        // Default, return quality passed opacity
+        return this.config.qualityPassedOpacity;
+    }
+
     render(features, options) {
         const lollipopRegionWidth = options.requestedRegion.length() * options.pixelBase;
         const lollipopStartX = GenomeBrowserUtils.getFeatureX(options.requestedRegion.start, options);
@@ -209,7 +244,7 @@ export default class VariantRenderer extends Renderer {
                     // "stroke-opacity": 0.7,
                     "fill": sampleGenotypeColor,
                     "cursor": "pointer",
-                    // "data-genotype": genotype,
+                    "opacity": this.#getVariantOpaictyByQuality(feature, sampleData),
                 });
 
                 if (sampleGenotypeTooltipText) {
@@ -278,6 +313,8 @@ export default class VariantRenderer extends Renderer {
                 minQuality: 60,
                 minDP: 20,
             },
+            qualityPassedOpacity: "1",
+            qualityNotPassedOpacity: "0.3",
         };
     }
 
