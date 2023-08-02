@@ -1760,25 +1760,25 @@ export default class DataForm extends LitElement {
             <div class="row mb-3">
                 <div class="d-grid col-${btnWidth} gap-2 d-md-flex justify-content-${btnAlign}">
                     ${buttonPreviewVisible ? html`
-                        <button type="button" class="btn btn-light ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
+                        <button type="button" class="btn btn-light ${btnClassName}" data-bs-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonPreviewDisabled}
                                 @click="${this.onPreview}">
                             ${buttonPreviewText}
                         </button>
-                    `: null
+                    `: nothing
                     }
                     ${buttonClearVisible ? html`
-                        <button type="button" class="btn btn-light ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
+                        <button type="button" class="btn btn-light ${btnClassName}" data-bs-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
-                    `: null
+                    `: nothing
                     }
                     ${buttonOkVisible ? html`
-                        <button type="button" class="btn btn-primary ${btnClassName}" data-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonOkDisabled}
+                        <button type="button" class="btn btn-primary ${btnClassName}" data-bs-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonOkDisabled}
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>
-                    `: null
+                    `: nothing
                     }
                 </div>
             </div>
