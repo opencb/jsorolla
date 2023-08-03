@@ -1740,9 +1740,10 @@ export default class DataForm extends LitElement {
 
     renderButtons(dismiss, sectionId=null) {
         const btnClassName = this.config.display?.buttonsClassName ?? this.config.buttons?.classes ?? "";
-        const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? "";
+        const btnStyle = this.config.display?.buttonsStyle ?? this.config.buttons?.style ?? nothing;
         const btnWidth = this.config.display?.buttonsWidth ?? this.config.display?.width ?? 12;
-        const btnAlign = this.config.display?.buttonsAlign ?? "right";
+        // justify-content-{align} start,end, between ...
+        const btnAlign = this.config.display?.buttonsAlign ?? "end";
 
         // buttons.okText, buttons.clearText and buttons.cancelText are deprecated
         const buttonPreviewText = this.config.buttons?.previewText ?? "Preview";

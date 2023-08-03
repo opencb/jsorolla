@@ -44,7 +44,7 @@ export default class StatusUpdate extends LitElement {
 
     #init() {
         this.displayConfigDefault = {
-            buttonsAlign: "right",
+            buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Status",
             titleVisible: false,
