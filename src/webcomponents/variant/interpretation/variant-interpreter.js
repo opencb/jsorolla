@@ -30,6 +30,7 @@ import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import "../../clinical/clinical-analysis-review.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
