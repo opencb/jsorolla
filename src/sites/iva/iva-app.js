@@ -1765,13 +1765,15 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-variant-stats"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-variant-stats-analysis">
-                        <sample-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></sample-variant-stats-analysis>
+                    <div class="container py-3" id="sample-variant-stats-analysis">
+                        <sample-variant-stats-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-variant-stats-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["cohort-variant-stats"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="cohort-variant-stats-analysis">
+                    <div class="container py-3" id="cohort-variant-stats-analysis">
                         <cohort-variant-stats-analysis .opencgaSession="${this.opencgaSession}"></cohort-variant-stats-analysis>
                     </div>
                 ` : null}
@@ -1783,7 +1785,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["sample-eligibility"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-eligibility-analysis">
+                    <div class="container py-3" id="sample-eligibility-analysis">
                         <sample-eligibility-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </sample-eligibility-analysis>
@@ -1791,7 +1793,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["knockout"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="knockout-analysis">
+                    <div class="container py-3" id="knockout-analysis">
                         <knockout-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </knockout-analysis>
@@ -1799,7 +1801,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["inferred-sex"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="inferred-sex-analysis">
+                    <div class="container py-3" id="inferred-sex-analysis">
                         <inferred-sex-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .title="">
@@ -1808,7 +1810,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["individual-relatedness"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="individual-relatedness-analysis">
+                    <div class="container py-3" id="individual-relatedness-analysis">
                         <individual-relatedness-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .title="">
@@ -1817,13 +1819,13 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["mendelian-error"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="mendelian-error-analysis">
+                    <div class="container py-3" id="mendelian-error-analysis">
                         <mendelian-error-analysis .opencgaSession="${this.opencgaSession}"></mendelian-error-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["sample-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="sample-qc-analysis">
+                    <div class="container py-3" id="sample-qc-analysis">
                         <sample-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .title="">
@@ -1832,7 +1834,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["individual-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="individual-qc-analysis">
+                    <div class="container py-3" id="individual-qc-analysis">
                         <individual-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .title="">
@@ -1841,7 +1843,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["family-qc"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="family-qc-analysis">
+                    <div class="container py-3" id="family-qc-analysis">
                         <family-qc-analysis
                             .opencgaSession="${this.opencgaSession}"
                             .title="">
@@ -1862,25 +1864,27 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["variant-export"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="variant-export-analysis">
+                    <div class="container py-3" id="variant-export-analysis">
                         <variant-export-analysis .opencgaSession="${this.opencgaSession}"></variant-export-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["variant-stats-exporter"] ? html`
-                    <div class="content" id="opencga-variant-stats-exporter-analysis">
-                        <opencga-variant-stats-exporter-analysis .opencgaSession="${this.opencgaSession}"></opencga-variant-stats-exporter-analysis>
+                    <div id="opencga-variant-stats-exporter-analysis">
+                        <opencga-variant-stats-exporter-analysis
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-variant-stats-exporter-analysis>
                     </div>
-                ` : null}
+                ` : nothing}
 
                 ${this.config.enabledComponents["mutational-signature"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="mutational-signature-analysis">
+                    <div class="container py-3" id="mutational-signature-analysis">
                         <mutational-signature-analysis .opencgaSession="${this.opencgaSession}"></mutational-signature-analysis>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents["gwas"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="gwas-analysis">
+                    <div class="container py-3" id="gwas-analysis">
                         <gwas-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </gwas-analysis>
@@ -1888,7 +1892,7 @@ class IvaApp extends LitElement {
                 ` : null}
 
                 ${this.config.enabledComponents["rd-tiering"] ? html`
-                    <div class="content col-md-8 col-md-offset-2" id="rd-tiering-analysis">
+                    <div class="container py-3" id="rd-tiering-analysis">
                         <rd-tiering-analysis
                             .opencgaSession="${this.opencgaSession}">
                         </rd-tiering-analysis>
@@ -1960,7 +1964,7 @@ class IvaApp extends LitElement {
 
                 ${this.config.enabledComponents["job-view"] ? html`
                     <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
-                    <div id="job-view" class="content col-md-8 col-md-offset-2">
+                    <div class="container py-3" id="job-view">
                         <job-view
                             mode="full"
                             .jobId="${this.jobSelected}"

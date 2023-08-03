@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 import "../forms/text-field-filter.js";
@@ -242,14 +242,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }
 
         return html`
-            <div class="opencga-analysis-tool-form-field" style="padding: ${padding}; width: ${width}">
-                ${this.config.title ? html`<label>${this.config.title}</label>` : null}
+            <div class="row opencga-analysis-tool-form-field">
+                ${this.config.title ? html`<label class="fw-bold form-label">${this.config.title}</label>` : nothing}
                 ${this.config.tooltip ? html`
                     <div class="tooltip-div pull-right">
                         <a tooltip-title="Info" tooltip-text="${this.config.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                     </div>
-                ` : null}
-                <div id="${this.config.id}-wrapper">
+                ` : nothing}
+                <div class="col-md-6" id="${this.config.id}-wrapper">
                     ${this.renderField()}
                 </div>
             </div>

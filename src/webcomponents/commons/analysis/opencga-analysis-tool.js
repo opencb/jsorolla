@@ -112,7 +112,7 @@ export default class OpencgaAnalysisTool extends LitElement {
                         title="${this._config.title}"
                         icon="${this._config.icon}"
                         .rhs="${html`
-                            <button class="btn btn-default ripple"
+                            <button class="btn btn-light"
                                     @click="${e => this.openModal()}">
                                 <i class="fas fa-info-circle"></i> Info
                             </button>
@@ -121,10 +121,11 @@ export default class OpencgaAnalysisTool extends LitElement {
                 }
 
                 <div class="container">
-                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession}
-                                                .cellbaseClient="${this.cellbaseClient}"
-                                                .config="${this._config.form}"
-                                                @analysisRun="${this.onAnalysisRun}">
+                    <opencga-analysis-tool-form
+                        .opencgaSession=${this.opencgaSession}
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .config="${this._config.form}"
+                        @analysisRun="${this.onAnalysisRun}">
                     </opencga-analysis-tool-form>
                 </div>
 

@@ -207,7 +207,7 @@ export default class SelectTokenFilter extends LitElement {
         return html`
             <span class="input-group-text">
                 <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.toggleDisabled}>
-                <span class="fw-bold">All</span>
+                <span class="fw-bold ms-1">All</span>
             </span>`;
     }
 
@@ -216,19 +216,21 @@ export default class SelectTokenFilter extends LitElement {
             return html`
                 <form>
                     <div id="${this._prefix}-select-wrapper">
-                        <div class="mb-1">
+                        <div class="input-group mb-1">
                             <select class="form-control" id="${this._prefix}" @change="${this.filterChange}"></select>
                             <span class="input-group-text file-upload-toggle" @click="${this.toggleFileUpload}">
                                 <i class="fas fa-upload"></i>
                             </span>
                         </div>
-                        <file-upload @filterChange="${this.fileUploaded}"></file-upload>
+                        <file-upload
+                            @filterChange="${this.fileUploaded}">
+                        </file-upload>
                     </div>
                 </form>
             `;
         } else {
             return html`
-                <div class="mb-1">
+                <div class="input-group mb-1">
                     <select
                         class="form-select"
                         id="${this._prefix}"
