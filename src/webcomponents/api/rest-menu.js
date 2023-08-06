@@ -143,25 +143,23 @@ export default class RestMenu extends LitElement {
     }
 
     #onEndpointSearch(e) {
-        const term = e.target?.value?.toLowerCase();
         const terms = e.target.value
             .toLowerCase()
             .replace(/[^/-_a-z0-9]/g, "")
             .split("/")
             .map(t => `.*${t}.*`)
             .join("\\/");
-        const regexp = new RegExp(terms, "i");
-        this._api = this.api.map(category => {
-            return {
-                ...category,
-                endpoints: category.endpoints.filter(endpoint => {
-                    // return endpoint.path
-                    //     .replace("/{apiVersion}", "")
-                    //     .includes(term);
-                    return regexp.test(endpoint.path.replace("/{apiVersion}", ""));
-                })
-            };
-        }).filter(category => category.endpoints.length > 0);
+        const regExp = new RegExp(terms, "i");
+        this._api = this.api
+            .map(category => {
+                return {
+                    ...category,
+                    endpoints: category.endpoints.filter(endpoint => {
+                        return regExp.test(endpoint.path.replace("/{apiVersion}", ""));
+                    })
+                };
+            })
+            .filter(category => category.endpoints.length > 0);
         this.requestUpdate();
     }
 
