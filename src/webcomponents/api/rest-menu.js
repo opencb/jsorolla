@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils";
+import UtilsNew from "../../core/utils-new";
 
 export default class RestMenu extends LitElement {
 
@@ -48,9 +49,15 @@ export default class RestMenu extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("api")) {
+            this.apiObserver();
+        }
         super.update(changedProperties);
     }
 
+    apiObserver() {
+        this._api = UtilsNew.objectClone(this.api);
+    }
     onClick(e, endpoint) {
         LitUtils.dispatchCustomEvent(this, "endpointSelect", "", {event: e, endpoint: endpoint}, null);
     }
@@ -60,7 +67,7 @@ export default class RestMenu extends LitElement {
             <div id="rest-list">
                 <div class="panel-body" id="accordion" role="tablist" aria-multiselectable="false" data-cy="rest-api-endpoints">
                     ${
-                        this.api?.map(category => {
+                        this._api?.map(category => {
                             const categoryName = category.name.replaceAll(" ", "_");
                             return html `
                                 <div class="panel panel-default">
@@ -114,15 +121,55 @@ export default class RestMenu extends LitElement {
                 .rest-menu-wrapper{
                     display: flex;
                     flex-direction: column;
+                    flex: 1;
+                }
+                .rest-menu-filter-wrapper,
+                .rest-menu-filter-wrapper > *{
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                }
+                .has-search .form-control-feedback {
+                    right: initial;
+                    left: 0;
+                    color: #ccc;
+                }
+                .has-search .form-control {
+                    padding-right: 12px;
+                    padding-left: 34px;
                 }
             </style>
         `;
     }
 
+    #onEndpointSearch(e) {
+        const term = e.target?.value?.toLowerCase();
+        const terms = e.target.value
+            .toLowerCase()
+            .replace(/[^/-_a-z0-9]/g, "")
+            .split("/")
+            .map(t => `.*${t}.*`)
+            .join("\\/");
+        const regexp = new RegExp(terms, "i");
+        this._api = this.api.map(category => {
+            return {
+                ...category,
+                endpoints: category.endpoints.filter(endpoint => {
+                    // return endpoint.path
+                    //     .replace("/{apiVersion}", "")
+                    //     .includes(term);
+                    return regexp.test(endpoint.path.replace("/{apiVersion}", ""));
+                })
+            };
+        }).filter(category => category.endpoints.length > 0);
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             ${this.renderStyle()}
-            <div class="rest-menu-wrapper panel panel-default">
+            <!-- <div class="rest-menu-wrapper panel panel-default"> -->
+            <div class="rest-menu-wrapper">
                 <!-- SIDE-BAR: APIs title-->
                 <div class="panel-heading">
                     <div>${this.apiInfo.title}</div>
@@ -130,8 +177,29 @@ export default class RestMenu extends LitElement {
                 <!-- SIDE-BAR FILTER-->
                 <div class="rest-menu-filter-wrapper">
                     <!-- 1. Search jetbrains-like -->
-                    <div class="rest-fuzzy-search"></div>
-                    <!-- 2. Filters jetbrains-like -->
+                    <div class="rest-fuzzy-search">
+                        <!-- Magnifier. Input form. On typing, filtering the list of endpoints -->
+                        <!-- BOOTSTRAP 5 -->
+                        <!--
+                        <div class="input-group">
+                            <input class="form-control border-end-0 border rounded-pill" type="text" value="search" id="example-search-input">
+                            <span class="input-group-append">
+                                <button class="btn btn-outline-secondary bg-white border-start-0 border rounded-pill ms-n3" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                        -->
+                        <!-- BOOTSTRAP 3 -->
+                        <div class="form-group has-feedback has-search">
+                            <!-- <span class="form-control-feedback"><i class="fa fa-search"></i></span> -->
+                            <input
+                                type="text"
+                                class="form-control"
+                                @input="${this.#onEndpointSearch}">
+                        </div>
+                    </div>
+                    <!-- 2. Filters -->
                     <div class="rest-filters"></div>
                 </div>
                 <!-- SIDE-BAR LIST-ENDPOINTS -->
