@@ -133,8 +133,11 @@ export default class DetailTabs extends LitElement {
     renderTitle() {
         const title = typeof this._config.title === "function" ? this._config.title(this.data) : this._config.title + " " + (this.data?.id || "");
         return html`
-            <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
-                <h3 class="break-word">${title}</h3>
+            <div class="${this._config?.display?.titleClass || nothing}" style="${this._config?.display?.titleStyle || nothing}">
+                <h3>${title}</h3>
+                <div class="text-secondary text-opacity-25">
+                    <hr>
+                </div>
             </div>
         `;
     }
@@ -162,7 +165,7 @@ export default class DetailTabs extends LitElement {
         return this.getVisibleTabs().map(item => {
             const isActive = this._activeTab === item.id;
             return html`
-                <div id="${item.id}-tab" role="tabpanel" style="display: ${isActive ? "block" : "none"}">
+                <div class="d-${isActive ? "block": "none"}" id="${item.id}-tab" role="tabpanel">
                     ${item.render(this.data, isActive, this.opencgaSession, this.cellbaseClient)}
                 </div>
             `;
@@ -218,7 +221,7 @@ export default class DetailTabs extends LitElement {
                 ` : null}
 
                 <!-- TAB CONTENT -->
-                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
+                <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle || nothing}">
                     ${this.renderTabContent()}
                 </div>
             </div>
@@ -238,8 +241,8 @@ export default class DetailTabs extends LitElement {
                 tabTitleClass: "",
                 tabTitleStyle: "",
 
-                contentClass: "",
-                contentStyle: "padding: 10px",
+                contentClass: "p-3",
+                contentStyle: "",
             },
             items: [],
             // Example:

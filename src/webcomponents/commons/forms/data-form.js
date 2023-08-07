@@ -373,7 +373,7 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
                     ${this._getVisibleSections().map((section, index) => html`
-                        <div style="display:${this.activeSection === index ? "block": "none"}">
+                        <div class="d-${this.activeSection === index ? "block": "none"}">
                             ${this._createSection(section)}
                         </div>
                     `)}
