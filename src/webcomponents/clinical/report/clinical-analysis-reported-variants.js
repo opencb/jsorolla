@@ -88,38 +88,26 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
             `;
         }
 
-        const gridConfig = {
-            showInterpretation: true,
-            showExport: true,
-            showSettings: true,
-            showActions: false,
-            showEditReview: false,
-        };
-
         return html`
             <variant-interpreter-grid
                 .review="${true}"
                 .clinicalAnalysis="${this.clinicalAnalysis}"
                 .clinicalVariants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${gridConfig}">
+                .config="${this._config.grid || {}}">
             </variant-interpreter-grid>
         `;
-
-        // return html`
-        //     <data-form
-        //         .data="${this.clinicalAnalysis}"
-        //         .config="${this._config}"
-        //         @fieldChange="${e => this.onFieldChange(e)}"
-        //         @submit=${e => this.onSubmit(e)}>
-        //     </data-form>
-        // `;
     }
 
     getDefaultConfig() {
         return {
-            buttonsVisible: false,
-            sections: [],
+            grid: {
+                showInterpretation: true,
+                showExport: true,
+                showSettings: true,
+                showActions: false,
+                showEditReview: false,
+            },
         };
     }
 
