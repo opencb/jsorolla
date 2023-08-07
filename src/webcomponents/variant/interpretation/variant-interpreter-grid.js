@@ -1106,7 +1106,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             if (samples.length > 0) {
-                _columns[0].splice(6, 0, {
+                _columns[0].splice(7, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
@@ -1167,7 +1167,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic === this._config?.somatic);
                 }
 
-                _columns[0].splice(7, 0, {
+                _columns[0].splice(8, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
