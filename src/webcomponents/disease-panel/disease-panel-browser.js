@@ -227,6 +227,10 @@ export default class DiseasePanelBrowser extends LitElement {
                 detail: {
                     title: "Selected Disease Panel:",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "disease-panel-view",

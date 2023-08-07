@@ -238,6 +238,10 @@ export default class FamilyBrowser extends LitElement {
                 detail: {
                     title: "Family",
                     showTitle: true,
+                    display: {
+                        titleClass: "mt-4",
+                        contentClass: "p-3"
+                    },
                     items: [
                         {
                             id: "family-view",

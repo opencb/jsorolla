@@ -125,6 +125,10 @@ export default class SampleDetail extends LitElement {
     getDefaultConfig() {
         return {
             title: "Sample",
+            display: {
+                titleClass: "mt-4",
+                contentClass: "p-3"
+            },
             showTitle: true,
             items: [
                 {
