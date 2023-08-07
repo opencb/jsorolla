@@ -654,6 +654,16 @@ export default class VariantInterpreterGrid extends LitElement {
         this._columns = [
             [
                 {
+                    id: "interpretation",
+                    title: "Interpretation",
+                    field: "interpretation",
+                    rowspan: 2,
+                    colspan: 1,
+                    halign: "center",
+                    excludeFromSettings: true,
+                    visible: this._config.showInterpretation,
+                },
+                {
                     id: "id",
                     title: "Variant",
                     field: "id",
@@ -1602,6 +1612,7 @@ export default class VariantInterpreterGrid extends LitElement {
             showEditReview: true,
             showType: true,
             showGenomeBrowserLink: true,
+            showInterpretation: false,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
