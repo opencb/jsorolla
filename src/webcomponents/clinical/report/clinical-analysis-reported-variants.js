@@ -104,7 +104,7 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
             grid: {
                 showInterpretation: true,
                 showExport: true,
-                showSettings: true,
+                showSettings: false,
                 showActions: false,
                 showEditReview: false,
             },
