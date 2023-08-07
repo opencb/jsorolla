@@ -25,6 +25,7 @@ import "./clinical-analysis-summary.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../disease-panel/disease-panel-grid.js";
 import "./interpretation/clinical-interpretation-view.js";
+import "./report/clinical-analysis-reported-variants.js";
 
 export default class ClinicalAnalysisReview extends LitElement {
 
@@ -468,28 +469,12 @@ export default class ClinicalAnalysisReview extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: data => {
-                                    const variantsReported = data?.interpretation?.primaryFindings?.filter(
-                                        variant => variant?.status === "REPORTED");
-                                    return UtilsNew.isNotEmptyArray(variantsReported) ?
-                                        html`
-                                            <variant-interpreter-grid
-                                                review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${variantsReported}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false,
-                                                        showActions: false,
-                                                        showEditReview: false,
-                                                    }
-                                                }>
-                                            </variant-interpreter-grid>
-                                        `:
-                                        "No reported variants to display";
-                                }
+                                render: clinicalAnalysis => html`
+                                    <clinical-analysis-reported-variants
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </clinical-analysis-reported-variants>
+                                `,
                             }
                         }
                     ]
