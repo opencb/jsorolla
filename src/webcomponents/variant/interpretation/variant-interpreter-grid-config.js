@@ -190,8 +190,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.pageList}"
-                                            .value="${this.config.pageSize}"
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

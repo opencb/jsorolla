@@ -83,11 +83,47 @@ export default class JobGrid extends LitElement {
             ...this.config,
         };
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "JOB",
             columns: this._getDefaultColumns().filter(col => col.field)
         };
-        this.renderRemoteTable();
+        this.renderTable();
+    }
+
+    renderTable() {
+        if (this.jobs?.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
+        }
+        this.requestUpdate();
+    }
+
+    renderLocalTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.jobs,
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
     }
 
     renderRemoteTable() {
@@ -506,7 +542,7 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false,
+            showExport: true,
             detailView: true,
             detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,

@@ -79,7 +79,7 @@ export default class FamilyGrid extends LitElement {
         };
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "FAMILY",
             columns: this._getDefaultColumns()
         };

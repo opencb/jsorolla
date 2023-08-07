@@ -349,6 +349,8 @@ export default class GenomeBrowserUtils {
         switch (type.toUpperCase()) {
             case "SNV":
                 return SVG.addChild(parent, "circle", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "circle",
                     "cx": x,
                     "cy": y,
                     "r": half,
@@ -356,12 +358,16 @@ export default class GenomeBrowserUtils {
                 });
             case "INDEL":
                 return SVG.addChild(parent, "path", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "triangle",
                     "d": `M${x},${y+half} L${x-half},${y-half} L${x+half},${y-half} Z`,
                     "fill": color,
                     "stroke-width": "0px",
                 });
             default:
                 return SVG.addChild(parent, "path", {
+                    "data-cy": "gb-variant-lollipop-shape",
+                    "data-shape": "square",
                     "d": `M${x},${y-half} L${x-half},${y} L${x},${y+half} L${x+half},${y} Z`,
                     "fill": color,
                     "stroke-width": "0px",
@@ -426,8 +432,9 @@ export default class GenomeBrowserUtils {
 
     // Alignment flag formatter
     static alignmentFlagFormatter(flag) {
+        const flagStyle = "white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;";
         return `
-            <div style="white-space:nowrap;margin-right:4px;margin-bottom:2px;background-color:#cfe2ff;padding:2px 4px;border-radius:4px;">
+            <div data-cy="gb-alignment-tooltip-flag" style="${flagStyle}">
                 <b>${flag.replace(/\s/g, "_")}</b>
             </div>
         `;
@@ -453,7 +460,7 @@ export default class GenomeBrowserUtils {
         return `
             <div>
                 ${flags.length > 0 ? `
-                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;">
+                    <div style="display:flex;flex-wrap:wrap;margin-bottom:4px;" data-cy="gb-alignment-tooltip-flags">
                         ${flags.map(f => GenomeBrowserUtils.alignmentFlagFormatter(f)).join("")}
                     </div>
                 ` : ""}

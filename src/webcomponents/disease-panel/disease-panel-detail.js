@@ -111,11 +111,13 @@ export default class DiseasePanelDetail extends LitElement {
         }
 
         return html`
-            <detail-tabs
-                .data="${this._diseasePanel}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="dpb-detail">
+                <detail-tabs
+                    .data="${this._diseasePanel}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 

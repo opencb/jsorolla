@@ -1667,7 +1667,7 @@ class IvaApp extends LitElement {
                 <cohort-browser
                     .opencgaSession="${this.opencgaSession}"
                     .query="${this.queries.cohort}"
-                    .settigns="${this.settings.COHORT_BROWSER}"
+                    .settings="${this.settings.COHORT_BROWSER}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
                 </cohort-browser>

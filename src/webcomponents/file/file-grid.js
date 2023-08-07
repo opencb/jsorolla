@@ -80,7 +80,7 @@ export default class OpencgaFileGrid extends LitElement {
         };
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "FILE",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
@@ -194,8 +194,8 @@ export default class OpencgaFileGrid extends LitElement {
 
     renderLocalTable() {
         this.from = 1;
-        this.to = Math.min(this.samples.length, this._config.pageSize);
-        this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(this.files.length, this._config.pageSize);
+        this.numTotalResultsText = this.files.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -317,17 +317,18 @@ export default class OpencgaFileGrid extends LitElement {
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            const downloadUrl = [
-                this.opencgaSession.server.host,
+
+            const downloadUrl = this.opencgaSession?.server? [
+                this.opencgaSession?.server.host,
                 "/webservices/rest/",
-                this.opencgaSession.server.version,
+                this.opencgaSession?.server.version,
                 "/files/",
                 "FILE_ID",
                 "/download?study=",
-                this.opencgaSession.study.fqn,
+                this.opencgaSession?.study.fqn,
                 "&sid=",
-                this.opencgaSession.token,
-            ];
+                this.opencgaSession?.token,
+            ]:[];
             _columns.push({
                 id: "actions",
                 title: "Actions",
@@ -340,7 +341,7 @@ export default class OpencgaFileGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" >
+                                <a class="dropdown-item ${downloadUrl.length == 0 ? "disabled" : ""}" data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" >
                                     <i class="fas fa-download"></i> Download
                                 </a>
                             </li>

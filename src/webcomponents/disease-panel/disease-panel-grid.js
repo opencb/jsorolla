@@ -547,7 +547,7 @@ export default class DiseasePanelGrid extends LitElement {
                 </opencb-grid-toolbar>` : nothing
             }
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="dpb-grid">
                 <table id="${this.gridId}"></table>
             </div>
         `;

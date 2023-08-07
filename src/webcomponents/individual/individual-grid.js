@@ -78,7 +78,7 @@ export default class IndividualGrid extends LitElement {
         };
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "INDIVIDUAL",
             columns: this._getDefaultColumns()
         };
@@ -604,7 +604,7 @@ export default class IndividualGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" data-cy="ib-grid">
                 <table id="${this.gridId}"></table>
             </div>
         `;

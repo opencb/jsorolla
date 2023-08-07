@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
+import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 
@@ -26,8 +27,7 @@ export default class CohortGrid extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -42,6 +42,9 @@ export default class CohortGrid extends LitElement {
             query: {
                 type: Object
             },
+            cohorts: {
+                type: Array
+            },
             active: {
                 type: Boolean
             },
@@ -51,7 +54,7 @@ export default class CohortGrid extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "cohort-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
@@ -68,10 +71,10 @@ export default class CohortGrid extends LitElement {
             this.active) {
             this.propertyObserver();
         }
-        // super.update(changedProperties);
     }
 
     propertyObserver() {
+
         // With each property change we must update config and create the columns again. No extra checks are needed.
         this._config = {
             ...this.getDefaultConfig(),
@@ -79,15 +82,50 @@ export default class CohortGrid extends LitElement {
         };
         // Config for the grid toolbar
         this.toolbarConfig = {
-            ...this.config.toolbar,
+            ...this.config?.toolbar,
             resource: "COHORT",
             columns: this._getDefaultColumns()
         };
-
         this.renderTable(this.active);
     }
 
     renderTable(active) {
+        if (this.cohorts?.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable(active);
+        }
+        this.requestUpdate();
+    }
+
+    renderLocalTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.cohorts,
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
+    }
+
+    renderRemoteTable(active) {
         if (!active) {
             return;
         }
@@ -241,12 +279,13 @@ export default class CohortGrid extends LitElement {
         };
         this.requestUpdate();
         await this.updateComplete;
+
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
             limit: e.detail?.exportLimit ?? 1000,
             includeIndividual: true,
-            skipCount: true,
+            // skipCount: true,
             include: "id,creationDate,status,type,samples"
         };
         this.opencgaSession.opencgaClient.cohorts()
