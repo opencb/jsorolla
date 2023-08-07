@@ -45,6 +45,7 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
 
     #init() {
         this.variants = [];
+        this.somaticSamples = new Set();
         this._config = this.getDefaultConfig();
         // this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
     }
@@ -59,6 +60,7 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
 
     clinicalAnalysisObserver() {
         this.variants = [];
+        this.somaticSamples = new Set();
         if (this.clinicalAnalysis) {
             const interpretations = [
                 this.clinicalAnalysis.interpretation,
@@ -74,6 +76,13 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                         });
                     });
             });
+
+            // We need to save if each sample is somatic or germline
+            (this.clinicalAnalysis?.proband?.samples || []).forEach(sample => {
+                if (sample.somatic) {
+                    this.somaticSamples.add(sample.id);
+                }
+            });
         }
     }
 
@@ -88,26 +97,70 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
             `;
         }
 
-        return html`
-            <variant-interpreter-grid
-                .review="${true}"
-                .clinicalAnalysis="${this.clinicalAnalysis}"
-                .clinicalVariants="${this.variants}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config.grid || {}}">
-            </variant-interpreter-grid>
-        `;
+        return this._config.groupsByVariantType.map(group => {
+            const variants = this.variants
+                .filter(v => group.somatic === this.somaticSamples.has(v.studies[0]?.samples[0]?.sampleId))
+                .filter(v => group.variantTypes.indexOf(v.type) > -1);
+
+            const gridConfig = {
+                ...(this.opencgaSession?.user?.configs?.IVA?.[group.gridType]?.grid || {}),
+                ...this._config.grid,
+                somatic: group.somatic,
+                variantTypes: group.variantTypes,
+            };
+
+            return html`
+                <div style="margin-bottom:16px;">
+                    <div style="font-size:20px;font-weight:bold;margin-bottom:8px;">
+                        <div>${group.display.title}</div>
+                    </div>
+                    ${variants.length > 0 ? html`
+                        <variant-interpreter-grid
+                            .review="${true}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .clinicalVariants="${variants}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${gridConfig}">
+                        </variant-interpreter-grid>
+                    ` : html`
+                        <div style="margin-bottom:24px;">
+                            <div>No variants to display of this type.</div>
+                        </div>
+                    `}
+                </div>
+            `;
+        });
     }
 
     getDefaultConfig() {
         return {
             grid: {
                 showInterpretation: true,
-                showExport: true,
+                showExport: false,
                 showSettings: false,
                 showActions: false,
                 showEditReview: false,
             },
+            groupsByVariantType: [
+                {
+                    id: "somatic-small-variants",
+                    gridType: "variantInterpreterCancerSNV",
+                    somatic: true,
+                    variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                    display: {
+                        title: "Somatic Small Variants",
+                    },
+                },
+                {
+                    id: "germline-small-variants",
+                    gridType: "variantInterpreterCancerSNV",
+                    somatic: false,
+                    variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                    display: {
+                        title: "Germline Small Variants",
+                    },
+                },
+            ],
         };
     }
 
