@@ -86,17 +86,7 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
         }
     }
 
-    render() {
-        if (!this.clinicalAnalysis) {
-            return "";
-        }
-
-        if (this.variants.length === 0) {
-            return html`
-                <div>No reported variants to display</div>
-            `;
-        }
-
+    renderGroupedVariants() {
         return this._config.groupsByVariantType.map(group => {
             const variants = this.variants
                 .filter(v => group.somatic === this.somaticSamples.has(v.studies[0]?.samples[0]?.sampleId))
@@ -130,6 +120,24 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                 </div>
             `;
         });
+    }
+
+    render() {
+        if (!this.clinicalAnalysis) {
+            return "";
+        }
+
+        if (this.variants.length === 0) {
+            return html`
+                <div>No reported variants to display</div>
+            `;
+        }
+
+        return html`
+            <div style="">
+                ${this.renderGroupedVariants()}
+            </div>
+        `;
     }
 
     getDefaultConfig() {
