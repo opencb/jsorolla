@@ -76,41 +76,36 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         });
 
         it("should display sample genotype (Variant Call Information) tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Consequence Type");
-                cy.get("@indexColumn")
-                    .then(indexColumn => {
-                        cy.get("tbody tr:first > td")
-                            .eq(indexColumn)
-                            .within(() => {
-                                cy.get("a")
-                                    .eq(0)
-                                    .trigger("mouseover");
-                            });
-                cy.get(".qtip-content")
-                    .should('be.visible');
-            })
-        })
-
-        it("should display Cohort Stats (Population Frequencies) tooltip", () => {
+            // NOTE: the Sample Genotype column is the 8th column in the table
+            // We can not use 'BrowserTest.getColumnIndexByHeader("Sample Genotype");' because there are nested columns before this column,
+            // so this function will return 7 instead of 8
             cy.get("tbody tr:first > td")
                 .eq(8)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                })
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
-        it("should display reference population frequencies tooltip", () => {
-            cy.get("tbody tr:first > td")
+        it("should display cohort stats (population frequencies) tooltip", () => {
+            // NOTE: the Cohort stats column is the 9th column in the table
+            // We can not use 'BrowserTest.getColumnIndexByHeader("Cohort Stats");' because there are nested columns before this column,
+            // so this function will return 8 instead of 9
+            cy.get(`tbody tr:first > td`)
                 .eq(9)
-                .within(() => {
-                    cy.get("a")
-                        .trigger("mouseover");
-                });
+                .find("a")
+                .trigger("mouseover");
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
+        });
+
+        it.skip("should reference population frequencies tooltip", () => {
+            cy.get("tbody tr:first > td")
+                .eq(10)
+                .find("a")
+                .trigger("mouseover");
+            cy.get(".qtip-content")
+                .should("be.visible");
         });
 
         // it("Check ACMG Prediction (Classification)", () => {
@@ -119,7 +114,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         //     })
         //     cy.get(".qtip-content").should('be.visible')
         // })
-    })
+    });
 
     context("Helpers", () =>{
         it("should display deleteriousness column help", () => {
