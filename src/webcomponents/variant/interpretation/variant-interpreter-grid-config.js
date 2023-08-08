@@ -84,7 +84,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             this.selectedColumns.push(this.gridColumns[1][i].id);
                         }
                     }
-                    if (option.fields[0].id) {
+                    if (option.fields[0]?.id) {
                         this.selectColumnData.push(option);
                     }
                     lastSubColumn += gridColumn.colspan;
@@ -100,9 +100,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 break;
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
-                break;
-            case "showHgvs":
-                this.config.showHgvs = e.detail.value;
                 break;
             case "geneSet.ensembl":
             case "geneSet.refseq":
@@ -258,15 +255,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 width: 6,
                             }
                         },
-                        {
-                            title: "Show HGVS column",
-                            field: "showHgvs",
-                            type: "checkbox",
-                            text: "Show HGVS",
-                            display: {
-                                width: 6,
-                            }
-                        }
                     ]
                 },
                 {

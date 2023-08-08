@@ -679,7 +679,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
                     halign: "center",
-                    visible: !!this._config.showHgvs && this.gridCommons.isColumnVisible("hgvs"),
+                    visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
                     id: "consequenceType",
@@ -712,6 +712,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
                     halign: "center",
                     visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
+                    excludeFromSettings: !(this.clinicalAnalysis.type?.toUpperCase() === "CANCER"),
                 },
                 {
                     id: "VCF_Data",
@@ -971,18 +972,18 @@ export default class VariantInterpreterGrid extends LitElement {
                         return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
-                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
+                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser" && this.gridCommons.isColumnVisible("exomiser"),
+                    excludeFromSettings: !(this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser"),
                 },
                 // Interpretation Column
                 {
                     id: "reported",
                     title: "Interpreted and/or<br> Reported",
-                    // field: "prediction",
+                    field: "reported",
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
                     align: "center",
-                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                     visible: this.gridCommons.isColumnVisible("reported"),
                 },
                 {
@@ -1629,7 +1630,6 @@ export default class VariantInterpreterGrid extends LitElement {
             hideType: false,
             hidePopulationFrequencies: false,
             hideClinicalInfo: false,
-            showHgvs: false,
 
             header: {
                 horizontalAlign: "center",
