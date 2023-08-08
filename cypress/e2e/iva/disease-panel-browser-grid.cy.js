@@ -94,6 +94,7 @@ context("Disease Panel Browser Grid", () => {
         });
 
         context("data format", () => {
+
             beforeEach(() => {
                 cy.get("@grid")
                     .find(`tbody tr[data-index="0"]`)
@@ -108,11 +109,9 @@ context("Disease Panel Browser Grid", () => {
                     .should('be.visible')
             })
         })
-
     });
 
     context("Detail", () => {
-
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="dpb-detail"]`)
@@ -131,7 +130,10 @@ context("Disease Panel Browser Grid", () => {
                     const indexRow = 2
                     cy.get(`tbody tr`)
                         .eq(indexRow)
-                        .click() // select the row
+                        .as("selectRow")
+                        .click()
+
+                    cy.get("@selectRow")
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
@@ -141,7 +143,7 @@ context("Disease Panel Browser Grid", () => {
             cy.get("@textRow")
                 .then((textRow) => {
                     const textRowTrimmed = textRow.trim();
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
@@ -154,7 +156,9 @@ context("Disease Panel Browser Grid", () => {
             cy.get("@detail")
                 .find("li")
                 .contains("JSON Data")
+                .as("jsonTab")
                 .click()
+            cy.get("@jsonTab")
                 .should('be.visible');
         });
     });

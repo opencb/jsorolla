@@ -42,22 +42,24 @@ context("Job Browser Grid", () => {
         });
     });
 
-
-        context("Row", () => {
+        context.only("Row", () => {
             it("should display row #3 as selected", () => {
                 cy.get("tbody tr")
                     .eq(3)
+                    .as("rowSelected")
                     .click()
-                    .should("have.class","success");
+
+                cy.get("@rowSelected")
+                    .should("have.class","table-success");
             });
 
-            it("should download job Json", () => {
+            it.only("should download job Json", () => {
                 cy.get("tbody tr:first > td")
                     .eq(-2)
                     .within(() => {
                         cy.get("button")
                             .click();
-                        cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                        cy.get("ul[class*='dropdown-menu']")
                             .contains("a","Download JSON")
                             .click();
                 });
@@ -72,10 +74,11 @@ context("Job Browser Grid", () => {
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
+            cy.get("@catalogTab")
                 .should('be.visible');
         });
     });
@@ -93,7 +96,10 @@ context("Job Browser Grid", () => {
                     const indexRow = 2
                     cy.get(`tbody tr`)
                         .eq(indexRow)
+                        .as("selectRow")
                         .click() // select the row
+
+                    cy.get("@selectRow")
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
@@ -102,7 +108,7 @@ context("Job Browser Grid", () => {
 
             cy.get("@textRow")
             .then((textRow) => {
-                cy.get("detail-tabs > div.panel")
+                cy.get("detail-tabs > div > h3")
                     .invoke("text")
                     .then((text) => {
                         const textTab = text.trim().split(" ");
@@ -112,10 +118,12 @@ context("Job Browser Grid", () => {
         });
 
         it("should display 'Logs' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("Logs")
+                .as("logTab")
                 .click()
+
+            cy.get("@logTab")
                 .should('be.visible');
         });
     });

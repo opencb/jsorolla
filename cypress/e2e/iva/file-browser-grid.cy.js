@@ -43,10 +43,12 @@ context("File Browser Grid", () => {
 
     context("Row", () => {
         it("should display row #3 as selected", () => {
-                cy.get("tbody tr")
-                    .eq(3)
-                    .click()
-                    .should("have.class","success");
+            cy.get("tbody tr")
+                .eq(3)
+                .as("rowSelected")
+                .click()
+            cy.get("@rowSelected")
+                .should("have.class","table-success");
         });
 
         it("should download file json",{tags:"@shortTask"}, () => {
@@ -55,7 +57,7 @@ context("File Browser Grid", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu show']")
                         .contains("a","Download JSON")
                         .click();
             });
@@ -70,14 +72,14 @@ context("File Browser Grid", () => {
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
-                .should('be.visible');
+            cy.get("@catalogTab")
+                .should('be.visible')
         });
     });
-
 
     context("detail tab", () => {
         it("should render", () => {
@@ -90,18 +92,21 @@ context("File Browser Grid", () => {
             cy.get("@indexColumn")
                 .then((indexColumn) => {
                     const indexRow = 2
-                    cy.get(`tbody tr`)
-                        .eq(indexRow)
-                        .click() // select the row
-                        .find("td")
-                        .eq(indexColumn)
-                        .invoke("text")
-                        .as("textRow")
+                        cy.get(`tbody tr`)
+                            .eq(indexRow)
+                            .as("selectRow")
+                            .click()
+
+                        cy.get("@selectRow")
+                            .find("td")
+                            .eq(indexColumn)
+                            .invoke("text")
+                            .as("textRow")
                     });
 
             cy.get("@textRow")
                 .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.split(":");
@@ -111,10 +116,12 @@ context("File Browser Grid", () => {
         });
 
         it("should display 'Preview' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("Preview")
+                .as("jsonTab")
                 .click()
+
+            cy.get("@jsonTab")
                 .should('be.visible');
         });
     });

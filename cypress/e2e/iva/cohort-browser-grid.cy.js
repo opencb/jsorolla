@@ -43,10 +43,11 @@ context("Cohort Browser Grid", () => {
 
     context("Row", () => {
         it("should display row #3 as selected", () => {
-                cy.get("tbody tr")
-                    .eq(3)
+                cy.get("tbody tr").eq(3)
+                    .as("rowSelected")
                     .click()
-                    .should("have.class","success");
+                cy.get("@rowSelected")
+                    .should("have.class","table-success");
             });
     });
 
@@ -58,11 +59,12 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
-                .should('be.visible');
+            cy.get("@catalogTab")
+                .should('be.visible')
         });
     });
 
@@ -79,7 +81,10 @@ context("Cohort Browser Grid", () => {
                     const indexRow = 2
                     cy.get(`tbody tr`)
                         .eq(indexRow)
+                        .as("selectRow")
                         .click() // select the row
+
+                    cy.get("@selectRow")
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
@@ -88,7 +93,7 @@ context("Cohort Browser Grid", () => {
 
             cy.get("@textRow")
                 .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
@@ -98,10 +103,12 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display 'JSON Data' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("JSON Data")
+                .as("jsonTab")
                 .click()
+
+            cy.get("@jsonTab")
                 .should('be.visible');
         });
     });

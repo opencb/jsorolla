@@ -39,8 +39,11 @@ context("Family Browser Grid", () => {
         it("should display row #1 as selected", () => {
             cy.get("tbody tr")
                 .eq(1)
+                .as("rowSelected")
                 .click()
-                .should("have.class","success");
+
+            cy.get("@rowSelected")
+                .should("have.class","table-success");
         });
 
         it("should download family json", () => {
@@ -49,7 +52,7 @@ context("Family Browser Grid", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
             });
@@ -64,10 +67,12 @@ context("Family Browser Grid", () => {
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("New Catalog Tab")
+                .as("catalogTab")
                 .click()
+
+            cy.get("@catalogTab")
                 .should('be.visible');
         });
     });
@@ -85,7 +90,10 @@ context("Family Browser Grid", () => {
                     const indexRow = 1
                     cy.get(`tbody tr`)
                         .eq(indexRow)
-                        .click() // select the row
+                        .as("selectRow")
+                        .click()
+
+                    cy.get("@selectRow")
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
@@ -94,7 +102,7 @@ context("Family Browser Grid", () => {
 
             cy.get("@textRow")
                 .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
@@ -104,10 +112,12 @@ context("Family Browser Grid", () => {
         });
 
         it("should display 'JSON Data' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
+            cy.get(`detail-tabs > div.detail-tabs > ul li`)
                 .contains("JSON Data")
+                .as("jsonTab")
                 .click()
+
+            cy.get("@jsonTab")
                 .should('be.visible');
         });
     });

@@ -120,7 +120,6 @@ context("Individual Browser Grid", () => {
                         expect(date).to.be.lte(today);
                     });
             });
-
         });
 
         context("data format", () => {
@@ -140,8 +139,6 @@ context("Individual Browser Grid", () => {
                     .should('be.visible')
             })
         })
-
-
     });
 
     context("Detail", () => {
@@ -164,16 +161,19 @@ context("Individual Browser Grid", () => {
                     const indexRow = 2
                     cy.get(`tbody tr`)
                         .eq(indexRow)
-                        .click() // select the row
+                        .as("selectRow")
+                        .click();
+
+                    cy.get("@selectRow")
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                 });
 
             cy.get("@textRow")
                 .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
@@ -186,7 +186,10 @@ context("Individual Browser Grid", () => {
             cy.get("@detail")
                 .find("li")
                 .contains("JSON Data")
-                .click()
+                .as("jsonTab")
+                .click();
+
+            cy.get("@jsonTab")
                 .should('be.visible');
         });
     });

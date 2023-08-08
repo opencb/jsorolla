@@ -175,7 +175,7 @@ context("Sample Browser Grid", () => {
 
             cy.get("@textRow")
                 .then((textRow) => {
-                    cy.get("detail-tabs > div.panel")
+                    cy.get("detail-tabs > div > h3")
                         .invoke("text")
                         .then((text) => {
                             const textTab = text.trim().split(" ");
