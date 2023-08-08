@@ -256,10 +256,10 @@ class TestApp extends LitElement {
     changeTool(e) {
         e.preventDefault();
         const target = e.currentTarget;
-        $(".cy-navbar ul > li", this).removeClass("active");
-        $(target).parent("li").addClass("active");
+        $(".navbar-zetta ul > li > a", this).removeClass("active");
+        $(target).addClass("active");
         if ($(target).closest("ul").hasClass("dropdown-menu")) {
-            $(target).closest("ul").closest("li").addClass("active");
+            $(target).closest("ul").closest("li > a").addClass("active");
         }
 
         if (UtilsNew.isNotUndefined(e)) {
