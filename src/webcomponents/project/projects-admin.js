@@ -89,98 +89,45 @@ export default class ProjectsAdmin extends LitElement {
         return html`
             <div class="float-end p-2">
                 <div class="dropdown">
-                    <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a id="dLabel" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("createStudy", "show", project)}">
-                                <i class="fas fa-file icon-padding"></i> New Study
+                        <li>
+                            <a class="dropdown-item ${!isAdmin ? "disabled" : "item-pointer"}"
+                                @click="${() => this.actionModal("createStudy", "show", project)}">
+                                <i class="fas fa-file pe-1"></i> New Study
                             </a>
                         </li>
-                        <li class="divider"></li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a @click="${() => this.actionModal("updateProject", "show", project)}">
-                                <i class="fas fa-edit icon-padding"></i>Edit
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item ${!isAdmin ? "disabled" : "item-pointer"}"
+                                @click="${() => this.actionModal("updateProject", "show", project)}">
+                                <i class="fas fa-edit pe-1"></i>Edit
                             </a>
                         </li>
-                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
+                        <li>
+                            <a class="dropdown-item disabled ${!isAdmin ? "disabled" : "item-pointer"}">
+                                <i class="fas fa-copy pe-1"></i>
+                                Duplicate
+                            </a>
                         </li>
-                        <li class="disabled ${!isAdmin ? "disabled" : "item-pointer"}">
-                            <a><i class="fas fa-trash icon-padding"></i> Delete</a>
+                        <li>
+                            <a class="dropdown-item disabled ${!isAdmin ? "disabled" : "item-pointer"}">
+                                <i class="fas fa-trash pe-1"></i>
+                                    Delete
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>`;
     }
 
-    // Project and Studies Style (OLD)
-    renderProjectAndStudies(project) {
-        return html`
-            <div class="col-md-4">
-                <div class="panel panel-default shadow">
-                    <div class="panel-body text-center">
-                        <!-- Vertical dots   -->
-                        <!-- {this.renderVerticalDotAction()} -->
-                        <h4>${project.name}</h4>
-                        <div>
-                            ${project.description ? html`
-                                <span>${project.description}</span>
-                            ` : html`
-                                <span class="fst-italic">No description available</span>`
-                            }
-                        </div>
-                        <div>
-                            <span>${project.organism.scientificName} ${project.organism.assembly}</span>
-                        </div>
-                        <div>
-                            <span>${project.fqn}</span>
-                        </div>
-                        <div>
-                            <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" style="padding: 5px 10px">
-                    ${project.studies.map(study => html`
-                        <div class="col-md-6">
-                            <!-- TODO: Pass Info Study to the Study admin -->
-                            <a href="#study-admin/${study.fqn}">
-                                <div class="panel panel-default shadow-sm">
-                                    <div class="panel-body text-center" style="color: black">
-                                        <div>
-                                            <h4>${study.name}</h4>
-                                        </div>
-                                        <div>
-                                            <span class="help-text">${study.description || "No description available"}</span>
-                                        </div>
-                                        <div>
-                                            <span>${study.fqn}</span>
-                                        </div>
-                                        <div>
-                                            <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>`
-                            )}
-                </div>
-            </div>
-        `;
-    }
 
     // Project and Studies Style Alternative
-    renderProjectAndStudiesAlt(project, user) {
+    renderProjectAndStudies(project, user) {
         return html`
             <style>
-                .panel-body.project{
-                    padding-top:0px;
-                    padding-bottom:0px;
-                }
-
                 .border-dotted-right {
                     border:2px solid #000;
                     outline: 1px dashed #fff;
@@ -190,16 +137,9 @@ export default class ProjectsAdmin extends LitElement {
                     color:#fff;
                     padding: 0px;
                 }
-                /* This to has the same height all studies.. */
-                .panel-body.studies {
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis; /*TODO: fix, this style not working*/
-                }
             </style>
 
-
-            <div class="card border border-0 shadow-sm">
+            <div class="card border border-0 shadow">
                 <div class="row">
                     <div class="col-md-2 border-dotted-right">
                         <!-- Vertical dots   -->
@@ -209,9 +149,13 @@ export default class ProjectsAdmin extends LitElement {
                             <h4>${project.name}</h4>
                             <div>
                                 ${project.description ? html`
-                                    <span>${project.description}</span>
+                                    <span>
+                                        ${project.description}
+                                    </span>
                                 ` : html`
-                                    <span style="font-style: italic">No description available</span>`
+                                    <span class="fst-italic">
+                                        No description available
+                                    </span>`
                                 }
                             </div>
                             <div>
@@ -242,19 +186,23 @@ export default class ProjectsAdmin extends LitElement {
             <div class="col-md-3">
                 <!-- TODO: Pass Info Study to the Study admin -->
                 <a class="text-decoration-none" href="#study-admin/${study.fqn}">
-                    <div class="card">
+                    <div class="card shadow-sm">
                         <div class="card-body studies" style="color: black">
                             ${this.opencgaSession.study.fqn === study.fqn ?
                                 html`<span class="badge text-bg-success position-absolute top-0 end-0 me-1 mt-1">Current</span>` : nothing}
-                            <div class="text-block text-center "  style="padding-top:10px;">
+                            <div class="text-block text-center pt-2">
                                 <div>
                                     <h4>${study.name}</h4>
                                 </div>
                                 <div>
-                                    <span class="help-text">${study.description || "No description available"}</span>
+                                    <span class="text-body-secondary">
+                                        ${study.description || "No description available"}
+                                    </span>
                                 </div>
                                 <div>
-                                    <span>${study.fqn}</span>
+                                    <span>
+                                        ${study.fqn}
+                                    </span>
                                 </div>
                                 <div>
                                     <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
@@ -302,8 +250,8 @@ export default class ProjectsAdmin extends LitElement {
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">${name}</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             ${content}
@@ -312,7 +260,6 @@ export default class ProjectsAdmin extends LitElement {
                 </div>
             </div>`;
     }
-
 
     render() {
         // Check if there is any project available
@@ -326,56 +273,22 @@ export default class ProjectsAdmin extends LitElement {
 
         return html`
             <style>
-                .panel.panel-default.child:hover {
+                .card-body.studies:hover {
                     background-color: #eee;
                 }
 
-                .panel-body.text-center .text-name {
-                    font-size: 16px
-                }
-
-                .btn.outline {
-                    border: 1px solid black;
-                    background-color: white;
-                    color: black;
-                    padding: 14px 28px;
-                    font-size: 16px;
-                    cursor: pointer;
-                }
-
-                .btn.outline.child {
-                    height:85px
-                }
-
-                .outline.primary {
-                    border-color:#286090;
-                    color: #286090;
-                }
-
-                .primary:hover {
-                    background: #286090;
-                    color: white;
-                }
-
-                .btn-custom {
-                    margin-top:20px
-                }
-
-                @media (min-width:992px){
-                    .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
-                }
                 /* Move to global.css */
                 /* This prevent to execute a onClick event. */
                 .disabled:active{
                     pointer-events:none
                 }
 
-                .item-pointer > a{
+                .item-pointer {
                     cursor:pointer
                 }
             </style>
 
-            <div class="container">
+            <div class="mx-auto p-2" style="width:90%">
                 <!-- Show Project by User-->
                 ${
                     this.owners.map(owner => {
@@ -394,7 +307,7 @@ export default class ProjectsAdmin extends LitElement {
 
                             <div class="d-flex flex-column gap-3">
                                 <!-- Show Project and Studies -->
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudies(project, owner))}
                             </div>`;
                     })
                 }
