@@ -157,7 +157,7 @@ context("Variant Browser Grid Germline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                     UtilsTest.assertValueCopiedToClipboard()
@@ -175,7 +175,7 @@ context("Variant Browser Grid Germline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
                     cy.readFile("cypress/downloads/6_168293914_C_T.json")
@@ -189,7 +189,7 @@ context("Variant Browser Grid Germline", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
             });

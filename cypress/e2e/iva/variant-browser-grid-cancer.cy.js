@@ -160,7 +160,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                     UtilsTest.assertValueCopiedToClipboard()
@@ -180,7 +180,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
             });
@@ -192,7 +192,7 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
             });

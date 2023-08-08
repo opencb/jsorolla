@@ -173,7 +173,7 @@ context("Variant Interpreter Grid Cancer", () => {
                 .within(() =>{
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                     UtilsTest.assertValueCopiedToClipboard()
@@ -193,7 +193,7 @@ context("Variant Interpreter Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
                     cy.readFile("cypress/downloads/1_611230_A_G.json")
@@ -207,7 +207,7 @@ context("Variant Interpreter Grid Cancer", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
                 });

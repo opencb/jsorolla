@@ -174,7 +174,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .within(() =>{
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Copy JSON")
                         .click();
                 UtilsTest.assertValueCopiedToClipboard()
@@ -192,7 +192,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Download JSON")
                         .click();
                 // cy.readFile("cypress/downloads/13_25715210-25792213_-__CNV_.json")
@@ -206,7 +206,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .within(() => {
                     cy.get("button")
                         .click();
-                    cy.get("ul[class='dropdown-menu dropdown-menu-right']")
+                    cy.get("ul[class*='dropdown-menu']")
                         .contains("a","Ensembl Genome Browser")
                         .click();
                 });
