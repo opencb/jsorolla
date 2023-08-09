@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "../data-table.js";
 
 export default class DataForm extends LitElement {
 
@@ -1061,13 +1062,13 @@ export default class DataForm extends LitElement {
                     </thead>` : null}
                 <tbody>
                 ${array
-                    .map(row => html`
+            .map(row => html`
                         <tr scope="row">
                             ${element.display.columns
-                                .map(elem => {
-                                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                    const elemStyle = elem.display?.style ?? "";
-                                    let content = null;
+                .map(elem => {
+                    const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
+                    const elemStyle = elem.display?.style ?? "";
+                    let content = null;
 
                                     // Check the element type
                                     switch (elem.type) {
@@ -1092,7 +1093,15 @@ export default class DataForm extends LitElement {
                 </tbody>
             </table>
         `;
-        return this._createElementTemplate(element, null, content);
+
+        const contentTable = html `
+            <data-table
+                .data="${array}"
+                .columns="${element.display.columns}"
+                .config="${element?.display}">
+            </data-table>
+        `;
+        return this._createElementTemplate(element, null, contentTable);
     }
 
     _createPlotElement(element) {

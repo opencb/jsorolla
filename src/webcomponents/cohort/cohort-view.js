@@ -282,14 +282,35 @@ export default class CohortView extends LitElement {
                         {
                             title: "Samples",
                             field: "samples",
-                            type: "custom",
-                            defaultValue: "N/A",
+                            type: "table",
                             display: {
-                                render: () => html`
-                                    <table id="tableCustom"></table>
-                                `,
+                                columns: [
+                                    {
+                                        id: "sample",
+                                        title: "Samples ID",
+                                        field: "id",
+                                        sortable: true,
+                                    },
+                                    {
+                                        id: "somatic",
+                                        title: "Somatic",
+                                        field: "somatic",
+                                        sortable: true,
+                                    },
+                                    {
+                                        id: "phenotypes",
+                                        title: "Phenotypes",
+                                        field: "phenotypes",
+                                        sortable: true,
+                                        formatter: (value, row) => {
+                                            return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
+                                        }
+                                    }
+                                ],
+                                pagination: true,
+                                searchable: true,
                             },
-                        },
+                        }
                     ],
                 },
             ],
