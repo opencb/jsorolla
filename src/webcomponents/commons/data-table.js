@@ -17,7 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new";
 import GridCommons from "./grid-commons";
-import "bootstrap-table";
 
 export default class DataTable extends LitElement {
 
@@ -46,31 +45,31 @@ export default class DataTable extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("data") &&
-            changedProperties.has("columns")) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        if (changedProperties.has("data") ||
+            changedProperties.has("columns") ||
+            changedProperties.has("config")) {
             this.renderDataTable();
         }
     }
 
     renderDataTable() {
-        const _config = this.getDefaultConfigTable();
         this.table = $(`#${this._prefix}dataTable`);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this.columns,
             data: this.data,
-            sidePagination: "local",
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-            uniqueId: "id",
-            searchAlign: "left",
-            gridContext: this,
-            ..._config,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ...this._config,
         });
     }
 
@@ -81,19 +80,17 @@ export default class DataTable extends LitElement {
         `;
     }
 
-    getDefaultConfigTable() {
+    getDefaultConfig() {
         return {
-            pagination: this.config?.pagination || false,
-            pageSize: this.config?.pageSize || 10,
-            pageList: this.config?.pageList || [10, 25, 50],
-            search: this.config?.searchable || false,
-            showExport: false,
-            detailView: false,
-            detailFormatter: null,
-            multiSelection: false,
-            showSelectCheckbox: true,
-            showToolbar: true,
-            showActions: true
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            uniqueId: "id",
+            search: false,
+            searchAlign: "right",
+            pagination: false,
+            pageSize: 10,
+            pageList: [10, 25, 50],
         };
     }
 

@@ -308,7 +308,7 @@ export default class CohortView extends LitElement {
                                     }
                                 ],
                                 pagination: true,
-                                searchable: true,
+                                search: true,
                             },
                         }
                     ],
