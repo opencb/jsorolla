@@ -206,48 +206,50 @@ class VariantInterpreterQcSummary extends LitElement {
                                 columns: [
                                     {
                                         title: "BAM File",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div><span style="font-weight: bold">${data.file}</span></div>
-                                            `,
-                                        }
+                                        field: "file",
+                                        formatter: (value, row) => html`
+                                            <div>
+                                                <span style="font-weight: bold">
+                                                    ${value}
+                                                </span>
+                                            </div>
+                                        `,
                                     },
                                     {
                                         title: "SD insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.sdInsertSize}</div>
-                                            `,
-                                        }
+                                        field: "sdInsertSize",
+                                        formatter: value => html`
+                                            <div>
+                                                ${value}
+                                            </div>
+                                        `,
                                     },
                                     {
                                         title: "Average insert size",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgInsertSize}</div>
-                                            `,
-                                        }
+                                        field: "avgInsertSize",
+                                        formatter: value => html`
+                                            <div>
+                                                ${value}
+                                            </div>
+                                        `,
                                     },
                                     {
                                         title: "Duplicate read rate",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.duplicateReadRate}</div>
+                                        field: "duplicateReadRate",
+                                        formatter: value => html`
+                                                <div>
+                                                    ${value}
+                                                </div>
                                             `,
-                                        }
                                     },
                                     {
                                         title: "Average sequence depth",
-                                        type: "custom",
-                                        display: {
-                                            render: data => html`
-                                                <div>${data.avgSequenceDepth}</div>
-                                            `,
-                                        }
+                                        field: "avgSequenceDepth",
+                                        formatter: value => html`
+                                            <div>
+                                                ${value}
+                                            </div>
+                                        `,
                                     }
                                 ]
                             }
