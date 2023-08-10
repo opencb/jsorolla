@@ -124,7 +124,7 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                             </variant-interpreter-grid>
                         `}
                     ` : html`
-                        <div style="margin-bottom:24px;">
+                        <div style="margin-bottom:28px;">
                             <div>No variants to display of this type.</div>
                         </div>
                     `}
