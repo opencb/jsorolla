@@ -344,13 +344,14 @@ export default class ClinicalAnalysisReview extends LitElement {
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
         const discussion = this.clinicalAnalysis?.report?.discussion || {};
         return Types.dataFormConfig({
-            type: "pills",
+            type: "tabs",
             display: {
                 pillsLeftColumnClass: "col-md-2",
                 buttonsVisible: false,
