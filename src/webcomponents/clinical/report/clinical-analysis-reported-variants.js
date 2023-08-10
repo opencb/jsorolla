@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 // import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import "../../variant/interpretation/variant-interpreter-grid.js";
+import "../../variant/interpretation/variant-interpreter-rearrangement-grid.js";
 
 export default class ClinicalAnalysisReportedVariants extends LitElement {
 
@@ -105,13 +106,23 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                         <div>${group.display.title}</div>
                     </div>
                     ${variants.length > 0 ? html`
-                        <variant-interpreter-grid
-                            .review="${true}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .clinicalVariants="${variants}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${gridConfig}">
-                        </variant-interpreter-grid>
+                        ${group.gridType.endsWith("Rearrangement") ? html`
+                            <variant-interpreter-rearrangement-grid
+                                .review="${true}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .clinicalVariants="${variants}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${gridConfig}">
+                            </variant-interpreter-rearrangement-grid>
+                        ` : html`
+                            <variant-interpreter-grid
+                                .review="${true}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .clinicalVariants="${variants}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${gridConfig}">
+                            </variant-interpreter-grid>
+                        `}
                     ` : html`
                         <div style="margin-bottom:24px;">
                             <div>No variants to display of this type.</div>
@@ -169,12 +180,30 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                     },
                 },
                 {
+                    id: "somatic-rearrangement",
+                    gridType: "variantInterpreterRearrangement",
+                    somatic: true,
+                    variantTypes: ["BREAKEND"],
+                    display: {
+                        title: "Somatic Structural Rearrangement",
+                    },
+                },
+                {
                     id: "germline-small-variants",
                     gridType: "variantInterpreterCancerSNV",
                     somatic: false,
                     variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
                     display: {
                         title: "Germline Small Variants",
+                    },
+                },
+                {
+                    id: "germline-rearrangement",
+                    gridType: "variantInterpreterRearrangement",
+                    somatic: false,
+                    variantTypes: ["BREAKEND"],
+                    display: {
+                        title: "Germline Structural Rearrangement",
                     },
                 },
             ],
