@@ -91,7 +91,7 @@ export default class TranscriptCoverageView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    let region = `${data.chromosome}:${data.start}-${data.end}`;
+                                    const region = `${data.chromosome}:${data.start}-${data.end}`;
                                     return html`${region} <a href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r=${region}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> Ensembl</a>`;
                                 }
                             }
@@ -107,67 +107,60 @@ export default class TranscriptCoverageView extends LitElement {
                             display: {
                                 columns: [
                                     {
-                                        name: "Exon ID",
+                                        id: "exonID",
+                                        title: "Exon ID",
                                         type: "custom",
-                                        display: {
-                                            render: data => {
-                                                return html`<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${data.id}" target="_blank">${data.id}</a>`;
+                                        formatter: (value, row) => {
+                                            return `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Exons?db=core;r=13:32315086-32400266;t=${row.id}" target="_blank">${row.id}</a>`;
+                                        },
+                                    },
+                                    {
+                                        id: "region",
+                                        title: "Region",
+                                        field: "region",
+                                        formatter: (value, row) => {
+                                            const region = `${row.chromosome}:${row.start}-${row.end}`;
+                                            return `${region}`;
+                                        }
+                                    },
+                                    {
+                                        id: "sizeBp",
+                                        title: "Size (bp)",
+                                        formatter: (value, row) => {
+                                            if (row) {
+                                                return row.end - row.start + 1;
+                                            } else {
+                                                return "N/A";
                                             }
                                         }
                                     },
                                     {
-                                        name: "Region",
-                                        type: "complex",
-                                        display: {
-                                            template: "${chromosome}:${start}-${end}"
-                                        }
-                                    },
-                                    {
-                                        name: "Size (bp)",
-                                        type: "custom",
-                                        display: {
-                                            render: data => {
-                                                if (data) {
-                                                    return data.end - data.start + 1
-                                                } else {
-                                                    return "N/A";
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        name: "Mean Depth",
+                                        id: "depthAvg",
+                                        title: "Mean depth",
                                         field: "depthAvg",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
+                                        formatter: value => {
+                                            const color = value < 20 ? "red" : value < 30 ? "darkorange" : "black";
+                                            return `<span style="color: ${color}">${value.toFixed(2)}</span>`;
                                         }
                                     },
                                     {
-                                        name: "Min Depth",
+                                        id: "depthMin",
+                                        title: "Min depth",
                                         field: "depthMin",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
+                                        formatter: value => {
+                                            const color = value < 20 ? "red" : value < 30 ? "darkorange" : "black";
+                                            return `<span style="color: ${color}">${value.toFixed(2)}</span>`;
                                         }
                                     },
                                     {
-                                        name: "Max Depth",
+                                        id: "depthMax",
+                                        title: "Max depth",
                                         field: "depthMax",
-                                        type: "custom",
-                                        display: {
-                                            render: field => {
-                                                let color = field < 20 ? "red" : field < 30 ? "darkorange" : "black";
-                                                return html`<span style="color: ${color}">${field.toFixed(2)}</span>`;
-                                            }
+                                        formatter: value => {
+                                            const color = value < 20 ? "red" : value < 30 ? "darkorange" : "black";
+                                            return `<span style="color: ${color}">${value.toFixed(2)}</span>`;
                                         }
-                                    }
+                                    },
                                 ]
                             }
                         },
@@ -178,10 +171,11 @@ export default class TranscriptCoverageView extends LitElement {
     }
 
     render() {
-        // this.transcriptCoverageStats
-        // debugger
         return html`
-            <data-form .data=${this.transcriptCoverageStats} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.transcriptCoverageStats}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 
