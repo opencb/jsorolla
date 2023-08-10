@@ -37,7 +37,7 @@ export default class SplitGenomeBrowser extends LitElement {
 
         return html`
             <div class="row">
-                ${this.regions.map(region => html`
+                ${(this.regions || []).map(region => html`
                     <div class="col-md-6">
                         <genome-browser
                             .opencgaSession="${this.opencgaSession}"

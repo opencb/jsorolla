@@ -26,6 +26,7 @@ import "../variant-samples.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../../commons/view/detail-tabs.js";
 import "../../visualization/protein-lollipop-variant-view.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantInterpreterDetail extends LitElement {
 
@@ -111,7 +112,7 @@ export default class VariantInterpreterDetail extends LitElement {
     }
 
     variantObserver() {
-        this._variant = {...this.variant};
+        this._variant = UtilsNew.objectClone(this.variant);
         this.requestUpdate();
     }
 
