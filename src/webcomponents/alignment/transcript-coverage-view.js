@@ -119,8 +119,7 @@ export default class TranscriptCoverageView extends LitElement {
                                         title: "Region",
                                         field: "region",
                                         formatter: (value, row) => {
-                                            const region = `${row.chromosome}:${row.start}-${row.end}`;
-                                            return `${region}`;
+                                            return `${row.chromosome}:${row.start}-${row.end}`;
                                         }
                                     },
                                     {

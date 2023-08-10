@@ -509,9 +509,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         title: "Files",
                                         field: "fileIds",
                                         formatter: values => {
-                                            const fileVcfs = values.filter(file => file.includes(".vcf")).join("<br>");
-                                            // return UtilsNew.renderHTML(`${fileVcfs}`);
-                                            return fileVcfs;
+                                            return (values || []).filter(file => file?.includes(".vcf")).join("<br>") || "-";
                                         },
                                     },
                                     {
@@ -586,7 +584,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         id: "individualId",
                                         title: "Individual ID",
                                         formatter: (value, row) => `
-                                                <div style="font-weight: bold">${row.id}</div>
+                                                <div style="font-weight: bold">
+                                                    ${row.id}
+                                                </div>
                                                 <div class="help-block">
                                                     ${row?.sex?.id || "Not specified"} (${row.karyotypicSex || "Not specified"})
                                                 </div>
@@ -605,7 +605,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                             if (!values || values.length === 0) {
                                                 return "-";
                                             }
-                                            return values.map(sample => html`<div>${sample.id}</div>`);
+                                            return values.map(sample => `<div>${sample.id}</div>`);
                                         },
                                     },
                                     {

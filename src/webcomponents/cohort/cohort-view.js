@@ -21,7 +21,6 @@ import Types from "../commons/types.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
-import GridCommons from "../commons/grid-commons.js";
 
 export default class CohortView extends LitElement {
 
@@ -87,14 +86,6 @@ export default class CohortView extends LitElement {
         super.update(changedProperties);
     }
 
-    async updated(changedProperties) {
-        if (changedProperties.has("cohort")) {
-            // Wait for the 'data-form' to render before painting the table.
-            const dataForm = await document.querySelector("data-form");
-            this.renderTableSample(dataForm);
-        }
-    }
-
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
             const params = {
@@ -120,51 +111,6 @@ export default class CohortView extends LitElement {
         } else {
             this.cohort = {};
         }
-    }
-
-    renderTableSample(component) {
-        const columns = [
-            {
-                id: "sample",
-                title: "Samples ID",
-                field: "id",
-                sortable: true,
-            },
-            {
-                id: "somatic",
-                title: "Somatic",
-                field: "somatic",
-                sortable: true,
-            },
-            {
-                id: "phenotypes",
-                title: "Phenotypes",
-                field: "phenotypes",
-                sortable: true,
-                formatter: (value, row) => {
-                    return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
-                }
-            }
-        ];
-
-        // Get the table inside data-form.
-        this.table = $(component.querySelector("#tableCustom"));
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            columns: columns,
-            data: this.cohort?.samples,
-            sidePagination: "local",
-            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-            icons: GridCommons.GRID_ICONS,
-            uniqueId: "id",
-            search: true,
-            searchAlign: "left",
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-        });
     }
 
     onFilterChange(e) {
@@ -296,6 +242,7 @@ export default class CohortView extends LitElement {
                                         title: "Somatic",
                                         field: "somatic",
                                         sortable: true,
+                                        formatter: value => value ? "true" : "false",
                                     },
                                     {
                                         id: "phenotypes",

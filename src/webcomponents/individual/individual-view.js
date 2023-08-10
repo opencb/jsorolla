@@ -316,12 +316,12 @@ export default class IndividualView extends LitElement {
                                     {
                                         title: "Somatic",
                                         field: "somatic",
-                                        fomatter: value => value ?? false
+                                        formatter: value => value ? "true" : "false",
                                     },
                                     {
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        formatter: value => value?.length ? html`${value.map(d => d.id).join(", ")}` : "-",
+                                        formatter: value => value?.length ? `${value.map(d => d.id).join(", ")}` : "-",
                                     },
                                 ],
                                 defaultValue: "No phenotypes found",

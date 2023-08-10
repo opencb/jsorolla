@@ -182,10 +182,10 @@ export default class UserProjects extends LitElement {
                                 title: "Links",
                                 field: "id",
                                 formatter: (value, row) => `
-                                        <a href="#browser/${row.id}/${value}" title="Variant Browser" style="white-space:nowrap;">
-                                            <i class="fas fa-external-link-alt icon-padding"></i> VB
-                                        </a>
-                                    `,
+                                    <a href="#browser/${row.id}/${value}" title="Variant Browser" style="white-space:nowrap;">
+                                        <i class="fas fa-external-link-alt icon-padding"></i> VB
+                                    </a>
+                                `,
                             },
                         ],
                         defaultLayout: "vertical",

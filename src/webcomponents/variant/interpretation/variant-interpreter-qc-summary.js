@@ -207,7 +207,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "BAM File",
                                         field: "file",
-                                        formatter: (value, row) => html`
+                                        formatter: value => `
                                             <div>
                                                 <span style="font-weight: bold">
                                                     ${value}
@@ -218,7 +218,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "SD insert size",
                                         field: "sdInsertSize",
-                                        formatter: value => html`
+                                        formatter: value => `
                                             <div>
                                                 ${value}
                                             </div>
@@ -227,7 +227,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "Average insert size",
                                         field: "avgInsertSize",
-                                        formatter: value => html`
+                                        formatter: value => `
                                             <div>
                                                 ${value}
                                             </div>
@@ -236,7 +236,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "Duplicate read rate",
                                         field: "duplicateReadRate",
-                                        formatter: value => html`
+                                        formatter: value => `
                                                 <div>
                                                     ${value}
                                                 </div>
@@ -245,7 +245,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                     {
                                         title: "Average sequence depth",
                                         field: "avgSequenceDepth",
-                                        formatter: value => html`
+                                        formatter: value => `
                                             <div>
                                                 ${value}
                                             </div>
