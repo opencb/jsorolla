@@ -167,16 +167,12 @@ export default class UserProjects extends LitElement {
                             {
                                 title: "Description",
                                 field: "description",
-                                defaultValue: "-",
+                                formatter: value => value ?? "-",
                             },
                             {
                                 title: "Creation",
                                 field: "creationDate",
-                                defaultValue: "-",
-                                type: "custom",
-                                display: {
-                                    render: value => UtilsNew.dateFormatter(value),
-                                },
+                                formatter: value => UtilsNew.dateFormatter(value) ?? "-",
                             },
                             {
                                 title: "FQN",
@@ -184,15 +180,12 @@ export default class UserProjects extends LitElement {
                             },
                             {
                                 title: "Links",
-                                type: "custom",
                                 field: "id",
-                                display: {
-                                    render: id => html`
-                                        <a href="#browser/${project.id}/${id}" title="Variant Browser" style="white-space:nowrap;">
+                                formatter: (value, row) => `
+                                        <a href="#browser/${row.id}/${value}" title="Variant Browser" style="white-space:nowrap;">
                                             <i class="fas fa-external-link-alt icon-padding"></i> VB
                                         </a>
                                     `,
-                                },
                             },
                         ],
                         defaultLayout: "vertical",
