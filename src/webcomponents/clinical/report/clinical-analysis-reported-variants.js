@@ -160,6 +160,15 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                     },
                 },
                 {
+                    id: "somatic-cnv-variants",
+                    gridType: "variantInterpreterCancerCNV",
+                    somatic: true,
+                    variantTypes: ["COPY_NUMBER", "CNV"],
+                    display: {
+                        title: "Copy Number Variants",
+                    },
+                },
+                {
                     id: "germline-small-variants",
                     gridType: "variantInterpreterCancerSNV",
                     somatic: false,
