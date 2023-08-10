@@ -167,7 +167,7 @@ export default class UserProjects extends LitElement {
                             {
                                 title: "Description",
                                 field: "description",
-                                formatter: value => value ?? "-",
+                                formatter: value => UtilsNew.isNotEmpty(value) ? value : "-",
                             },
                             {
                                 title: "Creation",
