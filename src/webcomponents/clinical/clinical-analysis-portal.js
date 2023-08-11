@@ -59,10 +59,10 @@ export default class ClinicalAnalysisPortal extends LitElement {
             <div>
                 ${this._config.views.map(view => html`
                     <button
-                        class="${`btn btn-default ${this.currentView === view.id ? "active" : ""}`}"
+                        class="${`btn btn-light ${this.currentView === view.id ? "active" : ""}`}"
                         @click="${() => this.#onViewChange(view.id)}">
                         ${view.icon ? html`
-                            <i class="${`fas ${view.icon} icon-padding`}"></i>
+                            <i class="${`fas ${view.icon} ps-1`}"></i>
                         ` : null}
                         <strong>${view.name}</strong>
                     </button>
@@ -73,8 +73,8 @@ export default class ClinicalAnalysisPortal extends LitElement {
 
     renderViewTitle(title) {
         return html`
-            <div style="margin-top:32px;margin-bottom:24px;">
-                <h2 style="font-weight:bold;">${title}</h2>
+            <div class="my-4">
+                <h2 class="fw-bold">${title}</h2>
             </div>
         `;
     }
