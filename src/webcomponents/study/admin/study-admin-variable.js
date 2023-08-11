@@ -123,11 +123,11 @@ export default class StudyAdminVariable extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
-                                    <div style="float: right">
+                                <div class="col-md-6 mx-3 my-4">
+                                    <div class="d-flex justify-content-end">
                                         ${UtilsNew.isNotEmpty(this.variableSet) ? html `
-                                            <button class="btn btn-default ripple btn-sm" type="button" @click="${e => this.clearForm(e)}">
-                                            <i class="fas fa-arrow-left icon-hover"></i>  Back
+                                            <button class="btn btn-light" type="button" @click="${e => this.clearForm(e)}">
+                                                <i class="fas fa-arrow-left icon-hover"></i>  Back
                                             </button>`: nothing}
                                     </div>
                                     <variable-set-view
@@ -147,9 +147,9 @@ export default class StudyAdminVariable extends LitElement {
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
-                                <div class="col-md-6" style="margin: 20px 10px">
+                                <div class="col-md-6 mx-3 my-4">
                                     <variable-set-create
-                                            .opencgaSession="${opencgaSession}">
+                                        .opencgaSession="${opencgaSession}">
                                     </variable-set-create>
                                 </div>
                             </div>`;
