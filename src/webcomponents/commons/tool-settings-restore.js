@@ -212,6 +212,7 @@ export default class ToolSettingsRestore extends LitElement {
                 titleWidth: 4,
                 buttonsVisible: true,
                 buttonsLayout: "top",
+                buttonsClassName: "mt-2",
                 // buttonOkDisabled: () => this._studyFqnList?.length === 0
             },
             buttons: {
@@ -249,7 +250,7 @@ export default class ToolSettingsRestore extends LitElement {
                                 defaultLayout: "vertical",
                                 render: study => {
                                     return html `
-                                        <div style="padding: 10px 20px">
+                                        <div class="pt-3 pe-3">
                                             <tool-settings-editor
                                                 .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
                                                 .selectSettings="${true}"
@@ -271,7 +272,7 @@ export default class ToolSettingsRestore extends LitElement {
                         // titleHeader: "",
                         // titleStyle: "",
                         // visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "form-text",
                         // descriptionStyle: "",
                         // visible: () =>
                     },

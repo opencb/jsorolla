@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
@@ -138,51 +138,24 @@ export default class ToolSettingsEditor extends LitElement {
     }
 
     // --- RENDER ---
-    #renderStyle() {
-        return html`
-            <style>
-                #tool-settings-editor-card {
-                    display: flex;
-                    flex-direction: column;
-                    margin-top: 1em;
-                }
-                #tool-settings-editor-card-header {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 0.5em;
-                    margin: 1em 0;
-                }
-                #tool-settings-editor-card-header > .card-header-title {
-                    margin-right: 1em;
-                    font-weight: bold;
-                }
-                #tool-settings-editor-card-header > .card-header-options .filter-option-inner-inner {
-                }
-
-            </style>`;
-    }
 
     render() {
         return html `
-            <!-- STYLE -->
-            ${this.#renderStyle()}
-
-            <div class="card" id="tool-settings-editor-card">
+            <div class="card d-flex flex-column mt-3" id="tool-settings-editor-card">
                 <!-- Header -->
-                <div class="card-header" id="tool-settings-editor-card-header">
+                <div class="d-flex justify-content-center mt-3 gap-2" id="tool-settings-editor-card-header">
                     ${this.readOnly ? html `
-                        <div class="card-header-title">Select one of the tools for previewing (READ-ONLY) the settings: </div>
-                    `: null}
+                        <label class="form-label fw-bold">Select one of the tools for previewing (READ-ONLY) the settings: </label>
+                    `: nothing}
                     <div class="card-header-options">
                         ${this.readOnly ? this.renderSelect() : html `
                             <button
-                                class="btn btn-warning btn-sm" type="button"
+                                class="btn btn-warning" type="button"
                                 @click="${e => this.onStudyToolSettingsChange(e, "default")}">
                                 DEFAULT SETTINGS
                             </button>
                             <button
-                                class="btn btn-warning btn-sm" type="button"
+                                class="btn btn-warning" type="button"
                                 @click="${e => this.onStudyToolSettingsChange(e, "backup")}">
                                 BACKUP SETTINGS
                             </button>
@@ -190,7 +163,7 @@ export default class ToolSettingsEditor extends LitElement {
                     </div>
                 </div>
                 <!-- Content -->
-                <div class="card-body" id="">
+                <div class="card-body ps-3 pe-2" id="">
                     <detail-tabs
                         .data="${this._toolSettings}"
                         .config="${this._config}"
