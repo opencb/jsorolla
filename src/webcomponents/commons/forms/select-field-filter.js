@@ -110,7 +110,10 @@ export default class SelectFieldFilter extends LitElement {
             iconBase: "fas",
             tickIcon: "fa-check",
             val: "",
-            multipleSeparator: this.separator
+            multipleSeparator: this.separator,
+            style: "",
+            styleBase: this.all ? "form-control rounded-end-0" : "form-control"
+            // actionsBox: this.all,
         });
         // this.selectPicker.selectpicker("val", "");
     }
@@ -235,10 +238,19 @@ export default class SelectFieldFilter extends LitElement {
         `;
     }
 
+    renderShowSelectAll() {
+        return html `
+            <span class="input-group-text rounded-start-0">
+                <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                <span class="fw-bold ms-1">All</span>
+            </span>
+        `;
+    }
+
     render() {
         return html`
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
-                <div class="${this.all ? "input-group" : ""}">
+                <div class="${this.all ? "d-flex" : ""}">
                     <select id="${this.elm}"
                             class="${this.elm}"
                             ?multiple="${!this.forceSelection}"
@@ -268,12 +280,7 @@ export default class SelectFieldFilter extends LitElement {
                         `)}
                     </select>
 
-                    ${this.all ? html`
-                        <span class="input-group-text">
-                            <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
-                            <span class="fw-bold">All</span>
-                        </span>` : nothing
-                    }
+                    ${this.all ? this.renderShowSelectAll() : nothing}
                 </div>
             </div>
         `;
