@@ -476,6 +476,19 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._columns = [
             [
                 {
+                    id: "interpretation",
+                    title: "Interpretation",
+                    field: "interpretation",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return row[0]?.interpretation || "-";
+                    },
+                    halign: "center",
+                    excludeFromSettings: true,
+                    visible: this._config.showInterpretation,
+                },
+                {
                     id: "variant1",
                     title: "Variant 1",
                     field: "id",
@@ -993,6 +1006,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             showReview: true,
             showEditReview: true,
             showSelectCheckbox: false,
+            showInterpretation: false,
             showActions: false,
             multiSelection: false,
             nucleotideGenotype: true,
