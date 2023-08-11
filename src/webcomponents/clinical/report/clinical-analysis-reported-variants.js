@@ -159,6 +159,9 @@ export default class ClinicalAnalysisReportedVariants extends LitElement {
                 showSettings: false,
                 showActions: false,
                 showEditReview: false,
+                toolbar: {
+                    showExport: false,
+                },
             },
             groupsByVariantType: [
                 {
