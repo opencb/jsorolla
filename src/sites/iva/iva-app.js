@@ -137,6 +137,7 @@ class IvaApp extends LitElement {
     _init() {
         // Create the 'config' , this objects contains all the different configuration
         this.settings = {};
+        this.bsOffcanvas = null;
         const _config = SUITE;
         _config.opencga = opencga;
         _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
@@ -1063,9 +1064,10 @@ class IvaApp extends LitElement {
 
     toggleSideBar(e) {
         e.preventDefault();
-        // const sidenav = this.querySelector("#side-nav");
-        $("#side-nav").toggleClass("active");
-        $("#overlay").toggleClass("active");
+        if (!this.bsOffcanvas) {
+            this.bsOffcanvas = new bootstrap.Offcanvas("#offcanvasIva");
+        }
+        this.bsOffcanvas.toggle();
     }
 
     onChangeApp(e, toggle) {
