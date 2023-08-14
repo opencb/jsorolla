@@ -175,15 +175,15 @@ export default class VariantInterpreterGridFormatter {
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
-                                <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences
+                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span class='fw-bold' style="color: red">${showArrayIndexes.length}</span> of
+                                <span class='fw-bold' style=" color: red">${newEvidences.length}</span> clinical evidences
                                 ${showArrayIndexes.length !== newEvidences.length ?
                     `, <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
                     ""
                 }
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${newEvidences.length}</span> of
-                                <span style="font-weight: bold; color: red">${newEvidences.length}</span> clinical evidences,
+                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span class='fw-bold' style="color: red">${newEvidences.length}</span> of
+                                <span class='fw-bold' style="color: red">${newEvidences.length}</span> clinical evidences,
                                 ${showArrayIndexes.length !== newEvidences.length ?
                     `, <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
                     ""

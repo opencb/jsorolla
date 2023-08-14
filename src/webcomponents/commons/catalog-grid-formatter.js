@@ -63,13 +63,13 @@ export default class CatalogGridFormatter {
             switch (split[0]) {
                 case "HP":
                     idHtml = `
-                        <a href="${BioinfoUtils.getHpoLink(value.id)}" target="_blank">${value.id}
+                        <a class="text-decoration-none" href="${BioinfoUtils.getHpoLink(value.id)}" target="_blank">${value.id}
                             <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
                         </a>`;
                     break;
                 case "OMIM":
                     idHtml = `
-                        <a href="https://omim.org/entry/${split[1]}" target="_blank">${value.id}
+                        <a class="text-decoration-none" href="https://omim.org/entry/${split[1]}" target="_blank">${value.id}
                             <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
                         </a>`;
                     break;
@@ -94,8 +94,8 @@ export default class CatalogGridFormatter {
             for (const panel of panels) {
                 if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                     panelHtml += `
-                        <div style="margin: 5px 0px">
-                            <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                        <div>
+                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                 ${panel.name} (${panel.source.project} v${panel.source.version})
                             </a>
                         </div>`;

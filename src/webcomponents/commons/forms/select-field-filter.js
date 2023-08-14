@@ -132,7 +132,7 @@ export default class SelectFieldFilter extends LitElement {
         }
 
         if (changedProperties.has("disabled")) {
-            this.selectPicker.selectpicker("refresh");
+            this.selectPicker.selectpicker("render");
         }
 
         if (changedProperties.has("value") || changedProperties.has("data") || changedProperties.has("disabled")) {
