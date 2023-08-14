@@ -132,6 +132,13 @@ a:visited {
 
 }
 
+/*********** data-table *****************/
+
+/* fix the dropdown hidden in a bootstrap table */
+.force-overflow .fixed-table-body {
+    overflow: visible !important;
+}
+
 /*********** main view tabs *****************/
 .main-view .content-tab {
     display: none;
