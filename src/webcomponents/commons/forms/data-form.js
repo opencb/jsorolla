@@ -619,7 +619,7 @@ export default class DataForm extends LitElement {
                 <div class="row mb-1 ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="form-label pt-0 ${titleClassName}" style="${titleStyle}">
+                            <label class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">
                                 ${title} ${titleRequiredMark}
                             </label>
                         ` : nothing}
@@ -1823,7 +1823,7 @@ export default class DataForm extends LitElement {
                     </button>
                     <div class="">
                         <div id="${this._prefix}Help" class="collapse">
-                            <div class="well">
+                            <div class="card">
                                 ${this.renderData()}
                             </div>
                         </div>

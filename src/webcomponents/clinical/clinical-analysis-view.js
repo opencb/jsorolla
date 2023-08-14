@@ -66,7 +66,7 @@ export default class ClinicalAnalysisView extends LitElement {
             collapsable: true,
             titleVisible: false,
             defaultValue: "-",
-            defaultLayout: "horizontal",
+            // defaultLayout: "horizontal",
             buttonsVisible: false,
             layout: [
                 {
@@ -75,7 +75,7 @@ export default class ClinicalAnalysisView extends LitElement {
                 },
                 {
                     id: "",
-                    className: "row",
+                    className: "row mb-5",
                     sections: [
                         {
                             id: "detail",
@@ -170,7 +170,7 @@ export default class ClinicalAnalysisView extends LitElement {
         if (!this.clinicalAnalysis?.id && this.search === false) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
                     No clinical Analysis ID found.
                 </div>
             `;
@@ -284,8 +284,15 @@ export default class ClinicalAnalysisView extends LitElement {
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("priority") && !!this.opencgaSession?.study?.configuration?.clinical?.priorities,
                                 render: priority => {
-                                    const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
-                                    return html`<span class="label ${priorityRankToColor[priority.rank]}">
+                                    const priorityRankToColor = [
+                                        "text-bg-danger",
+                                        "text-bg-warning",
+                                        "text-bg-primary",
+                                        "text-bg-info",
+                                        "text-bg-success",
+                                        "text-bg-light"
+                                    ];
+                                    return html`<span class="badge ${priorityRankToColor[priority.rank]}">
                                         ${priority.id}
                                     </span>`;
                                 },
