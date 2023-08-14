@@ -154,7 +154,7 @@ export default class DetailTabs extends LitElement {
                         role="tab"
                         data-bs-toggle="tab" data-id="${item.id}"
                         @click="${this.changeTab}">
-                        <span>${item.name}</span>
+                        <span class="fw-bold">${item.name}</span>
                     </a>
                 </li>
             `;
