@@ -609,13 +609,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                 <!-- Open the case in the case interpreter -->
                                 <li>
                                     <a class="dropdown-item" data-action="interpreter" href="${url}">
-                                        <i class="fas fa-user-md" aria-hidden="true"></i> Case Interpreter
+                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter
                                     </a>
                                 </li>
                                 <!-- Download the case -->
                                 <li>
                                     <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                                        <i class="fas fa-download" aria-hidden="true"></i> Download
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download
                                     </a>
                                 </li>
                                 <!-- Perfom write operations to the case -->
@@ -624,13 +624,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                     <!-- Lock or unlock the case -->
                                     <li>
                                         <a class="dropdown-item" data-action="lock">
-                                            <i class="fas ${lockActionIcon}" aria-hidden="true"></i> ${lockActionText}
+                                            <i class="fas ${lockActionIcon} me-1" aria-hidden="true"></i> ${lockActionText}
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
                                     <li>
                                         <a href="javascript: void 0" class="${isOwnOrIsLocked} dropdown-item" data-action="delete">
-                                            <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                         </a>
                                     </li>
                                 ` : ""}
