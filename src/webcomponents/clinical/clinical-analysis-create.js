@@ -588,8 +588,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: individual => html`
-                                                <div style="font-weight: bold">${individual.id}</div>
-                                                <div class="help-block">
+                                                <div class="fw-bold">${individual.id}</div>
+                                                <div class="form-text">
                                                     ${individual?.sex?.id || "Not specified"} (${individual.karyotypicSex || "Not specified"})
                                                 </div>
                                             `,
@@ -706,7 +706,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         title: "ID",
                                         type: "custom",
                                         display: {
-                                            render: sample => html`<span style="font-weight: bold">${sample.id}</span>`,
+                                            render: sample => html`<span class="fw-bold">${sample.id}</span>`,
                                         }
                                     },
                                     {

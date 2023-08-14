@@ -123,26 +123,32 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <div class="row" style="padding-left: 5px">
-                                        <div class="col-md-7" style="display:flex;">
-                                            <div style="margin-right:16px;">
-                                                <div class="label ${interpretation.status?.id ? "label-primary" : "label-default"}" style="display:block;font-size:1em;">
+                                    <div class="d-flex">
+                                        <div class="d-flex gap-3 me-auto">
+                                            <div>
+                                                <div class="d-block badge ${interpretation.status?.id ? "text-bg-primary" : "text-bg-secondary"}" style="font-size:1em;">
                                                     <strong>${interpretation.status.id || "NO_STATUS"}</strong>
                                                 </div>
                                             </div>
-                                            <div style="">
+                                            <div>
                                                 <span style="font-size:1.2em;">${interpretation.id}</span>
                                                 <span style="color:grey;margin-left:8px;">version ${interpretation.version}</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-5" style="display:flex;justify-content:end;">
+                                        <div class="d-flex justify-contend-end">
                                             <span title="Analysed by">
-                                                <i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>
-                                                Assigned to <label>${interpretation?.analyst?.name ?? "-"}</label>
+                                                <i class="fa fa-user-circle ms-1" aria-hidden="true"></i>
+                                                Assigned to
+                                                <label class="fw-bold">
+                                                    ${interpretation?.analyst?.name ?? "-"}
+                                                </label>
                                             </span>
-                                            <span style="margin-left: 16px" title="Created on">
+                                            <span class="ms-3" title="Created on">
                                                 <i class="far fa-calendar-alt"></i>
-                                                Created on <label>${UtilsNew.dateFormatter(interpretation?.creationDate)}</label>
+                                                Created on
+                                                <label class="fw-bold">
+                                                    ${UtilsNew.dateFormatter(interpretation?.creationDate)}
+                                                </label>
                                             </span>
                                         </div>
                                     </div>
@@ -195,9 +201,9 @@ export default class ClinicalInterpretationSummary extends LitElement {
                                         <strong>Version</strong>: ${method.version}
                                     </div>
                                     <div>
-                                        <strong>Dependencies</strong>: 
+                                        <strong>Dependencies</strong>:
                                         ${(method.dependencies || []).map(item => html`
-                                            <span class="label label-primary">${item.name} (${item.version})</span>
+                                            <span class="badge text-bg-primary">${item.name} (${item.version})</span>
                                         `)}
                                     </div>
                                 `,

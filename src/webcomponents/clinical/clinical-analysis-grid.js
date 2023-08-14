@@ -190,8 +190,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
                     </a>
                 </div>
-                <div style="margin: 5px 0" data-cy="case-type">
-                    <span class="help-block">${row.type}</span>
+                <div class="mt-1 me-0"  data-cy="case-type">
+                    <span class="form-text">${row.type}</span>
                 </div>
             `;
         }
@@ -554,13 +554,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
                     const dueDate = new Date(dueDateString);
                     const currentDate = new Date();
-                    let dueDateStyle = null;
+                    let dueDateClass = null;
                     if (currentDate > dueDate) {
-                        dueDateStyle = "color: darkred";
+                        dueDateClass = "text-danger";
                     }
                     return `
-                        <div style="${dueDateStyle}">${dueDateString}</div>
-                        <div class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
+                        <div class="${dueDateClass}">${dueDateString}</div>
+                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
                     `;
                 }
                 // visible: !this._config.columns.hidden.includes("dueDate")

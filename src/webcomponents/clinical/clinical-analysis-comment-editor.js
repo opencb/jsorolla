@@ -390,7 +390,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                 <span style="color: darkgrey; margin: 0px 10px">
                                     ${UtilsNew.dateFormatter(comment.date)}
                                 </span>
-                                ${this.commentStatus[comment.date] === "DELETED" ? html`<span class="label label-danger">Remove</span>`: null}
+                                ${this.commentStatus[comment.date] === "DELETED" ? html`<span class="badge text-bg-danger">Remove</span>`: null}
                                 ${isOwnComment(comment)? renderActions(comment):renderDisabledActions(comment)}
                             </div>
                         </div>
@@ -419,7 +419,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                     <div>
                                         <br/>
                                         ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
-                                            <span class="label label-info" style="font-size: 95%">${tag}</span>
+                                            <span class="badge text-bg-info" style="font-size: 95%">${tag}</span>
                                         `)}
                                     </div>`}
                         </div>

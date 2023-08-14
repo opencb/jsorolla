@@ -135,14 +135,14 @@ export default class ClinicalInterpretationManager extends LitElement {
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
         return html`
-            <div style="display:flex;padding-bottom:4px;">
-                <div style="margin-right:auto;">
-                    <h5 style="font-weight: bold">
+            <div class="d-flex pb-1">
+                <div class="me-auto">
+                    <h5 class="fw-bold">
                         ${interpretationTitle}
                     </h5>
                 </div>
                 <div class="${classMap({primary: primary})}">
-                    <div class="dropdown action-dropdown">
+                    <div class="d-flex gap-2">
                         <clinical-interpretation-update
                             .clinicalInterpretation="${interpretation}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -150,45 +150,48 @@ export default class ClinicalInterpretationManager extends LitElement {
                             .mode="${"modal"}"
                             .displayConfig="${
                                 {
+                                    modalSize: "modal-lg",
                                     buttonClearText: "Cancel",
                                     buttonOkText: "Update",
-                                    modalButtonClassName: "btn-default btn-sm",
+                                    modalButtonClassName: "btn-light",
                                     modalDisabled: this.clinicalAnalysis.locked || interpretation.locked
                                 }
                             }"
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                         </clinical-interpretation-update>
 
-                        <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown"
-                                ?disabled="${this.clinicalAnalysis.locked ? "disabled" : ""}">
-                            Action <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            ${primary ? html`
-                                <li>
-                                    <a
-                                        class="btn disabled force-text-left"
-                                        data-action="restorePrevious"
-                                        data-interpretation-id="${interpretation.id}"
-                                        data-islocked="${interpretation.locked}"
-                                        @click="${this.onActionClick}">
-                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i>
-                                        Restore previous version
-                                    </a>
-                                </li>
-                                <!-- Action Lock/Unlock -->
-                                ${interpretationLockAction}
-                                <li><hr class="dropdown-divider"></li>
-                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
-                            ` : html`
-                                ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
-                                <!-- Action Lock/Unlock -->
-                                ${interpretationLockAction}
-                                <li><hr class="dropdown-divider"></li>
-                                ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
-                                ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
-                            `}
-                        </ul>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle one-line" type="button" data-bs-toggle="dropdown"
+                                    ?disabled="${this.clinicalAnalysis.locked}">
+                                Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                ${primary ? html`
+                                    <li>
+                                        <a
+                                            class="dropdown-item disabled"
+                                            data-action="restorePrevious"
+                                            data-interpretation-id="${interpretation.id}"
+                                            data-islocked="${interpretation.locked}"
+                                            @click="${this.onActionClick}">
+                                            <i class="fas fa-code-branch me-1" aria-hidden="true"></i>
+                                            Restore previous version
+                                        </a>
+                                    </li>
+                                    <!-- Action Lock/Unlock -->
+                                    ${interpretationLockAction}
+                                    <li><hr class="dropdown-divider"></li>
+                                    ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
+                                ` : html`
+                                    ${this.renderItemAction(interpretation, "setAsPrimary", "fa-map-marker", "Set as primary")}
+                                    <!-- Action Lock/Unlock -->
+                                    ${interpretationLockAction}
+                                    <li><hr class="dropdown-divider"></li>
+                                    ${this.renderItemAction(interpretation, "clear", "fa-eraser", "Clear")}
+                                    ${this.renderItemAction(interpretation, "delete", "fa-trash", "Delete")}
+                                `}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -230,7 +233,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                     data-interpretation-id="${interpretation.id}"
                     data-islocked="${interpretation.locked}"
                     @click="${this.onActionClick}">
-                    <i class="fas ${icon} icon-padding" aria-hidden="true"></i> ${name}
+                    <i class="fas ${icon} me-1" aria-hidden="true"></i> ${name}
                 </a>
             </li>
         `;
@@ -263,9 +266,9 @@ export default class ClinicalInterpretationManager extends LitElement {
             {
                 title: "Actions",
                 formatter: () => `
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button class="btn btn-link disabled" type="button" data-action="view">View</button>
-                        <button class="btn btn-link" type="button" data-action="restore">Restore</button>
+                    <div class="btn-group">
+                        <button class="btn btn-link link-underline link-underline-opacity-0 link-underline-opacity-75-hover" disabled type="button" data-action="view">View</button>
+                        <button class="btn btn-link link-underline link-underline-opacity-0 link-underline-opacity-75-hover" type="button" data-action="restore">Restore</button>
                     </div>
                 `,
                 valign: "middle",
@@ -329,14 +332,15 @@ export default class ClinicalInterpretationManager extends LitElement {
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
-                    <div class="col-md-8" style="margin-bottom:16px">
-                        <h3 style="padding-bottom: 5px">Interpretations</h3>
-                        <div class="pull-right">
+                    <div class="col-md-8 mb-3">
+                        <h3 style="pb-2">Interpretations</h3>
+                        <div class="float-end">
                             <clinical-interpretation-create
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .mode="${"modal"}"
                                 .displayConfig="${{
+                                    modalSize: "modal-lg",
                                     modalButtonClassName: "btn-primary",
                                     buttonClearText: "Cancel",
                                     modalDisabled: this.clinicalAnalysis.locked
@@ -345,12 +349,12 @@ export default class ClinicalInterpretationManager extends LitElement {
                         </div>
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom:16px">
+                    <div class="col-md-8 mb-3">
                         <h4>Primary Interpretation</h4>
                         ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
                     </div>
 
-                    <div class="col-md-8" style="margin-bottom:16px">
+                    <div class="col-md-8 mb-3">
                         <h4>Secondary Interpretations</h4>
                         ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
                             ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
@@ -363,7 +367,7 @@ export default class ClinicalInterpretationManager extends LitElement {
                         `}
                     </div>
 
-                    <div class="col-md-10" style="padding-top: 10px">
+                    <div class="col-md-10 pt-2">
                         <h3>Primary Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
                         <table id="${this.gridId}"></table>
                     </div>
