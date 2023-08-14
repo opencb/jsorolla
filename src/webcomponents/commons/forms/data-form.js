@@ -1836,7 +1836,8 @@ export default class DataForm extends LitElement {
         if (type === "modal") {
             const modalBtnClassName = this.config.display?.modalButtonClassName ?? this.config.display?.mode?.buttonClass ?? "";
             const modalBtnStyle = this.config.display?.modalButtonStyle ?? this.config.display?.mode?.buttonStyle ?? "";
-            const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? "768px";
+            // const modalWidth = this.config.display?.modalWidth ?? this.config.display?.mode?.width ?? nothing;
+            const modalSize = this.config.display?.modalSize ?? "";
             const isDisabled = this._getBooleanValue(this.config.display?.modalDisabled, false);
 
             return html`
@@ -1844,19 +1845,20 @@ export default class DataForm extends LitElement {
                         title="${this.config.description}"
                         class="btn ${modalBtnClassName} ${isDisabled ? "disabled" : ""}"
                         style="${modalBtnStyle}"
-                        data-toggle="modal"
+                        data-bs-toggle="modal"
                         ?disabled="${isDisabled}"
-                        data-target="#${this._prefix}DataModal">
+                        data-bs-target="#${this._prefix}DataModal">
                     <i class="${icon} pe-1" aria-hidden="true"></i>
                     ${this.config.title}
                 </button>
 
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}DataModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog" style="width: ${modalWidth}">
+                    aria-hidden="true">
+                    <div class="modal-dialog ${modalSize}">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title ${titleClassName}" style="${titleStyle}">${this.config.title}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
@@ -1889,7 +1891,7 @@ export default class DataForm extends LitElement {
                                         </a>
                                     </li>
                                 `;
-                            })}
+                })}
                     </ul>
                     ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null, this.activeSection) : null}
                 </div>
@@ -1951,11 +1953,12 @@ export default class DataForm extends LitElement {
 
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
-                 aria-hidden="true">
+                aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">JSON Preview</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div style="display:flex; flex-direction:row-reverse">
