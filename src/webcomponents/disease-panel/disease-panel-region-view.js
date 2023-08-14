@@ -145,14 +145,14 @@ export default class DiseasePanelRegionView extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         const statusConfidence = {
-                            "HIGH": "label label-success",
-                            "MEDIUM": "label label-warning",
-                            "LOW": "label label-danger",
+                            "HIGH": "badge text-bg-success",
+                            "MEDIUM": "badge text-bg-warning",
+                            "LOW": "badge text-bg-danger",
                         };
                         if (row.confidence) {
                             return `
                                 <h4>
-                                    <span class="${statusConfidence[row.confidence] || "label label-default"}">${row.confidence}</span>
+                                    <span class="${statusConfidence[row.confidence] || "badge bg-secondary"}">${row.confidence}</span>
                                 </h4>`;
                         } else {
                             return "-";

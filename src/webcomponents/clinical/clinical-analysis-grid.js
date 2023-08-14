@@ -270,25 +270,25 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Priorities classes
         const priorityMap = {
-            URGENT: "label-danger",
-            HIGH: "label-warning",
-            MEDIUM: "label-primary",
-            LOW: "label-info"
+            URGENT: "text-bg-danger",
+            HIGH: "text-bg-warning",
+            MEDIUM: "text-bg-primary",
+            LOW: "text-bg-info"
         };
         const priorityRankToColor = [
-            "label-danger",
-            "label-warning",
-            "label-primary",
-            "label-info",
-            "label-success",
-            "label-default"
+            "text-bg-danger",
+            "text-bg-warning",
+            "text-bg-primary",
+            "text-bg-info",
+            "text-bg-success",
+            "text-bg-light"
         ];
 
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
 
         // Dropdown button styles and classes
-        const btnClassName = "btn btn-default btn-sm btn-block dropdown-toggle";
+        const btnClassName = "btn btn-light btn-block dropdown-toggle";
         const btnStyle = "display:inline-flex;align-items:center;";
 
         // Current priority
@@ -298,7 +298,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         return `
             <div class="dropdown">
                 <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0;">
+                    <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
 
@@ -307,13 +307,15 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="dropdown-item right-icon" data-action="priorityChange" data-priority="${priority.id}">
-                                    <span class="label ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
-                                        ${priority.id}
-                                    </span>
-                                    <p class="text-muted">
-                                        <small>${priority.description}</small>
-                                    </p>
+                                <a class="d-flex dropdown-item" data-action="priorityChange" data-priority="${priority.id}">
+                                    <div class="flex-grow-1">
+                                        <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                            ${priority.id}
+                                        </span>
+                                        <p class="form-text">
+                                            <small>${priority.description}</small>
+                                        </p>
+                                    </div>
                                     ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
                                 </a>
                             </li>
