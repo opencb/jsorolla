@@ -331,7 +331,7 @@ export default class OpencgaBrowser extends LitElement {
                         class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
                         ?disabled=${view.disabled}
                         @click="${() => this.changeView(view.id)}">
-                        <i class="${view.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i>
+                        <i class="${view.icon ?? "fa fa-table"} pe-1" aria-hidden="true"></i>
                         <strong>${view.name}</strong>
                     </button>
                 `)}
@@ -358,7 +358,7 @@ export default class OpencgaBrowser extends LitElement {
             ` : null}
             <div class="row">
                 <div class="col-2">
-                    <div class="d-grid gap-2 pb-1">
+                    <div class="d-grid gap-2 pb-3">
                         <button type="button" class="btn btn-primary" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
                             <strong>${this._config.searchButtonText || "Search"}</strong>

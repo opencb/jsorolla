@@ -789,7 +789,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                         ${this._filters.map(item => this.renderFilterItem(item))}
                                     ` : html`
                                         <!-- style="margin: 0 30px" -->
-                                        <div class="form-text">
+                                        <div class="form-text my-0 mx-3">
                                             No filters found.
                                         </div>
                                     `}
@@ -808,7 +808,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             </li>
                                         `)}
                                     ` : html`
-                                        <div class="form-text">
+                                        <div class="form-text my-0 mx-3">
                                             Empty history.
                                         </div>
                                     `}
@@ -887,7 +887,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </div>
                                 `)}
                             ` : html`
-                                <label>No filters selected</label>
+                                <label class="fw-bold">No filters selected</label>
                             `}
                         </div>
 
