@@ -136,7 +136,7 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
+                                <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white pt-3"></tool-header>
                                 <div class="ps-3">
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"

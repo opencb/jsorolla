@@ -209,7 +209,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: data => html`
-                                                <div><span style="font-weight: bold">${data.file}</span></div>
+                                                <div><span class="fw-bold">${data.file}</span></div>
                                             `,
                                         }
                                     },

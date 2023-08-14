@@ -769,11 +769,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     id: "clinicalInfo",
                     title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
                                 <div>
-                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
+                                    <span class='fw-bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
                                     and phenotypes, with supporting evidence.
                                 </div>
                                 <div style='padding-top: 10px'>
-                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                                    <span class='fw-bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
@@ -792,7 +792,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
-                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-text="<span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
                             tooltip-position-at="left bottom"
                             tooltip-position-my="right top">
                             <i class='fa fa-info-circle' aria-hidden='true'></i>

@@ -543,7 +543,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: `Interpretation
                         <a class='interpretation-info-icon'
                             tooltip-title='Interpretation'
-                            tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
+                            tooltip-text="<span class="fw-bold">Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
                             tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <i class='fa fa-info-circle' aria-hidden='true'></i>
                         </a>`,
