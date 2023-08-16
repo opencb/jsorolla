@@ -139,6 +139,10 @@ a:visited {
     overflow: visible !important;
 }
 
+.bootstrap-table .loading-text {
+    min-height: 135px;
+}
+
 /*********** main view tabs *****************/
 .main-view .content-tab {
     display: none;
