@@ -138,8 +138,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
 
         return html`
             ${Object.keys(timeline).sort().reverse().map(date => html`
-                <ul class="">
-                    <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
+                <ul class="list-unstyled">
+                    <li class="h3 text-body-tertiary">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
                     ${timeline[date].map(entry => html`
                         <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
                             <span class="author">${entry.author}</span>
@@ -281,28 +281,32 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             </style>
             <div class="row" id="interpretation-audit">
                 <div class="col-md-8">
-                    <div class="form-inline control-bar-wrapper">
-                        <div class="btn-group view-button-wrapper">
-                            <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab === "timeline"})}" @click="${this._changeTab}">
-                                <i class="fas fa-th-list icon-padding"></i>
-                            </span>
-                            <span data-id="table" class="view-button btn btn-default ${classMap({active: this.activeTab === "table"})}" @click="${this._changeTab}">
-                                <i class="fas fa-table icon-padding"></i>
-                            </span>
+                    <div class="row row-cols-lg-auto g-3 justify-content-end align-items-center">
+                        <div class="col-12">
+                            <div class="btn-group view-button-wrapper">
+                                <button class="view-button btn btn-light ${classMap({active: this.activeTab === "timeline"})}" data-id="timeline" @click="${this._changeTab}">
+                                    <i class="fas fa-th-list icon-padding"></i>
+                                </button>
+                                <button class="view-button btn btn-light ${classMap({active: this.activeTab === "table"})}"  data-id="table" @click="${this._changeTab}">
+                                    <i class="fas fa-table icon-padding"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="form-group">
+                        <div class="col-12">
                             <div class="input-group">
-                                <div class="input-group-addon">
+                                <span class="input-group-text">
                                     <i class="fas fa-search"></i>
-                                </div>
+                                </span>
                                 <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
                             </div>
                         </div>
-                        <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
-                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
-                            <span class="input-group-addon">
-                                <span class="fa fa-calendar"></span>
-                            </span>
+                        <div class="col-12">
+                            <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
+                                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
+                                <span class="input-group-text">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

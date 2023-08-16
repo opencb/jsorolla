@@ -91,7 +91,7 @@ export default class ProjectCellbaseInfo extends LitElement {
                     ${cellbaseConfig.dataRelease}
                 </div>
             </div>
-            <div class="row">
+            <div class="row pt-3">
                 <div class="col-md-2">
                     <label class="fw-bold">Data Category</label>
                 </div>
