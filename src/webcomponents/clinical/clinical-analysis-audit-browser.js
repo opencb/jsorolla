@@ -23,6 +23,7 @@ import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
 import "../variant/variant-browser-filter.js";
 import GridCommons from "../commons/grid-commons.js";
+import {Namespace, TempusDominus} from "@eonasdan/tempus-dominus";
 
 class ClinicalAnalysisAuditBrowser extends LitElement {
 
@@ -106,13 +107,26 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.audit) {
-            const dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
-            $("#" + this._prefix + "PickerDate").datetimepicker({
-                format: "DD/MM/YYYY",
-                // defaultDate: moment.max(dates),
-                enabledDates: dates,
-                showClear: true
-            }).on("dp.change", e => this.onDateFilterChange(e));
+            // const dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
+            const dates = this.clinicalAnalysis.audit.map(event => new Date(moment(event.date, "YYYYMMDDHHmmss")));
+            // $("#" + this._prefix + "PickerDate").datetimepicker({
+            //     format: "DD/MM/YYYY",
+            //     // defaultDate: moment.max(dates),
+            //     enabledDates: dates,
+            //     showClear: true
+            // }).on("dp.change", e => this.onDateFilterChange(e));
+            const pickerDate = new TempusDominus(document.getElementById(this._prefix + "PickerDate"), {
+                display: {
+                    theme: "light",
+                },
+                localization: {
+                    format: "dd/MM/yyyy",
+                },
+                restrictions: {
+                    enabledDates: dates,
+                }
+            });
+            pickerDate.subscribe(Namespace.events.change, e => this.onDateFilterChange(e));
 
             this._audit = [...this.clinicalAnalysis.audit].sort((a, b) => b.date - a.date);
             this.updateTable(); // Manually update table
@@ -158,10 +172,11 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
         let date;
         if (e.date) {
             // custom event fired by datepicker
-            date = e.date.format("YYYYMMDD");
+            // date = e.date.format("YYYYMMDD");
+            date = e.date.format("yyyyMMdd");
         } else if (e.target.value) {
             // native @input event
-            date = moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD");
+            date = new Date(moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD"));
         }
         // console.log("date", date)
         if (date) {
@@ -283,7 +298,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             </style>
             <div class="row" id="interpretation-audit">
                 <div class="col-md-8">
-                    <div class="row row-cols-lg-auto g-3 justify-content-end align-items-center">
+                    <div class="row row-cols-lg-auto g-3 justify-content-end align-items-center mb-3">
                         <div class="col-12">
                             <div class="btn-group view-button-wrapper">
                                 <button class="view-button btn btn-light ${classMap({active: this.activeTab === "timeline"})}" data-id="timeline" @click="${this._changeTab}">
@@ -305,7 +320,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                         <div class="col-12">
                             <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
                                 <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
-                                <span class="input-group-text">
+                                <span class="input-group-text ">
                                     <span class="fa fa-calendar"></span>
                                 </span>
                             </div>
