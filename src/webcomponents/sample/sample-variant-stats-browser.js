@@ -317,35 +317,37 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-10">
-                    <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
-                        <div class="pull-right" role="group">
-                            <div class="btn-group" style="margin-right: 2px">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
-                                    <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                                    <li style="padding: 3px 20px;"><b>Saved Variant Stats</b></li>
-                                    ${this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
-                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => html`
-                                            <li>
-                                                <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${() => this.selectVariantStats(qcVariantStat.id)}">
-                                                    ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
-                                                </a>
-                                            </li>`) :
-                                        html`<li style="padding: 3px 20px;" class="text-muted">No Variant Stats found</li>`
-                                    }
-                                </ul>
-                            </div>
-                            <div class="btn-group">
-                                <data-form
-                                    .data=${this.save}
-                                    .config="${this.getSaveConfig()}"
-                                    @fieldChange="${e => this.onSaveFieldChange(e)}"
-                                    @submit="${this.onSave}">
-                                </data-form>
-                            </div>
+                    <div class="btn-toolbar justify-content-end mb-3" role="toolbar" aria-label="toolbar">
+                        <div class="dropdown btn-group me-1">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
+                                <span><i class="fas fa-folder-open pe-1"></i>Load</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 260px">
+                                <li class="py-1 px-3"><b>Saved Variant Stats</b></li>
+                                ${
+                                    this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
+                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(
+                                        qcVariantStat => html`
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);" data-id="${qcVariantStat.id}"
+                                                @click="${() => this.selectVariantStats(qcVariantStat.id)}">
+                                                ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
+                                            </a>
+                                        </li>`) :
+                                    html`<li class="py-1 px-3 form-text" >No Variant Stats found</li>`
+                                }
+                            </ul>
                         </div>
+                        <div class="btn-group">
+                            <data-form
+                                .data=${this.save}
+                                .config="${this.getSaveConfig()}"
+                                @fieldChange="${e => this.onSaveFieldChange(e)}"
+                                @submit="${this.onSave}">
+                            </data-form>
+                        </div>
+
                     </div>
                     <div>
                         <opencga-active-filters
@@ -368,7 +370,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </div>
                             ` : html`
                                 ${this.sampleQcVariantStats ? html`
-                                    <div style="padding: 0px 15px">
+                                    <div class="py-0 px-3">
                                         <sample-variant-stats-view
                                             .sampleVariantStats="${this.sampleQcVariantStats}"
                                             .query="${this.sampleQcVariantStats.query}"
@@ -376,8 +378,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                         </sample-variant-stats-view>
                                     </div>
                                 ` : html`
-                                    <div class="alert alert-info" role="alert" style="margin: 0px 15px">
-                                        <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                    <div class="alert alert-info my-0 mx-3" role="alert">
+                                        <i class="fas fa-3x fa-info-circle align-middle"></i>
+                                            Please select some filters on the left.
                                     </div>
                                 `}
                             `}

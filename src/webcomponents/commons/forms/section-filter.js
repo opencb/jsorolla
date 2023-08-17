@@ -63,7 +63,7 @@ export default class SectionFilter extends LitElement {
                         </a>
                     </h4>
                 </div>
-                <div class="collapse ${this.config.collapsed ? "" : "in"}" id="${this._prefix}"  role="tabpanel" aria-labelledby="${this._prefix}Heading">
+                <div class="collapse ${this.config.collapsed ? "" : "show"}" id="${this._prefix}"  role="tabpanel" aria-labelledby="${this._prefix}Heading">
                     <div class="card-body">
                         ${this.filters?.map(filter => html`${filter}`)}
                     </div>
