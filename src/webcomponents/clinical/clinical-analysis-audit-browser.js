@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 
 import UtilsNew from "../../core/utils-new.js";
@@ -300,12 +300,12 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                 <div class="col-md-8">
                     <div class="row row-cols-lg-auto g-3 justify-content-end align-items-center mb-3">
                         <div class="col-12">
-                            <div class="btn-group view-button-wrapper">
+                            <div class="btn-group">
                                 <button class="view-button btn btn-light ${classMap({active: this.activeTab === "timeline"})}" data-id="timeline" @click="${this._changeTab}">
-                                    <i class="fas fa-th-list icon-padding"></i>
+                                    <i class="fas fa-th-list pe-1"></i>
                                 </button>
                                 <button class="view-button btn btn-light ${classMap({active: this.activeTab === "table"})}"  data-id="table" @click="${this._changeTab}">
-                                    <i class="fas fa-table icon-padding"></i>
+                                    <i class="fas fa-table pe-1"></i>
                                 </button>
                             </div>
                         </div>
@@ -328,23 +328,19 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="interpretation-audit">
-                        <div class="content-tab-wrapper">
-                            <div id="${this._prefix}timeline" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "timeline"})}">
-                                <div class="interpretation-audit-timeline">
-                                    ${this.renderTimeline()}
+                        <div id="${this._prefix}timeline" role="tabpanel" class="${this.activeTab !== "timeline" ? "d-none" : nothing }">
+                            <div class="interpretation-audit-timeline">
+                                ${this.renderTimeline()}
+                            </div>
+                            ${this._audit && this._audit.length > this.timelineEnd ? html`
+                                <div class="btn btn-light load-next-event-button" @click="${this.showNextEvents}">
+                                    Load next ${Math.min(this._config.timelinePageSize, this._audit.length - this.timelineEnd)} events..
                                 </div>
-                                ${this._audit && this._audit.length > this.timelineEnd ? html`
-                                    <div class="btn btn-default ripple load-next-event-button" @click="${this.showNextEvents}">
-                                        Load next ${Math.min(this._config.timelinePageSize, this._audit.length - this.timelineEnd)} events..
-                                    </div>
-                                ` : null}
-                            </div>
-                            <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab === "table"})}">
-                                <table id="${this.gridId}"></table>
-                            </div>
+                            ` : nothing}
                         </div>
-                    </div>
+                        <div id="${this._prefix}table" role="tabpanel" class="${this.activeTab !== "table" ? "d-none" : nothing }">
+                            <table id="${this.gridId}"></table>
+                        </div>
                 </div>
             </div>
         `;
