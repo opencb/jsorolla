@@ -781,7 +781,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li class="dropdown-header">External Links</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"

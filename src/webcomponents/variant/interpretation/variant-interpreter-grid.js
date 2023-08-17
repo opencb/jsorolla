@@ -842,7 +842,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <span>Actions</span>
                                     <span class="caret" style="margin-left: 5px"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end
                                     <li>
                                         <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit reviewButton" aria-hidden="true"></i> Edit ...

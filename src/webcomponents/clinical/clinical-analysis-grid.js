@@ -605,7 +605,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                                 <span>Actions</span>
                                 <span class="caret" style="margin-left: 5px"></span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <!-- Open the case in the case interpreter -->
                                 <li>
                                     <a class="dropdown-item" data-action="interpreter" href="${url}">

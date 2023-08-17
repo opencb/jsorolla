@@ -451,7 +451,7 @@ export default class FamilyGrid extends LitElement {
                             <span>Actions</span>
                             <span class="caret" style="margin-left: 5px"></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
                                     <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON

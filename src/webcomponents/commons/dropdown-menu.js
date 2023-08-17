@@ -83,7 +83,7 @@ export default class DropdownMenu extends LitElement {
                     ${this.config.title}
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right">
+                <ul class="dropdown-menu dropdown-menu-end">
                     ${this.config.sections
                         .filter(section => section.elements?.length > 0)
                         .map(section => this.renderDropdownSection(section))

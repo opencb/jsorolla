@@ -180,7 +180,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <i class="fas fa-tasks icon-padding" aria-hidden="true"></i>
                             <strong>Inclusion Variants</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 420px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Variants Included</span>
@@ -213,7 +213,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <i class="fas fa-eye icon-padding" aria-hidden="true"></i>
                             <strong>View</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Primary Findings</span>
@@ -244,7 +244,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <i class="fas fa-eraser icon-padding" aria-hidden="true"></i>
                             <strong>Reset</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Added Variants</span>
@@ -297,7 +297,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </span>
                             ` : null}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0">
                                     <span style="font-weight: bold">Change summary</span>

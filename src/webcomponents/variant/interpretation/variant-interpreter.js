@@ -314,7 +314,7 @@ class VariantInterpreter extends LitElement {
                                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                                         <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-right">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
                                             <li>
                                                 <a class="dropdown-item" style="background-color:white!important;">

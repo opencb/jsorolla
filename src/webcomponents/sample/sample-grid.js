@@ -336,7 +336,7 @@ export default class SampleGrid extends LitElement {
                             <i class="fas fa-toolbox" aria-hidden="true"></i>
                             <span>Actions</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
                                     <i class="fas fa-copy" aria-hidden="true"></i> Copy JSON
