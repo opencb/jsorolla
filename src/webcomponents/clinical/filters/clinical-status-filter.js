@@ -96,7 +96,7 @@ export default class ClinicalStatusFilter extends LitElement {
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.statusObject?.description ? html`
-                <span class="help-block" style="padding: 0 5px">${this.statusObject.description}</span>` : null
+                <span class="form-text">${this.statusObject.description}</span>` : null
             }
         `;
     }

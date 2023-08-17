@@ -645,7 +645,7 @@ export default class DataForm extends LitElement {
                     ${content}
                 </div>
                 ${helpMessage && helpMode !== "block" ? html`
-                    <div class="text-body-secondary m-2">${helpMessage}</div>
+                    <div class="form-text">${helpMessage}</div>
                 ` : nothing}
                 ${hasErrorMessages ? html`
                     <div class="d-flex mt-2 text-body-secondary">
@@ -801,11 +801,6 @@ export default class DataForm extends LitElement {
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </toggle-switch>
-                ${disabled && element.display?.helpMessage ? html`
-                    <div class="form-text text-body-secondary small">
-                        ${element.display?.helpMessage}
-                    </div>` : nothing
-                }
             </div>
         `;
 
