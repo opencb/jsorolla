@@ -141,10 +141,12 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                 <ul class="list-unstyled">
                     <li class="h3 text-body-tertiary">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
                     ${timeline[date].map(entry => html`
-                        <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
-                            <span class="author">${entry.author}</span>
-                            <h3>${entry.action}</h3>
-                            <p>${entry.message}</p>
+                        <li class="event rounded" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
+                            <div class="d-flex flex-column gap-3">
+                                <span class="fw-bold text-body-tertiary">${entry.author}</span>
+                                <h3>${entry.action}</h3>
+                                <p>${entry.message}</p>
+                            </div>
                         </li>
                     `)}
                 </ul>
