@@ -21,6 +21,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "./clinical-analysis-manager.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import {createPdf} from "../../core/pdf-builder.js";
 import "./clinical-analysis-summary.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../disease-panel/disease-panel-grid.js";
@@ -332,12 +333,27 @@ export default class ClinicalAnalysisReview extends LitElement {
         }
     }
 
+    onDownloadPdf() {
+        const pdfDocument = createPdf({
+            content: [
+                "First paragraph",
+                "Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines"
+            ]
+        });
+        pdfDocument.open();
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return "";
         }
 
         return html`
+            <button class="btn btn-primary" style="margin-bottom:14px"
+                @click="${this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
             <data-form
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
