@@ -135,23 +135,27 @@ export default class PdfBuilder {
     }
 
     #getBooleanValue(value, defaultValue) {
-        let _value = typeof defaultValue !== "undefined" ? defaultValue : true;
+        let _defaultValue = typeof defaultValue !== "undefined" ? defaultValue : true;
 
         if (typeof value !== "undefined" && value !== null) {
-            return _value = value;
-        }
+            if (typeof value === "boolean") {
+                _defaultValue = value;
+            }
 
-        if (typeof _value === "function") {
-            return _value = value(this.data);
+            if (typeof value === "function") {
+                return value(this.data);
+            } else {
+                console.error(`Expected boolean or function value, but got ${typeof value}`);
+            }
         }
+        return _defaultValue;
 
-        console.error(`Expected boolean or function value, but got ${typeof value}`);
     }
 
     #getVisibleSections() {
         return this.docDefinitionConfig.sections
             .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
-            .filter(section => this.#getBooleanValue(section?.display?.visible, true));
+            .filter(section => this.#getBooleanValue(section?.displaySection?.visible, true));
     }
 
     /**
