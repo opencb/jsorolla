@@ -128,9 +128,11 @@ export default class SampleView extends LitElement {
             sections: [
                 {
                     title: "General",
-                    collapsed: false,
                     display: {
-                        visible: sample => sample?.id,
+                        classes: "h1",
+                    },
+                    displaySection: {
+                        // visible: sample => sample?.id,
                     },
                     elements: [
                         {
@@ -138,7 +140,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 visible: sample => sample?.id,
-                                render: data => `<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                render: data => `<div><span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})</div>`,
                             },
                         },
                         {
@@ -173,7 +175,7 @@ export default class SampleView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                render: field => `<div>${field?.name} (${UtilsNew.dateFormatter(field?.date)})</div>`,
                             },
                         },
                         {
@@ -181,7 +183,7 @@ export default class SampleView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => UtilsNew.dateFormatter(field),
+                                render: field => `<div>${UtilsNew.dateFormatter(field)}</div>`,
                             },
                         },
                         {
@@ -189,7 +191,7 @@ export default class SampleView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => UtilsNew.dateFormatter(field),
+                                render: field => `<div>${UtilsNew.dateFormatter(field)}</div>`,
                             },
                         },
                         {

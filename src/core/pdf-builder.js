@@ -200,11 +200,20 @@ export default class PdfBuilder {
     }
 
     #writePdfSection(section) {
+        const titleStyleDefault = {
+            classes: "h1"
+        };
         return {
             stack: [
-                this.#createTitleElement({text: section.title, display: section.display}),
+                this.#creatTextElement({text: section.title,
+                    display: {
+                        ...titleStyleDefault,
+                        ...section?.display
+                    }
+                }),
                 section.elements.map(element => this.#writePdfElement(element, section))
-            ]
+            ],
+            ...section?.displaySection
         };
     }
 
@@ -221,31 +230,20 @@ export default class PdfBuilder {
 
     #createLabelElement(element) {
         const labelStyleDefault = {
-            bold: true
-        };
-
-        return {
-            text: [
-                this.#creatTextElement({text: element?.title + ":", ...labelStyleDefault}),
-                this.#creatTextElement({text: this.#getValue(element.field, element?.defaultValue || "")})
-            ]
-        };
-    }
-
-    #createTitleElement(element) {
-        const titleStyleDefault = {
             propsStyle: {
                 bold: true
             }
         };
+
         return {
-            ...this.#creatTextElement({
-                ...element,
-                display: {
-                    classes: "header",
-                    ...titleStyleDefault,
-                }
-            })
+            text: [
+                this.#creatTextElement({
+                    text: `${element?.title}: `,
+                    display: {
+                        ...labelStyleDefault
+                    }}),
+                this.#creatTextElement({text: this.#getValue(element.field, element?.defaultValue || "")})
+            ]
         };
     }
 
@@ -343,8 +341,23 @@ export default class PdfBuilder {
         const array = this.#getValue(element.field, element?.defaultValue || []);
         // ol or ul
         const contentLayout = element.display?.contentLayout === "bullets" ? "ul" : "ol";
+        // return {
+        //     [contentLayout]: [...array]
+        // };
+        const labelStyleDefault = {
+            propsStyle: {
+                bold: true
+            }
+        };
         return {
-            [contentLayout]: [...array]
+            stack: [
+                this.#creatTextElement({
+                    text: `${element?.title}`,
+                    display: {
+                        ...labelStyleDefault
+                    }}),
+                {[contentLayout]: [...array]}
+            ]
         };
     }
 
