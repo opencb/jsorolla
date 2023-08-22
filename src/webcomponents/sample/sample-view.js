@@ -23,6 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
+import PdfBuilder from "../../core/pdf-builder.js";
 
 export default class SampleView extends LitElement {
 
@@ -119,6 +120,130 @@ export default class SampleView extends LitElement {
         this.sampleId = e.detail.value;
     }
 
+    onDownloadPdf() {
+        const dataFormConfig = {
+            title: "Summary",
+            icon: "",
+            display: this.displayConfig || this.displayConfigDefault,
+            sections: [
+                {
+                    title: "General",
+                    collapsed: false,
+                    display: {
+                        visible: sample => sample?.id,
+                    },
+                    elements: [
+                        {
+                            title: "Sample ID",
+                            type: "custom",
+                            display: {
+                                visible: sample => sample?.id,
+                                render: data => `<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                            },
+                        },
+                        {
+                            title: "Individual ID",
+                            field: "individualId",
+                            type: "label",
+                        },
+                        {
+                            title: "Files",
+                            field: "fileIds",
+                            type: "list",
+                            display: {
+                                defaultValue: "Files not found or empty",
+                                contentLayout: "bullets",
+                            },
+                        },
+                        {
+                            title: "Somatic",
+                            field: "somatic",
+                            type: "label",
+                            display: {
+                                defaultValue: "false",
+                            },
+                        },
+                        {
+                            title: "Version",
+                            field: "version",
+                            type: "label",
+                        },
+                        {
+                            title: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                            },
+                        },
+                        {
+                            title: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: field => UtilsNew.dateFormatter(field),
+                            },
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "modificationDate",
+                            type: "custom",
+                            display: {
+                                render: field => UtilsNew.dateFormatter(field),
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "label",
+                            defaultValue: "N/A",
+                        },
+                        // {
+                        //     title: "Phenotypes",
+                        //     field: "phenotypes",
+                        //     type: "list",
+                        //     defaultValue: "N/A",
+                        //     display: {
+                        //         contentLayout: "bullets",
+                        //         render: phenotype => {
+                        //             // let id = phenotype?.id;
+                        //             // if (phenotype?.id?.startsWith("HP:")) {
+                        //             //     id = html`
+                        //             //     <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                        //             //         ${phenotype.id}
+                        //             //     </a>
+                        //             // `;
+                        //             // }
+                        //             return phenotype?.name ? `${phenotype.name} (${id})}` : `${id}`;
+                        //         },
+                        //     },
+                        // },
+                    /*
+                        {
+                            title: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
+                            }
+                        }
+                    */
+                    ],
+                },
+            ],
+        };
+        // watermark: {
+        //     text: "Draft Report",
+        //     color: "blue",
+        //     opacity: 0.3,
+        //     bold: true,
+        //     italics: false
+        // },
+        // content: []
+        const pdfDocument = new PdfBuilder(this.sample, dataFormConfig);
+        pdfDocument.exportToPdf();
+    }
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -134,6 +259,11 @@ export default class SampleView extends LitElement {
         }
 
         return html`
+            <button class="btn btn-primary" style="margin-bottom:14px; display: ${UtilsNew.isNotEmpty(this.sample) ? "block": "none"}"
+                @click="${this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
             <data-form
                 .data="${this.sample}"
                 .config="${this._config}">
