@@ -31,19 +31,38 @@ export default class PdfBuilder {
     }
 
     stylesDefault = {
-        header: {
-            fontSize: 22,
+        h1: {
+            fontSize: 24,
+            bold: true,
+        },
+        h2: {
+            fontSize: 20,
+            bold: true,
+        },
+        h3: {
+            fontSize: 18,
+            bold: true,
+        },
+        h4: {
+            fontSize: 16,
             bold: true,
         },
         subheader: {
-            fontSize: 11,
+            fontSize: 14,
             bold: true,
         },
+        body: {
+            fontSize: 12,
+        },
         label: {
+            fontSize: 12,
             bold: true
         },
-        small: {
-            fontSize: 9
+        caption: {
+            fontSize: 8
+        },
+        note: {
+            fontSize: 10
         }
     };
 
