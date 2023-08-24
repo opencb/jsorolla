@@ -546,7 +546,8 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    nucleotideGenotype: true
+                    nucleotideGenotype: true,
+                    visible: this.gridCommons.isColumnVisible(this.samples[i].id),
                 });
             }
         }
@@ -571,7 +572,8 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.cohortFormatter,
                     align: "center",
-                    eligible: true
+                    eligible: true,
+                    visible: this.gridCommons.isColumnVisible(study.id),
                 });
             }
         }
@@ -611,6 +613,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
                     align: "center",
+                    visible: this.gridCommons.isColumnVisible(this.populationFrequencies.studies[j].id),
                 });
             }
         }
