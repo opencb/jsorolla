@@ -164,7 +164,11 @@ export default class PdfBuilder {
      * @returns {Any} return style
     */
     #getValue(field, defaultValue) {
-        return UtilsNew.getObjectValue(this.data, field, defaultValue);
+        const _value = UtilsNew.getObjectValue(this.data, field, defaultValue);
+        if (typeof _value === "boolean") {
+            return _value.toString();
+        }
+        return _value;
     }
 
     #transformData() {
