@@ -132,8 +132,7 @@ export default class SampleView extends LitElement {
                         classes: "h1",
                     },
                     displaySection: {
-                        visible: sample => sample?.id,
-                        showPDF: true
+                        // visible: sample => sample?.id,
                     },
                     elements: [
                         {
