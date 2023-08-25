@@ -1,11 +1,0 @@
---2020-06-27 02:13:42--  http://bioinfo.hpc.cam.ac.uk/opencga-prod-legacy/webservices/rest/v2/analysis/clinical/AN-12/info?study=demo%40family%3Acorpasome
-Resolving bioinfo.hpc.cam.ac.uk (bioinfo.hpc.cam.ac.uk)... 128.232.224.102
-Connecting to bioinfo.hpc.cam.ac.uk (bioinfo.hpc.cam.ac.uk)|128.232.224.102|:80... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 384 [application/json]
-Saving to: ‘info?study=demo@family:corpasome’
-
-info?study=demo@family:corpasome                       0%[                                                                                                                      ]       0  --.-KB/s               info?study=demo@family:corpasome                     100%[=====================================================================================================================>]     384  --.-KB/s    in 0s      
-
-2020-06-27 02:13:42 (76.8 MB/s) - ‘info?study=demo@family:corpasome’ saved [384/384]
-
