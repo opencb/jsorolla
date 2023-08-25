@@ -155,7 +155,7 @@ export default class PdfBuilder {
     #getVisibleSections() {
         return this.docDefinitionConfig.sections
             .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
-            .filter(section => this.#getBooleanValue(section?.displaySection?.visible, true));
+            .filter(section => this.#getBooleanValue((section?.display?.visible) && (section?.display?.showPDF)), false);
     }
 
     /**
