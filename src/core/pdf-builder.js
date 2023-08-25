@@ -176,29 +176,33 @@ export default class PdfBuilder {
             .map(section => this.#writePdfSection(section));
     }
 
-    #writePdfElement(element, section) {
+    #writePdfElement(element) {
         const content = [];
-        switch (element?.type) {
-            case "text":
-                content.push(this.#creatTextElement(element));
-                break;
-            case "label":
-                content.push(this.#createLabelElement(element));
-                break;
-            case "table":
-                content.push(this.#createTableElement(element));
-                break;
-            case "column": // layout
-                content.push(this.#createColumnElement(element));
-                break;
-            case "list":
-                content.push(this.#createListElement(element));
-                break;
-            case "custom":
-                content.push(this.#createHtmlElement(element));
-                break;
-            default:
-                throw new Error("Element type not supported:" + element?.type);
+        if (!element.type) {
+            content.push(this.#createLabelElement(element));
+        } else {
+            switch (element?.type) {
+                case "text":
+                    content.push(this.#creatTextElement(element));
+                    break;
+                case "label":
+                    content.push(this.#createLabelElement(element));
+                    break;
+                case "table":
+                    content.push(this.#createTableElement(element));
+                    break;
+                case "column": // layout
+                    content.push(this.#createColumnElement(element));
+                    break;
+                case "list":
+                    content.push(this.#createListElement(element));
+                    break;
+                case "custom":
+                    content.push(this.#createHtmlElement(element));
+                    break;
+                default:
+                    throw new Error("Element type not supported:" + element?.type);
+            }
         }
         return content;
     }
@@ -212,12 +216,11 @@ export default class PdfBuilder {
                 this.#creatTextElement({text: section.title,
                     display: {
                         ...titleStyleDefault,
-                        ...section?.display
                     }
                 }),
                 section.elements.map(element => this.#writePdfElement(element, section))
             ],
-            ...section?.displaySection
+            ...section?.display
         };
     }
 
@@ -367,12 +370,15 @@ export default class PdfBuilder {
 
     #createHtmlElement(element) {
         const data = element?.field ? this.#getValue(element?.field, {}) : this.data;
+        const title = element?.title;
         const content = element.display?.render ? element.display?.render(data) : {};
         const htmlStyleDefault = {
             removeExtraBlanks: true,
             ignoreStyles: ["font-family"]
         };
-        return htmlToPdfmake(content, {...htmlStyleDefault});
+
+        const container = `<div><b>${title ? title + ": " : ""}</b>${content}</div>`;
+        return htmlToPdfmake(container, {...htmlStyleDefault});
     }
 
 }
