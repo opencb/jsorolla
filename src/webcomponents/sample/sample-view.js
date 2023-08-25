@@ -132,7 +132,8 @@ export default class SampleView extends LitElement {
                         classes: "h1",
                     },
                     displaySection: {
-                        // visible: sample => sample?.id,
+                        visible: sample => sample?.id,
+                        showPDF: true
                     },
                     elements: [
                         {
@@ -140,13 +141,12 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 visible: sample => sample?.id,
-                                render: data => `<div><span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})</div>`,
+                                render: data => `<b>${data.id}</b> (UUID: ${data.uuid})`,
                             },
                         },
                         {
                             title: "Individual ID",
                             field: "individualId",
-                            type: "label",
                         },
                         {
                             title: "Files",
@@ -160,7 +160,6 @@ export default class SampleView extends LitElement {
                         {
                             title: "Somatic",
                             field: "somatic",
-                            type: "label",
                             display: {
                                 defaultValue: "false",
                             },
@@ -168,14 +167,13 @@ export default class SampleView extends LitElement {
                         {
                             title: "Version",
                             field: "version",
-                            type: "label",
                         },
                         {
                             title: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => `<div>${field?.name} (${UtilsNew.dateFormatter(field?.date)})</div>`,
+                                render: field => `(${UtilsNew.dateFormatter(field?.date)})`,
                             },
                         },
                         {
@@ -183,7 +181,7 @@ export default class SampleView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => `<div>${UtilsNew.dateFormatter(field)}</div>`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -191,13 +189,12 @@ export default class SampleView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => `<div>${UtilsNew.dateFormatter(field)}</div>`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
                             title: "Description",
                             field: "description",
-                            type: "label",
                             defaultValue: "N/A",
                         },
                         // {
@@ -242,7 +239,8 @@ export default class SampleView extends LitElement {
         //     italics: false
         // },
         // content: []
-        const pdfDocument = new PdfBuilder(this.sample, dataFormConfig);
+        const dataFormConf = this.getDefaultConfig();
+        const pdfDocument = new PdfBuilder(this.sample, dataFormConf);
         pdfDocument.exportToPdf();
     }
 
@@ -283,6 +281,7 @@ export default class SampleView extends LitElement {
                     title: "Search",
                     display: {
                         visible: sample => !sample?.id && this.search === true,
+                        showPDF: false,
                     },
                     elements: [
                         {
@@ -315,7 +314,7 @@ export default class SampleView extends LitElement {
                             type: "custom",
                             display: {
                                 visible: sample => sample?.id,
-                                render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
+                                render: data => `<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`,
                             },
                         },
                         {
@@ -347,7 +346,7 @@ export default class SampleView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
                             },
                         },
                         {
@@ -355,7 +354,7 @@ export default class SampleView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -363,7 +362,7 @@ export default class SampleView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -371,26 +370,26 @@ export default class SampleView extends LitElement {
                             field: "description",
                             defaultValue: "N/A",
                         },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            defaultValue: "N/A",
-                            display: {
-                                contentLayout: "bullets",
-                                render: phenotype => {
-                                    let id = phenotype?.id;
-                                    if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`
-                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                                ${phenotype.id}
-                                            </a>
-                                        `;
-                                    }
-                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
-                                },
-                            },
-                        },
+                        // {
+                        //     title: "Phenotypes",
+                        //     field: "phenotypes",
+                        //     type: "list",
+                        //     defaultValue: "N/A",
+                        //     display: {
+                        //         contentLayout: "bullets",
+                        //         render: phenotype => {
+                        //             let id = phenotype?.id;
+                        //             if (phenotype?.id?.startsWith("HP:")) {
+                        //                 id = html`
+                        //                     <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                        //                         ${phenotype.id}
+                        //                     </a>
+                        //                 `;
+                        //             }
+                        //             return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
+                        //         },
+                        //     },
+                        // },
                         /*
                             {
                                 title: "Annotation sets",
