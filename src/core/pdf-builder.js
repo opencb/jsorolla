@@ -135,11 +135,12 @@ export default class PdfBuilder {
     }
 
     #getBooleanValue(value, defaultValue) {
-        let _defaultValue = typeof defaultValue !== "undefined" ? defaultValue : true;
+        const _defaultValue = typeof defaultValue !== "undefined" ? defaultValue : true;
 
         if (typeof value !== "undefined" && value !== null) {
+
             if (typeof value === "boolean") {
-                _defaultValue = value;
+                return value;
             }
 
             if (typeof value === "function") {
@@ -155,7 +156,7 @@ export default class PdfBuilder {
     #getVisibleSections() {
         return this.docDefinitionConfig.sections
             .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
-            .filter(section => this.#getBooleanValue((section?.display?.visible) && (section?.display?.showPDF)), false);
+            .filter(section => this.#getBooleanValue(section?.display?.visible, true) && this.#getBooleanValue(section?.display?.showPDF, true));
     }
 
     /**
@@ -218,7 +219,9 @@ export default class PdfBuilder {
                         ...titleStyleDefault,
                     }
                 }),
-                section.elements.map(element => this.#writePdfElement(element, section))
+                section.elements
+                    .filter(element => this.#getBooleanValue(element?.display?.showPDF, true))
+                    .map(element => this.#writePdfElement(element, section))
             ],
             ...section?.display
         };

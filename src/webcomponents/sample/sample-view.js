@@ -369,26 +369,27 @@ export default class SampleView extends LitElement {
                             field: "description",
                             defaultValue: "N/A",
                         },
-                        // {
-                        //     title: "Phenotypes",
-                        //     field: "phenotypes",
-                        //     type: "list",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         contentLayout: "bullets",
-                        //         render: phenotype => {
-                        //             let id = phenotype?.id;
-                        //             if (phenotype?.id?.startsWith("HP:")) {
-                        //                 id = html`
-                        //                     <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                        //                         ${phenotype.id}
-                        //                     </a>
-                        //                 `;
-                        //             }
-                        //             return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
-                        //         },
-                        //     },
-                        // },
+                        {
+                            title: "Phenotypes",
+                            field: "phenotypes",
+                            type: "list",
+                            defaultValue: "N/A",
+                            display: {
+                                showPDF: false,
+                                contentLayout: "bullets",
+                                render: phenotype => {
+                                    let id = phenotype?.id;
+                                    if (phenotype?.id?.startsWith("HP:")) {
+                                        id = html`
+                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                                ${phenotype.id}
+                                            </a>
+                                        `;
+                                    }
+                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
+                                },
+                            },
+                        },
                         /*
                             {
                                 title: "Annotation sets",
