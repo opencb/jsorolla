@@ -267,7 +267,7 @@ export default class PdfBuilder {
     // }
 
     #createTableElement(element) {
-        const cols = element.display.columns;
+        const cols = [element.display.columns];
         // Initialize headers
         const headIndex = []; // Store column indices that need to be skipped
         const headers = cols.map(columns => {
@@ -281,15 +281,17 @@ export default class PdfBuilder {
 
                 // Create a cell with the specified properties
                 const cell = {
-                    content: column.title,
+                    text: column.title,
                     display: {
-                        bold: true,
-                        colSpan: column.colspan,
-                        rowSpan: column.rowspan
+                        propsStyle: {
+                            bold: true,
+                            colSpan: column.colspan,
+                            rowSpan: column.rowspan,
+                        },
                     }
                 };
 
-                head.push(this.text(cell));
+                head.push(this.#creatTextElement(cell));
 
                 if (column?.colspan > 1) {
                     // Store the index of the column to skip
