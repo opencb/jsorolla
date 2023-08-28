@@ -228,7 +228,7 @@ export default class CohortView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
+                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`,
                             },
                         },
                         {
@@ -236,7 +236,7 @@ export default class CohortView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -244,7 +244,7 @@ export default class CohortView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`,
+                                render: field => `${UtilsNew.dateFormatter(field)}`,
                             },
                         },
                         {
@@ -279,6 +279,7 @@ export default class CohortView extends LitElement {
                                         id: "sample",
                                         title: "Samples ID",
                                         field: "id",
+                                        width: "*",
                                         sortable: true,
                                     },
                                     {
@@ -286,6 +287,7 @@ export default class CohortView extends LitElement {
                                         title: "Somatic",
                                         field: "somatic",
                                         sortable: true,
+                                        width: "*",
                                         formatter: value => value ? "true" : "false",
                                     },
                                     {
@@ -293,6 +295,7 @@ export default class CohortView extends LitElement {
                                         title: "Phenotypes",
                                         field: "phenotypes",
                                         sortable: true,
+                                        width: "*",
                                         formatter: (value, row) => {
                                             return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
                                         }

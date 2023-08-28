@@ -307,9 +307,9 @@ export default class PdfBuilder {
 
         // Merge headers and rows
         const contents = [...headers, ...rows];
-
         return {
             table: {
+                widths: cols[0].map(col => col.width), // TODO modify to support nested for nested column soon...
                 headerRows: cols.length,
                 body: contents,
             },
