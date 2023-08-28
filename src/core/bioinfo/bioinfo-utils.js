@@ -123,8 +123,11 @@ export default class BioinfoUtils {
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
             case "VARSOME":
                 const variantId = id.replace(/-/g, ""); // Remove hyphen character for indels
-                const reference = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
-                return `https://varsome.com/variant/${reference}/${variantId}`;
+                if (assembly?.toUpperCase() === "GRCH38") {
+                    return `https://varsome.com/variant/hg38/${variantId}`;
+                } else {
+                    return `https://varsome.com/variant/hg19/${variantId}`;
+                }
         }
     }
 
