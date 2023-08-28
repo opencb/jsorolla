@@ -91,6 +91,11 @@ export default class VariantGridFormatter {
                         Decipher
                     </a>
                 </div>
+                <div style="padding: 5px">
+                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome")}">
+                        Varsome
+                    </a>
+                </div>
             `;
         }
         // 2. Add links to external browsers
