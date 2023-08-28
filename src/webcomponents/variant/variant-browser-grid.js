@@ -786,6 +786,12 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
+                                    <li>
+                                        <a target="_blank" class="btn force-text-left" href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
+                                        </a>
+                                    </li>
+
                                     <li class="dropdown-header">CellBase Links</li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
