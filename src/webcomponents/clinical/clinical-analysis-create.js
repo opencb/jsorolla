@@ -23,6 +23,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 
@@ -107,14 +108,17 @@ export default class ClinicalAnalysisCreate extends LitElement {
         }
 
         // In FAMILY, changing the proband only sets the 'proband.id' field of the clinicalAnalysis object
-        // We have to add also the disorders list to 'proband.disorders'.
+        // We need to save the full member object in proband.
         if (e.detail.param === "proband.id" && this.clinicalAnalysis.type === "FAMILY") {
+            // Changing the 'proband.id' means we have to reset the disorder field
+            delete this.clinicalAnalysis.disorder;
             if (this.clinicalAnalysis.proband?.id) {
                 const proband = this.clinicalAnalysis.family.members.find(member => member.id === this.clinicalAnalysis.proband?.id);
-                this.clinicalAnalysis.proband.disorders = proband?.disorders || [];
-            } else if (this.clinicalAnalysis.proband?.disorders) {
-                // If we have remove the 'proband.id', we have to remove also the 'proband.disorders' field
-                delete this.clinicalAnalysis.proband.disorders;
+                this.clinicalAnalysis.proband = UtilsNew.objectClone(proband);
+                this.clinicalAnalysis.proband.disorders = this.clinicalAnalysis.proband.disorders || [];
+            } else {
+                // If we have removed the 'proband.id' field, we have to remove also the full proband object
+                delete this.clinicalAnalysis.proband;
             }
         }
 
@@ -175,7 +179,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
                         for (const member of this.clinicalAnalysis.family.members) {
                             if (member.disorders && member.disorders.length > 0 && member.father.id && member.mother.id) {
-                                this.clinicalAnalysis.proband = member;
+                                this.clinicalAnalysis.proband = UtilsNew.objectClone(member);
                                 break;
                             }
                         }
@@ -642,11 +646,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             title: "Pedigree",
                             type: "custom",
                             display: {
-                                // defaultLayout: "vertical",
                                 render: data => {
-                                    if (data.family) {
-                                        return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
+                                    if (data?.family?.pedigreeGraph?.base64) {
+                                        return html`
+                                            <image-viewer
+                                                .data="${data.family?.pedigreeGraph?.base64}">
+                                            </image-viewer>
+                                        `;
                                     }
+                                    return "-";
                                 },
                                 errorMessage: "No family selected",
                             }
