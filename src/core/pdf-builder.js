@@ -3,34 +3,7 @@ import UtilsNew from "./utils-new";
 
 export default class PdfBuilder {
 
-    // https://pdfmake.github.io/docs/0.1/document-definition-object/styling/#style-properties
-    /**
-     * @typedef {Object} Style
-     * @property {string} font - name of the font
-     * @property {number} fontSize - size of the font in pt
-     * @property {string[]} fontFeatures - array of advanced typographic features supported in TTF fonts (supported features depend on font file)
-     * @property {number} lineHeight - the line height (default: 1)
-     * @property {boolean} bold - whether to use bold text (default: false)
-     * @property {boolean} italics - whether to use italic text (default: false)
-     * @property {string} alignment - (‘left’ or ‘center’ or ‘right’ or ‘justify’) the alignment of the text
-     * @property {number} characterSpacing - size of the letter spacing in pt
-     * @property {string} color - the color of the text (color name e.g., ‘blue’ or hexadecimal color e.g., ‘#ff5500’)
-     * @property {string} background - the background color of the text
-     * @property {string} markerColor - the color of the bullets in a buletted list
-     * @property {string} decoration - the text decoration to apply (‘underline’ or ‘lineThrough’ or ‘overline’)
-     * @property {string} decorationStyle - the style of the text decoration (‘dashed’ or ‘dotted’ or ‘double’ or ‘wavy’)
-     * @property {string} decorationColor - the color of the text decoration, see color
-     **/
-
-    /**
-     * @param {Style} style - Define the style config you want to use for the element
-     * @returns {Style} return style
-    */
-    styleObject(style) {
-        return {...style};
-    }
-
-    stylesDefault = {
+    defaultStyles = {
         h1: {
             fontSize: 24,
             bold: true,
@@ -66,7 +39,7 @@ export default class PdfBuilder {
         }
     };
 
-    tableLayoutDefault = {
+    defaultTableLayout = {
         headerVerticalBlueLine: {
             // top & bottom
             hLineWidth: function () {
@@ -101,25 +74,25 @@ export default class PdfBuilder {
         this.docDefinitionConfig = dataFormConfig;
         this.docDefinition = {
             pageSize: "A4",
-            styles: {...this.stylesDefault, ...this.docDefinitionConfig?.styles},
+            styles: {...this.defaultStyles, ...dataFormConfig?.styles},
             defaultStyle: {
                 fontSize: 10
             },
-            watermaker: {...this.docDefinitionConfig.watermaker},
-            content: [this.docDefinitionConfig.sections ? this.#transformData() : []]
+            watermark: {...dataFormConfig.displayDoc.watermark},
+            content: [this.#creatTextElement(dataFormConfig?.displayDoc?.headerTitle), dataFormConfig.sections ? this.#transformData() : []]
         };
     }
 
     exportToPdf() {
-        pdfMake.createPdf(this.docDefinition, this.tableLayoutDefault).open();
+        pdfMake.createPdf(this.docDefinition, this.defaultTableLayout).open();
     }
 
     downloadPdf() {
-        pdfMake.createPdf(this.doc).download();
+        pdfMake.createPdf(this.docDefinition).download();
     }
 
     print() {
-        pdfMake.createPdf(this.doc).print();
+        pdfMake.createPdf(this.docDefinition).print();
     }
 
     pdfBlob() {
@@ -155,7 +128,7 @@ export default class PdfBuilder {
 
     #getVisibleSections() {
         return this.docDefinitionConfig.sections
-            .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
+            .filter(section => section?.elements[0]?.type !== "notification" || section?.elements?.length > 1)
             .filter(section => this.#getBooleanValue(section?.display?.visible, true) && this.#getBooleanValue(section?.display?.showPDF, true));
     }
 
@@ -209,7 +182,7 @@ export default class PdfBuilder {
     }
 
     #writePdfSection(section) {
-        const titleStyleDefault = {
+        const defaultTitleStyle = {
             classes: "h1"
         };
         return {
@@ -217,7 +190,7 @@ export default class PdfBuilder {
                 this.#creatTextElement({
                     text: section.title,
                     display: {
-                        ...titleStyleDefault,
+                        ...defaultTitleStyle,
                     }
                 }),
                 section.elements
@@ -229,7 +202,7 @@ export default class PdfBuilder {
     }
 
     #creatTextElement(element) {
-        const value = element?.text || "";
+        const value = element?.text || element?.title || "";
         const classes = element.display?.classes || {};
         const propsStyle = element.display?.propsStyle || {};
         return {
@@ -240,7 +213,7 @@ export default class PdfBuilder {
     }
 
     #createLabelElement(element) {
-        const labelStyleDefault = {
+        const defaultLabelStyle = {
             propsStyle: {
                 bold: true
             }
@@ -251,7 +224,7 @@ export default class PdfBuilder {
                 this.#creatTextElement({
                     text: `${element?.title}: `,
                     display: {
-                        ...labelStyleDefault
+                        ...defaultLabelStyle
                     }}),
                 this.#creatTextElement({text: this.#getValue(element.field, element?.defaultValue || "")})
             ]
@@ -354,7 +327,7 @@ export default class PdfBuilder {
         const array = this.#getValue(element.field, element?.defaultValue || []);
         // ol or ul
         const contentLayout = element.display?.contentLayout === "bullets" ? "ul" : "ol";
-        const labelStyleDefault = {
+        const defaultLabelStyle = {
             propsStyle: {
                 bold: true
             }
@@ -363,11 +336,11 @@ export default class PdfBuilder {
         if (element.display?.render) {
             const title = element?.title;
             const content = `<ul>${array?.map(item => `<li>${element.display.render(item)}</li>`).join("")}</ul>`;
-            const htmlStyleDefault = {
+            const defaultHtmlStyle = {
                 ignoreStyles: ["font-family"]
             };
             const container = `<div><b>${title ? title + ": " : ""}</b>${content}</div>`;
-            return htmlToPdfmake(container, {...htmlStyleDefault});
+            return htmlToPdfmake(container, {...defaultHtmlStyle});
         }
 
         return {
@@ -375,7 +348,7 @@ export default class PdfBuilder {
                 this.#creatTextElement({
                     text: `${element?.title}`,
                     display: {
-                        ...labelStyleDefault
+                        ...defaultLabelStyle
                     }}),
                 {[contentLayout]: [...array]}
             ]
@@ -386,13 +359,39 @@ export default class PdfBuilder {
         const data = element?.field ? this.#getValue(element?.field, {}) : this.data;
         const title = element?.title;
         const content = element.display?.render ? element.display?.render(data) : {};
-        const htmlStyleDefault = {
+        const defaultHtmlStyle = {
             removeExtraBlanks: true,
             ignoreStyles: ["font-family"]
         };
 
         const container = `<div><b>${title ? title + ": " : ""}</b>${content}</div>`;
-        return htmlToPdfmake(container, {...htmlStyleDefault});
+        return htmlToPdfmake(container, {...defaultHtmlStyle});
     }
 
+}
+
+// https://pdfmake.github.io/docs/0.1/document-definition-object/styling/#style-properties
+/**
+ * @typedef {Object} Style
+ * @property {string} font - name of the font
+ * @property {number} fontSize - size of the font in pt
+ * @property {string[]} fontFeatures - array of advanced typographic features supported in TTF fonts (supported features depend on font file)
+ * @property {number} lineHeight - the line height (default: 1)
+ * @property {boolean} bold - whether to use bold text (default: false)
+ * @property {boolean} italics - whether to use italic text (default: false)
+ * @property {string} alignment - (‘left’ or ‘center’ or ‘right’ or ‘justify’) the alignment of the text
+ * @property {number} characterSpacing - size of the letter spacing in pt
+ * @property {string} color - the color of the text (color name e.g., ‘blue’ or hexadecimal color e.g., ‘#ff5500’)
+ * @property {string} background - the background color of the text
+ * @property {string} markerColor - the color of the bullets in a buletted list
+ * @property {string} decoration - the text decoration to apply (‘underline’ or ‘lineThrough’ or ‘overline’)
+ * @property {string} decorationStyle - the style of the text decoration (‘dashed’ or ‘dotted’ or ‘double’ or ‘wavy’)
+ * @property {string} decorationColor - the color of the text decoration, see color
+ **/
+/**
+ * @param {Style} style - Define the style config you want to use for the element
+ * @returns {Style} return style
+*/
+export function stylePdf(style) {
+    return {...style};
 }
