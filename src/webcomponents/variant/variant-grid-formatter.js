@@ -92,7 +92,7 @@ export default class VariantGridFormatter {
                     </a>
                 </div>
                 <div style="padding: 5px">
-                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome")}">
+                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome", assembly)}">
                         Varsome
                     </a>
                 </div>
