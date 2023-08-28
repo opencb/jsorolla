@@ -23,8 +23,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../study/annotationset/annotation-set-view.js";
 import "../loading-spinner.js";
-import PdfBuilder from "../../core/pdf-builder.js";
-
+import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
 export default class SampleView extends LitElement {
 
     constructor() {
@@ -121,14 +120,6 @@ export default class SampleView extends LitElement {
     }
 
     onDownloadPdf() {
-        // watermark: {
-        //     text: "Draft Report",
-        //     color: "blue",
-        //     opacity: 0.3,
-        //     bold: true,
-        //     italics: false
-        // },
-        // content: []
         const dataFormConf = this.getDefaultConfig();
         const pdfDocument = new PdfBuilder(this.sample, dataFormConf);
         pdfDocument.exportToPdf();
@@ -166,6 +157,27 @@ export default class SampleView extends LitElement {
             title: "Summary",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
+            displayDoc: {
+                headerTitle: {
+                    title: `Sample ${this.sample?.id}`,
+                    display: {
+                        classes: "h1",
+                        propsStyle: {
+                            ...stylePdf({
+                                alignment: "center",
+                                bold: true,
+                            })
+                        },
+                    },
+                },
+                watermark: {
+                    text: "Demo",
+                    color: "blue",
+                    opacity: 0.3,
+                    bold: true,
+                    italics: false
+                },
+            },
             sections: [
                 {
                     title: "Search",
