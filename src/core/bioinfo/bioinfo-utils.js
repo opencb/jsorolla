@@ -161,6 +161,12 @@ export default class BioinfoUtils {
                 return `https://omim.org/search?index=entry&sort=score+desc%2C+prefix_sort+desc&start=1&limit=10&search=${geneId}`;
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/${geneId}`;
+            case "VARSOME":
+                if (assembly?.toUpperCase() === "GRCH38") {
+                    return `https://varsome.com/gene/hg38/${geneId}`;
+                } else {
+                    return `https://varsome.com/gene/hg19/${geneId}`;
+                }
         }
     }
 
