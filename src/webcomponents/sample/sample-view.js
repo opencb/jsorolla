@@ -121,115 +121,6 @@ export default class SampleView extends LitElement {
     }
 
     onDownloadPdf() {
-        const dataFormConfig = {
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
-            sections: [
-                {
-                    title: "General",
-                    display: {
-                        classes: "h1",
-                    },
-                    displaySection: {
-                        // visible: sample => sample?.id,
-                    },
-                    elements: [
-                        {
-                            title: "Sample ID",
-                            type: "custom",
-                            display: {
-                                visible: sample => sample?.id,
-                                render: data => `<b>${data.id}</b> (UUID: ${data.uuid})`,
-                            },
-                        },
-                        {
-                            title: "Individual ID",
-                            field: "individualId",
-                        },
-                        {
-                            title: "Files",
-                            field: "fileIds",
-                            type: "list",
-                            display: {
-                                defaultValue: "Files not found or empty",
-                                contentLayout: "bullets",
-                            },
-                        },
-                        {
-                            title: "Somatic",
-                            field: "somatic",
-                            display: {
-                                defaultValue: "false",
-                            },
-                        },
-                        {
-                            title: "Version",
-                            field: "version",
-                        },
-                        {
-                            title: "Status",
-                            field: "internal.status",
-                            type: "custom",
-                            display: {
-                                render: field => `(${UtilsNew.dateFormatter(field?.date)})`,
-                            },
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            type: "custom",
-                            display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
-                            },
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            type: "custom",
-                            display: {
-                                render: field => `${UtilsNew.dateFormatter(field)}`,
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                            defaultValue: "N/A",
-                        },
-                        // {
-                        //     title: "Phenotypes",
-                        //     field: "phenotypes",
-                        //     type: "list",
-                        //     defaultValue: "N/A",
-                        //     display: {
-                        //         contentLayout: "bullets",
-                        //         render: phenotype => {
-                        //             // let id = phenotype?.id;
-                        //             // if (phenotype?.id?.startsWith("HP:")) {
-                        //             //     id = html`
-                        //             //     <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                        //             //         ${phenotype.id}
-                        //             //     </a>
-                        //             // `;
-                        //             // }
-                        //             return phenotype?.name ? `${phenotype.name} (${id})}` : `${id}`;
-                        //         },
-                        //     },
-                        // },
-                    /*
-                        {
-                            title: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
-                            }
-                        }
-                    */
-                    ],
-                },
-            ],
-        };
         // watermark: {
         //     text: "Draft Report",
         //     color: "blue",
@@ -375,18 +266,15 @@ export default class SampleView extends LitElement {
                             type: "list",
                             defaultValue: "N/A",
                             display: {
-                                showPDF: false,
+                                // showPDF: false,
                                 contentLayout: "bullets",
                                 render: phenotype => {
                                     let id = phenotype?.id;
                                     if (phenotype?.id?.startsWith("HP:")) {
-                                        id = html`
-                                            <a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
-                                                ${phenotype.id}
-                                            </a>
-                                        `;
+                                        id = `<a href="${BioinfoUtils.getHpoLink(phenotype.id)}" target="_blank">
+                                        ${phenotype.id}</a>`;
                                     }
-                                    return phenotype?.name ? html`${phenotype.name} (${id})}` : html`${id}`;
+                                    return phenotype?.name ? `${phenotype.name} (${id})` : `${id}`;
                                 },
                             },
                         },

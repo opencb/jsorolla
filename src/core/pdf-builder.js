@@ -192,7 +192,7 @@ export default class PdfBuilder {
                 case "table":
                     content.push(this.#createTableElement(element));
                     break;
-                case "column": // layout
+                case "column":
                     content.push(this.#createColumnElement(element));
                     break;
                 case "list":
@@ -214,7 +214,8 @@ export default class PdfBuilder {
         };
         return {
             stack: [
-                this.#creatTextElement({text: section.title,
+                this.#creatTextElement({
+                    text: section.title,
                     display: {
                         ...titleStyleDefault,
                     }
@@ -351,14 +352,22 @@ export default class PdfBuilder {
         const array = this.#getValue(element.field, element?.defaultValue || []);
         // ol or ul
         const contentLayout = element.display?.contentLayout === "bullets" ? "ul" : "ol";
-        // return {
-        //     [contentLayout]: [...array]
-        // };
         const labelStyleDefault = {
             propsStyle: {
                 bold: true
             }
         };
+
+        if (element.display?.render) {
+            const title = element?.title;
+            const content = `<ul>${array?.map(item => `<li>${element.display.render(item)}</li>`).join("")}</ul>`;
+            const htmlStyleDefault = {
+                ignoreStyles: ["font-family"]
+            };
+            const container = `<div><b>${title ? title + ": " : ""}</b>${content}</div>`;
+            return htmlToPdfmake(container, {...htmlStyleDefault});
+        }
+
         return {
             stack: [
                 this.#creatTextElement({

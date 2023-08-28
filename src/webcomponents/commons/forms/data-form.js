@@ -959,7 +959,8 @@ export default class DataForm extends LitElement {
         let values = [];
         if (element.display?.render) {
             for (const object of array) {
-                const value = element.display.render(object);
+                const valueHTML = element.display.render(object);
+                const value = typeof valueHTML === "string" ? UtilsNew.renderHTML(valueHTML) : valueHTML;
                 values.push(value);
             }
         } else {
@@ -1227,6 +1228,7 @@ export default class DataForm extends LitElement {
         // We also allow to call to 'onFilterChange' function.
         const contentHTML = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item);
         // unsafeHTML or utilsNew.renderHTML
+        // html`` won't render html string inside literal string, so i't necessary to use renderHTML.
         const content = typeof contentHTML === "string" ? UtilsNew.renderHTML(contentHTML) : contentHTML;
         if (content) {
             return this._createElementTemplate(element, data, content);
