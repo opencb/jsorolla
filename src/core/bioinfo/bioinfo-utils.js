@@ -121,6 +121,10 @@ export default class BioinfoUtils {
                 }
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+            case "VARSOME":
+                const variantId = id.replace(/-/g, ""); // Remove hyphen character for indels
+                const reference = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
+                return `https://varsome.com/variant/${reference}/${variantId}`;
         }
     }
 
@@ -224,5 +228,7 @@ export default class BioinfoUtils {
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
+
+    static getVarsome
 
 }
