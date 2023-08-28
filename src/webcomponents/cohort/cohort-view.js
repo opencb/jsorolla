@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import Types from "../commons/types.js";
+import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 import "../study/annotationset/annotation-set-view.js";
@@ -117,6 +118,13 @@ export default class CohortView extends LitElement {
         this.cohortId = e.detail.value;
     }
 
+    onDownloadPdf() {
+        const dataFormConf = this.getDefaultConfig();
+        const pdfDocument = new PdfBuilder(this.cohort, dataFormConf);
+        pdfDocument.exportToPdf();
+    }
+
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -132,6 +140,11 @@ export default class CohortView extends LitElement {
         }
 
         return html`
+            <button class="btn btn-primary" style="margin-bottom:14px; display: ${UtilsNew.isNotEmpty(this.cohort) ? "block": "none"}"
+                @click="${this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
             <data-form
                 .data=${this.cohort}
                 .config="${this._config}">
@@ -144,11 +157,33 @@ export default class CohortView extends LitElement {
             title: "Summary",
             icon: "",
             display: this.displayConfig || this.displayConfigDefault,
+            displayDoc: {
+                headerTitle: {
+                    title: `Cohort ${this.cohort?.id}`,
+                    display: {
+                        classes: "h1",
+                        propsStyle: {
+                            ...stylePdf({
+                                alignment: "center",
+                                bold: true,
+                            })
+                        },
+                    },
+                },
+                watermark: {
+                    text: "Demo",
+                    color: "blue",
+                    opacity: 0.3,
+                    bold: true,
+                    italics: false
+                },
+            },
             sections: [
                 {
                     title: "Search",
                     display: {
                         visible: cohort => !cohort?.id && this.search === true,
+                        showPDF: false,
                     },
                     elements: [
                         {
@@ -218,6 +253,7 @@ export default class CohortView extends LitElement {
                             type: "custom",
                             defaultValue: "N/A",
                             display: {
+                                showPDF: false,
                                 render: field => html`
                                     <annotation-set-view
                                         .annotationSets="${field}">
@@ -240,23 +276,27 @@ export default class CohortView extends LitElement {
                             display: {
                                 columns: [
                                     {
+                                        id: "sample",
                                         title: "Samples ID",
                                         field: "id",
+                                        sortable: true,
                                     },
                                     {
+                                        id: "somatic",
                                         title: "Somatic",
                                         field: "somatic",
-                                        defaultValue: "false",
+                                        sortable: true,
+                                        formatter: value => value ? "true" : "false",
                                     },
                                     {
+                                        id: "phenotypes",
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        type: "custom",
-                                        defaultValue: "-",
-                                        display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                        },
-                                    },
+                                        sortable: true,
+                                        formatter: (value, row) => {
+                                            return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
+                                        }
+                                    }
                                 ],
                                 defaultValue: "No phenotypes found",
                             },
