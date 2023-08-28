@@ -292,6 +292,9 @@ export default class VariantGridFormatter {
             <div style='padding: 5px'>
                  <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
+            </div>
 
             <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
             <div style='padding: 5px'>
