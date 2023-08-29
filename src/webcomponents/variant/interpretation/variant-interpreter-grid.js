@@ -860,7 +860,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
-                                    <li>
+                                    <li data-cy="varsome-variant-link">
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
