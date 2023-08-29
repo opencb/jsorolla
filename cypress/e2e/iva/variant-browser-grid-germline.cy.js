@@ -202,7 +202,7 @@ context("Variant Browser Grid Germline", () => {
                 .eq(1)
                 .find("a[tooltip-title]")
                 .trigger("mouseover");
-            cy.get("qtip-content")
+            cy.get("div.qtip-content")
                 .find(`div[data-cy="varsome-variant-link"]`)
                 .within(() => {
                     cy.get("a")
@@ -220,7 +220,7 @@ context("Variant Browser Grid Germline", () => {
                 .find("a[tooltip-title]")
                 .eq(0)
                 .trigger("mouseover");
-            cy.get("qtip-content")
+            cy.get("div.qtip-content")
                 .find(`div[data-cy="varsome-gene-link"]`)
                 .within(() => {
                     cy.get("a")
