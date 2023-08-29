@@ -43,10 +43,11 @@ context("Cohort Browser Grid", () => {
 
     context("Row", () => {
         it("should display row #3 as selected", () => {
-                cy.get("tbody tr")
-                    .eq(3)
-                    .click()
-                    .should("have.class","success");
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("tbody tr")
+                .eq(3)
+                .click()
+                .should("have.class","success");
             });
     });
 
@@ -58,6 +59,7 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("New Catalog Tab")
@@ -73,10 +75,11 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Cohort")
+            BrowserTest.getColumnIndexByHeader("Cohort ID")
             cy.get("@indexColumn")
                 .then((indexColumn) => {
                     const indexRow = 2
+                    // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get(`tbody tr`)
                         .eq(indexRow)
                         .click() // select the row
@@ -98,6 +101,7 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should display 'JSON Data' Tab", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(`detail-tabs > div.detail-tabs > ul`)
                 .find("li")
                 .contains("JSON Data")
