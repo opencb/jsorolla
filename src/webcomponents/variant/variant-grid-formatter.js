@@ -91,7 +91,7 @@ export default class VariantGridFormatter {
                         Decipher
                     </a>
                 </div>
-                <div style="padding: 5px">
+                <div style="padding: 5px" data-cy="varsome-variant-link">
                     <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome", assembly)}">
                         Varsome
                     </a>
@@ -292,7 +292,7 @@ export default class VariantGridFormatter {
             <div style='padding: 5px'>
                  <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
-            <div style='padding: 5px'>
+            <div style='padding: 5px' data-cy='varsome-gene-link'>
                  <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
             </div>
 
