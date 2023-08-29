@@ -67,8 +67,9 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "variant-browser-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "VariantBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.checkedVariants = new Map();
 
         // Set colors
@@ -254,10 +255,6 @@ export default class VariantBrowserGrid extends LitElement {
                                                         variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
                                                     }
                                                 }
-                                                // if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
-                                                //     variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                //     variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                // }
                                             }
                                         }
                                     }).catch(error => {
@@ -553,7 +550,8 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
-                    nucleotideGenotype: true
+                    nucleotideGenotype: true,
+                    visible: this.gridCommons.isColumnVisible(this.samples[i].id),
                 });
             }
         }
@@ -578,7 +576,8 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.cohortFormatter,
                     align: "center",
-                    eligible: true
+                    eligible: true,
+                    visible: this.gridCommons.isColumnVisible(study.id),
                 });
             }
         }
@@ -618,6 +617,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.populationFrequenciesFormatter,
                     align: "center",
+                    visible: this.gridCommons.isColumnVisible(this.populationFrequencies.studies[j].id),
                 });
             }
         }
@@ -756,6 +756,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 2,
                     align: "center"
                 },
+                // ...ExtensionsManager.getColumns("variant-browser-grid"),
                 {
                     title: "Select",
                     rowspan: 2,
@@ -793,13 +794,15 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
@@ -950,6 +953,9 @@ export default class VariantBrowserGrid extends LitElement {
                 },
             ]
         ];
+
+        // Inject columns for extensions
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
 
         // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;

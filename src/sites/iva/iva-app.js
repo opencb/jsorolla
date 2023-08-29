@@ -101,6 +101,7 @@ import "../../webcomponents/commons/layouts/custom-landing.js";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import ExtensionsManager from "../../webcomponents/extensions-manager.js";
 
 class IvaApp extends LitElement {
 
@@ -236,7 +237,13 @@ class IvaApp extends LitElement {
             "variants-admin",
             "projects-admin",
             // REST-API
-            "rest-api"];
+            "rest-api",
+        ];
+
+        // Add custom tools
+        ExtensionsManager
+            .getTools()
+            .forEach(tool => components.push(tool.id));
 
         for (const component of components) {
             _config.enabledComponents[component] = false;
@@ -340,15 +347,15 @@ class IvaApp extends LitElement {
                 if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie));
+                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"));
+                    Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
 
                     // Decode token to get user ID
                     // eslint-disable-next-line no-undef
                     const decodedToken = jwt_decode(currentUrl.searchParams.get("token"));
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub);
+                    Cookies.set(opencgaPrefix + "_userId", decodedToken.sub, {secure: true});
 
                     // We need to remove the params from the url
                     Array.from(currentUrl.searchParams.keys()).forEach(key => {
@@ -1257,7 +1264,6 @@ class IvaApp extends LitElement {
             }
 
             <!-- This is where main IVA application is rendered -->
-            ${console.log("Enabled components", Object.keys(this.config.enabledComponents).filter(key => this.config.enabledComponents[key])) }
             <div class="container-fluid" style="min-height:calc(100vh - 100px);">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
@@ -2041,6 +2047,14 @@ class IvaApp extends LitElement {
                         <rest-api .opencgaSession="${this.opencgaSession}"></rest-api>
                     </div>
                 ` : null}
+
+                ${ExtensionsManager.getTools().map(tool => html`
+                    ${this.config.enabledComponents[tool.id] ? html`
+                        <div class="content">
+                            ${tool.render(this.opencgaSession)}
+                        </div>
+                    ` : null}
+                `)}
             </div>
 
             <custom-footer

@@ -17,12 +17,12 @@
 import {LitElement, html} from "lit";
 import "./file-view.js";
 import "./file-preview.js";
+import ExtensionsManager from "../extensions-manager.js";
 
 export default class OpencgaFileDetail extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -32,14 +32,14 @@ export default class OpencgaFileDetail extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             file: {
                 type: Object
             },
             fileId: {
                 type: String
-            },
-            opencgaSession: {
-                type: Object
             },
             config: {
                 type: Object
@@ -48,33 +48,58 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     #init() {
-        this.file = null;
+        this.COMPONENT_ID = "file-detail";
+        this._file = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
         if (changedProperties.has("fileId")) {
             this.fileIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+
+        if (changedProperties.has("file")) {
+            this.fileObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
         super.update(changedProperties);
     }
 
     fileIdObserver() {
         if (this.opencgaSession && this.fileId) {
-            this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.file = restResponse.responses[0].results[0];
+            this.opencgaSession.opencgaClient.files()
+                .info(this.fileId, {
+                    study: this.opencgaSession.study.fqn,
                 })
-                .catch(restResponse => {
-                    this.file = null;
-                    console.error(restResponse);
+                .then(response => {
+                    this._file = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.file = null;
         }
+    }
+
+    fileObserver() {
+        this._file = {...this.file};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
@@ -84,7 +109,7 @@ export default class OpencgaFileDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.file}"
+                .data="${this._file}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>

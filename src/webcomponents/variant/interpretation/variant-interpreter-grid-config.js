@@ -48,10 +48,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this.onConfigObserver();
@@ -60,10 +56,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     onConfigObserver() {
-        this._highlights = this.config?.highlights
-            ?.filter(h => h.active)
-            ?.map(h => h.id)
-            ?.join(",") || [];
+        this._highlights = (this.config?.highlights || [])
+            .filter(h => h.active)
+            .map(h => h.id)
+            .join(",");
 
 
         // Prepare data for the column select
@@ -221,8 +217,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.pageList}"
-                                            .value="${this.config.pageSize}"
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">

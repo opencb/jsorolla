@@ -57,25 +57,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "ClinicalAnalysisGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -181,14 +167,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
                     this.gridCommons.onCheckAll(rows);
                 },
-                onUncheck: (row, $element) => {
+                onUncheck: row => {
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
@@ -719,14 +705,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("dates")
                 // visible: !this._config.columns.hidden.includes("dueDate")
             },
-            // {
-            //     id: "state",
-            //     field: "state",
-            //     checkbox: true,
-            //     class: "cursor-pointer",
-            //     eligible: false,
-            //     visible: this._config.showSelectCheckbox
-            // }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
@@ -802,6 +780,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 

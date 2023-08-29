@@ -58,24 +58,11 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "disease-panel-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "DiseasePanelBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig()};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -88,10 +75,14 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     propertyObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
         this.toolbarSetting = {
-            buttons: ["columns", "download"],
+            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -206,8 +197,8 @@ export default class DiseasePanelGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -218,13 +209,13 @@ export default class DiseasePanelGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: (row, $element) => {
+                onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
                     this.gridCommons.onCheckAll(rows);
                 },
-                onUncheck: (row, $element) => {
+                onUncheck: row => {
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
@@ -267,7 +258,7 @@ export default class DiseasePanelGrid extends LitElement {
             detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
             //     const result = this.gridCommons.onPageChange(page, size);
             //     this.from = result.from || this.from;
@@ -545,6 +536,7 @@ export default class DiseasePanelGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 
@@ -602,7 +594,7 @@ export default class DiseasePanelGrid extends LitElement {
                 </opencb-grid-toolbar>` : nothing
             }
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="dpb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 

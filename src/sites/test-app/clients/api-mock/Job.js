@@ -19,6 +19,8 @@
  *
 **/
 
+import {RestResponse} from "../../../../core/clients/rest-response";
+
 
 /**
  * This class contains the methods for the "Job" resource
@@ -233,7 +235,20 @@ export default class Job {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     headLog(job, params) {
-        return this._get("jobs", job, "log", null, "head", params);
+        let result;
+
+        switch (job) {
+            default:
+                result = {
+                    content: "CONTENT TEST PURPOSE JOB headLog",
+                    eof: false,
+                    fileId: job,
+                    lines: 500,
+                    offset: 68888,
+                    size: 68888
+                };
+        }
+        return Promise.resolve(new RestResponse({responses: [{results: [result]}]}));
     }
 
     /** Show the last lines of a log file (up to a limit)
@@ -245,7 +260,19 @@ export default class Job {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     tailLog(job, params) {
-        return this._get("jobs", job, "log", null, "tail", params);
+        let result;
+        switch (job) {
+            default:
+                result = {
+                    fileId: "/opt/opencga/sessions/jobs/JOBS/opencga/20230605/pedigree-graph-init.20230605193906.u8QidK/pedigree-graph-init.20230605193906.u8QidK.err",
+                    eof: true,
+                    offset: 6085,
+                    size: 6084,
+                    lines: 27,
+                    content: "CONTENT TEST PURPOSE JOB tailLog",
+                };
+        }
+        return Promise.resolve(new RestResponse({responses: [{results: [result]}]}));
     }
 
 }

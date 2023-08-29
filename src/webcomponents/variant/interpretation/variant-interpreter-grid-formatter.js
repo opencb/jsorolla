@@ -748,7 +748,7 @@ export default class VariantInterpreterGridFormatter {
         const extVafIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "EXT_VAF");
         if (extVafIndex !== -1) {
             const dpIndex = variant.studies[0].sampleDataKeys.findIndex(key => key === "DP");
-            return {vaf: Number.parseFloat(sampleEntry.data[extVafIndex]), depth: Number.parseInt(sampleEntry.data[dpIndex])};
+            return {vaf: Number.parseFloat(sampleEntry?.data[extVafIndex]), depth: Number.parseInt(sampleEntry?.data[dpIndex])};
         }
 
         // Try to guess the variant caller used.

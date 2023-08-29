@@ -61,26 +61,13 @@ export default class JobGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "job-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "JobBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -94,7 +81,10 @@ export default class JobGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         this.toolbarSetting = {
@@ -104,6 +94,7 @@ export default class JobGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this.config?.toolbar,
             toolId: "jobBrowser",
             resource: "JOB",
             columns: this._getDefaultColumns(),
@@ -150,6 +141,43 @@ export default class JobGrid extends LitElement {
         };
         this.renderRemoteTable();
         this.requestUpdate();
+        this.renderTable();
+    }
+
+    renderTable() {
+        if (this.jobs?.length > 0) {
+            this.renderLocalTable();
+        } else {
+            this.renderRemoteTable();
+        }
+        this.requestUpdate();
+    }
+
+    renderLocalTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._getDefaultColumns(),
+            data: this.jobs,
+            sidePagination: "local",
+            iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
+            icons: GridCommons.GRID_ICONS,
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this.detailFormatter,
+            gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            }
+        });
     }
 
     renderRemoteTable() {
@@ -401,7 +429,8 @@ export default class JobGrid extends LitElement {
                         <a tooltip-title="Dependencies" tooltip-text="${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}">
                             ${dependsOn.length} job${dependsOn.length > 1 ? "s" : ""}
                         </a>
-                    </div>` : "-",
+                    </div>
+                ` : "-",
                 visible: this.gridCommons.isColumnVisible("dependsOn")
             },
             {
@@ -447,14 +476,6 @@ export default class JobGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
@@ -502,6 +523,7 @@ export default class JobGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 
@@ -556,8 +578,6 @@ export default class JobGrid extends LitElement {
     }
 
     render() {
-        // CAUTION 20230517 Vero: I leave the code prepared for creating a new job from the Browser. However,
-        //  the method renderTable does not exist here, only renderRemoteTable.
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar

@@ -70,6 +70,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = this.toolId + "-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
@@ -92,6 +93,14 @@ export default class VariantInterpreterGrid extends LitElement {
         };
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("toolId") && this.toolId) {
+            this.COMPONENT_ID = this.toolId + "-grid";
+        }
+
+        super.update(changedProperties);
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -102,7 +111,7 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("query") || changedProperties.has("clinicalVariants")) {
             this.renderVariants();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("toolId")) {
             this.configObserver();
             this.requestUpdate();
             this.renderVariants();
@@ -1050,8 +1059,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._columns = this._updateTableColumns(this._columns);
-
-        // this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
 
         return this._columns;
     }

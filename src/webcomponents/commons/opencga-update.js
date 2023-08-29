@@ -310,6 +310,12 @@ export default class OpencgaUpdate extends LitElement {
                                         tags: UtilsNew.commaSeparatedArray(comment.tags),
                                     }));
                             }
+                            if (params.analyst?.id) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.analyst = {
+                                    id: params.analyst.id,
+                                };
+                            }
                         },
                     ];
                     break;

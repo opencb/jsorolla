@@ -58,6 +58,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "variant-interpreter-rd";
         this._prefix = UtilsNew.randomString(8);
 
         this.query = {};
@@ -282,7 +283,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
-                .toolId="${"variantInterpreterRD"}"
+                .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
                 @queryChange="${this.onQueryChange}">
             </variant-interpreter-browser-template>

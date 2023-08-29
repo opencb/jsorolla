@@ -38,7 +38,7 @@ class VariantInterpreterGridTest extends LitElement {
 
     static get properties() {
         return {
-            testDataFile: {
+            testVariantFile: {
                 type: String,
             },
             testClinicalData: {
@@ -97,7 +97,7 @@ class VariantInterpreterGridTest extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") &&
-            changedProperties.has("testDataFile") &&
+            changedProperties.has("testVariantFile") &&
             changedProperties.has("testDataVersion") &&
             changedProperties.has("testClinicalData")) {
             this.opencgaSessionObserver();
@@ -108,7 +108,7 @@ class VariantInterpreterGridTest extends LitElement {
     opencgaSessionObserver() {
         this.#setLoading(true);
         const promises = [
-            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testDataFile}.json`),
+            UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`),
             UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testClinicalData}.json`)
         ];
 
@@ -116,16 +116,45 @@ class VariantInterpreterGridTest extends LitElement {
             .then(content => {
                 this.variantInterpreterData = content[0];
                 this.clinicalAnalysisData = content[1];
-            }).catch(err => {
+                this.mutate();
+            })
+            .catch(err => {
                 console.log("Error to download data test", err);
-            }).finally(() => {
+            })
+            .finally(() => {
                 this.#setLoading(false);
             });
     }
 
     mutate() {
         // 1. no CT array
-        // this.variants[0].annotation.consequenceTypes.forEach(ct => ct.geneName = null);
+        // this.variantInterpreterData[0];
+        // debugger
+        this.variantInterpreterData[0].studies[0].issues = [
+            {
+                type: "DISCREPANCY",
+                sample: {
+                    sampleId: "NA12891",
+                    fileIndex: 0,
+                    data: [
+                        "1/2",
+                        "24",
+                        "1",
+                        "29",
+                        "0",
+                        "19,4",
+                        "13,0",
+                        "6,4",
+                        "PASS",
+                        ".",
+                        ".",
+                        "20,0,234",
+                        ".",
+                        "0"
+                    ]
+                },
+            }
+        ];
     }
 
     render() {
@@ -134,6 +163,9 @@ class VariantInterpreterGridTest extends LitElement {
         }
 
         return html`
+            <h2 style="font-weight: bold;">
+                Variant Interpreter Browser (${this.testVariantFile?.split("-")?.at(-1)})
+            </h2>
             <variant-interpreter-grid
                 .opencgaSession="${this.opencgaSession}"
                 .clinicalVariants="${this.variantInterpreterData}"
@@ -143,7 +175,7 @@ class VariantInterpreterGridTest extends LitElement {
                 @selectrow="${this.onSelectVariant}"
                 @updaterow="${this.onUpdateVariant}"
                 @checkrow="${this.onCheckVariant}"
-                @gridconfigsave="${this.onGridConfigSave}">
+                @settingsUpdate="${this.onSettingsUpdate}">
             </variant-interpreter-grid>
         `;
     }

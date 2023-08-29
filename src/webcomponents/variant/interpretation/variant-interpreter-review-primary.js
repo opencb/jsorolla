@@ -282,6 +282,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
                                     .variant="${this.variant}"
+                                    .toolId="${this.toolId}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                     .config="${this._config.detail}">

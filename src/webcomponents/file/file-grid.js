@@ -57,24 +57,11 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "file-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "FileBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig()};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -88,12 +75,15 @@ export default class OpencgaFileGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            buttons: ["download"],
+            // buttons: ["download"],
             ...this._config,
         };
 
@@ -141,7 +131,7 @@ export default class OpencgaFileGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -224,8 +214,8 @@ export default class OpencgaFileGrid extends LitElement {
 
     renderLocalTable() {
         this.from = 1;
-        this.to = Math.min(this.samples.length, this._config.pageSize);
-        this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        this.to = Math.min(this.files.length, this._config.pageSize);
+        this.numTotalResultsText = this.files.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -349,28 +339,21 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            },
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            const downloadUrl = [
-                this.opencgaSession.server.host,
+
+            const downloadUrl = this.opencgaSession?.server? [
+                this.opencgaSession?.server.host,
                 "/webservices/rest/",
-                this.opencgaSession.server.version,
+                this.opencgaSession?.server.version,
                 "/files/",
                 "FILE_ID",
                 "/download?study=",
-                this.opencgaSession.study.fqn,
+                this.opencgaSession?.study.fqn,
                 "&sid=",
-                this.opencgaSession.token,
-            ];
+                this.opencgaSession?.token,
+            ]:[];
             this._columns.push({
                 id: "actions",
                 title: "Actions",
@@ -384,7 +367,7 @@ export default class OpencgaFileGrid extends LitElement {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
-                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left">
+                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left ${downloadUrl.length == 0 ? "disabled" : ""}">
                                     <i class="fas fa-download icon-padding"></i>Download
                                 </a>
                             </li>
@@ -428,6 +411,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
         return this._columns;
     }
 
@@ -504,6 +488,7 @@ export default class OpencgaFileGrid extends LitElement {
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
+            skipExtensions: false,
         };
     }
 

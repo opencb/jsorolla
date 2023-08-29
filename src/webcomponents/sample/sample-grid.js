@@ -58,24 +58,11 @@ export default class SampleGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "sample-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig()};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -89,12 +76,15 @@ export default class SampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
         this.toolbarSetting = {
-            buttons: ["columns", "download"],
+            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -215,6 +205,7 @@ export default class SampleGrid extends LitElement {
                                                     if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                         sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                                     } else {
+                                                        // eslint-disable-next-line no-param-reassign
                                                         sample.attributes = {
                                                             OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
                                                         };
@@ -241,8 +232,8 @@ export default class SampleGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (this._config.detailView) {
@@ -253,13 +244,13 @@ export default class SampleGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: (row, $element) => {
+                onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
                     this.gridCommons.onCheckAll(rows);
                 },
-                onUncheck: (row, $element) => {
+                onUncheck: row => {
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
@@ -269,9 +260,6 @@ export default class SampleGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: data => {
-                    // Add tooltips?
-                }
             });
         }
     }
@@ -296,7 +284,7 @@ export default class SampleGrid extends LitElement {
             detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -384,14 +372,6 @@ export default class SampleGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
@@ -468,6 +448,7 @@ export default class SampleGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 
@@ -522,10 +503,11 @@ export default class SampleGrid extends LitElement {
                     @export="${this.onDownload}"
                     @actionClick="${e => this.onActionClick(e)}"
                     @sampleCreate="${this.renderTable}">
-                </opencb-grid-toolbar>` : nothing
+                </opencb-grid-toolbar>
+            ` : nothing
             }
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 

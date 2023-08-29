@@ -56,24 +56,11 @@ export default class FamilyGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "family-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "FamilyBrowserGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    // }
-
-    firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -87,12 +74,15 @@ export default class FamilyGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            buttons: ["columns", "download"],
+            // buttons: ["columns", "download"],
             ...this._config,
         };
 
@@ -496,14 +486,6 @@ export default class FamilyGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
-            }
         ];
 
         if (this.opencgaSession && this._config.showActions) {
@@ -569,6 +551,7 @@ export default class FamilyGrid extends LitElement {
         }
 
         // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
         return this._columns;
     }
 

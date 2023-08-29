@@ -481,7 +481,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
-                                        @settingsUpdate="${() => this.onSettingsUpdate()}">
+                                        @settingsUpdate="${this.onSettingsUpdate}">
                                     </variant-interpreter-grid>` : html`
                                     <variant-interpreter-rearrangement-grid
                                         .toolId="${this.toolId}"
@@ -494,7 +494,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
-                                        @settingsUpdate="${() => this.onSettingsUpdate()}">
+                                        @settingsUpdate="${this.onSettingsUpdate}">
                                     </variant-interpreter-rearrangement-grid>`
                                 }
 
@@ -503,6 +503,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                 <variant-interpreter-detail
                                     .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .toolId="${this.toolId}"
                                     .variant="${this.variant}"
                                     .cellbaseClient="${this.cellbaseClient}"
                                     .config=${this._config.filter.detail}>
