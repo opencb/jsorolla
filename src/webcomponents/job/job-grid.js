@@ -139,7 +139,6 @@ export default class JobGrid extends LitElement {
             // }
 
         };
-        this.renderRemoteTable();
         this.requestUpdate();
         this.renderTable();
     }
