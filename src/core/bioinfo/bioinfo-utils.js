@@ -34,6 +34,12 @@ export default class BioinfoUtils {
         });
     }
 
+    // Generate Variant ID in Varsome format
+    // https://varsome.com/how-do-i-create-link-varsome/
+    static getVariantInVarsomeFormat(variantId) {
+        const [chr, position, ref, alt] = variantId.split(":");
+        return `chr${chr}:${position.replace("-", ":")}:${ref.replace("-", "")}:${alt.replace("-", "")}`;
+    }
 
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
@@ -122,11 +128,10 @@ export default class BioinfoUtils {
             case "UCSC_GENOME_BROWSER":
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
             case "VARSOME":
-                const variantId = id.replace(/-/g, ""); // Remove hyphen character for indels
                 if (assembly?.toUpperCase() === "GRCH38") {
-                    return `https://varsome.com/variant/hg38/${variantId}`;
+                    return `https://varsome.com/variant/hg38/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
                 } else {
-                    return `https://varsome.com/variant/hg19/${variantId}`;
+                    return `https://varsome.com/variant/hg19/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
                 }
         }
     }
