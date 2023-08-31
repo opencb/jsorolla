@@ -20,6 +20,9 @@ import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/disease-panel/disease-panel-grid.js";
 import "../../../webcomponents/disease-panel/disease-panel-detail.js";
+import "../../../webcomponents/disease-panel/disease-panel-create.js";
+import "../../../webcomponents/disease-panel/disease-panel-update.js";
+
 import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
 
 

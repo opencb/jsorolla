@@ -95,6 +95,7 @@ export default class DiseasePanelGrid extends LitElement {
                 display: {
                     modalTitle: "Disease Panel Create",
                     modalDraggable: true,
+                    modalCyDataName: "modal-create",
                 },
                 render: () => html `
                     <disease-panel-create

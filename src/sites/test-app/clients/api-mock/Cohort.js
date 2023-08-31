@@ -20,6 +20,7 @@
 **/
 
 
+import UtilsNew from "../../../../core/utils-new";
 
 /**
  * This class contains the methods for the "Cohort" resource
@@ -215,6 +216,13 @@ export default class Cohort {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(cohorts, params) {
+        if (cohorts === "ALL") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/cohorts-platinum.json`)
+                .then(data => ({
+                    responses: [{results: [data[0]]}]
+                }));
+        }
+
         return this._get("cohorts", cohorts, null, null, "info", params);
     }
 

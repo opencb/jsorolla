@@ -21,6 +21,8 @@ import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/family/family-grid.js";
 import "../../../webcomponents/family/family-detail.js";
 import "../../../webcomponents/family/family-view.js";
+import "../../../webcomponents/family/family-create.js";
+import "../../../webcomponents/family/family-update.js";
 import "../../../webcomponents/commons/json-viewer.js";
 
 class FamilyBrowserGridTest extends LitElement {

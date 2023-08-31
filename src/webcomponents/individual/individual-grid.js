@@ -95,6 +95,7 @@ export default class IndividualGrid extends LitElement {
                 display: {
                     modalTitle: "Individual Create",
                     modalDraggable: true,
+                    modalCyDataName: "modal-create",
                 },
                 render: () => html `
                     <individual-create

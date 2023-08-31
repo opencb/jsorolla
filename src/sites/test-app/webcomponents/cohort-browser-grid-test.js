@@ -21,6 +21,8 @@ import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/cohort/cohort-grid.js";
 import "../../../webcomponents/cohort/cohort-detail.js";
 import "../../../webcomponents/cohort/cohort-view.js";
+import "../../../webcomponents/cohort/cohort-update.js";
+import "../../../webcomponents/cohort/cohort-create.js";
 import "../../../webcomponents/commons/json-viewer.js";
 
 class CohortBrowserGridTest extends LitElement {

@@ -23,6 +23,9 @@ import "../../../webcomponents/individual/individual-detail.js";
 import "../../../webcomponents/individual/individual-view.js";
 import "../../../webcomponents/commons/json-viewer.js";
 import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import "../../../webcomponents/individual/individual-update.js";
+import "../../../webcomponents/individual/individual-create.js";
+
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -67,6 +70,14 @@ class IndividualBrowserGridTest extends LitElement {
             pageList: [10, 25, 50],
             multiSelection: false,
             showSelectCheckbox: false,
+            // FIXME: temporarily moved here
+            showColumns: false, // To clean-up?
+            showDownload: false, // To clean-up?
+            showExport: true,
+            showSettings: true,
+            showNew: true,
+            showCreate: true,
+            // FIXME\
             toolbar: {
                 showColumns: true,
                 showDownload: false,
