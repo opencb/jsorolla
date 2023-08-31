@@ -63,47 +63,20 @@ export default class OpencbGridToolbar extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("settings")) {
-            this._settings = {...this.getDefaultSettings(), ...this.settings};
+            this._settings = {
+                ...this.getDefaultSettings(),
+                ...this.settings};
         }
+
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config
+            };
         }
+
         super.update(changedProperties);
     }
-
-    // onDownloadFile(e) {
-    //     this.dispatchEvent(new CustomEvent("download", {
-    //         detail: {
-    //             option: e.target.dataset.downloadOption
-    //         }
-    //     }));
-    // }
-
-    // not used as changes to exportFields is not propagated outside opencga-export anymore (exportFields is now sent on click on download button via `export` event)
-    // onChangeExportField(e) {
-    //     // simply forwarding from opencga-export to grid components
-    //     LitUtils.dispatchCustomEvent(this, "changeExportField", e.detail, {});
-    // }
-
-    // checkboxToggle(e) {
-    //     // We undo the checkbox action. We will toggle it on a different event
-    //     e.currentTarget.checked = !e.currentTarget.checked;
-    // }
-
-    // onColumnClick(e) {
-    //     // We do this call to avoid the dropdown to be closed after the click
-    //     e.stopPropagation();
-    //
-    //     // Toggle the checkbox
-    //     e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
-    //     this.dispatchEvent(new CustomEvent("columnChange", {
-    //         detail: {
-    //             id: e.currentTarget.dataset.columnId,
-    //             selected: e.currentTarget.firstElementChild.checked
-    //         }, bubbles: true, composed: true
-    //     }));
-    //
-    // }
 
     onCloseSetting() {
         ModalUtils.close(`${this._prefix}SettingModal`);
@@ -165,10 +138,9 @@ export default class OpencbGridToolbar extends LitElement {
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         <!-- Display components on the LEFT -->
                     </div>
-
-                    <div id="${this._prefix}toolbar" class="col-md-6">
+                    <div id="${this._prefix}toolbar" class="col-md-6" data-cy="sb-toolbar">
                         <!-- Display components on the RIGHT -->
-                        <div class="form-inline text-right pull-right">
+                        <div class="form-inline text-right pull-right" data-cy="sb-toolbar-wrapper">
                             <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                             ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
@@ -212,23 +184,23 @@ export default class OpencbGridToolbar extends LitElement {
                                     <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
                                         <i class="fas fa-cog icon-padding"></i> Settings ...
                                     </button>
-                                </div>` : nothing}
+                                </div>
+                            ` : nothing}
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Add modals-->
-            ${this._config?.create && (this._settings.showCreate || this._settings.showNew) && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`) ?
-                ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) : nothing
-            }
+            ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
-            ${this._settings?.showExport && this._config?.export ?
-                ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
+            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
 
-
-            ${this._settings?.showSettings && this._config?.settings ?
-                ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
+            ${(this._config?.create &&
+            (this._settings.showCreate || this._settings.showNew) &&
+            OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, `WRITE_${this._config.resource}`)) ?
+            ModalUtils.create(this, `${this._prefix}CreateModal`, this._config.create) :
+            nothing}
         `;
     }
 
@@ -284,4 +256,5 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
 }
+
 customElements.define("opencb-grid-toolbar", OpencbGridToolbar);
