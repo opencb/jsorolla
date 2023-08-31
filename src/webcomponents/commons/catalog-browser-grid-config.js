@@ -167,7 +167,7 @@ export default class CatalogBrowserGridConfig extends LitElement {
             icon: "fas fa-user-md",
             type: "pills",
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
