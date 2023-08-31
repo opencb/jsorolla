@@ -868,7 +868,7 @@ const tooltips = {
         "This knowledge is both human-readable and machine-readable, and is a foundation for computational analysis of large-scale molecular biology and genetics experiments in biomedical research.",
     hpo: "The Human Phenotype Ontology (HPO) provides a standardized vocabulary of phenotypic abnormalities encountered in human disease.",
     clinvar: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
-    fullTextSearch: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+    fullTextSearch: "Filter out variants that do not match with the IDs or the full text provided",
     cadd: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
         "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
         "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended",

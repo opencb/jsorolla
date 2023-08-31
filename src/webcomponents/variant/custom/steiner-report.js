@@ -528,13 +528,11 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {
                                         field: "field",
-                                        display: {
-                                            style: "font-weight: bold",
-                                        },
+                                        formatter: value => `<span style="font-weight:bold">${value}</span>`
                                     },
                                     {
                                         field: "value",
@@ -557,7 +555,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -570,7 +568,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -583,7 +581,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -596,7 +594,7 @@ class SteinerReport extends LitElement {
                             type: "table",
                             display: {
                                 style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "field"},
                                     {field: "value"},
@@ -612,7 +610,7 @@ class SteinerReport extends LitElement {
                                 transform: somaticCallingInfo => somaticCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
@@ -629,7 +627,7 @@ class SteinerReport extends LitElement {
                                 transform: data => data.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "caller"},
@@ -646,7 +644,7 @@ class SteinerReport extends LitElement {
                                 transform: germlineCallingInfo => germlineCallingInfo.sort((a, b) => {
                                     return a.rank - b.rank;
                                 }),
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
                                     {field: "type"},
                                     {field: "name"},
