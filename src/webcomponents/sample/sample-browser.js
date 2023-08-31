@@ -96,7 +96,7 @@ export default class SampleBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.sampleBrowser?.grid
         });
-debugger
+
         this.requestUpdate();
     }
 
@@ -135,7 +135,6 @@ debugger
                     icon: "fa fa-table",
                     active: true,
                     render: params => {
-                        debugger
                         return html`
                             <sample-grid
                                 .opencgaSession="${params.opencgaSession}"
