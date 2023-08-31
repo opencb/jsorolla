@@ -243,6 +243,4 @@ export default class BioinfoUtils {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
-    static getVarsome
-
 }
