@@ -115,6 +115,37 @@ context("Family Browser Grid", () => {
             cy.get(browserGrid)
                 .should("be.visible");
         });
+        it("should move modal setting", () => {
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: 'family-grid opencb-grid-toolbar',
+                tag:'div',
+                elementId: 'SettingModal'
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.position();
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find('.modal-header')
+                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
+                        .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
+                        .trigger('mouseup'); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get(`@settingModal`)
+                        .find('.modal-header')
+                        .then(($modal) => {
+                            const finalPosition = $modal.position();
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
     });
 
     context("Row", () => {
