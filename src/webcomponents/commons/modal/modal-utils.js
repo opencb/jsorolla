@@ -26,11 +26,12 @@ export default class ModalUtils {
         const modalTitleStyle = config.display?.modalTitleStyle || "";
         const btnsVisible = config.display?.modalbtnsVisible;
         const modalDraggable = config.display?.modalDraggable || false;
+        const modalCyDataName = config.display?.modalCyDataName || "";
 
         return html `
             <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
                 tabindex="-1" role="dialog"
-                aria-labelledby="DataModalLabel" aria-hidden="true">
+                aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
