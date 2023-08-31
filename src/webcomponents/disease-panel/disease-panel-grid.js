@@ -603,6 +603,7 @@ export default class DiseasePanelGrid extends LitElement {
                 display: {
                     modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
                     modalDraggable: true,
+                    modalCyDataName: "modal-update",
                 },
                 render: active => {
                     return html `

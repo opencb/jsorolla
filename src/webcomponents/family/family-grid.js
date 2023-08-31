@@ -618,6 +618,7 @@ export default class FamilyGrid extends LitElement {
                 display: {
                     modalTitle: `Family Update: ${this.familyUpdateId}`,
                     modalDraggable: true,
+                    modalCyDataName: "modal-update",
                 },
                 render: active => {
                     return html `

@@ -516,6 +516,7 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `Sample Update: ${this.sampleUpdateId}`,
                     modalDraggable: true,
+                    modalCyDataName: "modal-update",
                 },
                 render: active => {
                     return html `

@@ -668,6 +668,7 @@ export default class IndividualGrid extends LitElement {
                 display: {
                     modalTitle: `Individual Update: ${this.individualUpdateId}`,
                     modalDraggable: true,
+                    modalCyDataName: "modal-update",
                 },
                 render: active => {
                     return html `

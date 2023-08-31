@@ -111,6 +111,66 @@ context("Sample Browser Grid", () => {
         });
     });
 
+    // MODAL UPDATE
+    context("Modal Update", () => {
+        beforeEach(() => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@container")
+                .find(`table tbody tr td button.dropdown-toggle`)
+                .first()
+                .click();
+            cy.get("@container")
+                .find(`a[data-action="edit"]`)
+                .first()
+                .click();
+            cy.get("@container")
+                .find(`div[data-cy="modal-update"]`)
+                .as("modal-update");
+        });
+        // 1. Open modal and render update
+        it("should render update modal", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .find("div.modal-dialog")
+                .should("be.visible");
+        });
+        // 2. Render title
+        it("should render update title", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .find("h4.modal-title")
+                .should("contain.text", "Sample Update");
+        });
+        // 3. Render button clear
+        it("should render button clear", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .contains('button', 'Discard Changes')
+                .should("be.visible");
+        });
+        // 4. Render button create
+        it("should render button create", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .contains('button', 'Update')
+                .should("be.visible");
+        });
+        // 5. Render tabs
+        it("should render form tabs", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .find("ul.nav.nav-tabs > li")
+                .should("have.length.greaterThan", 1);
+        });
+        // 6. Render Sample ID
+        it("should have form field ID equal to sample selected", () => {
+            // eslint-disable-next-line cypress/unsafe-to-chain-command
+            cy.get("@modal-update")
+                .find(`data-form div.row div.row.form-group  label.control-label`)
+                .should("contain.text", "Sample ID");
+        });
+    });
+
     // GRID
     context("Sample Grid", () => {
         const gridComponent = "sample-grid";

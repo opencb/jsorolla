@@ -174,8 +174,8 @@ export default class DiseasePanel {
     */
     info(panels, params) {
         // Mocked response for Sample update test
-        if (panels === "Panel ID: Early_onset_dystonia-PanelAppId-192") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/samples-platinum.json`)
+        if (panels === "Early_onset_dystonia-PanelAppId-192") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/disease-panels-platinum.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));
