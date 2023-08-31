@@ -138,9 +138,9 @@ export default class OpencbGridToolbar extends LitElement {
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         <!-- Display components on the LEFT -->
                     </div>
-                    <div id="${this._prefix}toolbar" class="col-md-6" data-cy="sb-toolbar">
+                    <div id="${this._prefix}toolbar" class="col-md-6" data-cy="toolbar">
                         <!-- Display components on the RIGHT -->
-                        <div class="form-inline text-right pull-right" data-cy="sb-toolbar-wrapper">
+                        <div class="form-inline text-right pull-right" data-cy="toolbar-wrapper">
                             <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                             ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
