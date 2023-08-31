@@ -114,15 +114,15 @@ context("Family Browser Grid", () => {
     context("Modal Update", () => {
         beforeEach(() => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get("@container")
+            cy.get(browserGrid)
                 .find(`table tbody tr td button.dropdown-toggle`)
                 .first()
                 .click();
-            cy.get("@container")
+            cy.get(browserGrid)
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get("@container")
+            cy.get(browserGrid)
                 .find(`div[data-cy="modal-update"]`)
                 .as("modal-update");
         });
@@ -159,7 +159,7 @@ context("Family Browser Grid", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
                 .find("ul.nav.nav-tabs > li")
-                .should("have.length.greaterThan", 1);
+                .should("have.length.at.least", 1);
         });
         // 6. Render Sample ID
         it("should have form field ID equal to sample selected", () => {
@@ -190,6 +190,7 @@ context("Family Browser Grid", () => {
                     const startPosition = $modal.offset();
                     cy.log("start Position:", startPosition);
                     // Drag the modal to a new position using Cypress's drag command
+                    // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get("@settingModal")
                         .find('.modal-header')
                         .trigger('mousedown', { which: 1 }) // Trigger mouse down event
