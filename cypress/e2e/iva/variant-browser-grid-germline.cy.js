@@ -54,7 +54,8 @@ context("Variant Browser Grid Germline", () => {
 
             cy.get("@settingModal")
                 .then(($modal) => {
-                    const startPosition = $modal.position();
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
                     // Drag the modal to a new position using Cypress's drag command
                     cy.get("@settingModal")
                         .find('.modal-header')
@@ -66,7 +67,8 @@ context("Variant Browser Grid Germline", () => {
                     cy.get(`@settingModal`)
                         .find('.modal-header')
                         .then(($modal) => {
-                            const finalPosition = $modal.position();
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
                             // Assert that the modal has moved
                             expect(finalPosition.left).to.not.equal(startPosition.left);
                             expect(finalPosition.top).to.not.equal(startPosition.top);
