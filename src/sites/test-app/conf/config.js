@@ -60,6 +60,20 @@ const SUITE = {
             {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
+    aboutPage: {
+        display: {
+            showTitle: true,
+            titleStyle: "",
+            titleClass: "",
+            tableStyle: "",
+        },
+        favicon: "img/zetta-favicon.png",
+        linkTitle: "About link title",
+        title: "Custom page title",
+        content: session => `
+                    Session version: ${session?.about?.Version}
+                `,
+    },
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
         // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},

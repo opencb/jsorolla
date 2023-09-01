@@ -36,7 +36,7 @@ export default class CustomPage extends LitElement {
 
     render() {
         return html`
-            <div class="container" style="margin-top:48px;margin-bottom:48px;">
+            <div class="container" style="margin-top:48px;margin-bottom:48px;" data-cy="custom-page">
                 <!-- Page title -->
                 ${this.page.title && this.page.display?.showTitle !== false ? html`
                     <h1 class="${this.page.display?.titleClass}" style="${this.page.display?.titleStyle}">
