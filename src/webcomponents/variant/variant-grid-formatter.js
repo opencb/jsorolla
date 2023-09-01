@@ -84,6 +84,7 @@ export default class VariantGridFormatter {
         // 1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
         if (row.id || row.studies[0]?.files[0]?.call?.variantId) {
             const variantId = row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id;
+            const isCNV = row.type === "COPY_NUMBER";
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
@@ -92,7 +93,7 @@ export default class VariantGridFormatter {
                     </a>
                 </div>
                 <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome", assembly)}">
+                    <a target="_blank" ${isCNV ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome", assembly)}"`}>
                         Varsome
                     </a>
                 </div>
