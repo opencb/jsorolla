@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "../data-table.js";
 
 export default class DataForm extends LitElement {
 
@@ -96,18 +97,6 @@ export default class DataForm extends LitElement {
         this.invalidFields = new Set();
 
         super.update(changedProperties);
-    }
-
-    updated(changedProperties) {
-        // const modalId = this.config.display?.modalId || `${this._prefix}DataModal`;
-        // const modalDraggable = this._getBooleanValue(this.config.display?.modalDraggable, true);
-        // const mode = this.config.mode || this.config.display.mode || "page";
-        // const modalElm = document.querySelector(`#${modalId}`);
-
-        // if (mode === "modal" & modalDraggable && ((modalElm !== null) && (modalElm !== undefined))) {
-        //     ModalUtils.draggableModal(modalElm);
-        // }
-
     }
 
     dataObserver() {
@@ -1068,47 +1057,19 @@ export default class DataForm extends LitElement {
             });
         }
 
-        const content = html`
-            <table class="table ${tableClassName}" style="${tableStyle}">
-                ${headerVisible ? html`
-                    <thead>
-                    <tr>
-                        ${element.display.columns.map(elem => html`
-                            <th scope="col">${elem.title || elem.name}</th>
-                        `)}
-                    </tr>
-                    </thead>` : null}
-                <tbody>
-                ${array.map(row => html`
-                    <tr scope="row">
-                        ${element.display.columns
-                            .map(elem => {
-                                const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                const elemStyle = elem.display?.style ?? "";
-                                let content = null;
+        const config = {
+            pagination: element.display?.pagination ?? false,
+            search: element.display?.search ?? false,
+            searchAlign: element.display?.searchAlign ?? "right",
+            showHeader: element.display?.showHeader ?? true,
+        };
 
-                                // Check the element type
-                                switch (elem.type) {
-                                    case "complex":
-                                        content = this._createComplexElement(elem, row);
-                                        break;
-                                    case "custom":
-                                        content = elem.display?.render && elem.display.render(this.getValue(elem.field, row));
-                                        break;
-                                    default:
-                                        content = this.getValue(elem.field, row, elem.defaultValue, elem.format);
-                                }
-
-                                return html`
-                                    <td class="${elemClassName}" style="${elemStyle}">
-                                        ${content}
-                                    </td>
-                                `;
-                            })}
-                    </tr>
-                `)}
-                </tbody>
-            </table>
+        const content = html `
+            <data-table
+                .data="${array}"
+                .columns="${element.display.columns}"
+                .config="${config}">
+            </data-table>
         `;
         return this._createElementTemplate(element, null, content);
     }

@@ -174,10 +174,16 @@ class HRDetectView extends LitElement {
                             type: "table",
                             display: {
                                 // style: "width:auto",
-                                headerVisible: false,
+                                showHeader: false,
                                 columns: [
-                                    {field: "key"},
-                                    {field: "value"},
+                                    {
+                                        title: "key",
+                                        field: "key"
+                                    },
+                                    {
+                                        title: "value",
+                                        field: "value"
+                                    },
                                 ],
                             },
                         },
