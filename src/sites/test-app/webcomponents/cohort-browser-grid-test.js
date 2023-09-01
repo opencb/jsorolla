@@ -91,6 +91,11 @@ class CohortBrowserGridTest extends LitElement {
             });
     }
 
+    onSettingsUpdate() {
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.cohortBrowser?.grid};
+        this.opencgaSessionObserver();
+    }
+
     getDefaultTabsConfig() {
         return {
             title: "Cohort",
@@ -159,6 +164,8 @@ class CohortBrowserGridTest extends LitElement {
             <cohort-grid
                 .cohorts="${this.cohorts}"
                 .opencgaSession="${this.opencgaSession}"
+                .config="${this._config || {}}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </cohort-grid>
             <cohort-detail

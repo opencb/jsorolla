@@ -218,6 +218,35 @@ context("Cohort Browser Grid", () => {
                         });
                 });
         });
+
+        it("should hidden columns [Date,Type]",() => {
+
+            cy.get("thead th").contains("div","Type").should("be.visible")
+            cy.get("thead th").contains("div", "Date").should("be.visible")
+
+            cy.get("button[data-action='settings']")
+                .click()
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button").click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter a").contains("Date").click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter a").contains("Type").click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button").click();
+
+            BrowserTest.getElementByComponent({
+                selector: 'cohort-grid opencb-grid-toolbar',
+                tag:'div',
+                elementId: 'SettingModal'
+            }).as("settingModal")
+
+            cy.get("@settingModal")
+                .contains('button', 'OK')
+                .click();
+
+            cy.get("thead th div").should("not.have.value","Type")
+            cy.get("thead th div").should("not.have.value","Date")
+            // cy.get("thead th").contains("div","Type").should("not.be.visible")
+            // cy.get("thead th").contains("div", "Date").should("not.be.visible")
+
+        });
     });
 
     context("Row", () => {

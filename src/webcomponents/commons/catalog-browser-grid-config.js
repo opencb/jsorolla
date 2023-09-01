@@ -161,7 +161,9 @@ export default class CatalogBrowserGridConfig extends LitElement {
     }
 
     getConfigForm() {
+        const isTestEnv = this.opencgaSession?.testEnv ? this.opencgaSession?.testEnv: {};
         return {
+            ...isTestEnv,
             id: "browser-grid-config",
             title: "",
             icon: "fas fa-user-md",
