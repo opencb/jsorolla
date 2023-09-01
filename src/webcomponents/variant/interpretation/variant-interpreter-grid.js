@@ -861,8 +861,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
-                                        <a target="_blank" class="btn force-text-left"
-                                                href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
+                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
                                         </a>
                                     </li>
@@ -906,7 +906,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-varsome-id">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
@@ -1230,8 +1230,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
             case "copy-varsome-id":
-                const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
-                UtilsNew.copyToClipboard(varsomeId);
+                // Note: varsome format is disabled for copy_number variants
+                // See https://app.clickup.com/t/36631768/TASK-3902
+                if (row.type !== "COPY_NUMBER") {
+                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                    UtilsNew.copyToClipboard(varsomeId);
+                }
                 break;
             default:
                 const copy = this._config.copies.find(copy => copy.id.toLowerCase() === action);
