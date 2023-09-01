@@ -262,7 +262,6 @@ context("Variant Browser Grid Germline", () => {
                             expect(content).to.match(/^chr/);
                         });
                 });
-
         });
     });
 });
