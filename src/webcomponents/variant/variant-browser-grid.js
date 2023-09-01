@@ -833,7 +833,7 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
-                                    <li>
+                                    <li data-cy="varsome-copy">
                                         <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
