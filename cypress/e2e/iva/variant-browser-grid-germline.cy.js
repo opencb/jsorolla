@@ -245,5 +245,24 @@ context("Variant Browser Grid Germline", () => {
                         .should("have.string", "https://varsome.com/variant/");
                 });
         });
+
+        it("should display an action to copy variant ID in Varsome format", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Copy Varsome ID");
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("a")
+                        .click({force: true});
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            expect(content).to.match(/^chr/);
+                        });
+                });
+
+        });
     });
 });
