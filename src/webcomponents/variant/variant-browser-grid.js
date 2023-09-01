@@ -832,6 +832,11 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
                                         </a>
                                     </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>`;
                     },
@@ -976,6 +981,10 @@ export default class VariantBrowserGrid extends LitElement {
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "copy-varsome-id":
+                const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                UtilsNew.copyToClipboard(varsomeId);
                 break;
             default:
                 console.warn("Option not recognize: " + action);
