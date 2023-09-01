@@ -92,7 +92,7 @@ export default class VariantGridFormatter {
                     </a>
                 </div>
                 <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${row.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "varsome", assembly)}"`}>
+                    <a target="_blank" ${row.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "varsome", assembly)}"`}>
                         Varsome ${row.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
                     </a>
                 </div>
