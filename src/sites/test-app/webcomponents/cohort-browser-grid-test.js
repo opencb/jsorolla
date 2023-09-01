@@ -60,6 +60,7 @@ class CohortBrowserGridTest extends LitElement {
     #init() {
         this.isLoading = false;
         this.data = [];
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -164,7 +165,7 @@ class CohortBrowserGridTest extends LitElement {
             <cohort-grid
                 .cohorts="${this.cohorts}"
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}"
+                .config="${this._config}"
                 @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </cohort-grid>

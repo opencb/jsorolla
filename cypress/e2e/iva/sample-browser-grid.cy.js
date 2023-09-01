@@ -171,6 +171,80 @@ context("Sample Browser Grid", () => {
         });
     });
 
+    context("Modal Setting", () => {
+
+        it("should move modal setting", () => {
+            cy.get("button[data-action='settings']")
+                .click()
+
+            BrowserTest.getElementByComponent({
+                selector: 'sample-grid opencb-grid-toolbar',
+                tag:'div',
+                elementId: 'SettingModal'
+            }).as("settingModal")
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    // const startPosition = $modal.position()
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find('.modal-header')
+                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
+                        .trigger('mousemove', { clientX: 10, clientY: 10 }) // Move the mouse
+                        .trigger('mouseup') // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get(`@settingModal`)
+                        .find('.modal-header')
+                        .then(($modal) => {
+                            // const finalPosition = $modal.position();
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
+
+        it("should hidden columns [Collection Method,Preparation Method]",() => {
+            const columns = ["Collection Method", "Preparation Method"];
+
+            columns.forEach(col => {
+                cy.get("thead th").contains("div",col).should("be.visible")
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: 'sample-grid opencb-grid-toolbar',
+                tag:'div',
+                elementId: 'SettingModal'
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains('button', 'OK')
+                .click();
+            cy.get("thead th")
+                .then($header => {
+                    const _columns = Array.from($header, th => th.textContent.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
+
     // GRID
     context("Sample Grid", () => {
         const gridComponent = "sample-grid";

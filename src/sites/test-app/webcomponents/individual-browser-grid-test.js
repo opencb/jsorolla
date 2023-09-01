@@ -125,6 +125,11 @@ class IndividualBrowserGridTest extends LitElement {
         }
     }
 
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.individualBrowser?.grid};
+        this.propertyObserver();
+    }
+
     getDefaultTabsConfig() {
         return {
             title: "Individual",
@@ -179,6 +184,7 @@ class IndividualBrowserGridTest extends LitElement {
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </individual-grid>
                 <individual-detail

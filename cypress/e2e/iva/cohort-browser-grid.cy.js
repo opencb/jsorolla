@@ -171,23 +171,14 @@ context("Cohort Browser Grid", () => {
     //     });
     // });
 
-    context("Grid", () => {
-        it("should render", () => {
-            cy.get(browserGrid)
-                .should("be.visible");
-        });
-
-        it("should change page", () => {
-            UtilsTest.changePage(browserGrid,2);
-            UtilsTest.changePage(browserGrid,3);
-        });
+    context("Modal Setting", () => {
 
         it("should move modal setting", () => {
             cy.get("button[data-action='settings']")
                 .click()
 
             BrowserTest.getElementByComponent({
-                selector: 'cohort-grid opencb-grid-toolbar',
+                selector: `${browserGrid} opencb-grid-toolbar`,
                 tag:'div',
                 elementId: 'SettingModal'
             }).as("settingModal")
@@ -220,32 +211,50 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should hidden columns [Date,Type]",() => {
-
-            cy.get("thead th").contains("div","Type").should("be.visible")
-            cy.get("thead th").contains("div", "Date").should("be.visible")
-
+            const columns = ["Cohort ID","Date","Type"];
+            columns.forEach(col => {
+                cy.get("thead th")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
             cy.get("button[data-action='settings']")
-                .click()
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button").click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter a").contains("Date").click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter a").contains("Type").click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter button").click();
-
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
             BrowserTest.getElementByComponent({
-                selector: 'cohort-grid opencb-grid-toolbar',
+                selector: `${browserGrid} opencb-grid-toolbar`,
                 tag:'div',
                 elementId: 'SettingModal'
-            }).as("settingModal")
-
+            }).as("settingModal");
             cy.get("@settingModal")
                 .contains('button', 'OK')
                 .click();
+            cy.get("thead th")
+                .then($header => {
+                    const _columns = Array.from($header, th => th.textContent.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
 
-            cy.get("thead th div").should("not.have.value","Type")
-            cy.get("thead th div").should("not.have.value","Date")
-            // cy.get("thead th").contains("div","Type").should("not.be.visible")
-            // cy.get("thead th").contains("div", "Date").should("not.be.visible")
+    context("Grid", () => {
+        it("should render", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
+        });
 
+        it("should change page", () => {
+            UtilsTest.changePage(browserGrid,2);
+            UtilsTest.changePage(browserGrid,3);
         });
     });
 

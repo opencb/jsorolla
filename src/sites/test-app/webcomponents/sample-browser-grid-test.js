@@ -127,6 +127,11 @@ class SampleBrowserGridTest extends LitElement {
         }
     }
 
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.sampleBrowser?.grid};
+        this.propertyObserver();
+    }
+
     getDefaultTabsConfig() {
         return {
             title: "Sample",
@@ -188,6 +193,7 @@ class SampleBrowserGridTest extends LitElement {
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </sample-grid>
                 <sample-detail
