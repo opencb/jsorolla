@@ -225,6 +225,22 @@ context("Variant Browser Grid Cancer", () => {
                 });
         });
 
+        it("should disable Varsome links for CNVs", () => {
+            cy.get("tbody tr:nth-of-type(3) td:nth-of-type(2)")
+                .find("a[tooltip-title]")
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome (Disabled)");
+                    cy.get("a")
+                        .invoke("attr", "class")
+                        .should("have.string", "disabled");
+                });
+        });
+
         it("should display a link to varsome in the gene tooltip", () => {
             cy.get("tbody tr:first td")
                 .eq(2)
@@ -257,6 +273,13 @@ context("Variant Browser Grid Cancer", () => {
                 });
         });
 
+        it("should disable Varsome links for CNVs in the Actions dropdown", () => {
+            cy.get("tbody tr:nth-of-type(3) td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-variant-link"] a`)
+                .should("have.attr", "disabled");
+        });
+
         it("should display an action to copy variant ID in Varsome format", () => {
             cy.get("tbody tr:first td")
                 .last()
@@ -273,6 +296,13 @@ context("Variant Browser Grid Cancer", () => {
                             expect(content).to.match(/^chr/);
                         });
                 });
+        });
+
+        it("should disable Copy Varsome ID action for CNVs", () => {
+            cy.get("tbody tr:nth-of-type(3) td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"] a`)
+                .should("have.attr", "disabled");
         });
     });
 });
