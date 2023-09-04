@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./job-detail-log.js";
 import "./job-view.js";
 import "../commons/view/detail-tabs.js";
@@ -24,7 +24,7 @@ export default class JobDetail extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,14 +48,20 @@ export default class JobDetail extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
+        this.COMPONENT_ID = "job-detail";
+        this._job = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("jobId")) {
+        if (changedProperties.has("jobId")) {
             this.jobIdObserver();
+        }
+
+        if (changedProperties.has("job")) {
+            this.jobObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -63,6 +69,7 @@ export default class JobDetail extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            this.#updateDetailTabs();
         }
 
         super.update(changedProperties);
@@ -70,27 +77,40 @@ export default class JobDetail extends LitElement {
 
     jobIdObserver() {
         if (this.opencgaSession && this.jobId) {
-            this.opencgaSession.opencgaClient.jobs().info(this.jobId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.job = response.getResult(0);
+            this.opencgaSession.opencgaClient.jobs()
+                .info(this.jobId, {
+                    study: this.opencgaSession.study.fqn,
                 })
-                .catch(function (reason) {
-                    console.error(reason);
+                .then(response => {
+                    this._job = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.job = null;
         }
     }
 
-    render() {
+    jobObserver() {
+        this._job = {...this.job};
+        this.requestUpdate();
+    }
 
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
+    }
+
+    render() {
         if (!this.opencgaSession) {
             return "";
         }
 
         return html`
             <detail-tabs
-                .data="${this.job}"
+                .data="${this._job}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>

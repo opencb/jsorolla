@@ -17,11 +17,10 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-review-primary.js";
-import "./variant-interpreter-rearrangement-grid.js";
 import "../../clinical/interpretation/clinical-interpretation-editor.js";
-import "../../commons/view/detail-tabs.js";
 import "../../clinical/interpretation/clinical-interpretation-summary.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
+import "../../commons/view/detail-tabs.js";
 
 
 export default class VariantInterpreterReview extends LitElement {
@@ -115,6 +114,11 @@ export default class VariantInterpreterReview extends LitElement {
                 name: "General Info",
                 active: false,
                 render: (clinicalAnalysis, active, opencgaSession) => {
+                    const displayConfig = {
+                        titleVisible: false,
+                        width: 8,
+                        buttonsWidth: 8,
+                    };
                     return html`
                         <div class="col-md-10 col-md-offset-1">
                             <tool-header
@@ -131,11 +135,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 .clinicalInterpretation="${clinicalAnalysis?.interpretation}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .opencgaSession="${opencgaSession}"
-                                .displayConfig="${{
-                                    titleVisible: false,
-                                    width: 8,
-                                    buttonsWidth: 8,
-                                }}"
+                                .displayConfig="${displayConfig}"
                                 @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
                             </clinical-interpretation-update>
                         </div>
@@ -186,7 +186,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants || []}"
                                         .active="${active}"
-                                        .toolId="${"variantInterpreterCancerSNV"}"
+                                        .toolId="${"variant-interpreter-cancer-snv"}"
                                         .gridConfig="${gridConfig}"
                                         .settings="${this.settings.browsers["CANCER_SNV"]}">
                                     </variant-interpreter-review-primary>
@@ -225,7 +225,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterCancerCNV"}"
+                                            .toolId="${"variant-interpreter-cancer-cnv"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["CANCER_CNV"]}">
                                         </variant-interpreter-review-primary>
@@ -248,6 +248,11 @@ export default class VariantInterpreterReview extends LitElement {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                                 ?.filter(v => v.type === "BREAKEND");
+                            const gridConfig = {
+                                somatic: true,
+                                isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
+                            };
 
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
@@ -256,12 +261,15 @@ export default class VariantInterpreterReview extends LitElement {
                                         title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
                                     ${variants?.length > 0 ? html`
-                                        <variant-interpreter-rearrangement-grid
+                                        <variant-interpreter-review-primary
                                             .opencgaSession="${opencgaSession}"
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
-                                            .review="${true}">
-                                        </variant-interpreter-rearrangement-grid>
+                                            .active="${active}"
+                                            .toolId="${"variant-interpreter-rearrangement"}"
+                                            .gridConfig="${gridConfig}"
+                                            .settings="${this.settings.browsers["REARRANGEMENT"]}">
+                                        </variant-interpreter-review-primary>
                                     ` : html`
                                         <div class="alert alert-info">
                                             No <b>Somatic Rearrangements</b> to display.
@@ -299,7 +307,7 @@ export default class VariantInterpreterReview extends LitElement {
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
                                             .active="${active}"
-                                            .toolId="${"variantInterpreterRD"}"
+                                            .toolId="${"variant-interpreter-rd"}"
                                             .gridConfig="${gridConfig}"
                                             .settings="${this.settings.browsers["RD"]}">
                                         </variant-interpreter-review-primary>
@@ -321,6 +329,11 @@ export default class VariantInterpreterReview extends LitElement {
                             const variants = clinicalAnalysis?.interpretation?.primaryFindings
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
                                 ?.filter(v => v.type === "BREAKEND");
+                            const gridConfig = {
+                                somatic: false,
+                                isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
+                            };
 
                             return html`
                                 <div class="col-md-10 col-md-offset-1">
@@ -329,12 +342,15 @@ export default class VariantInterpreterReview extends LitElement {
                                         title="Germline Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
                                     </tool-header>
                                     ${variants?.length > 0 ? html`
-                                        <variant-interpreter-rearrangement-grid
+                                        <variant-interpreter-review-primary
                                             .opencgaSession="${opencgaSession}"
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .clinicalVariants="${variants || []}"
-                                            .review="${true}">
-                                        </variant-interpreter-rearrangement-grid>
+                                            .active="${active}"
+                                            .toolId="${"variant-interpreter-rearrangement"}"
+                                            .gridConfig="${gridConfig}"
+                                            .settings="${this.settings.browsers["REARRANGEMENT"]}">
+                                        </variant-interpreter-review-primary>
                                     ` : html`
                                         <div class="alert alert-info">
                                             No <b>Germline Rearrangements</b> to display.
@@ -369,7 +385,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .clinicalVariants="${variants}"
                                     .active="${active}"
-                                    .toolId="${"variantInterpreterRD"}"
+                                    .toolId="${"variant-interpreter-rd"}"
                                     .gridConfig="${gridConfig}"
                                     .settings="${this.settings.browsers["RD"]}">
                                 </variant-interpreter-review-primary>

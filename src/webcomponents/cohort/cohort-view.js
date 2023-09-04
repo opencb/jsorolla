@@ -225,44 +225,39 @@ export default class CohortView extends LitElement {
                                 defaultValue: "N/A",
                             },
                         },
-                    ],
-                },
-                {
-                    title: "Samples",
-                    display: {
-                        visible: cohort => cohort?.id,
-                    },
-                    elements: [
                         {
-                            title: "List of samples",
+                            title: "Samples",
                             field: "samples",
                             type: "table",
                             display: {
                                 columns: [
                                     {
+                                        id: "sample",
                                         title: "Samples ID",
                                         field: "id",
+                                        sortable: true,
                                     },
                                     {
+                                        id: "somatic",
                                         title: "Somatic",
                                         field: "somatic",
-                                        display: {
-                                            defaultValue: "false",
-                                        },
+                                        sortable: true,
+                                        formatter: value => value ? "true" : "false",
                                     },
                                     {
+                                        id: "phenotypes",
                                         title: "Phenotypes",
                                         field: "phenotypes",
-                                        type: "custom",
-                                        display: {
-                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-",
-                                            defaultValue: "-",
-                                        },
-                                    },
+                                        sortable: true,
+                                        formatter: (value, row) => {
+                                            return row?.phenotypes?.length > 0 ? row.phenotypes.map(d => d.id).join(", ") : "-";
+                                        }
+                                    }
                                 ],
-                                defaultValue: "No phenotypes found",
+                                pagination: true,
+                                search: true,
                             },
-                        },
+                        }
                     ],
                 },
             ],

@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./disease-panel-summary.js";
 import "./disease-panel-gene-view.js";
 import "./disease-panel-region-view.js";
@@ -50,37 +51,58 @@ export default class DiseasePanelDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "disease-panel-detail";
+        this._diseasePanel = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.sample = null;
-        }
-
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
+        if (changedProperties.has("diseasePanel")) {
+            this.diseasePanelObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
         super.update(changedProperties);
     }
 
     diseasePanelIdObserver() {
         if (this.opencgaSession && this.diseasePanelId) {
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, {
-                study: this.opencgaSession.study.fqn,
-            }).then(response => {
-                this.diseasePanel = response.getResult(0);
-            }).catch(reason => {
-                console.error(reason);
-            });
-        } else {
-            this.diseasePanel = null;
+            this.opencgaSession.opencgaClient.panels()
+                .info(this.diseasePanelId, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    this._diseasePanel = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
         }
+    }
+
+    diseasePanelObserver() {
+        this._diseasePanel = {...this.diseasePanel};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
@@ -89,11 +111,13 @@ export default class DiseasePanelDetail extends LitElement {
         }
 
         return html`
-            <detail-tabs
-                .data="${this.diseasePanel}"
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div data-cy="dpb-detail">
+                <detail-tabs
+                    .data="${this._diseasePanel}"
+                    .config="${this._config}"
+                    .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
         `;
     }
 
@@ -106,51 +130,47 @@ export default class DiseasePanelDetail extends LitElement {
                     id: "disease-panel-view",
                     name: "Overview",
                     active: true,
-                    render: (diseasePanel, _active, opencgaSession) => {
-                        return html`
-                            <disease-panel-summary
-                                .diseasePanel="${diseasePanel}"
-                                .opencgaSession="${opencgaSession}">
-                            </disease-panel-summary>`;
-                    }
+                    render: (diseasePanel, _active, opencgaSession) => html`
+                        <disease-panel-summary
+                            .diseasePanel="${diseasePanel}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-summary>
+                    `,
                 },
                 {
                     id: "disease-panel-genes",
                     name: "Genes",
-                    render: (diseasePanel, active, opencgaSession) => {
-                        return html`
-                            <disease-panel-gene-view
-                                .genePanels="${diseasePanel.genes}"
-                                .opencgaSession=${opencgaSession}>
-                            </disease-panel-gene-view>`;
-                    }
+                    render: (diseasePanel, active, opencgaSession) => html`
+                        <disease-panel-gene-view
+                            .genePanels="${diseasePanel.genes}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-gene-view>
+                    `,
                 },
                 {
                     id: "disease-panel-regions",
                     name: "Regions",
-                    render: (diseasePanel, active, opencgaSession) => {
-                        return html`
-                            <disease-panel-region-view
-                                .regions="${diseasePanel.regions}"
-                                .opencgaSession=${opencgaSession}>
-                            </disease-panel-region-view>`;
-                    }
+                    render: (diseasePanel, active, opencgaSession) => html`
+                        <disease-panel-region-view
+                            .regions="${diseasePanel.regions}"
+                            .opencgaSession="${opencgaSession}">
+                        </disease-panel-region-view>
+                    `,
                 },
                 {
                     id: "disease-panel-variants",
                     name: "Variants",
-                    render: () => construction
+                    render: () => construction,
                 },
                 {
                     id: "json-view",
                     name: "JSON Data",
-                    render: (diseasePanel, active) => {
-                        return html`
-                            <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                            </json-viewer>`;
-                    }
+                    render: (diseasePanel, active) => html`
+                        <json-viewer
+                            .data="${diseasePanel}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
                 }
             ]
         };

@@ -1,0 +1,26 @@
+name: "Release to GitHub Workflow"
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+jobs:
+  release-workflow:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: iva-app
+          path: iva-${{ inputs.version }}.tar.gz
+      - name: "GitHub Release"
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          generate_release_notes: true
+          files: iva-${{ inputs.version }}.tar.gz

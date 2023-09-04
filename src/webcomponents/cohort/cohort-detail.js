@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "./cohort-view.js";
 import "./../commons/view/detail-tabs.js";
 
@@ -47,40 +48,57 @@ export default class CohortDetail extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "cohort-detail";
+        this._cohort = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.cohort = null;
-        }
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
+
+        if (changedProperties.has("cohort")) {
+            this.cohortObserver();
+        }
+
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
         }
         super.update(changedProperties);
     }
 
     cohortIdObserver() {
         if (this.opencgaSession && this.cohortId) {
-            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
-                .then(restResponse => {
-                    this.cohort = restResponse.getResult(0);
+            this.opencgaSession.opencgaClient.cohorts()
+                .info(this.cohortId, {
+                    study: this.opencgaSession.study.fqn,
                 })
-                .catch(restResponse => {
-                    console.error(restResponse);
+                .then(response => {
+                    this._cohort = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.cohort = null;
         }
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in cohort-browser
-        };
+    cohortObserver() {
+        this._cohort = {...this.cohort};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
@@ -90,10 +108,16 @@ export default class CohortDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.cohort}"
+                .data="${this._cohort}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>`;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }

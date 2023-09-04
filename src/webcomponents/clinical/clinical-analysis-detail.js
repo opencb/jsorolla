@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils.js";
+import ExtensionsManager from "../extensions-manager.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class ClinicalAnalysisDetail extends LitElement {
@@ -47,45 +48,59 @@ export default class ClinicalAnalysisDetail extends LitElement {
     }
 
     _init() {
+        this.COMPONENT_ID = "clinical-analysis-detail";
         this._prefix = UtilsNew.randomString(8);
+        this._clinicalAnalysis = null;
         this._config = this.getDefaultConfig();
+        this.#updateDetailTabs();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysis = null;
-        }
-
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+            this.#updateDetailTabs();
+        }
+
+        super.update(changedProperties);
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession) {
-            if (this.clinicalAnalysisId) {
-                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(restResponse => {
-                        this.clinicalAnalysis = restResponse.getResult(0);
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                    });
-            } else {
-                this.clinicalAnalysis = null;
-            }
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical()
+                .info(this.clinicalAnalysisId, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    this._clinicalAnalysis = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
+                });
         }
     }
 
-    getDefaultConfig() {
-        return {
-            // details config in clinical-analysis-browser
-        };
+    clinicalAnalysisObserver() {
+        this._clinicalAnalysis = {...this.clinicalAnalysis};
+        this.requestUpdate();
+    }
+
+    #updateDetailTabs() {
+        this._config.items = [
+            ...this._config.items,
+            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+        ];
     }
 
     render() {
@@ -95,11 +110,17 @@ export default class ClinicalAnalysisDetail extends LitElement {
 
         return html`
             <detail-tabs
-                .data="${this.clinicalAnalysis}"
+                .data="${this._clinicalAnalysis}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}">
             </detail-tabs>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            items: [],
+        };
     }
 
 }

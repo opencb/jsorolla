@@ -53,16 +53,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     #init() {
+        this.COMPONENT_ID = "clinical-analysis-grid";
         this._prefix = UtilsNew.randomString(8);
-        this.gridId = this._prefix + "ClinicalAnalysisGrid";
+        this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this._config = {...this.getDefaultConfig()};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -84,7 +79,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             ...this._config.toolbar,
             newButtonLink: "#clinical-analysis-create/",
             showCreate: false,
-            columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
+            columns: this._getDefaultColumns(),
         };
         this.renderRemoteTable();
         this.requestUpdate();
@@ -148,14 +143,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => {
+                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
                 },
                 onCheckAll: rows => {
                     this.gridCommons.onCheckAll(rows);
                 },
-                onUncheck: (row, $element) => {
+                onUncheck: row => {
                     this.gridCommons.onUncheck(row.id, row);
                 },
                 onUncheckAll: rows => {
@@ -645,6 +640,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
 
         _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        _columns = this.gridCommons.addColumnsFromExtensions(_columns, this.COMPONENT_ID);
         return _columns;
     }
 

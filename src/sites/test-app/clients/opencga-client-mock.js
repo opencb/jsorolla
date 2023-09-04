@@ -325,6 +325,10 @@ export class OpenCGAClientMock {
         return opencgaSession;
     }
 
+    createLocalClient() {
+        return this;
+    }
+
     /**
      * Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
      * opencgaClient object itself.

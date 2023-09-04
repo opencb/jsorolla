@@ -51,7 +51,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
     }
 
     onConfigObserver() {
-        this._highlights = this.config.highlights
+        this._highlights = (this.config?.highlights || [])
             .filter(h => h.active)
             .map(h => h.id)
             .join(",") || [];
@@ -189,8 +189,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
                                         <select-field-filter
-                                            .data="${this.config.pageList}"
-                                            .value="${this.config.pageSize}"
+                                            .data="${this.config?.pageList}"
+                                            .value="${this.config?.pageSize}"
                                             .multiple="${false}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
