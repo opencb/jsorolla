@@ -171,7 +171,7 @@ context("Family Browser Grid", () => {
         });
     });
 
-    context.only("Modal Setting", () => {
+    context("Modal Setting", () => {
 
         it("should move modal setting", () => {
             cy.get("button[data-action='settings']")
@@ -192,9 +192,12 @@ context("Family Browser Grid", () => {
                         .find(".modal-header")
                         .as("modalHeader");
 
-                    cy.get("@modalHeader").trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader").trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader").trigger("mouseup"); // Release the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
 
                     // Get the final position of the modal
                     cy.get("@settingModal")
@@ -209,7 +212,7 @@ context("Family Browser Grid", () => {
                 });
         });
 
-        it.only("should hidden columns [Case ID,Phenotypes]",() => {
+        it("should hidden columns [Case ID,Phenotypes]",() => {
             const columns = ["Case ID","Phenotypes"];
             cy.get("family-grid thead th").as("headerColumns");
 
