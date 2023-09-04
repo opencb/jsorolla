@@ -13,6 +13,9 @@
         "es2021": true
     },
     "rules": {
+        "quotes": ["warn", "double"],
+        "semi": [2, "always"],
+        "no-multiple-empty-lines":["error",{"max":1}],
         "cypress/no-assigning-return-values": "error",
         "cypress/no-unnecessary-waiting": "error",
         "cypress/assertion-before-screenshot": "warn",
