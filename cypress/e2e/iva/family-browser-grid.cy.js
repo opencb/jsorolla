@@ -15,6 +15,7 @@
  */
 
 import BrowserTest from "../../support/browser-test.js";
+import UtilsTest from "../../support/utils-test.js";
 
 context("Family Browser Grid", () => {
     const browserGrid = "family-grid";
@@ -24,8 +25,8 @@ context("Family Browser Grid", () => {
         cy.visit("#family-browser-grid");
         cy.waitUntil(() => {
             return cy.get(browserGrid)
-                .should("be.visible")
-        })
+                .should("be.visible");
+        });
     });
 
     // TOOLBAR
@@ -34,7 +35,7 @@ context("Family Browser Grid", () => {
 
         beforeEach(() => {
             cy.get(browserGrid)
-                .find(`div[data-cy="toolbar"]`)
+                .find("div[data-cy='toolbar']")
                 .as("toolbar");
         });
 
@@ -43,13 +44,13 @@ context("Family Browser Grid", () => {
             // 1.1. It should render a div with the toolbar
             it("should render toolbar", () => {
                 cy.get(browserGrid)
-                    .find(`div[data-cy="toolbar-wrapper"]`)
+                    .find("div[data-cy='toolbar-wrapper']")
                     .should("be.visible");
             });
             // 1.1. If configured, it should render a New button
             it("should render New button", () => {
                 cy.get(browserGrid)
-                    .find(`button[data-action="create"]`)
+                    .find("button[data-action='create']")
                     .should("be.visible");
             });
         });
@@ -60,10 +61,10 @@ context("Family Browser Grid", () => {
         beforeEach(() => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(browserGrid)
-                .find(`button[data-action="create"]`)
+                .find("button[data-action='create']")
                 .click();
             cy.get(browserGrid)
-                .find(`div[data-cy="modal-create"]`)
+                .find("div[data-cy='modal-create']")
                 .as("modal-create");
         });
         // 1. Open modal and render create
@@ -84,14 +85,14 @@ context("Family Browser Grid", () => {
         it("should render button clear", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .contains('button', 'Clear')
+                .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .contains('button', 'Create')
+                .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
@@ -105,7 +106,7 @@ context("Family Browser Grid", () => {
         it("should have form field ID", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
+                .find("data-form div.form-horizontal div.row.form-group  label.control-label")
                 .should("contain.text", "Family ID");
         });
     });
@@ -115,15 +116,15 @@ context("Family Browser Grid", () => {
         beforeEach(() => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get(browserGrid)
-                .find(`table tbody tr td button.dropdown-toggle`)
+                .find("table tbody tr td button.dropdown-toggle")
                 .first()
                 .click();
             cy.get(browserGrid)
-                .find(`a[data-action="edit"]`)
+                .find("a[data-action='edit']")
                 .first()
                 .click();
             cy.get(browserGrid)
-                .find(`div[data-cy="modal-update"]`)
+                .find("div[data-cy='modal-update']")
                 .as("modal-update");
         });
         // 1. Open modal and render update
@@ -144,14 +145,14 @@ context("Family Browser Grid", () => {
         it("should render button clear", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .contains('button', 'Discard Changes')
+                .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .contains('button', 'Update')
+                .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
@@ -165,24 +166,21 @@ context("Family Browser Grid", () => {
         it("should have form field ID equal to sample selected", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .find(`data-form div.row div.row.form-group  label.control-label`)
+                .find("data-form div.row div.row.form-group  label.control-label")
                 .should("contain.text", "Family ID");
         });
     });
 
-    context("Grid", () => {
-        it("should render", () => {
-            cy.get(browserGrid)
-                .should("be.visible");
-        });
+    context.only("Modal Setting", () => {
+
         it("should move modal setting", () => {
             cy.get("button[data-action='settings']")
                 .click();
 
             BrowserTest.getElementByComponent({
-                selector: 'family-grid opencb-grid-toolbar',
-                tag:'div',
-                elementId: 'SettingModal'
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
             }).as("settingModal");
 
             cy.get("@settingModal")
@@ -190,16 +188,17 @@ context("Family Browser Grid", () => {
                     const startPosition = $modal.offset();
                     cy.log("start Position:", startPosition);
                     // Drag the modal to a new position using Cypress's drag command
-                    // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get("@settingModal")
-                        .find('.modal-header')
-                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                        .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                        .trigger('mouseup'); // Release the mouse
+                        .find(".modal-header")
+                        .as("modalHeader");
+
+                    cy.get("@modalHeader").trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader").trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader").trigger("mouseup"); // Release the mouse
 
                     // Get the final position of the modal
-                    cy.get(`@settingModal`)
-                        .find('.modal-header')
+                    cy.get("@settingModal")
+                        .find(".modal-header")
                         .then(($modal) => {
                             const finalPosition = $modal.offset();
                             cy.log("final Position:", finalPosition);
@@ -208,6 +207,51 @@ context("Family Browser Grid", () => {
                             expect(finalPosition.top).to.not.equal(startPosition.top);
                         });
                 });
+        });
+
+        it.only("should hidden columns [Case ID,Phenotypes]",() => {
+            const columns = ["Case ID","Phenotypes"];
+            cy.get("family-grid thead th").as("headerColumns");
+
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
+
+            cy.get("@headerColumns")
+                .should($header => {
+                    const _columns = Array.from($header, th => th.textContent?.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
+
+    context("Grid", () => {
+        it("should render", () => {
+            cy.get(browserGrid)
+                .should("be.visible");
         });
     });
 
@@ -237,16 +281,16 @@ context("Family Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
+            cy.get("detail-tabs > div.detail-tabs > ul")
                 .find("li")
                 .contains("New Catalog Tab")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -257,18 +301,18 @@ context("Family Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Family")
+            BrowserTest.getColumnIndexByHeader("Family");
             cy.get("@indexColumn")
                 .then((indexColumn) => {
-                    const indexRow = 1
+                    const indexRow = 1;
                     // eslint-disable-next-line cypress/unsafe-to-chain-command
-                    cy.get(`tbody tr`)
+                    cy.get("tbody tr")
                         .eq(indexRow)
                         .click() // select the row
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                     });
 
             cy.get("@textRow")
@@ -284,11 +328,11 @@ context("Family Browser Grid", () => {
 
         it("should display 'JSON Data' Tab", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
+            cy.get("detail-tabs > div.detail-tabs > ul")
                 .find("li")
                 .contains("JSON Data")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 });
