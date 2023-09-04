@@ -171,7 +171,6 @@ context("Disease Panel Browser Grid", () => {
     });
 
     context("Modal Setting", () => {
-
         it("should move modal setting", () => {
             cy.get("button[data-action='settings']")
                 .click();
@@ -213,9 +212,11 @@ context("Disease Panel Browser Grid", () => {
 
         it("should hidden columns [Disorders,Source,Extra column]",() => {
             const columns = ["Disorders","Source","Extra column"];
+            cy.get("disease-panel-grid thead th")
+                .as("headerColumns");
 
             columns.forEach(col => {
-                cy.get("thead th")
+                cy.get("@headerColumns")
                     .contains("div",col)
                     .should("be.visible");
             });
@@ -238,7 +239,7 @@ context("Disease Panel Browser Grid", () => {
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
-            cy.get("thead th")
+            cy.get("@headerColumns")
                 .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {

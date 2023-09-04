@@ -112,6 +112,12 @@ class DiseasePanelBrowserGridTest extends LitElement {
         }
     }
 
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.diseasePanelBrowser?.grid};
+        this.propertyObserver();
+    }
+
+
     getDefaultTabsConfig() {
         return {
             title: "Disease Panel",
@@ -172,7 +178,8 @@ class DiseasePanelBrowserGridTest extends LitElement {
                     .diseasePanels="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
-                    @selectrow="${this.selectInstance}">
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                    @selectrow="${e => this.selectInstance(e)}">
                 </disease-panel-grid>
                 <disease-panel-detail
                     .diseasePanel="${this._selectedInstance}"
