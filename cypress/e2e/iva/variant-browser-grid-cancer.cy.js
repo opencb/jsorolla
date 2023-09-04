@@ -17,16 +17,98 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
-
 context("Variant Browser Grid Cancer", () => {
     const browserGrid = "variant-browser-grid";
     const browserDetail = "variant-browser-detail";
 
     beforeEach(() => {
-        cy.visit("#variant-browser-grid-cancer")
+        cy.visit("#variant-browser-grid-cancer");
         cy.waitUntil(() => {
             return cy.get(browserGrid)
                 .should("be.visible");
+        });
+    });
+
+    context("Modal Setting", () => {
+
+        it("should move modal setting", () => {
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
+
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
+
+        it("should hidden columns [Variant,Gene,Type]",() => {
+            const columns = ["Variant","Gene","Type"];
+            cy.get("variant-browser-grid thead th")
+                .as("headerColumns");
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
+            cy.get("@headerColumns")
+                .should("not.exist");
+            cy.get("@headerColumns")
+                .should("exist");
+            cy.get("@headerColumns")
+                .should($header => {
+                    const _columns = Array.from($header, th => th.textContent?.trim());
+                    debugger;
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
         });
     });
 
@@ -39,41 +121,6 @@ context("Variant Browser Grid Cancer", () => {
         it("should chnage page variant-browser-grid", () => {
             UtilsTest.changePage(browserGrid,2);
             UtilsTest.changePage(browserGrid,3);
-        });
-
-        it("should move modal setting", () => {
-
-            cy.get("button[data-action='settings']")
-                .click();
-
-            BrowserTest.getElementByComponent({
-                selector: 'variant-browser-grid opencb-grid-toolbar',
-                tag:'div',
-                elementId: 'SettingModal'
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find('.modal-header')
-                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                        .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                        .trigger('mouseup'); // Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get(`@settingModal`)
-                        .find('.modal-header')
-                        .then(($modal) => {
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
         });
     });
 
@@ -92,7 +139,7 @@ context("Variant Browser Grid Cancer", () => {
                                     .trigger("mouseover");
                             });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -108,7 +155,7 @@ context("Variant Browser Grid Cancer", () => {
                                     .trigger("mouseover");
                             });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -124,7 +171,7 @@ context("Variant Browser Grid Cancer", () => {
                                 .trigger("mouseover");
                         });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
                 });
         });
 
@@ -135,9 +182,9 @@ context("Variant Browser Grid Cancer", () => {
                     cy.get("a")
                         .eq(0)
                         .trigger("mouseover");
-            })
+            });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -150,7 +197,7 @@ context("Variant Browser Grid Cancer", () => {
                         .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display conservation help", () => {
@@ -161,7 +208,7 @@ context("Variant Browser Grid Cancer", () => {
                             .trigger("mouseover");
                     });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display population frequencies help", () => {
@@ -170,9 +217,9 @@ context("Variant Browser Grid Cancer", () => {
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
-            })
+            });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display clinical info help", () => {
@@ -183,7 +230,7 @@ context("Variant Browser Grid Cancer", () => {
                     .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -238,7 +285,7 @@ context("Variant Browser Grid Cancer", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("div","Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 });
