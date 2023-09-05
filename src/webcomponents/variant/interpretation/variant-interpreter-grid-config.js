@@ -61,7 +61,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
             .map(h => h.id)
             .join(",");
 
-
         // Prepare data for the column select
         this.selectColumnData = [];
         this.selectedColumns = [];
@@ -69,12 +68,12 @@ export default class VariantInterpreterGridConfig extends LitElement {
             let lastSubColumn = 0;
             for (const gridColumn of this.gridColumns[0]) {
                 if (gridColumn.rowspan === 2) {
-                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.title});
+                    this.selectColumnData.push({id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title});
                     if (typeof gridColumn.visible === "undefined" || gridColumn.visible) {
                         this.selectedColumns.push(gridColumn.id);
                     }
                 } else {
-                    const option = {id: gridColumn.id, name: gridColumn.title, fields: []};
+                    const option = {id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title, fields: []};
                     for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
                         option.fields.push({id: this.gridColumns[1][i].id, name: this.gridColumns[1][i].title});
                         if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {

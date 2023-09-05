@@ -31,7 +31,6 @@ import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../../webcomponents/commons/utils/notification-utils.js";
 import NotificationManager from "../../core/notification-manager.js";
 
-import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/clinical-analysis-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-portal.js";
 import "../../webcomponents/variant/variant-browser.js";

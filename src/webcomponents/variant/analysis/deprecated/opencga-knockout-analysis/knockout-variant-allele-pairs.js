@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new.js";
-import GridCommons from "../../../commons/grid-commons.js";
-import "./../../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../../../core/utils-new.js";
+import GridCommons from "../../../../commons/grid-commons.js";
+import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
-export default class KnockoutVariantIndividual extends LitElement {
+export default class KnockoutVariantAllelePairs extends LitElement {
 
     constructor() {
         super();
@@ -54,10 +54,7 @@ export default class KnockoutVariantIndividual extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
-
-        if (changedProperties.has("variant")) {
+        if (changedProperties.has("variantId")) {
             this.prepareData();
             this.renderTable();
         }
@@ -69,8 +66,6 @@ export default class KnockoutVariantIndividual extends LitElement {
 
     prepareData() {
         // TODO
-
-        this.tableData = this.variant.data;
 
     }
 
@@ -86,7 +81,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
@@ -104,46 +99,45 @@ export default class KnockoutVariantIndividual extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Individual Id",
-                field: "sampleId"
+                title: "Allele",
+                field: "variant"
             },
             {
-                title: "Sample",
-                field: "sampleId"
+                title: "Pair type",
+                field: "pair"
             },
             {
                 title: "Type",
                 field: "type"
             },
             {
-                title: "GT",
-                field: "variant.genotype"
+                title: "Alt. freq",
+                field: "freq"
             },
             {
-                title: "DP",
-                field: "dp"
+                title: "Consequence Type",
+                field: "consequenceType"
             },
             {
-                title: "Filter",
-                field: "variant.filter"
+                title: "ClinVar",
+                field: "clinvar"
             },
             {
-                title: "Qual",
-                field: "qual"
+                title: "Num. Individuals",
+                field: "individuals"
             }
         ];
     }
 
     getDefaultConfig() {
         return {
-            title: "Individual"
+            title: "Allele Pairs"
 
         };
     }
 
     render() {
         return html`
-            <h3>Individual presenting ${this.variant?.id}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
@@ -152,4 +146,4 @@ export default class KnockoutVariantIndividual extends LitElement {
 
 }
 
-customElements.define("knockout-variant-individual", KnockoutVariantIndividual);
+customElements.define("knockout-variant-allele-pairs", KnockoutVariantAllelePairs);
