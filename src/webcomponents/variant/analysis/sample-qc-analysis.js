@@ -98,7 +98,7 @@ export default class SampleQcAnalysis extends LitElement {
     onSubmit() {
         const toolParams = {
             sample: this.toolParams.sample || "",
-            variantStatsQuery: this.toolParams.variantStatsQuery || {},
+            vsQuery: this.toolParams.vsQuery || {},
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -163,7 +163,7 @@ export default class SampleQcAnalysis extends LitElement {
             },
             {
                 title: "Variant Stats Query Parameters",
-                elements: AnalysisUtils.getVariantQueryConfiguration("variantStatsQuery.", [], this.opencgaSession, this.onFieldChange.bind(this)),
+                elements: AnalysisUtils.getVariantQueryConfiguration("vsQuery.", [], this.opencgaSession, this.onFieldChange.bind(this)),
             },
         ];
 
