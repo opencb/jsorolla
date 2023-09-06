@@ -792,6 +792,13 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-external-link-alt" aria-hidden="true"></i> Decipher
                                         </a>
                                     </li>
+                                    <li data-cy="varsome-variant-link">
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} 
+                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
+                                        </a>
+                                    </li>
+
                                     <li class="dropdown-header">CellBase Links</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
@@ -830,6 +837,11 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li>
                                         <a href="javascript: void 0" class="dropdown-item" data-action="download">
                                             <i class="fas fa-download" aria-hidden="true"></i> Download JSON
+                                        </a>
+                                    </li>
+                                    <li data-cy="varsome-copy">
+                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Copy Varsome ID
                                         </a>
                                     </li>
                                 </ul>
@@ -976,6 +988,14 @@ export default class VariantBrowserGrid extends LitElement {
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                break;
+            case "copy-varsome-id":
+                // Note: varsome format is disabled for copy_number variants
+                // See https://app.clickup.com/t/36631768/TASK-3902
+                if (row.type !== "COPY_NUMBER") {
+                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                    UtilsNew.copyToClipboard(varsomeId);
+                }
                 break;
             default:
                 console.warn("Option not recognize: " + action);

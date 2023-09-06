@@ -58,6 +58,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
     #init() {
         this.clinicalAnalysis = {};
         this.clinicalAnalysisId = "";
+        this.buttonsDisabled = false;
 
         this.displayConfig = {
             titleWidth: 3,
@@ -89,11 +90,15 @@ export default class ClinicalAnalysisUpdate extends LitElement {
         this.disordersAllowedValues = (this.clinicalAnalysis?.proband?.disorders?.length > 0) ?
             this.clinicalAnalysis?.proband?.disorders?.map(disorder => disorder.id) :
             [];
+
+        // Initialize the state of the submit and discard buttons
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
     }
 
     clinicalAnalysisIdObserver(e) {
         this.clinicalAnalysis = e.detail.value;
-    /*
+        /*
         // Fixme: discuss what to do with:
         //  (a) the custom event received.
         //  (b) event.status error and message (notified to the user  in opencga-update catch)
@@ -104,11 +109,31 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             e.detail.value,
             e.detail,
             null);
-    */
+        */
+        // Initialize the state of the submit and discard buttons
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
         this.users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
+    }
+
+    onComponentFieldChange(e) {
+        if (e.detail.param === "locked") {
+            if (this.clinicalAnalysis?.locked) {
+                this.buttonsDisabled = e.detail.value;
+            }
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
+    onComponentClear() {
+        this.buttonsDisabled = !!this.clinicalAnalysis?.locked;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
@@ -119,7 +144,9 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                 .componentId="${this.clinicalAnalysisId}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config}"
-                @componentIdObserver="${this.clinicalAnalysisIdObserver}">
+                @componentIdObserver="${this.clinicalAnalysisIdObserver}"
+                @componentFieldChange="${this.onComponentFieldChange}"
+                @componentClear="${this.onComponentClear}">
             </opencga-update>
         `;
     }
@@ -129,7 +156,11 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             id: "clinical-analysis", // Fixme: clinical-analysis-update.js?
             title: "Case Editor", // Fixme: Clinical Analysis update?
             icon: "fas fa-user-md", // Fixme: to overwrite?
-            display: this.displayConfig,
+            display: {
+                ...this.displayConfig,
+                buttonOkDisabled: this.buttonsDisabled,
+                buttonClearDisabled: this.buttonsDisabled,
+            },
             sections: [
                 {
                     id: "summary",
@@ -324,12 +355,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handlePanelsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        e.detail.value = e.detail.value
-                                            ?.split(",")
+                                        const panels = (e.detail.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
-                                        dataFormFilterChange(e.detail.value);
+                                        dataFormFilterChange(panels);
                                     };
                                     return html`
                                         <disease-panel-filter

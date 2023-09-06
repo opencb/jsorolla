@@ -116,7 +116,6 @@ export default class OpencbGridToolbar extends LitElement {
         exportModal.show();
     }
 
-
     render() {
         const rightButtons = [];
         if (this.rightToolbar && this.rightToolbar.length > 0) {

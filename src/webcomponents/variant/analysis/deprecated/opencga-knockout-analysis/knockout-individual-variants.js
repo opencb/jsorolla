@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new.js";
-import GridCommons from "../../../commons/grid-commons.js";
-import "./../../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../../../core/utils-new.js";
+import GridCommons from "../../../../commons/grid-commons.js";
+import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
-export default class KnockoutVariantIndividual extends LitElement {
+export default class KnockoutIndividualVariants extends LitElement {
 
     constructor() {
         super();
@@ -37,7 +37,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            individual: {
                 type: Object
             },
             config: {
@@ -49,15 +49,13 @@ export default class KnockoutVariantIndividual extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-        this.gridId = this._prefix + "KnockoutVAPGrid";
+        this.gridId = this._prefix + "KnockoutIndividualGrid";
+        this.individual = null;
 
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
-
-        if (changedProperties.has("variant")) {
+        if (changedProperties.has("individual")) {
             this.prepareData();
             this.renderTable();
         }
@@ -68,9 +66,10 @@ export default class KnockoutVariantIndividual extends LitElement {
     }
 
     prepareData() {
-        // TODO
-
-        this.tableData = this.variant.data;
+        if (this.individual) {
+            const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
+            this.tableData = variants;
+        }
 
     }
 
@@ -87,8 +86,10 @@ export default class KnockoutVariantIndividual extends LitElement {
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
             pagination: true,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
@@ -106,32 +107,24 @@ export default class KnockoutVariantIndividual extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Individual Id",
-                field: "sampleId"
-            },
-            {
-                title: "Sample",
-                field: "sampleId"
+                title: "id",
+                field: "id"
             },
             {
                 title: "Type",
-                field: "type"
+                field: "knockoutType"
             },
             {
                 title: "GT",
-                field: "variant.genotype"
+                field: "genotype"
             },
             {
-                title: "DP",
-                field: "dp"
+                title: "Depth",
+                field: ""
             },
             {
                 title: "Filter",
-                field: "variant.filter"
-            },
-            {
-                title: "Qual",
-                field: "qual"
+                field: "filter"
             }
         ];
     }
@@ -145,7 +138,6 @@ export default class KnockoutVariantIndividual extends LitElement {
 
     render() {
         return html`
-            <h3>Individual presenting ${this.variant?.id}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
@@ -154,4 +146,4 @@ export default class KnockoutVariantIndividual extends LitElement {
 
 }
 
-customElements.define("knockout-variant-individual", KnockoutVariantIndividual);
+customElements.define("knockout-individual-variants", KnockoutIndividualVariants);

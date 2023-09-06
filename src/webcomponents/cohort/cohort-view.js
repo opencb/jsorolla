@@ -216,13 +216,13 @@ export default class CohortView extends LitElement {
                             title: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
-                            defaultValue: "N/A",
                             display: {
                                 render: field => html`
                                     <annotation-set-view
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
+                                defaultValue: "N/A",
                             },
                         },
                         {

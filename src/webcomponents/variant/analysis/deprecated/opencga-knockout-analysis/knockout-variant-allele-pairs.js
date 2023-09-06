@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../../core/utils-new.js";
-import GridCommons from "../../../commons/grid-commons.js";
-import "./../../../commons/view/detail-tabs.js";
+import UtilsNew from "../../../../../core/utils-new.js";
+import GridCommons from "../../../../commons/grid-commons.js";
+import "../../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
@@ -54,9 +54,6 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
-
         if (changedProperties.has("variantId")) {
             this.prepareData();
             this.renderTable();

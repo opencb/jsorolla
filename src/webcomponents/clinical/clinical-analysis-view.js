@@ -412,7 +412,9 @@ export default class ClinicalAnalysisView extends LitElement {
                                     {
                                         title: "Collection Method",
                                         field: "collection.method",
-                                        defaultValue: "-",
+                                        display: {
+                                            defaultValue: "-",
+                                        },
                                     },
                                     {
                                         title: "Preparation Method",
