@@ -38,7 +38,7 @@ export default class CustomLanding extends LitElement {
     getSSOUrl() {
         if (this.opencgaSession?.opencgaClient) {
             const config = this.opencgaSession?.opencgaClient?._config;
-            return `${config.host}/webservices/rest/${config.version}/meta/sso?url=${window.location.href}`;
+            return `${config.host}/webservices/rest/${config.version}/meta/sso/login?url=${window.location.href}`;
         } else {
             return "#";
         }
