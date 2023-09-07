@@ -17,13 +17,12 @@
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
 
-
 context("Job Browser Grid", () => {
     const browserGrid = "job-grid";
     const browserDetail = "job-detail";
 
     beforeEach(() => {
-        cy.visit("#job-browser-grid")
+        cy.visit("#job-browser-grid");
         cy.waitUntil(() => {
             return cy.get(browserGrid)
                 .should("be.visible");
@@ -120,8 +119,8 @@ context("Job Browser Grid", () => {
 
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:'div',
-                elementId: 'SettingModal'
+                tag:"div",
+                elementId: "SettingModal"
             }).as("settingModal");
 
             cy.get("@settingModal")
@@ -130,14 +129,18 @@ context("Job Browser Grid", () => {
                     cy.log("start Position:", startPosition);
                     // Drag the modal to a new position using Cypress's drag command
                     cy.get("@settingModal")
-                        .find('.modal-header')
-                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                        .trigger('mousemove', { clientX: 100, clientY: 100 }) // Move the mouse
-                        .trigger('mouseup'); // Release the mouse
+                        .find(".modal-header")
+                        .as("modalHeader");
+
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse// Release the mouse
 
                     // Get the final position of the modal
-                    cy.get(`@settingModal`)
-                        .find('.modal-header')
+                    cy.get(`@modalHeader`)
                         .then(($modal) => {
                             const finalPosition = $modal.offset();
                             cy.log("final Position:", finalPosition);
@@ -150,9 +153,13 @@ context("Job Browser Grid", () => {
 
         it("should hidden columns [Status,Output Files,Runtime]",() => {
             const columns = ["Status","Output Files","Runtime"];
+            cy.get(`${browserGrid} thead th`)
+                .as("headerColumns");
 
             columns.forEach(col => {
-                cy.get("thead th").contains("div",col).should("be.visible")
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
             });
             cy.get("button[data-action='settings']")
                 .click();
@@ -167,14 +174,16 @@ context("Job Browser Grid", () => {
                 .click();
             BrowserTest.getElementByComponent({
                 selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:'div',
-                elementId: 'SettingModal'
+                tag:"div",
+                elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
-                .contains('button', 'OK')
+                .contains("button", "OK")
                 .click();
-            cy.get("thead th")
-                .then($header => {
+
+            cy.get("@headerColumns")
+                .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
                         expect(col).not.to.be.oneOf(_columns);
@@ -182,8 +191,6 @@ context("Job Browser Grid", () => {
                 });
         });
     });
-
-
 
     context("Grid", () => {
         it("should render", () => {
@@ -196,7 +203,6 @@ context("Job Browser Grid", () => {
             UtilsTest.changePage(browserGrid,3);
         });
     });
-
 
         context("Row", () => {
             it("should display row #3 as selected", () => {
@@ -224,7 +230,7 @@ context("Job Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display 'New Catalog Tab' Tab", () => {
@@ -233,7 +239,7 @@ context("Job Browser Grid", () => {
                 .find("li")
                 .contains("New Catalog Tab")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 
@@ -244,10 +250,10 @@ context("Job Browser Grid", () => {
         });
 
         it("should display info from the selected row",() => {
-            BrowserTest.getColumnIndexByHeader("Job ID")
+            BrowserTest.getColumnIndexByHeader("Job ID");
             cy.get("@indexColumn")
                 .then((indexColumn) => {
-                    const indexRow = 2
+                    const indexRow = 2;
                     // eslint-disable-next-line cypress/unsafe-to-chain-command
                     cy.get(`tbody tr`)
                         .eq(indexRow)
@@ -255,7 +261,7 @@ context("Job Browser Grid", () => {
                         .find("td")
                         .eq(indexColumn)
                         .invoke("text")
-                        .as("textRow")
+                        .as("textRow");
                     });
 
             cy.get("@textRow")
@@ -275,7 +281,7 @@ context("Job Browser Grid", () => {
                 .find("li")
                 .contains("Logs")
                 .click()
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 });

@@ -200,8 +200,7 @@ context("Family Browser Grid", () => {
                         .trigger("mouseup"); // Release the mouse
 
                     // Get the final position of the modal
-                    cy.get("@settingModal")
-                        .find(".modal-header")
+                    cy.get("@modalHeader")
                         .then(($modal) => {
                             const finalPosition = $modal.offset();
                             cy.log("final Position:", finalPosition);
@@ -214,7 +213,8 @@ context("Family Browser Grid", () => {
 
         it("should hidden columns [Case ID,Phenotypes]",() => {
             const columns = ["Case ID","Phenotypes"];
-            cy.get("family-grid thead th").as("headerColumns");
+            cy.get(`${browserGrid} thead th`)
+                .as("headerColumns");
 
             columns.forEach(col => {
                 cy.get("@headerColumns")
@@ -237,6 +237,7 @@ context("Family Browser Grid", () => {
                 tag:"div",
                 elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();

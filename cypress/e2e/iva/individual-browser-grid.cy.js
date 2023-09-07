@@ -18,7 +18,7 @@ import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test";
 
 context("Individual Browser Grid", () => {
-    const gridComponent = "individual-grid";
+    const browserGrid = "individual-grid";
 
     beforeEach(() => {
         cy.visit("#individual-browser-grid");
@@ -178,7 +178,7 @@ context("Individual Browser Grid", () => {
                 .click();
 
             BrowserTest.getElementByComponent({
-                selector: `${gridComponent} opencb-grid-toolbar`,
+                selector: `${browserGrid} opencb-grid-toolbar`,
                 tag:"div",
                 elementId: "SettingModal"
             }).as("settingModal");
@@ -213,10 +213,10 @@ context("Individual Browser Grid", () => {
 
         it("should hidden columns [Disorders,Case ID,Ethnicity]",() => {
             const columns = ["Disorders","Case ID","Ethnicity"];
-            cy.get("individual-grid thead th")
+            cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
             columns.forEach(col => {
-                cy.get("individual-grid thead th")
+                cy.get("@headerColumns")
                     .contains("div",col)
                     .should("be.visible");
             });
@@ -232,10 +232,11 @@ context("Individual Browser Grid", () => {
             UtilsTest.getByDataTest("test-columns", "select-field-filter button")
                 .click();
             BrowserTest.getElementByComponent({
-                selector: `${gridComponent} opencb-grid-toolbar`,
+                selector: `${browserGrid} opencb-grid-toolbar`,
                 tag:"div",
                 elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();
