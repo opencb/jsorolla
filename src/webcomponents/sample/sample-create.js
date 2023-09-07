@@ -472,7 +472,6 @@ export default class SampleCreate extends LitElement {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
                                     type: "input-text",
-                                    allowedValues: [0],
                                     display: {
                                         placeholder: "Add an age of onset..."
                                     },
