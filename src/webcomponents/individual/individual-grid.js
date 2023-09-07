@@ -499,7 +499,7 @@ export default class IndividualGrid extends LitElement {
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign,
-                visible: this.gridCommons.isColumnVisible("attributes.OPENCGA_CLINICAL_ANALYSIS")
+                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "sex",
