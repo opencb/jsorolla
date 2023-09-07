@@ -195,4 +195,73 @@ context("Variant Browser Grid Germline", () => {
             });
         });
     });
+
+    context("Varsome Links", () => {
+        it("should display a link to varsome in the variant tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(1)
+                .find("a[tooltip-title]")
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should display a link to varsome in the gene tooltip", () => {
+            cy.get("tbody tr:first td")
+                .eq(2)
+                .find("a[tooltip-title]")
+                .eq(0)
+                .trigger("mouseover");
+            cy.get("div.qtip-content")
+                .find(`div[data-cy="varsome-gene-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/gene/");
+                });
+        });
+
+        it("should display a link to varsome in the Actions dropdown", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-variant-link"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Varsome");
+                    cy.get("a")
+                        .invoke("attr", "href")
+                        .should("have.string", "https://varsome.com/variant/");
+                });
+        });
+
+        it("should display an action to copy variant ID in Varsome format", () => {
+            cy.get("tbody tr:first td")
+                .last()
+                .find(`div.dropdown ul.dropdown-menu li[data-cy="varsome-copy"]`)
+                .within(() => {
+                    cy.get("a")
+                        .should("exist")
+                        .and("contain.text", "Copy Varsome ID");
+                    // eslint-disable-next-line cypress/no-force
+                    cy.get("a")
+                        .click({force: true});
+                    UtilsTest.assertValueCopiedToClipboard()
+                        .then(content => {
+                            expect(content).to.match(/^chr/);
+                        });
+                });
+        });
+    });
 });

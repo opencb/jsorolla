@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
-import UtilsNew from "../../../../core/utils-new.js";
+import UtilsNew from "../../../../../core/utils-new.js";
 import AnalysisRegistry from "../analysis-registry.js";
-import GridCommons from "../../../commons/grid-commons.js";
+import GridCommons from "../../../../commons/grid-commons.js";
 import knockoutDataGene from "../test/knockout.20201103172343.kFIvpr.gene.js";
 
 export default class KnockoutGeneGrid extends LitElement {
@@ -99,7 +99,7 @@ export default class KnockoutGeneGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            //data: this.tableData,
+            // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -115,7 +115,7 @@ export default class KnockoutGeneGrid extends LitElement {
             ajax: params => {
                 this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId, study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
-                        console.log("restResponse", restResponse)
+                        console.log("restResponse", restResponse);
                         this.tableData = restResponse.getResults();
                         params.success(this.tableData);
                     }).catch(e => {
