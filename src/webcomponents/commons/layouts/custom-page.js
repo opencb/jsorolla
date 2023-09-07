@@ -26,14 +26,17 @@ export default class CustomPage extends LitElement {
     static get properties() {
         return {
             page: {
-                type: Object
+                type: Object,
+            },
+            opencgaSession: {
+                type: Object,
             },
         };
     }
 
     render() {
         return html`
-            <div class="container" style="margin-top:48px;margin-bottom:48px;">
+            <div class="container" style="margin-top:48px;margin-bottom:48px;" data-cy="custom-page">
                 <!-- Page title -->
                 ${this.page.title && this.page.display?.showTitle !== false ? html`
                     <h1 class="${this.page.display?.titleClass}" style="${this.page.display?.titleStyle}">
@@ -42,9 +45,12 @@ export default class CustomPage extends LitElement {
                 ` : null}
                 ${this.page.display?.showTitle !== false ? html`<hr></hr>` : null}
                 <!-- Page content -->
-                ${this.page.content ? html`
-                    <div>${UtilsNew.renderHTML(this.page.content)}</div>
-                ` : null}
+                ${this.page.content ? html `
+                 <div>
+                    ${UtilsNew.renderHTML(typeof this.page.content === "function" ? this.page.content(this.opencgaSession) : this.page.content)}
+                 </div>
+                 ` : null
+                }
             </div>
         `;
     }
