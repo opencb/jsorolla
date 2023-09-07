@@ -236,6 +236,7 @@ context("Disease Panel Browser Grid", () => {
                 tag:"div",
                 elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
                 .contains("button", "OK")
                 .click();

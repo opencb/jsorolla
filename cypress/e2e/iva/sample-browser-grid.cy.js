@@ -18,7 +18,7 @@ import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test";
 
 context("Sample Browser Grid", () => {
-
+    const browserGrid = "sample-grid";
     beforeEach(() => {
         cy.visit("#sample-browser-grid");
         cy.get(`div[data-cy="sample-browser-container"]`)
@@ -85,14 +85,14 @@ context("Sample Browser Grid", () => {
         it("should render button clear", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .contains('button', 'Clear')
+                .contains("button", "Clear")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-create")
-                .contains('button', 'Create')
+                .contains("button", "Create")
                 .should("be.visible");
         });
         // 5. Render tabs
@@ -145,14 +145,14 @@ context("Sample Browser Grid", () => {
         it("should render button clear", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .contains('button', 'Discard Changes')
+                .contains("button", "Discard Changes")
                 .should("be.visible");
         });
         // 4. Render button create
         it("should render button create", () => {
             // eslint-disable-next-line cypress/unsafe-to-chain-command
             cy.get("@modal-update")
-                .contains('button', 'Update')
+                .contains("button", "Update")
                 .should("be.visible");
         });
         // 5. Render tabs
@@ -175,13 +175,13 @@ context("Sample Browser Grid", () => {
 
         it("should move modal setting", () => {
             cy.get("button[data-action='settings']")
-                .click()
+                .click();
 
             BrowserTest.getElementByComponent({
-                selector: 'sample-grid opencb-grid-toolbar',
-                tag:'div',
-                elementId: 'SettingModal'
-            }).as("settingModal")
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
 
             cy.get("@settingModal")
                 .then(($modal) => {
@@ -190,14 +190,18 @@ context("Sample Browser Grid", () => {
                     cy.log("start Position:", startPosition);
                     // Drag the modal to a new position using Cypress's drag command
                     cy.get("@settingModal")
-                        .find('.modal-header')
-                        .trigger('mousedown', { which: 1 }) // Trigger mouse down event
-                        .trigger('mousemove', { clientX: 10, clientY: 10 }) // Move the mouse
-                        .trigger('mouseup') // Release the mouse
+                        .find(".modal-header")
+                        .as("modalHeader");
+
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
 
                     // Get the final position of the modal
-                    cy.get(`@settingModal`)
-                        .find('.modal-header')
+                    cy.get(`@modalHeader`)
                         .then(($modal) => {
                             // const finalPosition = $modal.position();
                             const finalPosition = $modal.offset();
@@ -212,9 +216,13 @@ context("Sample Browser Grid", () => {
 
         it("should hidden columns [Collection Method,Preparation Method]",() => {
             const columns = ["Collection Method", "Preparation Method"];
+            cy.get(`${browserGrid} thead th`)
+                .as("headerColumns");
 
             columns.forEach(col => {
-                cy.get("thead th").contains("div",col).should("be.visible")
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
             });
             cy.get("button[data-action='settings']")
                 .click();
@@ -228,15 +236,17 @@ context("Sample Browser Grid", () => {
             UtilsTest.getByDataTest("test-columns", "select-field-filter button")
                 .click();
             BrowserTest.getElementByComponent({
-                selector: 'sample-grid opencb-grid-toolbar',
-                tag:'div',
-                elementId: 'SettingModal'
+                selector: `${browserGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
             }).as("settingModal");
+
             cy.get("@settingModal")
-                .contains('button', 'OK')
+                .contains("button", "OK")
                 .click();
-            cy.get("thead th")
-                .then($header => {
+
+            cy.get("@headerColumns")
+                .should($header => {
                     const _columns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
                         expect(col).not.to.be.oneOf(_columns);
