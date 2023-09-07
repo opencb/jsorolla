@@ -402,8 +402,7 @@ export default class IndividualUpdate extends LitElement {
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
-                                    type: "input-num",
-                                    allowedValues: [0],
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add an age of onset..."
                                     },
