@@ -31,11 +31,11 @@ import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/variant/variant-browser-grid.js";
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
-import "../../webcomponents/commons/layouts/custom-page.js";
 import "../../webcomponents/commons/layouts/custom-sidebar.js";
 import "../../webcomponents/commons/layouts/custom-welcome.js";
 
 import "./webcomponents/data-form-test.js";
+import "./webcomponents/custom-page-test.js";
 import "./webcomponents/variant-browser-grid-test.js";
 import "./webcomponents/sample-browser-grid-test.js";
 import "./webcomponents/variant-interpreter-grid-test.js";
@@ -101,6 +101,7 @@ class TestApp extends LitElement {
             "home",
             "gettingstarted",
             "login",
+            "aboutzetta",
             "data-form",
             "utils-new",
             "catalog-filters",
@@ -501,7 +502,9 @@ class TestApp extends LitElement {
         if (page) {
             return html`
                 <div class="content" id="page">
-                    <custom-page .page="${page}"></custom-page>
+                    <custom-page
+                        .page="${page}">
+                    </custom-page>
                 </div>
             `;
         }
@@ -650,6 +653,16 @@ class TestApp extends LitElement {
                         Not available yet...
                     </div>
                 ` : null}
+
+                ${this.config.enabledComponents?.aboutzetta ? html`
+                    <div class="content" id="faq">
+                        <custom-page-test
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </custom-page-test>
+                    </div>
+                ` : null}
+
 
                 ${this.config.enabledComponents["file-browser-grid"] ? html`
                     <div class="content" id="file-browser-grid">

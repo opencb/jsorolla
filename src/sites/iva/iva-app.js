@@ -1306,7 +1306,8 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents?.aboutzetta ? html`
                     <div class="content" id="faq">
                         <custom-page
-                            .page="${this.config.aboutPage}">
+                            .page="${this.config.aboutPage}"
+                            .opencgaSession="${this.opencgaSession}">
                         </custom-page>
                     </div>
                 ` : null}
