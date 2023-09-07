@@ -398,10 +398,6 @@ export default class FamilyGrid extends LitElement {
         }
     }
 
-    customAnnotationFormatter(value, row) {
-        // debugger
-    }
-
     async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
@@ -425,9 +421,6 @@ export default class FamilyGrid extends LitElement {
 
     _getDefaultColumns() {
         // Check column visibility
-        const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
-            UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
-
         this._columns = [
             {
                 id: "id",
@@ -468,15 +461,6 @@ export default class FamilyGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign,
                 visible: this.gridCommons.isColumnVisible("caseId")
-            },
-            {
-                id: "customAnnotation",
-                title: "Custom Annotations",
-                field: "customAnnotation",
-                formatter: this.customAnnotationFormatter,
-                visible: customAnnotationVisible,
-                halign: this._config.header.horizontalAlign,
-                // visible: this.gridCommons.isColumnVisible("customAnnotation")
             },
             {
                 id: "creationDate",
@@ -631,7 +615,6 @@ export default class FamilyGrid extends LitElement {
                     `;
                 }
             })}
-
         `;
     }
 
@@ -652,10 +635,6 @@ export default class FamilyGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            },
-            customAnnotations: {
-                title: "Custom Annotation",
-                fields: []
             },
         };
     }

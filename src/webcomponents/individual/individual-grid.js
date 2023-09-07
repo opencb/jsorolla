@@ -702,10 +702,6 @@ export default class IndividualGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            customAnnotations: {
-                title: "Custom Annotation",
-                fields: []
-            }
         };
     }
 

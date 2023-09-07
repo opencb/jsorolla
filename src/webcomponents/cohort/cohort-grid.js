@@ -452,7 +452,6 @@ export default class CohortGrid extends LitElement {
                     `;
                 }
             })}
-
         `;
     }
 
@@ -472,10 +471,6 @@ export default class CohortGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            },
-            customAnnotations: {
-                title: "Custom Annotation",
-                fields: []
             },
             // It comes from external settings, and it is used in _getDefaultColumns()
             // columns: []
