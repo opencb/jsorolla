@@ -230,7 +230,7 @@ class IvaApp extends LitElement {
             // Admin
             "study-admin",
             "study-admin-iva",
-            "catalog-admin",
+            // "catalog-admin",
             "study-variant-admin",
             "opencga-admin",
             "variants-admin",
@@ -1686,6 +1686,7 @@ class IvaApp extends LitElement {
                 <clinical-analysis-browser
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
+                    .config="${{componentId: "clinicalAnalysisBrowserCatalog"}}"
                     .query="${this.queries["clinical-analysis"]}"
                     @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                     @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">

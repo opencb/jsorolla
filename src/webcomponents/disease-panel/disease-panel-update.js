@@ -35,11 +35,11 @@ export default class DiseasePanelUpdate extends LitElement {
 
     static get properties() {
         return {
-            diseasePanel: {
-                type: Object
-            },
             diseasePanelId: {
                 type: String
+            },
+            active: {
+                type: Boolean,
             },
             opencgaSession: {
                 type: Object
@@ -51,7 +51,7 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     #init() {
-        this.diseasePanel = {};
+        this._diseasePanel = {};
         this.diseasePanelId = "";
         this.annotatedGenes = {};
         this.displayConfig = {
@@ -76,8 +76,9 @@ export default class DiseasePanelUpdate extends LitElement {
     }
 
     onComponentIdObserver(e) {
-        this.diseasePanel = e.detail.value;
+        this._diseasePanel = UtilsNew.objectClone(e.detail.value);
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     onComponentFieldChange(e) {
@@ -164,9 +165,9 @@ export default class DiseasePanelUpdate extends LitElement {
         return html`
             <opencga-update
                 .resource="${"DISEASE_PANEL"}"
-                .component="${this.diseasePanel}"
                 .componentId="${this.diseasePanelId}"
                 .opencgaSession="${this.opencgaSession}"
+                .active="${this.active}"
                 .config="${this._config}"
                 @componentIdObserver = ${this.onComponentIdObserver}
                 @componentFieldChange = ${this.onComponentFieldChange}>
@@ -190,7 +191,7 @@ export default class DiseasePanelUpdate extends LitElement {
                             display: {
                                 disabled: true,
                                 placeholder: "Add a short ID...",
-                                helpMessage: this.diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this.diseasePanel.creationDate)}` : "No creation date",
+                                helpMessage: this._diseasePanel?.creationDate ? `Created on ${UtilsNew.dateFormatter(this._diseasePanel.creationDate)}` : "No creation date",
                                 help: {
                                     text: "Add a disease panel ID"
                                 }
@@ -313,7 +314,8 @@ export default class DiseasePanelUpdate extends LitElement {
                                 view: gene => html`
                                     <div>
                                         <div>${gene?.name} (<a href="${BioinfoUtils.getGeneLink(gene?.id)}" target="_blank">${gene?.id}</a>)</div>
-                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div style="margin: 5px 0">MoI: ${gene?.modesOfInheritance?.join(", ") || "NA"} (Confidence: ${gene.confidence || "NA"})</div>
+                                        <div class="help-block">${gene.coordinates?.[0]?.location}</div>
                                         <div class="help-block">
                                             Location: ${gene.coordinates?.[0]?.location || "-"},
                                             Assembly: ${gene.coordinates?.[0]?.assembly || "-"},

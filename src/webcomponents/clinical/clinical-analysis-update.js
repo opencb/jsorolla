@@ -153,9 +153,9 @@ export default class ClinicalAnalysisUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            id: "clinical-analysis", // Fixme: clinical-analysis-update.js?
-            title: "Case Editor", // Fixme: Clinical Analysis update?
-            icon: "fas fa-user-md", // Fixme: to overwrite?
+            id: "clinical-analysis",
+            title: "Case Editor",
+            icon: "fas fa-user-md",
             display: {
                 ...this.displayConfig,
                 buttonOkDisabled: this.buttonsDisabled,

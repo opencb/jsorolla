@@ -19,9 +19,11 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/catalog-browser-grid-config.js";
+import "../commons/opencb-grid-toolbar.js";
+import ModalUtils from "../commons/modal/modal-utils";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -61,11 +63,12 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -76,12 +79,59 @@ export default class DiseasePanelGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
-        this.toolbarConfig = {
-            ...this.config?.toolbar,
-            resource: "DISEASE_PANEL",
-            buttons: ["columns", "download"],
-            columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false)
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+        this.toolbarSetting = {
+            // buttons: ["columns", "download"],
+            ...this._config,
         };
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            toolId: "diseasePanelBrowser",
+            resource: "DISEASE_PANEL",
+            columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "Disease Panel Create",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-create",
+                },
+                render: () => html `
+                    <disease-panel-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </disease-panel-create>
+                `
+            }
+            // Uncomment in case we need to change defaults
+            // export: {
+            //     display: {
+            //         modalTitle: "Disease Panel Export",
+            //     },
+            //     render: () => html`
+            //         <opencga-export
+            //             .config="${this._config}"
+            //             .query=${this.query}
+            //             .opencgaSession="${this.opencgaSession}"
+            //             @export="${this.onExport}"
+            //             @changeExportField="${this.onChangeExportField}">
+            //         </opencga-export>`
+            // },
+            // settings: {
+            //     display: {
+            //         modalTitle: "Disease Panel Settings",
+            //     },
+            //     render: () => html `
+            //         <catalog-browser-grid-config
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .gridColumns="${this._columns}"
+            //             .config="${this._config}"
+            //             @configChange="${this.onGridConfigChange}">
+            //         </catalog-browser-grid-config>`
+            // }
+        };
+
         this.renderTable();
     }
 
@@ -103,10 +153,11 @@ export default class DiseasePanelGrid extends LitElement {
                 return;
             }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -181,7 +232,8 @@ export default class DiseasePanelGrid extends LitElement {
 
     async fetchDiseasePanels(query) {
         try {
-            return await this.opencgaSession.opencgaClient.panels().search(query);
+            return await this.opencgaSession.opencgaClient.panels()
+                .search(query);
         } catch (e) {
             console.error(e);
             await Promise.reject(e);
@@ -224,9 +276,16 @@ export default class DiseasePanelGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "edit":
+                this.diseasePanelUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -301,7 +360,7 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             [
                 {
                     id: "id",
@@ -318,7 +377,8 @@ export default class DiseasePanelGrid extends LitElement {
                         }
                         return row?.id ?? "-";
                     },
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
+                    visible: this.gridCommons.isColumnVisible("id")
                 },
                 {
                     id: "name",
@@ -327,7 +387,8 @@ export default class DiseasePanelGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => row?.name ?? "-",
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
+                    visible: this.gridCommons.isColumnVisible("name")
                 },
                 {
                     id: "disorders",
@@ -348,7 +409,8 @@ export default class DiseasePanelGrid extends LitElement {
                             return disordersHtml.join("");
                         }
                     },
-                    halign: this._config.header.horizontalAlign
+                    halign: this._config.header.horizontalAlign,
+                    visible: this.gridCommons.isColumnVisible("disorders")
                 },
                 {
                     id: "stats",
@@ -357,6 +419,7 @@ export default class DiseasePanelGrid extends LitElement {
                     rowspan: 1,
                     colspan: 3,
                     align: "center",
+                    visible: true
                 },
                 {
                     id: "source",
@@ -381,6 +444,7 @@ export default class DiseasePanelGrid extends LitElement {
                         return "-";
                     },
                     align: "center",
+                    visible: this.gridCommons.isColumnVisible("source")
                 },
             ],
             [
@@ -393,6 +457,7 @@ export default class DiseasePanelGrid extends LitElement {
                     formatter: (value, row) => row?.stats?.numberOfGenes ?? "-",
                     halign: this._config.header.horizontalAlign,
                     align: "right",
+                    visible: this.gridCommons.isColumnVisible("numberOfGenes")
                 },
                 {
                     id: "numberOfRegions",
@@ -403,6 +468,7 @@ export default class DiseasePanelGrid extends LitElement {
                     formatter: (value, row) => row?.stats?.numberOfRegions ?? "-",
                     halign: this._config.header.horizontalAlign,
                     align: "right",
+                    visible: this.gridCommons.isColumnVisible("numberOfRegions")
                 },
                 {
                     id: "numberOfVariants",
@@ -413,12 +479,13 @@ export default class DiseasePanelGrid extends LitElement {
                     formatter: (value, row) => row?.stats?.numberOfVariants ?? "-",
                     halign: this._config.header.horizontalAlign,
                     align: "right",
+                    visible: this.gridCommons.isColumnVisible("numberOfVariants")
                 }
             ]
         ];
 
         if (this.opencgaSession && this._config.showActions) {
-            _columns[0].push({
+            this._columns[0].push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -451,8 +518,7 @@ export default class DiseasePanelGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }"
-                                    href='#diseasePanelUpdate/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}'>
+                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
                             </li>
@@ -470,9 +536,9 @@ export default class DiseasePanelGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        _columns = this.gridCommons.addColumnsFromExtensions(_columns, this.COMPONENT_ID);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -512,41 +578,65 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
-    getDefaultConfig() {
-        return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            showToolbar: true,
-            showActions: true,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            },
-        };
-    }
-
     render() {
+        // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @sessionPanelUpdate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="dpb-grid">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+                display: {
+                    modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                    modalDraggable: true,
+                    modalCyDataName: "modal-update",
+                },
+                render: active => {
+                    return html `
+                        <disease-panel-update
+                            .diseasePanelId="${this.diseasePanelUpdateId}"
+                            .active="${active}"
+                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </disease-panel-update>
+                    `;
+                }
+            })}
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [5, 10, 25],
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
+            detailView: false,
+            detailFormatter: null, // function with the detail formatter
+            multiSelection: false,
+            header: {
+                horizontalAlign: "center",
+                verticalAlign: "bottom"
+            },
+        };
     }
 
 }

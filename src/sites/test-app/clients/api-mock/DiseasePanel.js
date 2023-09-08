@@ -20,6 +20,7 @@
 **/
 
 
+import UtilsNew from "../../../../core/utils-new";
 
 /**
  * This class contains the methods for the "DiseasePanel" resource
@@ -172,6 +173,14 @@ export default class DiseasePanel {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(panels, params) {
+        // Mocked response for Sample update test
+        if (panels === "Early_onset_dystonia-PanelAppId-192") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/disease-panels-platinum.json`)
+                .then(data => ({
+                    responses: [{results: [data[0]]}]
+                }));
+        }
+
         return this._get("panels", panels, null, null, "info", params);
     }
 

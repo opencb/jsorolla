@@ -116,8 +116,6 @@ class VariantBrowserGridTest extends LitElement {
         // this.variants[10].annotation.consequenceTypes
         //     .filter(ct => ct.proteinVariantAnnotation)
         //     .forEach(ct => delete ct.proteinVariantAnnotation.substitutionScores[0].description);
-
-
         // Finally, we update variants mem address to force a rendering
         this.variants = [...this.variants];
     }
@@ -128,6 +126,10 @@ class VariantBrowserGridTest extends LitElement {
         // this.mutate();
     }
 
+    onSettingsUpdate() {
+        this.configVariantGrid = {...this.configVariantGrid, ...this.opencgaSession?.user?.configs?.IVA?.variantBrowser?.grid};
+        this.opencgaSessionObserver();
+    }
 
     render() {
         if (this.isLoading) {
@@ -162,6 +164,7 @@ class VariantBrowserGridTest extends LitElement {
                 .variants="${this.variants}"
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this.configVariantGrid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 .populationFrequencies="${this.config.populationFrequencies}">
             </variant-browser-grid>
         `;

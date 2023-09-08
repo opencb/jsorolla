@@ -20,7 +20,9 @@ import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/sample/sample-grid.js";
 import "../../../webcomponents/sample/sample-detail.js";
-import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils";
+import NotificationUtils from "../../../webcomponents/commons/utils/notification-utils.js";
+import "../../../webcomponents/sample/sample-update.js";
+import "../../../webcomponents/sample/sample-create.js";
 
 
 class SampleBrowserGridTest extends LitElement {
@@ -62,7 +64,22 @@ class SampleBrowserGridTest extends LitElement {
             pageList: [10, 25, 50],
             multiSelection: false,
             showSelectCheckbox: false,
+            // FIXME: temporarily moved here
+            showColumns: false, // To clean-up?
+            showDownload: false, // To clean-up?
+            showExport: true,
+            showSettings: true,
+            showNew: true,
+            showCreate: true,
+            // FIXME\
             toolbar: {
+                // FIXME 20230830 Vero BUG: Toolbar configuration (and clientS configuration) is currently ignored.
+                //  The configurations read in the following files for deciding whether the buttons are displayed or not,
+                //  are not under the toolbar key but in the parent. I move this configuration temporarily to the parent.
+                //  See clients browser.settings.js and getDefaultConfig() in:
+                //  - sample-browser.js
+                //  - sample-grid.js
+                //  - opencb-grid-toolbar.js
                 showColumns: true,
                 showDownload: false,
                 showExport: false,
@@ -108,6 +125,11 @@ class SampleBrowserGridTest extends LitElement {
                     this._ready = true;
                 });
         }
+    }
+
+    onSettingsUpdate() {
+        this.configGrid = {...this.configGrid, ...this.opencgaSession?.user?.configs?.IVA?.sampleBrowser?.grid};
+        this.propertyObserver();
     }
 
     getDefaultTabsConfig() {
@@ -171,6 +193,7 @@ class SampleBrowserGridTest extends LitElement {
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this.configGrid}"
+                    @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${this.selectInstance}">
                 </sample-grid>
                 <sample-detail

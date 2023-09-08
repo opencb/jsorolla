@@ -21,6 +21,8 @@ import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/family/family-grid.js";
 import "../../../webcomponents/family/family-detail.js";
 import "../../../webcomponents/family/family-view.js";
+import "../../../webcomponents/family/family-create.js";
+import "../../../webcomponents/family/family-update.js";
 import "../../../webcomponents/commons/json-viewer.js";
 
 class FamilyBrowserGridTest extends LitElement {
@@ -62,6 +64,7 @@ class FamilyBrowserGridTest extends LitElement {
     #init() {
         this._ready = false;
         this.data = [];
+        this._config = {};
     }
 
 
@@ -74,7 +77,13 @@ class FamilyBrowserGridTest extends LitElement {
         super.update(changedProperties);
     }
 
+    #setLoading(value) {
+        this.isLoading = value;
+        this.requestUpdate();
+    }
+
     opencgaSessionObserver() {
+        this.#setLoading(true);
         UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testFile}.json`)
             .then(content => {
                 this.families = content;
@@ -84,8 +93,13 @@ class FamilyBrowserGridTest extends LitElement {
                 console.log(err);
             })
             .finally(() => {
-                this._ready = true;
+                this.#setLoading(false);
             });
+    }
+
+    onSettingsUpdate() {
+        this._config = {...this._config, ...this.opencgaSession?.user?.configs?.IVA?.familyBrowser?.grid};
+        this.opencgaSessionObserver();
     }
 
     getDefaultTabsConfig() {
@@ -102,6 +116,7 @@ class FamilyBrowserGridTest extends LitElement {
                         <family-view
                             .opencgaSession="${opencgaSession}"
                             .family="${family}"
+                            @settingsUpdate="${() => this.onSettingsUpdate()}"
                             .settings="${{}}">
                         </family-view>
                     `,
@@ -129,8 +144,8 @@ class FamilyBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (!this._ready) {
-            return html`processing`;
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
@@ -140,6 +155,8 @@ class FamilyBrowserGridTest extends LitElement {
             <family-grid
                 .families="${this.families}"
                 .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </family-grid>
             <family-detail

@@ -45,14 +45,14 @@ export default class VariantInterpreterGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
             clinicalAnalysis: {
                 type: Object
-            },
-            toolId: {
-                type: String,
             },
             query: {
                 type: Object
@@ -163,15 +163,23 @@ export default class VariantInterpreterGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        this.toolbarConfig = {
-            resource: "CLINICAL_VARIANT",
+        this.toolbarSetting = {
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             // ...this._config,
-            ...this._config.toolbar, // it comes from external settings
+            // it comes from external settings
             showColumns: false,
+            showSettings: true,
+            ...this._config,
             // columns: defaultColumns[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false),
             // gridColumns: defaultColumns, // original column structure
+        };
+
+        this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: "CLINICAL_VARIANT",
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
         };
     }
 
@@ -870,7 +878,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> 
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
                                             CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
@@ -1520,9 +1528,9 @@ export default class VariantInterpreterGrid extends LitElement {
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                .query="${this.query}"
+                .settings="${this.toolbarSetting}"
+                .query="${this.filters}"
                 .opencgaSession="${this.opencgaSession}"
-                .rightToolbar="${this.getRightToolbar()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}">
@@ -1566,7 +1574,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             <clinical-interpretation-variant-evidence-review
                                 .opencgaSession="${this.opencgaSession}"
                                 .review="${this.evidenceReview}"
-                                .mode="${"form"}"
+                                .mode="${"page"}"
                                 .somatic="${this.clinicalAnalysis.type === "CANCER"}"
                                 @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                             </clinical-interpretation-variant-evidence-review>
@@ -1574,32 +1582,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
-                    <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <variant-interpreter-grid-config
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .gridColumns="${this._columns}"
-                                    .config="${this._config}"
-                                    @configChange="${this.onGridConfigChange}">
-                                </variant-interpreter-grid-config>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>

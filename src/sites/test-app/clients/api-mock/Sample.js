@@ -270,6 +270,13 @@ export default class Sample {
         if (params?.study === "TEST_STUDY_CANCER_GB" && samples === "TEST_SAMPLE_GB") {
             return Promise.resolve({});
         }
+        // Mocked response for Sample update test
+        if (samples === "NA12877") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/samples-platinum.json`)
+                .then(data => ({
+                    responses: [{results: [data[0]]}]
+                }));
+        }
 
         return this._get("samples", samples, null, null, "info", params);
     }

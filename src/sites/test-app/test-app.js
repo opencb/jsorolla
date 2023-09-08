@@ -235,6 +235,12 @@ class TestApp extends LitElement {
                 // We need to save the testDataVersion in the configuration of each client
                 this.opencgaSession.opencgaClient._config.testDataVersion = this.testDataVersion;
                 this.opencgaSession.cellbaseClient._config.testDataVersion = this.testDataVersion;
+                this.opencgaSession.testEnv = {
+                    test: {
+                        prefix: "test",
+                        active: true,
+                    }
+                };
                 this.requestUpdate();
             })
             .catch(err => {
