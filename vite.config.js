@@ -6,7 +6,7 @@ import pkg from "./package.json";
 
 // eslint-disable-next-line no-undef
 const env = process.env || {};
-const sites = ["iva", "api", "test"];
+const sites = ["iva", "api", "test-app"];
 
 const getCustomSitePath = (name, folder) => {
     if (env.npm_config_custom_site) {
@@ -25,8 +25,9 @@ const getExtensionsPath = name => {
 
 const transformHtmlContent = html => {
     return sites.reduce((prevHtml, name) => {
-        const configRegex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        const extensionsRegex = new RegExp(`{{ ${name.toUpperCase()}_EXTENSIONS_PATH }}`, "g");
+        const parsedName = name.replace(/-/g, "_").toUpperCase();
+        const configRegex = new RegExp(`{{ ${parsedName}_CONFIG_PATH }}`, "g");
+        const extensionsRegex = new RegExp(`{{ ${parsedName}_EXTENSIONS_PATH }}`, "g");
 
         return prevHtml
             .replace(configRegex, getCustomSitePath(name, "conf"))
