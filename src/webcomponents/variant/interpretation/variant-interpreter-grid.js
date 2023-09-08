@@ -619,7 +619,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
                                     halign: "center",
-                                    visible: this.gridCommons.isColumnVisible(columnId),
+                                    visible: this.gridCommons.isColumnVisible(columnId, "VCF_Data"),
                                 });
                             }
                         }
@@ -719,7 +719,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
                     halign: "center",
-                    visible: vcfDataColumns?.length > 1
                 },
                 {
                     id: "cohort",
@@ -852,13 +851,15 @@ export default class VariantInterpreterGrid extends LitElement {
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.0")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            CellBase 5.0 ${this.opencgaSession?.project.cellbase.version === "v5" || this.opencgaSession.project.cellbase.version === "v5.0" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li>
                                         <a target="_blank" class="btn force-text-left"
                                                 href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "CELLBASE_v5.1")}">
-                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
+                                            <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i>
+                                            CellBase 5.1 ${this.opencgaSession?.project.cellbase.version === "v5.1" ? "(current)" : ""}
                                         </a>
                                     </li>
                                     <li class="dropdown-header">External Genome Browsers</li>
@@ -913,7 +914,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("cadd"),
+                    visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
                 },
                 {
                     id: "spliceai",
@@ -924,7 +925,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
                     align: "right",
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("spliceai"),
+                    visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
                 },
                 ...vcfDataColumns,
                 {
@@ -935,7 +936,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
-                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("clinvar"),
+                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("clinvar", "clinicalInfo"),
                 },
                 {
                     id: "cosmic",
@@ -945,7 +946,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
                     align: "center",
-                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("cosmic"),
+                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("cosmic", "clinicalInfo"),
                 },
                 {
                     id: "hotspots",
@@ -955,7 +956,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
                     align: "center",
-                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots"),
+                    visible: !this._config.hideClinicalInfo && this.gridCommons.isColumnVisible("hotspots", "clinicalInfo"),
                 },
                 // Interpretation methods column
                 {
@@ -968,7 +969,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
-                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser",
+                    visible: this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser" && this.gridCommons.isColumnVisible("exomiser", "methods"),
                 },
                 // Interpretation Column
                 {
@@ -980,7 +981,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
                     align: "center",
                     // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                    visible: this.gridCommons.isColumnVisible("reported"),
+                    visible: this.gridCommons.isColumnVisible("reported", "interpretation"),
                 },
                 {
                     id: "prediction",
@@ -995,7 +996,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     visible: (
                         (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY") &&
-                        this.gridCommons.isColumnVisible("prediction")
+                        this.gridCommons.isColumnVisible("prediction", "interpretation")
                     ),
                 },
                 {
@@ -1151,7 +1152,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id),
+                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
             }
@@ -1200,7 +1201,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true,
-                        visible: this.gridCommons.isColumnVisible(samples[i].id),
+                        visible: this.gridCommons.isColumnVisible(samples[i].id, "sampleGenotypes"),
                     });
                 }
             }
