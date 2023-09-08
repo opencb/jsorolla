@@ -57,7 +57,8 @@ const isInternalCss = name => {
 };
 
 const getCustomSitePath = (name, from, folder) => {
-    if (env.npm_config_custom_site) {
+    // NOTE: custom sites are not allowed for 'test-app'
+    if (env.npm_config_custom_site && name.toUpperCase() !== "TEST-APP") {
         return `${from}custom-sites/${env.npm_config_custom_site}/${name}/${folder}`;
     }
     return folder; // Default path configuration
