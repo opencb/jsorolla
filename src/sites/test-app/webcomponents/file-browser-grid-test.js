@@ -20,6 +20,8 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/file/file-grid.js";
 import "../../../webcomponents/file/file-detail.js";
+// import "../../../webcomponents/file/file-create.js";
+// import "../../../webcomponents/file/file-update.js";
 
 
 class FileBrowserGridTest extends LitElement {
@@ -57,19 +59,7 @@ class FileBrowserGridTest extends LitElement {
     #init() {
         this.isLoading = false;
         this.data = [];
-        this.configVariantGrid = {
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            toolbar: {
-                showColumns: true,
-                showDownload: false,
-                showExport: false,
-                showSettings: false,
-                exportTabs: ["download", "link", "code"]
-            },
-        };
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -110,6 +100,11 @@ class FileBrowserGridTest extends LitElement {
         this._selectRow = {...e.detail.row};
     }
 
+    onSettingsUpdate() {
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.fileBrowser?.grid};
+        this.opencgaSessionObserver();
+    }
+
 
     render() {
         if (this.isLoading) {
@@ -123,6 +118,8 @@ class FileBrowserGridTest extends LitElement {
             <file-grid
                 .files="${this.files}"
                 .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </file-grid>
             <file-detail

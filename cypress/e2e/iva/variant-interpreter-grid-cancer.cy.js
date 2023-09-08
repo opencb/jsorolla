@@ -14,20 +14,100 @@
  * limitations under the License.
  */
 
-
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
-
 
 context("Variant Interpreter Grid Cancer", () => {
     const browserInterpreterGrid = "variant-interpreter-grid";
 
     beforeEach(() => {
-        cy.visit("#variant-interpreter-grid-cancer")
+        cy.visit("#variant-interpreter-grid-cancer");
         cy.waitUntil(() => {
             return cy.get(browserInterpreterGrid)
-                .should("be.visible")
-        })
+                .should("be.visible");
+        });
+    });
+
+    context("Modal Setting", () => {
+
+        it("should move modal setting", () => {
+
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: `${browserInterpreterGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
+
+        it("should hidden columns [Type,Consequence Type,Gene]",() => {
+            const columns = ["Consequence Type","Gene"];
+            cy.get("variant-interpreter-grid thead th")
+                .as("headerColumns");
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserInterpreterGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
+            cy.get("@headerColumns")
+                .should("not.exist");
+            cy.get("@headerColumns")
+                .should("exist");
+            cy.get("@headerColumns")
+                .should($header => {
+                    const _columns = Array.from($header, th => th.textContent.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
     });
 
     context("Grid", () => {
@@ -39,6 +119,44 @@ context("Variant Interpreter Grid Cancer", () => {
         it("should change page variant-interpreter-grid", () => {
             UtilsTest.changePage(browserInterpreterGrid,2);
             UtilsTest.changePage(browserInterpreterGrid,3);
+        });
+
+        it("should move modal setting", () => {
+
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: "variant-interpreter-grid opencb-grid-toolbar",
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
+                    cy.get("@modalHeader")
+                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader")
+                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader")
+                        .trigger("mouseup"); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
         });
     });
 
@@ -54,7 +172,7 @@ context("Variant Interpreter Grid Cancer", () => {
                             .trigger("mouseover");
                     });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -68,9 +186,9 @@ context("Variant Interpreter Grid Cancer", () => {
                             cy.get("a")
                                 .eq(0)
                                 .trigger("mouseover");
-                        })
+                        });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
                 });
         });
 
@@ -86,7 +204,7 @@ context("Variant Interpreter Grid Cancer", () => {
                                 .trigger("mouseover");
                         });
                     cy.get(".qtip-content")
-                        .should('be.visible');
+                        .should("be.visible");
             });
         });
 
@@ -94,10 +212,10 @@ context("Variant Interpreter Grid Cancer", () => {
             cy.get("tbody tr:first > td")
                 .eq(8)
                 .within(() => {
-                    cy.get("a").trigger("mouseover")
+                    cy.get("a").trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible')
+                .should("be.visible");
         });
 
         it("should reference population frequencies tooltip", () => {
@@ -108,8 +226,8 @@ context("Variant Interpreter Grid Cancer", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         // it("8.Tooltip: Check ACMG Prediction (Classification)", () => {
         //     cy.get("tbody tr:first > td").eq(14).within(() => {
@@ -117,7 +235,7 @@ context("Variant Interpreter Grid Cancer", () => {
         //     })
         //     cy.get(".qtip-content").should('be.visible')
         // })
-    })
+    });
 
     context("Helpers", () => {
          // Columns helpers
@@ -129,8 +247,8 @@ context("Variant Interpreter Grid Cancer", () => {
                         .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display Reference Population Frequencies column help", () => {
             cy.get("thead th")
@@ -140,8 +258,8 @@ context("Variant Interpreter Grid Cancer", () => {
                         .trigger("mouseover");
             });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display clinical info column help", () => {
             cy.get("thead th")
@@ -151,7 +269,7 @@ context("Variant Interpreter Grid Cancer", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         it("should display interpretation column help", () => {
@@ -162,7 +280,7 @@ context("Variant Interpreter Grid Cancer", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
     });
 

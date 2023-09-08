@@ -41,6 +41,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -49,9 +52,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             },
             clinicalVariants: {
                 type: Array,
-            },
-            toolId: {
-                type: String,
             },
             query: {
                 type: Object
@@ -124,10 +124,17 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 ...this.config,
             };
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            this.toolbarConfig = {
+
+            this.toolbarSetting = {
                 ...this._config,
                 ...this._config.toolbar, // it comes from external settings
+            };
+
+            this.toolbarConfig = {
+                toolId: this.toolId,
                 resource: "CLINICAL_VARIANT",
+                showInterpreterConfig: true,
+                columns: this._getDefaultColumns()
             };
             this.requestUpdate();
             this.renderVariants();
@@ -794,14 +801,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
-
-    onGridConfigSave() {
-        LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
-    }
-
     onRowCheck(event) {
         const index = parseInt(event.target.dataset.rowIndex);
 
@@ -888,21 +887,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         // this._variantChanged = null;
     }
 
-    getRightToolbar() {
-        if (this._config?.showSettings) {
-            return [
-                {
-                    render: () => html`
-                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog icon-padding"></i> Settings ...
-                        </button>
-                    `,
-                }
-            ];
-        }
-        return [];
-    }
-
     render() {
         return html`
             <style>
@@ -920,7 +904,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
-                .rightToolbar="${this.getRightToolbar()}"
+                .settings="${this.toolbarSetting}"
+                .opencgaSession="${this.opencgaSession}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"

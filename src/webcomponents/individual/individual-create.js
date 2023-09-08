@@ -134,20 +134,11 @@ export default class IndividualCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.individual).length > 0,
-                                notificationType: "warning",
-                            },
-                        },
                         {
                             title: "Individual ID",
                             field: "id",
@@ -423,7 +414,7 @@ export default class IndividualCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "phenotypes[].name",
                                     type: "input-text",
                                     display: {
@@ -441,8 +432,7 @@ export default class IndividualCreate extends LitElement {
                                 {
                                     title: "Age of onset",
                                     field: "phenotypes[].ageOfOnset",
-                                    type: "input-num",
-                                    allowedValues: [0],
+                                    type: "input-text",
                                     display: {
                                         placeholder: "Add an age of onset...",
                                     },
@@ -493,7 +483,7 @@ export default class IndividualCreate extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "name",
+                                    title: "Name",
                                     field: "disorders[].name",
                                     type: "input-text",
                                     display: {
@@ -533,11 +523,6 @@ export default class IndividualCreate extends LitElement {
                 //                 width: 12,
                 //                 style: "padding-left: 0px",
                 //                 render: individual => html`
-                //                     <annotation-set-update
-                //                         .annotationSets="${individual?.annotationSets}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @changeAnnotationSets="${e => this.onFieldChange(e, "annotationsets")}">
-                //                     </annotation-set-update>
                 //                 `
                 //             }
                 //         }

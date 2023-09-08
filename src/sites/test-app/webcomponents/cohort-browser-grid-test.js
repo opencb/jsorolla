@@ -21,6 +21,8 @@ import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/cohort/cohort-grid.js";
 import "../../../webcomponents/cohort/cohort-detail.js";
 import "../../../webcomponents/cohort/cohort-view.js";
+import "../../../webcomponents/cohort/cohort-update.js";
+import "../../../webcomponents/cohort/cohort-create.js";
 import "../../../webcomponents/commons/json-viewer.js";
 
 class CohortBrowserGridTest extends LitElement {
@@ -58,6 +60,7 @@ class CohortBrowserGridTest extends LitElement {
     #init() {
         this.isLoading = false;
         this.data = [];
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -87,6 +90,11 @@ class CohortBrowserGridTest extends LitElement {
             .finally(() => {
                 this.#setLoading(false);
             });
+    }
+
+    onSettingsUpdate() {
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.cohortBrowser?.grid};
+        this.opencgaSessionObserver();
     }
 
     getDefaultTabsConfig() {
@@ -157,6 +165,8 @@ class CohortBrowserGridTest extends LitElement {
             <cohort-grid
                 .cohorts="${this.cohorts}"
                 .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </cohort-grid>
             <cohort-detail
