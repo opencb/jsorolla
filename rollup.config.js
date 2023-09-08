@@ -22,9 +22,8 @@ const internalCss = /(global|magic-check|style|toggle-switch|genome-browser)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
-// const sites = ["iva", "api"];
 const getSitesToBuild = () => {
-    const sites = []; // ["iva", "api"];
+    const sites = ["iva", "api"];
     // Check if we need to include the test-app site in the sites to build list
     // This can be enabled using the '--include-test-app' flag when running 'npm run build' command
     if (env.npm_config_include_test_app) {
