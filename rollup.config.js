@@ -22,7 +22,16 @@ const internalCss = /(global|magic-check|style|toggle-switch|genome-browser)/gi;
 
 // Get target sites to build
 // const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
-const sites = ["iva", "api"];
+// const sites = ["iva", "api"];
+const getSitesToBuild = () => {
+    const sites = []; // ["iva", "api"];
+    // Check if we need to include the test-app site in the sites to build list
+    // This can be enabled using the '--include-test-app' flag when running 'npm run build' command
+    if (env.npm_config_include_test_app) {
+        sites.push("test-app");
+    }
+    return sites;
+};
 
 const revision = () => {
     try {
@@ -69,8 +78,9 @@ const getExtensionsPath = name => {
 
 const transformHtmlContent = (html, name) => {
     const annihilator = /<!-- build:delete -->[\s\S]*?<!-- \/build -->/mg;
-    const configRegex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-    const extensionsRegex = new RegExp(`{{ ${name.toUpperCase()}_EXTENSIONS_PATH }}`, "g");
+    const parsedName = name.replace(/-/g, "_").toUpperCase();
+    const configRegex = new RegExp(`{{ ${parsedName}_CONFIG_PATH }}`, "g");
+    const extensionsRegex = new RegExp(`{{ ${parsedName}_EXTENSIONS_PATH }}`, "g");
 
     return html
         .replace("[build-signature]", revision())
@@ -119,7 +129,7 @@ const getCopyTargets = site => {
     return targets;
 };
 
-export default sites.map(site => ({
+export default getSitesToBuild().map(site => ({
     plugins: [
         del({
             targets: `build/${site}`,
