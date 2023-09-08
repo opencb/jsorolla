@@ -636,6 +636,18 @@ class IvaApp extends LitElement {
     async logout() {
         // this delete token in the client and removes the Cookies
         await this.opencgaClient.logout();
+
+        // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
+        if (this.opencgaClient?._config?.sso) {
+            // eslint-disable-next-line no-undef
+            Cookies.expire("JSESSIONID");
+
+            const config = this.opencgaClient._config;
+            const ivaUrl = window.location;
+            window.location = `${config.host}/webservices/rest/${config.version}/meta/sso/logout?url=${ivaUrl}`;
+            return;
+        }
+
         this._createOpencgaSessionFromConfig();
 
         this.tool = "#home";
