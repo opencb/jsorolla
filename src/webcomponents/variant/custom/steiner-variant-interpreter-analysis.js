@@ -88,7 +88,7 @@ class SteinerVariantInterpreterAnalysis extends LitElement {
         // Check if no analysis have been configured --> display a warning message
         if (!this._config?.items || this._config.items.length === 0) {
             return html`
-                <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                <div class="col-md-6 offset-md-3 p-4">
                     <div class="alert alert-warning" role="alert">
                         No Custom Analysis available.
                     </div>

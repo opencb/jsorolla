@@ -674,7 +674,7 @@ export default class OpencgaProjects extends LitElement {
                             id="${projectId}-tab"
                             class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
                             <div class="row">
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         ${this.sideNavItems.map((item, sideNavIndx) => html`

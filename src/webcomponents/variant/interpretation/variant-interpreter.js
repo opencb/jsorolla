@@ -227,7 +227,7 @@ class VariantInterpreter extends LitElement {
 
         // No custom anaysis content available
         return html`
-            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+            <div class="col-md-6 offset-md-3 p-4">
                 <div class="alert alert-warning" role="alert">
                     No custom analysis available at this time.
                 </div>
@@ -239,7 +239,7 @@ class VariantInterpreter extends LitElement {
         const settingReporter = this.settings?.tools?.filter(tool => tool?.id === "report")[0];
         if (settingReporter && settingReporter?.component === "steiner-report") {
             return html`
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 offset-md-1">
                     <tool-header
                         class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
@@ -252,7 +252,7 @@ class VariantInterpreter extends LitElement {
             `;
         } else {
             return html`
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 offset-md-1">
                     <tool-header
                         class="bg-white"
                         title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">

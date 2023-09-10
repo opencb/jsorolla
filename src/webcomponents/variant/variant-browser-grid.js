@@ -27,7 +27,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
-
 export default class VariantBrowserGrid extends LitElement {
 
     constructor() {
@@ -793,7 +792,7 @@ export default class VariantBrowserGrid extends LitElement {
                                         </a>
                                     </li>
                                     <li data-cy="varsome-variant-link">
-                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} 
+                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
                                             href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt icon-padding" aria-hidden="true"></i> Varsome
                                         </a>

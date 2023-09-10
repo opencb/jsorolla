@@ -178,7 +178,7 @@ class VariantInterpreterQc extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Quality Control Overview - ${probandId}" class="bg-white"></tool-header>
                                 <variant-interpreter-qc-overview
                                     .opencgaSession="${opencgaSession}"
@@ -267,7 +267,7 @@ class VariantInterpreterQc extends LitElement {
                     name: "Sample Variant Stats",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser
                                     .opencgaSession="${opencgaSession}"

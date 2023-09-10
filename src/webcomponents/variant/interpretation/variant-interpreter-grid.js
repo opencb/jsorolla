@@ -287,7 +287,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
@@ -1506,7 +1506,7 @@ export default class VariantInterpreterGrid extends LitElement {
             return [
                 {
                     render: () => html`
-                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <button type="button" class="btn btn-light btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
                             <i class="fas fa-cog"></i> Settings ...
                         </button>`
                 }
@@ -1545,7 +1545,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
@@ -1567,11 +1567,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>
             </div>
 
-            <div class="modal fade" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
+            <div class="modal fade pt-0" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
+                        <div class="modal-header">
                             <h3>Review Variant Evidence</h3>
                         </div>
                         ${this.evidenceReview ? html`
@@ -1591,13 +1591,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
+            <div class="modal fade pt-0" id="${this._prefix}ConfigModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <div class="modal-header">
                             <h3>Settings</h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -1610,8 +1610,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>

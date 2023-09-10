@@ -120,7 +120,7 @@ export default class VariantInterpreterReview extends LitElement {
                         buttonsWidth: 8,
                     };
                     return html`
-                        <div class="col-md-10 col-md-offset-1">
+                        <div class="col-md-10 offset-md-1">
                             <tool-header
                                 class="bg-white"
                                 title="Interpretation - ${clinicalAnalysis?.interpretation?.id}">
@@ -175,7 +175,7 @@ export default class VariantInterpreterReview extends LitElement {
                         };
 
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header
                                     class="bg-white"
                                     title="Somatic Small Variants - ${clinicalAnalysis?.interpretation?.id}">
@@ -214,7 +214,7 @@ export default class VariantInterpreterReview extends LitElement {
                             };
 
                             return html`
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <tool-header
                                         class="bg-white"
                                         title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
@@ -255,7 +255,7 @@ export default class VariantInterpreterReview extends LitElement {
                             };
 
                             return html`
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <tool-header
                                         class="bg-white"
                                         title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
@@ -296,7 +296,7 @@ export default class VariantInterpreterReview extends LitElement {
                             };
 
                             return html`
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <tool-header
                                         class="bg-white"
                                         title="Germline Small Variants - ${clinicalAnalysis?.interpretation?.id}">
@@ -336,7 +336,7 @@ export default class VariantInterpreterReview extends LitElement {
                             };
 
                             return html`
-                                <div class="col-md-10 col-md-offset-1">
+                                <div class="col-md-10 offset-md-1">
                                     <tool-header
                                         class="bg-white"
                                         title="Germline Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
@@ -375,7 +375,7 @@ export default class VariantInterpreterReview extends LitElement {
                         };
 
                         return html`
-                            <div class="col-md-10 col-md-offset-1">
+                            <div class="col-md-10 offset-md-1">
                                 <tool-header
                                     class="bg-white"
                                     title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
