@@ -120,13 +120,15 @@ class VariantInterpreterMethods extends LitElement {
                     name: "Exomiser",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-6 col-md-offset-3">
-                                <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
-                                <exomiser-analysis
-                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .title="${""}">
-                                </exomiser-analysis>
+                            <div class="row justify-content-center">
+                                <div class="col-6">
+                                    <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
+                                    <exomiser-analysis
+                                        .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .title="${""}">
+                                    </exomiser-analysis>
+                                </div>
                             </div>
                         `;
                     },
@@ -140,13 +142,15 @@ class VariantInterpreterMethods extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-6 col-md-offset-3">
-                                <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
-                                <exomiser-analysis
-                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .title="${""}">
-                                </exomiser-analysis>
+                            <div class="row justify-content-center">
+                                <div class="col-6">
+                                    <tool-header title="Exomiser - ${probandId}" class="bg-white"></tool-header>
+                                    <exomiser-analysis
+                                        .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .title="${""}">
+                                    </exomiser-analysis>
+                                </div>
                             </div>
                         `;
                     },
@@ -156,13 +160,15 @@ class VariantInterpreterMethods extends LitElement {
                     name: "RD Tiering",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-6 col-md-offset-3">
-                                <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
-                                <rd-tiering-analysis
-                                    .toolParams="${{clinicalAnalysis: clinicalAnalysis.id, panels: clinicalAnalysis.panels?.map(panel => panel.id).join(",")}}"
-                                    .opencgaSession="${opencgaSession}"
-                                    .title="${""}">
-                                </rd-tiering-analysis>
+                            <div class="row justify-content-center">
+                                <div class="col-6">
+                                    <tool-header title="RD Tiering - ${probandId}" class="bg-white"></tool-header>
+                                    <rd-tiering-analysis
+                                        .toolParams="${{clinicalAnalysis: clinicalAnalysis.id, panels: clinicalAnalysis.panels?.map(panel => panel.id).join(",")}}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .title="${""}">
+                                    </rd-tiering-analysis>
+                                </div>
                             </div>
                         `;
                     },
@@ -175,10 +181,12 @@ class VariantInterpreterMethods extends LitElement {
                     name: "Cancer Analysis",
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                            <div class="row justify-content-center p-4" style="padding: 20px">
+                              <div class="col-6">
                                 <div class="alert alert-warning" role="alert">
                                     No automatic methods available for cancer analysis at this time.
                                 </div>
+                              </div>
                             </div>
                         `;
                     },
