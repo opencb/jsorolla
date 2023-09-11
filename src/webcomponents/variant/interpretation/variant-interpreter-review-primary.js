@@ -25,7 +25,6 @@ import NotificationUtils from "../../commons/utils/notification-utils";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager";
 import LitUtils from "../../commons/utils/lit-utils";
 
-
 export default class VariantInterpreterReviewPrimary extends LitElement {
 
     constructor() {
@@ -231,15 +230,15 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         const hasVariantsToSave = state.removedVariants?.length || state.updatedVariants?.length;
 
         return html`
-            <div class="pull-right save-button">
+            <div class="d-flex justify-content-end gap-1 mb-2">
                 <button type="button" class="btn btn-primary" @click="${this.onViewInterpretation}">
                     Preview
                 </button>
                 <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-primary"}" @click="${this.onSaveVariants}">
-                    <i class="fas fa-save icon-padding" aria-hidden="true"></i>
+                    <i class="fas fa-save pe-1" aria-hidden="true"></i>
                     <strong>Save</strong>
                     ${hasVariantsToSave ? html`
-                        <span class="badge" style="margin-left: 5px">
+                        <span class="badge ms-1">
                             ${(state.removedVariants?.length || 0) + (state.updatedVariants?.length || 0)}
                         </span>
                     ` : null}
@@ -248,7 +247,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
 
             <div class="row">
                 <div class="col-md-12">
-                    <div style="padding-top: 5px">
+                    <div class="pt-1">
                         ${this.clinicalAnalysis?.interpretation ? html`
                             ${this._config.result?.grid?.isRearrangement ? html`
                                 <variant-interpreter-rearrangement-grid
