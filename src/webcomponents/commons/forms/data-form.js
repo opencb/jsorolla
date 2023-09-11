@@ -1882,8 +1882,8 @@ export default class DataForm extends LitElement {
                         .map((section, index) => {
                             const active = index === this.activeSection;
                             return html`
-                                <li role="presentation" class="${active ? "active" : ""}">
-                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                <li class="nav-item ${active ? "show" : ""}" role="presentation">
+                                    <a class="nav-link" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                         ${section.title || ""}
                                     </a>
                                 </li>
@@ -1917,12 +1917,12 @@ export default class DataForm extends LitElement {
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(null) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                    <ul class="nav nav-pills nav-stacked">
+                    <ul class="nav nav-pills flex-column">
                         ${this._getVisibleSections().map((section, index) => {
                             const active = index === this.activeSection;
                             return html`
-                                <li role="presentation" class="${active ? "active" : ""}">
-                                    <a style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                         ${section.title || ""}
                                     </a>
                                 </li>

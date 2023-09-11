@@ -134,7 +134,7 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6" data-cy="toolbar">
                         <!-- Display components on the RIGHT -->
-                        <div class="form-inline text-right pull-right" data-cy="toolbar-wrapper">
+                        <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
                             <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                             ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
@@ -149,15 +149,15 @@ export default class OpencbGridToolbar extends LitElement {
                                     As a workaround, the tooltip will be displayed from a wrapper -->
                                     ${isCreateDisabled ? html `
                                         <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="${isCreateDisabledTooltip}">
-                                            <button data-action="create" type="button" class="btn btn-default btn-sm" disabled>
-                                                <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                            <button data-action="create" type="button" class="btn btn-light" disabled>
+                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
                                             </button>
                                         </span>
                                     ` : html `
-                                        <button data-action="create" type="button" class="btn btn-default btn-sm"
+                                        <button data-action="create" type="button" class="btn btn-light"
                                                 @click="${this.onActionClick}">
                                             ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                            <i class="fas fa-file icon-padding" aria-hidden="true"></i> New ...
+                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> New ...
                                         </button>
                                     `}
                                 </div>
@@ -165,9 +165,9 @@ export default class OpencbGridToolbar extends LitElement {
 
                             ${this._settings.showExport ? html`
                                 <div class="btn-group">
-                                    <button data-action="export" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
+                                    <button data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
                                         ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Export ...
+                                        <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
                                     </button>
                                 </div>
                             ` : nothing}
@@ -175,8 +175,8 @@ export default class OpencbGridToolbar extends LitElement {
                             <!-- && this._config? !== undefined-->
                             ${this._settings?.showSettings ? html`
                                 <div class="btn-group">
-                                    <button data-action="settings" type="button" class="btn btn-default btn-sm" @click="${this.onActionClick}">
-                                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                                    <button data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                                        <i class="fas fa-cog pe-1"></i> Settings ...
                                     </button>
                                 </div>
                             ` : nothing}

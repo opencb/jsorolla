@@ -35,11 +35,10 @@ export default class ModalUtils {
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                    @click="${e => LitUtils.dispatchCustomEvent(self, "modalClose", null, e)}">
+                            </button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -48,9 +47,9 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
                                         @click="${e => LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">Cancel</button>
-                                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
                                         @click="${e => LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}">Save</button>
                             </div>`: nothing}
                     </div>
