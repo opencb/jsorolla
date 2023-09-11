@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
@@ -37,6 +39,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
             gridColumns: {
                 type: Object
             },
+            toolId: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -54,7 +59,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
         this._highlights = (this.config?.highlights || [])
             .filter(h => h.active)
             .map(h => h.id)
-            .join(",") || [];
+            .join(",");
 
         // Prepare data for the column select
         this.selectColumnData = [];
@@ -136,18 +141,42 @@ export default class VariantInterpreterGridConfig extends LitElement {
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
+    async onSubmit() {
+        const newGridConfig = {...this.config};
+
+        // Remove highlights and copies configuration from new config
+        if (newGridConfig._highlights) {
+            delete newGridConfig._highlights;
+        }
+
+        // Update user configuration
+        try {
+            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
+            LitUtils.dispatchCustomEvent(this, "settingsUpdate");
+
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Configuration saved",
+            });
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        }
+    }
+
     render() {
         return html`
             <data-form
                 .data="${this.config}"
                 .config="${this.getConfigForm()}"
-                @fieldChange="${e => this.onFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
     }
 
     getConfigForm() {
+        const isTestEnv = this.opencgaSession?.testEnv ? this.opencgaSession?.testEnv: {};
         return {
+            ...isTestEnv,
             id: "interpreter-grid-config",
             title: "",
             icon: "fas fa-user-md",
@@ -163,7 +192,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 titleAlign: "left",
                 titleWidth: 4,
                 defaultLayout: "vertical",
-                buttonsVisible: false
+                buttonsVisible: true
             },
             sections: [
                 {
@@ -201,7 +230,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         },
                         {
                             type: "text",
-                            text: `Select the <span style="font-weight: bold">columns</span> to be displayed`,
+                            text: "Select the <span style='font-weight: bold'>columns</span> to be displayed",
                             display: {
                                 containerStyle: "margin: 20px 5px 5px 0px",
                             }

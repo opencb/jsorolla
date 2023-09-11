@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-
 import UtilsTest from "../../support/utils-test.js";
 import BrowserTest from "../../support/browser-test.js";
-
 
 context("Variant Interpreter Grid Cancer CNV", () => {
     const browserInterpreterGrid = "variant-interpreter-grid";
@@ -30,22 +28,99 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         });
     });
 
+    context("Modal Setting", () => {
+
+        it("should move modal setting", () => {
+            cy.get("button[data-action='settings']")
+                .click();
+
+            BrowserTest.getElementByComponent({
+                selector: `${browserInterpreterGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+
+            cy.get("@settingModal")
+                .then(($modal) => {
+                    const startPosition = $modal.offset();
+                    cy.log("start Position:", startPosition);
+                    // Drag the modal to a new position using Cypress's drag command
+                    cy.get("@settingModal")
+                        .find(".modal-header")
+                        .as("modalHeader");
+                    cy.get("@modalHeader").trigger("mousedown", { which: 1 }); // Trigger mouse down event
+                    cy.get("@modalHeader").trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
+                    cy.get("@modalHeader").trigger("mouseup"); // Release the mouse
+
+                    // Get the final position of the modal
+                    cy.get("@modalHeader")
+                        .then(($modal) => {
+                            const finalPosition = $modal.offset();
+                            cy.log("final Position:", finalPosition);
+                            // Assert that the modal has moved
+                            expect(finalPosition.left).to.not.equal(startPosition.left);
+                            expect(finalPosition.top).to.not.equal(startPosition.top);
+                        });
+                });
+        });
+
+        it("should hidden columns [Type,Role in Cancer,Cohort Stats]",() => {
+            const columns = ["Type","Role in Cancer","Cohort Stats"];
+            cy.get("variant-interpreter-grid thead th").as("headerColumns");
+            columns.forEach(col => {
+                cy.get("@headerColumns")
+                    .contains("div",col)
+                    .should("be.visible");
+            });
+            cy.get("button[data-action='settings']")
+                .click();
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            columns.forEach(col => {
+                UtilsTest.getByDataTest("test-columns", "select-field-filter a")
+                    .contains(col)
+                    .click();
+            });
+            UtilsTest.getByDataTest("test-columns", "select-field-filter button")
+                .click();
+            BrowserTest.getElementByComponent({
+                selector: `${browserInterpreterGrid} opencb-grid-toolbar`,
+                tag:"div",
+                elementId: "SettingModal"
+            }).as("settingModal");
+            cy.get("@settingModal")
+                .contains("button", "OK")
+                .click();
+            cy.get("@headerColumns")
+                .should("not.exist");
+            cy.get("@headerColumns")
+                .should("exist");
+            cy.get("@headerColumns")
+                .then($header => {
+                    const _columns = Array.from($header, th => th.textContent.trim());
+                    columns.forEach(col => {
+                        expect(col).not.to.be.oneOf(_columns);
+                    });
+                });
+        });
+    });
+
     context("Grid", () => {
         it("should render variant-interpreter-grid", () => {
             cy.get(browserInterpreterGrid)
                 .should("be.visible");
-        })
+        });
 
         it("should change page variant-interpreter-grid", () => {
             UtilsTest.changePage(browserInterpreterGrid,2);
             UtilsTest.changePage(browserInterpreterGrid,1);
-        })
-    })
+        });
+    });
 
     context("Tooltip", () => {
 
         it("should display variant tooltip", () => {
-            BrowserTest.getColumnIndexByHeader("Variant")
+            BrowserTest.getColumnIndexByHeader("Variant");
             cy.get("@indexColumn")
                 .then(index => {
                 cy.get("tbody tr:first > td")
@@ -53,11 +128,11 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                     .within(() => {
                         cy.get("a")
                             .trigger("mouseover");
-                })
+                });
                 cy.get(".qtip-content")
-                    .should('be.visible');
-            })
-        })
+                    .should("be.visible");
+            });
+        });
 
         it("should display gene", () => {
             BrowserTest.getColumnIndexByHeader("Gene");
@@ -69,9 +144,9 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                             cy.get("a")
                                 .eq(0)
                                 .trigger("mouseover");
-                })
+                });
                 cy.get(".qtip-content")
-                    .should('be.visible');
+                    .should("be.visible");
             });
         });
 
@@ -87,9 +162,9 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                                     .trigger("mouseover");
                             });
                 cy.get(".qtip-content")
-                    .should('be.visible');
-            })
-        })
+                    .should("be.visible");
+            });
+        });
 
         it("should display Cohort Stats (Population Frequencies) tooltip", () => {
             cy.get("tbody tr:first > td")
@@ -97,10 +172,10 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
-                })
+                });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display reference population frequencies tooltip", () => {
             cy.get("tbody tr:first > td")
@@ -110,7 +185,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
+                .should("be.visible");
         });
 
         // it("Check ACMG Prediction (Classification)", () => {
@@ -119,7 +194,7 @@ context("Variant Interpreter Grid Cancer CNV", () => {
         //     })
         //     cy.get(".qtip-content").should('be.visible')
         // })
-    })
+    });
 
     context("Helpers", () =>{
         it("should display deleteriousness column help", () => {
@@ -130,8 +205,8 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display reference population frequencies column help", () => {
             cy.get("thead th")
@@ -141,8 +216,8 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display clinical info column help", () => {
             cy.get("thead th")
@@ -150,10 +225,10 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                 .within(() => {
                     cy.get("a")
                         .trigger("mouseover");
-                })
+                });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
+                .should("be.visible");
+        });
 
         it("should display Interpretation column", () => {
             cy.get("thead th")
@@ -163,9 +238,9 @@ context("Variant Interpreter Grid Cancer CNV", () => {
                         .trigger("mouseover");
                 });
             cy.get(".qtip-content")
-                .should('be.visible');
-        })
-    })
+                .should("be.visible");
+        });
+    });
 
     context("Row", () => {
         it.skip("should copy variant interpreter json", () => {

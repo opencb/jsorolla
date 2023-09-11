@@ -62,8 +62,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             buttonsAlign: "end",
             buttonClearText: "Clear",
             buttonOkText: "Create Interpretation",
-            titleVisible: false,
-            titleWidth: 4,
+            titleVisible: true,
             defaultLayout: "horizontal"
         };
         this.config = this.getDefaultConfig();
@@ -175,7 +174,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
             id: "clinical-interpretation",
             title: "Create Interpretation",
             icon: "fas fa-file-medical",
-            type: this.mode,
+            mode: this.mode,
             requires: "2.2.0",
             description: "Create a new interpretation for this case",
             display: this.displayConfig || this.displayConfigDefault,
@@ -183,14 +182,6 @@ export default class ClinicalInterpretationCreate extends LitElement {
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.interpretation).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Case Id",
                             field: "id",

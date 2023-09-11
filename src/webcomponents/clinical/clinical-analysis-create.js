@@ -43,16 +43,32 @@ export default class ClinicalAnalysisCreate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     _init() {
         this.clinicalAnalysis = {};
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            buttonsWidth: 8,
+            buttonClearText: "Clear",
+            buttonOkText: "Create Clinical Analysis",
+            width: 8,
+            titleVisible: false,
+            titleAlign: "left",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+
+        };
+
     }
 
     connectedCallback() {
@@ -334,28 +350,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
             icon: "fas fa-user-md",
             requires: "2.0.0",
             description: "Sample Variant Stats description",
-            display: {
-                buttonsWidth: 10,
-                buttonClearText: "Clear",
-                buttonOkText: "Create Clinical Analysis",
-                width: 10,
-                titleVisible: false,
-                titleAlign: "left",
-                titleWidth: 4,
-                defaultLayout: "horizontal",
-            },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => !UtilsNew.objectCompare(this.clinicalAnalysis, this._clinicalAnalysis),
-                                notificationType: "warning",
-                            }
-                        },
                         {
                             title: "Case ID",
                             field: "id",

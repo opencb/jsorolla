@@ -458,4 +458,16 @@ export default class BrowserTest {
                     .as("indexColumn")
             });
     }
+
+    //
+    /* It's designed to help locate and select elements
+    /* within a component that uses a prefix in its ID attribute.
+    */
+    static getElementByComponent = ({selector,tag,elementId}) => {
+        return cy.get(selector)
+            .then($element => {
+            const prefix = $element.prop('_prefix');
+            return cy.get(`${tag}[id='${prefix}${elementId}']`)
+        })
+    }
 }

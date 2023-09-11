@@ -340,26 +340,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        const newGridConfig = {...e.detail.value};
-
-        // Remove highlights and copies configuration from new config
-        if (newGridConfig._highlights) {
-            delete newGridConfig._highlights;
-        }
-
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.toolId, newGridConfig);
-            this.settingsObserver();
-            this.requestUpdate();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
@@ -488,9 +471,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
                                 ${!this._config.filter.result.grid.isRearrangement ? html`
                                     <variant-interpreter-grid
+                                        .toolId="${this.toolId}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .toolId="${this.toolId}"
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
@@ -498,12 +481,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
-                                        @gridconfigsave="${this.onGridConfigSave}">
+                                        @settingsUpdate="${this.onSettingsUpdate}">
                                     </variant-interpreter-grid>` : html`
                                     <variant-interpreter-rearrangement-grid
+                                        .toolId="${this.toolId}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .toolId="${this.toolId}"
                                         .query="${this.executedQuery}"
                                         .review="${true}"
                                         .config="${this._config.filter.result.grid}"
@@ -511,7 +494,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                                         @selectrow="${this.onSelectVariant}"
                                         @updaterow="${this.onUpdateVariant}"
                                         @checkrow="${this.onCheckVariant}"
-                                        @gridconfigsave="${this.onGridConfigSave}">
+                                        @settingsUpdate="${this.onSettingsUpdate}">
                                     </variant-interpreter-rearrangement-grid>`
                                 }
 

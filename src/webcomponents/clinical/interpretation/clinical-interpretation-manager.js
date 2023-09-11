@@ -134,6 +134,9 @@ export default class ClinicalInterpretationManager extends LitElement {
         const interpretationTitle = interpretation.locked ?
             html`<i class="fas fa-lock"></i> Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`:
             html`Interpretation #${interpretation.id.split(".")[1]} - ${interpretation.id}`;
+
+        const editInterpretationTitle = `Edit interpretation #${interpretation.id.split(".")[1]}: ${interpretation.id}`;
+
         return html`
             <div class="d-flex pb-1">
                 <div class="me-auto">
@@ -154,7 +157,13 @@ export default class ClinicalInterpretationManager extends LitElement {
                                     buttonClearText: "Cancel",
                                     buttonOkText: "Update",
                                     modalButtonClassName: "btn-light",
-                                    modalDisabled: this.clinicalAnalysis.locked || interpretation.locked
+                                    modalDisabled: this.clinicalAnalysis.locked || interpretation.locked,
+                                    modalTitle: editInterpretationTitle,
+                                    modalButtonName: "Edit Interpretation",
+                                    modalButtonIcon: "fas fa-solid fa-file-medical",
+                                    modalButtonsVisible: false,
+                                    type: "tabs",
+                                    buttonsLayout: "upper",
                                 }
                             }"
                             @clinicalInterpretationUpdate="${this.onClinicalInterpretationUpdate}">
@@ -342,8 +351,13 @@ export default class ClinicalInterpretationManager extends LitElement {
                                 .displayConfig="${{
                                     modalSize: "modal-lg",
                                     modalButtonClassName: "btn-primary",
+                                    modalButtonName: "Create Interpretation",
+                                    modalTitle: "Create Interpretation",
+                                    modalButtonIcon: "fas fa-solid fa-file-medical",
                                     buttonClearText: "Cancel",
-                                    modalDisabled: this.clinicalAnalysis.locked
+                                    modalDisabled: this.clinicalAnalysis.locked,
+                                    modalButtonsVisible: false,
+                                    type: "tabs", buttonsLayout: "upper"
                                 }}">
                             </clinical-interpretation-create>
                         </div>

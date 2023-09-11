@@ -393,22 +393,21 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     getSaveConfig() {
         return {
-            title: "Save",
+            title: "",
             icon: "fas fa-save",
+            mode: "modal",
             type: "form",
             buttons: {
-                show: true,
+                show: false,
                 cancelText: "Cancel",
                 okText: "Save"
             },
             display: {
                 style: "margin: 0px 25px 0px 0px",
-                mode: {
-                    type: "modal",
-                    title: "Save Variant Stats",
-                    buttonClass: "btn btn-primary",
-                    disabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
-                },
+                modalTitle: "Save Variant Stats",
+                modalButtonIcon: "fas fa-save",
+                modalButtonClassName: "btn btn-primary",
+                modalDisabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS"),
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",

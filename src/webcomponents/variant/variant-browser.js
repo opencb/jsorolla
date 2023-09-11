@@ -324,18 +324,8 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    async onGridConfigSave(e) {
-        // Update user configuration
-        try {
-            await OpencgaCatalogUtils.updateGridConfig(this.opencgaSession, this.COMPONENT_ID, e.detail.value);
-            this.settingsObserver();
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Configuration saved",
-            });
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        }
+    onSettingsUpdate() {
+        this.settingsObserver();
     }
 
     render() {

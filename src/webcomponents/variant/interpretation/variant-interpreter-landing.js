@@ -134,6 +134,12 @@ class VariantInterpreterLanding extends LitElement {
                     name: "Case Manager",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
+                        const displayConfig = {
+                            width: 8,
+                            modalButtonClassName: "btn-default btn-sm",
+                            buttonsLayout: "upper",
+                            type: "tabs",
+                        };
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}" class="bg-white pt-3"></tool-header>
@@ -141,6 +147,7 @@ class VariantInterpreterLanding extends LitElement {
                                     <clinical-analysis-update
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .opencgaSession="${opencgaSession}"
+                                        .displayConfig="${displayConfig}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </clinical-analysis-update>
                                 </div>

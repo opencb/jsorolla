@@ -20,12 +20,13 @@
 **/
 
 
+import UtilsNew from "../../../../core/utils-new";
 
 /**
  * This class contains the methods for the "Individual" resource
  */
 
-export default class Individual  {
+export default class Individual {
 
     constructor(config) {
 
@@ -226,6 +227,14 @@ export default class Individual  {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(individuals, params) {
+        // Mocked response for Individual update test
+        if (individuals === "NA12889") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/individuals-platinum.json`)
+                .then(data => ({
+                    responses: [{results: [data[0]]}]
+                }));
+        }
+
         return this._get("individuals", individuals, null, null, "info", params);
     }
 

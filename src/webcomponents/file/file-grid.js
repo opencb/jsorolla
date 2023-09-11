@@ -62,11 +62,12 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") ||
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
@@ -78,13 +79,34 @@ export default class OpencgaFileGrid extends LitElement {
             ...this.getDefaultConfig(),
             ...this.config,
         };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
         // Config for the grid toolbar
-        this.toolbarConfig = {
-            ...this.config?.toolbar,
-            resource: "FILE",
-            buttons: ["columns", "download"],
-            columns: this._getDefaultColumns().filter(column => column.visible !== false)
+        this.toolbarSetting = {
+            // buttons: ["download"],
+            ...this._config,
         };
+
+        this.toolbarConfig = {
+            toolId: "fileBrowser",
+            resource: "FILE",
+            columns: this._getDefaultColumns(),
+            create: {
+                display: {
+                    modalTitle: "File Create",
+                    modalDraggable: true,
+                    disabled: true,
+                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
+                    modalCyDataName: "modal-create",
+                },
+                render: () => html `
+                    <file-create
+                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-create>`
+            },
+        };
+
         this.renderTable();
     }
 
@@ -106,12 +128,13 @@ export default class OpencgaFileGrid extends LitElement {
                 return;
             }
 
+            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
                 theadClasses: "table-light",
                 buttonsClass: "light",
-                columns: this._getDefaultColumns(),
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -235,9 +258,17 @@ export default class OpencgaFileGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(e, _, row) {
+    async onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase();
         switch (action) {
+            /*
+            case "edit":
+                this.fileUpdateId = row.id;
+                this.requestUpdate();
+                await this.updateComplete;
+                ModalUtils.show(`${this._prefix}UpdateModal`);
+                break;
+             */
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
                 break;
@@ -251,33 +282,38 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        this._columns = [
             {
                 id: "name",
                 title: "Name",
-                field: "name"
+                field: "name",
+                visible: this.gridCommons.isColumnVisible("name")
             },
             {
                 id: "directory",
                 title: "Directory",
                 field: "path",
-                formatter: (_, row) => "/" + row.path.replace("/" + row.name, "")
+                formatter: (_, row) => "/" + row.path.replace("/" + row.name, ""),
+                visible: this.gridCommons.isColumnVisible("directory")
             },
             {
                 id: "size",
                 title: "Size",
                 field: "size",
-                formatter: UtilsNew.getDiskUsage
+                formatter: UtilsNew.getDiskUsage,
+                visible: this.gridCommons.isColumnVisible("size")
             },
             {
                 id: "format",
                 title: "Format",
-                field: "format"
+                field: "format",
+                visible: this.gridCommons.isColumnVisible("format")
             },
             {
                 id: "bioformat",
                 title: "Bioformat",
-                field: "bioformat"
+                field: "bioformat",
+                visible: this.gridCommons.isColumnVisible("bioformat")
             },
             // {
             //     title: "Status",
@@ -287,6 +323,7 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "index",
                 title: "Variant Index Status",
                 field: "internal.variant.index.status.id",
+                visible: this.gridCommons.isColumnVisible("index"),
                 // NOTE 20230310 Vero: Formatter for displaying in the future information
                 // about annotation and secondary index in the column
                 // formatter: (value, row) => {
@@ -304,15 +341,8 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "creationDate",
                 title: "Creation date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter
-            },
-            {
-                id: "state",
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false,
-                visible: this._config.showSelectCheckbox
+                formatter: CatalogGridFormatter.dateFormatter,
+                visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
 
@@ -329,7 +359,7 @@ export default class OpencgaFileGrid extends LitElement {
                 "&sid=",
                 this.opencgaSession?.token,
             ]:[];
-            _columns.push({
+            this._columns.push({
                 id: "actions",
                 title: "Actions",
                 field: "actions",
@@ -385,9 +415,9 @@ export default class OpencgaFileGrid extends LitElement {
             });
         }
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        _columns = this.gridCommons.addColumnsFromExtensions(_columns);
-        return _columns;
+        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns);
+        return this._columns;
     }
 
     async onDownload(e) {
@@ -431,12 +461,15 @@ export default class OpencgaFileGrid extends LitElement {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
-                    .query="${this.query}"
+                    .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}">
+                    @export="${this.onDownload}"
+                    @actionClick="${e => this.onActionClick(e)}"
+                    @fileCreate="${this.renderTable}">
                 </opencb-grid-toolbar>` : nothing
             }
 
@@ -450,14 +483,16 @@ export default class OpencgaFileGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
+            pageList: [5, 10, 25],
+            showToolbar: true,
+            showCreate: true,
+            showExport: true,
+            showSettings: true,
+            showActions: true,
+            showSelectCheckbox: false,
             detailView: false,
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showSelectCheckbox: false,
-            showToolbar: true,
-            showActions: true,
             skipExtensions: false,
         };
     }

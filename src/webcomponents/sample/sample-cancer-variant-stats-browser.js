@@ -589,21 +589,19 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     getSettingsConfig() {
         return {
-            title: "Settings",
-            icon: "fas fa-cog",
+            title: "",
+            mode: "modal",
             type: "form",
             buttons: {
-                show: true,
+                show: false,
                 cancelText: "Cancel",
                 okText: "OK",
             },
             display: {
                 style: "margin: 0px 25px 0px 0px",
-                mode: {
-                    type: "modal",
-                    title: "Display Settings",
-                    buttonClass: "btn btn-primary"
-                },
+                modalTitle: "Display Settings",
+                modalButtonIcon: "fas fa-cog",
+                modalButtonClassName: "btn btn-primary",
                 labelWidth: 4,
                 labelAlign: "right",
                 defaultValue: "",
@@ -639,21 +637,19 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     getSaveConfig() {
         return {
-            title: "Save",
-            icon: "fas fa-save",
+            title: "",
+            mode: "modal",
             type: "form",
             buttons: {
-                show: true,
+                show: false,
                 cancelText: "Cancel",
                 okText: "Save",
             },
             display: {
                 style: "margin: 0px 25px 0px 0px",
-                mode: {
-                    type: "modal",
-                    title: "Save Variant Stats",
-                    buttonClass: "btn btn-primary"
-                },
+                modalTitle: "Save Variant Stats",
+                modalButtonIcon: "fas fa-save",
+                modalButtonClassName: "btn btn-primary",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",

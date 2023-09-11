@@ -69,7 +69,7 @@
     "jquery.json-viewer": "^1.4.0",
     "jszip": "^3.10.1",
     "jwt-decode": "^2.2.0",
-    "lit": "^2.6.1",
+    "lit": "^2.7.4",
     "lodash": "^4.17.19",
     "moment": "^2.15.1",
     "pako": "~0.2.8",

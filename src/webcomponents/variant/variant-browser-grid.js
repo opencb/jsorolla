@@ -135,15 +135,23 @@ export default class VariantBrowserGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
-        this.toolbarConfig = {
-            resource: "VARIANT",
+        this.toolbarSetting = {
             showExport: true,
             exportTabs: ["download", "export", "link", "code"], // this is customisable in external settings in `table.toolbar`
             showColumns: false,
-            ...this._config.toolbar,
+            ...this._config,
             // columns: this._getDefaultColumns()[0].filter(col => col.rowspan === 2 && col.colspan === 1 && col.visible !== false), // flat list for the column dropdown
             // gridColumns: this._getDefaultColumns() // original column structure
         };
+
+        this.toolbarConfig = {
+            toolId: "variantBrowser",
+            resource: "VARIANT",
+            disableCreate: true,
+            showInterpreterConfig: true,
+            columns: this._getDefaultColumns()
+        };
+
     }
 
     onColumnChange(e) {
@@ -354,12 +362,6 @@ export default class VariantBrowserGrid extends LitElement {
             },
             rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
-    }
-
-    onConfigClick(e) {
-        // $("#" + this._prefix + "ConfigModal").modal("show");
-        const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
-        configModal.show();
     }
 
     detailFormatter(index, row, a) {
@@ -1056,10 +1058,10 @@ export default class VariantBrowserGrid extends LitElement {
         return html`
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
-                    .config="${this.toolbarConfig}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
-                    .rightToolbar="${this.getRightToolbar()}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}"
@@ -1071,29 +1073,6 @@ export default class VariantBrowserGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1" role="dialog"
-                aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Table Settings</h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <variant-interpreter-grid-config
-                                .opencgaSession="${this.opencgaSession}"
-                                .gridColumns="${this._columns}"
-                                .config="${this._config}"
-                                @configChange="${this.onGridConfigChange}">
-                            </variant-interpreter-grid-config>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onGridConfigSave()}">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         `;
     }
 

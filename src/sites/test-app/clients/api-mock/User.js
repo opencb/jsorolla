@@ -24,6 +24,7 @@
  * This class contains the methods for the "User" resource
  */
 
+import {RestResponse} from "../../../../core/clients/rest-response.js";
 export default class User {
 
     constructor(config) {
@@ -84,7 +85,19 @@ export default class User {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateConfigs(user, data, params) {
-        return this._post("users", user, "configs", null, "update", data, params);
+        let result;
+        switch (params) {
+            default:
+                result = {
+                    responses: [{
+                        results: [
+                            {...data.configuration}
+                        ]
+                    }]
+                };
+        }
+        // return this._post("users", user, "configs", null, "update", data, params);
+        return Promise.resolve(new RestResponse(result));
     }
 
     /** Fetch user filters

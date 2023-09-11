@@ -165,7 +165,7 @@ export default class ToolSettingsPreview extends LitElement {
                         <clinical-analysis-browser
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                                .config="${{componentId: "clinicalAnalysisBrowserCatalog", showHeader: false}}">
                         </clinical-analysis-browser>
                     `;
                 },
@@ -176,7 +176,7 @@ export default class ToolSettingsPreview extends LitElement {
                         <clinical-analysis-portal
                                 .opencgaSession="${this.opencgaSession}"
                                 .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                                .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
                         </clinical-analysis-portal>
                     `;
                 }

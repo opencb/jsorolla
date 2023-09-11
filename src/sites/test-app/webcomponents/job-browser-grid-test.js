@@ -20,6 +20,9 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/loading-spinner.js";
 import "../../../webcomponents/job/job-grid.js";
 import "../../../webcomponents/job/job-detail.js";
+// import "../../../webcomponents/job/job-create.js";
+// import "../../../webcomponents/job/job-update.js";
+
 
 class JobBrowserGridTest extends LitElement {
 
@@ -56,6 +59,7 @@ class JobBrowserGridTest extends LitElement {
     #init() {
         this.isLoading = false;
         this.data = [];
+        this._config = {};
     }
 
     #setLoading(value) {
@@ -95,6 +99,11 @@ class JobBrowserGridTest extends LitElement {
         this._selectRow = {...e.detail.row};
     }
 
+    onSettingsUpdate() {
+        this._config = {...this.opencgaSession?.user?.configs?.IVA?.jobBrowser?.grid};
+        this.opencgaSessionObserver();
+    }
+
     render() {
         if (this.isLoading) {
             return html`<loading-spinner></loading-spinner>`;
@@ -107,6 +116,8 @@ class JobBrowserGridTest extends LitElement {
             <job-grid
                 .jobs="${this.jobs}"
                 .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}"
                 @selectrow="${e => this.selectRow(e)}">
             </job-grid>
             <job-detail

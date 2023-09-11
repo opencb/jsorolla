@@ -20,7 +20,7 @@
 **/
 
 
-
+import UtilsNew from "../../../../core/utils-new";
 
 /**
  * This class contains the methods for the "Family" resource
@@ -201,6 +201,13 @@ export default class Family {
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(families, params) {
+        // Mocked response for Sample update test
+        if (families === "899077") {
+            return UtilsNew.importJSONFile(`./test-data/2.11/families-platinum.json`)
+                .then(data => ({
+                    responses: [{results: [data[0]]}]
+                }));
+        }
         return this._get("families", families, null, null, "info", params);
     }
 

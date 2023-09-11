@@ -120,7 +120,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         <clinical-analysis-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings="${this.settings}"
-                            .config="${{showHeader: false}}">
+                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
                         </clinical-analysis-browser>
                     `,
                 },
@@ -165,6 +165,7 @@ export default class ClinicalAnalysisPortal extends LitElement {
                         <div class="content container">
                             ${this.renderViewTitle("New Disease Panel")}
                             <disease-panel-create
+                                .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
                                 .opencgaSession="${this.opencgaSession}">
                             </disease-panel-create>
                         </div>
