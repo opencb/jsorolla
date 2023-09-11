@@ -208,7 +208,10 @@ export default class OpencbGridToolbar extends LitElement {
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
-                        ${this._config.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
+                        ${this._config.downloading ? html`
+                            <div class="overlay">
+                                <loading-spinner></loading-spinner>
+                            </div>` : null}
                         <div class="modal-header">
                             <h4 class="modal-title">Export</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

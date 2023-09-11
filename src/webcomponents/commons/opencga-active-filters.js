@@ -854,7 +854,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                         ${item.locked ? html`
                                             <button type="button" class="btn btn-warning ${item.name}ActiveFilter text-decoration-line-through-hover" data-filter-name="${item.name}" data-filter-value=""
                                                     @click="${this.onQueryFilterDelete}" disabled>
-                                                ${item.text} <span class="badge text-bg-light rounded-circle">${item.items.length}</span>
+                                                ${item.text} <span class="badge text-bg-light rounded-pill">${item.items.length}</span>
                                             </button>
                                             <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <span class="visually-hidden">Toggle Dropdown</span>
