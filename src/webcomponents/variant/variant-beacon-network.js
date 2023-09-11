@@ -134,7 +134,7 @@ export default class VariantBeaconNetwork extends LitElement {
     renderStyles() {
         return html `
             <style>
-            .beacon-square {
+            /* .beacon-square {
                 width: 120px;
                 height: 120px;
                 display: inline-flex;
@@ -144,7 +144,7 @@ export default class VariantBeaconNetwork extends LitElement {
                 margin: 10px 10px 10px 0;
                 flex-flow: column;
                 transition: all .7s ease-in-out;
-            }
+            } */
 
             .beacon-square.false {
                 background: #e8e8e8;
@@ -167,17 +167,20 @@ export default class VariantBeaconNetwork extends LitElement {
         <div id="variant-beacon-network">
             <div>
                 <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
-                <br>
-                <button class="btn btn-primary" type="button" @click="${this.variantObserver}"><i class="fas fa-sync-alt pe-1"></i> Refresh Beacon Network query</button>
+                <button class="btn btn-primary mb-3" type="button" @click="${this.variantObserver}"><i class="fas fa-sync-alt pe-1"></i> Refresh Beacon Network query</button>
             </div>
-            ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
-                <div class="beacon-square host ${this._prefix}${item} shadow-sm">
-                    <span>${item}</span>
-                    <span id="${this._prefix}${item}" class="beaconResponse badge">
-                    </span>
-                    <i class="fa fa-spinner fa-spin beacon-loading-spinner" aria-hidden="true"></i>
-                </div>
-            `)}
+            <div class="row row-cols-md-4 row-cols-lg-6 g-3 text-center">
+                ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
+                    <div class="col">
+                        <div class="card beacon-square ${this._prefix}${item} shadow rounded border-0 py-4">
+                            <span>${item}</span>
+                            <span id="${this._prefix}${item}" class="beaconResponse badge">
+                            </span>
+                            <i class="fa fa-spinner fa-spin beacon-loading-spinner" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                `)}
+            </div>
         </div>
         `;
     }
