@@ -904,8 +904,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             return [
                 {
                     render: () => html`
-                        <button type="button" class="btn btn-default btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog icon-padding"></i> Settings ...
+                        <button type="button" class="btn btn-light" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                            <i class="fas fa-cog pe-1"></i> Settings ...
                         </button>
                     `,
                 }
@@ -942,11 +942,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 768px">
+            <div class="modal fade pt-0" id="${this._prefix}ReviewSampleModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
+
                             <h3>Review Variant</h3>
                         </div>
                         ${this.variantsReview ? html`
@@ -958,20 +959,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </clinical-interpretation-variant-review>
                         ` : null}
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1024px">
+            <div class="modal fade pt-0" id="${this._prefix}ConfigModal" tabindex="-1"
+                role="dialog" aria-hidden="true" style="overflow-y: visible">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h3>Settings</h3>
+                        <h3>Settings</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -984,8 +985,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onGridConfigSave(e)}">OK</button>
                         </div>
                     </div>
                 </div>
