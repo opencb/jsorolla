@@ -21,14 +21,14 @@ const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch|genome-browser)/gi;
 
 // Get target sites to build
-// const sites = env.npm_config_sites ? env.npm_config_sites.split(",") : ["iva"];
 const getSitesToBuild = () => {
-    const sites = ["iva", "api"];
+    // Josemi 2023-09-12 NOTE: test-app has been included by default in build process
+    const sites = ["iva", "api", "test-app"];
     // Check if we need to include the test-app site in the sites to build list
     // This can be enabled using the '--include-test-app' flag when running 'npm run build' command
-    if (env.npm_config_include_test_app) {
-        sites.push("test-app");
-    }
+    // if (env.npm_config_include_test_app) {
+    //     sites.push("test-app");
+    // }
     return sites;
 };
 
@@ -183,7 +183,7 @@ export default getSitesToBuild().map(site => ({
     },
     output: {
         dir: `${buildPath}/${site}`,
-        manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
+        manualChunks: id => {
             if (id.includes("node_modules")) {
                 return "vendors/js/vendors";
             }
