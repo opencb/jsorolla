@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const {defineConfig} = require("cypress");
 const cypressSplit = require("cypress-split");
 
@@ -19,7 +20,7 @@ module.exports = defineConfig({
         json: true,
     },
     e2e: {
-        baseUrl: "http://localhost:3000/src/sites/test-app/",
+        baseUrl: "http://localhost:4000/test-app/index.html",
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
             cypressSplit(on, config);
