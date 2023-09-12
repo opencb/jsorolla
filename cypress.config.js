@@ -20,7 +20,7 @@ module.exports = defineConfig({
         json: true,
     },
     e2e: {
-        baseUrl: "http://localhost:4000/test-app/index.html",
+        baseUrl: "http://localhost:4000/test-app/",
         setupNodeEvents(on, config) {
             require("cypress-mochawesome-reporter/plugin")(on);
             cypressSplit(on, config);
