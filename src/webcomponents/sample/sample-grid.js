@@ -97,6 +97,7 @@ export default class SampleGrid extends LitElement {
                     modalTitle: "Sample Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                     // disabled: true,
                     // disabledTooltip: "...",
                 },
@@ -523,6 +524,7 @@ export default class SampleGrid extends LitElement {
                     modalTitle: `Sample Update: ${this.sampleUpdateId}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-update",
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

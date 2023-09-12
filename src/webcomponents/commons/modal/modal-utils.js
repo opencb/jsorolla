@@ -2,7 +2,6 @@ import {html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils";
 import UtilsNew from "../../../core/utils-new";
 
-
 export default class ModalUtils {
 
     static show(id) {
@@ -20,6 +19,7 @@ export default class ModalUtils {
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
         const modalWidth = config.display?.modalWidth || "768px";
+        const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleHeader = config.display?.modalTitleHeader || "h4";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
@@ -32,7 +32,8 @@ export default class ModalUtils {
             <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
                 tabindex="-1" role="dialog"
                 aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
-                <div class="modal-dialog" style="width: ${modalWidth}">
+                <!-- alternative: To use the width per style, it should look like this -> --bs-modal-width: 800px -->
+                <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
                     <div class="modal-content">
                         <div class="modal-header">
                             ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
@@ -122,6 +123,5 @@ export default class ModalUtils {
         modalHeader.onmousedown = dragMouseDown;
         modalHeader.style.cursor = "move";
     }
-
 
 }

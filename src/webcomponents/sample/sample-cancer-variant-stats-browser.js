@@ -606,6 +606,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 labelAlign: "right",
                 defaultValue: "",
                 defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {
@@ -654,6 +655,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 labelAlign: "right",
                 defaultValue: "",
                 defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {

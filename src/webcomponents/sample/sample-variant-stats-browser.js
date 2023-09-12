@@ -266,15 +266,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
                 <div class="help-block break-word" style="margin: 5px 10px;overflow-wrap: break-word;">
                     ${qcVvariantStats.query ? Object.entries(qcVvariantStats.query).map(([k, v]) => {
-                        if (k !== "study") {
-                            return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
-                        } else {
-                            if (Object.keys(qcVvariantStats.query).length === 1) {
-                                // No fitlers applied
-                                return html`<span></span>`;
-                            }
-                        }
-                    }) : null
+            if (k !== "study") {
+                return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
+            } else {
+                if (Object.keys(qcVvariantStats.query).length === 1) {
+                    // No fitlers applied
+                    return html`<span></span>`;
+                }
+            }
+        }) : null
                     }
                 </div>
             </div>
@@ -411,7 +411,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
-                defaultLayout: "horizontal"
+                defaultLayout: "horizontal",
+                modalSize: "modal-lg"
             },
             sections: [
                 {

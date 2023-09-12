@@ -215,6 +215,7 @@ export default class OpencbGridToolbar extends LitElement {
                 display: {
                     modalDraggable: true,
                     modalTitle: this.config?.resource + " Export",
+                    modalSize: "modal-lg"
                 },
                 render: () => html`
                     <opencga-export
@@ -229,6 +230,7 @@ export default class OpencbGridToolbar extends LitElement {
                 display: {
                     modalDraggable: true,
                     modalTitle: this.config?.resource + " Settings",
+                    modalSize: "modal-lg"
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config

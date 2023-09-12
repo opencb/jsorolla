@@ -96,6 +96,7 @@ export default class IndividualGrid extends LitElement {
                     modalTitle: "Individual Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <individual-create
@@ -674,6 +675,7 @@ export default class IndividualGrid extends LitElement {
                     modalTitle: `Individual Update: ${this.individualUpdateId}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-update",
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

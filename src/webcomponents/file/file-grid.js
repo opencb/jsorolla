@@ -98,6 +98,7 @@ export default class OpencgaFileGrid extends LitElement {
                     disabled: true,
                     disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <file-create

@@ -97,6 +97,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     modalTitle: "Clinical Analysis Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <clinical-analysis-create
@@ -870,6 +871,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 display: {
                     modalTitle: `Clinical Analysis Update: ${this.clinicalAnalysisUpdateId}`,
                     modalDraggable: true,
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

@@ -96,6 +96,7 @@ export default class FamilyGrid extends LitElement {
                     modalTitle: "Family Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <family-create
@@ -608,6 +609,7 @@ export default class FamilyGrid extends LitElement {
                     modalTitle: `Family Update: ${this.familyUpdateId}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-update",
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

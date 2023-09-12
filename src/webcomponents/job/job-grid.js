@@ -105,6 +105,7 @@ export default class JobGrid extends LitElement {
                     disabled: true,
                     disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <job-create
@@ -604,6 +605,7 @@ export default class JobGrid extends LitElement {
                 display: {
                     modalTitle: "Job Update",
                     modalDraggable: true,
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

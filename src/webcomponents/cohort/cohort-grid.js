@@ -97,6 +97,7 @@ export default class CohortGrid extends LitElement {
                     modalTitle: "Cohort Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <cohort-create
@@ -442,6 +443,7 @@ export default class CohortGrid extends LitElement {
                 display: {
                     modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
                     modalDraggable: true,
+                    modalSize: "modal-lg",
                 },
                 render: active => {
                     return html `
