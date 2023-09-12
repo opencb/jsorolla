@@ -455,7 +455,7 @@ export default class DataForm extends LitElement {
         const buttonsSectionVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
 
         return html`
-            <div class="row mb-2">
+            <div class="row mb-3">
                 <div class="${sectionWidth}">
                     ${section.title ? html`
                         <div class="mb-3">
@@ -1918,16 +1918,18 @@ export default class DataForm extends LitElement {
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                     <ul class="nav nav-pills flex-column">
-                        ${this._getVisibleSections().map((section, index) => {
-            const active = index === this.activeSection;
-            return html`
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                        ${section.title || ""}
-                                    </a>
-                                </li>
-                            `;
-        })}
+                        ${
+                            this._getVisibleSections().map((section, index) => {
+                                const active = index === this.activeSection;
+                                return html`
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                            ${section.title || ""}
+                                        </a>
+                                    </li>
+                                `;
+                            })
+                        }
                     </ul>
                 </div>
                 <div class="col-md-9">
@@ -2006,9 +2008,9 @@ export default class DataForm extends LitElement {
                             class="btn ${modalBtnClassName}"
                             style="${modalBtnStyle}"
                             ?disabled="${modalDisabled}"
-                            data-toggle="modal"
-                            data-target="${`#${modalId}`}">
-                        ${modalBtnIcon ? html`<i class="${modalBtnIcon} icon-padding" aria-hidden="true"></i>` : nothing}
+                            data-bs-toggle="modal"
+                            data-bs-target="${`#${modalId}`}">
+                        ${modalBtnIcon ? html`<i class="${modalBtnIcon} pe-1" aria-hidden="true"></i>` : nothing}
                         ${modalBtnName}
                     </button>
                 ` : nothing

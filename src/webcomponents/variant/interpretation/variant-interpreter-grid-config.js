@@ -187,7 +187,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 }
             },
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
