@@ -83,6 +83,8 @@ export default class DataTable extends LitElement {
     getDefaultConfig() {
         return {
             sidePagination: "local",
+            theadClasses: "table-light",
+            buttonsClass: "light",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
