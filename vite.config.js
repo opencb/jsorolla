@@ -97,6 +97,9 @@ export default defineConfig({
     build: {
         outDir: "build"
     },
+    preview: {
+        port: 4000,
+    },
     plugins: [
         {
             ...replace({
