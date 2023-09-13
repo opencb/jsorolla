@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 const {defineConfig} = require("cypress");
-const cypressSplit = require("cypress-split");
 
 module.exports = defineConfig({
     chromeWebSecurity: false,
@@ -21,10 +20,8 @@ module.exports = defineConfig({
     },
     e2e: {
         baseUrl: "http://localhost:4000/test-app/",
-        setupNodeEvents(on, config) {
+        setupNodeEvents: on => {
             require("cypress-mochawesome-reporter/plugin")(on);
-            cypressSplit(on, config);
-            return config;
         },
         defaultCommandTimeout: 12000
     },

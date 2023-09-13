@@ -92,7 +92,6 @@
     "crisper": "~2.1.1",
     "cypress": "^12.4.0",
     "cypress-mochawesome-reporter": "^3.2.3",
-    "cypress-split": "^1.2.0",
     "cypress-wait-until": "^1.7.1",
     "dependency-cruiser": "^10.0.7",
     "eslint": "^7.29.0",
