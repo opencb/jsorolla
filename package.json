@@ -34,10 +34,6 @@
     "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
     "lint:js": "lint-staged",
-    "e2e": "./cypress/credentials.sh npx cypress open --config-file ./cypress/cypress.config.js",
-    "e2e-win": "crypress/credentials.bat npx cypress open --config-file ./cypress/cypress.json",
-    "e2e-report": "./cypress/e2e-runner.sh",
-    "e2e-report-win": "cypress/e2e-runner.bat",
     "graph": "./dependency-graph.sh"
   },
   "license": "Apache-2.0",
