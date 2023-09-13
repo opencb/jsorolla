@@ -12,10 +12,11 @@
     ]
   },
   "scripts": {
-    "serve": "vite",
+    "serve": "npm run serve:dev",
+    "serve:dev": "vite",
+    "serve:build": "vite preview",
     "clean": "rm -rf build",
     "build": "npm run clean && rollup -c && npm run package",
-    "preview": "vite preview",
     "prepare": "husky install",
     "test:open": "cypress open",
     "test:prepare": "./prepare-test.sh",
