@@ -20,6 +20,7 @@ import LitUtils from "./utils/lit-utils.js";
 import "./filters/catalog-search-autocomplete.js";
 import "./filters/catalog-distinct-autocomplete.js";
 import "./forms/date-filter.js";
+import "./forms/date-picker.js";
 import "./opencga-facet-view.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
@@ -326,10 +327,14 @@ export default class OpencgaBrowserFilter extends LitElement {
                 case "date":
                 case "creationDate":
                     content = html`
-                        <date-filter
+                        <!-- <date-filter
                             .filterDate="${this.preparedQuery.creationDate}"
                             @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
-                        </date-filter>
+                        </date-filter> -->
+                        <date-picker
+                            .filterDate="${this.preparedQuery.creationDate}"
+                            @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                        </date-picker>
                     `;
                     break;
                 case "dueDate":
