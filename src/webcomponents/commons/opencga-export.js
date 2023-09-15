@@ -538,7 +538,7 @@ const client = new OpenCGAClient({
                         </form>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" @click="${this.onDownloadClick}">
                             ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                             <i class="fa fa-download" aria-hidden="true"></i> Download
