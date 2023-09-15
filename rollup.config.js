@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 import del from "rollup-plugin-delete";
 import {babel} from "@rollup/plugin-babel";
-import {terser} from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import {execSync} from "child_process";
 import pkg from "./package.json";
 
