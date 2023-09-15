@@ -198,7 +198,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             return;
         }
 
-
         const variantId = this.variantAnnotation.id ? this.variantAnnotation.id : `${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}:${this.variantAnnotation.reference}:${this.variantAnnotation.alternate}`;
         return html`
             <data-form
@@ -206,7 +205,6 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                 .config="${this._config}">
             </data-form>
         `;
-
 
     }
 

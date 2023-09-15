@@ -20,7 +20,6 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
 
-
 export default class CatalogBrowserGridConfig extends LitElement {
 
     constructor() {

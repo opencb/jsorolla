@@ -460,5 +460,4 @@ export default class SampleBrowser extends LitElement {
 
 }
 
-
 customElements.define("sample-browser", SampleBrowser);

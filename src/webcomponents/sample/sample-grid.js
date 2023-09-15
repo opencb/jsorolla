@@ -24,7 +24,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "./sample-update.js";
 import ModalUtils from "../commons/modal/modal-utils";
 
-
 export default class SampleGrid extends LitElement {
 
     constructor() {
