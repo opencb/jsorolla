@@ -375,8 +375,8 @@ export default class DataForm extends LitElement {
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
         // if (this.config.type === "tabs" || this.config.type === "pills") {
-        if (this.config.type === "tabs" || this.config.display.type === "tabs" ||
-            this.config.type === "pills" || this.config.display.type === "pills") {
+        if (this.config?.type === "tabs" || this.config?.display?.type === "tabs" ||
+            this.config?.type === "pills" || this.config?.display?.type === "pills") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
@@ -1973,9 +1973,9 @@ export default class DataForm extends LitElement {
 
         // General values 'mode' and 'type' determine how the page/form is displayed and rendered.
         // 'mode' allowed values: page (default), modal, card
-        const mode = this.config.mode || this.config.display.mode || "page";
+        const mode = this.config?.mode || this.config?.display?.mode || "page";
         // 'type' allowed values: form (default), tabs, pills
-        const type = this.config.type || this.config.display.type || "form";
+        const type = this.config?.type || this.config?.display?.type || "form";
 
         // 1. 'mode === page', render a normal web page.
         if (mode === "page" || !mode) {
