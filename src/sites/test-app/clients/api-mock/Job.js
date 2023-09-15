@@ -29,15 +29,9 @@ import {RestResponse} from "../../../../core/clients/rest-response";
 export default class Job {
 
     constructor(config) {
-
+        this._config = config;
     }
 
-    /** Update the set of permissions granted for the member
-    * @param {String} members - Comma separated list of user or group ids.
-    * @param {Object} data - JSON containing the parameters to add ACLs.
-    * @param {"SET ADD REMOVE RESET"} action = "ADD" - Action to be performed [ADD, SET, REMOVE or RESET]. The default value is ADD.
-    * @returns {Promise} Promise object in the form of RestResponse instance.
-    */
     updateAcl(members, action, data) {
         return this._post("jobs", null, "acl", members, "update", data, action);
     }
@@ -157,8 +151,13 @@ export default class Job {
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted entries. The default value is false.
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
+    // eslint-disable-next-line no-unused-vars
     search(params) {
-        return this._get("jobs", null, null, null, "search", params);
+        // Mocked response to prevent error in navbar
+        // This returns an object containing a dummy getResults function, simulating that there are no jobs returned by rest
+        return Promise.resolve({
+            getResults: () => [],
+        });
     }
 
     /** Provide a summary of the running jobs
