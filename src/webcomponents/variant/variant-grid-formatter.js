@@ -217,8 +217,8 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style='padding: 5px'>
-                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                        geneViewMenuLink = `<div class='p-1'>
+                                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
                                             </div>`;
                     }
 
@@ -282,29 +282,30 @@ export default class VariantGridFormatter {
 
     static getGeneTooltip(geneName, assembly) {
         return `
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+            <div class='dropdown-header ps-1 pt-1'>External Links</div>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
-            <div style='padding: 5px' data-cy='varsome-gene-link'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
+            <div class='p-1' data-cy='varsome-gene-link'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
             </div>
 
-            <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+            <div class='dropdown-header ps-1 pt-1'>Clinical Resources</div>
+            <hr class='dropdown-divider'>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
             </div>
-            <div style='padding: 5px'>
-                 <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
             </div>
         `;
     }

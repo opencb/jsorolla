@@ -20,7 +20,6 @@ import GridCommons from "../commons/grid-commons.js";
 import VariantGridFormatter from "../variant/variant-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
-
 export default class DiseasePanelGeneView extends LitElement {
 
     constructor() {
@@ -129,7 +128,7 @@ export default class DiseasePanelGeneView extends LitElement {
                 ${VariantGridFormatter.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
             `;
             geneLinks.push(`
-                <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
+                <a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                     ${geneName}
                 </a>`);
         }
