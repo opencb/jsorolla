@@ -183,7 +183,13 @@ export default getSitesToBuild().map(site => ({
     },
     output: {
         dir: `${buildPath}/${site}`,
+        minifyInternalExports: false,
         manualChunks: id => {
+            // Josemi 2023-09-19 NOTE: 'opencga-catalog-utils' is included inside the 'clients/opencga' folder
+            // We need to make sure this file is not included in the opencga client bundle
+            if (id.includes("clients/opencga") && !id.includes("opencga-catalog-utils")) {
+                return "lib/opencga-client.min";
+            }
             if (id.includes("node_modules")) {
                 return "vendors/js/vendors";
             }
