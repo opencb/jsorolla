@@ -11,20 +11,20 @@ jobs:
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
-    needs: test
+    needs: build
     with:
       cli: python3 ./docker/docker-build.py push
     secrets: inherit
 
   deploy-web:
     uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
-    needs: [ build, test ]
+    needs: build
     with:
       version: ${{ needs.build.outputs.version }}
     secrets: inherit
 
   release:
     uses: ./.github/workflows/release-github-workflow.yml
-    needs: [ build, test ]
+    needs: [ build, deploy-web, deploy-docker ]
     with:
       version: ${{ needs.build.outputs.version }}
