@@ -190,6 +190,10 @@ export default getSitesToBuild().map(site => ({
             if (id.includes("clients/opencga") && !id.includes("opencga-catalog-utils")) {
                 return "lib/opencga-client.min";
             }
+            // Extract opencga client mock
+            if (id.includes("test-app/clients/opencga-client-mock") || id.includes("api-mock")) {
+                return "lib/opencga-client-mock.min";
+            }
             if (id.includes("node_modules")) {
                 return "vendors/js/vendors";
             }
