@@ -194,6 +194,10 @@ export default getSitesToBuild().map(site => ({
             if (id.includes("test-app/clients/opencga-client-mock") || id.includes("api-mock")) {
                 return "lib/opencga-client-mock.min";
             }
+            // Extract cellbase client mock
+            if (id.includes("test-app/clients/cellbase-client-mock")) {
+                return "lib/cellbase-client-mock.min";
+            }
             if (id.includes("node_modules")) {
                 return "vendors/js/vendors";
             }
