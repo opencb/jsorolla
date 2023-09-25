@@ -229,7 +229,7 @@ export default class Individual {
     info(individuals, params) {
         // Mocked response for Individual update test
         if (individuals === "NA12889") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/individuals-platinum.json`)
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/individuals-platinum.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));
