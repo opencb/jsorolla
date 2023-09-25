@@ -234,8 +234,7 @@ export default class Individual {
                     responses: [{results: [data[0]]}]
                 }));
         }
-
-        return this._get("individuals", individuals, null, null, "info", params);
+        return Promise.resolve({});
     }
 
     /** Update some individual attributes

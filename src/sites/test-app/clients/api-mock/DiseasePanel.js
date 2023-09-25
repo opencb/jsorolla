@@ -180,8 +180,7 @@ export default class DiseasePanel {
                     responses: [{results: [data[0]]}]
                 }));
         }
-
-        return this._get("panels", panels, null, null, "info", params);
+        return Promise.resolve({});
     }
 
     /** Update panel attributes

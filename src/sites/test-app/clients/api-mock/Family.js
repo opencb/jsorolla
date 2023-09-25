@@ -208,7 +208,7 @@ export default class Family {
                     responses: [{results: [data[0]]}]
                 }));
         }
-        return this._get("families", families, null, null, "info", params);
+        return Promise.resolve({});
     }
 
     /** Update some family attributes

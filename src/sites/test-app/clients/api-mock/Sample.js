@@ -277,8 +277,7 @@ export default class Sample {
                     responses: [{results: [data[0]]}]
                 }));
         }
-
-        return this._get("samples", samples, null, null, "info", params);
+        return Promise.resolve({});
     }
 
     /** Update some sample attributes
