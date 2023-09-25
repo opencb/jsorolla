@@ -272,7 +272,7 @@ export default class Sample {
         }
         // Mocked response for Sample update test
         if (samples === "NA12877") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/samples-platinum.json`)
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/samples-platinum.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));
