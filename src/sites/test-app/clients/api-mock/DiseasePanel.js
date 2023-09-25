@@ -29,7 +29,7 @@ import UtilsNew from "../../../../core/utils-new";
 export default class DiseasePanel {
 
     constructor(config) {
-
+        this._config = config;
     }
 
     /** Update the set of permissions granted for the member
