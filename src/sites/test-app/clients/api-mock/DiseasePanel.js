@@ -29,7 +29,7 @@ import UtilsNew from "../../../../core/utils-new";
 export default class DiseasePanel {
 
     constructor(config) {
-
+        this._config = config;
     }
 
     /** Update the set of permissions granted for the member
@@ -175,7 +175,7 @@ export default class DiseasePanel {
     info(panels, params) {
         // Mocked response for Sample update test
         if (panels === "Early_onset_dystonia-PanelAppId-192") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/disease-panels-platinum.json`)
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/disease-panels-platinum.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));

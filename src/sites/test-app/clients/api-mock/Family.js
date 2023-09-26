@@ -29,6 +29,7 @@ import UtilsNew from "../../../../core/utils-new";
 export default class Family {
 
     constructor(config) {
+        this._config = config;
     }
 
     /** Update the set of permissions granted for the member
@@ -203,7 +204,7 @@ export default class Family {
     info(families, params) {
         // Mocked response for Sample update test
         if (families === "899077") {
-            return UtilsNew.importJSONFile(`./test-data/2.11/families-platinum.json`)
+            return UtilsNew.importJSONFile(`./test-data/${this._config.testDataVersion}/families-platinum.json`)
                 .then(data => ({
                     responses: [{results: [data[0]]}]
                 }));
