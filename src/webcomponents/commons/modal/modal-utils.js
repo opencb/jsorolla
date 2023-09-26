@@ -60,19 +60,20 @@ export default class ModalUtils {
     }
 
     static #getTitleHeader(header, title, classes, style) {
+        const titleCap = UtilsNew.capitalize(title);
         switch (header) {
             case "h1":
-                return html`<h1 class="${classes}" style="${style}">${title}</h1>`;
+                return html`<h1 class="${classes}" style="${style}">${titleCap}</h1>`;
             case "h2":
-                return html`<h2 class="${classes}" style="${style}">${title}</h2>`;
+                return html`<h2 class="${classes}" style="${style}">${titleCap}</h2>`;
             case "h3":
-                return html`<h3 class="${classes}" style="${style}">${title}</h3>`;
+                return html`<h3 class="${classes}" style="${style}">${titleCap}</h3>`;
             case "h4":
-                return html`<h4 class="${classes}" style="${style}">${title}</h4>`;
+                return html`<h4 class="${classes}" style="${style}">${titleCap}</h4>`;
             case "h5":
-                return html`<h5 class="${classes}" style="${style}">${title}</h5>`;
+                return html`<h5 class="${classes}" style="${style}">${titleCap}</h5>`;
             case "h6":
-                return html`<h6 class="${classes}" style="${style}">${title}</h6>`;
+                return html`<h6 class="${classes}" style="${style}">${titleCap}</h6>`;
         }
     }
 
