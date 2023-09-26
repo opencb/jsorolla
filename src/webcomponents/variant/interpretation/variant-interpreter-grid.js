@@ -847,10 +847,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-toolbox" aria-hidden="true"></i>
-                                    <span>Actions</span>
-                                    <span class="caret" style="margin-left: 5px"></span>
+                                    Actions
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton" data-action="edit" ${reviewDisabled}>
                                             <i class="fas fa-edit reviewButton" aria-hidden="true"></i> Edit ...
@@ -1523,7 +1522,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return [];
     }
 
-    render() {
+    renderStyle() {
         return html`
             <style>
                 .variant-link-dropdown:hover .dropdown-menu {
@@ -1537,6 +1536,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     transform: scale(1.2);
                 }
             </style>
+        `;
+    }
+
+    render() {
+        return html`
 
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
@@ -1576,7 +1580,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </div>
 
             <div class="modal fade pt-0" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="overflow-y: visible">
+                role="dialog" aria-hidden="true" style="overflow-y: visible">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">

@@ -19,7 +19,6 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
-
 export default class VariantInterpreterGridFormatter {
 
     static roleInCancerFormatter(value, row, index) {
@@ -123,23 +122,21 @@ export default class VariantInterpreterGridFormatter {
                 const clinicalSignificance = CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id;
                 clinicalSignificanceHtml = `
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
-                    <div class="help-block">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
+                    <div class="text-body-secondary">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
                 `;
-                clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
-                                                        <form class='form-horizontal'>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${re.classification.acmg.join(", ")}</div>
-                                                            </div>
-                                                            <div class='form-group' style='margin: 0px 2px'>
-                                                                <label class='col-md-5'>ACMG Tier</label>
-                                                                <div class='col-md-7'>${re.classification.tier}</div>
-                                                            </div>
-                                                        </form>
-                                                   </div>`;
+                clinicalSignificanceTooltipText = `<div class='p-1' style='width: 250px;'>
+                                                        <div class='row mb-2'>
+                                                            <div class='col-6'>ACMG</div>
+                                                            <div class='col-6'>${re.classification?.acmg?.join(", ")}</div>
+                                                        </div>
+                                                        <div class='row mb-2'>
+                                                            <div class='col-6'>ACMG Tier</div>
+                                                            <div class='col-6'>${re.classification.tier}</div>
+                                                        </div>
+                                                    </div>`;
             }
         }
-        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
+        return `<a class='predictionTooltip text-decoration-none' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
                     ${clinicalSignificanceHtml}
                 </a>`;
     }
@@ -320,7 +317,7 @@ export default class VariantInterpreterGridFormatter {
                                 }
                             </div>
                             ${gene.modesOfInheritance ? `
-                                <div class="help-block" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
+                                <div class="text-body-secondary" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
                                 ` : ""
                             }
                             ${gene.confidence ? `
@@ -350,7 +347,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
+                        <div class="text-body-secondary">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
                     `;
                 }
 
@@ -364,7 +361,7 @@ export default class VariantInterpreterGridFormatter {
                             </div>
                         ` : ""
                     }
-                        <div class="help-block">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
+                        <div class="text-body-secondary">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
                     `;
                 }
 
@@ -514,9 +511,9 @@ export default class VariantInterpreterGridFormatter {
 
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
-                resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
-                                ${content}
-                              </a><br>`;
+                resultHtml += `<a class="zygositySampleTooltip text-decoration-none" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                                    ${content}
+                                </a><br>`;
             }
         }
 
@@ -992,12 +989,12 @@ export default class VariantInterpreterGridFormatter {
         return `
             <div>
                 ${config?.showEditReview ? `
-                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
-                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>&nbsp;Edit ...
+                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link text-decoration-none" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit ...
                     </button>
                 `: ""}
                 ${checked && row?.status ? `
-                    <div class="help-block" style="margin: 5px 0">${row.status}</div>
+                    <div class="text-body-secondary" style="margin: 5px 0">${row.status}</div>
                 ` : ""}
                 ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
                     <div style="">

@@ -87,12 +87,12 @@ export default class VariantGridFormatter {
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
-                    <a target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
+                    <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
                         Decipher
                     </a>
                 </div>
                 <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${row.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "varsome", assembly)}"`}>
+                    <a class="text-decoration-none" target="_blank" ${row.type === "COPY_NUMBER" ? `class="${"disabled"}"` : `href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "varsome", assembly)}"`}>
                         Varsome ${row.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
                     </a>
                 </div>
@@ -102,12 +102,12 @@ export default class VariantGridFormatter {
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser", assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
             </div>
@@ -173,9 +173,9 @@ export default class VariantGridFormatter {
 
         if (snpId) {
             if (assembly.toUpperCase() === "GRCH37") {
-                return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+                return "<a class='text-decoration-none' target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             } else {
-                return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
+                return "<a class='text-decoration-none' target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             }
         }
         return snpId;
@@ -232,8 +232,8 @@ export default class VariantGridFormatter {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
                             geneWithCtLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
-                                                        ${geneName}
-                                                  </a>`);
+                                                    ${geneName}
+                                                </a>`);
                         } else {
                             geneLinks.push(`<a class="gene-tooltip text-decoration-none" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
@@ -282,7 +282,9 @@ export default class VariantGridFormatter {
 
     static getGeneTooltip(geneName, assembly) {
         return `
-            <div class='dropdown-header ps-1 pt-1'>External Links</div>
+            <div class='dropdown-header ps-1 mt-2 mb-1'>
+                External Links
+            </div>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
             </div>
@@ -295,8 +297,9 @@ export default class VariantGridFormatter {
             <div class='p-1' data-cy='varsome-gene-link'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
             </div>
-
-            <div class='dropdown-header ps-1 pt-1'>Clinical Resources</div>
+            <div class='dropdown-header ps-1 mt-2 mb-1'>
+                Clinical Resources
+            </div>
             <hr class='dropdown-divider'>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
