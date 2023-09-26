@@ -89,6 +89,17 @@ class VariantInterpreterMethods extends LitElement {
             `;
         }
 
+        // If no methods have been configured, we will display a warning message
+        if (!this._config || this._config.items.length === 0) {
+            return html`
+                <div class="col-md-6 col-md-offset-3" style="padding: 20px">
+                    <div class="alert alert-warning" role="alert">
+                        No automatic methods available at this time.
+                    </div>
+                </div>
+            `;
+        }
+
         return html`
             <detail-tabs
                 .data="${this.clinicalAnalysis}"
