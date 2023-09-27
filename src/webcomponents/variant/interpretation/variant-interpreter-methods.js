@@ -114,7 +114,7 @@ class VariantInterpreterMethods extends LitElement {
         if (this.clinicalAnalysis && this.settings) {
             const probandId = this.clinicalAnalysis.proband?.id || "";
             const type = this.clinicalAnalysis.type?.toUpperCase() || "";
-            const caseConfig = (this.settings.cases || []).find(item => item.type === type);
+            const caseConfig = (this.settings.items || []).find(item => item.type === type);
 
             (caseConfig?.methods || []).forEach(method => {
                 if (method.id === "exomiser") {
