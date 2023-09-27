@@ -33,52 +33,50 @@ export default class NavigationBar {
     }
 
     #initDom() {
-        const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" style="display:flex;justify-content:space-between;">
-                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        const template = UtilsNew.renderHTML(String.raw`
+            <div id="${this.prefix}" class="d-flex justify-content-between my-1">
+                <div class="d-flex flex-wrap gap-1">
 
                     <!-- Region input -->
-                    <div id="${this.prefix}RegionForm" data-cy="gb-region" title="Position" class="form-group" style="margin:0px;">
-                        <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
+                    <div id="${this.prefix}RegionForm" class="m-0" data-cy="gb-region" title="Position">
+                        <div title="Position" class="input-group input-group-sm mb-0">
                             <input
                                 data-cy="gb-region-input"
                                 type="text"
                                 id="${this.prefix}RegionInput"
-                                class="form-control input-sm"
+                                class="form-control"
                                 placeholder="1:10000-20000"
                                 style="width:170px;display:inline-block;"
                             />
-                            <span class="input-group-btn">
-                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-light btn-sm">
-                                    <strong>Go!</strong>
-                                </button>
-                            </span>
+                            
+                            <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-light btn-sm">
+                                <strong>Go!</strong>
+                            </button>
                         </div>
                     </div>
 
                     <!-- Gene search -->
-                    <div id="${this.prefix}SearchForm" class="input-group input-group-sm" style="margin:0px!important;">
-                        <input
-                            type="text"
-                            id="${this.prefix}SearchInput"
-                            list="${this.prefix}SearchDataList"
-                            class="form-control input-sm"
-                            placeholder="gene"
-                            style="display:inline-block;max-width:90px;"
-                        />
-                        <datalist id="${this.prefix}SearchDataList"></datalist>
-                        <span class="input-group-btn" style="display:inline-block;">
+                    <div>
+                        <div id="${this.prefix}SearchForm" class="input-group input-group-sm m-0">
+                            <input
+                                type="text"
+                                id="${this.prefix}SearchInput"
+                                list="${this.prefix}SearchDataList"
+                                class="form-control"
+                                placeholder="gene"
+                                style="display:inline-block;max-width:90px;"
+                            />
+                            <datalist id="${this.prefix}SearchDataList"></datalist>
                             <button id="${this.prefix}SearchButton" class="btn btn-light btn-sm">
                                 <i class="fa fa-search"></i>
                             </button>
-                        </span>
+                        </div>
                     </div>
 
                     <!-- Features of interest -->
                     <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
-                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                             ${this.config.featuresOfInterestTitle}
-                            <span class="caret"></span>
                         </button>
                         <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu"></ul>
                     </div>
@@ -100,9 +98,9 @@ export default class NavigationBar {
                             <i class="fa fa-angle-double-right"></i>
                         </button>
                     </div>
-
+                
                     <!-- Zoom controls -->
-                    <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                    <div id="${this.prefix}ZoomControls" class="d-flex flex-wrap gap-1 align-items-center">
                         <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-minus"></span>
                         </button>
@@ -112,17 +110,18 @@ export default class NavigationBar {
                         <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-plus"></span>
                         </button>
-
-                        <!-- Window size input -->
-                        <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control input-sm" style="max-width:60px;" />
-                            <span class="input-group-addon">nts</span>
+                    </div>
+                
+                    <!-- Window size input -->
+                    <div class="m-0">
+                        <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm">
+                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control" style="max-width:60px;" />
+                            <span class="input-group-text">nts</span>
                         </div>
                     </div>
-
                 </div>
-                <div style="display:flex;flex-wrap:wrap;gap:4px;">
 
+                <div class="d-flex flex-wrap gap-1">
                     <!-- Panels buttons -->
                     <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
                         <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-light btn-sm active">
@@ -139,9 +138,8 @@ export default class NavigationBar {
                     <!-- Region history -->
                     <div id="${this.prefix}HistoryControls">
                         <div title="Region history" class="dropdown" style="display:inline-block;">
-                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-history"></i>
-                                <span class="caret"></span>
                             </button>
                             <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
                         </div>
@@ -149,7 +147,6 @@ export default class NavigationBar {
                             <i class="fa fa-redo"></i>
                         </button>
                     </div>
-
                 </div>
             </div>
         `);
