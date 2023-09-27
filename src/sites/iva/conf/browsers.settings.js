@@ -709,7 +709,7 @@ const INTERPRETER_SETTINGS = {
             },
             {
                 id: "methods",
-                cases: [
+                items: [
                     {
                         type: "SINGLE",
                         methods: [
