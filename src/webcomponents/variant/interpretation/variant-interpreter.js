@@ -479,8 +479,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-methods
                                         .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                        .settings="${this._config.tools.find(tool => tool.id === "methods")}"
-                                        .config="${this._config}">
+                                        .settings="${this._config.tools.find(tool => tool.id === "methods")}">
                                     </variant-interpreter-methods>
                                 </div>
                             ` : null}
