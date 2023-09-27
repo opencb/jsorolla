@@ -309,7 +309,7 @@ class VariantInterpreter extends LitElement {
                                     </div>
                                 ` : null}
                                 <div class="dropdown">
-                                    <button class="btn btn-default btn-lg" data-toggle="dropdown">
+                                    <button class="btn btn-light btn-lg" data-toggle="dropdown">
                                         <i class="fa fa-toolbox" aria-hidden="true"></i>
                                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                                         <span class="caret"></span>

@@ -75,7 +75,7 @@ export default class DropdownMenu extends LitElement {
 
         return html`
             <div class="dropdown">
-                <button type="button" data-toggle="dropdown" class="btn ${this.config.display?.className ? this.config.display.className : "btn-default btn-sm"} dropdown-toggle one-line">
+                <button type="button" data-toggle="dropdown" class="btn ${this.config.display?.className ? this.config.display.className : "btn-light btn-sm"} dropdown-toggle one-line">
                     ${this.config.icon ? html`
                         <i class="${this.config.icon ?? ""} icon-padding" aria-hidden="true"></i>
                     ` : null

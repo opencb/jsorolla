@@ -108,7 +108,7 @@ export default class FileUpload extends LitElement {
     render() {
         return html`
             <!--<div class="btn-group columns-toggle-wrapper">
-                <button type="button" class="btn btn-default btn-small ripple btn-sm" aria-expanded="false" @click="\${this.toggleCollapse}">
+                <button type="button" class="btn btn-light btn-small ripple btn-sm" aria-expanded="false" @click="\${this.toggleCollapse}">
                     <i class="fas fa-upload icon-padding" aria-hidden="true" id=""></i> Upload list
                 </button>
             </div>-->

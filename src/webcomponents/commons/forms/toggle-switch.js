@@ -73,7 +73,7 @@ export default class ToggleSwitch extends LitElement {
         this.onText = "ON";
         this.offText = "OFF";
         this.activeClass = "btn-primary";
-        this.inactiveClass = "btn-default";
+        this.inactiveClass = "btn-light";
         this.classes = "";
     }
 
@@ -95,7 +95,7 @@ export default class ToggleSwitch extends LitElement {
     //         this._propertyObserver();
     //     }
     //     if (changedProperties.has("inactiveClass")) {
-    //         this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-default";
+    //         this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-light";
     //         this._propertyObserver();
     //     }
     // }

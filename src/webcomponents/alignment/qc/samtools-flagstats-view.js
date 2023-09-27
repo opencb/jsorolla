@@ -118,7 +118,7 @@ class SamtoolsFlagstatsView extends LitElement {
             <div>
                 <!-- Render the Download button -->
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>

@@ -215,7 +215,7 @@ export default class OpencgaGeneView extends LitElement {
                 .title="${`Gene <span class="inverse">${this.gene.name}</span>`}"
                 .icon="${this.config?.icon}"
                 .rhs="${html`
-                    <button type="button" class="btn btn-default" @click="${() => this.showBrowser()}">
+                    <button type="button" class="btn btn-light" @click="${() => this.showBrowser()}">
                         <i class="fas fa-dna icon-padding"></i> Variant Browser
                     </button>
                 `}">

@@ -326,7 +326,7 @@ export default class CohortGrid extends LitElement {
                 field: "actions",
                 formatter: () => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
                             <span class="caret" style="margin-left: 5px"></span>

@@ -183,7 +183,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         return html`
             <div>
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>

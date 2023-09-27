@@ -49,7 +49,7 @@ export default class NavigationBar {
                                 style="width:170px;display:inline-block;"
                             />
                             <span class="input-group-btn">
-                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-default btn-sm">
+                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-light btn-sm">
                                     <strong>Go!</strong>
                                 </button>
                             </span>
@@ -68,7 +68,7 @@ export default class NavigationBar {
                         />
                         <datalist id="${this.prefix}SearchDataList"></datalist>
                         <span class="input-group-btn" style="display:inline-block;">
-                            <button id="${this.prefix}SearchButton" class="btn btn-default btn-sm">
+                            <button id="${this.prefix}SearchButton" class="btn btn-light btn-sm">
                                 <i class="fa fa-search"></i>
                             </button>
                         </span>
@@ -76,7 +76,7 @@ export default class NavigationBar {
 
                     <!-- Features of interest -->
                     <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown">
                             ${this.config.featuresOfInterestTitle}
                             <span class="caret"></span>
                         </button>
@@ -87,29 +87,29 @@ export default class NavigationBar {
 
                     <!-- Position controls -->
                     <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
-                        <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-double-left"></i>
                         </button>
-                        <button id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveLeftButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-left"></i>
                         </button>
-                        <button id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveRightButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-right"></i>
                         </button>
-                        <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-double-right"></i>
                         </button>
                     </div>
 
                     <!-- Zoom controls -->
                     <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-                        <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                        <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-minus"></span>
                         </button>
                         <div class="" style="display:inline-block;">
                             <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
                         </div>
-                        <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                        <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-plus"></span>
                         </button>
 
@@ -125,13 +125,13 @@ export default class NavigationBar {
 
                     <!-- Panels buttons -->
                     <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
-                        <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
                         </button>
-                        <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
                         </button>
-                        <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
                         </button>
                     </div>
@@ -139,13 +139,13 @@ export default class NavigationBar {
                     <!-- Region history -->
                     <div id="${this.prefix}HistoryControls">
                         <div title="Region history" class="dropdown" style="display:inline-block;">
-                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-history"></i>
                                 <span class="caret"></span>
                             </button>
                             <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
                         </div>
-                        <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}RegionHistoryRestore" class="btn btn-light btn-sm">
                             <i class="fa fa-redo"></i>
                         </button>
                     </div>

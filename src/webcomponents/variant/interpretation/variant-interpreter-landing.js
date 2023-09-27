@@ -136,7 +136,7 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         const displayConfig = {
                             width: 8,
-                            modalButtonClassName: "btn-default btn-sm",
+                            modalButtonClassName: "btn-light btn-sm",
                             buttonsLayout: "upper",
                             type: "tabs",
                         };

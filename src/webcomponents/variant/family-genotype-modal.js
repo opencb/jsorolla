@@ -102,7 +102,7 @@ export default class FamilyGenotypeModal extends LitElement {
             <div>
                 ${this._config.text ? html`<div style="padding: 5px 0px">${this._config.text}</div>` : null}
                 <div class="text-center">
-                    <button type="button" class="btn btn-default multi-line" @click="${this.showModal}">
+                    <button type="button" class="btn btn-light multi-line" @click="${this.showModal}">
                         Family Genotype Filter ...
                     </button>
                 </div>
@@ -125,7 +125,7 @@ export default class FamilyGenotypeModal extends LitElement {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
                         </div>
                     </div>

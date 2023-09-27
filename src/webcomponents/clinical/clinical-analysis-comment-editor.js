@@ -411,7 +411,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                     </text-field-filter>
                                 </div>
                                 <div style="display:flex; justify-content:flex-end;">
-                                    <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
+                                    <button type="button" style="margin:2px" class="btn btn-light btn-sm" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
                                     <!-- <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button> -->
                                 </div>`:
                                 html `
@@ -449,7 +449,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                     ${this.commentStatus["ADD"] === "ADD" ? html`
                         <div style="display:flex; justify-content:flex-end;">
-                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onClearNewComment(e)}">Cancel</button>
+                            <button type="button" style="margin:2px" class="btn btn-light btn-sm" @click="${e => this.onClearNewComment(e)}">Cancel</button>
                         </div>
                     ` : null}
                 </div>

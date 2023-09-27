@@ -64,7 +64,7 @@ export default class ToggleButtons extends LitElement {
 
         // Default values
         this.activeClass = "btn-primary";
-        this.inactiveClass = "btn-default";
+        this.inactiveClass = "btn-light";
         this.classes = "";
     }
 
@@ -81,7 +81,7 @@ export default class ToggleButtons extends LitElement {
             this._propertyObserver();
         }
         if (changedProperties.has("inactiveClass")) {
-            this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-default";
+            this.inactiveClass = this.inactiveClass ? this.inactiveClass : "btn-light";
             this._propertyObserver();
         }
     }

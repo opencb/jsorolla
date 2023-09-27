@@ -117,7 +117,7 @@ export default class VariantInterpreterReview extends LitElement {
                     const displayConfig = {
                         titleVisible: false,
                         width: 8,
-                        modalButtonClassName: "btn-default btn-sm",
+                        modalButtonClassName: "btn-light btn-sm",
                         buttonsLayout: "top",
                         buttonsWidth: 8,
                     };
