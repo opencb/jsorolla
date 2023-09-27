@@ -419,8 +419,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 </div>` : null
             }
 
-            <div class="row">
-                <div class="col-2">
+            <!-- Rodiel 27-09-23 NOTE: Using 'row' and 'col' has problems for standard resolution, so I opted for 'flex -->
+            <div class="d-flex">
+                <div class="pe-3">
                     <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
                         <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onSearch}">
                             <i class="fa fa-search" aria-hidden="true"></i>
@@ -440,7 +441,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     </variant-browser-filter>
                 </div> <!-- Close col-md-2 -->
 
-                <div class="col-10">
+                <div class="flex-grow-1">
                     <div>
                         <variant-interpreter-browser-toolbar
                             .clinicalAnalysis="${this.clinicalAnalysis}"
