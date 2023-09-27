@@ -429,10 +429,9 @@ class VariantInterpreter extends LitElement {
                             -->
                             </div>
                             <div>
-                                <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config?.tools?.map(item => html`
-                                        ${!item.hidden ? html`
+                                        ${(typeof item.visible === "undefined" || !!item.visible) ? html`
                                             <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
                                                href="javascript: void 0" data-view="${item.id}"
                                                @click="${this.onClickSection}">
