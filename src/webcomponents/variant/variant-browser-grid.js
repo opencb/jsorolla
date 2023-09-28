@@ -131,7 +131,10 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // Config for the grid toolbar
@@ -756,6 +759,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "select",
                     title: "Select",
                     rowspan: 2,
                     colspan: 1,
@@ -764,7 +768,8 @@ export default class VariantBrowserGrid extends LitElement {
                     events: {
                         "click input": this.onCheck.bind(this)
                     },
-                    visible: this._config.showSelectCheckbox
+                    visible: this._config.showSelectCheckbox,
+                    excludeFromSettings: true, // If true, this column will not be visible in Settings column
                 },
                 {
                     id: "actions",
@@ -834,7 +839,8 @@ export default class VariantBrowserGrid extends LitElement {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
                     visible: this._config?.showActions,
-                    excludeFromExport: true // this is used in opencga-export
+                    excludeFromSettings: true,
+                    excludeFromExport: true, // this is used in opencga-export
                 },
             ],
             [
@@ -880,7 +886,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: this.gridCommons.isColumnVisible("cadd")
                 },
                 {
-                    id: "splaiceai",
+                    id: "spliceai",
                     title: "SpliceAI",
                     field: "spliceai",
                     colspan: 1,
