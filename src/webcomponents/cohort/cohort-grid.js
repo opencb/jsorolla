@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2015-2019 OpenCB
  *
@@ -23,7 +24,6 @@ import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
-
 
 export default class CohortGrid extends LitElement {
 
@@ -326,21 +326,20 @@ export default class CohortGrid extends LitElement {
                 field: "actions",
                 formatter: () => `
                     <div class="dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
                             <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="edit" class="btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
+                                <a data-action="edit" class="dropdown-item btn force-text-left ${OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled" }">
                                     <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
                                 </a>
 
                             </li>
                             <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                <a data-action="delete" href="javascript: void 0" class="dropdown-item btn force-text-left disabled">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
@@ -435,7 +434,7 @@ export default class CohortGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
