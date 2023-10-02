@@ -172,7 +172,8 @@ export default class JobGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -231,7 +232,8 @@ export default class JobGrid extends LitElement {
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => this.gridCommons.loadingFormatter(),
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
                     this.filters = {

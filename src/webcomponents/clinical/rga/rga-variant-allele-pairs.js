@@ -155,7 +155,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             ajax: async params => {
                 try {
                     const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;

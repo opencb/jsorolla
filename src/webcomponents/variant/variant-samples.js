@@ -134,7 +134,8 @@ export default class VariantSamples extends LitElement {
             icons: GridCommons.GRID_ICONS,
             columns: this.getColumns(),
             formatShowingRows: this.gridCommons.formatShowingRows,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             ajax: async params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
                 const query = {

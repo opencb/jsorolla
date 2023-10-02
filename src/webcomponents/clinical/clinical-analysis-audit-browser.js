@@ -236,7 +236,8 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });
     }

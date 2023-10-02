@@ -112,7 +112,7 @@ export default class GeneCoverageGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -149,7 +149,7 @@ export default class GeneCoverageGrid extends LitElement {
                     pageList: this._config.pageList,
                     showExport: this._config.showExport,
                     // detailView: this._config.detailView,
-                    formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                    loadingTemplate: () => this.gridCommons.loadingFormatter(),
                     ajax: params => {
                         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.file, this.geneIds, {study: this.opencgaSession.study.fqn})
                             .then(restResponse => {

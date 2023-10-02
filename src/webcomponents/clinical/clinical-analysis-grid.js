@@ -139,7 +139,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => this.gridCommons.loadingFormatter(),
                 ajax: params => {
                     let response = null;
                     this.filters = {

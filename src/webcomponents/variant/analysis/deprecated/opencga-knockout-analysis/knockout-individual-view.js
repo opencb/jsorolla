@@ -124,7 +124,8 @@ export default class KnockoutIndividualView extends LitElement {
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => {
                 this.individual = {id: row.sampleId, ...row}; // TODO temp fix for missing id;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);

@@ -227,7 +227,8 @@ export default class KnockoutVariantView extends LitElement {
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
                 this.variant = row;

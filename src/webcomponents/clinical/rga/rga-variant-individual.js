@@ -117,7 +117,8 @@ export default class RgaVariantIndividual extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             ajax: async params => {
                 try {
                     const _filters = {

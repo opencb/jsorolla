@@ -491,7 +491,8 @@ export default class RgaVariantView extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             ajax: params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,

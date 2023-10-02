@@ -227,7 +227,8 @@ export default class ClinicalInterpretationManager extends LitElement {
             sidePagination: "local",
             pagination: true,
             formatNoMatches: () => "No previous versions",
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
         });
     }

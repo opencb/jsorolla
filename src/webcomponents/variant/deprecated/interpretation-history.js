@@ -132,7 +132,8 @@ class InterpretationHistory extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => this.gridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);

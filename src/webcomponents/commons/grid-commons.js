@@ -18,7 +18,6 @@ import UtilsNew from "../../core/utils-new.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
 
-
 export default class GridCommons {
 
     static GRID_ICONS_PREFIX = "fas";
@@ -305,6 +304,10 @@ export default class GridCommons {
         }
         // No extensions to inject, just return the original columns list
         return columns;
+    }
+
+    loadingFormatter() {
+        return "<div style='margin-top:5%'><loading-spinner></loading-spinner></div>";
     }
 
 }
