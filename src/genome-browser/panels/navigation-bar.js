@@ -33,7 +33,7 @@ export default class NavigationBar {
     }
 
     #initDom() {
-        const template = UtilsNew.renderHTML(String.raw`
+        const template = UtilsNew.renderHTML(`
             <div id="${this.prefix}" class="d-flex justify-content-between my-1">
                 <div class="d-flex flex-wrap gap-1">
 
@@ -48,7 +48,7 @@ export default class NavigationBar {
                                 placeholder="1:10000-20000"
                                 style="width:170px;display:inline-block;"
                             />
-                            
+
                             <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-light btn-sm">
                                 <strong>Go!</strong>
                             </button>
@@ -98,7 +98,7 @@ export default class NavigationBar {
                             <i class="fa fa-angle-double-right"></i>
                         </button>
                     </div>
-                
+
                     <!-- Zoom controls -->
                     <div id="${this.prefix}ZoomControls" class="d-flex flex-wrap gap-1 align-items-center">
                         <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-light btn-sm">
@@ -111,7 +111,7 @@ export default class NavigationBar {
                             <span class="fa fa-search-plus"></span>
                         </button>
                     </div>
-                
+
                     <!-- Window size input -->
                     <div class="m-0">
                         <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm">
@@ -332,7 +332,7 @@ export default class NavigationBar {
 
     #addRegionHistoryMenuItem(region) {
         const template = UtilsNew.renderHTML(`
-            <li><a href="">${region.toString()}</a></li>
+            <li><a class="dropdown-item" href="">${region.toString()}</a></li>
         `);
         const entry = template.querySelector("li");
         entry.addEventListener("click", event => {
