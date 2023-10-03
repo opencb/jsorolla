@@ -185,11 +185,6 @@ export default getSitesToBuild().map(site => ({
         dir: `${buildPath}/${site}`,
         minifyInternalExports: false,
         manualChunks: id => {
-            // Josemi 2023-09-19 NOTE: 'opencga-catalog-utils' is included inside the 'clients/opencga' folder
-            // We need to make sure this file is not included in the opencga client bundle
-            if (id.includes("clients/opencga") && !id.includes("opencga-catalog-utils")) {
-                return "lib/opencga-client.min";
-            }
             // Extract opencga client mock
             if (id.includes("test-app/clients/opencga-client-mock") || id.includes("api-mock")) {
                 return "lib/opencga-client-mock.min";
@@ -197,6 +192,11 @@ export default getSitesToBuild().map(site => ({
             // Extract cellbase client mock
             if (id.includes("test-app/clients/cellbase-client-mock")) {
                 return "lib/cellbase-client-mock.min";
+            }
+            // Josemi 2023-09-19 NOTE: 'opencga-catalog-utils' is included inside the 'clients/opencga' folder
+            // We need to make sure this file is not included in the opencga client bundle
+            if (id.includes("clients/opencga") && !id.includes("opencga-catalog-utils")) {
+                return "lib/opencga-client.min";
             }
             if (id.includes("node_modules")) {
                 return "vendors/js/vendors";
