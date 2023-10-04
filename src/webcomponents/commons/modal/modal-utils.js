@@ -28,9 +28,10 @@ export default class ModalUtils {
         const modalDraggable = config.display?.modalDraggable || false;
         const modalCyDataName = config.display?.modalCyDataName || "";
 
+        // CAUTION: DO NOT COMMIT THIS CHANGE: REMOVAL OF tabindex="-1"
         return html `
             <div class="modal fade" id="${id}" data-draggable="${modalDraggable}"
-                tabindex="-1" role="dialog"
+                role="dialog"
                 aria-labelledby="DataModalLabel" aria-hidden="true" data-cy="${modalCyDataName}">
                 <div class="modal-dialog" style="width: ${modalWidth}">
                     <div class="modal-content">
