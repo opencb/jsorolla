@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/forms/select-field-filter.js";
 import "../../loading-spinner.js";
@@ -25,7 +26,6 @@ import "./rga-filter.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
 import "../../commons/opencb-grid-toolbar.js";
-
 
 export default class RgaBrowser extends LitElement {
 
@@ -363,19 +363,11 @@ export default class RgaBrowser extends LitElement {
     render() {
 
         if (!this?.opencgaSession?.study?.fqn) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>`;
+            return guardPage();
         }
 
         if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.</h3>
-                </div>`;
+            return guardPage(`Study ${this?.opencgaSession?.study.name} is not enabled to Recessive Variant Analysis.`);
         }
 
         return html`

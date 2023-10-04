@@ -20,13 +20,13 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
-
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -324,12 +324,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     render() {
         if (!this.opencgaSession?.study) {
-            return html `
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`

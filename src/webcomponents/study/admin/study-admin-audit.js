@@ -18,6 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage} from "../../commons/html-utils.js";
 
 export default class StudyAdminAudit extends LitElement {
 
@@ -282,11 +283,7 @@ export default class StudyAdminAudit extends LitElement {
 
     render() {
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html`

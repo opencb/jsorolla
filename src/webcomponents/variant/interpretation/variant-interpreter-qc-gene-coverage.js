@@ -16,6 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../alignment/gene-coverage-browser.js";
 
 class VariantInterpreterQcGeneCoverage extends LitElement {
@@ -145,12 +146,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`

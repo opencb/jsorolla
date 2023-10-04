@@ -17,8 +17,8 @@
 import {LitElement, html, nothing} from "lit";
 import Utils from "./../../core/utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "./variant-beacon-network.js";
-
 
 export default class VariantBeacon extends LitElement {
 
@@ -196,17 +196,11 @@ export default class VariantBeacon extends LitElement {
                         </div>
                     </div>
                 </div>
-            ` : html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `}
+            ` : html`${guardPage()}`
+            }
         `;
     }
 
 }
 
 customElements.define("variant-beacon", VariantBeacon);
-
-

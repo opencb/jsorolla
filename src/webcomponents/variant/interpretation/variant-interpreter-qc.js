@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import {guardPage} from "../../commons/html-utils.js";
 import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 import "../../commons/view/detail-tabs.js";
@@ -22,7 +23,6 @@ import "../../sample/sample-variant-stats-browser.js";
 import "../../sample/sample-cancer-variant-stats-browser.js";
 import "../../variant/analysis/family-qc-analysis.js";
 import "../../variant/analysis/individual-qc-analysis.js";
-
 
 class VariantInterpreterQc extends LitElement {
 
@@ -124,12 +124,7 @@ class VariantInterpreterQc extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession?.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         if (!this.clinicalAnalysis) {

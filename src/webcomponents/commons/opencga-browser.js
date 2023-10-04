@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import {guardPage} from "./html-utils.js";
 import "./opencga-browser-filter.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
@@ -347,12 +348,7 @@ export default class OpencgaBrowser extends LitElement {
 
     render() {
         if (!this.opencgaSession?.study?.fqn) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`

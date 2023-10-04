@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {noProjectAvailable} from "../html-utils.js";
 
 export default class CustomWelcome extends LitElement {
 
@@ -104,9 +105,10 @@ export default class CustomWelcome extends LitElement {
 
             return html`
                 <div class="d-flex justify-content-center mt-2 gap-2">
-                    ${featuredTools.map(item => {
-                        const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
-                        return html`
+                    ${
+                        featuredTools.map(item => {
+                            const itemLink = `${item.id}${session?.project ? `/${session?.project?.id}/${session?.study?.id}`: ""}`;
+                            return html`
                                 <div class="card w-50 shadow p-3 mb-5 bg-body rounded border-0" data-cy-welcome-card-id="${item.id}">
                                     <div class="card-body d-flex flex-column">
                                         <a class="text-decoration-none" href="#${itemLink}">
@@ -126,7 +128,8 @@ export default class CustomWelcome extends LitElement {
                                     </div>
                                 </div>
                             `;
-                        })}
+                        })
+                    }
                 </div>
             `;
         }
@@ -193,11 +196,7 @@ export default class CustomWelcome extends LitElement {
 
         if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
-            return html`
-                <div class="cy-guard-page text-center opacity-50">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>You don´t have projects or/and studies. Please contact the admin</h3>
-                </div>`;
+            return noProjectAvailable;
         }
 
         return html`
@@ -206,69 +205,70 @@ export default class CustomWelcome extends LitElement {
             <div class="container mt-3">
                 <!-- Welcome page logo -->
 
-                    ${welcomePage?.logo ? html`
-                    <div class="text-center">
-                        <img
-                            alt="${welcomePage.display?.logoAlt || "logo"}"
-                            class="${welcomePage.display?.logoClass}"
-                            src="${welcomePage.logo}"
-                            style="${welcomePage.display?.logoStyle}"
-                            width="${welcomePage.display?.logoWidth || "300px"}"
-                        />
+                ${welcomePage?.logo ? html`
+                <div class="text-center">
+                    <img
+                        alt="${welcomePage.display?.logoAlt || "logo"}"
+                        class="${welcomePage.display?.logoClass}"
+                        src="${welcomePage.logo}"
+                        style="${welcomePage.display?.logoStyle}"
+                        width="${welcomePage.display?.logoWidth || "300px"}"
+                    />
+                </div>
+                ` : nothing}
+
+                <!-- Welcome page title -->
+                ${welcomePage?.title ? html`
+                    <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
+                    <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
+                        ${welcomePage.title}
+                    </h1>
+                `: nothing}
+
+                <!-- Welcome page subtitle -->
+                ${welcomePage?.subtitle ? html`
+                    <h4 class="${welcomePage.display?.subtitleClass}" style="${welcomePage.display?.subtitleStyle}">
+                        ${welcomePage.subtitle}
+                    </h4>
+                ` : nothing}
+
+                <!-- Custom content -->
+                ${welcomePage?.content ? html`
+                    <div style="${welcomePage.display?.contentStyle || "margin-bottom:16px;"}">
+                        ${UtilsNew.renderHTML(welcomePage.content)}
                     </div>
-                    ` : null}
+                ` : nothing}
 
-                    <!-- Welcome page title -->
-                    ${welcomePage?.title ? html`
-                        <img src="${welcomePage.appLogo?.img}" height="${welcomePage.appLogo?.height || "40px"}"/>
-                        <h1 class="${welcomePage.display?.titleClass}" style="${welcomePage.display?.titleStyle}">
-                            ${welcomePage.title}
-                        </h1>
-                    `: null}
+                <!-- Applications or tools -->
+                ${this.renderApplicationsOrTools()}
 
-                    <!-- Welcome page subtitle -->
-                    ${welcomePage?.subtitle ? html`
-                        <h4 class="${welcomePage.display?.subtitleClass}" style="${welcomePage.display?.subtitleStyle}">
-                            ${welcomePage.subtitle}
-                        </h4>
-                    ` : null}
+                <!-- Display custom links -->
+                <div class="text-center mt-5">
+                    ${(welcomePage?.links || []).map(link => html`
+                        <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
+                    `)}
+                </div>
 
-                    <!-- Custom content -->
-                    ${welcomePage?.content ? html`
-                        <div style="${welcomePage.display?.contentStyle || "margin-bottom:16px;"}">
-                            ${UtilsNew.renderHTML(welcomePage.content)}
-                        </div>
-                    ` : null}
-
-                    <!-- Applications or tools -->
-                    ${this.renderApplicationsOrTools()}
-
-                    <!-- Display custom links -->
-                    <div class="text-center mt-5">
-                        ${(welcomePage?.links || []).map(link => html`
-                            <a class="getting-started" href="${link.url}" target="${link.target || "_blank"}"><span>${link.title}</span></a>
-                        `)}
-                    </div>
-
-                    <!-- Logo at the bottom of the content -->
-                    ${welcomePage?.bottomLogo?.img ? html`
-                    <!-- d-flex justify-content-center mx-3 my-0 -->
-                        <div id="bottomLogo">
-                            ${welcomePage.bottomLogo.link ? html `
-                                <a href="${welcomePage.bottomLogo.link}" target="blank">
-                                    <img
-                                        src="${welcomePage.bottomLogo.img}"
-                                        height="${welcomePage.bottomLogo.height || "60px"}"
-                                    />
-                                </a>
-                            ` : html `
+                <!-- Logo at the bottom of the content -->
+                ${welcomePage?.bottomLogo?.img ? html`
+                <!-- d-flex justify-content-center mx-3 my-0 -->
+                    <div id="bottomLogo">
+                        ${welcomePage.bottomLogo.link ? html `
+                            <a href="${welcomePage.bottomLogo.link}" target="blank">
                                 <img
                                     src="${welcomePage.bottomLogo.img}"
                                     height="${welcomePage.bottomLogo.height || "60px"}"
                                 />
-                            `}
-                        </div>
-                    ` : null}
+                            </a>
+                        ` : html `
+                            <img
+                                src="${welcomePage.bottomLogo.img}"
+                                height="${welcomePage.bottomLogo.height || "60px"}"
+                            />
+                        `}
+                    </div>
+                ` : nothing}
+            </div>
         `;
     }
 

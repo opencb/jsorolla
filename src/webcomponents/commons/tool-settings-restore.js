@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
+import {guardPage} from "./html-utils";
 
 export default class ToolSettingsRestore extends LitElement {
 
@@ -180,11 +181,7 @@ export default class ToolSettingsRestore extends LitElement {
     // --- RENDER ---
     render() {
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html `

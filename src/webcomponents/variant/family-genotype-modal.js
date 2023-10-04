@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "./family-genotype-filter.js";
-
 
 export default class FamilyGenotypeModal extends LitElement {
 
@@ -90,12 +90,7 @@ export default class FamilyGenotypeModal extends LitElement {
     render() {
         // Check Project exists
         if (!this.clinicalAnalysis) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No Clinical Analysis selected.</h3>
-                </div>
-            `;
+            return guardPage("No Clinical Analysis selected.");
         }
 
         return html`

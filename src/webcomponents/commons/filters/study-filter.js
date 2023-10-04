@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
+import {guardPage} from "../html-utils.js";
 import "../forms/select-field-filter.js";
 
 export default class StudyFilter extends LitElement {
@@ -100,12 +101,7 @@ export default class StudyFilter extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession && !this.opencgaSession.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
@@ -115,7 +111,7 @@ export default class StudyFilter extends LitElement {
                     <option value="${this.opencgaSession.study.fqn}"
                         selected="selected" disabled>${this.opencgaSession.study.name}</option>
                     ${this.differentStudies.length > 0 ?
-                        this.differentStudies.map(study => html`
+            this.differentStudies.map(study => html`
                             <option value="${study.fqn}">${study.name}</option>`) : nothing
                     }
                 </select>

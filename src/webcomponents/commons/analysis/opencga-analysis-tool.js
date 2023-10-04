@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import {guardPage} from "../html-utils.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
-
 
 export default class OpencgaAnalysisTool extends LitElement {
 
@@ -84,12 +84,7 @@ export default class OpencgaAnalysisTool extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No OpenCGA study available to run an analysis. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage("No OpenCGA study available to run an analysis. Please login to continue.");
         }
 
         // Check Analysis tool configuration

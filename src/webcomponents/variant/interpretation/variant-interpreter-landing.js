@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
@@ -86,12 +87,7 @@ class VariantInterpreterLanding extends LitElement {
     render() {
         // Check if project exists
         if (!this.opencgaSession?.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         // Check if clinicalAnalysis is not available yet

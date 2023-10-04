@@ -17,6 +17,8 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -30,7 +32,6 @@ import "../custom/steiner-report.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -270,12 +271,7 @@ class VariantInterpreter extends LitElement {
     render() {
         // Check Project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No project available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`

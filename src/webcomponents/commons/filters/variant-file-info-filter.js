@@ -447,7 +447,7 @@ export default class VariantFileInfoFilter extends LitElement {
             return {
                 title: this.#decodeCallerId(caller.id),
                 display: {
-                    titleHeader: "h4",
+                    titleHeader: "h5",
                     titleStyle: "margin: 5px 0",
                     titleClassName: "break-word"
                 },

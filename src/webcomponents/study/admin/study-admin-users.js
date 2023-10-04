@@ -20,6 +20,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/forms/text-field-filter.js";
 
 export default class StudyAdminUsers extends LitElement {
@@ -510,15 +511,10 @@ export default class StudyAdminUsers extends LitElement {
         }));
     }
 
-
     render() {
 
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-            return html`
-            <div class="guard-page">
-                <i class="fas fa-lock fa-5x"></i>
-                <h3>No permission to view this page</h3>
-            </div>`;
+            return guardPage("No permission to view this page");
         }
 
         return html`

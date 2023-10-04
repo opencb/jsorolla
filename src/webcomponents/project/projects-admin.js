@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
 import "../study/study-create.js";
@@ -123,7 +124,6 @@ export default class ProjectsAdmin extends LitElement {
             </div>`;
     }
 
-
     // Project and Studies Style Alternative
     renderProjectAndStudies(project, user) {
         return html`
@@ -214,7 +214,6 @@ export default class ProjectsAdmin extends LitElement {
             </div>`;
     }
 
-
     renderModal(id, name) {
         let content;
         switch (id) {
@@ -264,11 +263,7 @@ export default class ProjectsAdmin extends LitElement {
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>`;
+            return guardPage();
         }
 
         return html`
