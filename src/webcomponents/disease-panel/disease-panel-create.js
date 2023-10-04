@@ -19,8 +19,7 @@ import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
-import "../commons/filters/catalog-search-autocomplete.js";
-
+import "../commons/filters/cellbase-search-autocomplete.js";
 
 export default class DiseasePanelCreate extends LitElement {
 
@@ -369,13 +368,22 @@ export default class DiseasePanelCreate extends LitElement {
                                     display: {
                                         placeholder: "Add gene...",
                                         render: (data, dataFormFilterChange) => {
+                                            // return html`
+                                            //     <feature-filter
+                                            //         .query="${{gene: data}}"
+                                            //         .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            //         .config="${{multiple: false}}"
+                                            //         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                            //     </feature-filter>
+                                            // `;
                                             return html `
-                                                <feature-filter
-                                                    .query="${{gene: data}}"
+                                                <cellbase-search-autocomplete
+                                                    .value="${data}"
+                                                    .resource="${"GENE"}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                                     .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                                </feature-filter>
+                                                </cellbase-search-autocomplete>
                                             `;
                                         },
                                     }
