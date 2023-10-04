@@ -56,7 +56,7 @@ export default class SelectTokenFilter extends LitElement {
         this.select = $("#" + this._prefix);
         this.select.select2({
             separator: this._config.separator ?? [","],
-            tags: this._config.freeTag ?? true,
+            tags: this._config.freeTag ?? true, // Feature "Tagging": Dynamically create new options from text input by the user.
             multiple: this._config.multiple ?? true,
             // https://select2.org/appearance#container-width
             width: this._config.width ?? "style",
@@ -66,40 +66,45 @@ export default class SelectTokenFilter extends LitElement {
             minimumInputLength: this._config.minimumInputLength,
             maximumSelectionLength: this._config.maxItems || 0,
             ajax: {
+                // Todo: rename source => fetch
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
                 processResults: (restResponse, params) => {
+                    // 1. Results
+                    let results = (restResponse.constructor === Array) ?
+                        [].concat(...restResponse.map(response => response.getResults())) :
+                        restResponse.getResults();
+                    results = this._config.preprocessResults(results) ?? results;
+                    // 2. Pagination
                     const _params = params;
                     _params.page = _params.page || 1;
+                    const more = !this._config.disablePagination && (_params.page * this._config.limit) < results.numMatches;
                     return {
-                        results: this._config.preprocessResults(restResponse.getResults()),
+                        // Pre-process results before displaying
+                        results: results,
                         pagination: {
-                            more: !this._config.disablePagination && (_params.page * this._config.limit) < restResponse.getResponse().numMatches,
+                            more: more,
                         }
                     };
                 }
             },
-            /* dropdown template */
+            // Customisation of each result appearance to be displayed in the dropdown
             templateResult: item => {
                 if (item.loading) {
-                    return $(`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <span>${item.text}</span>`);
+                    return $(`
+                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        <span>${item.text}</span>
+                    `);
                 }
-                // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
-                    const {name, ...rest} = this._config.fields(item) ?? item.id;
-                    // if name is not defined it means tags=true, _config.fields() mapper function is defined but the user is typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
-                    if (name) {
-                        return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
-                    } else {
-                        return item.id;
-                    }
+                    return this._config.templateResult?.(item) ?? this.#templateResultsDefault(item);
                 } catch (e) {
                     console.error(e);
                 }
             },
-            /* selection template. At this stage select2 assumes item as an {id,text} pair or a string. */
+            // Customisation of the selected result
             templateSelection: item => {
-                return item.id ?? item.text;
+                return item.name ?? item.id;
             },
             ...this._config
         })
@@ -109,6 +114,34 @@ export default class SelectTokenFilter extends LitElement {
             .on("select2:unselect", e => {
                 this.filterChange(e);
             });
+    }
+
+    #templateResultsDefault(item) {
+        // Item can be:
+        //  - Text typed. item: {id: "text typed", text: "text typed"}
+        //  - Rest api result: item: {id: "", name: "", description: "", etc.}
+        //  - Existing ID (i.e. Individual, phenotype filter)
+        // If free text response has been configured (tags=true),
+        // one of the items to process will be the text typed.
+        // QUESTION: A way for distinguishing  from result:
+        //  - this._config.freeTag
+        //  - name === undefined => Weak condition
+        // If name is not defined it means tags=true,
+        // _config.fields() mapper function is defined but the user is typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
+        const {name, ...rest} = item;
+        // return item.queryResult ? $(`
+        return item.name ? $(`
+            <span>${item.name}</span>
+            ${
+            (rest ? Object.entries(rest)
+                .map(([label, value]) => `
+                    <p class="dropdown-item-extra">
+                        <label>${label}</label> ${value || "-"}
+                    </p>
+                 `)
+                .join("") : "")
+            }
+        `) : item.id;
     }
 
     update(changedProperties) {
@@ -190,12 +223,15 @@ export default class SelectTokenFilter extends LitElement {
         }
     }
 
-    filterChange() {
+    filterChange(e) {
         // join by "," only as the operator (, or ;) is not a concern of this component.
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
-        const selection = this.select.select2("data").map(el => el.id).join(",");
-        LitUtils.dispatchCustomEvent(this, "filterChange", selection);
+        const data = this.select.select2("data") || [];
+        const selection = data.map(el => el.id).join(",");
+        LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
+            items: data,
+        });
     }
 
     toggleFileUpload() {
@@ -208,6 +244,33 @@ export default class SelectTokenFilter extends LitElement {
                 <input id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." style="margin: 0 5px" @click=${this.toggleDisabled}>
                 <span style="font-weight: bold">All</span>
             </span>`;
+    }
+
+    renderStyle() {
+        return html `
+            <style>
+                .result-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .result-name-wrapper {
+                    display: flex;
+                    align-items: center;
+                }
+                .result-source {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 8px;
+                    font-size: 10px;
+                    padding: 2px 4px;
+                    color: white;
+                    background-color: #d91c5e;
+                    border: 1px solid #d91c5e;
+                    border-radius: 2px;
+                }
+            </style>
+        `;
     }
 
     render() {
@@ -226,7 +289,9 @@ export default class SelectTokenFilter extends LitElement {
                 </form>
             `;
         } else {
+            // TODO Vero: (1) Make style configurable, remove from here, (2) Default bootstrap
             return html`
+                ${this.renderStyle()}
                 <div>
                     <div class="input-group">
                         <select
