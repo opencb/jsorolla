@@ -405,21 +405,53 @@ export default class IndividualCreate extends LitElement {
                                 `,
                             },
                             elements: [
+                                // {
+                                //     title: "Phenotype ID",
+                                //     field: "phenotypes[].id",
+                                //     type: "input-text",
+                                //     display: {
+                                //         placeholder: "Add phenotype ID...",
+                                //     },
+                                // },
                                 {
                                     title: "Phenotype ID",
                                     field: "phenotypes[].id",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
-                                    },
+                                        placeholder: "Add phenotype ID......",
+                                        render: (data, dataFormFilterChange) => {
+                                            return html `
+                                                <cellbase-search-autocomplete
+                                                        .value="${data}"
+                                                        .resource="${"PHENOTYPE"}"
+                                                        .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                        .config="${{multiple: false}}"
+                                                        .searchField="${"id"}"
+                                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </cellbase-search-autocomplete>
+                                            `;
+                                        },
+                                    }
                                 },
                                 {
                                     title: "Name",
                                     field: "phenotypes[].name",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add a name...",
-                                    },
+                                        placeholder: "Add phenotype name...",
+                                        render: (data, dataFormFilterChange) => {
+                                            return html `
+                                                <cellbase-search-autocomplete
+                                                    .value="${data}"
+                                                    .resource="${"PHENOTYPE"}"
+                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .config="${{multiple: false}}"
+                                                    .searchField="${"name"}"
+                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </cellbase-search-autocomplete>
+                                            `;
+                                        },
+                                    }
                                 },
                                 {
                                     title: "Source",
