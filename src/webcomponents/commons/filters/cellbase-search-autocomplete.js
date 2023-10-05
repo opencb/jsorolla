@@ -60,94 +60,30 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             limit: 10,
             count: false,
         };
-        // category, subcategory, ids, resource, params, options
+        this.#initResourcesConfig();
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("cellbaseClient") || changedProperties.has("resource")) {
-            this.cellbaseClientObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config
-            };
-        }
-        super.update(changedProperties);
-    }
-
-    cellbaseClientObserver() {
-        // CAUTION: the name this.RESOURCES is confusing. Resource is:
-        //      - The subcategory of interest
-        //      - The name of the operation that will be called in the get method.
+    #initResourcesConfig() {
         this.RESOURCES = {
             "PHENOTYPE": {
                 category: "feature",
                 subcategory: "ontology",
                 operation: "search",
                 searchField: "id,name",
-                // QUESTION: Placeholder message
-                placeholder: "",
+                placeholder: "Start typing...",
                 queryParams: {},
                 // Pre-process the results of the query if needed.
-                preprocessResults: results => {
-                    return results.map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        source: item.source,
-                        text: item.name || item.id,
-                        // queryResult: true, // Could solve issue in select-token-filter.js, #templateResultsDefault()
-                    }));
-                },
-                // Templating the results in the dropdown
-                templateResult: item => {
-                    return item.name ? $(`
-                        <div class="result-wrapper">
-                            <div class="result-name-wrapper">
-                                <div class="result-source">${item.source}</div>
-                                <div class="result-source-name">${item.name}</div>
-                            </div>
-                            <div class="dropdown-item-extra">${item.id || "-"}</div>
-                        </div>
-                    `) : $(`
-                        <span>${item.text}</span>
-                    `);
-                },
             },
             "GENE": {
                 // CAUTION: In feature-filter.js L71, we are autocompleting: xref, ids, gene, geneName.
                 category: "feature",
                 subcategory: "gene",
-                operation: "startsWith",
+                operation: "search",
                 // searchField is a query param referring one of the endpoints fields
-                searchField: "",
-                placeholder: "",
+                searchField: "name",
+                valueField: "name",
+                placeholder: "Start typing...",
                 queryParams: {},
-                // Pre-process the results of the query if needed.
-                preprocessResults: results => {
-                    return results.map(item => ({
-                        id: item.name,
-                        _id: item.id,
-                        name: item.name,
-                        source: item.source,
-                        text: item.name || item.id,
-                        // queryResult: true, // Could solve issue in select-token-filter.js, #templateResultsDefault()
-                    }));
-                },
-                // Templating the results in the dropdown
-                templateResult: item => {
-                    return item.name ? $(`
-                        <div class="result-wrapper">
-                            <div class="result-name-wrapper">
-                                <div class="result-source">${item.source}</div>
-                                <div class="result-source-name">${item.name}</div>
-                            </div>
-                        </div>
-                    `) : $(`
-                        <span>${item.text}</span>
-                    `);
-                },
                 // CAUTION: query params depends on the resource/operation (i.e. search, info) used
                 //  Q1: Is this component intended to use only the "search" operation?
                 //  N1: Not all the entities in Cellbase have the search operation
@@ -163,13 +99,66 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             "VARIATION": {},
             "REGULATORY": {},
         };
+    }
+
+    // Filter the fields that can be used to fill the form automatically
+    #filterResults(results) {
+        return results.map(item => ({
+            id: item.id,
+            name: item.name,
+            source: item.source,
+            description: item.description,
+            text: item.name || item.id,
+            // queryResult: true, // Could solve issue in select-token-filter.js, #templateResultsDefault()
+        }));
+    }
+
+    // Templating one option of dropdown
+    #formatResult(option) {
+        return option.name ? $(`
+            <div class="result-wrapper">
+                <div class="result-name-wrapper">
+                    <div class="result-source">${option.source}</div>
+                    <div class="result-source-name">${option.name}</div>
+                </div>
+                <div class="dropdown-item-extra">${option.id || "-"}</div>
+            </div>
+        `) : $(`
+            <span>${option.text}</span>
+        `);
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("resource")) {
+            this.resourceObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    resourceObserver() {
+        if (this.resource) {
+            this.resource.toUpperCase();
+        }
         this._config = this.getDefaultConfig();
+    }
+
+    configObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config
+        };
     }
 
     onFilterChange(e) {
         const value = e.detail.value;
+        delete e.detail.data.selected;
         LitUtils.dispatchCustomEvent(this, "filterChange", value, {
-            items: e.detail.data,
+            data: e.detail.data,
         });
     }
 
@@ -181,6 +170,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         return html`
             <select-token-filter
                 .value="${this.value}"
+                .keyObject="${this.RESOURCES[this.resource].valueField || null}"
                 .classes="${this.classes}"
                 .config="${this._config}"
                 @filterChange="${e => this.onFilterChange(e)}">
@@ -193,7 +183,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         const searchFields = searchField ? searchField.split(",").map(s => s.trim()) : null;
         return {
             disabled: false,
+            multiple: false,
             freeTag: true,
+            searchField: searchField,
             limit: 10,
             maxItems: 0, // No limit set
             minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
@@ -224,16 +216,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                                     queryParamsField,
                                     options);
                         });
-                    } else {
-                        queries.push(
-                            this.cellbaseClient
-                                .get(this.RESOURCES[this.resource].category,
-                                    this.RESOURCES[this.resource].subcategory,
-                                    params?.data?.term.toUpperCase(),
-                                    this.RESOURCES[this.resource].operation,
-                                    queryParams,
-                                    options)
-                        );
                     }
                 }
                 Promise.all(queries)
@@ -243,13 +225,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                         console.log(error);
                     });
             },
-            // TODO Vero 20230928: preprocessResults and templateResult could be common to all resources
-            preprocessResults: results => {
-                return this.RESOURCES[this.resource].preprocessResults?.(results) ?? null;
-            },
-            templateResult: result => {
-                return this.RESOURCES[this.resource].templateResult?.(result) ?? null;
-            }
+            filterResults: results => this.#filterResults(results),
+            formatResult: result => this.#formatResult(result),
+            formatSelection: result => result[this._config.searchField],
         };
     }
 
