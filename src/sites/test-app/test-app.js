@@ -230,7 +230,7 @@ class TestApp extends LitElement {
                 this.opencgaSession.study = content.user.projects[0].studies[0];
 
                 // Initialise opencgaSession Client Mock
-                this.opencgaSession.opencgaClient = new OpenCGAClientMock().createLocalClient();
+                this.opencgaSession.opencgaClient = new OpenCGAClientMock();
                 this.opencgaSession.cellbaseClient = new CellBaseClientMock();
                 // We need to save the testDataVersion in the configuration of each client
                 this.opencgaSession.opencgaClient._config.testDataVersion = this.testDataVersion;
