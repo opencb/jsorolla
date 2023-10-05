@@ -18,8 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import {construction} from "../../commons/under-construction.js";
-import {guardPage} from "../../commons/html-utils.js";
+import {guardPage, construction} from "../../commons/html-utils.js";
 import "../permission/permission-browser-grid.js";
 
 export default class StudyAdminPermissions extends LitElement {
@@ -84,9 +83,7 @@ export default class StudyAdminPermissions extends LitElement {
                     icon: "fas fa-clipboard-list",
                     active: false,
                     render: () => {
-                        return html`
-                            ${construction}
-                        `;
+                        return construction;
                     }
                 }
             ]

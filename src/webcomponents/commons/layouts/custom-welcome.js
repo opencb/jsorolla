@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import {noProjectAvailable} from "../html-utils.js";
+import {guardPage} from "../html-utils.js";
 
 export default class CustomWelcome extends LitElement {
 
@@ -196,7 +196,7 @@ export default class CustomWelcome extends LitElement {
 
         if (!UtilsNew.isNotEmptyArray(this.opencgaSession.projects) ||
             this.opencgaSession.projects.every(p => !UtilsNew.isNotEmptyArray(p.studies))) {
-            return noProjectAvailable;
+            return guardPage("You don't have projects or/and studies. Please contact the admin");
         }
 
         return html`
