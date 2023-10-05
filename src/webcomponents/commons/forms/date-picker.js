@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 import Types from "../types.js";
@@ -39,6 +39,10 @@ export default class DatePicker extends LitElement {
             },
             displayConfig: {
                 type: Object
+            },
+            invalidData: {
+                type: Boolean,
+                state: true
             }
         };
     }
@@ -46,6 +50,7 @@ export default class DatePicker extends LitElement {
     #init() {
         this.inputDates = {};
         this._config = this.getDefaultConfig();
+        this.invalidData = false;
     }
 
     update(changedProperties) {
@@ -67,21 +72,27 @@ export default class DatePicker extends LitElement {
             to: this.inputDates?.to === invalidDate ? "" : this.inputDates?.to,
         };
         let date = "";
-        switch (true) {
-            case UtilsNew.isNotEmpty(inputDates?.from) && UtilsNew.isEmpty(inputDates?.to):
-                date = `${inputDates?.from}`;
-                break;
-            case UtilsNew.isNotEmpty(inputDates?.from) && UtilsNew.isNotEmpty(inputDates?.to):
-                date = `${inputDates?.from}-${inputDates?.to}`;
-                break;
-            case UtilsNew.isEmpty(inputDates?.from) && UtilsNew.isNotEmpty(inputDates?.to):
-                date = `${moment(inputDates?.to, "YYYYMMDD").year()}-${inputDates?.to}`;
-                break;
-            default:
-                break;
-        }
+        const hasBothDateValue = UtilsNew.isNotEmpty(inputDates?.from) && UtilsNew.isNotEmpty(inputDates?.to);
 
-        LitUtils.dispatchCustomEvent(this, "filterChange", date);
+        if (hasBothDateValue && inputDates?.from > inputDates?.to) {
+            this.invalidData = true;
+        } else {
+            this.invalidData = false;
+            switch (true) {
+                case UtilsNew.isNotEmpty(inputDates?.from) && UtilsNew.isEmpty(inputDates?.to):
+                    date = `${inputDates?.from}`;
+                    break;
+                case hasBothDateValue:
+                    date = `${inputDates?.from}-${inputDates?.to}`;
+                    break;
+                case UtilsNew.isEmpty(inputDates?.from) && UtilsNew.isNotEmpty(inputDates?.to):
+                    date = `${moment(inputDates?.to, "YYYYMMDD").year()}-${inputDates?.to}`;
+                    break;
+                default:
+                    break;
+            }
+            LitUtils.dispatchCustomEvent(this, "filterChange", date);
+        }
     }
 
     render() {
@@ -117,6 +128,20 @@ export default class DatePicker extends LitElement {
                             field: "to",
                             type: "input-date",
                             save: value => moment(value, "YYYY-MM-DD").format("YYYYMMDD")
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: () =>
+                                    html` ${
+                                        this.invalidData ? html`
+                                            <div class="d-flex" style="color:#a94442">
+                                                Invalid Date
+                                            </div>
+                                        `: nothing
+                                    }`,
+                                visible: this.invalidData,
+                            }
                         }
                     ]
                 }
