@@ -70,6 +70,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 subcategory: "ontology",
                 operation: "search",
                 searchField: "id,name",
+                getSearchField: term => {
+                    return /^[^:\s]+:/.test(term) ? "id": "name";
+                },
                 placeholder: "Start typing...",
                 queryParams: {},
                 // Pre-process the results of the query if needed.
@@ -81,6 +84,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 operation: "search",
                 // searchField is a query param referring one of the endpoints fields
                 searchField: "name",
+                getSearchField: term => term.startsWith("ENSG0") ? "id" : "name",
                 valueField: "name",
                 placeholder: "Start typing...",
                 queryParams: {},
@@ -170,7 +174,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         return html`
             <select-token-filter
                 .value="${this.value}"
-                .keyObject="${this.RESOURCES[this.resource].valueField || null}"
+                .keyObject="${this.RESOURCES[this.resource].valueField || "id"}"
                 .classes="${this.classes}"
                 .config="${this._config}"
                 @filterChange="${e => this.onFilterChange(e)}">
@@ -179,13 +183,13 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     }
 
     getDefaultConfig() {
-        const searchField = this.searchField || this.RESOURCES[this.resource].searchField || "";
-        const searchFields = searchField ? searchField.split(",").map(s => s.trim()) : null;
+        // const searchField = this.searchField || this.RESOURCES[this.resource].searchField || "";
+        // const searchFields = searchField ? searchField.split(",").map(s => s.trim()) : null;
         return {
             disabled: false,
             multiple: false,
             freeTag: true,
-            searchField: searchField,
+            // searchField: searchField,
             limit: 10,
             maxItems: 0, // No limit set
             minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
@@ -200,8 +204,28 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                     skip: (page - 1) * this._config.limit,
                 };
                 const options = {};
-                let queries = [];
+                // let queries = [];
                 if (params?.data?.term) {
+                    const currentSearchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
+                    console.log("Current search field: ", currentSearchField);
+                    const queryParamsField = {
+                        [`${currentSearchField}`]: `~/${params?.data?.term}/i`,
+                        ...queryParams,
+                    };
+                    try {
+                        const response = await this.cellbaseClient.get(
+                            this.RESOURCES[this.resource].category,
+                            this.RESOURCES[this.resource].subcategory,
+                            "",
+                            this.RESOURCES[this.resource].operation,
+                            queryParamsField,
+                            options);
+                        success(response);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                /*
                     if (searchFields) {
                         queries = searchFields.map(searchField => {
                             const queryParamsField = {
@@ -224,6 +248,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                         // TODO Vero 20230928: manage failure
                         console.log(error);
                     });
+                     */
             },
             filterResults: results => this.#filterResults(results),
             formatResult: result => this.#formatResult(result),
