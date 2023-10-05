@@ -64,6 +64,19 @@ export default class IndividualCreate extends LitElement {
         this.requestUpdate();
     }
 
+    #fillSectionItem(currentItem, data) {
+        // Object.entries(data).forEach(([key, value]) => {
+        //     currentItem[key] = data[key] ?? value;
+        // });
+        currentItem.id = data.id ?? currentItem.id;
+        currentItem.name = data.name ?? currentItem.name;
+        currentItem.source = data.source ?? currentItem.source;
+        currentItem.description = data.description ?? currentItem.description;
+
+        this.individual = {...this.individual};
+        this.requestUpdate();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
@@ -405,29 +418,20 @@ export default class IndividualCreate extends LitElement {
                                 `,
                             },
                             elements: [
-                                // {
-                                //     title: "Phenotype ID",
-                                //     field: "phenotypes[].id",
-                                //     type: "input-text",
-                                //     display: {
-                                //         placeholder: "Add phenotype ID...",
-                                //     },
-                                // },
                                 {
                                     title: "Phenotype ID",
                                     field: "phenotypes[].id",
                                     type: "custom",
                                     display: {
                                         placeholder: "Add phenotype ID......",
-                                        render: (data, dataFormFilterChange) => {
+                                        render: (data, dataFormFilterChange, updateParams, allData, currentItem) => {
                                             return html `
                                                 <cellbase-search-autocomplete
-                                                        .value="${data}"
-                                                        .resource="${"PHENOTYPE"}"
-                                                        .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                        .config="${{multiple: false}}"
-                                                        .searchField="${"id"}"
-                                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                    .value="${data}"
+                                                    .resource="${"PHENOTYPE"}"
+                                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                                    .searchField="${"id"}"
+                                                    @filterChange="${e => this.#fillSectionItem(currentItem, e.detail.data)}">
                                                 </cellbase-search-autocomplete>
                                             `;
                                         },
@@ -439,15 +443,14 @@ export default class IndividualCreate extends LitElement {
                                     type: "custom",
                                     display: {
                                         placeholder: "Add phenotype name...",
-                                        render: (data, dataFormFilterChange) => {
+                                        render: (data, dataFormFilterChange, updateParams, allData, currentItem) => {
                                             return html `
                                                 <cellbase-search-autocomplete
                                                     .value="${data}"
                                                     .resource="${"PHENOTYPE"}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                    .config="${{multiple: false}}"
                                                     .searchField="${"name"}"
-                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                    @filterChange="${e => this.#fillSectionItem(currentItem, e.detail.data)}">
                                                 </cellbase-search-autocomplete>
                                             `;
                                         },
