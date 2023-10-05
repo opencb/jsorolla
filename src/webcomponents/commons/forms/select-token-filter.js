@@ -237,9 +237,6 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const data = this.select.select2("data") || [];
-        // FIXME: selection is always propagating the id but we are using now
-        //  autocomplete in fields like name.
-        // const selection = data.map(el => el.id).join(",");
         const selection = data.map(el => el[this.keyObject]).join(",");
         LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
             data: e.params?.data || [],
