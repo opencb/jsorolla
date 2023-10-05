@@ -368,18 +368,11 @@ export default class DiseasePanelCreate extends LitElement {
                                     display: {
                                         placeholder: "Add gene...",
                                         render: (data, dataFormFilterChange) => {
-                                            // return html`
-                                            //     <feature-filter
-                                            //         .query="${{gene: data}}"
-                                            //         .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                            //         .config="${{multiple: false}}"
-                                            //         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                            //     </feature-filter>
-                                            // `;
                                             return html `
                                                 <cellbase-search-autocomplete
                                                     .value="${data}"
                                                     .resource="${"GENE"}"
+                                                    .searchField="${"name"}"
                                                     .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                                     .config="${{multiple: false}}"
                                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
