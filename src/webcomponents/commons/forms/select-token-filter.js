@@ -39,6 +39,9 @@ export default class SelectTokenFilter extends LitElement {
             value: {
                 type: String
             },
+            keyObject: {
+                type: String,
+            },
             classes: {
                 type: String
             },
@@ -50,6 +53,9 @@ export default class SelectTokenFilter extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
+        // Optional property that specifies the object key that will be dispatched as selected value.
+        // If not specified, the default value will be "id"
+        this.keyObject = "id";
     }
 
     firstUpdated() {
@@ -71,10 +77,11 @@ export default class SelectTokenFilter extends LitElement {
                 // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
                 processResults: (restResponse, params) => {
                     // 1. Results
+                    // FIXME: find example with duplicated result by id. Remove duplicates
                     let results = (restResponse.constructor === Array) ?
                         [].concat(...restResponse.map(response => response.getResults())) :
                         restResponse.getResults();
-                    results = this._config.preprocessResults(results) ?? results;
+                    results = this._config.filterResults?.(results) ?? this._config.preprocessResults(results);
                     // 2. Pagination
                     const _params = params;
                     _params.page = _params.page || 1;
@@ -97,14 +104,14 @@ export default class SelectTokenFilter extends LitElement {
                     `);
                 }
                 try {
-                    return this._config.templateResult?.(item) ?? this.#templateResultsDefault(item);
+                    return this._config.formatResult?.(item) ?? this.#templateResultsDefault(item);
                 } catch (e) {
                     console.error(e);
                 }
             },
             // Customisation of the selected result
             templateSelection: item => {
-                return item.name ?? item.id;
+                return this._config.formatSelection?.(item) ?? item.id ?? item.text;
             },
             ...this._config
         })
@@ -120,28 +127,30 @@ export default class SelectTokenFilter extends LitElement {
         // Item can be:
         //  - Text typed. item: {id: "text typed", text: "text typed"}
         //  - Rest api result: item: {id: "", name: "", description: "", etc.}
-        //  - Existing ID (i.e. Individual, phenotype filter)
-        // If free text response has been configured (tags=true),
-        // one of the items to process will be the text typed.
+        //  - Array of strings, item is a string (i.e. Individual, phenotype filter)
         // QUESTION: A way for distinguishing  from result:
         //  - this._config.freeTag
         //  - name === undefined => Weak condition
+        // If free text response has been configured (tags=true),
+        // one of the items to process will be the text typed.
         // If name is not defined it means tags=true,
-        // _config.fields() mapper function is defined but the user is typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
-        const {name, ...rest} = item;
-        // return item.queryResult ? $(`
-        return item.name ? $(`
-            <span>${item.name}</span>
-            ${
-            (rest ? Object.entries(rest)
+        // this._config.fields() mapper function is defined but the user is typing a non existing word (in data source).
+        // This avoids printing `undefined` in dropdown.
+        try {
+            const {name, ...rest} = this._config.fields(item) ?? item.id;
+            // return item.queryResult ? $(`
+            return item.name ? $(`
+                <span>${item.name}</span>
+                ${(rest ? Object.entries(rest)
                 .map(([label, value]) => `
-                    <p class="dropdown-item-extra">
-                        <label>${label}</label> ${value || "-"}
-                    </p>
-                 `)
-                .join("") : "")
-            }
-        `) : item.id;
+                        <p class="dropdown-item-extra">
+                            <label>${label}</label> ${value || "-"}
+                        </p>`)
+                .join("") : "")}
+            `) : item.id;
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     update(changedProperties) {
@@ -228,9 +237,12 @@ export default class SelectTokenFilter extends LitElement {
         // this component only needs to split by all separators (defined in config) in updated() fn,
         // but it doesn't need to reckon which one is being used at the moment (some tokens can contain commas (e.g. in HPO))
         const data = this.select.select2("data") || [];
-        const selection = data.map(el => el.id).join(",");
+        // FIXME: selection is always propagating the id but we are using now
+        //  autocomplete in fields like name.
+        // const selection = data.map(el => el.id).join(",");
+        const selection = data.map(el => el[this.keyObject]).join(",");
         LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
-            items: data,
+            data: e.params?.data || [],
         });
     }
 
@@ -274,7 +286,7 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     render() {
-        if (this._config.fileUpload) {
+        if (this._config?.fileUpload) {
             return html`
                 <form>
                     <div id="${this._prefix}-select-wrapper">
