@@ -176,7 +176,7 @@ export default class SampleGrid extends LitElement {
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                loadingTemplate: () => this.gridCommons.loadingFormatter(),
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -290,7 +290,7 @@ export default class SampleGrid extends LitElement {
             detailFormatter: this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row

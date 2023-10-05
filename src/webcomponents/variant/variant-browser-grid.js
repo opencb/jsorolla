@@ -195,7 +195,7 @@ export default class VariantBrowserGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 // formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
-                loadingTemplate: () => this.gridCommons.loadingFormatter(),
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
@@ -340,7 +340,7 @@ export default class VariantBrowserGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
             // formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
             onClickRow: (row, $element) => {

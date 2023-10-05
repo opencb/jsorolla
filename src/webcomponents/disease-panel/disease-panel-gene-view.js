@@ -102,7 +102,7 @@ export default class DiseasePanelGeneView extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPageChange: (page, size) => {
             //     const result = this.gridCommons.onPageChange(page, size);

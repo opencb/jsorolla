@@ -139,7 +139,7 @@ export default class PermissionBrowserGrid extends LitElement {
             detailView: this._config.detailView,
             // detailFormatter: this.detailFormatter,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row

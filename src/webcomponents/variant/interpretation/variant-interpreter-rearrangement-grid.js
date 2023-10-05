@@ -249,7 +249,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 // detailView: this._config.detailView,
                 // detailFormatter: this.detailFormatter,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                loadingTemplate: () => this.gridCommons.loadingFormatter(),
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
 
@@ -332,7 +332,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             // detailView: this._config.detailView,
             // detailFormatter: this.detailFormatter,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
 

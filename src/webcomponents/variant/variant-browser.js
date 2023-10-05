@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import VariantUtils from "./variant-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
+import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/tool-header.js";
 import "./variant-browser-filter.js";
@@ -331,12 +330,7 @@ export default class VariantBrowser extends LitElement {
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue.</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`

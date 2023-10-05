@@ -148,7 +148,7 @@ export default class StudyAdminAudit extends LitElement {
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                loadingTemplate: () => this.gridCommons.loadingFormatter(),
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     const query = {
                         study: this.study.fqn,

@@ -128,7 +128,7 @@ export default class RgaGeneView extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,

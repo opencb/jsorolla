@@ -164,7 +164,7 @@ export default class CohortGrid extends LitElement {
             detailFormatter: this.detailFormatter,
             gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            loadingTemplate: () => this.gridCommons.loadingFormatter(),
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -211,7 +211,7 @@ export default class CohortGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                loadingTemplate: () => this.gridCommons.loadingFormatter(),
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
                         sort: this.table.bootstrapTable("getOptions").sortName,

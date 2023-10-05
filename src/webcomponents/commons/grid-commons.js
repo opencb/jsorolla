@@ -33,6 +33,10 @@ export default class GridCommons {
         detailClose: "fa-minus"
     }
 
+    static loadingFormatter() {
+        return "<div style='margin-top:5%'><loading-spinner></loading-spinner></div>";
+    }
+
     constructor(gridId, context, config) {
         this.gridId = gridId;
         this.context = context;
@@ -304,10 +308,6 @@ export default class GridCommons {
         }
         // No extensions to inject, just return the original columns list
         return columns;
-    }
-
-    loadingFormatter() {
-        return "<div style='margin-top:5%'><loading-spinner></loading-spinner></div>";
     }
 
 }
