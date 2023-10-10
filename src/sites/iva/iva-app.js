@@ -338,15 +338,16 @@ class IvaApp extends LitElement {
             const opencgaVersion = serverConf?.version || this.config.opencga.version;
             const opencgaPrefix = serverConf?.cookie?.prefix || this.config.opencga.cookie.prefix;
             const opencgaSsoActive = serverConf?.sso?.active ?? this.config.opencga.sso?.active ?? false;
-            const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
+            // const opencgaSsoCookie = serverConf?.sso?.cookie ?? this.config.opencga.sso?.cookie ?? "JSESSIONID";
 
             // Check if SSO mode is enabled
             if (opencgaSsoActive) {
                 const currentUrl = new URL(window.location);
-                if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
+                // if (currentUrl.searchParams.has("token") && currentUrl.searchParams.has(opencgaSsoCookie)) {
+                if (currentUrl.searchParams.has("token")) {
                     // Save token and session ID in cookies
                     // eslint-disable-next-line no-undef
-                    Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
+                    // Cookies.set(opencgaSsoCookie, currentUrl.searchParams.get(opencgaSsoCookie), {secure: true});
                     // eslint-disable-next-line no-undef
                     Cookies.set(opencgaPrefix + "_sid", currentUrl.searchParams.get("token"), {secure: true});
 
@@ -640,7 +641,7 @@ class IvaApp extends LitElement {
         // Check if sso is active: we will redirect to 'meta/sso/logout' endpoint
         if (this.opencgaClient?._config?.sso) {
             // eslint-disable-next-line no-undef
-            Cookies.expire("JSESSIONID");
+            // Cookies.expire("JSESSIONID");
 
             const config = this.opencgaClient._config;
             const ivaUrl = window.location;
