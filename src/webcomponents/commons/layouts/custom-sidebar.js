@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
-
 export default class CustomSidebar extends LitElement {
 
     constructor() {
@@ -60,7 +59,6 @@ export default class CustomSidebar extends LitElement {
             </style>
         `;
     }
-
 
     render() {
         return html`
