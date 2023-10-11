@@ -16,7 +16,6 @@
  */
 
 import {html, LitElement} from "lit";
-import UtilsTest from "../../../../cypress/support/utils-test.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 import "../../../webcomponents/variant/interpretation/variant-interpreter-grid.js";
